@@ -20,16 +20,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Test {@link InterpolatedNodalCurve}.
@@ -104,21 +101,15 @@ public class InterpolatedNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_lookup() {
     InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    Interpolator1D combined = new CombinedInterpolatorExtrapolator(
-        Interpolator1DFactory.LOG_LINEAR_INSTANCE,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
-    Interpolator1DDataBundle bundle = combined.getDataBundle(XVALUES.toArray(), YVALUES.toArray());
+    BoundCurveInterpolator interp = INTERPOLATOR.bind(XVALUES, YVALUES, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     assertThat(test.yValue(XVALUES.get(0))).isEqualTo(YVALUES.get(0));
     assertThat(test.yValue(XVALUES.get(1))).isEqualTo(YVALUES.get(1));
     assertThat(test.yValue(XVALUES.get(2))).isEqualTo(YVALUES.get(2));
-    assertThat(test.yValue(10d)).isEqualTo(combined.interpolate(bundle, 10d));
+    assertThat(test.yValue(10d)).isEqualTo(interp.interpolate(10d));
 
     assertThat(test.yValueParameterSensitivity(10d).getMarketDataName()).isEqualTo(CURVE_NAME);
-    assertThat(test.yValueParameterSensitivity(10d).getSensitivity())
-        .isEqualTo(DoubleArray.copyOf(combined.getNodeSensitivitiesForValue(bundle, 10d)));
-
-    assertThat(test.firstDerivative(10d)).isEqualTo(combined.firstDerivative(bundle, 10d));
+    assertThat(test.yValueParameterSensitivity(10d).getSensitivity()).isEqualTo(interp.parameterSensitivity(10d));
+    assertThat(test.firstDerivative(10d)).isEqualTo(interp.firstDerivative(10d));
   }
 
   //-------------------------------------------------------------------------
