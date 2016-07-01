@@ -22,7 +22,6 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 public interface IborFutureTemplate
     extends TradeTemplate {
 
-  //-------------------------------------------------------------------------
   /**
    * Obtains a template based on the specified convention using a relative definition of time.
    * <p>
