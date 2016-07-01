@@ -47,8 +47,8 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.pricer.impl.rate.swap.CashFlowEquivalentCalculator;
 import com.opengamma.strata.pricer.index.HullWhiteIborFutureDataSet;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParametersProvider;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;

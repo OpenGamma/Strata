@@ -14,7 +14,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantParameters}.
@@ -49,7 +49,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersTest {
     HullWhiteOneFactorPiecewiseConstantParameters base =
         HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     DoubleArray newVol = DoubleArray.of(0.04, 0.012, 0.016, 0.019, 0.024);
-    HullWhiteOneFactorPiecewiseConstantParameters test = base.setVolatility(newVol);
+    HullWhiteOneFactorPiecewiseConstantParameters test = base.withVolatility(newVol);
     assertEquals(test.getLastVolatility(), newVol.get(newVol.size() - 1));
     assertEquals(test.getMeanReversion(), base.getMeanReversion());
     assertEquals(test.getVolatility(), newVol);
@@ -60,7 +60,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersTest {
     HullWhiteOneFactorPiecewiseConstantParameters base =
         HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     double lastVol = 0.092;
-    HullWhiteOneFactorPiecewiseConstantParameters test = base.setLastVolatility(lastVol);
+    HullWhiteOneFactorPiecewiseConstantParameters test = base.withLastVolatility(lastVol);
     assertEquals(test.getLastVolatility(), lastVol);
     assertEquals(test.getMeanReversion(), base.getMeanReversion());
     assertEquals(test.getVolatility(), DoubleArray.of(0.01, 0.011, 0.012, 0.013, lastVol));
@@ -72,7 +72,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersTest {
         HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     double time = 7.0;
     double vol = 0.015;
-    HullWhiteOneFactorPiecewiseConstantParameters test = base.addVolatility(vol, time);
+    HullWhiteOneFactorPiecewiseConstantParameters test = base.withVolatilityAdded(vol, time);
     assertEquals(test.getLastVolatility(), vol);
     assertEquals(test.getMeanReversion(), MEAN_REVERSION);
     assertEquals(test.getVolatility(), DoubleArray.of(0.01, 0.011, 0.012, 0.013, 0.014, vol));
@@ -94,7 +94,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersTest {
         HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     double time = 3.0;
     double vol = 0.015;
-    assertThrowsIllegalArg(() -> base.addVolatility(vol, time));
+    assertThrowsIllegalArg(() -> base.withVolatilityAdded(vol, time));
   }
 
   //-------------------------------------------------------------------------
