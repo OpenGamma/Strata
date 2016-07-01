@@ -40,11 +40,9 @@ public class ResolvedSwaptionTest {
       .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE, REF_DATA).getProduct().resolve(REF_DATA);
   private static final ZoneId EUROPE_LONDON = ZoneId.of("Europe/London");
   private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 6, 13, 11, 0, 0, 0, EUROPE_LONDON);
-  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
-  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
-      .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SWAP.getLegs().get(0).getStartDate())
-      .build();
+  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSwaptionSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE =
+      CashSwaptionSettlement.of(SWAP.getLegs().get(0).getStartDate(), CashSwaptionSettlementMethod.PAR_YIELD);
 
   //-------------------------------------------------------------------------
   public void test_builder() {

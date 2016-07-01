@@ -12,25 +12,25 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link PhysicalSettlement}.
+ * Test {@link PhysicalSwaptionSettlement}.
  */
 @Test
-public class PhysicalSettlementTest {
+public class PhysicalSwaptionSettlementTest {
 
   //-------------------------------------------------------------------------
   public void test_DEFAULT() {
-    PhysicalSettlement test = PhysicalSettlement.DEFAULT;
+    PhysicalSwaptionSettlement test = PhysicalSwaptionSettlement.DEFAULT;
     assertEquals(test.getSettlementType(), SettlementType.PHYSICAL);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    PhysicalSettlement test = PhysicalSettlement.DEFAULT;
+    PhysicalSwaptionSettlement test = PhysicalSwaptionSettlement.DEFAULT;
     coverImmutableBean(test);
   }
 
   public void test_serialization() {
-    PhysicalSettlement test = PhysicalSettlement.DEFAULT;
+    PhysicalSwaptionSettlement test = PhysicalSwaptionSettlement.DEFAULT;
     assertSerialization(test);
   }
 
