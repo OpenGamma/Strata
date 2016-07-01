@@ -741,7 +741,7 @@ public class PiecewisePolynomialFunction1DTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constFuncDiffTest() {
     DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {-1 }, {20 }, {0. }, {5 }, {1. }, {0. } });
@@ -752,13 +752,13 @@ public class PiecewisePolynomialFunction1DTest {
     PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
-    function.differentiate(pp, xKeys[0]);
+    assertEquals(function.differentiate(pp, xKeys[0]), DoubleArray.filled(dim));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constFuncDiffMultiTest() {
     DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {-1 }, {20 }, {0. }, {5 }, {1. }, {0. } });
@@ -769,13 +769,13 @@ public class PiecewisePolynomialFunction1DTest {
     PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
-    function.differentiate(pp, xKeys);
+    assertEquals(function.differentiate(pp, xKeys), DoubleMatrix.filled(dim, xKeys.length));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linearFuncDiffTwiceTest() {
     DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3. }, {0., 5. }, {1., 0. }, {0., 5. }, {1., 3. }, {0., 5. } });
@@ -785,14 +785,14 @@ public class PiecewisePolynomialFunction1DTest {
 
     PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
-
-    function.differentiateTwice(pp, xKeys[0]);
+    DoubleArray computed = function.differentiateTwice(pp, xKeys[0]);
+    assertEquals(computed, DoubleArray.of(0d, 0d));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linearFuncDiffTwiceMultiTest() {
     DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] { {1., -3. }, {0., 5. }, {1., 0. }, {0., 5. }, {1., 3. }, {0., 5. } });
@@ -802,8 +802,8 @@ public class PiecewisePolynomialFunction1DTest {
 
     PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
-
-    function.differentiateTwice(pp, xKeys);
+    DoubleMatrix computed = function.differentiateTwice(pp, xKeys);
+    assertEquals(computed, DoubleMatrix.filled(2, 4, 0d));
   }
 
   /**

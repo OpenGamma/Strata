@@ -46,7 +46,7 @@ public class PiecewisePolynomialFunction1D {
 
     // check for 1 less interval that knots 
     int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
+    int indicator = (lowerBound == nKnots - 1 && nKnots != 1) ? lowerBound - 1 : lowerBound;
 
     return DoubleArray.of(pp.getDimensions(), i -> {
       DoubleArray coefs = coefMatrix.row(pp.getDimensions() * indicator + i);
@@ -86,7 +86,7 @@ public class PiecewisePolynomialFunction1D {
     for (int k = 0; k < dim; ++k) {
       for (int j = 0; j < keyLength; ++j) {
         int indicator = 0;
-        if (xKeys[j] < knots.get(1)) {
+        if (xKeys[j] < knots.get(0)) {
           indicator = 0;
         } else {
           for (int i = 1; i < nKnots - 1; ++i) {
@@ -139,7 +139,7 @@ public class PiecewisePolynomialFunction1D {
       for (int l = 0; l < keyDim; ++l) {
         for (int j = 0; j < keyLength; ++j) {
           int indicator = 0;
-          if (xKeys[l][j] < knots.get(1)) {
+          if (xKeys[l][j] < knots.get(0)) {
             indicator = 0;
           } else {
             for (int i = 1; i < nKnots - 1; ++i) {
@@ -176,7 +176,9 @@ public class PiecewisePolynomialFunction1D {
    */
   public DoubleArray differentiate(PiecewisePolynomialResult pp, double xKey) {
     ArgChecker.notNull(pp, "pp");
-    ArgChecker.isFalse(pp.getOrder() < 2, "polynomial degree < 1");
+    if (pp.getOrder() < 2) {
+      return DoubleArray.filled(pp.getDimensions());
+    }
 
     DoubleArray knots = pp.getKnots();
     int nCoefs = pp.getOrder();
@@ -201,7 +203,9 @@ public class PiecewisePolynomialFunction1D {
    */
   public DoubleMatrix differentiate(PiecewisePolynomialResult pp, double[] xKeys) {
     ArgChecker.notNull(pp, "pp");
-    ArgChecker.isFalse(pp.getOrder() < 2, "polynomial degree < 1");
+    if (pp.getOrder() < 2) {
+      return DoubleMatrix.filled(pp.getDimensions(), xKeys.length);
+    }
 
     DoubleArray knots = pp.getKnots();
     int nCoefs = pp.getOrder();
@@ -227,7 +231,9 @@ public class PiecewisePolynomialFunction1D {
    */
   public DoubleArray differentiateTwice(PiecewisePolynomialResult pp, double xKey) {
     ArgChecker.notNull(pp, "pp");
-    ArgChecker.isFalse(pp.getOrder() < 3, "polynomial degree < 2");
+    if (pp.getOrder() < 3) {
+      return DoubleArray.filled(pp.getDimensions());
+    }
 
     DoubleArray knots = pp.getKnots();
     int nCoefs = pp.getOrder();
@@ -252,7 +258,9 @@ public class PiecewisePolynomialFunction1D {
    */
   public DoubleMatrix differentiateTwice(PiecewisePolynomialResult pp, double[] xKeys) {
     ArgChecker.notNull(pp, "pp");
-    ArgChecker.isFalse(pp.getOrder() < 3, "polynomial degree < 2");
+    if (pp.getOrder() < 3) {
+      return DoubleMatrix.filled(pp.getDimensions(), xKeys.length);
+    }
 
     DoubleArray knots = pp.getKnots();
     int nCoefs = pp.getOrder();
@@ -407,10 +415,8 @@ public class PiecewisePolynomialFunction1D {
 
     DoubleArray knots = pp.getKnots();
     int nKnots = knots.size();
-    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (interval == nKnots - 1) {
-      interval--; // there is 1 less interval that knots
-    }
+    int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    int interval = (lowerBound == nKnots - 1 && nKnots != 1) ? lowerBound - 1 : lowerBound;
 
     double s = xKey - knots.get(interval);
     DoubleArray coefs = pp.getCoefMatrix().row(interval);

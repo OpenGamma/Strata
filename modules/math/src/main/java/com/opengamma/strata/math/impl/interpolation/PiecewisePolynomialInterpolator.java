@@ -47,7 +47,7 @@ public abstract class PiecewisePolynomialInterpolator {
     double res = 0.;
 
     int indicator = 0;
-    if (xKey < knots.get(1)) {
+    if (xKey < knots.get(0)) {
       indicator = 0;
     } else {
       for (int i = 1; i < nKnots - 1; ++i) {
@@ -88,7 +88,7 @@ public abstract class PiecewisePolynomialInterpolator {
 
     for (int j = 0; j < keyLength; ++j) {
       int indicator = 0;
-      if (xKeys[j] < knots.get(1)) {
+      if (xKeys[j] < knots.get(0)) {
         indicator = 0;
       } else {
         for (int i = 1; i < nKnots - 1; ++i) {

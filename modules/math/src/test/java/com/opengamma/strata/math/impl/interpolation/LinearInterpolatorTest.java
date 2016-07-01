@@ -6,11 +6,17 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
+import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 
 /**
  * Test.
@@ -20,69 +26,71 @@ public class LinearInterpolatorTest {
 
   private static final double EPS = 1e-14;
   private static final double INF = 1. / 0.;
+  private static final LinearInterpolator INTERP = new LinearInterpolator();
 
   /**
    * 
    */
   public void recov2ptsTest() {
-    final double[] xValues = new double[] {1., 2. };
-    final double[] yValues = new double[] {6., 1. };
+    double[] xValues = new double[] {1., 2.};
+    double[] yValues = new double[] {6., 1.};
 
-    final int nIntervalsExp = 1;
-    final int orderExp = 2;
-    final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] {{-5., 6. } };
-
-    LinearInterpolator interpMatrix = new LinearInterpolator();
-
-    PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
-
+    int nIntervalsExp = 1;
+    int orderExp = 2;
+    int dimExp = 1;
+    double[][] coefsMatExp = new double[][] {{-5., 6.}};
+    PiecewisePolynomialResult result = INTERP.interpolate(xValues, yValues);
     assertEquals(result.getDimensions(), dimExp);
     assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
     assertEquals(result.getDimensions(), dimExp);
 
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
-        final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
+        double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
         assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
-
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
       assertEquals(result.getKnots().get(j), xValues[j]);
     }
+
+    // sensitivity
+    double delta = 1.0e-6;
+    double[] keys = new double[] {-1.2, 1.63, 2.3};
+    testSensitivity(xValues, yValues, keys, delta);
   }
 
   /**
    * 
    */
   public void recov4ptsTest() {
-    final double[] xValues = new double[] {1., 2., 4., 7. };
-    final double[] yValues = new double[] {6., 1., 8., -2. };
+    double[] xValues = new double[] {1., 2., 4., 7.};
+    double[] yValues = new double[] {6., 1., 8., -2.};
 
-    final int nIntervalsExp = 3;
-    final int orderExp = 2;
-    final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {-5., 6. }, {7. / 2., 1. }, {-10. / 3., 8. } };
-
+    int nIntervalsExp = 3;
+    int orderExp = 2;
+    int dimExp = 1;
+    double[][] coefsMatExp = new double[][] {{-5., 6.}, {7. / 2., 1.}, {-10. / 3., 8.}};
     LinearInterpolator interpMatrix = new LinearInterpolator();
-
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
-
     assertEquals(result.getDimensions(), dimExp);
     assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
     assertEquals(result.getDimensions(), dimExp);
 
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
-        final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
+        double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
         assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
-
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
       assertEquals(result.getKnots().get(j), xValues[j]);
     }
+
+    // sensitivity
+    double delta = 1.0e-6;
+    double[] keys = new double[] {-1.5, 2.43, 4.0, 7.0, 12.7};
+    testSensitivity(xValues, yValues, keys, delta);
   }
 
   /**
@@ -131,14 +139,23 @@ public class LinearInterpolatorTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void shortDataLengthTest() {
     double[] xValues = new double[] {1. };
     double[] yValues = new double[] {4. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    double[] keys = new double[] {-1.5, 1.0, 2.3};
+    PiecewisePolynomialResult computed = INTERP.interpolate(xValues, yValues);
+    PiecewisePolynomialResult expected =
+        new PiecewisePolynomialResult(DoubleArray.ofUnsafe(xValues), DoubleMatrix.filled(1, 1, yValues[0]), 1, 1);
+    assertEquals(computed, expected);
+    assertTrue(DoubleArrayMath.fuzzyEquals(
+        INTERP.interpolate(xValues, yValues, keys).toArray(), new double[] {4.0, 4.0, 4.0}, 0d));
+    assertEquals(INTERP.interpolate(xValues, yValues, 1.2), 4.0);
+    PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
+    assertEquals(func.evaluate(computed, 2.5).get(0), 4.0);
+    assertTrue(DoubleArrayMath.fuzzyEquals(func.evaluate(computed, keys).rowArray(0), new double[] {4.0, 4.0, 4.0}, 0d));
+    double delta = 1.0e-6;
+    testSensitivity(xValues, yValues, keys, delta);
   }
 
   /**
@@ -316,14 +333,28 @@ public class LinearInterpolatorTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void shortDataLengthMultiTest() {
     double[] xValues = new double[] {1. };
     double[][] yValues = new double[][] { {4. }, {1. } };
 
     LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    PiecewisePolynomialResult computed = interp.interpolate(xValues, yValues);
+    PiecewisePolynomialResult expected =
+        new PiecewisePolynomialResult(DoubleArray.ofUnsafe(xValues), DoubleMatrix.ofUnsafe(yValues), 1, 2);
+    assertEquals(computed, expected);
+    
+    assertTrue(DoubleArrayMath.fuzzyEquals(
+        interp.interpolate(xValues, yValues, new double[] {2, 3, 5}).rowArray(0), new double[] {4., 4., 4.}, 0d));
+    assertEquals(interp.interpolate(xValues, yValues, 1.2).get(0), 4.);
+    assertEquals(interp.interpolate(xValues, yValues, 1.2).get(1), 1.);
+    PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
+    assertEquals(func.evaluate(computed, 2.5).get(0), 4.);
+    assertEquals(func.evaluate(computed, 2.5).get(1), 1.);
+    assertTrue(DoubleArrayMath.fuzzyEquals(func.evaluate(computed, new double[] {2.5, 1.5}).rowArray(0),
+        new double[] {4., 4.}, 0d));
+    assertTrue(DoubleArrayMath.fuzzyEquals(func.evaluate(computed, new double[] {2.5, 1.5}).rowArray(1),
+        new double[] {1., 1.}, 0d));
   }
 
   /**
@@ -580,4 +611,22 @@ public class LinearInterpolatorTest {
     interpPos.interpolate(xValues, yValues);
   }
 
+  //-------------------------------------------------------------------------
+  private void testSensitivity(double[] xValues, double[] yValues, double[] keys, double delta) {
+    PiecewisePolynomialWithSensitivityFunction1D func = new PiecewisePolynomialWithSensitivityFunction1D();
+    PiecewisePolynomialResultsWithSensitivity resultSensi = INTERP.interpolateWithSensitivity(xValues, yValues);
+    DoubleArray[] computedArray = func.nodeSensitivity(resultSensi, keys);
+    for (int i = 0; i < keys.length; ++i) {
+      double base = func.evaluate(resultSensi, keys[i]).get(0);
+      DoubleArray computed = func.nodeSensitivity(resultSensi, keys[i]);
+      assertEquals(computed, computedArray[i]);
+      for (int j = 0; j < yValues.length; ++j) {
+        double[] yValuesBump = Arrays.copyOf(yValues, yValues.length);
+        yValuesBump[j] += delta;
+        PiecewisePolynomialResult resultBump = INTERP.interpolate(xValues, yValuesBump);
+        double expected = (func.evaluate(resultBump, keys[i]).get(0) - base) / delta;
+        assertEquals(computed.get(j), expected, delta);
+      }
+    }
+  }
 }

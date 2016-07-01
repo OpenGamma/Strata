@@ -38,10 +38,8 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     DoubleArray knots = pp.getKnots();
     int nKnots = knots.size();
-    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (interval == nKnots - 1) {
-      interval--; // there is 1 less interval that knots
-    }
+    int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    int interval = (lowerBound == nKnots - 1 && nKnots != 1) ? lowerBound - 1 : lowerBound;
 
     double s = xKey - knots.get(interval);
     DoubleMatrix a = pp.getCoefficientSensitivity(interval);
@@ -82,10 +80,8 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     for (int j = 0; j < nKeys; ++j) {
       double xKey = xKeys[j];
-      int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-      if (interval == nKnots - 1) {
-        interval--; // there is 1 less interval that knots
-      }
+      int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
+      int interval = (lowerBound == nKnots - 1 && nKnots != 1) ? lowerBound - 1 : lowerBound;
 
       double s = xKey - knots.get(interval);
       DoubleMatrix a = pp.getCoefficientSensitivity(interval);
@@ -122,10 +118,8 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     DoubleArray knots = pp.getKnots();
     int nKnots = knots.size();
-    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (interval == nKnots - 1) {
-      interval--; // there is 1 less interval that knots
-    }
+    int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    int interval = (lowerBound == nKnots - 1 && nKnots != 1) ? lowerBound - 1 : lowerBound;
 
     double s = xKey - knots.get(interval);
     DoubleMatrix a = pp.getCoefficientSensitivity(interval);
@@ -196,10 +190,8 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     DoubleArray knots = pp.getKnots();
     int nKnots = knots.size();
-    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (interval == nKnots - 1) {
-      interval--; // there is 1 less interval that knots
-    }
+    int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    int interval = (lowerBound == nKnots - 1 && nKnots != 1) ? lowerBound - 1 : lowerBound;
 
     double s = xKey - knots.get(interval);
     DoubleMatrix a = pp.getCoefficientSensitivity(interval);

@@ -47,7 +47,7 @@ public class ResolvedCdsTrade
   private final double quantity;
 
   @PropertyDefinition
-  private final double accruedYearFraction;
+  private final double accruedInterest;
 
   @PropertyDefinition
   private final CdsQuoteConvention quoteConvention;
@@ -88,7 +88,7 @@ public class ResolvedCdsTrade
     this.info = builder.info;
     this.product = builder.product;
     this.quantity = builder.quantity;
-    this.accruedYearFraction = builder.accruedYearFraction;
+    this.accruedInterest = builder.accruedInterest;
     this.quoteConvention = builder.quoteConvention;
   }
 
@@ -144,11 +144,11 @@ public class ResolvedCdsTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accruedYearFraction.
+   * Gets the accruedInterest.
    * @return the value of the property
    */
-  public double getAccruedYearFraction() {
-    return accruedYearFraction;
+  public double getAccruedInterest() {
+    return accruedInterest;
   }
 
   //-----------------------------------------------------------------------
@@ -179,7 +179,7 @@ public class ResolvedCdsTrade
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(quantity, other.quantity) &&
-          JodaBeanUtils.equal(accruedYearFraction, other.accruedYearFraction) &&
+          JodaBeanUtils.equal(accruedInterest, other.accruedInterest) &&
           JodaBeanUtils.equal(quoteConvention, other.quoteConvention);
     }
     return false;
@@ -191,7 +191,7 @@ public class ResolvedCdsTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(accruedYearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accruedInterest);
     hash = hash * 31 + JodaBeanUtils.hashCode(quoteConvention);
     return hash;
   }
@@ -213,7 +213,7 @@ public class ResolvedCdsTrade
     buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
     buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
     buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-    buf.append("accruedYearFraction").append('=').append(JodaBeanUtils.toString(accruedYearFraction)).append(',').append(' ');
+    buf.append("accruedInterest").append('=').append(JodaBeanUtils.toString(accruedInterest)).append(',').append(' ');
     buf.append("quoteConvention").append('=').append(JodaBeanUtils.toString(quoteConvention)).append(',').append(' ');
   }
 
@@ -243,10 +243,10 @@ public class ResolvedCdsTrade
     private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedCdsTrade.class, Double.TYPE);
     /**
-     * The meta-property for the {@code accruedYearFraction} property.
+     * The meta-property for the {@code accruedInterest} property.
      */
-    private final MetaProperty<Double> accruedYearFraction = DirectMetaProperty.ofImmutable(
-        this, "accruedYearFraction", ResolvedCdsTrade.class, Double.TYPE);
+    private final MetaProperty<Double> accruedInterest = DirectMetaProperty.ofImmutable(
+        this, "accruedInterest", ResolvedCdsTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code quoteConvention} property.
      */
@@ -260,7 +260,7 @@ public class ResolvedCdsTrade
         "info",
         "product",
         "quantity",
-        "accruedYearFraction",
+        "accruedInterest",
         "quoteConvention");
 
     /**
@@ -278,8 +278,8 @@ public class ResolvedCdsTrade
           return product;
         case -1285004149:  // quantity
           return quantity;
-        case -1842856158:  // accruedYearFraction
-          return accruedYearFraction;
+        case -1933304211:  // accruedInterest
+          return accruedInterest;
         case 2049149709:  // quoteConvention
           return quoteConvention;
       }
@@ -327,11 +327,11 @@ public class ResolvedCdsTrade
     }
 
     /**
-     * The meta-property for the {@code accruedYearFraction} property.
+     * The meta-property for the {@code accruedInterest} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> accruedYearFraction() {
-      return accruedYearFraction;
+    public final MetaProperty<Double> accruedInterest() {
+      return accruedInterest;
     }
 
     /**
@@ -352,8 +352,8 @@ public class ResolvedCdsTrade
           return ((ResolvedCdsTrade) bean).getProduct();
         case -1285004149:  // quantity
           return ((ResolvedCdsTrade) bean).getQuantity();
-        case -1842856158:  // accruedYearFraction
-          return ((ResolvedCdsTrade) bean).getAccruedYearFraction();
+        case -1933304211:  // accruedInterest
+          return ((ResolvedCdsTrade) bean).getAccruedInterest();
         case 2049149709:  // quoteConvention
           return ((ResolvedCdsTrade) bean).getQuoteConvention();
       }
@@ -380,7 +380,7 @@ public class ResolvedCdsTrade
     private TradeInfo info;
     private ResolvedCds product;
     private double quantity;
-    private double accruedYearFraction;
+    private double accruedInterest;
     private CdsQuoteConvention quoteConvention;
 
     /**
@@ -397,7 +397,7 @@ public class ResolvedCdsTrade
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.quantity = beanToCopy.getQuantity();
-      this.accruedYearFraction = beanToCopy.getAccruedYearFraction();
+      this.accruedInterest = beanToCopy.getAccruedInterest();
       this.quoteConvention = beanToCopy.getQuoteConvention();
     }
 
@@ -411,8 +411,8 @@ public class ResolvedCdsTrade
           return product;
         case -1285004149:  // quantity
           return quantity;
-        case -1842856158:  // accruedYearFraction
-          return accruedYearFraction;
+        case -1933304211:  // accruedInterest
+          return accruedInterest;
         case 2049149709:  // quoteConvention
           return quoteConvention;
         default:
@@ -432,8 +432,8 @@ public class ResolvedCdsTrade
         case -1285004149:  // quantity
           this.quantity = (Double) newValue;
           break;
-        case -1842856158:  // accruedYearFraction
-          this.accruedYearFraction = (Double) newValue;
+        case -1933304211:  // accruedInterest
+          this.accruedInterest = (Double) newValue;
           break;
         case 2049149709:  // quoteConvention
           this.quoteConvention = (CdsQuoteConvention) newValue;
@@ -512,12 +512,12 @@ public class ResolvedCdsTrade
     }
 
     /**
-     * Sets the accruedYearFraction.
-     * @param accruedYearFraction  the new value
+     * Sets the accruedInterest.
+     * @param accruedInterest  the new value
      * @return this, for chaining, not null
      */
-    public Builder accruedYearFraction(double accruedYearFraction) {
-      this.accruedYearFraction = accruedYearFraction;
+    public Builder accruedInterest(double accruedInterest) {
+      this.accruedInterest = accruedInterest;
       return this;
     }
 
@@ -549,7 +549,7 @@ public class ResolvedCdsTrade
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("accruedYearFraction").append('=').append(JodaBeanUtils.toString(accruedYearFraction)).append(',').append(' ');
+      buf.append("accruedInterest").append('=').append(JodaBeanUtils.toString(accruedInterest)).append(',').append(' ');
       buf.append("quoteConvention").append('=').append(JodaBeanUtils.toString(quoteConvention)).append(',').append(' ');
     }
 

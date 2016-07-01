@@ -76,7 +76,7 @@ public final class CreditCouponPaymentPeriod
    * The coupon must be represented in fraction. 
    */
   @PropertyDefinition
-  private final double fixedRate;
+  private final double coupon;
   /**
    * The year fraction that the accrual period represents.
    * <p>
@@ -85,6 +85,11 @@ public final class CreditCouponPaymentPeriod
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double yearFraction;
+
+  //-------------------------------------------------------------------------
+  boolean contains(LocalDate date) {
+    return !date.isBefore(startDate) && date.isBefore(endDate);
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -130,7 +135,7 @@ public final class CreditCouponPaymentPeriod
       LocalDate startDate,
       LocalDate endDate,
       LocalDate paymentDate,
-      double fixedRate,
+      double coupon,
       double yearFraction) {
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegative(notional, "notional");
@@ -143,7 +148,7 @@ public final class CreditCouponPaymentPeriod
     this.startDate = startDate;
     this.endDate = endDate;
     this.paymentDate = paymentDate;
-    this.fixedRate = fixedRate;
+    this.coupon = coupon;
     this.yearFraction = yearFraction;
   }
 
@@ -233,8 +238,8 @@ public final class CreditCouponPaymentPeriod
    * The coupon must be represented in fraction.
    * @return the value of the property
    */
-  public double getFixedRate() {
-    return fixedRate;
+  public double getCoupon() {
+    return coupon;
   }
 
   //-----------------------------------------------------------------------
@@ -270,7 +275,7 @@ public final class CreditCouponPaymentPeriod
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
           JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
-          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
+          JodaBeanUtils.equal(coupon, other.coupon) &&
           JodaBeanUtils.equal(yearFraction, other.yearFraction);
     }
     return false;
@@ -284,7 +289,7 @@ public final class CreditCouponPaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     return hash;
   }
@@ -298,7 +303,7 @@ public final class CreditCouponPaymentPeriod
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
     buf.append("endDate").append('=').append(endDate).append(',').append(' ');
     buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("coupon").append('=').append(coupon).append(',').append(' ');
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
     buf.append('}');
     return buf.toString();
@@ -340,10 +345,10 @@ public final class CreditCouponPaymentPeriod
     private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
         this, "paymentDate", CreditCouponPaymentPeriod.class, LocalDate.class);
     /**
-     * The meta-property for the {@code fixedRate} property.
+     * The meta-property for the {@code coupon} property.
      */
-    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
-        this, "fixedRate", CreditCouponPaymentPeriod.class, Double.TYPE);
+    private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
+        this, "coupon", CreditCouponPaymentPeriod.class, Double.TYPE);
     /**
      * The meta-property for the {@code yearFraction} property.
      */
@@ -359,7 +364,7 @@ public final class CreditCouponPaymentPeriod
         "startDate",
         "endDate",
         "paymentDate",
-        "fixedRate",
+        "coupon",
         "yearFraction");
 
     /**
@@ -381,8 +386,8 @@ public final class CreditCouponPaymentPeriod
           return endDate;
         case -1540873516:  // paymentDate
           return paymentDate;
-        case 747425396:  // fixedRate
-          return fixedRate;
+        case -1354573786:  // coupon
+          return coupon;
         case -1731780257:  // yearFraction
           return yearFraction;
       }
@@ -446,11 +451,11 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * The meta-property for the {@code fixedRate} property.
+     * The meta-property for the {@code coupon} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> fixedRate() {
-      return fixedRate;
+    public MetaProperty<Double> coupon() {
+      return coupon;
     }
 
     /**
@@ -475,8 +480,8 @@ public final class CreditCouponPaymentPeriod
           return ((CreditCouponPaymentPeriod) bean).getEndDate();
         case -1540873516:  // paymentDate
           return ((CreditCouponPaymentPeriod) bean).getPaymentDate();
-        case 747425396:  // fixedRate
-          return ((CreditCouponPaymentPeriod) bean).getFixedRate();
+        case -1354573786:  // coupon
+          return ((CreditCouponPaymentPeriod) bean).getCoupon();
         case -1731780257:  // yearFraction
           return ((CreditCouponPaymentPeriod) bean).getYearFraction();
       }
@@ -505,7 +510,7 @@ public final class CreditCouponPaymentPeriod
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate paymentDate;
-    private double fixedRate;
+    private double coupon;
     private double yearFraction;
 
     /**
@@ -524,7 +529,7 @@ public final class CreditCouponPaymentPeriod
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.paymentDate = beanToCopy.getPaymentDate();
-      this.fixedRate = beanToCopy.getFixedRate();
+      this.coupon = beanToCopy.getCoupon();
       this.yearFraction = beanToCopy.getYearFraction();
     }
 
@@ -542,8 +547,8 @@ public final class CreditCouponPaymentPeriod
           return endDate;
         case -1540873516:  // paymentDate
           return paymentDate;
-        case 747425396:  // fixedRate
-          return fixedRate;
+        case -1354573786:  // coupon
+          return coupon;
         case -1731780257:  // yearFraction
           return yearFraction;
         default:
@@ -569,8 +574,8 @@ public final class CreditCouponPaymentPeriod
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
           break;
-        case 747425396:  // fixedRate
-          this.fixedRate = (Double) newValue;
+        case -1354573786:  // coupon
+          this.coupon = (Double) newValue;
           break;
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
@@ -613,7 +618,7 @@ public final class CreditCouponPaymentPeriod
           startDate,
           endDate,
           paymentDate,
-          fixedRate,
+          coupon,
           yearFraction);
     }
 
@@ -693,11 +698,11 @@ public final class CreditCouponPaymentPeriod
      * <p>
      * The single payment is based on this fixed coupon rate.
      * The coupon must be represented in fraction.
-     * @param fixedRate  the new value
+     * @param coupon  the new value
      * @return this, for chaining, not null
      */
-    public Builder fixedRate(double fixedRate) {
-      this.fixedRate = fixedRate;
+    public Builder coupon(double coupon) {
+      this.coupon = coupon;
       return this;
     }
 
@@ -725,7 +730,7 @@ public final class CreditCouponPaymentPeriod
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
-      buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
+      buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
       buf.append('}');
       return buf.toString();
