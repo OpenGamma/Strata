@@ -58,7 +58,7 @@ import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 
@@ -122,7 +122,7 @@ public class SabrSwaptionCubePvRiskExample {
     SwapTrade underlying = EUR_FIXED_1Y_EURIBOR_6M.createTrade(expiryDate, tenor, payer, notional, strike, REF_DATA);
     Swaption swaption = Swaption.builder().expiryDate(AdjustableDate.of(expiryDate)).expiryTime(LocalTime.of(11, 00))
         .expiryZone(ZoneId.of("Europe/Berlin")).underlying(underlying.getProduct()).longShort(LongShort.LONG)
-        .swaptionSettlement(PhysicalSettlement.DEFAULT).build();
+        .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT).build();
     ResolvedSwaption resolvedSwaption = swaption.resolve(REF_DATA);
 
     // select data

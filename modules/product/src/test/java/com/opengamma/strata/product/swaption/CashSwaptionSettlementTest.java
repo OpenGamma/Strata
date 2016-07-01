@@ -15,43 +15,31 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link CashSettlement}.
+ * Test {@link CashSwaptionSettlement}.
  */
 @Test
-public class CashSettlementTest {
+public class CashSwaptionSettlementTest {
 
   //-------------------------------------------------------------------------
-  public void test_builder() {
-    CashSettlement test = CashSettlement.builder()
-        .cashSettlementMethod(CashSettlementMethod.CASH_PRICE)
-        .settlementDate(date(2015, 6, 30))
-        .build();
-    assertEquals(test.getCashSettlementMethod(), CashSettlementMethod.CASH_PRICE);
+  public void test_of() {
+    CashSwaptionSettlement test = CashSwaptionSettlement.of(date(2015, 6, 30), CashSwaptionSettlementMethod.CASH_PRICE);
+    assertEquals(test.getMethod(), CashSwaptionSettlementMethod.CASH_PRICE);
     assertEquals(test.getSettlementDate(), date(2015, 6, 30));
     assertEquals(test.getSettlementType(), SettlementType.CASH);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CashSettlement test = CashSettlement.builder()
-        .cashSettlementMethod(CashSettlementMethod.CASH_PRICE)
-        .settlementDate(date(2015, 6, 30))
-        .build();
+    CashSwaptionSettlement test = CashSwaptionSettlement.of(date(2015, 6, 30), CashSwaptionSettlementMethod.CASH_PRICE);
     coverImmutableBean(test);
-    CashSettlement test2 = CashSettlement.builder()
-        .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-        .settlementDate(date(2015, 7, 30))
-        .build();
+    CashSwaptionSettlement test2 = CashSwaptionSettlement.of(date(2015, 7, 30), CashSwaptionSettlementMethod.PAR_YIELD);
     coverBeanEquals(test, test2);
-    coverEnum(CashSettlementMethod.class);
+    coverEnum(CashSwaptionSettlementMethod.class);
     coverEnum(SettlementType.class);
   }
 
   public void test_serialization() {
-    CashSettlement test = CashSettlement.builder()
-        .cashSettlementMethod(CashSettlementMethod.CASH_PRICE)
-        .settlementDate(date(2015, 6, 30))
-        .build();
+    CashSwaptionSettlement test = CashSwaptionSettlement.of(date(2015, 6, 30), CashSwaptionSettlementMethod.CASH_PRICE);
     assertSerialization(test);
   }
 

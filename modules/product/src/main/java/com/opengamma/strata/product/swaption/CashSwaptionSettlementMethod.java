@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * Reference: "Swaption Pricing", OpenGamma Documentation 10, Version 1.2, April 2011.
  */
-public enum CashSettlementMethod {
+public enum CashSwaptionSettlementMethod {
 
   /**
    * The cash price method
@@ -46,7 +46,7 @@ public enum CashSettlementMethod {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static CashSettlementMethod of(String uniqueName) {
+  public static CashSwaptionSettlementMethod of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

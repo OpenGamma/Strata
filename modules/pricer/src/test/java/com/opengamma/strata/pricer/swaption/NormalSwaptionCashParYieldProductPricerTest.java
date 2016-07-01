@@ -41,9 +41,9 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swaption.CashSettlement;
-import com.opengamma.strata.product.swaption.CashSettlementMethod;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 
@@ -79,9 +79,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
           BUY, NOTIONAL, STRIKE).getProduct();
   private static final LocalDate SETTLE_DATE = USD_LIBOR_3M.getEffectiveDateOffset().adjust(SWAPTION_EXERCISE_DATE, REF_DATA);
-  private static final CashSettlement PAR_YIELD = CashSettlement.builder()
-      .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SETTLE_DATE).build();
+  private static final CashSwaptionSettlement PAR_YIELD =
+      CashSwaptionSettlement.of(SETTLE_DATE, CashSwaptionSettlementMethod.PAR_YIELD);
   private static final ResolvedSwaption SWAPTION_REC_LONG = Swaption.builder()
       .swaptionSettlement(PAR_YIELD)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
@@ -225,7 +224,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   public void test_physicalSettlement() {
     Swaption swaption = Swaption.builder()
-        .swaptionSettlement(PhysicalSettlement.DEFAULT)
+        .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
         .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
         .expiryTime(SWAPTION_EXPIRY_TIME)
         .expiryZone(SWAPTION_EXPIRY_ZONE)
