@@ -183,7 +183,7 @@ public class SabrExtrapolationReplicationCmsProductPricer {
     CurrencyAmount ccPayLeg = payLegPricer.currentCash(cms.getPayLeg().get(), ratesProvider);
     return MultiCurrencyAmount.of(ccPayLeg).plus(ccCmsLeg);
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Explains the present value of the swap product.
@@ -193,6 +193,7 @@ public class SabrExtrapolationReplicationCmsProductPricer {
    * @param cms  the CMS product
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
+   * @return the explain PV map
    */
   public ExplainMap explainPresentValue(
       ResolvedCms cms,

@@ -30,8 +30,8 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.math.MathException;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.curve.RawOptionData;
@@ -152,7 +152,7 @@ public class SabrSwaptionCalibrator {
       RatesProvider ratesProvider,
       Surface betaSurface,
       Surface shiftSurface,
-      GridInterpolator2D interpolator) {
+      SurfaceInterpolator interpolator) {
 
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
     return calibrateWithFixedBetaAndShift(
@@ -203,7 +203,7 @@ public class SabrSwaptionCalibrator {
       RatesProvider ratesProvider,
       Surface betaSurface,
       Surface shiftSurface,
-      GridInterpolator2D interpolator,
+      SurfaceInterpolator interpolator,
       boolean stopOnMathException) {
 
     BitSet fixed = new BitSet();
@@ -426,7 +426,8 @@ public class SabrSwaptionCalibrator {
       SwaptionVolatilities atmVolatilities,
       List<Tenor> tenors,
       List<Period> expiries,
-      GridInterpolator2D interpolator) {
+      SurfaceInterpolator interpolator) {
+
     int nbTenors = tenors.size();
     FixedIborSwapConvention convention = sabr.getConvention();
     DayCount dayCount = sabr.getDayCount();

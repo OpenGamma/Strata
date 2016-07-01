@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.local;
 
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE;
 import static org.testng.Assert.assertEquals;
 
 import java.util.function.Function;
@@ -18,20 +20,17 @@ import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.DeformedSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.InterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 
 /**
  * Test {@link DupireLocalVolatilityCalculator}.
  */
 @Test
 public class DupireLocalVolatilityCalculatorTest {
-  private static final Interpolator1D CUBIC = new CombinedInterpolatorExtrapolator(
-      new NaturalSplineInterpolator1D(), new InterpolatorExtrapolator(), new InterpolatorExtrapolator());
-  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(CUBIC, CUBIC);
+
+  private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(
+      NATURAL_SPLINE, INTERPOLATOR, NATURAL_SPLINE, INTERPOLATOR);
   private static final DoubleArray TIMES =
       DoubleArray.of(0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.75, 0.75, 0.75, 1, 1, 1);
   private static final DoubleArray STRIKES =

@@ -27,6 +27,7 @@
 <listEntry value="com.opengamma.strata.market.param"/>
 <listEntry value="com.opengamma.strata.market.sensitivity"/>
 <listEntry value="com.opengamma.strata.market.surface"/>
+<listEntry value="com.opengamma.strata.market.surface.interpolator"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

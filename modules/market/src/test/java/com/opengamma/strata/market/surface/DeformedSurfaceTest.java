@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -22,8 +23,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 
 /**
  * Test {@link DeformedSurface}.
@@ -41,8 +41,7 @@ public class DeformedSurfaceTest {
   private static final DoubleArray XVALUES = DoubleArray.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
   private static final DoubleArray YVALUES = DoubleArray.of(0d, 3d, 4d, 0d, 3d, 4d, 0d, 3d, 4d);
   private static final DoubleArray ZVALUES = DoubleArray.of(5d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
-  private static final GridInterpolator2D INTERPOLATOR =
-      new GridInterpolator2D(new LinearInterpolator1D(), new LinearInterpolator1D());
+  private static final GridSurfaceInterpolator INTERPOLATOR = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final InterpolatedNodalSurface SURFACE_ORG =
       InterpolatedNodalSurface.of(METADATA_ORG, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
   private static final Function<DoublesPair, ValueDerivatives> FUNCTION = new Function<DoublesPair, ValueDerivatives>() {

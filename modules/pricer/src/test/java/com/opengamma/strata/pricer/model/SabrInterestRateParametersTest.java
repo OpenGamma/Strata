@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.model;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static org.testng.Assert.assertEquals;
 
@@ -19,8 +20,7 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 
 /**
  * Test {@link SabrInterestRateParameters}.
@@ -28,8 +28,7 @@ import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 @Test
 public class SabrInterestRateParametersTest {
 
-  private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
-  private static final GridInterpolator2D GRID = new GridInterpolator2D(LINEAR, LINEAR);
+  private static final GridSurfaceInterpolator GRID = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final InterpolatedNodalSurface ALPHA_SURFACE = InterpolatedNodalSurface.of(
       Surfaces.swaptionSabrExpiryTenor("SabrAlpha", ACT_ACT_ISDA, USD_FIXED_6M_LIBOR_3M, ValueType.SABR_ALPHA),
       DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0, 10, 0, 10), DoubleArray.of(0.2, 0.2, 0.2, 0.2), GRID);

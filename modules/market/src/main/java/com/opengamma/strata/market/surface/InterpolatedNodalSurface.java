@@ -40,8 +40,8 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.strata.market.surface.interpolator.BoundSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 
 /**
  * A surface based on interpolation between a number of nodal points.
@@ -89,11 +89,11 @@ public final class InterpolatedNodalSurface
    * The underlying interpolator.
    */
   @PropertyDefinition(validate = "notNull")
-  private final GridInterpolator2D interpolator;
+  private final SurfaceInterpolator interpolator;
   /**
-   * The underlying data bundle.
+   * The bound interpolator.
    */
-  private transient final Map<Double, Interpolator1DDataBundle> underlyingDataBundle;  // derived and cached, not a property
+  private transient final BoundSurfaceInterpolator boundInterpolator;  // derived and cached, not a property
   /**
    * The parameter metadata.
    */
@@ -118,7 +118,7 @@ public final class InterpolatedNodalSurface
       DoubleArray xValues,
       DoubleArray yValues,
       DoubleArray zValues,
-      GridInterpolator2D interpolator) {
+      SurfaceInterpolator interpolator) {
 
     return new InterpolatedNodalSurface(metadata, xValues, yValues, zValues, interpolator);
   }
@@ -127,6 +127,7 @@ public final class InterpolatedNodalSurface
    * Creates an interpolated surface with metadata, where the values are not sorted.
    * <p>
    * The value arrays will be sorted, by x-values then y-values.
+   * Both the z-values and parameter metadata will be sorted along with the x and y values.
    * 
    * @param metadata  the surface metadata
    * @param xValues  the x-values
@@ -140,7 +141,7 @@ public final class InterpolatedNodalSurface
       DoubleArray xValues,
       DoubleArray yValues,
       DoubleArray zValues,
-      GridInterpolator2D interpolator) {
+      SurfaceInterpolator interpolator) {
 
     return new InterpolatedNodalSurface(metadata, xValues, yValues, zValues, interpolator, true);
   }
@@ -153,7 +154,7 @@ public final class InterpolatedNodalSurface
       DoubleArray xValues,
       DoubleArray yValues,
       DoubleArray zValues,
-      GridInterpolator2D interpolator) {
+      SurfaceInterpolator interpolator) {
 
     validateInputs(metadata, xValues, yValues, zValues, interpolator);
     for (int i = 1; i < xValues.size(); i++) {
@@ -168,24 +169,20 @@ public final class InterpolatedNodalSurface
     this.xValues = xValues;
     this.yValues = yValues;
     this.zValues = zValues;
-    Map<DoublesPair, Double> pairs = new HashMap<>();
-    for (int i = 0; i < xValues.size(); i++) {
-      pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
-    }
     this.interpolator = interpolator;
-    underlyingDataBundle = interpolator.getDataBundle(pairs);
+    this.boundInterpolator = interpolator.bind(xValues, yValues, zValues);
     this.parameterMetadata = IntStream.range(0, getParameterCount())
         .mapToObj(i -> metadata.getParameterMetadata(i))
         .collect(toImmutableList());
   }
 
-  // constructor that sorts (artificial boolean flag
+  // constructor that sorts (artificial boolean flag)
   private InterpolatedNodalSurface(
       SurfaceMetadata metadata,
       DoubleArray xValues,
       DoubleArray yValues,
       DoubleArray zValues,
-      GridInterpolator2D interpolator,
+      SurfaceInterpolator interpolator,
       boolean sort) {
 
     validateInputs(metadata, xValues, yValues, zValues, interpolator);
@@ -218,7 +215,7 @@ public final class InterpolatedNodalSurface
       pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
     }
     this.interpolator = interpolator;
-    underlyingDataBundle = interpolator.getDataBundle(pairs);
+    this.boundInterpolator = interpolator.bind(this.xValues, this.yValues, this.zValues);
     this.parameterMetadata = IntStream.range(0, getParameterCount())
         .mapToObj(i -> sortedMetadata.getParameterMetadata(i))
         .collect(toImmutableList());
@@ -230,7 +227,7 @@ public final class InterpolatedNodalSurface
       DoubleArray xValues,
       DoubleArray yValues,
       DoubleArray zValues,
-      GridInterpolator2D interpolator) {
+      SurfaceInterpolator interpolator) {
 
     ArgChecker.notNull(metadata, "metadata");
     ArgChecker.notNull(xValues, "times");
@@ -284,27 +281,12 @@ public final class InterpolatedNodalSurface
   //-------------------------------------------------------------------------
   @Override
   public double zValue(double x, double y) {
-    return zValue(DoublesPair.of(x, y));
-  }
-
-  @Override
-  public double zValue(DoublesPair xyPair) {
-    return interpolator.interpolate(underlyingDataBundle, xyPair);
+    return boundInterpolator.interpolate(x, y);
   }
 
   @Override
   public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
-    return zValueParameterSensitivity(DoublesPair.of(x, y));
-  }
-
-  @Override
-  public UnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
-    int size = xValues.size();
-    Map<DoublesPair, Double> result = interpolator.getNodeSensitivitiesForValue(underlyingDataBundle, xyPair);
-    DoubleArray sensitivityValues = DoubleArray.of(size, i -> {
-      Double sensitivity = result.get(DoublesPair.of(xValues.get(i), yValues.get(i)));
-      return sensitivity != null ? sensitivity : 0d;
-    });
+    DoubleArray sensitivityValues = boundInterpolator.parameterSensitivity(x, y);
     return createParameterSensitivity(sensitivityValues);
   }
 
@@ -426,7 +408,7 @@ public final class InterpolatedNodalSurface
    * Gets the underlying interpolator.
    * @return the value of the property, not null
    */
-  public GridInterpolator2D getInterpolator() {
+  public SurfaceInterpolator getInterpolator() {
     return interpolator;
   }
 
@@ -512,8 +494,8 @@ public final class InterpolatedNodalSurface
     /**
      * The meta-property for the {@code interpolator} property.
      */
-    private final MetaProperty<GridInterpolator2D> interpolator = DirectMetaProperty.ofImmutable(
-        this, "interpolator", InterpolatedNodalSurface.class, GridInterpolator2D.class);
+    private final MetaProperty<SurfaceInterpolator> interpolator = DirectMetaProperty.ofImmutable(
+        this, "interpolator", InterpolatedNodalSurface.class, SurfaceInterpolator.class);
     /**
      * The meta-properties.
      */
@@ -600,7 +582,7 @@ public final class InterpolatedNodalSurface
      * The meta-property for the {@code interpolator} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<GridInterpolator2D> interpolator() {
+    public MetaProperty<SurfaceInterpolator> interpolator() {
       return interpolator;
     }
 
@@ -643,7 +625,7 @@ public final class InterpolatedNodalSurface
     private DoubleArray xValues;
     private DoubleArray yValues;
     private DoubleArray zValues;
-    private GridInterpolator2D interpolator;
+    private SurfaceInterpolator interpolator;
 
     /**
      * Restricted constructor.
@@ -698,7 +680,7 @@ public final class InterpolatedNodalSurface
           this.zValues = (DoubleArray) newValue;
           break;
         case 2096253127:  // interpolator
-          this.interpolator = (GridInterpolator2D) newValue;
+          this.interpolator = (SurfaceInterpolator) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -799,7 +781,7 @@ public final class InterpolatedNodalSurface
      * @param interpolator  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder interpolator(GridInterpolator2D interpolator) {
+    public Builder interpolator(SurfaceInterpolator interpolator) {
       JodaBeanUtils.notNull(interpolator, "interpolator");
       this.interpolator = interpolator;
       return this;
