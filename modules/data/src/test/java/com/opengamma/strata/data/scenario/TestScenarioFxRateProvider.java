@@ -13,23 +13,23 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
  */
 public class TestScenarioFxRateProvider implements ScenarioFxRateProvider {
 
-  private final FxRatesArray rates1;
-  private final FxRatesArray rates2;
-  private final FxRatesArray rates3;
+  private final FxRateScenarioArray rates1;
+  private final FxRateScenarioArray rates2;
+  private final FxRateScenarioArray rates3;
 
-  public TestScenarioFxRateProvider(FxRatesArray rates1) {
+  public TestScenarioFxRateProvider(FxRateScenarioArray rates1) {
     this.rates1 = rates1;
     this.rates2 = rates1;
     this.rates3 = rates1;
   }
 
-  public TestScenarioFxRateProvider(FxRatesArray rates1, FxRatesArray rates2) {
+  public TestScenarioFxRateProvider(FxRateScenarioArray rates1, FxRateScenarioArray rates2) {
     this.rates1 = rates1;
     this.rates2 = rates2;
     this.rates3 = rates2;
   }
 
-  public TestScenarioFxRateProvider(FxRatesArray rates1, FxRatesArray rates2, FxRatesArray rates3) {
+  public TestScenarioFxRateProvider(FxRateScenarioArray rates1, FxRateScenarioArray rates2, FxRateScenarioArray rates3) {
     this.rates1 = rates1;
     this.rates2 = rates2;
     this.rates3 = rates3;

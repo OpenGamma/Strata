@@ -16,29 +16,29 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 
 @Test
-public class QuotesArrayIdTest {
+public class QuoteScenarioArrayIdTest {
 
-  private static final QuotesArrayId KEY = QuotesArrayId.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
+  private static final QuoteScenarioArrayId KEY = QuoteScenarioArrayId.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
 
   public void getMarketDataKey() {
     QuoteId quoteId = QuoteId.of(StandardId.of("test", "1"), FieldName.of("fieldName"), ObservableSource.NONE);
     assertThat(KEY.getMarketDataId()).isEqualTo(quoteId);
-    assertThat(QuotesArrayId.of(quoteId)).isEqualTo(KEY);
+    assertThat(QuoteScenarioArrayId.of(quoteId)).isEqualTo(KEY);
   }
 
   public void getMarketDataType() {
-    assertThat(KEY.getScenarioMarketDataType()).isEqualTo(QuotesArray.class);
+    assertThat(KEY.getScenarioMarketDataType()).isEqualTo(QuoteScenarioArray.class);
   }
 
   public void createScenarioValue() {
     MarketDataBox<Double> box = MarketDataBox.ofScenarioValues(1d, 2d, 3d);
-    QuotesArray quotesArray = KEY.createScenarioValue(box, 3);
+    QuoteScenarioArray quotesArray = KEY.createScenarioValue(box, 3);
     assertThat(quotesArray.getQuotes()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
   }
 
   public void createScenarioValueFromSingleValue() {
     MarketDataBox<Double> box = MarketDataBox.ofSingleValue(3d);
-    QuotesArray quotesArray = KEY.createScenarioValue(box, 3);
+    QuoteScenarioArray quotesArray = KEY.createScenarioValue(box, 3);
     assertThat(quotesArray.getQuotes()).isEqualTo(DoubleArray.of(3d, 3d, 3d));
   }
 

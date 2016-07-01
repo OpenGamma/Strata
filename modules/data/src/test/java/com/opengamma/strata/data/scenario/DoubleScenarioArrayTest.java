@@ -18,14 +18,14 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Test {@link ValuesArray}.
+ * Test {@link DoubleScenarioArray}.
  */
 @Test
-public class ValuesArrayTest {
+public class DoubleScenarioArrayTest {
 
   public void create() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    ValuesArray test = ValuesArray.of(values);
+    DoubleScenarioArray test = DoubleScenarioArray.of(values);
     assertThat(test.getValues()).isEqualTo(values);
     assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(1d);
@@ -36,7 +36,7 @@ public class ValuesArrayTest {
 
   public void create_fromList() {
     List<Double> values = ImmutableList.of(1d, 2d, 3d);
-    ValuesArray test = ValuesArray.of(values);
+    DoubleScenarioArray test = DoubleScenarioArray.of(values);
     assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
     assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(1d);
@@ -47,7 +47,7 @@ public class ValuesArrayTest {
 
   public void create_fromFunction() {
     List<Double> values = ImmutableList.of(1d, 2d, 3d);
-    ValuesArray test = ValuesArray.of(3, i -> values.get(i));
+    DoubleScenarioArray test = DoubleScenarioArray.of(3, i -> values.get(i));
     assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
     assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(1d);
@@ -59,10 +59,10 @@ public class ValuesArrayTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    ValuesArray test = ValuesArray.of(values);
+    DoubleScenarioArray test = DoubleScenarioArray.of(values);
     coverImmutableBean(test);
     DoubleArray values2 = DoubleArray.of(1, 2, 3);
-    ValuesArray test2 = ValuesArray.of(values2);
+    DoubleScenarioArray test2 = DoubleScenarioArray.of(values2);
     coverBeanEquals(test, test2);
   }
 

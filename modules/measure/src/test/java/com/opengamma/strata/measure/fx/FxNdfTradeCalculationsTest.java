@@ -13,8 +13,8 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -45,13 +45,13 @@ public class FxNdfTradeCalculationsTest {
 
     assertEquals(
         FxNdfTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        CurrencyValuesArray.of(ImmutableList.of(expectedPv)));
+        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
     assertEquals(
         FxNdfTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertEquals(
         FxNdfTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash)));
+        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
     assertEquals(
         FxNdfTradeCalculations.DEFAULT.forwardFxRate(RTRADE, RATES_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedForwardFx)));
@@ -68,7 +68,7 @@ public class FxNdfTradeCalculationsTest {
 
     assertEquals(
         FxNdfTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertEquals(
         FxNdfTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));

@@ -46,7 +46,7 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -96,7 +96,7 @@ public class CalculationTaskTest {
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray list = CurrencyScenarioArray.of(GBP, values);
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
         .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
@@ -105,7 +105,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
-    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
+    CurrencyScenarioArray expectedArray = CurrencyScenarioArray.of(USD, expectedValues);
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -120,7 +120,7 @@ public class CalculationTaskTest {
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray list = CurrencyScenarioArray.of(GBP, values);
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
         .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
@@ -128,7 +128,7 @@ public class CalculationTaskTest {
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE_MULTI_CCY, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
 
-    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray expectedArray = CurrencyScenarioArray.of(GBP, values);
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -144,7 +144,7 @@ public class CalculationTaskTest {
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
-    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray list = CurrencyScenarioArray.of(GBP, values);
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
         .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
@@ -153,7 +153,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
-    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
+    CurrencyScenarioArray expectedArray = CurrencyScenarioArray.of(USD, expectedValues);
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -225,7 +225,7 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrencyConversionFails() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray list = CurrencyScenarioArray.of(GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
     ScenarioMarketData marketData = ScenarioMarketData.empty();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
@@ -465,14 +465,14 @@ public class CalculationTaskTest {
   private static final class ConvertibleFunction
       implements CalculationFunction<TestTarget> {
 
-    private final Supplier<CurrencyValuesArray> supplier;
+    private final Supplier<CurrencyScenarioArray> supplier;
     private final Currency naturalCurrency;
 
-    static ConvertibleFunction of(Supplier<CurrencyValuesArray> supplier, Currency naturalCurrency) {
+    static ConvertibleFunction of(Supplier<CurrencyScenarioArray> supplier, Currency naturalCurrency) {
       return new ConvertibleFunction(supplier, naturalCurrency);
     }
 
-    private ConvertibleFunction(Supplier<CurrencyValuesArray> supplier, Currency naturalCurrency) {
+    private ConvertibleFunction(Supplier<CurrencyScenarioArray> supplier, Currency naturalCurrency) {
       this.supplier = supplier;
       this.naturalCurrency = naturalCurrency;
     }
@@ -510,7 +510,7 @@ public class CalculationTaskTest {
         ScenarioMarketData marketData,
         ReferenceData refData) {
 
-      Result<CurrencyValuesArray> result = Result.success(supplier.get());
+      Result<CurrencyScenarioArray> result = Result.success(supplier.get());
       return ImmutableMap.of(TestingMeasures.PRESENT_VALUE, result, TestingMeasures.PRESENT_VALUE_MULTI_CCY, result);
     }
   }

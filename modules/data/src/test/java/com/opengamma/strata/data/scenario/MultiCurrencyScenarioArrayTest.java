@@ -31,10 +31,10 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
-public class MultiCurrencyValuesArrayTest {
+public class MultiCurrencyScenarioArrayTest {
 
-  private static final MultiCurrencyValuesArray VALUES_ARRAY =
-      MultiCurrencyValuesArray.of(
+  private static final MultiCurrencyScenarioArray VALUES_ARRAY =
+      MultiCurrencyScenarioArray.of(
           ImmutableList.of(
               MultiCurrencyAmount.of(
                   CurrencyAmount.of(Currency.GBP, 20),
@@ -54,7 +54,7 @@ public class MultiCurrencyValuesArrayTest {
     assertThat(VALUES_ARRAY.getValues(Currency.USD)).isEqualTo(DoubleArray.of(30, 32, 33));
     assertThat(VALUES_ARRAY.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(40, 43, 44));
 
-    MultiCurrencyValuesArray raggedArray = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray raggedArray = MultiCurrencyScenarioArray.of(
         ImmutableList.of(
             MultiCurrencyAmount.of(
                 CurrencyAmount.of(Currency.EUR, 4)),
@@ -78,14 +78,14 @@ public class MultiCurrencyValuesArrayTest {
     MultiCurrencyAmount mca3 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.USD, 40));
     List<MultiCurrencyAmount> amounts = ImmutableList.of(mca1, mca2, mca3);
 
-    MultiCurrencyValuesArray test = MultiCurrencyValuesArray.of(3, i -> amounts.get(i));
+    MultiCurrencyScenarioArray test = MultiCurrencyScenarioArray.of(3, i -> amounts.get(i));
     assertThat(test.get(0)).isEqualTo(mca1.plus(Currency.EUR, 0));
     assertThat(test.get(1)).isEqualTo(mca2.plus(Currency.USD, 0));
     assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
   }
 
   public void mapFactoryMethod() {
-    MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
             Currency.USD, DoubleArray.of(30, 32, 33),
@@ -94,7 +94,7 @@ public class MultiCurrencyValuesArrayTest {
     assertThat(array).isEqualTo(VALUES_ARRAY);
 
     assertThrowsIllegalArg(
-        () -> MultiCurrencyValuesArray.of(
+        () -> MultiCurrencyScenarioArray.of(
             ImmutableMap.of(
                 Currency.GBP, DoubleArray.of(20, 21),
                 Currency.EUR, DoubleArray.of(40, 43, 44))),
@@ -138,11 +138,11 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void convert() {
-    FxRatesArray rates1 = FxRatesArray.of(GBP, CAD, DoubleArray.of(2.00, 2.01, 2.02));
-    FxRatesArray rates2 = FxRatesArray.of(USD, CAD, DoubleArray.of(1.30, 1.31, 1.32));
-    FxRatesArray rates3 = FxRatesArray.of(EUR, CAD, DoubleArray.of(1.4, 1.4, 1.4));
+    FxRateScenarioArray rates1 = FxRateScenarioArray.of(GBP, CAD, DoubleArray.of(2.00, 2.01, 2.02));
+    FxRateScenarioArray rates2 = FxRateScenarioArray.of(USD, CAD, DoubleArray.of(1.30, 1.31, 1.32));
+    FxRateScenarioArray rates3 = FxRateScenarioArray.of(EUR, CAD, DoubleArray.of(1.4, 1.4, 1.4));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates1, rates2, rates3);
-    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, fxProvider);
+    CurrencyScenarioArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, fxProvider);
     DoubleArray expected = DoubleArray.of(
         20 * 2.00 + 30 * 1.30 + 40 * 1.4,
         21 * 2.01 + 32 * 1.31 + 43 * 1.4,
@@ -151,10 +151,10 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void convertIntoAnExistingCurrency() {
-    FxRatesArray rates1 = FxRatesArray.of(USD, GBP, DoubleArray.of(1 / 1.50, 1 / 1.51, 1 / 1.52));
-    FxRatesArray rates2 = FxRatesArray.of(EUR, GBP, DoubleArray.of(0.7, 0.7, 0.7));
+    FxRateScenarioArray rates1 = FxRateScenarioArray.of(USD, GBP, DoubleArray.of(1 / 1.50, 1 / 1.51, 1 / 1.52));
+    FxRateScenarioArray rates2 = FxRateScenarioArray.of(EUR, GBP, DoubleArray.of(0.7, 0.7, 0.7));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates1, rates2);
-    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, fxProvider);
+    CurrencyScenarioArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, fxProvider);
     assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{
         20 + 30 / 1.50 + 40 * 0.7,
@@ -170,8 +170,8 @@ public class MultiCurrencyValuesArrayTest {
    * Test the hand-written equals and hashCode methods which correctly handle maps with array values
    */
   public void equalsHashCode() {
-    MultiCurrencyValuesArray array =
-        MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array =
+        MultiCurrencyScenarioArray.of(
             ImmutableList.of(
                 MultiCurrencyAmount.of(
                     CurrencyAmount.of(Currency.GBP, 20),
@@ -195,7 +195,7 @@ public class MultiCurrencyValuesArrayTest {
 
   public void coverage() {
     coverImmutableBean(VALUES_ARRAY);
-    MultiCurrencyValuesArray test2 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray test2 = MultiCurrencyScenarioArray.of(
         MultiCurrencyAmount.of(
             CurrencyAmount.of(Currency.GBP, 21),
             CurrencyAmount.of(Currency.USD, 31),
@@ -208,17 +208,17 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void plusArray() {
-    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array1 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.USD, DoubleArray.of(30, 32, 33),
             Currency.EUR, DoubleArray.of(40, 43, 44),
             Currency.CHF, DoubleArray.of(50, 54, 56)));
-    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array2 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
             Currency.EUR, DoubleArray.of(140, 143, 144),
             Currency.CHF, DoubleArray.of(250, 254, 256)));
-    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray expected = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
             Currency.USD, DoubleArray.of(30, 32, 33),
@@ -229,7 +229,7 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void plusAmount() {
-    MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.USD, DoubleArray.of(30, 32, 33),
             Currency.EUR, DoubleArray.of(40, 43, 44),
@@ -239,7 +239,7 @@ public class MultiCurrencyValuesArrayTest {
             Currency.GBP, 21d,
             Currency.EUR, 143d,
             Currency.CHF, 254d));
-    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray expected = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(21, 21, 21),
             Currency.USD, DoubleArray.of(30, 32, 33),
@@ -250,12 +250,12 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void plusDifferentSize() {
-    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array1 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.USD, DoubleArray.of(30, 32),
             Currency.EUR, DoubleArray.of(40, 43),
             Currency.CHF, DoubleArray.of(50, 54)));
-    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array2 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
             Currency.EUR, DoubleArray.of(140, 143, 144),
@@ -265,17 +265,17 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void minusArray() {
-    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array1 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.USD, DoubleArray.of(30, 32, 33),
             Currency.EUR, DoubleArray.of(40, 43, 44),
             Currency.CHF, DoubleArray.of(50, 54, 56)));
-    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array2 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
             Currency.EUR, DoubleArray.of(140, 143, 144),
             Currency.CHF, DoubleArray.of(250, 254, 256)));
-    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray expected = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(-20, -21, -22),
             Currency.USD, DoubleArray.of(30, 32, 33),
@@ -286,7 +286,7 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void minusAmount() {
-    MultiCurrencyValuesArray array = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.USD, DoubleArray.of(30, 32, 33),
             Currency.EUR, DoubleArray.of(40, 43, 44),
@@ -296,7 +296,7 @@ public class MultiCurrencyValuesArrayTest {
             Currency.GBP, 21d,
             Currency.EUR, 143d,
             Currency.CHF, 254d));
-    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray expected = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(-21, -21, -21),
             Currency.USD, DoubleArray.of(30, 32, 33),
@@ -307,12 +307,12 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void minusDifferentSize() {
-    MultiCurrencyValuesArray array1 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array1 = MultiCurrencyScenarioArray.of(
       ImmutableMap.of(
           Currency.USD, DoubleArray.of(30, 32),
           Currency.EUR, DoubleArray.of(40, 43),
           Currency.CHF, DoubleArray.of(50, 54)));
-    MultiCurrencyValuesArray array2 = MultiCurrencyValuesArray.of(
+    MultiCurrencyScenarioArray array2 = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
             Currency.EUR, DoubleArray.of(140, 143, 144),

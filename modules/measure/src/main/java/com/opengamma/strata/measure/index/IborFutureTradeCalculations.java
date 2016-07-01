@@ -7,11 +7,11 @@ package com.opengamma.strata.measure.index;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
@@ -63,7 +63,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the present value, one entry per scenario
    */
-  public CurrencyValuesArray presentValue(
+  public CurrencyScenarioArray presentValue(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -99,7 +99,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01CalibratedSum(
+  public MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -181,7 +181,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01MarketQuoteSum(
+  public MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -258,7 +258,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the par spread, one entry per scenario
    */
-  public ValuesArray parSpread(
+  public DoubleScenarioArray parSpread(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {

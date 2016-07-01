@@ -24,14 +24,14 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Test {@link CurrencyValuesArray}.
+ * Test {@link CurrencyScenarioArray}.
  */
 @Test
-public class CurrencyValuesArrayTest {
+public class CurrencyScenarioArrayTest {
 
   public void create() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
     assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(values);
     assertThat(test.getScenarioCount()).isEqualTo(3);
@@ -45,7 +45,7 @@ public class CurrencyValuesArrayTest {
   public void create_fromList() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
-    CurrencyValuesArray test = CurrencyValuesArray.of(values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(values);
     assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
     assertThat(test.getScenarioCount()).isEqualTo(3);
@@ -59,13 +59,13 @@ public class CurrencyValuesArrayTest {
   public void create_fromList_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyValuesArray.of(values));
+    assertThrowsIllegalArg(() -> CurrencyScenarioArray.of(values));
   }
 
   public void create_fromFunction() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
-    CurrencyValuesArray test = CurrencyValuesArray.of(3, i -> values.get(i));
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(3, i -> values.get(i));
     assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
     assertThat(test.getScenarioCount()).isEqualTo(3);
@@ -79,7 +79,7 @@ public class CurrencyValuesArrayTest {
   public void create_fromFunction_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyValuesArray.of(3, i -> values.get(i)));
+    assertThrowsIllegalArg(() -> CurrencyScenarioArray.of(3, i -> values.get(i)));
   }
 
   //-------------------------------------------------------------------------
@@ -88,13 +88,13 @@ public class CurrencyValuesArrayTest {
    */
   public void convert() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
-    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
 
-    CurrencyValuesArray convertedList = test.convertedTo(USD, fxProvider);
+    CurrencyScenarioArray convertedList = test.convertedTo(USD, fxProvider);
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
-    CurrencyValuesArray expectedList = CurrencyValuesArray.of(USD, expectedValues);
+    CurrencyScenarioArray expectedList = CurrencyScenarioArray.of(USD, expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
@@ -103,11 +103,11 @@ public class CurrencyValuesArrayTest {
    */
   public void noConversionNecessary() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
-    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
 
-    CurrencyValuesArray convertedList = test.convertedTo(GBP, fxProvider);
+    CurrencyScenarioArray convertedList = test.convertedTo(GBP, fxProvider);
     assertThat(convertedList).isEqualTo(test);
   }
 
@@ -116,9 +116,9 @@ public class CurrencyValuesArrayTest {
    */
   public void missingFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    FxRatesArray rates = FxRatesArray.of(EUR, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(EUR, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
-    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
 
     assertThrows(() -> test.convertedTo(USD, fxProvider), IllegalArgumentException.class);
   }
@@ -128,9 +128,9 @@ public class CurrencyValuesArrayTest {
    */
   public void wrongNumberOfFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
-    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
 
     assertThrows(
         () -> test.convertedTo(USD, fxProvider),
@@ -140,10 +140,10 @@ public class CurrencyValuesArrayTest {
 
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
+    CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
     coverImmutableBean(test);
     DoubleArray values2 = DoubleArray.of(1, 2, 3);
-    CurrencyValuesArray test2 = CurrencyValuesArray.of(USD, values2);
+    CurrencyScenarioArray test2 = CurrencyScenarioArray.of(USD, values2);
     coverBeanEquals(test, test2);
   }
 

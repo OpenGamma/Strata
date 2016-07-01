@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -47,13 +47,13 @@ public class SwaptionTradeCalculationsTest {
 
     assertEquals(
         SwaptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        CurrencyValuesArray.of(ImmutableList.of(expectedPv)));
+        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
     assertEquals(
         SwaptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertEquals(
         SwaptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash)));
+        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   public void test_pv01() {
@@ -67,7 +67,7 @@ public class SwaptionTradeCalculationsTest {
 
     assertEquals(
         SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertEquals(
         SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));

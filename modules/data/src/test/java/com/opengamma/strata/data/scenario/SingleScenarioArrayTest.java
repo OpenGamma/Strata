@@ -38,7 +38,7 @@ public class SingleScenarioArrayTest {
   }
 
   public void convertCurrencyAmount() {
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
     SingleScenarioArray<CurrencyAmount> test = SingleScenarioArray.of(3, CurrencyAmount.of(GBP, 2));
 

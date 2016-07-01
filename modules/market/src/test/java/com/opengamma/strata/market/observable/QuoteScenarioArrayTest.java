@@ -13,9 +13,9 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
-public class QuotesArrayTest {
+public class QuoteScenarioArrayTest {
 
-  private static final QuotesArray ARRAY = QuotesArray.of(DoubleArray.of(1d, 2d, 3d));
+  private static final QuoteScenarioArray ARRAY = QuoteScenarioArray.of(DoubleArray.of(1d, 2d, 3d));
 
   public void get() {
     assertThat(ARRAY.get(0)).isEqualTo(1d);

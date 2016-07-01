@@ -7,10 +7,10 @@ package com.opengamma.strata.measure.fx;
 
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.fx.DiscountingFxSingleTradePricer;
@@ -62,7 +62,7 @@ public class FxSingleTradeCalculations {
    * @param marketData  the market data
    * @return the present value, one entry per scenario
    */
-  public MultiCurrencyValuesArray presentValue(
+  public MultiCurrencyScenarioArray presentValue(
       ResolvedFxSingleTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -98,7 +98,7 @@ public class FxSingleTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01CalibratedSum(
+  public MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedFxSingleTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -180,7 +180,7 @@ public class FxSingleTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01MarketQuoteSum(
+  public MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedFxSingleTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -257,7 +257,7 @@ public class FxSingleTradeCalculations {
    * @param marketData  the market data
    * @return the par spread, one entry per scenario
    */
-  public ValuesArray parSpread(
+  public DoubleScenarioArray parSpread(
       ResolvedFxSingleTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -290,7 +290,7 @@ public class FxSingleTradeCalculations {
    * @param marketData  the market data
    * @return the currency exposure, one entry per scenario
    */
-  public MultiCurrencyValuesArray currencyExposure(
+  public MultiCurrencyScenarioArray currencyExposure(
       ResolvedFxSingleTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -325,7 +325,7 @@ public class FxSingleTradeCalculations {
    * @param marketData  the market data
    * @return the current cash, one entry per scenario
    */
-  public MultiCurrencyValuesArray currentCash(
+  public MultiCurrencyScenarioArray currentCash(
       ResolvedFxSingleTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
