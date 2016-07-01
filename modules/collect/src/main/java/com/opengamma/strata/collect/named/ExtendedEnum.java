@@ -46,9 +46,11 @@ import com.opengamma.strata.collect.io.ResourceConfig;
  * <p>
  * The 'providers' section contains a number of properties, one for each provider.
  * The key is the full class name of the provider.
- * The value is either 'constants' or 'lookup'.
- * A 'constants' provider defines the extended enums are public static constants.
- * A 'lookup' provider implemented {@link NamedLookup}.
+ * The value is 'constants', 'lookup' or 'instance', and is used to obtain a {@link NamedLookup} instance.
+ * A 'constants' provider must contain public static constants of the correct type,
+ * which will be reflectively located and wrapped in a {@code NamedLookup}.
+ * A 'lookup' provider must implement {@link NamedLookup} and have a no-args constructor.
+ * An 'instance' provider must have a static variable named "INSTANCE" of type {@link NamedLookup}.
  * <p>
  * The 'alternates' section contains a number of properties, one for each alternate name.
  * The key is the alternate name, the value is the standard name.
