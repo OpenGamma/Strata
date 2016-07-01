@@ -11,10 +11,6 @@
  * defined as an extended enum in {@link com.opengamma.strata.market.curve.interpolator.CurveInterpolators}.
  * This allows them to be referenced statically like a constant but also allows them to be redefined and new
  * instances added.
- * <p>
- * Currently the curve interpolators are all implementations of
- * {@link com.opengamma.strata.math.impl.interpolation.Interpolator1D} for compatibility with legacy code.
- * This should be regarded as an implementation detail and is likely to change.
  */
 package com.opengamma.strata.market.curve.interpolator;
 

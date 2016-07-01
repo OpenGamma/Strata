@@ -13,6 +13,8 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -27,21 +29,14 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 
 /**
  * Test {@link BlackVolatilitySmileFxProvider}.
  */
 @Test
 public class BlackVolatilitySmileFxProviderTest {
-
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
 
   private static final String NAME = "smileEurUsd";
   private static final DoubleArray TIME_TO_EXPIRY = DoubleArray.of(0.01, 0.252, 0.501, 1.0, 2.0, 5.0);
@@ -231,8 +226,10 @@ public class BlackVolatilitySmileFxProviderTest {
     double[] vols = singleSmile.getVolatility().toArray();
     strikesUp[deltaIndex] += EPS;
     strikesDw[deltaIndex] -= EPS;
-    double volStrikeUp = LINEAR_FLAT.interpolate(LINEAR_FLAT.getDataBundleFromSortedArrays(strikesUp, vols), strikeMod);
-    double volStrikeDw = LINEAR_FLAT.interpolate(LINEAR_FLAT.getDataBundleFromSortedArrays(strikesDw, vols), strikeMod);
+    double volStrikeUp =
+        LINEAR.bind(DoubleArray.ofUnsafe(strikesUp), DoubleArray.ofUnsafe(vols), FLAT, FLAT).interpolate(strikeMod);
+    double volStrikeDw =
+        LINEAR.bind(DoubleArray.ofUnsafe(strikesDw), DoubleArray.ofUnsafe(vols), FLAT, FLAT).interpolate(strikeMod);
     double sensiStrike = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
     SmileDeltaParameters singleSmileUp = smileTermUp.smileForTime(expiryTime);
     double strikeUp = singleSmileUp.getStrike(forwardMod).get(deltaIndex);
