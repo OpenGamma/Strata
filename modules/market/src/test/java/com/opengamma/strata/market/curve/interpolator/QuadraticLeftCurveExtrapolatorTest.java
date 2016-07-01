@@ -8,18 +8,10 @@ package com.opengamma.strata.market.curve.interpolator;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-
-import java.util.Random;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.interpolation.Extrapolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.QuadraticPolynomialLeftExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Test {@link QuadraticLeftCurveExtrapolator}.
@@ -27,7 +19,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 @Test
 public class QuadraticLeftCurveExtrapolatorTest {
 
-  private static final Random RANDOM = new Random(0L);
   private static final CurveExtrapolator QL_EXTRAPOLATOR = QuadraticLeftCurveExtrapolator.INSTANCE;
 
   private static final DoubleArray X_DATA = DoubleArray.of(0.3, 0.4, 1.0, 1.8, 2.8, 5.0);
@@ -155,24 +146,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
     assertThrowsIllegalArg(() -> bci.parameterSensitivity(10d));
   }
 
-  public void test_sameAsPrevious() {
-    BoundCurveInterpolator bci =
-        CurveInterpolators.LINEAR.bind(X_DATA, Y_DATA, QL_EXTRAPOLATOR, QL_EXTRAPOLATOR);
-    Extrapolator1D oldExtrap = new QuadraticPolynomialLeftExtrapolator();
-    Interpolator1D oldInterp = Interpolator1DFactory.LINEAR_INSTANCE;
-    Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());
-
-    for (int i = 0; i < 100; i++) {
-      double x = RANDOM.nextDouble() * 20.0 - 10;
-      if (x < 0.3) {
-        assertEquals(bci.interpolate(x), oldExtrap.extrapolate(data, x, oldInterp), TOL);
-        assertEquals(bci.firstDerivative(x), oldExtrap.firstDerivative(data, x, oldInterp), TOL);
-        assertTrue(bci.parameterSensitivity(x).equalWithTolerance(
-            DoubleArray.copyOf(oldExtrap.getNodeSensitivitiesForValue(data, x, oldInterp)), TOL));
-      }
-    }
-  }
-
+  //-------------------------------------------------------------------------
   public void test_serialization() {
     assertSerialization(QL_EXTRAPOLATOR);
   }
