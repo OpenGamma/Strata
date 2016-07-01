@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.local;
 
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE;
 import static org.testng.Assert.assertEquals;
 
 import java.util.function.Function;
@@ -18,30 +20,30 @@ import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.DeformedSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.InterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 
 /**
  * Test {@link DupireLocalVolatilityCalculator}.
  */
 @Test
 public class DupireLocalVolatilityCalculatorTest {
-  private static final Interpolator1D CUBIC = new CombinedInterpolatorExtrapolator(
-      new NaturalSplineInterpolator1D(), new InterpolatorExtrapolator(), new InterpolatorExtrapolator());
-  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(CUBIC, CUBIC);
+
+  private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(
+      NATURAL_SPLINE, INTERPOLATOR, NATURAL_SPLINE, INTERPOLATOR);
   private static final DoubleArray TIMES =
-      DoubleArray.of(0.25, 0.50, 0.75, 1.00, 0.25, 0.50, 0.75, 1.00, 0.25, 0.50, 0.75, 1.00);
+      DoubleArray.of(0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.75, 0.75, 0.75, 1, 1, 1);
   private static final DoubleArray STRIKES =
-      DoubleArray.of(0.8, 0.8, 0.8, 0.8, 1.4, 1.4, 1.4, 1.4, 2.0, 2.0, 2.0, 2.0);
+      DoubleArray.of(0.8, 1.4, 2, 0.8, 1.4, 2, 0.8, 1.4, 2, 0.8, 1.4, 2);
   private static final DoubleArray VOLS =
-      DoubleArray.of(0.21, 0.17, 0.15, 0.14, 0.17, 0.15, 0.14, 0.13, 0.185, 0.16, 0.14, 0.13);
+      DoubleArray.of(0.21, 0.17, 0.185, 0.17, 0.15, 0.16, 0.15, 0.14, 0.14, 0.14, 0.13, 0.13);
   private static final InterpolatedNodalSurface VOL_SURFACE =
       InterpolatedNodalSurface.of(DefaultSurfaceMetadata.of("Test"), TIMES, STRIKES, VOLS, INTERPOLATOR_2D);
-  private static final DoubleArray PRICES = DoubleArray.of(0.59600, 0.59201, 0.58812, 0.58413, 0.04868, 0.06138,
-      0.07063, 0.07626, 2.3012E-6, 4.7919E-5, 1.1365E-4, 2.4524E-4);
+  private static final DoubleArray PRICES = DoubleArray.of(
+      0.59600, 0.04868, 2.3012E-6,
+      0.59201, 0.06138, 4.7919E-5,
+      0.58812, 0.07063, 1.1365E-4,
+      0.58413, 0.07626, 2.4524E-4);
   private static final InterpolatedNodalSurface PRICE_SURFACE =
       InterpolatedNodalSurface.of(DefaultSurfaceMetadata.of("Test"), TIMES, STRIKES, PRICES, INTERPOLATOR_2D);
   private static final double SPOT = 1.40;

@@ -20,10 +20,15 @@ public enum FailureReason {
    */
   MULTIPLE,
   /**
-   * There was an exception thrown during the function call.
+   * An error occurred during the calculation.
    * Where possible, more specific reason codes should be used.
    */
   ERROR,
+  /**
+   * The request was invalid.
+   * This is used to indicate that the request was not valid.
+   */
+  INVALID,
   /**
    * There was no applicable calculation to be performed.
    * This is used to indicate a result that was not or could not be calculated,
@@ -32,36 +37,25 @@ public enum FailureReason {
    */
   NOT_APPLICABLE,
   /**
-   * The input was invalid.
-   * This is used if no configured function matched the specified input object.
+   * The request is not supported.
+   * This is used to indicate that the request is not supported and could not be calculated.
    */
-  INVALID_INPUT,
+  UNSUPPORTED,
   /**
-   * No value was provided for a non-nullable argument.
-   * When running a function, values must be available for all parameters.
-   * This reason indicates that a value was missing.
-   */
-  MISSING_ARGUMENT,
-  /**
-   * Some data required for the function was missing.
-   * When running a function, all the necessary data must be available.
+   * Some data was missing.
+   * When performing calculations, all the necessary data must be available.
    * This reason indicates that a piece of data was missing.
    */
   MISSING_DATA,
   /**
+   * Currency conversion failed.
+   * An error occurred during currency conversion, perhaps due to missing FX rates.
+   */
+  CURRENCY_CONVERSION,
+  /**
    * Some aspect of the calculation in the function has failed.
    */
   CALCULATION_FAILED,
-  /**
-   * Some data required for the function has been requested but not received and
-   * therefore the function could not be successfully completed.
-   * If the function is retried the calculation may succeed.
-   */
-  PENDING_DATA,
-  /**
-   * The user has insufficient permissions to view the result.
-   */
-  PERMISSION_DENIED,
   /**
    * Failure occurred for some other reason.
    * This reason should only be used when no other type is applicable.

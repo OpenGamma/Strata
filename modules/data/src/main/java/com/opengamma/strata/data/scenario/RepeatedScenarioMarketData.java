@@ -107,6 +107,11 @@ final class RepeatedScenarioMarketData
   }
 
   @Override
+  public Set<MarketDataId<?>> getIds() {
+    return underlying.getIds();
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     return underlying.findIds(name);

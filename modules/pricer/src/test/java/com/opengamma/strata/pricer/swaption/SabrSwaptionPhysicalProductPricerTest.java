@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -18,6 +17,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
@@ -27,6 +29,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -46,9 +49,9 @@ import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swaption.CashSettlement;
-import com.opengamma.strata.product.swaption.CashSettlementMethod;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
@@ -73,11 +76,9 @@ public class SabrSwaptionPhysicalProductPricerTest {
   private static final Swap SWAP_REC = SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD.createTrade(
       MATURITY_DATE.toLocalDate(), TENOR, BuySell.SELL, NOTIONAL, RATE, REF_DATA).getProduct();
   private static final ResolvedSwap RSWAP_REC = SWAP_REC.resolve(REF_DATA);
-  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
-  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
-      .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SWAP_REC.getStartDate().getUnadjusted())
-      .build();
+  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSwaptionSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE =
+      CashSwaptionSettlement.of(SWAP_REC.getStartDate().getUnadjusted(), CashSwaptionSettlementMethod.PAR_YIELD);
   private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
@@ -151,16 +152,6 @@ public class SabrSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
     assertThrowsIllegalArg(() -> SWAPTION_PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, VOL_PROVIDER));
-  }
-
-  public void no_pv_gamma() {
-    assertThrowsWithCause(() -> SWAPTION_PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
-        UnsupportedOperationException.class);
-  }
-
-  public void no_pv_theta() {
-    assertThrowsWithCause(() -> SWAPTION_PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
-        UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -619,14 +610,20 @@ public class SabrSwaptionPhysicalProductPricerTest {
     SurfaceMetadata[] metadata = new SurfaceMetadata[] {SwaptionSabrRateVolatilityDataSet.META_ALPHA,
         SwaptionSabrRateVolatilityDataSet.META_BETA_USD, SwaptionSabrRateVolatilityDataSet.META_RHO,
         SwaptionSabrRateVolatilityDataSet.META_NU};
+    // x-y-value order does not match sorted order in surface, thus sort it
     CurrencyParameterSensitivities sensiExpected = CurrencyParameterSensitivities.empty();
     for (int i = 0; i < exps.length; ++i) {
       int size = exps[i].length;
-      List<ParameterMetadata> paramMetadata = new ArrayList<ParameterMetadata>(size);
-      List<Double> sensi = new ArrayList<Double>(size);
+      Map<DoublesPair, Double> sensiMap = new TreeMap<>();
       for (int j = 0; j < size; ++j) {
-        paramMetadata.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(exps[i][j][0], exps[i][j][1]));
-        sensi.add(exps[i][j][2]);
+        sensiMap.put(DoublesPair.of(exps[i][j][0], exps[i][j][1]), exps[i][j][2]);
+      }
+      List<ParameterMetadata> paramMetadata = new ArrayList<>(size);
+      List<Double> sensi = new ArrayList<>();
+      for (Entry<DoublesPair, Double> entry : sensiMap.entrySet()) {
+        paramMetadata.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(
+            entry.getKey().getFirst(), entry.getKey().getSecond()));
+        sensi.add(entry.getValue());
       }
       SurfaceMetadata surfaceMetadata = metadata[i].withParameterMetadata(paramMetadata);
       sensiExpected = sensiExpected.combinedWith(

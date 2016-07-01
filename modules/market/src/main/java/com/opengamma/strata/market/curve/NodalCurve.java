@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
@@ -33,6 +34,21 @@ public interface NodalCurve
    */
   @Override
   public abstract NodalCurve withMetadata(CurveMetadata metadata);
+
+  /**
+   * Gets the metadata of the parameter at the specified index.
+   * <p>
+   * If there is no specific parameter metadata, {@link SimpleCurveParameterMetadata} will be created.
+   * 
+   * @param parameterIndex  the zero-based index of the parameter to get
+   * @return the metadata of the parameter
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  @Override
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getMetadata().getParameterMetadata().map(pm -> pm.get(parameterIndex))
+        .orElse(SimpleCurveParameterMetadata.of(getMetadata().getXValueType(), getXValues().get(parameterIndex)));
+  }
 
   /**
    * Gets the known x-values of the curve.
@@ -72,5 +88,18 @@ public interface NodalCurve
   default NodalCurve withPerturbation(ParameterPerturbation perturbation) {
     return (NodalCurve) Curve.super.withPerturbation(perturbation);
   }
+
+  /**
+   * Returns a new curve with an additional node with no parameter metadata.
+   * <p>
+   * The result will contain the additional node.
+   * The result will have no parameter metadata, even if this curve does.
+   * 
+   * @param index  the index to insert at
+   * @param x  the new x-value
+   * @param y  the new y-value
+   * @return the updated curve
+   */
+  public abstract NodalCurve withNode(int index, double x, double y);
 
 }

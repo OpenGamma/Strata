@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
@@ -61,7 +63,8 @@ public class TermDepositConventionTest {
   }
 
   public void test_of() {
-    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.of(
+        "EUR-Deposit", EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     assertEquals(test.getName(), "EUR-Deposit");
     assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getCurrency(), EUR);
@@ -72,6 +75,7 @@ public class TermDepositConventionTest {
   //-------------------------------------------------------------------------
   public void test_toTrade() {
     TermDepositConvention convention = ImmutableTermDepositConvention.builder()
+        .name("EUR-Dep")
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_360)
@@ -104,9 +108,9 @@ public class TermDepositConventionTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {TermDepositConventions.USD_DEPOSIT, "USD-Deposit"},
-        {TermDepositConventions.EUR_DEPOSIT, "EUR-Deposit"},
-        {TermDepositConventions.GBP_DEPOSIT, "GBP-Deposit"},
+        {TermDepositConventions.USD_DEPOSIT_T2, "USD-Deposit-T2"},
+        {TermDepositConventions.EUR_DEPOSIT_T2, "EUR-Deposit-T2"},
+        {TermDepositConventions.GBP_DEPOSIT_T0, "GBP-Deposit-T0"},
     };
   }
 
@@ -141,11 +145,40 @@ public class TermDepositConventionTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "spotAndConv")
+  static Object[][] data_spotAndConv() {
+    return new Object[][] {
+        {TermDepositConventions.GBP_DEPOSIT_T0, 0, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {TermDepositConventions.GBP_SHORT_DEPOSIT_T0, 0, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.GBP_SHORT_DEPOSIT_T1, 1, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.EUR_DEPOSIT_T2, 2, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {TermDepositConventions.EUR_SHORT_DEPOSIT_T0, 0, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.EUR_SHORT_DEPOSIT_T1, 1, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.EUR_SHORT_DEPOSIT_T2, 2, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.USD_DEPOSIT_T2, 2, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {TermDepositConventions.USD_SHORT_DEPOSIT_T0, 0, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.USD_SHORT_DEPOSIT_T1, 1, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.USD_SHORT_DEPOSIT_T2, 2, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.CHF_DEPOSIT_T2, 2, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {TermDepositConventions.CHF_SHORT_DEPOSIT_T0, 0, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.CHF_SHORT_DEPOSIT_T1, 1, BusinessDayConventions.FOLLOWING},
+        {TermDepositConventions.CHF_SHORT_DEPOSIT_T2, 2, BusinessDayConventions.FOLLOWING},
+    };
+  }
+
+  @Test(dataProvider = "spotAndConv")
+  public void test_spotAndConv(ImmutableTermDepositConvention convention, int spotT, BusinessDayConvention conv) {
+    assertEquals(convention.getSpotDateOffset().getDays(), spotT);
+    assertEquals(convention.getBusinessDayAdjustment().getConvention(), conv);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    ImmutableTermDepositConvention test1 = ImmutableTermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    ImmutableTermDepositConvention test1 = ImmutableTermDepositConvention.of(
+        "EUR-Deposit", EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     coverImmutableBean(test1);
-    ImmutableTermDepositConvention test2 =
-        ImmutableTermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(0, GBLO));
+    ImmutableTermDepositConvention test2 = ImmutableTermDepositConvention.of(
+        "GBP-Deposit", GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(0, GBLO));
     coverBeanEquals(test1, test2);
 
     coverPrivateConstructor(TermDepositConventions.class);
@@ -153,7 +186,8 @@ public class TermDepositConventionTest {
   }
 
   public void test_serialization() {
-    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    ImmutableTermDepositConvention test = ImmutableTermDepositConvention.of(
+        "EUR-Deposit", EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     assertSerialization(test);
   }
 

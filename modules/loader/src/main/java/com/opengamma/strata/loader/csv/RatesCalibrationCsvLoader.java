@@ -8,6 +8,9 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.time.Period;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -126,12 +129,17 @@ public final class RatesCalibrationCsvLoader {
 
   // Regex to parse FRA time string
   private static final Pattern FRA_TIME_REGEX = Pattern.compile("P?([0-9]+)M? ?X ?P?([0-9]+)M?");
-  // Regex to parse FRA time string
+  // Regex to parse future time string
   private static final Pattern FUT_TIME_REGEX = Pattern.compile("P?((?:[0-9]+D)?(?:[0-9]+W)?(?:[0-9]+M)?) ?[+] ?([0-9]+)");
+  // Regex to parse future month string
+  private static final Pattern FUT_MONTH_REGEX = Pattern.compile("([A-Z][A-Z][A-Z][0-9][0-9])");
   // Regex to parse simple time string with years, months and days
-  private static final Pattern SIMPLE_YMD_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?([0-9]+D)?)");
+  private static final Pattern SIMPLE_YMD_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?([0-9]+W)?([0-9]+D)?)");
   // Regex to parse simple time string with years and months
   private static final Pattern SIMPLE_YM_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?)");
+  // parse year-month
+  private static final DateTimeFormatter YM_FORMATTER = new DateTimeFormatterBuilder()
+      .parseCaseInsensitive().appendPattern("MMMuu").toFormatter(Locale.ENGLISH);
 
   //-------------------------------------------------------------------------
   /**
@@ -255,7 +263,7 @@ public final class RatesCalibrationCsvLoader {
       return curveFraCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("IFU".equalsIgnoreCase(typeStr) || "IborFuture".equalsIgnoreCase(typeStr)) {
-      return curveIborFuturesCurveNode(conventionStr, timeStr, label, quoteId, spread);
+      return curveIborFutureCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("OIS".equalsIgnoreCase(typeStr) || "FixedOvernightSwap".equalsIgnoreCase(typeStr)) {
       return curveFixedOvernightCurveNode(conventionStr, timeStr, label, quoteId, spread);
@@ -329,7 +337,7 @@ public final class RatesCalibrationCsvLoader {
     return FraCurveNode.of(template, quoteId, spread, label);
   }
 
-  private static CurveNode curveIborFuturesCurveNode(
+  private static CurveNode curveIborFutureCurveNode(
       String conventionStr,
       String timeStr,
       String label,
@@ -337,14 +345,21 @@ public final class RatesCalibrationCsvLoader {
       double spread) {
 
     Matcher matcher = FUT_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException(Messages.format("Invalid time format for Ibor Futures: {}", timeStr));
+    if (matcher.matches()) {
+      Period periodToStart = Period.parse("P" + matcher.group(1));
+      int sequenceNumber = Integer.parseInt(matcher.group(2));
+      IborFutureConvention convention = IborFutureConvention.of(conventionStr);
+      IborFutureTemplate template = IborFutureTemplate.of(periodToStart, sequenceNumber, convention);
+      return IborFutureCurveNode.of(template, quoteId, spread, label);
     }
-    Period periodToStart = Period.parse("P" + matcher.group(1));
-    int sequenceNumber = Integer.parseInt(matcher.group(2));
-    IborFutureConvention convention = IborFutureConvention.of(conventionStr);
-    IborFutureTemplate template = IborFutureTemplate.of(periodToStart, sequenceNumber, convention);
-    return IborFutureCurveNode.of(template, quoteId, spread, label);
+    Matcher matcher2 = FUT_MONTH_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (matcher2.matches()) {
+      YearMonth yearMonth = YearMonth.parse(matcher2.group(1), YM_FORMATTER);
+      IborFutureConvention convention = IborFutureConvention.of(conventionStr);
+      IborFutureTemplate template = IborFutureTemplate.of(yearMonth, convention);
+      return IborFutureCurveNode.of(template, quoteId, spread, label);
+    }
+    throw new IllegalArgumentException(Messages.format("Invalid time format for Ibor Future: {}", timeStr));
   }
 
   //-------------------------------------------------------------------------

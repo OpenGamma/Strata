@@ -10,7 +10,7 @@ import java.util.Arrays;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.product.fx.BarrierType;
+import com.opengamma.strata.product.fxopt.BarrierType;
 
 /**
  * Single barrier knock-out option function.

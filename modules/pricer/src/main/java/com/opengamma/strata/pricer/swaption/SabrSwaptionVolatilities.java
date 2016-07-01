@@ -6,15 +6,23 @@
 package com.opengamma.strata.pricer.swaption;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * Volatility for swaptions in SABR model. 
  * <p>
  * The volatility is represented in terms of SABR model parameters.
+ * <p>
+ * The prices are calculated using the SABR implied volatility with respect to the Black formula.
  */
 public interface SabrSwaptionVolatilities
     extends SwaptionVolatilities {
+  
+  @Override
+  public default ValueType getVolatilityType() {
+    return ValueType.BLACK_VOLATILITY; // SABR implemented with Black implied volatility
+  }
 
   @Override
   public abstract SabrSwaptionVolatilities withParameter(int parameterIndex, double newValue);

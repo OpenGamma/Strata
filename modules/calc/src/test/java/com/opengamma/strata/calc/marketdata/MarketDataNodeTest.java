@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
@@ -283,6 +284,16 @@ public class MarketDataNodeTest {
 
     TestIdA(String id) {
       this.id = StandardId.of("test", id);
+    }
+
+    @Override
+    public StandardId getStandardId() {
+      return id;
+    }
+
+    @Override
+    public FieldName getFieldName() {
+      return FieldName.MARKET_VALUE;
     }
 
     @Override

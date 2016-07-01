@@ -40,7 +40,7 @@ public class TermDepositTemplateTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
-  private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT;
+  private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT_T2;
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
 
   public void test_builder() {
@@ -94,7 +94,8 @@ public class TermDepositTemplateTest {
     TermDepositTemplate test1 = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     coverImmutableBean(test1);
     TermDepositTemplate test2 = TermDepositTemplate.of(Period.ofMonths(6),
-        ImmutableTermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(2, GBLO)));
+        ImmutableTermDepositConvention.of(
+            "GBP-Dep", GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(2, GBLO)));
     coverBeanEquals(test1, test2);
   }
 

@@ -221,26 +221,21 @@ public final class XCcyIborIborSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public SwapTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     double marketQuote = marketData.getValue(spreadId) + additionalSpread;
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
     BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
-    return template.createTrade(valuationDate, buySell, Math.abs(quantity), rate, marketQuote, refData);
+    return template.createTrade(marketData.getValuationDate(), buySell, Math.abs(quantity), rate, marketQuote, refData);
   }
 
   @Override
-  public ResolvedSwapTrade resolvedTrade(
-      LocalDate valuationDate,
-      double quantity,
-      MarketData marketData,
-      ReferenceData refData) {
-
-    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
+  public ResolvedSwapTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(quantity, marketData, refData).resolve(refData);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
+  public double initialGuess(MarketData marketData, ValueType valueType) {
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
       return 1.0d;
     }

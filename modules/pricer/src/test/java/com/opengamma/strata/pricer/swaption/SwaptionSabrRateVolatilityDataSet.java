@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.SwapIndices.EUR_EURIBOR_1100_5Y;
 
 import java.time.LocalDate;
@@ -25,9 +26,8 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -35,9 +35,8 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -52,9 +51,7 @@ public class SwaptionSabrRateVolatilityDataSet {
    * Interpolators
    */
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
-  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
+  private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
 
   /*
    * Data set used to test the pricers for physical delivery swaption. 
@@ -84,18 +81,18 @@ public class SwaptionSabrRateVolatilityDataSet {
   static final InterpolatedNodalCurve CURVE_FWD_USD = InterpolatedNodalCurve.of(
       META_FWD_USD, DoubleArray.copyOf(TIME_FWD_USD), DoubleArray.copyOf(RATE_FWD_USD), INTERPOLATOR);
 
-  private static final double[] EXPIRY_NODE_USD = new double[]
-  {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10};
-  private static final double[] TENOR_NODE_USD = new double[]
-  {1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10};
+  private static final double[] EXPIRY_NODE_USD = new double[] {
+      0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 1, 1, 1, 2, 2, 2, 5, 5, 5, 10, 10, 10};
+  private static final double[] TENOR_NODE_USD = new double[] {
+      1, 5, 10, 1, 5, 10, 1, 5, 10, 1, 5, 10, 1, 5, 10, 1, 5, 10};
   private static final double[] ALPHA_NODE_USD = new double[] {
-      0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06};
+      0.05, 0.05, 0.06, 0.05, 0.05, 0.06, 0.05, 0.05, 0.06, 0.05, 0.05, 0.06, 0.05, 0.05, 0.06, 0.05, 0.05, 0.06};
   private static final double[] BETA_NODE_USD = new double[] {
       0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   private static final double[] RHO_NODE_USD = new double[] {
-      -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0.0, 0.0, 0.0, 0.0};
+      -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0, -0.25, -0.25, 0, -0.25, -0.25, 0, -0.25, -0.25, 0};
   private static final double[] NU_NODE_USD = new double[] {
-      0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.3, 0.3, 0.3, 0.3};
+      0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3};
   static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test-SABR");
   static final SurfaceMetadata META_ALPHA =
       Surfaces.swaptionSabrExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_ALPHA);
@@ -196,18 +193,17 @@ public class SwaptionSabrRateVolatilityDataSet {
   private static final InterpolatedNodalCurve CURVE_FWD_EUR = InterpolatedNodalCurve.of(
       META_FWD_EUR, DoubleArray.copyOf(TIME_FWD_EUR), DoubleArray.copyOf(RATE_FWD_EUR), INTERPOLATOR);
 
-  private static final double[] BETA_EXPIRY_NODE_EUR = new double[]
-  {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100};
-  private static final double[] BETA_TENOR_NODE_EUR = new double[]
-  {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100, 100, 100, 100};
+  private static final double[] BETA_EXPIRY_NODE_EUR = new double[] {
+      0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10, 100, 100, 100, 100};
+  private static final double[] BETA_TENOR_NODE_EUR = new double[] {
+      0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100};
   private static final InterpolatedNodalSurface SURFACE_ALPHA_EUR = InterpolatedNodalSurface.of(
       Surfaces.swaptionSabrExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_ALPHA),
-      DoubleArray.copyOf(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5,
-          1, 2, 5, 10}),
-      DoubleArray.copyOf(new double[] {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100,
-          100, 100}),
-      DoubleArray.copyOf(new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06,
-          0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}),
+      DoubleArray.of(0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10),
+      DoubleArray.of(0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100),
+      DoubleArray.of(
+          0.05, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.06,
+          0.05, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.06),
       INTERPOLATOR_2D);
   private static final List<ParameterMetadata> PARAMETER_META_LIST_EUR;
   static {
@@ -231,21 +227,33 @@ public class SwaptionSabrRateVolatilityDataSet {
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE_RHO_EUR = InterpolatedNodalSurface.of(
       Surfaces.swaptionSabrExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_RHO),
-      DoubleArray.copyOf(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10,
-          100, 0.0, 0.5, 1, 2, 5, 10, 100}),
-      DoubleArray.copyOf(new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100,
-          100, 100, 100, 100, 100}),
-      DoubleArray.copyOf(new double[] {-0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25,
-          -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00}),
+      DoubleArray.of(
+          0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10, 100, 100, 100, 100),
+      DoubleArray.of(
+          0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100),
+      DoubleArray.of(
+          -0.25, -0.25, 0, 0,
+          -0.25, -0.25, 0, 0,
+          -0.25, -0.25, 0, 0,
+          -0.25, -0.25, 0, 0,
+          -0.25, -0.25, 0, 0,
+          -0.25, -0.25, 0, 0,
+          -0.25, -0.25, 0, 0),
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE_NU_EUR = InterpolatedNodalSurface.of(
       Surfaces.swaptionSabrExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_NU),
-      DoubleArray.copyOf(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10,
-          100, 0.0, 0.5, 1, 2, 5, 10, 100}),
-      DoubleArray.copyOf(new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100,
-          100, 100, 100, 100, 100}),
-      DoubleArray.copyOf(new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50,
-          0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}),
+      DoubleArray.of(
+          0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10, 100, 100, 100, 100),
+      DoubleArray.of(
+          0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100),
+      DoubleArray.of(
+          0.50, 0.50, 0.30, 0.30,
+          0.50, 0.50, 0.30, 0.30,
+          0.50, 0.50, 0.30, 0.30,
+          0.50, 0.50, 0.30, 0.30,
+          0.50, 0.50, 0.30, 0.30,
+          0.50, 0.50, 0.30, 0.30,
+          0.50, 0.50, 0.30, 0.30),
       INTERPOLATOR_2D);
   private static final ConstantSurface SURFACE_SHIFT_EUR = ConstantSurface.of(
       META_SHIFT.toBuilder().addInfo(SurfaceInfoType.SWAP_CONVENTION, SWAP_CONVENTION_EUR).build(), SHIFT);

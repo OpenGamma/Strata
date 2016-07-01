@@ -48,10 +48,10 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -109,11 +109,11 @@ public class CurveEndToEndTest {
 
     // Build the trades from the node instruments
     MarketData quotes = ImmutableMarketData.of(valuationDate, parRateData);
-    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, 1d, quotes, REF_DATA);
-    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, 1d, quotes, REF_DATA);
-    Trade swap1yTrade = swap1yNode.trade(valuationDate, 1d, quotes, REF_DATA);
-    Trade swap2yTrade = swap2yNode.trade(valuationDate, 1d, quotes, REF_DATA);
-    Trade swap3yTrade = swap3yNode.trade(valuationDate, 1d, quotes, REF_DATA);
+    Trade fra3x6Trade = fra3x6Node.trade(1d, quotes, REF_DATA);
+    Trade fra6x9Trade = fra6x9Node.trade(1d, quotes, REF_DATA);
+    Trade swap1yTrade = swap1yNode.trade(1d, quotes, REF_DATA);
+    Trade swap2yTrade = swap2yNode.trade(1d, quotes, REF_DATA);
+    Trade swap3yTrade = swap3yNode.trade(1d, quotes, REF_DATA);
 
     List<Trade> trades = ImmutableList.of(fra3x6Trade, fra6x9Trade, swap1yTrade, swap2yTrade, swap3yTrade);
 

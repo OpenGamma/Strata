@@ -138,7 +138,11 @@ public final class CalculationTaskCell implements ImmutableBean {
       ReferenceData refData) {
 
     // the result is only converted if it is a success and both the measure and value are convertible
-    if (measure.isCurrencyConvertible() && result.isSuccess() && result.getValue() instanceof ScenarioFxConvertible) {
+    if (measure.isCurrencyConvertible() &&
+        !reportingCurrency.isNone() &&
+        result.isSuccess() &&
+        result.getValue() instanceof ScenarioFxConvertible) {
+
       ScenarioFxConvertible<?> convertible = (ScenarioFxConvertible<?>) result.getValue();
       return convertCurrency(task, convertible, fxProvider, refData);
     }
@@ -157,7 +161,11 @@ public final class CalculationTaskCell implements ImmutableBean {
       return Result.success(value.convertedTo(resolvedReportingCurrency, fxProvider));
     } catch (RuntimeException ex) {
       return Result.failure(
-          FailureReason.ERROR, ex, "Failed to convert value '{}' to currency '{}'", value, resolvedReportingCurrency);
+          FailureReason.CURRENCY_CONVERSION,
+          ex,
+          "Failed to convert value '{}' to currency '{}'",
+          value,
+          resolvedReportingCurrency);
     }
   }
 

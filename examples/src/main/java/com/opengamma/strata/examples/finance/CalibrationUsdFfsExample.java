@@ -180,7 +180,7 @@ public class CalibrationUsdFfsExample {
         .flatMap(defn -> defn.getNodes().stream())
         // IborFixingDeposit is not a real trade, so there is no appropriate comparison
         .filter(node -> !(node instanceof IborFixingDepositCurveNode))
-        .map(node -> node.trade(VAL_DATE, 1d, marketData, refData))
+        .map(node -> node.trade(1d, marketData, refData))
         .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated

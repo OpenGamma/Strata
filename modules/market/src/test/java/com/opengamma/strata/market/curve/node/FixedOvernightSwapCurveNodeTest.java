@@ -103,30 +103,27 @@ public class FixedOvernightSwapCurveNodeTest {
 
   public void test_trade() {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
     double quantity = -1234.56;
-    MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_ID, rate).build();
-    SwapTrade trade = node.trade(tradeDate, quantity, marketData, REF_DATA);
-    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, -quantity, rate + SPREAD, REF_DATA);
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
+    SwapTrade trade = node.trade(quantity, marketData, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(VAL_DATE, BUY, -quantity, rate + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
   public void test_trade_noMarketData() {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
+    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), rate);
+    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * TENOR_10Y.getPeriod().toTotalMonths() / 12d), 1.0E-12);
   }
 

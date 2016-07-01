@@ -10,10 +10,12 @@ import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -42,6 +44,11 @@ public class IborCapletFloorletVolatilitiesTest {
     @Override
     public ZonedDateTime getValuationDateTime() {
       return DATE_TIME;
+    }
+
+    @Override
+    public <T> Optional<T> findData(MarketDataName<T> name) {
+      return Optional.empty();
     }
 
     @Override

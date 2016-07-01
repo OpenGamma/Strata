@@ -16,6 +16,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -23,10 +24,11 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 
@@ -61,6 +63,9 @@ public class DiscountFxForwardRatesTest {
     assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
     assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD);
     assertEquals(test.getFxRateProvider(), FX_RATE);
+    assertEquals(test.findData(CURVE1.getName()), Optional.of(CURVE1));
+    assertEquals(test.findData(CURVE2.getName()), Optional.of(CURVE2));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
 
     int baseSize = DFCURVE_USD.getParameterCount();
     assertEquals(test.getParameterCount(), DFCURVE_GBP.getParameterCount() + baseSize);

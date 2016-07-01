@@ -119,6 +119,14 @@ final class ExtendedScenarioMarketData<T>
   }
 
   @Override
+  public Set<MarketDataId<?>> getIds() {
+    return ImmutableSet.<MarketDataId<?>>builder()
+        .addAll(underlying.getIds())
+        .add(id)
+        .build();
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <R> Set<MarketDataId<R>> findIds(MarketDataName<R> name) {
     Set<MarketDataId<R>> ids = underlying.findIds(name);

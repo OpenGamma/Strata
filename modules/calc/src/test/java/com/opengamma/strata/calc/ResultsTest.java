@@ -26,9 +26,12 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class ResultsTest {
 
-  private static final ColumnHeader HEADER1 = ColumnHeader.of(ColumnName.of("A"), TestingMeasures.PRESENT_VALUE);
-  private static final ColumnHeader HEADER2 = ColumnHeader.of(ColumnName.of("B"), TestingMeasures.PRESENT_VALUE);
-  private static final ColumnHeader HEADER3 = ColumnHeader.of(ColumnName.of("C"), TestingMeasures.PRESENT_VALUE);
+  private static final ColumnName NAME_A = ColumnName.of("A");
+  private static final ColumnName NAME_B = ColumnName.of("B");
+  private static final ColumnName NAME_C = ColumnName.of("C");
+  private static final ColumnHeader HEADER1 = ColumnHeader.of(NAME_A, TestingMeasures.PRESENT_VALUE);
+  private static final ColumnHeader HEADER2 = ColumnHeader.of(NAME_B, TestingMeasures.PRESENT_VALUE);
+  private static final ColumnHeader HEADER3 = ColumnHeader.of(NAME_C, TestingMeasures.PRESENT_VALUE);
 
   public void test_empty() {
     Results test = Results.of(ImmutableList.of(), ImmutableList.of());
@@ -36,15 +39,23 @@ public class ResultsTest {
     assertEquals(test.getRowCount(), 0);
     assertEquals(test.getColumnCount(), 0);
     assertThrows(() -> test.get(0, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
+    assertThrows(() -> test.get(0, 0, String.class), IllegalArgumentException.class, "Row index must be greater than or.*");
+    assertThrows(() -> test.get(0, NAME_A), IllegalArgumentException.class, "Column name not found.*");
+    assertThrows(() -> test.get(0, NAME_A, String.class), IllegalArgumentException.class, "Column name not found.*");
   }
 
   public void nonEmpty() {
-    Results test = Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results(1, 2, 3, 4, 5, 6));
+    Results test = Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results("1", "2", "3", "4", "5", "6"));
     assertEquals(test.getColumns(), ImmutableList.of(HEADER1, HEADER2, HEADER3));
     assertEquals(test.getRowCount(), 2);
     assertEquals(test.getColumnCount(), 3);
-    assertEquals(test.get(0, 0).getValue(), 1);
-    assertEquals(test.get(1, 2).getValue(), 6);
+    assertEquals(test.get(0, 0).getValue(), "1");
+    assertEquals(test.get(0, 0, String.class).getValue(), "1");
+    assertEquals(test.get(0, NAME_A).getValue(), "1");
+    assertEquals(test.get(0, NAME_A, String.class).getValue(), "1");
+    assertEquals(test.get(0, NAME_B).getValue(), "2");
+    assertEquals(test.get(0, NAME_B, String.class).getValue(), "2");
+    assertEquals(test.get(1, 2).getValue(), "6");
     assertThrows(() -> test.get(-1, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
     assertThrows(() -> test.get(2, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
     assertThrows(() -> test.get(0, -1), IllegalArgumentException.class, "Column index must be greater than or.*");

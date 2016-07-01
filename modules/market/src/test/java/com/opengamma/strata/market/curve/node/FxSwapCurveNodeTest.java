@@ -74,7 +74,7 @@ public class FxSwapCurveNodeTest {
   private static final double FX_RATE_PTS = 0.0050d;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "6M";
-  private static final MarketData OV = ImmutableMarketData.builder(VAL_DATE)
+  private static final MarketData MARKET_DATA = ImmutableMarketData.builder(VAL_DATE)
       .addValue(FX_RATE_ID, FX_RATE_NEAR)
       .addValue(QUOTE_ID_PTS, FX_RATE_PTS)
       .build();
@@ -136,26 +136,23 @@ public class FxSwapCurveNodeTest {
 
   public void test_trade() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    FxSwapTrade trade = node.trade(valuationDate, 1d, OV, REF_DATA);
+    FxSwapTrade trade = node.trade(1d, MARKET_DATA, REF_DATA);
     double rate = FX_RATE_NEAR.fxRate(EUR_USD);
-    FxSwapTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1.0, rate, FX_RATE_PTS, REF_DATA);
+    FxSwapTrade expected = TEMPLATE.createTrade(VAL_DATE, BuySell.BUY, 1.0, rate, FX_RATE_PTS, REF_DATA);
     assertEquals(trade, expected);
-    assertEquals(node.resolvedTrade(valuationDate, 1d, OV, REF_DATA), trade.resolve(REF_DATA));
+    assertEquals(node.resolvedTrade(1d, MARKET_DATA, REF_DATA), trade.resolve(REF_DATA));
   }
 
   public void test_trade_noMarketData() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    assertEquals(node.initialGuess(valuationDate, OV, ValueType.ZERO_RATE), 0.0d);
-    assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
+    assertEquals(node.initialGuess(MARKET_DATA, ValueType.ZERO_RATE), 0.0d);
+    assertEquals(node.initialGuess(MARKET_DATA, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
   public void test_metadata_end() {

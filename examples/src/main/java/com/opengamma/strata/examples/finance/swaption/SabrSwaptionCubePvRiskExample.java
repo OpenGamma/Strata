@@ -11,6 +11,7 @@ import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.DA
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.EXPIRIES;
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.MONEYNESS;
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.TENORS;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 
 import java.time.LocalDate;
@@ -37,16 +38,13 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.curve.RawOptionData;
@@ -58,7 +56,7 @@ import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 
@@ -96,9 +94,7 @@ public class SabrSwaptionCubePvRiskExample {
 
   private static final List<RawOptionData> DATA_FULL = rawData(DATA_ARRAY_FULL);
   private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_ARRAY_SPARSE);
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
-  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
+  private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
 
   //-------------------------------------------------------------------------
   /** 
@@ -122,7 +118,7 @@ public class SabrSwaptionCubePvRiskExample {
     SwapTrade underlying = EUR_FIXED_1Y_EURIBOR_6M.createTrade(expiryDate, tenor, payer, notional, strike, REF_DATA);
     Swaption swaption = Swaption.builder().expiryDate(AdjustableDate.of(expiryDate)).expiryTime(LocalTime.of(11, 00))
         .expiryZone(ZoneId.of("Europe/Berlin")).underlying(underlying.getProduct()).longShort(LongShort.LONG)
-        .swaptionSettlement(PhysicalSettlement.DEFAULT).build();
+        .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT).build();
     ResolvedSwaption resolvedSwaption = swaption.resolve(REF_DATA);
 
     // select data
@@ -135,7 +131,7 @@ public class SabrSwaptionCubePvRiskExample {
 
     start = System.currentTimeMillis();
     // Curve calibration 
-    RatesProvider multicurve = CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+    RatesProvider multicurve = CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA, TS);
     end = System.currentTimeMillis();
     System.out.println("Curve calibration time: " + (end - start) + " ms.");
 

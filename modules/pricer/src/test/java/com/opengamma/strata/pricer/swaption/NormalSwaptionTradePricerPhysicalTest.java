@@ -32,7 +32,7 @@ import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.Swaption;
@@ -58,7 +58,7 @@ public class NormalSwaptionTradePricerPhysicalTest {
   private static final double NOTIONAL = 100_000_000;
   private static final Swap SWAP_REC = USD_FIXED_6M_LIBOR_3M
       .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
-  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
+  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSwaptionSettlement.DEFAULT;
 
   private static final double PREMIUM_AMOUNT = 100_000;
   private static final ResolvedSwaption SWAPTION_LONG_REC = Swaption.builder()

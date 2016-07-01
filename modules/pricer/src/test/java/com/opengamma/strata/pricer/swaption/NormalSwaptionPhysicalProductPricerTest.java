@@ -41,9 +41,9 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swaption.CashSettlement;
-import com.opengamma.strata.product.swaption.CashSettlementMethod;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
@@ -76,11 +76,9 @@ public class NormalSwaptionPhysicalProductPricerTest {
   private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
           BUY, NOTIONAL, STRIKE).getProduct();
-  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
-  private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
-      .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SWAP_REC.getStartDate().getUnadjusted())
-      .build();
+  private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSwaptionSettlement.DEFAULT;
+  private static final SwaptionSettlement CASH_SETTLE =
+      CashSwaptionSettlement.of(SWAP_REC.getStartDate().getUnadjusted(), CashSwaptionSettlementMethod.PAR_YIELD);
 
   private static final ResolvedSwaption SWAPTION_LONG_REC = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)

@@ -83,8 +83,6 @@ public class SecurityTradeCalculationFunctionTest {
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
-        .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))));
   }
 

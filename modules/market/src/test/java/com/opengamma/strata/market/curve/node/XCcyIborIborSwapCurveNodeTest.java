@@ -66,7 +66,7 @@ public class XCcyIborIborSwapCurveNodeTest {
   private static final double SPREAD_ADJ = 0.0015;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
-  private static final MarketData OV = ImmutableMarketData.builder(VAL_DATE)
+  private static final MarketData MARKET_DATA = ImmutableMarketData.builder(VAL_DATE)
       .addValue(SPREAD_ID, SPREAD_XCS)
       .addValue(FX_RATE_ID, FX_EUR_USD)
       .build();
@@ -137,27 +137,24 @@ public class XCcyIborIborSwapCurveNodeTest {
 
   public void test_trade() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
-    LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double quantity = -1234.56;
-    SwapTrade trade = node.trade(tradeDate, quantity, OV, REF_DATA);
+    SwapTrade trade = node.trade(quantity, MARKET_DATA, REF_DATA);
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
-    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, -quantity, rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(VAL_DATE, BUY, -quantity, rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
     assertEquals(trade, expected);
-    assertEquals(node.resolvedTrade(tradeDate, quantity, OV, REF_DATA), trade.resolve(REF_DATA));
+    assertEquals(node.resolvedTrade(quantity, MARKET_DATA, REF_DATA), trade.resolve(REF_DATA));
   }
 
   public void test_trade_noMarketData() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    assertEquals(node.initialGuess(valuationDate, OV, ValueType.ZERO_RATE), 0d);
-    assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
+    assertEquals(node.initialGuess(MARKET_DATA, ValueType.ZERO_RATE), 0d);
+    assertEquals(node.initialGuess(MARKET_DATA, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
   public void test_metadata_end() {

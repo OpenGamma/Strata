@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -40,6 +41,7 @@ public class BuiltMarketDataTest {
 
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.containsValue(ID), false);
+    assertEquals(test.getIds(), ImmutableSet.of());
     assertEquals(test.findValue(ID), Optional.empty());
     assertThrows(() -> test.getValue(ID), FailureException.class, failureMessage);
   }
@@ -51,6 +53,7 @@ public class BuiltMarketDataTest {
 
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.containsValue(ID), false);
+    assertEquals(test.getIds(), ImmutableSet.of());
     assertEquals(test.findValue(ID), Optional.empty());
     assertThrows(() -> test.getValue(ID), MarketDataNotFoundException.class);
   }

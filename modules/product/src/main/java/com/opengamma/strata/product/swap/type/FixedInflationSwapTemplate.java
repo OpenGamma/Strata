@@ -82,7 +82,6 @@ public final class FixedInflationSwapTemplate
    * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
    * @param tradeDate  the date of the trade
-   * @param tenor  the tenor of the trade
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -92,7 +91,6 @@ public final class FixedInflationSwapTemplate
    */
   public SwapTrade createTrade(
       LocalDate tradeDate,
-      Tenor tenor,
       BuySell buySell,
       double notional,
       double fixedRate,

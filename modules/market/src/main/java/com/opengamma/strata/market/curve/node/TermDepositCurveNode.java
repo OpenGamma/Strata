@@ -173,24 +173,19 @@ public final class TermDepositCurveNode
   }
 
   @Override
-  public TermDepositTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public TermDepositTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
     BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
-    return template.createTrade(valuationDate, buySell, Math.abs(quantity), fixedRate, refData);
+    return template.createTrade(marketData.getValuationDate(), buySell, Math.abs(quantity), fixedRate, refData);
   }
 
   @Override
-  public ResolvedTermDepositTrade resolvedTrade(
-      LocalDate valuationDate,
-      double quantity,
-      MarketData marketData,
-      ReferenceData refData) {
-
-    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
+  public ResolvedTermDepositTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(quantity, marketData, refData).resolve(refData);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
+  public double initialGuess(MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
       return marketData.getValue(rateId);
     }

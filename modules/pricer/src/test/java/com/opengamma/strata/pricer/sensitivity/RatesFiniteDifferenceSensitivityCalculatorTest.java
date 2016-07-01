@@ -22,6 +22,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
@@ -105,14 +106,14 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     // Price index
     ImmutableMap<PriceIndex, PriceIndexValues> mapPriceIndex = provider.getPriceIndexValues();
     for (Entry<PriceIndex, PriceIndexValues> entry : mapPriceIndex.entrySet()) {
-      InterpolatedNodalCurve curveInt = ((SimplePriceIndexValues) entry.getValue()).getCurve();
+      NodalCurve curveInt = ((SimplePriceIndexValues) entry.getValue()).getCurve();
       result += sumProduct(curveInt);
     }
     return CurrencyAmount.of(USD, result);
   }
 
   // compute the sum of the product of times and rates
-  private double sumProduct(InterpolatedNodalCurve curveInt) {
+  private double sumProduct(NodalCurve curveInt) {
     double result = 0.0;
     DoubleArray x = curveInt.getXValues();
     DoubleArray y = curveInt.getYValues();

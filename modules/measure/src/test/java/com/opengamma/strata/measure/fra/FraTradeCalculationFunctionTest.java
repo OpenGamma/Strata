@@ -107,8 +107,6 @@ public class FraTradeCalculationFunctionTest {
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
-        .containsEntry(
             Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(
             Measures.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))

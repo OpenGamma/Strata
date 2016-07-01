@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -30,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.surface.Surface;
@@ -111,6 +113,15 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
       DayCount dayCount) {
 
     return of(surface, index, valuationDate.atTime(valuationTime).atZone(valuationZone), dayCount);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (surface.getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(surface));
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

@@ -62,11 +62,9 @@ public final class ImmutableTermDepositConvention
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The convention name, such as 'GBP-Deposit'.
-   * <p>
-   * This will default to the currency code suffixed by '-Deposit' if not specified.
+   * The convention name, such as 'GBP-Deposit-ON'.
    */
-  @PropertyDefinition(get = "field")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final String name;
   /**
    * The business day adjustment to apply to the start and end date.
@@ -97,6 +95,7 @@ public final class ImmutableTermDepositConvention
    * Obtains a convention based on the specified currency, business day adjustment,
    * day count convention and spot date offset.
    * 
+   * @param name  the name of the convention, such as 'GBP-Deposit-ON'
    * @param currency  the currency, in which the payments are made
    * @param businessDayAdjustment the business day adjustment to apply to the start and end date
    * @param dayCount the day count convention, used to convert dates to a numerical value
@@ -104,30 +103,19 @@ public final class ImmutableTermDepositConvention
    * @return the convention
    */
   public static ImmutableTermDepositConvention of(
+      String name,
       Currency currency,
       BusinessDayAdjustment businessDayAdjustment,
       DayCount dayCount,
       DaysAdjustment spotDateOffset) {
 
     return ImmutableTermDepositConvention.builder()
+        .name(name)
         .currency(currency)
         .businessDayAdjustment(businessDayAdjustment)
         .dayCount(dayCount)
         .spotDateOffset(spotDateOffset)
         .build();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the convention name, such as 'GBP-Deposit'.
-   * <p>
-   * This will default to the currency code suffixed by '-Deposit' if not specified.
-   * 
-   * @return the convention name
-   */
-  @Override
-  public String getName() {
-    return name != null ? name : currency.getCode() + "-Deposit";
   }
 
   //-------------------------------------------------------------------------
@@ -212,6 +200,7 @@ public final class ImmutableTermDepositConvention
       DayCount dayCount,
       DaysAdjustment spotDateOffset) {
     JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
@@ -247,6 +236,16 @@ public final class ImmutableTermDepositConvention
   @Override
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the convention name, such as 'GBP-Deposit-ON'.
+   * @return the value of the property, not null
+   */
+  @Override
+  public String getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
@@ -453,7 +452,7 @@ public final class ImmutableTermDepositConvention
         case 575402001:  // currency
           return ((ImmutableTermDepositConvention) bean).getCurrency();
         case 3373707:  // name
-          return ((ImmutableTermDepositConvention) bean).name;
+          return ((ImmutableTermDepositConvention) bean).getName();
         case -1065319863:  // businessDayAdjustment
           return ((ImmutableTermDepositConvention) bean).getBusinessDayAdjustment();
         case 1905311443:  // dayCount
@@ -499,7 +498,7 @@ public final class ImmutableTermDepositConvention
      */
     private Builder(ImmutableTermDepositConvention beanToCopy) {
       this.currency = beanToCopy.getCurrency();
-      this.name = beanToCopy.name;
+      this.name = beanToCopy.getName();
       this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.dayCount = beanToCopy.getDayCount();
       this.spotDateOffset = beanToCopy.getSpotDateOffset();
@@ -597,13 +596,12 @@ public final class ImmutableTermDepositConvention
     }
 
     /**
-     * Sets the convention name, such as 'GBP-Deposit'.
-     * <p>
-     * This will default to the currency code suffixed by '-Deposit' if not specified.
-     * @param name  the new value
+     * Sets the convention name, such as 'GBP-Deposit-ON'.
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
+      JodaBeanUtils.notNull(name, "name");
       this.name = name;
       return this;
     }

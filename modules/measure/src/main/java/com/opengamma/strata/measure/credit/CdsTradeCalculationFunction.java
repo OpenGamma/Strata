@@ -18,7 +18,6 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
-import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.MarketDataId;
@@ -43,7 +42,6 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
  *   <li>{@linkplain Measures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
  *   <li>{@linkplain Measures#IR01_PARALLEL_PAR Scalar IR01, based on par interest rates}
@@ -81,10 +79,7 @@ public class CdsTradeCalculationFunction
           .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
           .build();
 
-  private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
-      .addAll(CALCULATORS.keySet())
-      .add(Measures.PRESENT_VALUE_MULTI_CCY)
-      .build();
+  private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
 
   /**
    * Creates an instance.
@@ -169,8 +164,6 @@ public class CdsTradeCalculationFunction
     for (Measure measure : measures) {
       results.put(measure, calculate(measure, resolved, scenarioMarketData));
     }
-    // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
-    FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
     return results;
   }
 
@@ -182,7 +175,7 @@ public class CdsTradeCalculationFunction
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
-      return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
+      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for CdsTrade: {}", measure);
     }
     return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
   }

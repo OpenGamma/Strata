@@ -11,6 +11,7 @@ import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.DA
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.EXPIRIES;
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.MONEYNESS;
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.TENORS;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 
 import java.time.LocalDate;
@@ -33,14 +34,11 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.curve.RawOptionData;
@@ -83,7 +81,7 @@ public class SabrSwaptionCubeCalibrationExample {
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
   private static final RatesProvider MULTICURVE =
-      CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+      CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA, TS);
 
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
 
@@ -91,9 +89,7 @@ public class SabrSwaptionCubeCalibrationExample {
   private static final int NB_TENORS = TENORS.size();
   private static final List<RawOptionData> DATA_FULL = rawData(DATA_ARRAY_FULL);
   private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_ARRAY_SPARSE);
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
-  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
+  private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
 
   //-------------------------------------------------------------------------
   /** 

@@ -32,6 +32,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
+import com.opengamma.strata.calc.marketdata.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.ScenarioDefinition;
@@ -42,10 +43,10 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveParallelShifts;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.measure.curve.AnyCurveFilter;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
@@ -114,7 +115,7 @@ public class CurveScenarioExample {
     // this applies the perturbations above to all curves
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         Curve.class,
-        AnyCurveFilter.INSTANCE,
+        MarketDataFilter.ofIdType(CurveId.class),
         // no shift for the base scenario, 1bp absolute shift to calibrated curves (zeros)
         CurveParallelShifts.absolute(0, ONE_BP));
 

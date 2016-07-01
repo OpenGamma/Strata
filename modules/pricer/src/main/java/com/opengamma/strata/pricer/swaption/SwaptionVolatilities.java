@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
@@ -39,6 +40,13 @@ public interface SwaptionVolatilities
    * @return the convention
    */
   public abstract FixedIborSwapConvention getConvention();
+  
+  /**
+   * Gets the type of volatility returned by the {@link SwaptionVolatilities#volatility} method.
+   * 
+   * @return the type
+   */
+  public abstract ValueType getVolatilityType();
 
   /**
    * Gets the valuation date.

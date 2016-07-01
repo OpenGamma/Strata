@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
@@ -72,6 +73,11 @@ public final class TestMarketDataMap implements ScenarioMarketData {
     @SuppressWarnings("unchecked")
     T value = (T) valueMap.get(id);
     return value == null ? Optional.empty() : Optional.of(MarketDataBox.ofSingleValue(value));
+  }
+
+  @Override
+  public Set<MarketDataId<?>> getIds() {
+    return ImmutableSet.copyOf(valueMap.keySet());
   }
 
   @Override

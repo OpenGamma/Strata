@@ -145,6 +145,11 @@ public final class ImmutableMarketData
   }
 
   @Override
+  public Set<MarketDataId<?>> getIds() {
+    return values.keySet();
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     // no type check against id.getMarketDataType() as checked in factory

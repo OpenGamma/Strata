@@ -23,6 +23,7 @@
 <listEntry value="com.opengamma.strata.measure.dsf"/>
 <listEntry value="com.opengamma.strata.measure.fra"/>
 <listEntry value="com.opengamma.strata.measure.fx"/>
+<listEntry value="com.opengamma.strata.measure.fxopt"/>
 <listEntry value="com.opengamma.strata.measure.index"/>
 <listEntry value="com.opengamma.strata.measure.payment"/>
 <listEntry value="com.opengamma.strata.measure.rate"/>

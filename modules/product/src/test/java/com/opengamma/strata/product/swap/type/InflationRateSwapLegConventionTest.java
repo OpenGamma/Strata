@@ -44,7 +44,7 @@ public class InflationRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M);
+    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
     assertEquals(test.getIndex(), GB_HICP);
     assertEquals(test.getLag(), LAG_3M);
     assertEquals(test.getIndexCalculationMethod(), PriceIndexCalculationMethod.MONTHLY);
@@ -85,15 +85,14 @@ public class InflationRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_toLeg() {
-    InflationRateSwapLegConvention base = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M);
+    InflationRateSwapLegConvention base = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
     RateCalculationSwapLeg test = base.toLeg(
         startDate,
         endDate,
-        PAY,
-        BDA_MOD_FOLLOW,
-        DaysAdjustment.NONE, NOTIONAL_2M);
+        PAY, 
+        NOTIONAL_2M);
 
     RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -130,7 +129,7 @@ public class InflationRateSwapLegConventionTest {
   }
 
   public void test_serialization() {
-    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M);
+    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
     assertSerialization(test);
   }
 

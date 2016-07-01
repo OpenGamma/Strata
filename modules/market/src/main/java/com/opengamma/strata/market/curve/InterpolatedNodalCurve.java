@@ -31,10 +31,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.interpolator.BoundCurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveExtrapolator;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -107,9 +107,6 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   /**
    * Creates an interpolated curve with metadata.
-   * <p>
-   * The extrapolators will be flat.
-   * For more control, use the builder.
    * 
    * @param metadata  the curve metadata
    * @param xValues  the x-values
@@ -128,6 +125,35 @@ public final class InterpolatedNodalCurve
         .xValues(xValues)
         .yValues(yValues)
         .interpolator(interpolator)
+        .build();
+  }
+
+  /**
+   * Creates an interpolated curve with metadata.
+   *
+   * @param metadata  the curve metadata
+   * @param xValues  the x-values
+   * @param yValues  the y-values
+   * @param interpolator  the interpolator
+   * @param extrapolatorLeft  the extrapolator for extrapolating off the left-hand end of the curve
+   * @param extrapolatorRight  the extrapolator for extrapolating off the right-hand end of the curve
+   * @return the curve
+   */
+  public static InterpolatedNodalCurve of(
+      CurveMetadata metadata,
+      DoubleArray xValues,
+      DoubleArray yValues,
+      CurveInterpolator interpolator,
+      CurveExtrapolator extrapolatorLeft,
+      CurveExtrapolator extrapolatorRight) {
+
+    return InterpolatedNodalCurve.builder()
+        .metadata(metadata)
+        .xValues(xValues)
+        .yValues(yValues)
+        .interpolator(interpolator)
+        .extrapolatorLeft(extrapolatorLeft)
+        .extrapolatorRight(extrapolatorRight)
         .build();
   }
 
@@ -249,6 +275,7 @@ public final class InterpolatedNodalCurve
    * @param y  the new y-value
    * @return the updated curve
    */
+  @Override
   public InterpolatedNodalCurve withNode(int index, double x, double y) {
     DoubleArray xExtended = xValues.subArray(0, index).concat(x).concat(xValues.subArray(index));
     DoubleArray yExtended = yValues.subArray(0, index).concat(y).concat(yValues.subArray(index));

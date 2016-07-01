@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -162,6 +163,26 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (parameters.getAlphaSurface().getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(parameters.getAlphaSurface()));
+    }
+    if (parameters.getBetaSurface().getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(parameters.getBetaSurface()));
+    }
+    if (parameters.getRhoSurface().getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(parameters.getRhoSurface()));
+    }
+    if (parameters.getNuSurface().getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(parameters.getNuSurface()));
+    }
+    if (parameters.getShiftSurface().getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(parameters.getShiftSurface()));
+    }
+    return Optional.empty();
+  }
+
+  @Override
   public int getParameterCount() {
     return parameters.getParameterCount();
   }
@@ -273,12 +294,14 @@ public final class SabrParametersSwaptionVolatilities
 
   @Override
   public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    throw new UnsupportedOperationException("SABR model does not support this method");
+    double shift = parameters.shift(expiry, tenor);
+    return BlackFormulaRepository.gamma(forward + shift, strike + shift, expiry, volatility);
   }
 
   @Override
   public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    throw new UnsupportedOperationException("SABR model does not support this method");
+    double shift = parameters.shift(expiry, tenor);
+    return BlackFormulaRepository.driftlessTheta(forward + shift, strike + shift, expiry, volatility);
   }
 
   @Override

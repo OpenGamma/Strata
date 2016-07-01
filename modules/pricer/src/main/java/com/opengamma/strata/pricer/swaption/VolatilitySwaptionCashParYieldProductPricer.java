@@ -25,8 +25,8 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swaption.CashSettlement;
-import com.opengamma.strata.product.swaption.CashSettlementMethod;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.SettlementType;
 
@@ -288,7 +288,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     ValueDerivatives annuityDerivative = getSwapPricer().getLegPricer().annuityCashDerivative(fixedLeg, forward);
     double annuityCash = annuityDerivative.getValue();
     double annuityCashDr = annuityDerivative.getDerivative(0);
-    LocalDate settlementDate = ((CashSettlement) swaption.getSwaptionSettlement()).getSettlementDate();
+    LocalDate settlementDate = ((CashSwaptionSettlement) swaption.getSwaptionSettlement()).getSettlementDate();
     double discountSettle = ratesProvider.discountFactor(fixedLeg.getCurrency(), settlementDate);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -364,7 +364,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
       RatesProvider ratesProvider) {
 
     double annuityCash = swapPricer.getLegPricer().annuityCash(fixedLeg, forward);
-    CashSettlement cashSettlement = (CashSettlement) swaption.getSwaptionSettlement();
+    CashSwaptionSettlement cashSettlement = (CashSwaptionSettlement) swaption.getSwaptionSettlement();
     double discountSettle = ratesProvider.discountFactor(fixedLeg.getCurrency(), cashSettlement.getSettlementDate());
     return Math.abs(annuityCash * discountSettle);
   }
@@ -428,8 +428,8 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     ArgChecker.isFalse(swaption.getUnderlying().isCrossCurrency(), "Underlying swap must be single currency");
     ArgChecker.isTrue(swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH),
         "Swaption must be cash settlement");
-    CashSettlement cashSettle = (CashSettlement) swaption.getSwaptionSettlement();
-    ArgChecker.isTrue(cashSettle.getCashSettlementMethod().equals(CashSettlementMethod.PAR_YIELD),
+    CashSwaptionSettlement cashSettle = (CashSwaptionSettlement) swaption.getSwaptionSettlement();
+    ArgChecker.isTrue(cashSettle.getMethod().equals(CashSwaptionSettlementMethod.PAR_YIELD),
         "Cash settlement method must be par yield");
   }
 

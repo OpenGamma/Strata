@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
+import com.opengamma.strata.calc.marketdata.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.PerturbationMapping;
@@ -43,7 +44,7 @@ public class CurveParallelShiftsUsageTest {
     Curve curve = ConstantCurve.of(curveName, 2);
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         Curve.class,
-        CurveNameFilter.of(curveName),
+        MarketDataFilter.ofName(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
     CurveId curveId = CurveId.of(curveGroupName, curveName);
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(TestHelper.date(2011, 3, 8))

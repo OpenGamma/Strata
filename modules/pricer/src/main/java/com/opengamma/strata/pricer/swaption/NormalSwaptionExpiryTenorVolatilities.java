@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -30,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -144,11 +146,11 @@ public final class NormalSwaptionExpiryTenorVolatilities
     ArgChecker.notNull(surface, "surface");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     surface.getMetadata().getXValueType().checkEquals(
-        ValueType.YEAR_FRACTION, "Incorrect x-value type for Black volatilities");
+        ValueType.YEAR_FRACTION, "Incorrect x-value type for Normal volatilities");
     surface.getMetadata().getYValueType().checkEquals(
-        ValueType.YEAR_FRACTION, "Incorrect y-value type for Black volatilities");
+        ValueType.YEAR_FRACTION, "Incorrect y-value type for Normal volatilities");
     surface.getMetadata().getZValueType().checkEquals(
-        ValueType.NORMAL_VOLATILITY, "Incorrect z-value type for Black volatilities");
+        ValueType.NORMAL_VOLATILITY, "Incorrect z-value type for Normal volatilities");
     FixedIborSwapConvention swapConvention = surface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing swap convention"));
     DayCount dayCount = surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
@@ -178,6 +180,14 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   public DayCount getDayCount() {
     return dayCount;
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (surface.getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(surface));
+    }
+    return Optional.empty();
   }
 
   @Override

@@ -103,6 +103,7 @@ import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.IborRateResetMethod;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
@@ -113,10 +114,9 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResetSchedule;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
@@ -311,7 +311,7 @@ public class FpmlDocumentParserTest {
         .expiryZone(expiryZone)
         .expiryTime(expiryTime)
         .longShort(LongShort.LONG)
-        .swaptionSettlement(PhysicalSettlement.DEFAULT)
+        .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
         .underlying(underylingSwap)
         .build();
     assertEqualsBean((Bean) swaption, swaptionExpected);

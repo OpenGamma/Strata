@@ -83,9 +83,9 @@ public class SyntheticCurveCalibratorTest {
       SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
   
   private static final ImmutableRatesProvider MULTICURVE_INPUT_TSEMPTY =
-      CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
+      CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   private static final RatesProvider MULTICURVE_INPUT_TSLARGE =
-      CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
+      CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
   
   private static final double TOLERANCE_MQ = 1.0E-8;
 
@@ -108,10 +108,10 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : group.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade tradeTsEmpty = node.resolvedTrade(VALUATION_DATE, 1d, madTsEmpty, REF_DATA);
+        ResolvedTrade tradeTsEmpty = node.resolvedTrade(1d, madTsEmpty, REF_DATA);
         double mqTsEmpty = MQ_MEASURES.value(tradeTsEmpty, MULTICURVE_INPUT_TSEMPTY);
         assertEquals(mqTsEmpty, (Double) madTsEmpty.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
-        ResolvedTrade tradeTsLarge = node.resolvedTrade(VALUATION_DATE, 1d, madTsLarge, REF_DATA);
+        ResolvedTrade tradeTsLarge = node.resolvedTrade(1d, madTsLarge, REF_DATA);
         double mqTsLarge = MQ_MEASURES.value(tradeTsLarge, multicurveTsLarge);
         assertEquals(mqTsLarge, (Double) madTsLarge.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
         // Market Quote for Fixed v ibor swaps should have changed with the fixing
@@ -130,7 +130,7 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, 1d, mad, REF_DATA);
+        ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_TSEMPTY);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);
@@ -147,7 +147,7 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, 1d, mad, REF_DATA);
+        ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_TSLARGE);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);
@@ -166,7 +166,7 @@ public class SyntheticCurveCalibratorTest {
       int hs = 0;
       for (int looptest = 0; looptest < nbTests; looptest++) {
         RatesProvider multicurve =
-            CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
+            CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
         hs += multicurve.getValuationDate().getDayOfMonth();
       }
       end = System.currentTimeMillis();
@@ -178,7 +178,7 @@ public class SyntheticCurveCalibratorTest {
       int hs = 0;
       for (int looptest = 0; looptest < nbTests; looptest++) {
         RatesProvider multicurve1 =
-            CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
+            CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
         RatesProvider multicurve2 = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, multicurve1, REF_DATA);
         hs += multicurve2.getValuationDate().getDayOfMonth();
       }

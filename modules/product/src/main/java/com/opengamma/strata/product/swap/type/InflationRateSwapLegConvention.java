@@ -88,6 +88,29 @@ public final class InflationRateSwapLegConvention
    */
   @PropertyDefinition
   private final boolean notionalExchange;
+  /**
+   * The offset of payment from the base date, optional with defaulting getter.
+   * <p>
+   * The offset is applied to the unadjusted date specified by {@code paymentRelativeTo}.
+   * Offset can be based on calendar days or business days.
+   * <p>
+   * This will default to 'None' if not specified.
+   */
+  @PropertyDefinition(get = "field")
+  private final DaysAdjustment paymentDateOffset;
+  /**
+   * The business day adjustment to apply to accrual schedule dates.
+   * <p>
+   * Each date in the calculated schedule is determined without taking into account weekends and holidays.
+   * The adjustment specified here is used to convert those dates to valid business days.
+   * <p>
+   * The start date and end date may have their own business day adjustment rules.
+   * If those are not present, then this adjustment is used instead.
+   * <p>
+   * This will default to 'ModifiedFollowing' using the index fixing calendar if not specified.
+   */
+  @PropertyDefinition(get = "field")
+  private final BusinessDayAdjustment accrualBusinessDayAdjustment;
 
   //-------------------------------------------------------------------------
   /**
@@ -98,10 +121,16 @@ public final class InflationRateSwapLegConvention
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @param lag  the lag between the price index and the accrual date, typically a number of months
+   * @param businessDayAdjustment the business day 
    * @return the convention
    */
-  public static InflationRateSwapLegConvention of(PriceIndex index, Period lag) {
-    return new InflationRateSwapLegConvention(index, lag, PriceIndexCalculationMethod.MONTHLY, false);
+  public static InflationRateSwapLegConvention of(
+      PriceIndex index, 
+      Period lag, 
+      BusinessDayAdjustment businessDayAdjustment) {
+    
+    return new InflationRateSwapLegConvention(index, lag, PriceIndexCalculationMethod.MONTHLY, false,
+        DaysAdjustment.NONE, businessDayAdjustment);
   }
 
   //-------------------------------------------------------------------------
@@ -132,17 +161,13 @@ public final class InflationRateSwapLegConvention
    * @param startDate  the start date
    * @param endDate  the end date
    * @param payReceive  determines if the leg is to be paid or received
-   * @param paymentDateOffset an adjustment that alters the payment date by adding a period of days
-   * @param businessDayAdjustment the business day adjustment to apply. 
-   * @param notional  the notional
+   * @param notional  the business day adjustment to apply to accrual schedule dates
    * @return the leg
    */
   public RateCalculationSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
-      BusinessDayAdjustment businessDayAdjustment,
-      DaysAdjustment paymentDateOffset,
       double notional) {
 
     return RateCalculationSwapLeg
@@ -152,7 +177,7 @@ public final class InflationRateSwapLegConvention
             .startDate(startDate)
             .endDate(endDate)
             .frequency(Frequency.TERM)
-            .businessDayAdjustment(businessDayAdjustment)
+            .businessDayAdjustment(accrualBusinessDayAdjustment)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(Frequency.TERM)
@@ -198,7 +223,9 @@ public final class InflationRateSwapLegConvention
       PriceIndex index,
       Period lag,
       PriceIndexCalculationMethod indexCalculationMethod,
-      boolean notionalExchange) {
+      boolean notionalExchange,
+      DaysAdjustment paymentDateOffset,
+      BusinessDayAdjustment accrualBusinessDayAdjustment) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(lag, "lag");
     JodaBeanUtils.notNull(indexCalculationMethod, "indexCalculationMethod");
@@ -206,6 +233,8 @@ public final class InflationRateSwapLegConvention
     this.lag = lag;
     this.indexCalculationMethod = indexCalculationMethod;
     this.notionalExchange = notionalExchange;
+    this.paymentDateOffset = paymentDateOffset;
+    this.accrualBusinessDayAdjustment = accrualBusinessDayAdjustment;
   }
 
   @Override
@@ -298,7 +327,9 @@ public final class InflationRateSwapLegConvention
       return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(lag, other.lag) &&
           JodaBeanUtils.equal(indexCalculationMethod, other.indexCalculationMethod) &&
-          (notionalExchange == other.notionalExchange);
+          (notionalExchange == other.notionalExchange) &&
+          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
+          JodaBeanUtils.equal(accrualBusinessDayAdjustment, other.accrualBusinessDayAdjustment);
     }
     return false;
   }
@@ -310,17 +341,21 @@ public final class InflationRateSwapLegConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(lag);
     hash = hash * 31 + JodaBeanUtils.hashCode(indexCalculationMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(notionalExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualBusinessDayAdjustment);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("InflationRateSwapLegConvention{");
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("lag").append('=').append(lag).append(',').append(' ');
     buf.append("indexCalculationMethod").append('=').append(indexCalculationMethod).append(',').append(' ');
-    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
+    buf.append("notionalExchange").append('=').append(notionalExchange).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
+    buf.append("accrualBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(accrualBusinessDayAdjustment));
     buf.append('}');
     return buf.toString();
   }
@@ -356,6 +391,16 @@ public final class InflationRateSwapLegConvention
     private final MetaProperty<Boolean> notionalExchange = DirectMetaProperty.ofImmutable(
         this, "notionalExchange", InflationRateSwapLegConvention.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code paymentDateOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
+        this, "paymentDateOffset", InflationRateSwapLegConvention.class, DaysAdjustment.class);
+    /**
+     * The meta-property for the {@code accrualBusinessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> accrualBusinessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "accrualBusinessDayAdjustment", InflationRateSwapLegConvention.class, BusinessDayAdjustment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -363,7 +408,9 @@ public final class InflationRateSwapLegConvention
         "index",
         "lag",
         "indexCalculationMethod",
-        "notionalExchange");
+        "notionalExchange",
+        "paymentDateOffset",
+        "accrualBusinessDayAdjustment");
 
     /**
      * Restricted constructor.
@@ -382,6 +429,10 @@ public final class InflationRateSwapLegConvention
           return indexCalculationMethod;
         case -159410813:  // notionalExchange
           return notionalExchange;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
+        case 896049114:  // accrualBusinessDayAdjustment
+          return accrualBusinessDayAdjustment;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -434,6 +485,22 @@ public final class InflationRateSwapLegConvention
       return notionalExchange;
     }
 
+    /**
+     * The meta-property for the {@code paymentDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> paymentDateOffset() {
+      return paymentDateOffset;
+    }
+
+    /**
+     * The meta-property for the {@code accrualBusinessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> accrualBusinessDayAdjustment() {
+      return accrualBusinessDayAdjustment;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -446,6 +513,10 @@ public final class InflationRateSwapLegConvention
           return ((InflationRateSwapLegConvention) bean).getIndexCalculationMethod();
         case -159410813:  // notionalExchange
           return ((InflationRateSwapLegConvention) bean).isNotionalExchange();
+        case -716438393:  // paymentDateOffset
+          return ((InflationRateSwapLegConvention) bean).paymentDateOffset;
+        case 896049114:  // accrualBusinessDayAdjustment
+          return ((InflationRateSwapLegConvention) bean).accrualBusinessDayAdjustment;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -471,6 +542,8 @@ public final class InflationRateSwapLegConvention
     private Period lag;
     private PriceIndexCalculationMethod indexCalculationMethod;
     private boolean notionalExchange;
+    private DaysAdjustment paymentDateOffset;
+    private BusinessDayAdjustment accrualBusinessDayAdjustment;
 
     /**
      * Restricted constructor.
@@ -488,6 +561,8 @@ public final class InflationRateSwapLegConvention
       this.lag = beanToCopy.getLag();
       this.indexCalculationMethod = beanToCopy.getIndexCalculationMethod();
       this.notionalExchange = beanToCopy.isNotionalExchange();
+      this.paymentDateOffset = beanToCopy.paymentDateOffset;
+      this.accrualBusinessDayAdjustment = beanToCopy.accrualBusinessDayAdjustment;
     }
 
     //-----------------------------------------------------------------------
@@ -502,6 +577,10 @@ public final class InflationRateSwapLegConvention
           return indexCalculationMethod;
         case -159410813:  // notionalExchange
           return notionalExchange;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
+        case 896049114:  // accrualBusinessDayAdjustment
+          return accrualBusinessDayAdjustment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -521,6 +600,12 @@ public final class InflationRateSwapLegConvention
           break;
         case -159410813:  // notionalExchange
           this.notionalExchange = (Boolean) newValue;
+          break;
+        case -716438393:  // paymentDateOffset
+          this.paymentDateOffset = (DaysAdjustment) newValue;
+          break;
+        case 896049114:  // accrualBusinessDayAdjustment
+          this.accrualBusinessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -558,7 +643,9 @@ public final class InflationRateSwapLegConvention
           index,
           lag,
           indexCalculationMethod,
-          notionalExchange);
+          notionalExchange,
+          paymentDateOffset,
+          accrualBusinessDayAdjustment);
     }
 
     //-----------------------------------------------------------------------
@@ -625,15 +712,50 @@ public final class InflationRateSwapLegConvention
       return this;
     }
 
+    /**
+     * Sets the offset of payment from the base date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the unadjusted date specified by {@code paymentRelativeTo}.
+     * Offset can be based on calendar days or business days.
+     * <p>
+     * This will default to 'None' if not specified.
+     * @param paymentDateOffset  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
+      this.paymentDateOffset = paymentDateOffset;
+      return this;
+    }
+
+    /**
+     * Sets the business day adjustment to apply to accrual schedule dates.
+     * <p>
+     * Each date in the calculated schedule is determined without taking into account weekends and holidays.
+     * The adjustment specified here is used to convert those dates to valid business days.
+     * <p>
+     * The start date and end date may have their own business day adjustment rules.
+     * If those are not present, then this adjustment is used instead.
+     * <p>
+     * This will default to 'ModifiedFollowing' using the index fixing calendar if not specified.
+     * @param accrualBusinessDayAdjustment  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder accrualBusinessDayAdjustment(BusinessDayAdjustment accrualBusinessDayAdjustment) {
+      this.accrualBusinessDayAdjustment = accrualBusinessDayAdjustment;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("InflationRateSwapLegConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("lag").append('=').append(JodaBeanUtils.toString(lag)).append(',').append(' ');
       buf.append("indexCalculationMethod").append('=').append(JodaBeanUtils.toString(indexCalculationMethod)).append(',').append(' ');
-      buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
+      buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange)).append(',').append(' ');
+      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
+      buf.append("accrualBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(accrualBusinessDayAdjustment));
       buf.append('}');
       return buf.toString();
     }

@@ -15,10 +15,8 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -119,17 +117,11 @@ public class CalibrationXCcyCheckExample {
       Result<?> pv = results.getSecond().getCells().get(i);
       String output = "  |--> PV for " + trade.getClass().getSimpleName() + " computed: " + pv.isSuccess();
       Object pvValue = pv.getValue();
-      ArgChecker.isTrue((pvValue instanceof MultiCurrencyAmount) || (pvValue instanceof CurrencyAmount), "result type");
-      if (pvValue instanceof CurrencyAmount) {
-        CurrencyAmount ca = (CurrencyAmount) pvValue;
-        ArgChecker.isTrue(Math.abs(ca.getAmount()) < TOLERANCE_PV, "PV should be small");
-        output = output + " with value: " + ca;
-      } else {
-        MultiCurrencyAmount pvMCA = (MultiCurrencyAmount) pvValue;
-        double pvConverted = pvMCA.convertedTo(Currency.USD, null).getAmount();
-        ArgChecker.isTrue(Math.abs(pvConverted) < TOLERANCE_PV, "PV should be small");
-        output = output + " with values: " + pvMCA;
-      }
+      ArgChecker.isTrue(pvValue instanceof CurrencyAmount, "result type");
+      CurrencyAmount ca = (CurrencyAmount) pvValue;
+      ArgChecker.isTrue(Math.abs(ca.getAmount()) < TOLERANCE_PV, "PV should be small");
+      output += " with value: " + ca;
+      System.out.println(output);
       System.out.println(output);
     }
 
@@ -200,7 +192,7 @@ public class CalibrationXCcyCheckExample {
         .flatMap(defn -> defn.getNodes().stream())
         // IborFixingDeposit is not a real trade, so there is no appropriate comparison
         .filter(node -> !(node instanceof IborFixingDepositCurveNode))
-        .map(node -> node.trade(VAL_DATE, 1d, marketData, refData))
+        .map(node -> node.trade(1d, marketData, refData))
         .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated

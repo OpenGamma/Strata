@@ -88,7 +88,7 @@ public class ValuePathEvaluator {
     if (tokens.size() < 1) {
       return Collections.nCopies(
           results.getTargets().size(),
-          Result.failure(FailureReason.INVALID_INPUT, "Column expressions must not be empty"));
+          Result.failure(FailureReason.INVALID, "Column expressions must not be empty"));
     }
     CalculationFunctions functions = results.getCalculationFunctions();
     int rowCount = results.getCalculationResults().getRowCount();
@@ -120,7 +120,7 @@ public class ValuePathEvaluator {
 
   private static Result<?> noEvaluatorResult(List<String> remaining, Object value) {
     return Result.failure(
-        FailureReason.INVALID_INPUT,
+        FailureReason.INVALID,
         "Expression '{}' cannot be invoked on type {}",
         Joiner.on('.').join(remaining),
         value.getClass().getName());

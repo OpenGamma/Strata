@@ -181,6 +181,11 @@ public class IsdaCdsPricer {
       return new IsdaNodalCurve(underlyingCurve.withParameter(parameterIndex, newValue), curveMetadata);
     }
 
+    @Override
+    public NodalCurve withNode(int index, double x, double y) {
+      throw new UnsupportedOperationException("ISDA credit curve does not allow node to be inserted");
+    }
+
     //-------------------------------------------------------------------------
     @Override
     public double yValue(double x) {

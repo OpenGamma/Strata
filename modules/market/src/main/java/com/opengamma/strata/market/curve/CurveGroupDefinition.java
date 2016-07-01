@@ -208,8 +208,8 @@ public final class CurveGroupDefinition
    * Gets the total number of parameters in the group.
    * <p>
    * This returns the total number of parameters in the group, which equals the number of nodes.
-   * The result of {@link #resolvedTrades(LocalDate, MarketData, ReferenceData)}, and
-   * {@link #initialGuesses(LocalDate, MarketData)} will be of this size.
+   * The result of {@link #resolvedTrades(MarketData, ReferenceData)}, and
+   * {@link #initialGuesses(MarketData)} will be of this size.
    * 
    * @return the number of parameters
    */
@@ -223,20 +223,16 @@ public final class CurveGroupDefinition
    * This uses the observed market data to build the trade that each node represents.
    * The result combines the list of trades from each curve in order.
    * Each trade is created with a quantity of 1.
+   * The valuation date is defined by the market data.
    *
-   * @param valuationDate  the valuation date used when calibrating the curve
-   * @param marketData  the market data required to build a trade for the instrument
+   * @param marketData  the market data required to build a trade for the instrument, including the valuation date
    * @param refData  the reference data, used to resolve the trades
    * @return the list of all trades
    */
-  public ImmutableList<ResolvedTrade> resolvedTrades(
-      LocalDate valuationDate,
-      MarketData marketData,
-      ReferenceData refData) {
-
+  public ImmutableList<ResolvedTrade> resolvedTrades(MarketData marketData, ReferenceData refData) {
     return curveDefinitionsByName.values().stream()
         .flatMap(curveDef -> curveDef.getNodes().stream())
-        .map(node -> node.resolvedTrade(valuationDate, 1d, marketData, refData))
+        .map(node -> node.resolvedTrade(1d, marketData, refData))
         .collect(toImmutableList());
   }
 
@@ -244,17 +240,17 @@ public final class CurveGroupDefinition
    * Gets the list of all initial guesses.
    * <p>
    * This returns a list that combines the list of initial guesses from each curve in order.
+   * The valuation date is defined by the market data.
    * 
-   * @param valuationDate  the valuation date used when calibrating the curve
-   * @param marketData  the market data required to build a trade for the instrument
+   * @param marketData  the market data required to build a trade for the instrument, including the valuation date
    * @return the list of all initial guesses
    */
-  public ImmutableList<Double> initialGuesses(LocalDate valuationDate, MarketData marketData) {
+  public ImmutableList<Double> initialGuesses(MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
     for (NodalCurveDefinition defn : curveDefinitions) {
       ValueType valueType = defn.getYValueType();
       for (CurveNode node : defn.getNodes()) {
-        result.add(node.initialGuess(valuationDate, marketData, valueType));
+        result.add(node.initialGuess(marketData, valueType));
       }
     }
     return result.build();

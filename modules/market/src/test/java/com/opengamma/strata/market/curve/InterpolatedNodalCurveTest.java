@@ -19,13 +19,13 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.interpolator.CurveExtrapolator;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
@@ -47,6 +47,7 @@ public class InterpolatedNodalCurveTest {
       Curves.zeroRates(CURVE_NAME, ACT_365F, ParameterMetadata.listOfEmpty(SIZE));
   private static final CurveMetadata METADATA_ENTRIES2 =
       Curves.zeroRates(CURVE_NAME, ACT_365F, ParameterMetadata.listOfEmpty(SIZE + 2));
+  private static final CurveMetadata METADATA_NOPARAM = Curves.zeroRates(CURVE_NAME, ACT_365F);
   private static final DoubleArray XVALUES = DoubleArray.of(1d, 2d, 3d);
   private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d);
   private static final DoubleArray YVALUES = DoubleArray.of(5d, 7d, 8d);
@@ -73,6 +74,16 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
     assertThat(test.getXValues()).isEqualTo(XVALUES);
     assertThat(test.getYValues()).isEqualTo(YVALUES);
+  }
+
+  public void test_of_noCurveMetadata() {
+    InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA_NOPARAM, XVALUES, YVALUES, INTERPOLATOR);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getParameter(0)).isEqualTo(YVALUES.get(0));
+    assertThat(test.getParameter(1)).isEqualTo(YVALUES.get(1));
+    assertThat(test.getParameterMetadata(0)).isEqualTo(SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUES.get(0)));
+    assertThat(test.getParameterMetadata(1)).isEqualTo(SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUES.get(1)));
   }
 
   public void test_of_invalid() {
@@ -103,11 +114,9 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.yValue(XVALUES.get(2))).isEqualTo(YVALUES.get(2));
     assertThat(test.yValue(10d)).isEqualTo(combined.interpolate(bundle, 10d));
 
-    assertThat(test.yValueParameterSensitivity(10d)).isEqualTo(
-        UnitParameterSensitivity.of(
-            CURVE_NAME,
-            ParameterMetadata.listOfEmpty(SIZE),
-            DoubleArray.copyOf(combined.getNodeSensitivitiesForValue(bundle, 10d))));
+    assertThat(test.yValueParameterSensitivity(10d).getMarketDataName()).isEqualTo(CURVE_NAME);
+    assertThat(test.yValueParameterSensitivity(10d).getSensitivity())
+        .isEqualTo(DoubleArray.copyOf(combined.getNodeSensitivitiesForValue(bundle, 10d)));
 
     assertThat(test.firstDerivative(10d)).isEqualTo(combined.firstDerivative(bundle, 10d));
   }

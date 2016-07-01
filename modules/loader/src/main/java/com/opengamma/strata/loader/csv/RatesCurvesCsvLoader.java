@@ -33,8 +33,8 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.interpolator.CurveExtrapolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 
 /**
  * Loads a set of rates curves into memory by reading from CSV resources.

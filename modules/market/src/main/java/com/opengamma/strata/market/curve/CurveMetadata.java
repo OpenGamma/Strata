@@ -92,6 +92,19 @@ public interface CurveMetadata {
   public abstract <T> Optional<T> findInfo(CurveInfoType<T> type);
 
   /**
+   * Gets the metadata of the parameter at the specified index.
+   * <p>
+   * If there is no specific parameter metadata, an empty instance will be returned.
+   * 
+   * @param parameterIndex  the zero-based index of the parameter to get
+   * @return the metadata of the parameter
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getParameterMetadata().map(pm -> pm.get(parameterIndex)).orElse(ParameterMetadata.empty());
+  }
+
+  /**
    * Gets metadata about each parameter underlying the curve, optional.
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.

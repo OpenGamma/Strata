@@ -63,6 +63,7 @@ public class ScenarioMarketDataTest {
     assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
     assertThat(test.findValue(ID1)).hasValue(BOX1);
     assertThat(test.findValue(ID2)).isEmpty();
+    assertThat(test.getIds()).isEqualTo(ImmutableSet.of(ID1));
     assertThat(test.getTimeSeries(ID1)).isEqualTo(TIME_SERIES);
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
@@ -77,6 +78,7 @@ public class ScenarioMarketDataTest {
     assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
     assertThat(test.findValue(ID1)).hasValue(MarketDataBox.empty());
     assertThat(test.findValue(ID2)).isEmpty();
+    assertThat(test.getIds()).isEqualTo(ImmutableSet.of(ID1));
     assertThat(test.getTimeSeries(ID1)).isEqualTo(LocalDateDoubleTimeSeries.empty());
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
@@ -96,6 +98,7 @@ public class ScenarioMarketDataTest {
     assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
     assertThat(test.findValue(ID1)).isEmpty();
     assertThat(test.findValue(ID2)).isEmpty();
+    assertThat(test.getIds()).isEqualTo(ImmutableSet.of());
     assertThat(test.getTimeSeries(ID1)).isEqualTo(LocalDateDoubleTimeSeries.empty());
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
@@ -142,6 +145,11 @@ public class ScenarioMarketDataTest {
       @SuppressWarnings("unchecked")
       public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
         return id.equals(ID1) ? Optional.of((MarketDataBox<T>) BOX1) : Optional.empty();
+      }
+
+      @Override
+      public Set<MarketDataId<?>> getIds() {
+        return ImmutableSet.of();
       }
 
       @Override
@@ -310,6 +318,11 @@ public class ScenarioMarketDataTest {
     @Override
     public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
       throw new UnsupportedOperationException("findValue not implemented");
+    }
+
+    @Override
+    public Set<MarketDataId<?>> getIds() {
+      return ImmutableSet.of();
     }
 
     @Override
