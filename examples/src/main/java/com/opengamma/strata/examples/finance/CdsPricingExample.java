@@ -23,6 +23,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
+import com.opengamma.strata.measure.credit.CreditMeasures;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -63,16 +64,16 @@ public class CdsPricingExample {
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.PAR_RATE),
-        Column.of(Measures.RECOVERY01),
-        Column.of(Measures.JUMP_TO_DEFAULT),
-        Column.of(Measures.IR01_PARALLEL_PAR),
-        Column.of(Measures.IR01_PARALLEL_ZERO),
-        Column.of(Measures.CS01_PARALLEL_PAR),
-        Column.of(Measures.CS01_PARALLEL_HAZARD),
-        Column.of(Measures.IR01_BUCKETED_PAR),
-        Column.of(Measures.IR01_BUCKETED_ZERO),
-        Column.of(Measures.CS01_BUCKETED_PAR),
-        Column.of(Measures.CS01_BUCKETED_HAZARD));
+        Column.of(CreditMeasures.RECOVERY01),
+        Column.of(CreditMeasures.JUMP_TO_DEFAULT),
+        Column.of(CreditMeasures.IR01_PARALLEL_PAR),
+        Column.of(CreditMeasures.IR01_PARALLEL_ZERO),
+        Column.of(CreditMeasures.CS01_PARALLEL_PAR),
+        Column.of(CreditMeasures.CS01_PARALLEL_HAZARD),
+        Column.of(CreditMeasures.IR01_BUCKETED_PAR),
+        Column.of(CreditMeasures.IR01_BUCKETED_ZERO),
+        Column.of(CreditMeasures.CS01_BUCKETED_PAR),
+        Column.of(CreditMeasures.CS01_BUCKETED_HAZARD));
 
     // use the built-in example market data
     LocalDate valuationDate = LocalDate.of(2014, 10, 16);
