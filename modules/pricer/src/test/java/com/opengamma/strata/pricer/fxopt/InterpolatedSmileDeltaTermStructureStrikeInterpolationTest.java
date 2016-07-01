@@ -19,12 +19,11 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 
 /**
  * Tests related to the construction of term structure of smile data from delta.
@@ -152,11 +151,10 @@ public class InterpolatedSmileDeltaTermStructureStrikeInterpolationTest {
     double forward = 1.40;
     double timeToExpiry = 0.50;
     double strike = 1.50;
-    double[] strikes = SMILE_TERM.getVolatilityTerm().get(2).getStrike(forward).toArray();
-    double[] vol = SMILE_TERM.getVolatilityTerm().get(2).getVolatility().toArray();
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, vol);
-    LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    double volExpected = interpolator.interpolate(volatilityInterpolation, strike);
+    DoubleArray strikes = SMILE_TERM.getVolatilityTerm().get(2).getStrike(forward);
+    DoubleArray vol = SMILE_TERM.getVolatilityTerm().get(2).getVolatility();
+    BoundCurveInterpolator interpolator = CurveInterpolators.LINEAR.bind(strikes, vol);
+    double volExpected = interpolator.interpolate(strike);
     double volComputed = SMILE_TERM.volatility(timeToExpiry, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volExpected, volComputed,
         TOLERANCE_VOL);

@@ -13,9 +13,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Interpolate consecutive two points by a straight line
- * Note that this interpolator is NOT included in {@link Interpolator1DFactory} 
- * Use {@link LinearInterpolator1D} for node sensitivity
+ * Interpolate consecutive two points by a straight line.
  */
 public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 

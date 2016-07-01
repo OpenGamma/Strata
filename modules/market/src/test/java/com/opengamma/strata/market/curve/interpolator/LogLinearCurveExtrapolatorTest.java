@@ -7,17 +7,10 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-
-import java.util.Random;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.interpolation.Extrapolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Test {@link LogLinearCurveExtrapolator}.
@@ -25,11 +18,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 @Test
 public class LogLinearCurveExtrapolatorTest {
 
-  private static final Random RANDOM = new Random(0L);
   private static final CurveExtrapolator LL_EXTRAPOLATOR = LogLinearCurveExtrapolator.INSTANCE;
-
-  private static final DoubleArray X_DATA = DoubleArray.of(0.0, 0.4, 1.0, 1.8, 2.8, 5.0);
-  private static final DoubleArray Y_DATA = DoubleArray.of(3.0, 4.0, 3.1, 2.0, 7.0, 2.0);
 
   private static final double EPS = 1.e-7;
   private static final double TOL = 1.e-12;
@@ -176,24 +165,6 @@ public class LogLinearCurveExtrapolatorTest {
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
-      }
-    }
-  }
-
-  public void test_sameAsPrevious() {
-    BoundCurveInterpolator bci =
-        CurveInterpolators.LINEAR.bind(X_DATA, Y_DATA, LL_EXTRAPOLATOR, LL_EXTRAPOLATOR);
-    Extrapolator1D oldExtrap = Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR_INSTANCE;
-    Interpolator1D oldInterp = Interpolator1DFactory.LINEAR_INSTANCE;
-    Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());
-
-    for (int i = 0; i < 100; i++) {
-      final double x = RANDOM.nextDouble() * 20.0 - 10;
-      if (x < 0 || x > 5.0) {
-        assertEquals(bci.interpolate(x), oldExtrap.extrapolate(data, x, oldInterp), TOL);
-        assertEquals(bci.firstDerivative(x), oldExtrap.firstDerivative(data, x, oldInterp), TOL);
-        assertTrue(bci.parameterSensitivity(x).equalWithTolerance(
-            DoubleArray.copyOf(oldExtrap.getNodeSensitivitiesForValue(data, x, oldInterp)), TOL));
       }
     }
   }
