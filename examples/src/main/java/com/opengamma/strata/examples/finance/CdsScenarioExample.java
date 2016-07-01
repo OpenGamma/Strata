@@ -129,7 +129,7 @@ public class CdsScenarioExample {
 
     // use a built-in utility to calculate VaR
     // since the P&Ls are sorted starting with the greatest loss, the 95% greatest loss occurs at the 5% position
-    double var95 = SampleInterpolationQuantileMethod.DEFAULT.quantileFromSorted(0.05, pnlVector.getValues());
+    double var95 = SampleInterpolationQuantileMethod.DEFAULT.quantileFromSorted(0.05, pnlVector.getAmounts().getValues());
     System.out.println(Messages.format("95% VaR: {}", var95));
   }
 
@@ -248,11 +248,11 @@ public class CdsScenarioExample {
     double[] scenarioPnls = new double[pvVector.getScenarioCount() - 1];
 
     // the base PV was calculated in the first scenario where no shifts were applied
-    double basePv = pvVector.getValues().get(0);
+    double basePv = pvVector.get(0).getAmount();
 
     // for the remaining scenarios, work out the scenario P&L by subtracting the base PV
     for (int i = 1; i < pvVector.getScenarioCount(); i++) {
-      double scenarioPv = pvVector.getValues().get(i);
+      double scenarioPv = pvVector.get(i).getAmount();
       double pnl = scenarioPv - basePv;
       scenarioPnls[i - 1] = pnl;
     }
@@ -268,7 +268,7 @@ public class CdsScenarioExample {
     NumberFormat numberFormat = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
     System.out.println(Messages.format("{} ({}):", title, currencyValues.getCurrency()));
     for (int i = 0; i < currencyValues.getScenarioCount(); i++) {
-      double scenarioValue = currencyValues.getValues().get(i);
+      double scenarioValue = currencyValues.get(i).getAmount();
       System.out.println(numberFormat.format(scenarioValue));
     }
     System.out.println();
