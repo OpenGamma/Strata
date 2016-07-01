@@ -38,8 +38,6 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
@@ -78,7 +76,6 @@ public class ExampleMarketDataBuilderTest {
       IndexQuoteId.of(IborIndices.GBP_LIBOR_3M));
 
   private static final Set<MarketDataId<?>> VALUES = ImmutableSet.of(
-      CurveGroupId.of(DEFAULT_CURVE_GROUP),
       CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-Disc")),
       CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-Disc")),
       CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-3ML")),
@@ -255,13 +252,6 @@ public class ExampleMarketDataBuilderTest {
     for (MarketDataId<?> id : VALUES) {
       assertTrue(snapshot.containsValue(id), "Id not found: " + id);
     }
-    CurveGroup curveGroup = snapshot.getValue(CurveGroupId.of(DEFAULT_CURVE_GROUP));
-    assertTrue(curveGroup.findDiscountCurve(Currency.USD).isPresent());
-    assertTrue(curveGroup.findDiscountCurve(Currency.GBP).isPresent());
-    assertTrue(curveGroup.findForwardCurve(IborIndices.USD_LIBOR_3M).isPresent());
-    assertTrue(curveGroup.findForwardCurve(IborIndices.GBP_LIBOR_3M).isPresent());
-    assertTrue(curveGroup.findForwardCurve(IborIndices.USD_LIBOR_6M).isPresent());
-    assertTrue(curveGroup.findForwardCurve(OvernightIndices.USD_FED_FUND).isPresent());
 
     assertEquals(snapshot.getValues().size(), VALUES.size(),
         Messages.format("Snapshot contained unexpected market data: {}",

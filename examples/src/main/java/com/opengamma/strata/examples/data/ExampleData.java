@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.data;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Locale;
 
 import com.opengamma.strata.collect.io.IniFile;
@@ -36,7 +37,7 @@ public final class ExampleData {
     try {
       return resourceLocator.getCharSource().read().trim();
     } catch (IOException ex) {
-      throw new MissingExampleDataException(name);
+      throw new UncheckedIOException(name, ex);
     }
   }
 
