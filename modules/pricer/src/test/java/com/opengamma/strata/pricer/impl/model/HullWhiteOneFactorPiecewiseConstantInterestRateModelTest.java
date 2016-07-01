@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
@@ -70,10 +70,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   public void setter() {
     double volReplaced = 0.02;
-    HullWhiteOneFactorPiecewiseConstantParameters param1 = MODEL_PARAMETERS.setLastVolatility(volReplaced);
+    HullWhiteOneFactorPiecewiseConstantParameters param1 = MODEL_PARAMETERS.withLastVolatility(volReplaced);
     assertEquals(volReplaced, param1.getVolatility().get(param1.getVolatility().size() - 1));
     HullWhiteOneFactorPiecewiseConstantParameters param2 =
-        MODEL_PARAMETERS.setLastVolatility(VOLATILITY.get(VOLATILITY.size() - 1));
+        MODEL_PARAMETERS.withLastVolatility(VOLATILITY.get(VOLATILITY.size() - 1));
     for (int loopperiod = 0; loopperiod < param2.getVolatility().size(); loopperiod++) {
       assertEquals(VOLATILITY.get(loopperiod), param2.getVolatility().get(loopperiod));
     }

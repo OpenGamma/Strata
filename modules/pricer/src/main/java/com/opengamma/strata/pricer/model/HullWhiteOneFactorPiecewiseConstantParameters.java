@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.index;
+package com.opengamma.strata.pricer.model;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -24,7 +24,15 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * Data bundle related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
  */
 @BeanDefinition(style = "light")
-public final class HullWhiteOneFactorPiecewiseConstantParameters implements ImmutableBean, Serializable {
+public final class HullWhiteOneFactorPiecewiseConstantParameters
+    implements ImmutableBean, Serializable {
+
+  /**
+   * The time used to represent infinity.
+   * <p>
+   * The last element of {@code volatilityTime} must be this value.
+   */
+  private static final double VOLATILITY_TIME_INFINITY = 1000d;
 
   /**
    * The mean reversion speed parameter.
@@ -47,13 +55,8 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray volatilityTime;
-  /**
-   * The time used to represent infinity.
-   * <p>
-   * The last element of {@code volatilityTime} must be this value.
-   */
-  private static final double VOLATILITY_TIME_INFINITY = 1000d;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the model parameters.
    * <p>
@@ -70,6 +73,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
       double meanReversion,
       DoubleArray volatility,
       DoubleArray volatilityTime) {
+
     double[] volatilityTimeArray = new double[volatilityTime.size() + 2];
     volatilityTimeArray[0] = 0d;
     volatilityTimeArray[volatilityTime.size() + 1] = VOLATILITY_TIME_INFINITY;
@@ -90,12 +94,12 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new instance with the volatility parameters replaced.
+   * Returns a copy with the volatility parameters changed.
    * 
-   * @param volatility  the replacing volatility parameters
+   * @param volatility  the new volatility parameters
    * @return the new instance
    */
-  public HullWhiteOneFactorPiecewiseConstantParameters setVolatility(DoubleArray volatility) {
+  public HullWhiteOneFactorPiecewiseConstantParameters withVolatility(DoubleArray volatility) {
     return new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility, volatilityTime);
   }
 
@@ -109,12 +113,12 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
   }
 
   /**
-   * Creates a new instance with the last volatility of the volatility parameters replaced.
+   * Returns a copy with the last volatility of the volatility parameters changed.
    * 
-   * @param volatility  the replacing volatility
+   * @param volatility  the new volatility
    * @return the new instance
    */
-  public HullWhiteOneFactorPiecewiseConstantParameters setLastVolatility(double volatility) {
+  public HullWhiteOneFactorPiecewiseConstantParameters withLastVolatility(double volatility) {
     double[] volatilityArray = this.volatility.toArray();
     volatilityArray[volatilityArray.length - 1] = volatility;
     return new HullWhiteOneFactorPiecewiseConstantParameters(
@@ -122,13 +126,13 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters implements Immu
   }
 
   /**
-   * Creates a new instance with an extra volatility and volatility time added at the end of the respective arrays.
+   * Returns a copy with an extra volatility and volatility time added at the end of the respective arrays.
    * 
    * @param volatility  the volatility
    * @param volatilityTime  the times separating the constant volatility periods. Must be larger than the previous one
    * @return the new instance
    */
-  public HullWhiteOneFactorPiecewiseConstantParameters addVolatility(double volatility, double volatilityTime) {
+  public HullWhiteOneFactorPiecewiseConstantParameters withVolatilityAdded(double volatility, double volatilityTime) {
     double[] volatilityArray = this.volatility.toArray();
     double[] volatilityTimeArray = this.volatilityTime.toArray();
     ArgChecker.isTrue(volatilityTime > volatilityTimeArray[volatilityTimeArray.length - 2],

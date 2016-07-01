@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.index;
+package com.opengamma.strata.pricer.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -46,6 +46,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
    */
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL =
       HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT;
+
   /**
    * The Hull-White model parameters.
    */
@@ -185,6 +186,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
       LocalDate endDate,
       LocalDate numeraireDate,
       LocalDate maturityDate) {
+
     double startTime = relativeTime(startDate);
     double endTime = relativeTime(endDate);
     double numeraireTime = relativeTime(numeraireDate);
