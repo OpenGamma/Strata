@@ -142,9 +142,9 @@ public final class FixedRateCalculation
             .build());
       } else {
         accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateComputation(FixedRateComputation.of(resolvedRates.get(i)))
-          .build());
+            .yearFraction(period.yearFraction(dayCount, accrualSchedule))
+            .rateComputation(FixedRateComputation.of(resolvedRates.get(i)))
+            .build());
       }
     }
     return accrualPeriods.build();

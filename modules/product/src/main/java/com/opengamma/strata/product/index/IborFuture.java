@@ -31,8 +31,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**

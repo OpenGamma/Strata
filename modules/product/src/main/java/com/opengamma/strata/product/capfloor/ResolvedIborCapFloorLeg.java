@@ -77,6 +77,7 @@ public final class ResolvedIborCapFloorLeg
   private ResolvedIborCapFloorLeg(
       PayReceive payReceive,
       List<IborCapletFloorletPeriod> capletFloorletPeriods) {
+
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.capletFloorletPeriods = ImmutableList.copyOf(capletFloorletPeriods);
     Set<Currency> currencies =

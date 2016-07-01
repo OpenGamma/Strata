@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * An equity share of a company.

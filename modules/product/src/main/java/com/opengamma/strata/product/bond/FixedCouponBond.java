@@ -38,8 +38,8 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A fixed coupon bond.

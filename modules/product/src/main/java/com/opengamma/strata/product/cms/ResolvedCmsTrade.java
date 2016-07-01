@@ -59,12 +59,12 @@ public final class ResolvedCmsTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ResolvedCms product;
   /**
-   * The optional premium of the product. 
+   * The optional premium of the product.
    * <p>
    * For certain CMS products, a premium is paid upfront. This typically occurs instead
    * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
-   * The premium sign must be compatible with the product Pay/Receive flag. 
+   * The premium sign must be compatible with the product Pay/Receive flag.
    */
   @PropertyDefinition(get = "optional")
   private final Payment premium;

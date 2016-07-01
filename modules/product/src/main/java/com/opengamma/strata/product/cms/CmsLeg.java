@@ -64,8 +64,8 @@ import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
  * CMS floorlets depending on the data in this leg.
  * The {@code capSchedule} field is used to represent strike values of individual caplets,
  * whereas {@code floorSchedule} is used to represent strike values of individual floorlets.
- * Thus at least one of {@code capSchedule} and {@code floorSchedule} must be empty. 
- * If both the fields are absent, the periodic payments in this leg are CMS coupons. 
+ * Thus at least one of {@code capSchedule} and {@code floorSchedule} must be empty.
+ * If both the fields are absent, the periodic payments in this leg are CMS coupons.
  */
 @BeanDefinition
 public final class CmsLeg
@@ -118,7 +118,7 @@ public final class CmsLeg
   /**
    * The swap index.
    * <p>
-   * The swap rate to be paid is the observed value of this index. 
+   * The swap rate to be paid is the observed value of this index.
    */
   @PropertyDefinition(validate = "notNull")
   private final SwapIndex index;
@@ -151,8 +151,8 @@ public final class CmsLeg
   /**
    * The cap schedule, optional.
    * <p>
-   * This defines the strike value of a cap as an initial value and a list of adjustments. 
-   * Thus individual caplets may have different strike values. 
+   * This defines the strike value of a cap as an initial value and a list of adjustments.
+   * Thus individual caplets may have different strike values.
    * The cap rate is only allowed to change at payment period boundaries.
    * <p>
    * If the product is not a cap, the cap schedule will be absent.
@@ -162,8 +162,8 @@ public final class CmsLeg
   /**
    * The floor schedule, optional.
    * <p>
-   * This defines the strike value of a floor as an initial value and a list of adjustments. 
-   * Thus individual floorlets may have different strike values. 
+   * This defines the strike value of a floor as an initial value and a list of adjustments.
+   * Thus individual floorlets may have different strike values.
    * The floor rate is only allowed to change at payment period boundaries.
    * <p>
    * If the product is not a floor, the floor schedule will be absent.
@@ -209,6 +209,7 @@ public final class CmsLeg
       DayCount dayCount,
       ValueSchedule capSchedule,
       ValueSchedule floorSchedule) {
+
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.paymentSchedule = ArgChecker.notNull(paymentSchedule, "paymentSchedule");
     this.paymentDateOffset = paymentDateOffset;

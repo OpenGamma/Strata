@@ -48,24 +48,24 @@ public final class ResolvedCms
   /**
    * The CMS leg of the product.
    * <p>
-   * This is associated with periodic payments based on swap rate. 
-   * The payments are CMS coupons, CMS caplets or CMS floors. 
+   * This is associated with periodic payments based on swap rate.
+   * The payments are CMS coupons, CMS caplets or CMS floors.
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedCmsLeg cmsLeg;
   /**
-   * The optional pay leg of the product. 
+   * The optional pay leg of the product.
    * <p>
-   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange. 
+   * Typically this is associated with periodic fixed or Ibor rate payments without compounding or notional exchange.
    * <p>
-   * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront. 
+   * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront.
    */
   @PropertyDefinition(get = "optional")
   private final ResolvedSwapLeg payLeg;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a CMS leg with no pay leg. 
+   * Obtains an instance from a CMS leg with no pay leg.
    * <p>
    * The pay leg is absent in the resulting CMS.
    * 
@@ -77,7 +77,7 @@ public final class ResolvedCms
   }
 
   /**
-   * Obtains an instance from a CMS leg and a pay leg. 
+   * Obtains an instance from a CMS leg and a pay leg.
    * 
    * @param cmsLeg  the CMS leg
    * @param payLeg  the pay leg
