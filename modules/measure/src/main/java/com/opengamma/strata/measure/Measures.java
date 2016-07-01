@@ -8,7 +8,7 @@ package com.opengamma.strata.measure;
 import com.opengamma.strata.calc.Measure;
 
 /**
- * The standard set of measures which can be calculated by Strata.
+ * The standard set of measures that can be calculated by Strata.
  * <p>
  * A measure identifies the calculation result that is required.
  * For example present value, par rate or spread.
@@ -119,48 +119,6 @@ public final class Measures {
    * Measure representing the forward FX rate of the calculation target.
    */
   public static final Measure FORWARD_FX_RATE = Measure.of(StandardMeasures.FORWARD_FX_RATE.getName());
-
-  //-------------------------------------------------------------------------
-  /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in par interest rates.
-   */
-  public static final Measure IR01_PARALLEL_PAR = Measure.of(StandardMeasures.IR01_PARALLEL_PAR.getName());
-  /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in par interest rates at each curve node.
-   */
-  public static final Measure IR01_BUCKETED_PAR = Measure.of(StandardMeasures.IR01_BUCKETED_PAR.getName());
-  /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in zero interest rates of calibrated curve.
-   */
-  public static final Measure IR01_PARALLEL_ZERO = Measure.of(StandardMeasures.IR01_PARALLEL_ZERO.getName());
-  /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in zero interest rates at each curve node.
-   */
-  public static final Measure IR01_BUCKETED_ZERO = Measure.of(StandardMeasures.IR01_BUCKETED_ZERO.getName());
-  /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in par credit spread rates.
-   */
-  public static final Measure CS01_PARALLEL_PAR = Measure.of(StandardMeasures.CS01_PARALLEL_PAR.getName());
-  /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in par credit rates at each curve node.
-   */
-  public static final Measure CS01_BUCKETED_PAR = Measure.of(StandardMeasures.CS01_BUCKETED_PAR.getName());
-  /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in hazard rates of calibrated curve.
-   */
-  public static final Measure CS01_PARALLEL_HAZARD = Measure.of(StandardMeasures.CS01_PARALLEL_HAZARD.getName());
-  /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in hazard rates at each curve node.
-   */
-  public static final Measure CS01_BUCKETED_HAZARD = Measure.of(StandardMeasures.CS01_BUCKETED_HAZARD.getName());
-  /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in recovery rate.
-   */
-  public static final Measure RECOVERY01 = Measure.of(StandardMeasures.RECOVERY01.getName());
-  /**
-   * Measure representing the the risk of default as opposed to the the risk of change in credit spreads.
-   */
-  public static final Measure JUMP_TO_DEFAULT = Measure.of(StandardMeasures.JUMP_TO_DEFAULT.getName());
 
   //-------------------------------------------------------------------------
   private Measures() {
