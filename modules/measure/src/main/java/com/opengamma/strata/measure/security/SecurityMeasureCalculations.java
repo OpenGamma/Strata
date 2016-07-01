@@ -7,7 +7,7 @@ package com.opengamma.strata.measure.security;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.product.Security;
@@ -25,12 +25,12 @@ final class SecurityMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
+  static CurrencyScenarioArray presentValue(
       Security security,
       double quantity,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculatePresentValue(security, quantity, marketData.scenario(i)));
   }

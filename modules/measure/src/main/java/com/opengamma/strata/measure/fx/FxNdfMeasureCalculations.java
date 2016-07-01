@@ -9,8 +9,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -58,11 +58,11 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  CurrencyValuesArray presentValue(
+  CurrencyScenarioArray presentValue(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -77,11 +77,11 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates calibrated sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01CalibratedSum(
+  MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -117,11 +117,11 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates market quote sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01MarketQuoteSum(
+  MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -159,11 +159,11 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
-  MultiCurrencyValuesArray currencyExposure(
+  MultiCurrencyScenarioArray currencyExposure(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currencyExposure(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -178,11 +178,11 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates current cash for all scenarios
-  CurrencyValuesArray currentCash(
+  CurrencyScenarioArray currentCash(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currentCash(trade, marketData.scenario(i).ratesProvider()));
   }

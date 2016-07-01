@@ -11,8 +11,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -71,13 +71,13 @@ final class SwaptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  CurrencyValuesArray presentValue(
+  CurrencyScenarioArray presentValue(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
     IborIndex index = trade.getProduct().getIndex();
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> presentValue(
             trade,
@@ -96,13 +96,13 @@ final class SwaptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates calibrated sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01RatesCalibratedSum(
+  MultiCurrencyScenarioArray pv01RatesCalibratedSum(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
     IborIndex index = trade.getProduct().getIndex();
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesCalibratedSum(
             trade,
@@ -148,13 +148,13 @@ final class SwaptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates market quote sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01RatesMarketQuoteSum(
+  MultiCurrencyScenarioArray pv01RatesMarketQuoteSum(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
     IborIndex index = trade.getProduct().getIndex();
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesMarketQuoteSum(
             trade,
@@ -215,13 +215,13 @@ final class SwaptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
-  MultiCurrencyValuesArray currencyExposure(
+  MultiCurrencyScenarioArray currencyExposure(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
     IborIndex index = trade.getProduct().getIndex();
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> currencyExposure(
             trade,
@@ -240,12 +240,12 @@ final class SwaptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates current cash for all scenarios
-  CurrencyValuesArray currentCash(
+  CurrencyScenarioArray currentCash(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> currentCash(
             trade,

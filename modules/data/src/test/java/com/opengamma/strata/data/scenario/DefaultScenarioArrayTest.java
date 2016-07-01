@@ -51,7 +51,7 @@ public class DefaultScenarioArrayTest {
 
   //-------------------------------------------------------------------------
   public void convertCurrencyAmount() {
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
 
     List<CurrencyAmount> values = ImmutableList.of(
@@ -70,7 +70,7 @@ public class DefaultScenarioArrayTest {
   }
 
   public void noConversionNecessary() {
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
 
     List<CurrencyAmount> values = ImmutableList.of(
@@ -85,7 +85,7 @@ public class DefaultScenarioArrayTest {
   }
 
   public void notConvertible() {
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
 
     List<String> values = ImmutableList.of("a", "b", "c");
@@ -96,7 +96,7 @@ public class DefaultScenarioArrayTest {
   }
 
   public void missingFxRates() {
-    FxRatesArray rates = FxRatesArray.of(EUR, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(EUR, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
 
     List<CurrencyAmount> values = ImmutableList.of(
@@ -109,7 +109,7 @@ public class DefaultScenarioArrayTest {
   }
 
   public void wrongNumberOfFxRates() {
-    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
 
     List<CurrencyAmount> values = ImmutableList.of(

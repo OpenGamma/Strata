@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -43,13 +43,13 @@ public class FxSingleTradeCalculationsTest {
 
     assertEquals(
         FxSingleTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
     assertEquals(
         FxSingleTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertEquals(
         FxSingleTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
     assertEquals(
         FxSingleTradeCalculations.DEFAULT.forwardFxRate(RTRADE, RATES_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedForwardFx)));
@@ -66,7 +66,7 @@ public class FxSingleTradeCalculationsTest {
 
     assertEquals(
         FxSingleTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertEquals(
         FxSingleTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));

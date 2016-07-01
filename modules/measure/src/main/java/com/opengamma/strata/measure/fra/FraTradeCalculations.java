@@ -7,11 +7,11 @@ package com.opengamma.strata.measure.fra;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -65,7 +65,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value, one entry per scenario
    */
-  public CurrencyValuesArray presentValue(
+  public CurrencyScenarioArray presentValue(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -140,7 +140,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01CalibratedSum(
+  public MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -222,7 +222,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01MarketQuoteSum(
+  public MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -299,7 +299,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the par rate, one entry per scenario
    */
-  public ValuesArray parRate(
+  public DoubleScenarioArray parRate(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -330,7 +330,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the par spread, one entry per scenario
    */
-  public ValuesArray parSpread(
+  public DoubleScenarioArray parSpread(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -398,7 +398,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the currency exposure, one entry per scenario
    */
-  public MultiCurrencyValuesArray currencyExposure(
+  public MultiCurrencyScenarioArray currencyExposure(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -433,7 +433,7 @@ public class FraTradeCalculations {
    * @param marketData  the market data
    * @return the current cash, one entry per scenario
    */
-  public CurrencyValuesArray currentCash(
+  public CurrencyScenarioArray currentCash(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {

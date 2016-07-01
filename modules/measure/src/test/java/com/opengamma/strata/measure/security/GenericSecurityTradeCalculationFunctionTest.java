@@ -24,7 +24,7 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
@@ -82,7 +82,7 @@ public class GenericSecurityTradeCalculationFunctionTest {
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))));
+            Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))));
   }
 
   //-------------------------------------------------------------------------

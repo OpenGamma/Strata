@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -41,13 +41,13 @@ public class FxSwapTradeCalculationsTest {
 
     assertEquals(
         FxSwapTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
     assertEquals(
         FxSwapTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertEquals(
         FxSwapTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   public void test_pv01() {
@@ -61,7 +61,7 @@ public class FxSwapTradeCalculationsTest {
 
     assertEquals(
         FxSwapTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal)));
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertEquals(
         FxSwapTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));

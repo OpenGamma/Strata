@@ -7,8 +7,8 @@ package com.opengamma.strata.measure.dsf;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -62,7 +62,7 @@ public class DsfTradeCalculations {
    * @param marketData  the market data
    * @return the present value, one entry per scenario
    */
-  public CurrencyValuesArray presentValue(
+  public CurrencyScenarioArray presentValue(
       ResolvedDsfTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -98,7 +98,7 @@ public class DsfTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01CalibratedSum(
+  public MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedDsfTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -180,7 +180,7 @@ public class DsfTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01MarketQuoteSum(
+  public MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedDsfTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -259,7 +259,7 @@ public class DsfTradeCalculations {
    * @param marketData  the market data
    * @return the currency exposure, one entry per scenario
    */
-  public MultiCurrencyValuesArray currencyExposure(
+  public MultiCurrencyScenarioArray currencyExposure(
       ResolvedDsfTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {

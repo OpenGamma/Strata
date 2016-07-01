@@ -8,9 +8,9 @@ package com.opengamma.strata.measure.fx;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
@@ -57,11 +57,11 @@ final class FxSingleMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  MultiCurrencyValuesArray presentValue(
+  MultiCurrencyScenarioArray presentValue(
       ResolvedFxSingleTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -76,11 +76,11 @@ final class FxSingleMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates calibrated sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01CalibratedSum(
+  MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedFxSingleTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -116,11 +116,11 @@ final class FxSingleMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates market quote sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01MarketQuoteSum(
+  MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedFxSingleTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -158,11 +158,11 @@ final class FxSingleMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
-  ValuesArray parSpread(
+  DoubleScenarioArray parSpread(
       ResolvedFxSingleTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return ValuesArray.of(
+    return DoubleScenarioArray.of(
         marketData.getScenarioCount(),
         i -> parSpread(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -177,11 +177,11 @@ final class FxSingleMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
-  MultiCurrencyValuesArray currencyExposure(
+  MultiCurrencyScenarioArray currencyExposure(
       ResolvedFxSingleTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currencyExposure(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -196,11 +196,11 @@ final class FxSingleMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates current cash for all scenarios
-  MultiCurrencyValuesArray currentCash(
+  MultiCurrencyScenarioArray currentCash(
       ResolvedFxSingleTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currentCash(trade, marketData.scenario(i).ratesProvider()));
   }

@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 
 @Test
@@ -56,8 +56,8 @@ public class FunctionUtilsTest {
             CurrencyAmount.of(Currency.USD, 33),
             CurrencyAmount.of(Currency.EUR, 44)));
 
-    MultiCurrencyValuesArray expected = MultiCurrencyValuesArray.of(amounts);
-    MultiCurrencyValuesArray array = amounts.stream().collect(FunctionUtils.toMultiCurrencyValuesArray());
+    MultiCurrencyScenarioArray expected = MultiCurrencyScenarioArray.of(amounts);
+    MultiCurrencyScenarioArray array = amounts.stream().collect(FunctionUtils.toMultiCurrencyValuesArray());
     assertThat(array).isEqualTo(expected);
   }
 }

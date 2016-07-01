@@ -54,8 +54,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * Internally, it stores the data using a map of currency to {@link DoubleArray}.
  */
 @BeanDefinition(builderScope = "private")
-public final class MultiCurrencyValuesArray
-    implements ScenarioArray<MultiCurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
+public final class MultiCurrencyScenarioArray
+    implements ScenarioArray<MultiCurrencyAmount>, ScenarioFxConvertible<CurrencyScenarioArray>, ImmutableBean {
 
   /** The currency values, keyed by currency. */
   @PropertyDefinition(validate = "notNull")
@@ -71,7 +71,7 @@ public final class MultiCurrencyValuesArray
    * @param amounts  the amounts, one for each scenario
    * @return an instance containing the values from the list of amounts
    */
-  public static MultiCurrencyValuesArray of(MultiCurrencyAmount... amounts) {
+  public static MultiCurrencyScenarioArray of(MultiCurrencyAmount... amounts) {
     return of(Arrays.asList(amounts));
   }
 
@@ -81,7 +81,7 @@ public final class MultiCurrencyValuesArray
    * @param amounts  the amounts, one for each scenario
    * @return an instance containing the values from the list of amounts
    */
-  public static MultiCurrencyValuesArray of(List<MultiCurrencyAmount> amounts) {
+  public static MultiCurrencyScenarioArray of(List<MultiCurrencyAmount> amounts) {
     int size = amounts.size();
     HashMap<Currency, double[]> valueMap = new HashMap<>();
 
@@ -94,7 +94,7 @@ public final class MultiCurrencyValuesArray
       }
     }
     Map<Currency, DoubleArray> doubleArrayMap = MapStream.of(valueMap).mapValues(v -> DoubleArray.ofUnsafe(v)).toMap();
-    return new MultiCurrencyValuesArray(doubleArrayMap);
+    return new MultiCurrencyScenarioArray(doubleArrayMap);
   }
 
   /**
@@ -107,7 +107,7 @@ public final class MultiCurrencyValuesArray
    * @return an instance initialized using the function
    * @throws IllegalArgumentException is size is zero or less
    */
-  public static MultiCurrencyValuesArray of(int size, IntFunction<MultiCurrencyAmount> valueFunction) {
+  public static MultiCurrencyScenarioArray of(int size, IntFunction<MultiCurrencyAmount> valueFunction) {
     ArgChecker.notNegativeOrZero(size, "size");
     Map<Currency, double[]> map = new HashMap<>();
     for (int i = 0; i < size; i++) {
@@ -117,7 +117,7 @@ public final class MultiCurrencyValuesArray
         array[i] = ca.getAmount();
       }
     }
-    return new MultiCurrencyValuesArray(MapStream.of(map).mapValues(array -> DoubleArray.ofUnsafe(array)).toMap());
+    return new MultiCurrencyScenarioArray(MapStream.of(map).mapValues(array -> DoubleArray.ofUnsafe(array)).toMap());
   }
 
   /**
@@ -126,9 +126,9 @@ public final class MultiCurrencyValuesArray
    * @param values  map of currencies to values
    * @return an instance containing the values from the map
    */
-  public static MultiCurrencyValuesArray of(Map<Currency, DoubleArray> values) {
+  public static MultiCurrencyScenarioArray of(Map<Currency, DoubleArray> values) {
     values.values().stream().reduce((a1, a2) -> checkSize(a1, a2));
-    return new MultiCurrencyValuesArray(values);
+    return new MultiCurrencyScenarioArray(values);
   }
 
   /**
@@ -151,7 +151,7 @@ public final class MultiCurrencyValuesArray
   }
 
   @ImmutableConstructor
-  private MultiCurrencyValuesArray(Map<Currency, DoubleArray> values) {
+  private MultiCurrencyScenarioArray(Map<Currency, DoubleArray> values) {
     this.values = ImmutableSortedMap.copyOf(values);
 
     if (values.isEmpty()) {
@@ -230,7 +230,7 @@ public final class MultiCurrencyValuesArray
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyValuesArray convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
+  public CurrencyScenarioArray convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
     if (fxRateProvider.getScenarioCount() != size) {
       throw new IllegalArgumentException(Messages.format(
           "Expected {} FX rates but received {}", size, fxRateProvider.getScenarioCount()));
@@ -246,7 +246,7 @@ public final class MultiCurrencyValuesArray
         singleCurrencyValues[i] += convertedValue;
       }
     }
-    return CurrencyValuesArray.of(reportingCurrency, DoubleArray.ofUnsafe(singleCurrencyValues));
+    return CurrencyScenarioArray.of(reportingCurrency, DoubleArray.ofUnsafe(singleCurrencyValues));
   }
 
   //-------------------------------------------------------------------------
@@ -259,7 +259,7 @@ public final class MultiCurrencyValuesArray
    * @return a new array containing the values from this array added to the values in the other array
    * @throws IllegalArgumentException if the arrays have different sizes
    */
-  public MultiCurrencyValuesArray plus(MultiCurrencyValuesArray other) {
+  public MultiCurrencyScenarioArray plus(MultiCurrencyScenarioArray other) {
     if (other.getScenarioCount() != size) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -269,7 +269,7 @@ public final class MultiCurrencyValuesArray
     }
     Map<Currency, DoubleArray> addedValues = Stream.concat(values.entrySet().stream(), other.values.entrySet().stream())
         .collect(toMap(e -> e.getKey(), e -> e.getValue(), (arr1, arr2) -> arr1.plus(arr2)));
-    return MultiCurrencyValuesArray.of(addedValues);
+    return MultiCurrencyScenarioArray.of(addedValues);
   }
 
   /**
@@ -278,7 +278,7 @@ public final class MultiCurrencyValuesArray
    * @param amount  the amount to add
    * @return a new array containing the values from this array added to the values in the other array
    */
-  public MultiCurrencyValuesArray plus(MultiCurrencyAmount amount) {
+  public MultiCurrencyScenarioArray plus(MultiCurrencyAmount amount) {
     ImmutableMap.Builder<Currency, DoubleArray> builder = ImmutableMap.builder();
 
     for (Currency currency : Sets.union(values.keySet(), amount.getCurrencies())) {
@@ -292,7 +292,7 @@ public final class MultiCurrencyValuesArray
         builder.put(currency, array.plus(amount.getAmount(currency).getAmount()));
       }
     }
-    return MultiCurrencyValuesArray.of(builder.build());
+    return MultiCurrencyScenarioArray.of(builder.build());
   }
 
   /**
@@ -304,7 +304,7 @@ public final class MultiCurrencyValuesArray
    * @return a new array containing the values from this array added with the values from the other array subtracted
    * @throws IllegalArgumentException if the arrays have different sizes
    */
-  public MultiCurrencyValuesArray minus(MultiCurrencyValuesArray other) {
+  public MultiCurrencyScenarioArray minus(MultiCurrencyScenarioArray other) {
     if (other.getScenarioCount() != size) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -335,7 +335,7 @@ public final class MultiCurrencyValuesArray
    * @param amount  the amount to subtract
    * @return a new array containing the values from this array with the values from the amount subtracted
    */
-  public MultiCurrencyValuesArray minus(MultiCurrencyAmount amount) {
+  public MultiCurrencyScenarioArray minus(MultiCurrencyAmount amount) {
     ImmutableMap.Builder<Currency, DoubleArray> builder = ImmutableMap.builder();
 
     for (Currency currency : Sets.union(values.keySet(), amount.getCurrencies())) {
@@ -349,26 +349,26 @@ public final class MultiCurrencyValuesArray
         builder.put(currency, array.minus(amount.getAmount(currency).getAmount()));
       }
     }
-    return MultiCurrencyValuesArray.of(builder.build());
+    return MultiCurrencyScenarioArray.of(builder.build());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code MultiCurrencyValuesArray}.
+   * The meta-bean for {@code MultiCurrencyScenarioArray}.
    * @return the meta-bean, not null
    */
-  public static MultiCurrencyValuesArray.Meta meta() {
-    return MultiCurrencyValuesArray.Meta.INSTANCE;
+  public static MultiCurrencyScenarioArray.Meta meta() {
+    return MultiCurrencyScenarioArray.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(MultiCurrencyValuesArray.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(MultiCurrencyScenarioArray.Meta.INSTANCE);
   }
 
   @Override
-  public MultiCurrencyValuesArray.Meta metaBean() {
-    return MultiCurrencyValuesArray.Meta.INSTANCE;
+  public MultiCurrencyScenarioArray.Meta metaBean() {
+    return MultiCurrencyScenarioArray.Meta.INSTANCE;
   }
 
   @Override
@@ -397,7 +397,7 @@ public final class MultiCurrencyValuesArray
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MultiCurrencyValuesArray other = (MultiCurrencyValuesArray) obj;
+      MultiCurrencyScenarioArray other = (MultiCurrencyScenarioArray) obj;
       return JodaBeanUtils.equal(values, other.values);
     }
     return false;
@@ -413,7 +413,7 @@ public final class MultiCurrencyValuesArray
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("MultiCurrencyValuesArray{");
+    buf.append("MultiCurrencyScenarioArray{");
     buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
@@ -421,7 +421,7 @@ public final class MultiCurrencyValuesArray
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code MultiCurrencyValuesArray}.
+   * The meta-bean for {@code MultiCurrencyScenarioArray}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -434,7 +434,7 @@ public final class MultiCurrencyValuesArray
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSortedMap<Currency, DoubleArray>> values = DirectMetaProperty.ofImmutable(
-        this, "values", MultiCurrencyValuesArray.class, (Class) ImmutableSortedMap.class);
+        this, "values", MultiCurrencyScenarioArray.class, (Class) ImmutableSortedMap.class);
     /**
      * The meta-properties.
      */
@@ -458,13 +458,13 @@ public final class MultiCurrencyValuesArray
     }
 
     @Override
-    public BeanBuilder<? extends MultiCurrencyValuesArray> builder() {
-      return new MultiCurrencyValuesArray.Builder();
+    public BeanBuilder<? extends MultiCurrencyScenarioArray> builder() {
+      return new MultiCurrencyScenarioArray.Builder();
     }
 
     @Override
-    public Class<? extends MultiCurrencyValuesArray> beanType() {
-      return MultiCurrencyValuesArray.class;
+    public Class<? extends MultiCurrencyScenarioArray> beanType() {
+      return MultiCurrencyScenarioArray.class;
     }
 
     @Override
@@ -486,7 +486,7 @@ public final class MultiCurrencyValuesArray
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          return ((MultiCurrencyValuesArray) bean).getValues();
+          return ((MultiCurrencyScenarioArray) bean).getValues();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -504,9 +504,9 @@ public final class MultiCurrencyValuesArray
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code MultiCurrencyValuesArray}.
+   * The bean-builder for {@code MultiCurrencyScenarioArray}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyValuesArray> {
+  private static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyScenarioArray> {
 
     private SortedMap<Currency, DoubleArray> values = ImmutableSortedMap.of();
 
@@ -565,8 +565,8 @@ public final class MultiCurrencyValuesArray
     }
 
     @Override
-    public MultiCurrencyValuesArray build() {
-      return new MultiCurrencyValuesArray(
+    public MultiCurrencyScenarioArray build() {
+      return new MultiCurrencyScenarioArray(
           values);
     }
 
@@ -574,7 +574,7 @@ public final class MultiCurrencyValuesArray
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("MultiCurrencyValuesArray.Builder{");
+      buf.append("MultiCurrencyScenarioArray.Builder{");
       buf.append("values").append('=').append(JodaBeanUtils.toString(values));
       buf.append('}');
       return buf.toString();
