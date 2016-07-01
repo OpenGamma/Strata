@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ResolvableTrade;
@@ -62,11 +63,11 @@ public final class SwaptionTrade
    * This means that the premium is negative for long and positive for short.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Payment premium;
+  private final AdjustablePayment premium;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of a Swaption trade.
+   * Obtains an instance of a Swaption trade with a fixed payment.
    * 
    * @param info  the trade info
    * @param product  the product
@@ -74,6 +75,18 @@ public final class SwaptionTrade
    * @return the trade
    */
   public static SwaptionTrade of(TradeInfo info, Swaption product, Payment premium) {
+    return new SwaptionTrade(info, product, AdjustablePayment.of(premium));
+  }
+
+  /**
+   * Obtains an instance of a Swaption trade with an adjustable payment.
+   * 
+   * @param info  the trade info
+   * @param product  the product
+   * @param premium  the premium
+   * @return the trade
+   */
+  public static SwaptionTrade of(TradeInfo info, Swaption product, AdjustablePayment premium) {
     return new SwaptionTrade(info, product, premium);
   }
 
@@ -88,7 +101,7 @@ public final class SwaptionTrade
     return ResolvedSwaptionTrade.builder()
         .info(info)
         .product(product.resolve(refData))
-        .premium(premium)
+        .premium(premium.resolve(refData))
         .build();
   }
 
@@ -122,7 +135,7 @@ public final class SwaptionTrade
   private SwaptionTrade(
       TradeInfo info,
       Swaption product,
-      Payment premium) {
+      AdjustablePayment premium) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
     this.info = info;
@@ -177,7 +190,7 @@ public final class SwaptionTrade
    * This means that the premium is negative for long and positive for short.
    * @return the value of the property, not null
    */
-  public Payment getPremium() {
+  public AdjustablePayment getPremium() {
     return premium;
   }
 
@@ -247,8 +260,8 @@ public final class SwaptionTrade
     /**
      * The meta-property for the {@code premium} property.
      */
-    private final MetaProperty<Payment> premium = DirectMetaProperty.ofImmutable(
-        this, "premium", SwaptionTrade.class, Payment.class);
+    private final MetaProperty<AdjustablePayment> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", SwaptionTrade.class, AdjustablePayment.class);
     /**
      * The meta-properties.
      */
@@ -313,7 +326,7 @@ public final class SwaptionTrade
      * The meta-property for the {@code premium} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Payment> premium() {
+    public MetaProperty<AdjustablePayment> premium() {
       return premium;
     }
 
@@ -350,7 +363,7 @@ public final class SwaptionTrade
 
     private TradeInfo info;
     private Swaption product;
-    private Payment premium;
+    private AdjustablePayment premium;
 
     /**
      * Restricted constructor.
@@ -394,7 +407,7 @@ public final class SwaptionTrade
           this.product = (Swaption) newValue;
           break;
         case -318452137:  // premium
-          this.premium = (Payment) newValue;
+          this.premium = (AdjustablePayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -468,7 +481,7 @@ public final class SwaptionTrade
      * @param premium  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder premium(Payment premium) {
+    public Builder premium(AdjustablePayment premium) {
       JodaBeanUtils.notNull(premium, "premium");
       this.premium = premium;
       return this;

@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
@@ -62,7 +62,7 @@ public final class FxVanillaOptionTrade
    * This means that the premium is negative for long and positive for short.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Payment premium;
+  private final AdjustablePayment premium;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -75,7 +75,7 @@ public final class FxVanillaOptionTrade
     return ResolvedFxVanillaOptionTrade.builder()
         .info(info)
         .product(product.resolve(refData))
-        .premium(premium)
+        .premium(premium.resolve(refData))
         .build();
   }
 
@@ -109,7 +109,7 @@ public final class FxVanillaOptionTrade
   private FxVanillaOptionTrade(
       TradeInfo info,
       FxVanillaOption product,
-      Payment premium) {
+      AdjustablePayment premium) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
     this.info = info;
@@ -164,7 +164,7 @@ public final class FxVanillaOptionTrade
    * This means that the premium is negative for long and positive for short.
    * @return the value of the property, not null
    */
-  public Payment getPremium() {
+  public AdjustablePayment getPremium() {
     return premium;
   }
 
@@ -234,8 +234,8 @@ public final class FxVanillaOptionTrade
     /**
      * The meta-property for the {@code premium} property.
      */
-    private final MetaProperty<Payment> premium = DirectMetaProperty.ofImmutable(
-        this, "premium", FxVanillaOptionTrade.class, Payment.class);
+    private final MetaProperty<AdjustablePayment> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", FxVanillaOptionTrade.class, AdjustablePayment.class);
     /**
      * The meta-properties.
      */
@@ -300,7 +300,7 @@ public final class FxVanillaOptionTrade
      * The meta-property for the {@code premium} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Payment> premium() {
+    public MetaProperty<AdjustablePayment> premium() {
       return premium;
     }
 
@@ -337,7 +337,7 @@ public final class FxVanillaOptionTrade
 
     private TradeInfo info;
     private FxVanillaOption product;
-    private Payment premium;
+    private AdjustablePayment premium;
 
     /**
      * Restricted constructor.
@@ -381,7 +381,7 @@ public final class FxVanillaOptionTrade
           this.product = (FxVanillaOption) newValue;
           break;
         case -318452137:  // premium
-          this.premium = (Payment) newValue;
+          this.premium = (AdjustablePayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -455,7 +455,7 @@ public final class FxVanillaOptionTrade
      * @param premium  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder premium(Payment premium) {
+    public Builder premium(AdjustablePayment premium) {
       JodaBeanUtils.notNull(premium, "premium");
       this.premium = premium;
       return this;
