@@ -18,7 +18,7 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
  */
 public interface SabrSwaptionVolatilities
     extends SwaptionVolatilities {
-  
+
   @Override
   public default ValueType getVolatilityType() {
     return ValueType.BLACK_VOLATILITY; // SABR implemented with Black implied volatility

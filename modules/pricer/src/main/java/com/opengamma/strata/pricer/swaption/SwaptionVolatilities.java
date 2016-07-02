@@ -109,26 +109,26 @@ public interface SwaptionVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the parameter sensitivity.
+   * Calculates the parameter sensitivity.
    * <p>
    * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the internal parameters representation.
    * 
    * @param pointSensitivities  the point sensitivities
-   * @return the sensitivity to the curve parameters
+   * @return the sensitivity to the underlying parameters
    */
   public default CurrencyParameterSensitivities parameterSensitivity(PointSensitivity... pointSensitivities) {
     return parameterSensitivity(PointSensitivities.of(pointSensitivities));
   }
 
   /**
-   * Computes the parameter sensitivity.
+   * Calculates the parameter sensitivity.
    * <p>
    * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the internal parameters representation.
    * 
    * @param pointSensitivities  the point sensitivities
-   * @return the sensitivity to the curve parameters
+   * @return the sensitivity to the underlying parameters
    */
   public abstract CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities);
 
