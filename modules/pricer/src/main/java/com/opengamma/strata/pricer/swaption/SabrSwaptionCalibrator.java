@@ -304,13 +304,13 @@ public class SabrSwaptionCalibrator {
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        name.getName() + "-Alpha", dayCount, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Rho", dayCount, convention, ValueType.SABR_RHO)
+        name.getName() + "-Rho", dayCount, ValueType.SABR_RHO)
         .withParameterMetadata(parameterMetadata);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Nu", dayCount, convention, ValueType.SABR_NU)
+        name.getName() + "-Nu", dayCount, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
@@ -322,6 +322,7 @@ public class SabrSwaptionCalibrator {
         alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
+        .convention(convention)
         .valuationDateTime(calibrationDateTime)
         .parameters(params)
         .dataSensitivityAlpha(dataSensitivityAlpha)
@@ -469,7 +470,7 @@ public class SabrSwaptionCalibrator {
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        name.getName() + "-Alpha", dayCount, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
@@ -478,6 +479,7 @@ public class SabrSwaptionCalibrator {
         sabr.getParameters().getNuSurface(), sabr.getParameters().getShiftSurface(), sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
+        .convention(convention)
         .valuationDateTime(sabr.getValuationDateTime())
         .parameters(params)
         .dataSensitivityAlpha(dataSensitivityAlpha).build();

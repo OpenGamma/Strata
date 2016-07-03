@@ -23,7 +23,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
@@ -143,13 +142,17 @@ public class SwaptionCubeData {
   }
   public static final double[] TENOR_TIME = {1, 2, 1, 2, 1, 2, 1, 2};
   private static final SurfaceMetadata METADATA_NORMAL = DefaultSurfaceMetadata.builder().surfaceName("ATM")
-      .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
-      .zValueType(ValueType.NORMAL_VOLATILITY).addInfo(SurfaceInfoType.SWAP_CONVENTION, EUR_FIXED_1Y_EURIBOR_6M)
-      .dayCount(DAY_COUNT).build();
+      .xValueType(ValueType.YEAR_FRACTION)
+      .yValueType(ValueType.YEAR_FRACTION)
+      .zValueType(ValueType.NORMAL_VOLATILITY)
+      .dayCount(DAY_COUNT)
+      .build();
   private static final SurfaceMetadata METADATA_LOGNORMAL = DefaultSurfaceMetadata.builder().surfaceName("ATM")
-      .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
-      .zValueType(ValueType.BLACK_VOLATILITY).addInfo(SurfaceInfoType.SWAP_CONVENTION, EUR_FIXED_1Y_EURIBOR_6M)
-      .dayCount(DAY_COUNT).build();
+      .xValueType(ValueType.YEAR_FRACTION)
+      .yValueType(ValueType.YEAR_FRACTION)
+      .zValueType(ValueType.BLACK_VOLATILITY)
+      .dayCount(DAY_COUNT)
+      .build();
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   public static final InterpolatedNodalSurface ATM_NORMAL_SIMPLE_SURFACE = 
       InterpolatedNodalSurface.of(METADATA_NORMAL, DoubleArray.ofUnsafe(EXPIRIES_SIMPLE_2_TIME), 
@@ -158,7 +161,7 @@ public class SwaptionCubeData {
       InterpolatedNodalSurface.of(METADATA_LOGNORMAL, DoubleArray.ofUnsafe(EXPIRIES_SIMPLE_2_TIME), 
           DoubleArray.ofUnsafe(TENOR_TIME), DoubleArray.ofUnsafe(DATA_LOGNORMAL_ATM_SIMPLE), INTERPOLATOR_2D);
   public static final SwaptionVolatilities ATM_NORMAL_SIMPLE = 
-      NormalSwaptionExpiryTenorVolatilities.of(DATA_TIME, ATM_NORMAL_SIMPLE_SURFACE);
+      NormalSwaptionExpiryTenorVolatilities.of(EUR_FIXED_1Y_EURIBOR_6M, DATA_TIME, ATM_NORMAL_SIMPLE_SURFACE);
   public static final SwaptionVolatilities ATM_LOGNORMAL_SIMPLE = 
-      BlackSwaptionExpiryTenorVolatilities.of(DATA_TIME, ATM_LOGNORMAL_SIMPLE_SURFACE);
+      BlackSwaptionExpiryTenorVolatilities.of(EUR_FIXED_1Y_EURIBOR_6M, DATA_TIME, ATM_LOGNORMAL_SIMPLE_SURFACE);
 }
