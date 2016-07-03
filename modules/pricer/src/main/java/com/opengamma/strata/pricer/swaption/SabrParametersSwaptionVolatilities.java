@@ -6,8 +6,6 @@
 package com.opengamma.strata.pricer.swaption;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +64,13 @@ public final class SabrParametersSwaptionVolatilities
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SwaptionVolatilitiesName name;
   /** 
+   * The valuation date-time.
+   * <p>
+   * The volatilities are calibrated for this date-time. 
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ZonedDateTime valuationDateTime;
+  /** 
    * The SABR model parameters.
    * <p>
    * Each model parameter of SABR model is a surface.
@@ -74,13 +79,6 @@ public final class SabrParametersSwaptionVolatilities
    */
   @PropertyDefinition(validate = "notNull")
   private final SabrInterestRateParameters parameters;
-  /** 
-   * The valuation date-time.
-   * <p>
-   * The volatilities are calibrated for this date-time. 
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final ZonedDateTime valuationDateTime;
   /** 
    * The sensitivity of the Alpha parameters to the raw data used for calibration.
    * <p>
@@ -115,36 +113,16 @@ public final class SabrParametersSwaptionVolatilities
    * Obtains an instance from the SABR model parameters and the date-time for which it is valid.
    * 
    * @param name  the name
-   * @param parameters  the SABR model parameters
    * @param valuationDateTime  the valuation date-time
-   * @return the volatilities
-   */
-  public static SabrParametersSwaptionVolatilities of(
-      SwaptionVolatilitiesName name,
-      SabrInterestRateParameters parameters,
-      ZonedDateTime valuationDateTime) {
-
-    return new SabrParametersSwaptionVolatilities(name, parameters, valuationDateTime, null, null, null, null);
-  }
-
-  /**
-   * Obtains an instance from the SABR model parameters and the date, time and zone for which it is valid.
-   * 
-   * @param name  the name
    * @param parameters  the SABR model parameters
-   * @param valuationDate  the valuation date
-   * @param valuationTime  the valuation time
-   * @param valuationZone  the valuation time zone
    * @return the volatilities
    */
   public static SabrParametersSwaptionVolatilities of(
       SwaptionVolatilitiesName name,
-      SabrInterestRateParameters parameters,
-      LocalDate valuationDate,
-      LocalTime valuationTime,
-      ZoneId valuationZone) {
+      ZonedDateTime valuationDateTime,
+      SabrInterestRateParameters parameters) {
 
-    return of(name, parameters, valuationDate.atTime(valuationTime).atZone(valuationZone));
+    return new SabrParametersSwaptionVolatilities(name, valuationDateTime, parameters, null, null, null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -202,8 +180,8 @@ public final class SabrParametersSwaptionVolatilities
     SabrInterestRateParameters updated = parameters.withParameter(parameterIndex, newValue);
     return new SabrParametersSwaptionVolatilities(
         name,
-        updated,
         valuationDateTime,
+        updated,
         dataSensitivityAlpha,
         dataSensitivityBeta,
         dataSensitivityRho,
@@ -215,8 +193,8 @@ public final class SabrParametersSwaptionVolatilities
     SabrInterestRateParameters updated = parameters.withPerturbation(perturbation);
     return new SabrParametersSwaptionVolatilities(
         name,
-        updated,
         valuationDateTime,
+        updated,
         dataSensitivityAlpha,
         dataSensitivityBeta,
         dataSensitivityRho,
@@ -349,18 +327,18 @@ public final class SabrParametersSwaptionVolatilities
 
   private SabrParametersSwaptionVolatilities(
       SwaptionVolatilitiesName name,
-      SabrInterestRateParameters parameters,
       ZonedDateTime valuationDateTime,
+      SabrInterestRateParameters parameters,
       List<DoubleArray> dataSensitivityAlpha,
       List<DoubleArray> dataSensitivityBeta,
       List<DoubleArray> dataSensitivityRho,
       List<DoubleArray> dataSensitivityNu) {
     JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(parameters, "parameters");
     JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
+    JodaBeanUtils.notNull(parameters, "parameters");
     this.name = name;
-    this.parameters = parameters;
     this.valuationDateTime = valuationDateTime;
+    this.parameters = parameters;
     this.dataSensitivityAlpha = (dataSensitivityAlpha != null ? ImmutableList.copyOf(dataSensitivityAlpha) : null);
     this.dataSensitivityBeta = (dataSensitivityBeta != null ? ImmutableList.copyOf(dataSensitivityBeta) : null);
     this.dataSensitivityRho = (dataSensitivityRho != null ? ImmutableList.copyOf(dataSensitivityRho) : null);
@@ -394,6 +372,18 @@ public final class SabrParametersSwaptionVolatilities
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the valuation date-time.
+   * <p>
+   * The volatilities are calibrated for this date-time.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ZonedDateTime getValuationDateTime() {
+    return valuationDateTime;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the SABR model parameters.
    * <p>
    * Each model parameter of SABR model is a surface.
@@ -403,18 +393,6 @@ public final class SabrParametersSwaptionVolatilities
    */
   public SabrInterestRateParameters getParameters() {
     return parameters;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the valuation date-time.
-   * <p>
-   * The volatilities are calibrated for this date-time.
-   * @return the value of the property, not null
-   */
-  @Override
-  public ZonedDateTime getValuationDateTime() {
-    return valuationDateTime;
   }
 
   //-----------------------------------------------------------------------
@@ -478,8 +456,8 @@ public final class SabrParametersSwaptionVolatilities
     if (obj != null && obj.getClass() == this.getClass()) {
       SabrParametersSwaptionVolatilities other = (SabrParametersSwaptionVolatilities) obj;
       return JodaBeanUtils.equal(name, other.name) &&
-          JodaBeanUtils.equal(parameters, other.parameters) &&
           JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
+          JodaBeanUtils.equal(parameters, other.parameters) &&
           JodaBeanUtils.equal(dataSensitivityAlpha, other.dataSensitivityAlpha) &&
           JodaBeanUtils.equal(dataSensitivityBeta, other.dataSensitivityBeta) &&
           JodaBeanUtils.equal(dataSensitivityRho, other.dataSensitivityRho) &&
@@ -492,8 +470,8 @@ public final class SabrParametersSwaptionVolatilities
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
-    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     hash = hash * 31 + JodaBeanUtils.hashCode(dataSensitivityAlpha);
     hash = hash * 31 + JodaBeanUtils.hashCode(dataSensitivityBeta);
     hash = hash * 31 + JodaBeanUtils.hashCode(dataSensitivityRho);
@@ -506,8 +484,8 @@ public final class SabrParametersSwaptionVolatilities
     StringBuilder buf = new StringBuilder(256);
     buf.append("SabrParametersSwaptionVolatilities{");
     buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
     buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
     buf.append("dataSensitivityAlpha").append('=').append(dataSensitivityAlpha).append(',').append(' ');
     buf.append("dataSensitivityBeta").append('=').append(dataSensitivityBeta).append(',').append(' ');
     buf.append("dataSensitivityRho").append('=').append(dataSensitivityRho).append(',').append(' ');
@@ -532,15 +510,15 @@ public final class SabrParametersSwaptionVolatilities
     private final MetaProperty<SwaptionVolatilitiesName> name = DirectMetaProperty.ofImmutable(
         this, "name", SabrParametersSwaptionVolatilities.class, SwaptionVolatilitiesName.class);
     /**
-     * The meta-property for the {@code parameters} property.
-     */
-    private final MetaProperty<SabrInterestRateParameters> parameters = DirectMetaProperty.ofImmutable(
-        this, "parameters", SabrParametersSwaptionVolatilities.class, SabrInterestRateParameters.class);
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      */
     private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
         this, "valuationDateTime", SabrParametersSwaptionVolatilities.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code parameters} property.
+     */
+    private final MetaProperty<SabrInterestRateParameters> parameters = DirectMetaProperty.ofImmutable(
+        this, "parameters", SabrParametersSwaptionVolatilities.class, SabrInterestRateParameters.class);
     /**
      * The meta-property for the {@code dataSensitivityAlpha} property.
      */
@@ -571,8 +549,8 @@ public final class SabrParametersSwaptionVolatilities
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
-        "parameters",
         "valuationDateTime",
+        "parameters",
         "dataSensitivityAlpha",
         "dataSensitivityBeta",
         "dataSensitivityRho",
@@ -589,10 +567,10 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 458736106:  // parameters
-          return parameters;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
+        case 458736106:  // parameters
+          return parameters;
         case 1650101705:  // dataSensitivityAlpha
           return dataSensitivityAlpha;
         case -85295067:  // dataSensitivityBeta
@@ -630,19 +608,19 @@ public final class SabrParametersSwaptionVolatilities
     }
 
     /**
-     * The meta-property for the {@code parameters} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<SabrInterestRateParameters> parameters() {
-      return parameters;
-    }
-
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
     public MetaProperty<ZonedDateTime> valuationDateTime() {
       return valuationDateTime;
+    }
+
+    /**
+     * The meta-property for the {@code parameters} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SabrInterestRateParameters> parameters() {
+      return parameters;
     }
 
     /**
@@ -683,10 +661,10 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((SabrParametersSwaptionVolatilities) bean).getName();
-        case 458736106:  // parameters
-          return ((SabrParametersSwaptionVolatilities) bean).getParameters();
         case -949589828:  // valuationDateTime
           return ((SabrParametersSwaptionVolatilities) bean).getValuationDateTime();
+        case 458736106:  // parameters
+          return ((SabrParametersSwaptionVolatilities) bean).getParameters();
         case 1650101705:  // dataSensitivityAlpha
           return ((SabrParametersSwaptionVolatilities) bean).dataSensitivityAlpha;
         case -85295067:  // dataSensitivityBeta
@@ -717,8 +695,8 @@ public final class SabrParametersSwaptionVolatilities
   public static final class Builder extends DirectFieldsBeanBuilder<SabrParametersSwaptionVolatilities> {
 
     private SwaptionVolatilitiesName name;
-    private SabrInterestRateParameters parameters;
     private ZonedDateTime valuationDateTime;
+    private SabrInterestRateParameters parameters;
     private List<DoubleArray> dataSensitivityAlpha;
     private List<DoubleArray> dataSensitivityBeta;
     private List<DoubleArray> dataSensitivityRho;
@@ -736,8 +714,8 @@ public final class SabrParametersSwaptionVolatilities
      */
     private Builder(SabrParametersSwaptionVolatilities beanToCopy) {
       this.name = beanToCopy.getName();
-      this.parameters = beanToCopy.getParameters();
       this.valuationDateTime = beanToCopy.getValuationDateTime();
+      this.parameters = beanToCopy.getParameters();
       this.dataSensitivityAlpha = beanToCopy.dataSensitivityAlpha;
       this.dataSensitivityBeta = beanToCopy.dataSensitivityBeta;
       this.dataSensitivityRho = beanToCopy.dataSensitivityRho;
@@ -750,10 +728,10 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 458736106:  // parameters
-          return parameters;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
+        case 458736106:  // parameters
+          return parameters;
         case 1650101705:  // dataSensitivityAlpha
           return dataSensitivityAlpha;
         case -85295067:  // dataSensitivityBeta
@@ -774,11 +752,11 @@ public final class SabrParametersSwaptionVolatilities
         case 3373707:  // name
           this.name = (SwaptionVolatilitiesName) newValue;
           break;
-        case 458736106:  // parameters
-          this.parameters = (SabrInterestRateParameters) newValue;
-          break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
+          break;
+        case 458736106:  // parameters
+          this.parameters = (SabrInterestRateParameters) newValue;
           break;
         case 1650101705:  // dataSensitivityAlpha
           this.dataSensitivityAlpha = (List<DoubleArray>) newValue;
@@ -826,8 +804,8 @@ public final class SabrParametersSwaptionVolatilities
     public SabrParametersSwaptionVolatilities build() {
       return new SabrParametersSwaptionVolatilities(
           name,
-          parameters,
           valuationDateTime,
+          parameters,
           dataSensitivityAlpha,
           dataSensitivityBeta,
           dataSensitivityRho,
@@ -847,6 +825,19 @@ public final class SabrParametersSwaptionVolatilities
     }
 
     /**
+     * Sets the valuation date-time.
+     * <p>
+     * The volatilities are calibrated for this date-time.
+     * @param valuationDateTime  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder valuationDateTime(ZonedDateTime valuationDateTime) {
+      JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
+      this.valuationDateTime = valuationDateTime;
+      return this;
+    }
+
+    /**
      * Sets the SABR model parameters.
      * <p>
      * Each model parameter of SABR model is a surface.
@@ -858,19 +849,6 @@ public final class SabrParametersSwaptionVolatilities
     public Builder parameters(SabrInterestRateParameters parameters) {
       JodaBeanUtils.notNull(parameters, "parameters");
       this.parameters = parameters;
-      return this;
-    }
-
-    /**
-     * Sets the valuation date-time.
-     * <p>
-     * The volatilities are calibrated for this date-time.
-     * @param valuationDateTime  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valuationDateTime(ZonedDateTime valuationDateTime) {
-      JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
-      this.valuationDateTime = valuationDateTime;
       return this;
     }
 
@@ -968,8 +946,8 @@ public final class SabrParametersSwaptionVolatilities
       StringBuilder buf = new StringBuilder(256);
       buf.append("SabrParametersSwaptionVolatilities.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
-      buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
       buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
+      buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
       buf.append("dataSensitivityAlpha").append('=').append(JodaBeanUtils.toString(dataSensitivityAlpha)).append(',').append(' ');
       buf.append("dataSensitivityBeta").append('=').append(JodaBeanUtils.toString(dataSensitivityBeta)).append(',').append(' ');
       buf.append("dataSensitivityRho").append('=').append(JodaBeanUtils.toString(dataSensitivityRho)).append(',').append(' ');

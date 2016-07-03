@@ -69,7 +69,7 @@ public class SwaptionBlackVolatilityDataSets {
   private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   /** Black volatility provider */
   public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
-      BlackSwaptionExpiryTenorVolatilities.of(SURFACE_STD, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+      BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD), SURFACE_STD);
 
   /** constant volatility */
   public static final double VOLATILITY = 0.20;
@@ -79,6 +79,6 @@ public class SwaptionBlackVolatilityDataSets {
   private static final Surface CST_SURFACE = ConstantSurface.of(META_DATA, VOLATILITY);
   /** flat Black volatility provider */
   public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
-      BlackSwaptionExpiryTenorVolatilities.of(CST_SURFACE, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+      BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD), CST_SURFACE);
 
 }

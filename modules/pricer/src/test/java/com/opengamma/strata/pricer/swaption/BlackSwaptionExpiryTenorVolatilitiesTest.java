@@ -69,7 +69,7 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final BlackSwaptionExpiryTenorVolatilities PROVIDER =
-      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE, VAL_TIME, LONDON_ZONE);
+      BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME, SURFACE);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
@@ -137,8 +137,8 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
             InterpolatedNodalSurface.of(METADATA, TIME, TENOR, volDataUp, INTERPOLATOR_2D);
         InterpolatedNodalSurface paramDw =
             InterpolatedNodalSurface.of(METADATA, TIME, TENOR, volDataDw, INTERPOLATOR_2D);
-        BlackSwaptionExpiryTenorVolatilities provUp = BlackSwaptionExpiryTenorVolatilities.of(paramUp, VAL_DATE_TIME);
-        BlackSwaptionExpiryTenorVolatilities provDw = BlackSwaptionExpiryTenorVolatilities.of(paramDw, VAL_DATE_TIME);
+        BlackSwaptionExpiryTenorVolatilities provUp = BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME, paramUp);
+        BlackSwaptionExpiryTenorVolatilities provDw = BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME, paramDw);
         double volUp = provUp.volatility(
             TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double volDw = provDw.volatility(
@@ -151,10 +151,10 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    BlackSwaptionExpiryTenorVolatilities test1 = BlackSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE_TIME);
+    BlackSwaptionExpiryTenorVolatilities test1 = BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME, SURFACE);
     coverImmutableBean(test1);
     BlackSwaptionExpiryTenorVolatilities test2 =
-        BlackSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE.atStartOfDay(ZoneOffset.UTC));
+        BlackSwaptionExpiryTenorVolatilities.of(VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);
     coverBeanEquals(test1, test2);
   }
 

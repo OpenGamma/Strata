@@ -40,7 +40,7 @@ public interface SwaptionVolatilities
    * @return the convention
    */
   public abstract FixedIborSwapConvention getConvention();
-  
+
   /**
    * Gets the type of volatility returned by the {@link SwaptionVolatilities#volatility} method.
    * 
@@ -51,7 +51,7 @@ public interface SwaptionVolatilities
   /**
    * Gets the valuation date.
    * <p>
-   * The raw data in this provider is calibrated for this date.
+   * The volatilities are calibrated for this date.
    * 
    * @return the valuation date
    */
@@ -63,7 +63,7 @@ public interface SwaptionVolatilities
   /**
    * Gets the valuation date-time.
    * <p>
-   * The raw data in this provider is calibrated for this date-time.
+   * The volatilities are calibrated for this date-time.
    * 
    * @return the valuation date-time
    */
@@ -77,7 +77,7 @@ public interface SwaptionVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the volatility at the specified date-time.
+   * Calculates the volatility at the specified expiry.
    * <p>
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
    * 
@@ -93,7 +93,7 @@ public interface SwaptionVolatilities
   }
 
   /**
-   * Calculates the volatility at the specified date-time.
+   * Calculates the volatility at the specified expiry.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
    * This relies on tenor supplied by {@link #tenor(LocalDate, LocalDate)}.
@@ -267,10 +267,10 @@ public interface SwaptionVolatilities
    * <p>
    * When the date is after the valuation date (and potentially time), the returned number is negative.
    * 
-   * @param date  the date/time to find the relative year fraction of
+   * @param dateTime  the date-time to find the relative year fraction of
    * @return the relative year fraction
    */
-  public abstract double relativeTime(ZonedDateTime date);
+  public abstract double relativeTime(ZonedDateTime dateTime);
 
   /**
    * Calculates the tenor of the swap based on its start date and end date.

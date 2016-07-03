@@ -158,7 +158,7 @@ public class SwaptionCubeData {
       InterpolatedNodalSurface.of(METADATA_LOGNORMAL, DoubleArray.ofUnsafe(EXPIRIES_SIMPLE_2_TIME), 
           DoubleArray.ofUnsafe(TENOR_TIME), DoubleArray.ofUnsafe(DATA_LOGNORMAL_ATM_SIMPLE), INTERPOLATOR_2D);
   public static final SwaptionVolatilities ATM_NORMAL_SIMPLE = 
-      NormalSwaptionExpiryTenorVolatilities.of(ATM_NORMAL_SIMPLE_SURFACE, DATA_TIME);
+      NormalSwaptionExpiryTenorVolatilities.of(DATA_TIME, ATM_NORMAL_SIMPLE_SURFACE);
   public static final SwaptionVolatilities ATM_LOGNORMAL_SIMPLE = 
-      BlackSwaptionExpiryTenorVolatilities.of(ATM_LOGNORMAL_SIMPLE_SURFACE, DATA_TIME);
+      BlackSwaptionExpiryTenorVolatilities.of(DATA_TIME, ATM_LOGNORMAL_SIMPLE_SURFACE);
 }
