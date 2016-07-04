@@ -43,7 +43,7 @@ public class VolatilityIborCapFloorTradePricer {
   private final DiscountingPaymentPricer paymentPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param productPricer  the pricer for {@link ResolvedIborCapFloor}
    * @param paymentPricer  the pricer for {@link Payment}

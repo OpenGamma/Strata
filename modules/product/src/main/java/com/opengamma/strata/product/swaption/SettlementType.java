@@ -24,9 +24,9 @@ public enum SettlementType {
    */
   CASH,
   /**
-   * Physical delivery. 
+   * Physical delivery.
    * <p>
-   * The two parties enter into actual interest rate swap (the underlying swap) at the expiry date of the option. 
+   * The two parties enter into actual interest rate swap (the underlying swap) at the expiry date of the option.
    */
   PHYSICAL;
 

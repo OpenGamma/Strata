@@ -42,10 +42,10 @@ import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 
 /**
- * Test for curve calibration with 2 curves in USD. 
+ * Test for curve calibration with 2 curves in USD.
  * <p>
  * One curve is used for Discounting and Fed Fund forward.
- * The other curve is used for Libor 3M forward. 
+ * The other curve is used for Libor 3M forward.
  * The Libor forward curve is interpolated directly on forward rates, not on discount factors or zero-rates.
  * <p>
  * Curve configuration and market data loaded from csv files.
@@ -93,7 +93,7 @@ public class CalibrationSimpleForwardCheckExample {
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/quotes.csv");
 
   //-------------------------------------------------------------------------
-  /** 
+  /**
    * Runs the calibration and checks that all the trades used in the curve calibration have a PV of 0.
    * 
    * @param args  -p to run the performance estimate

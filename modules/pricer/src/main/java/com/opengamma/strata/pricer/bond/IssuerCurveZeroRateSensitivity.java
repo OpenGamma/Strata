@@ -57,7 +57,7 @@ public final class IssuerCurveZeroRateSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The legal entity group. 
+   * The legal entity group.
    * <p>
    * The group defines the legal entity that the discount factors are for.
    */
@@ -91,7 +91,7 @@ public final class IssuerCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains an instance from zero rate sensitivity and legal entity group. 
+   * Obtains an instance from zero rate sensitivity and legal entity group.
    * 
    * @param zeroRateSensitivity  the zero rate sensitivity
    * @param legalEntityGroup  the legal entity group
@@ -193,7 +193,7 @@ public final class IssuerCurveZeroRateSensitivity
   /**
    * Obtains the underlying {@code ZeroRateSensitivity}. 
    * <p>
-   * This creates the zero rate sensitivity object by omitting the legal entity group. 
+   * This creates the zero rate sensitivity object by omitting the legal entity group.
    * 
    * @return the point sensitivity object
    */

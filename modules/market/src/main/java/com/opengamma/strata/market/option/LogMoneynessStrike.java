@@ -26,17 +26,17 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A strike based on log-moneyness. 
+ * A strike based on log-moneyness.
  * <p>
  * The log-moneyness is defined as {@code ln(strike/forward)}. 
- * The strike value and forward value should strictly positive. 
+ * The strike value and forward value should strictly positive.
  */
 @BeanDefinition(builderScope = "private")
 public final class LogMoneynessStrike
     implements Strike, ImmutableBean, Serializable {
 
   /**
-   * The value of log-moneyness. 
+   * The value of log-moneyness.
    */
   @PropertyDefinition(overrideGet = true)
   private final double value;

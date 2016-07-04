@@ -57,7 +57,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  *  The consistency between {@code RatesProvider} and {@code SabrParametersSwaptionVolatilities} is not checked in this 
  *  class, but validated only once in {@link SabrExtrapolationReplicationCmsLegPricer}.
  *  <p>
- *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. 
+ *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors.
  *  Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
@@ -75,7 +75,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   private static final int NUM_ITER = 10;
   /** The relative tolerance for the numerical integration in PV computation. */
   private static final double REL_TOL = 1.0e-10;
-  /** The absolute tolerance for the numerical integration in PV computation. 
+  /** The absolute tolerance for the numerical integration in PV computation.
    * The numerical integration stops when the difference between two steps is below the absolute tolerance
    * plus the relative tolerance multiplied by the value.*/
   private static final double ABS_TOL = 1.0e-8;
@@ -103,11 +103,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   private static final double MIN_TIME = 1e-4;
 
   /**
-   * Pricer for the underlying swap. 
+   * Pricer for the underlying swap.
    */
   private final DiscountingSwapProductPricer swapPricer;
   /**
-   * The cut-off strike. 
+   * The cut-off strike.
    * <p>
    * The smile is extrapolated above that level.
    */
@@ -121,7 +121,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the pricer. 
+   * Obtains the pricer.
    * 
    * @param swapPricer  the pricer for underlying swap
    * @param cutOffStrike  the cut-off strike value
@@ -137,7 +137,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   }
 
   /**
-   * Obtains the pricer with default swap pricer. 
+   * Obtains the pricer with default swap pricer.
    * 
    * @param cutOffStrike  the cut-off strike value
    * @param mu  the tail thickness

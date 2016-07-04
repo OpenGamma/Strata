@@ -32,12 +32,12 @@ public class HullWhiteSwaptionPhysicalTradePricer {
    */
   public static final HullWhiteSwaptionPhysicalTradePricer DEFAULT = new HullWhiteSwaptionPhysicalTradePricer();
 
-  /** 
+  /**
    * Pricer for {@link Swaption}.  
    */
   private static final HullWhiteSwaptionPhysicalProductPricer PRICER_PRODUCT = HullWhiteSwaptionPhysicalProductPricer.DEFAULT;
-  /** 
-   * Pricer for {@link Payment} which is used to described the premium.  
+  /**
+   * Pricer for {@link Payment} which is used to described the premium.
    */
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
 

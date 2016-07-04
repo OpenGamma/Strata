@@ -33,7 +33,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
   private final DiscountingFixedCouponBondProductPricer bondPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param bondPricer  the pricer for {@link ResolvedFixedCouponBond}.
    */
@@ -70,7 +70,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
    * The price of the product is the price on the valuation date.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * 
    * @param future  the future
    * @param provider  the rates provider
@@ -105,7 +105,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
    * <p>
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * <p>
-   * Note that the price sensitivity should be no currency. 
+   * Note that the price sensitivity should be no currency.
    * 
    * @param future  the future
    * @param provider  the rates provider
@@ -139,9 +139,9 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * <p>
-   * Note that the price sensitivity should be no currency. 
+   * Note that the price sensitivity should be no currency.
    * 
    * @param future  the future
    * @param provider  the rates provider

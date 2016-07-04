@@ -19,7 +19,7 @@ import com.opengamma.strata.product.common.PutCall;
  * The pricing methodologies are defined in individual implementations of the volatilities, {@link IborCapletFloorletVolatilities}. 
  * <p>
  * The value of the caplet/floorlet after expiry is a fixed payoff amount. The value is zero if valuation date is 
- * after payment date of the caplet/floorlet.  
+ * after payment date of the caplet/floorlet.
  * <p>
  * The consistency between {@code RatesProvider} and {@code IborCapletFloorletVolatilities} is not checked in this 
  * class, but validated only once in {@link VolatilityIborCapFloorLegPricer}.
@@ -93,7 +93,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
   /**
    * Calculates the present value delta of the caplet/floorlet period.
    * <p>
-   * The present value delta is given by the first derivative of the present value with respect to forward. 
+   * The present value delta is given by the first derivative of the present value with respect to forward.
    * 
    * @param period  the caplet/floorlet period
    * @param ratesProvider  the rates provider
@@ -125,7 +125,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
   /**
    * Calculates the present value gamma of the caplet/floorlet period.
    * <p>
-   * The present value gamma is given by the second derivative of the present value with respect to forward. 
+   * The present value gamma is given by the second derivative of the present value with respect to forward.
    * 
    * @param period  the caplet/floorlet period
    * @param ratesProvider  the rates provider
@@ -158,7 +158,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
    * Calculates the present value theta of the caplet/floorlet period.
    * <p>
    * The present value theta is given by the minus of the present value sensitivity to the {@code timeToExpiry} 
-   * parameter of the model. 
+   * parameter of the model.
    * 
    * @param period  the caplet/floorlet period
    * @param ratesProvider  the rates provider
@@ -266,10 +266,10 @@ public class VolatilityIborCapletFloorletPeriodPricer {
   }
 
   /**
-   * Validate the volatilities provider. 
+   * Validate the volatilities provider.
    * <p>
    * This validate method should be overridden such that a correct implementation of
-   * {@code IborCapletFloorletVolatilities} is used for pricing. 
+   * {@code IborCapletFloorletVolatilities} is used for pricing.
    * 
    * @param volatilities  the volatilities
    */

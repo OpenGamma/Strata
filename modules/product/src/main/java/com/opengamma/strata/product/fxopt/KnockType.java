@@ -12,17 +12,17 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The knock type of barrier event. 
+ * The knock type of barrier event.
  * <p>
  * This defines the knock type of {@link Barrier}.
  */
 public enum KnockType {
 
-  /** 
+  /**
    * Knock-in 
    */
   KNOCK_IN,
-  /** 
+  /**
    * Knock-out 
    */
   KNOCK_OUT;

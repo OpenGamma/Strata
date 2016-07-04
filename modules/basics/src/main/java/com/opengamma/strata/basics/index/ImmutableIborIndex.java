@@ -82,7 +82,7 @@ public final class ImmutableIborIndex
   /**
    * The fixing time.
    * <p>
-   * The rate is fixed at the fixing time of the fixing date. 
+   * The rate is fixed at the fixing time of the fixing date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime fixingTime;

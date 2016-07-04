@@ -36,7 +36,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 
 /**
- * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
+ * Data provider of volatility for FX options in the lognormal or Black-Scholes model.
  * <p>
  * The volatility is represented by a term structure of interpolated smile, 
  * {@link SmileDeltaTermStructure}, which represents expiry dependent smile formed of
@@ -47,7 +47,7 @@ final class BlackVolatilitySmileFxProvider
     implements BlackVolatilityFxProvider, ImmutableBean {
 
   /**
-   * The volatility model. 
+   * The volatility model.
    * <p>
    * This represents expiry dependent smile which consists of ATM, risk reversal
    * and strangle as used in FX market.

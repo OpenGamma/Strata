@@ -58,7 +58,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
 
   //-------------------------------------------------------------------------
   /**
-   * Creates node metadata using year fraction and strike. 
+   * Creates node metadata using year fraction and strike.
    * 
    * @param yearFraction  the year fraction
    * @param strike  the strike
@@ -73,7 +73,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
   }
 
   /**
-   * Creates node using year fraction, strike and label.  
+   * Creates node using year fraction, strike and label.
    * 
    * @param yearFraction  the year fraction
    * @param strike  the strike

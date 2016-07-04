@@ -44,7 +44,7 @@ public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer 
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the pricer used to price the underlying swap. 
+   * Returns the pricer used to price the underlying swap.
    * 
    * @return the pricer
    */

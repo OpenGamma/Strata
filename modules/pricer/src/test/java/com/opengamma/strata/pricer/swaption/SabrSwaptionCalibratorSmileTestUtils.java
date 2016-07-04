@@ -29,7 +29,7 @@ public class SabrSwaptionCalibratorSmileTestUtils {
    * @param strikeLikeData  the data related to the strik-like dimension
    * @param expiries  the list of expiries
    * @param dataType  the type of the data
-   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data. 
+   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data.
    * @return the raw option data object
    */
   public static List<RawOptionData> rawData(
@@ -53,7 +53,7 @@ public class SabrSwaptionCalibratorSmileTestUtils {
    * @param strikeLikeData  the data related to the strik-like dimension
    * @param expiries  the list of expiries
    * @param dataType  the type of the data
-   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data. 
+   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data.
    * @param i  the index of the tenor to shift
    * @param j  the index of the expiry to shift
    * @param k  the index of the strike-like dimension to shift
@@ -92,7 +92,7 @@ public class SabrSwaptionCalibratorSmileTestUtils {
    * @param strikeLikeData  the data related to the strik-like dimension
    * @param expiries  the list of expiries
    * @param dataType  the type of the data
-   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data. 
+   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data.
    * @param i  the index of the tenor to shift
    * @param j  the index of the expiry to shift
    * @param shift  the size of the shift

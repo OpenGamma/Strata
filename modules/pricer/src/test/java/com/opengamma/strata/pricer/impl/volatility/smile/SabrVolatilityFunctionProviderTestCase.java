@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 
 /**
- * Test case for SABR volatility function providers. 
+ * Test case for SABR volatility function providers.
  */
 @Test
 public abstract class SabrVolatilityFunctionProviderTestCase {

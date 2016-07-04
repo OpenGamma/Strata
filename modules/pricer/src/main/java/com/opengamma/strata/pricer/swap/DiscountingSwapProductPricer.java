@@ -160,12 +160,12 @@ public class DiscountingSwapProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the par rate for swaps with a fixed leg. 
+   * Computes the par rate for swaps with a fixed leg.
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
    * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg 
-   * in which all the payments are fixed payments with a unique accrual period (no compounding) and no FX reset. 
+   * in which all the payments are fixed payments with a unique accrual period (no compounding) and no FX reset.
    * If the fixed leg is compounding, the par rate is computed only when the number of fixed coupon payments is 1 and 
    * accrual factor of each sub-period is 1 
    * 
@@ -216,7 +216,7 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Computes the par spread for swaps. 
+   * Computes the par spread for swaps.
    * <p>
    * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
    * <p>
@@ -300,7 +300,7 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Calculates the par rate curve sensitivity for a swap with a fixed leg. 
+   * Calculates the par rate curve sensitivity for a swap with a fixed leg.
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
@@ -345,7 +345,7 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Calculates the par spread curve sensitivity for a swap. 
+   * Calculates the par spread curve sensitivity for a swap.
    * <p>
    * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
    * <p>

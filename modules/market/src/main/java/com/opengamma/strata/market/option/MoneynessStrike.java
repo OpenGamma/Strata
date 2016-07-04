@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A strike based on moneyness. 
+ * A strike based on moneyness.
  * <p>
  * The moneyness is defined as {@code strike/forward}.
  * The strike should be nonnegative and the forward should be strictly positive.
@@ -36,7 +36,7 @@ public final class MoneynessStrike
     implements Strike, ImmutableBean, Serializable {
 
   /**
-   * The value of moneyness. 
+   * The value of moneyness.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final double value;

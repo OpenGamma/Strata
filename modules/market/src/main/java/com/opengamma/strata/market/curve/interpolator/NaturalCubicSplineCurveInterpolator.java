@@ -32,8 +32,8 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-  /** 
-   * Level below which the value is consider to be 0. 
+  /**
+   * Level below which the value is consider to be 0.
    */
   private static final double EPS = 1e-12;
 

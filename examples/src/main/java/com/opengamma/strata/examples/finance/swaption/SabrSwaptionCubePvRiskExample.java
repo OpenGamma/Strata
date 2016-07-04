@@ -97,7 +97,7 @@ public class SabrSwaptionCubePvRiskExample {
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
 
   //-------------------------------------------------------------------------
-  /** 
+  /**
    * Runs the calibration of SABR on swaptions and print on the console the present value, bucketed PV01 and 
    * the bucketed Vega of a 18M x 4Y swaption.
    * 

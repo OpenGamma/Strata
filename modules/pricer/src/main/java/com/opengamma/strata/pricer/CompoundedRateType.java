@@ -12,16 +12,16 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A compounded rate type. 
+ * A compounded rate type.
  * <p>
  * Compounded rate is continuously compounded rate or periodically compounded rate.
- * The main application of this is z-spread computation under a specific way of compounding. 
+ * The main application of this is z-spread computation under a specific way of compounding.
  * See, for example, {@link DiscountFactors}.
  */
 public enum CompoundedRateType {
 
   /**
-   * Periodic compounding. 
+   * Periodic compounding.
    * <p>
    * The rate is periodically compounded.
    * In this case the number of periods par year should be specified in addition.
@@ -30,7 +30,7 @@ public enum CompoundedRateType {
   /**
    * Continuous compounding.
    * <p>
-   * The rate is continuously compounded. 
+   * The rate is continuously compounded.
    */
   CONTINUOUS;
 

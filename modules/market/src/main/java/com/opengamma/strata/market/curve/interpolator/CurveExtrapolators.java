@@ -62,7 +62,7 @@ public final class CurveExtrapolators {
    * <p>
    * The extrapolation is ambiguous at x=0. Thus the following rule applies: 
    * The x value of the first node must be strictly negative for the left extrapolation, whereas the x value of 
-   * the last node must be strictly positive for the right extrapolation. 
+   * the last node must be strictly positive for the right extrapolation.
    */
   public static final CurveExtrapolator PRODUCT_LINEAR =
       CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_LINEAR.getName());

@@ -254,8 +254,8 @@ public class CdsAnalytic {
 
   /**
    * Year fraction (according to curve DCC) from trade date to accrual start date.
-   * This will be negative for spot starting CDS, but will be positive for forward starting CDS.   
-   * @return accrual start year-fraction. 
+   * This will be negative for spot starting CDS, but will be positive for forward starting CDS.
+   * @return accrual start year-fraction.
    */
   public double getAccStart() {
     return _accStart;
@@ -273,7 +273,7 @@ public class CdsAnalytic {
   }
 
   /**
-   *  Year fraction (according to curve DCC) from trade date to the maturity of the CDS. 
+   *  Year fraction (according to curve DCC) from trade date to the maturity of the CDS.
    * @return the protectionEnd
    */
   public double getProtectionEnd() {
@@ -282,7 +282,7 @@ public class CdsAnalytic {
 
   /**
    * Get all the coupons on the premium leg.
-   * @return the coupons. 
+   * @return the coupons.
    */
   public CdsCoupon[] getCoupons() {
     return _coupons;

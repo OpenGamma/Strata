@@ -80,7 +80,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
    * the smallest 99% observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
-   * expected short fall is computed with flat extrapolation.  
+   * expected short fall is computed with flat extrapolation.
    * Thus this is coherent to {@link #quantileWithExtrapolationFromUnsorted(double, DoubleArray)}.
    * <p>
    * The details consists on the indices of the samples actually used in the expected shortfall computation - indices 

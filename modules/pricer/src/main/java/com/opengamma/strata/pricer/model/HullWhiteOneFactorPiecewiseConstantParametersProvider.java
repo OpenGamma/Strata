@@ -52,15 +52,15 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
    */
   @PropertyDefinition(validate = "notNull")
   private final HullWhiteOneFactorPiecewiseConstantParameters parameters;
-  /** 
-   * The day count applicable to the model. 
+  /**
+   * The day count applicable to the model.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
-  /** 
-   * The valuation date. 
+  /**
+   * The valuation date.
    * <p>
-   * The volatilities are calibrated for this date-time. 
+   * The volatilities are calibrated for this date-time.
    */
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime valuationDateTime;
@@ -134,7 +134,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
   }
 
   /**
-   * Converts a date to a relative year fraction. 
+   * Converts a date to a relative year fraction.
    * <p>
    * When the date is after the valuation date, the returned number is negative.
    * 

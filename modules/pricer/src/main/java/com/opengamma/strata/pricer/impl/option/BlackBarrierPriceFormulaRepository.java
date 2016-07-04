@@ -30,7 +30,7 @@ public class BlackBarrierPriceFormulaRepository {
   private static final double SMALL = 1.0e-6;
 
   /**
-   * Computes the price of a barrier option. 
+   * Computes the price of a barrier option.
    * 
    * @param spot  the spot 
    * @param strike  the strike
@@ -110,7 +110,7 @@ public class BlackBarrierPriceFormulaRepository {
   }
 
   /**
-   * Computes the price and derivatives of a barrier option. 
+   * Computes the price and derivatives of a barrier option.
    * 
    * The derivatives are [0] spot, [1] strike, [2] rate, [3] cost-of-carry, [4] volatility, [5] timeToExpiry, [6] spot twice
    * 

@@ -40,7 +40,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters
   @PropertyDefinition(validate = "notNull")
   private final double meanReversion;
   /**
-   * The volatility parameters. 
+   * The volatility parameters.
    * <p>
    * The volatility is constant between the volatility times, i.e., volatility value at t is {@code volatility.get(i)} 
    * for any t between {@code volatilityTime.get(i)} and {@code volatilityTime.get(i+1)}.
@@ -48,7 +48,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray volatility;
   /**
-   * The times separating the constant volatility periods. 
+   * The times separating the constant volatility periods.
    * <p>
    * The time should be sorted by increasing order. The first time is 0 and the last time is 1000 (represents infinity).
    * These extra times are added in {@link #of(double, DoubleArray, DoubleArray)}.

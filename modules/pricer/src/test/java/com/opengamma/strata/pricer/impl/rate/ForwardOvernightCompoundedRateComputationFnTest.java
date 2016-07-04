@@ -447,7 +447,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation. 
+  /** Test rate sensitivity against FD approximation.
    * No cutoff period and two already fixed ON rate. ON index is SONIA. */
   public void rateSonia0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
@@ -562,7 +562,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation. 
+  /** Test rate sensitivity against FD approximation.
    * No cutoff period and two already fixed ON rate. ON index is TOIS (with a effective offset of 1; TN rate). */
   public void rateTois0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=1, TS: Fixing 2
@@ -675,7 +675,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation. 
+  /** Test rate sensitivity against FD approximation.
    * No cutoff and two already fixed ON rate. ON index is Fed Fund. */
   public void rateFedFund0CutOffValuation2Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
@@ -770,7 +770,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity. No cutoff, all ON rates already fixed. Thus expected sensitivity is none. 
+  /** Test rate sensitivity. No cutoff, all ON rates already fixed. Thus expected sensitivity is none.
    * Time series up to 14-Jan (last fixing date used). */
   public void rateFedFund0CutOffValuationEndTs14Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
@@ -834,7 +834,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity. No cutoff, all ON rates already fixed. Thus expected sensitivity is none. 
+  /** Test rate sensitivity. No cutoff, all ON rates already fixed. Thus expected sensitivity is none.
    * Time series up to 15-Jan (one day after the last fixing date). */
   public void rateFedFund0CutOffValuationEndTs15Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all

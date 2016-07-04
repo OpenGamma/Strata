@@ -47,29 +47,29 @@ import com.opengamma.strata.product.common.PutCall;
 public final class BlackIborCapletFloorletExpiryStrikeVolatilities
     implements BlackIborCapletFloorletVolatilities, ImmutableBean, Serializable {
 
-  /** 
-   * The Black volatility surface. 
+  /**
+   * The Black volatility surface.
    * <p>
-   * The order of the dimensions is expiry/strike. 
+   * The order of the dimensions is expiry/strike.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface surface;
   /**
    * The Ibor index.
    * <p>
-   * The data must valid in terms of this Ibor index. 
+   * The data must valid in terms of this Ibor index.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
-  /** 
-   * The day count applicable to the model. 
+  /**
+   * The day count applicable to the model.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
-  /** 
-   * The valuation date-time. 
+  /**
+   * The valuation date-time.
    * <p>
-   * The volatilities are calibrated for this date-time. 
+   * The volatilities are calibrated for this date-time.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;

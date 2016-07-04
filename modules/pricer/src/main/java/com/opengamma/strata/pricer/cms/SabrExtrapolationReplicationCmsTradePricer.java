@@ -34,7 +34,7 @@ public class SabrExtrapolationReplicationCmsTradePricer {
   private final DiscountingPaymentPricer paymentPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param productPricer  the pricer for {@link ResolvedCms}
    * @param paymentPricer  the pricer for {@link Payment}
@@ -118,7 +118,7 @@ public class SabrExtrapolationReplicationCmsTradePricer {
   /**
    * Calculates the present value sensitivity to the strike value.
    * <p>
-   * The present value sensitivity of the trade is the sensitivity of the present value to the strike value. 
+   * The present value sensitivity of the trade is the sensitivity of the present value to the strike value.
    * 
    * @param trade  the CMS trade
    * @param ratesProvider  the rates provider

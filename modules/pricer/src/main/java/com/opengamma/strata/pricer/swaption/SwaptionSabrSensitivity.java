@@ -76,7 +76,7 @@ public final class SwaptionSabrSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified elements. 
+   * Obtains an instance from the specified elements.
    * 
    * @param convention  the convention of the swap for which the data is valid
    * @param expiry  the expiry date/time of the option

@@ -6,15 +6,15 @@
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
 /**
- * A data bundle of a volatility model. 
+ * A data bundle of a volatility model.
  * <p>
- * An implementation contains the data required for a volatility model.  
+ * An implementation contains the data required for a volatility model.
  * This is used with {@link VolatilityFunctionProvider}. 
  */
 public interface SmileModelData {
 
   /**
-   * Obtains the number of model parameters. 
+   * Obtains the number of model parameters.
    * 
    * @return the number of model parameters
    */
@@ -29,7 +29,7 @@ public interface SmileModelData {
   public abstract double getParameter(int index);
 
   /**
-   * Checks the value satisfies the constraint for a model parameter. 
+   * Checks the value satisfies the constraint for a model parameter.
    * <p>
    * The parameter is specified by {@code index}.
    * 
@@ -40,7 +40,7 @@ public interface SmileModelData {
   public abstract boolean isAllowed(int index, double value);
 
   /**
-   * Creates a new smile model data bundle with a model parameter replaced. 
+   * Creates a new smile model data bundle with a model parameter replaced.
    * <p>
    * The parameter is specified by {@code index} and replaced by {@code value}.
    * 

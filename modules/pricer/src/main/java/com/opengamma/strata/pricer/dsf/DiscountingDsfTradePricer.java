@@ -105,7 +105,7 @@ public class DiscountingDsfTradePricer
   /**
    * Calculates the currency exposure of the deliverable swap futures trade.
    * <p>
-   * Since the deliverable swap futures is based on a single currency, the trade is exposed to only this currency.  
+   * Since the deliverable swap futures is based on a single currency, the trade is exposed to only this currency.
    * <p>
    * The calculation is performed against a reference price. The reference price should
    * be the settlement price except on the trade date, when it is the trade price.

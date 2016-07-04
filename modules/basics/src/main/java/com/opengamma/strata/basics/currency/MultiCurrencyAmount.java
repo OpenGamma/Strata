@@ -272,7 +272,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param currency  the currency to add to
    * @param amountToAdd  the amount to add
@@ -290,7 +290,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
@@ -308,7 +308,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
@@ -327,7 +327,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param currency  the currency to subtract from
    * @param amountToAdd  the amount to subtract
@@ -345,7 +345,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -363,7 +363,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -377,7 +377,7 @@ public final class MultiCurrencyAmount
   /**
    * Returns a copy of this {@code MultiCurrencyAmount} with all the amounts multiplied by the factor.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return an amount based on this with all the amounts multiplied by the factor
@@ -391,7 +391,7 @@ public final class MultiCurrencyAmount
    * <p>
    * This takes this amount and negates it.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return an amount based on this with the amount negated
    */

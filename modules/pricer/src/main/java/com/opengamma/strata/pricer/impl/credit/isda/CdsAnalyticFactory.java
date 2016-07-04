@@ -223,7 +223,7 @@ public class CdsAnalyticFactory {
    * The Step-in (Protection Effective Date or sometimes just Effective Date) is usually T+1.
    * This is when protection (and risk) starts in terms of the model.
    * @param stepIn Zero or more days (after trade day)
-   * @return A new factory with the step-in days set. 
+   * @return A new factory with the step-in days set.
    */
   public CdsAnalyticFactory withStepIn(int stepIn) {
     ArgChecker.notNegative(stepIn, "stepIn");
@@ -234,7 +234,7 @@ public class CdsAnalyticFactory {
 
   /**
    * Valuation or Cash-settle Date. This is the date for which the present value (PV) of
-   * the CDS is calculated. It is usually three working dates after the trade date. 
+   * the CDS is calculated. It is usually three working dates after the trade date.
    * @param cashSettle Zero or more days (after trade day)
    * @return A new factory with the cash-settle days set.
    */
@@ -354,7 +354,7 @@ public class CdsAnalyticFactory {
    * so a 5Y index on the 6-Feb-2014 will have a maturity of 20-Dec-2018 (5Y3M on the issue date of 20-Sep-2013). 
    * The accrual start date will be the previous IMM date (before the trade date), business-day adjusted.
    * <b>Note</b> it payment interval is changed from the
-   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.    
+   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.
    * 
    * @param tradeDate  the trade date
    * @param tenor  the nominal length of the index 
@@ -377,7 +377,7 @@ public class CdsAnalyticFactory {
    * 20-Dec-2018 (5Y3M on the issue date of 20-Sep-2013). 
    * The accrual start date will be the previous IMM date (before the trade date), business-day adjusted.
    * <b>Note</b> it payment interval is changed from the
-   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.    
+   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.
    * 
    * @param tradeDate  the trade date
    * @param tenors  the nominal lengths of the indexes
@@ -397,7 +397,7 @@ public class CdsAnalyticFactory {
    * Make a CDS with a maturity date the given period on from the next IMM date after the trade-date.
    * The accrual start date will be the previous IMM date (before the trade date), business-day adjusted.
    * <b>Note</b> it payment interval is changed from the
-   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.   
+   * default of 3M, this will produce a (possibly incorrect) non-standard first coupon.
    * 
    * @param tradeDate  the trade date
    * @param tenor  the tenor (length) of the CDS
@@ -432,7 +432,7 @@ public class CdsAnalyticFactory {
   /**
    * Make a set of CDSs with a common trade date and maturities dates the given periods after the
    * next IMM date (after the trade-date).
-   * The accrual start date will  be the previous IMM date (before the trade date), business-day adjusted. 
+   * The accrual start date will  be the previous IMM date (before the trade date), business-day adjusted.
    * <b>Note</b> it payment interval is changed from the default of 3M, this will produce a
    * (possibly incorrect) non-standard first coupon.
    * 
@@ -630,7 +630,7 @@ public class CdsAnalyticFactory {
    * The stepin date and cash settlement date are taken from the forward start date
    * (1 day and 3 working days by default). The period is from the next IMM date after the 
    * forward-start-date, so for a trade-date of 13-Feb-2014, a forward-start-date
-   * of 25-Mar-2014 and a tenor of 1Y, the maturity will be 20-Jun-2015. 
+   * of 25-Mar-2014 and a tenor of 1Y, the maturity will be 20-Jun-2015.
    * 
    * @param tradeDate  the trade date (i.e. today)
    * @param forwardStartDate  the forward start date
@@ -652,7 +652,7 @@ public class CdsAnalyticFactory {
    * and the index is defined to have a maturity that is its nominal tenor plus 3M on issuance,
    * so a 5Y index on the 6-Feb-2014 will have a maturity of
    * 20-Dec-2018 (5Y3M on the issue date of 20-Sep-2013).  However for a trade-date of 6-Feb-2014, a forward-start-date
-   * of 25-Mar-2014 and a tenor of 5Y, the maturity will be 20-Jun-2019. 
+   * of 25-Mar-2014 and a tenor of 5Y, the maturity will be 20-Jun-2019.
    * 
    * @param tradeDate  the trade date (i.e. today)
    * @param forwardStartDate  the forward start date
@@ -676,7 +676,7 @@ public class CdsAnalyticFactory {
    * @param tradeDate  the trade date
    * @param maturityReferanceDate  a reference date that maturities are measured from.
    *  For standard CDSSs, this is the next IMM  date after
-   *  the trade date, so the actually maturities will be some fixed periods after this.  
+   *  the trade date, so the actually maturities will be some fixed periods after this.
    * @param termMatIndex  the maturities are fixed integer multiples of the payment interval, so  2Y tenor with a 3M 
    *  payment interval, this would be 8
    * @return a a CDS represented as a MultiCdsAnalytic
@@ -698,7 +698,7 @@ public class CdsAnalyticFactory {
    *  For a standard CDS this is  the previous IMM date, and for a `legacy' CDS it is T+1
    * @param maturityReferanceDate A reference date that maturities are measured from.
    *  For standard CDSSs, this is the next IMM  date after the trade date, so the actually maturities
-   *  will be some fixed periods after this.  
+   *  will be some fixed periods after this.
    * @param maturityIndexes  the maturities are fixed integer multiples of the payment interval,
    *  so for 6M, 1Y and 2Y tenors with a 3M payment interval, would require 2, 4, and 8 as the indices 
    * @return Make a set of CDS represented as a MultiCdsAnalytic
@@ -715,7 +715,7 @@ public class CdsAnalyticFactory {
   }
 
   /**
-   * Make a set of CDS represented as a MultiCdsAnalytic instance. 
+   * Make a set of CDS represented as a MultiCdsAnalytic instance.
    * 
    * @param tradeDate  the trade date
    * @param stepinDate  (aka Protection Effective sate or assignment date). Date when party assumes ownership.
@@ -728,7 +728,7 @@ public class CdsAnalyticFactory {
    *  of days in the first period (and thus the amount of the first premium payment) is counted from this date.
    * @param maturityReferanceDate  a reference date that maturities are measured from.
    *  For standard CDSSs, this is the next IMM  date after
-   *  the trade date, so the actually maturities will be some fixed periods after this.  
+   *  the trade date, so the actually maturities will be some fixed periods after this.
    * @param maturityIndexes  the maturities are fixed integer multiples of the payment interval,
    *  so for 6M, 1Y and 2Y tenors with a 3M payment interval, would require 2, 4, and 8 as the indices 
    * @return a set of CDS represented as a MultiCdsAnalytic
@@ -748,7 +748,7 @@ public class CdsAnalyticFactory {
   }
 
   /**
-   * Make a set of standard CDS represented as a MultiCdsAnalytic instance. 
+   * Make a set of standard CDS represented as a MultiCdsAnalytic instance.
    * 
    * @param tradeDate  the trade date
    * @param tenors  the tenors (length) of the CDS
@@ -760,7 +760,7 @@ public class CdsAnalyticFactory {
   }
 
   /**
-   * Make a set of standard CDS represented as a MultiCdsAnalytic instance. 
+   * Make a set of standard CDS represented as a MultiCdsAnalytic instance.
    *  
    * @param tradeDate  the trade date
    * @param accStartDate  the accrual start date 

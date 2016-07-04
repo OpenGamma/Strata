@@ -32,8 +32,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * The market price is for the difference (spread) between the values of the two floating legs.
  * This convention has three legs, the "spread leg", the "spread floating leg" and the "flat floating leg". 
  * The "spread leg" represented by the fixed leg will be added to the "spread floating leg" 
- * which is typically the leg with the shorter underlying tenor. 
- * Thus the "spread leg" and "spread floating leg" will have the same pay/receive direction. 
+ * which is typically the leg with the shorter underlying tenor.
+ * Thus the "spread leg" and "spread floating leg" will have the same pay/receive direction.
  * <p>
  * To manually create a convention, see {@link ImmutableThreeLegBasisSwapConvention}.
  * To register a specific convention, see {@code ThreeLegBasisSwapConvention.ini}.
@@ -107,7 +107,7 @@ public interface ThreeLegBasisSwapConvention
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the swap, the rate of the floating flat leg is received from the counterparty,
-   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid.
    * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade
@@ -139,7 +139,7 @@ public interface ThreeLegBasisSwapConvention
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the swap, the rate of the floating flat leg is received from the counterparty,
-   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid.
    * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade
@@ -174,7 +174,7 @@ public interface ThreeLegBasisSwapConvention
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the swap, the rate of the floating flat leg is received from the counterparty,
-   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid.
    * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade
@@ -204,7 +204,7 @@ public interface ThreeLegBasisSwapConvention
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the swap, the rate of the floating flat leg is received from the counterparty,
-   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid.
    * If selling the swap, the opposite occurs.
    * 
    * @param tradeInfo  additional information about the trade

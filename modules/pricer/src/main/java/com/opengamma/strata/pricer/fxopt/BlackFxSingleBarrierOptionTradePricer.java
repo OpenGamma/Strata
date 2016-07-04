@@ -26,7 +26,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
 public class BlackFxSingleBarrierOptionTradePricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final BlackFxSingleBarrierOptionTradePricer DEFAULT = new BlackFxSingleBarrierOptionTradePricer();
 
@@ -34,8 +34,8 @@ public class BlackFxSingleBarrierOptionTradePricer {
    * Pricer for {@link FxSingleBarrierOption}.
    */
   private static final BlackFxSingleBarrierOptionProductPricer PRICER_PRODUCT = BlackFxSingleBarrierOptionProductPricer.DEFAULT;
-  /** 
-   * Pricer for {@link Payment} which is used to described the premium. 
+  /**
+   * Pricer for {@link Payment} which is used to described the premium.
    */
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
 

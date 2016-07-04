@@ -114,7 +114,7 @@ public final class ImmutableRatesProvider
    * Combines a number of rates providers.
    * <p>
    * If the two providers have curves or time series for the same currency or index, 
-   * an {@link IllegalAccessException} is thrown. 
+   * an {@link IllegalAccessException} is thrown.
    * The FxRateProviders is not populated with the given provider; no attempt is done on merging the embedded FX providers.
    * 
    * @param fx  the FX provider for the resulting rate provider
@@ -281,7 +281,7 @@ public final class ImmutableRatesProvider
    * <p> 
    * If the two providers have curves or time series for the same currency or index,
    * an {@link IllegalAccessException} is thrown. No attempt is made to combine the
-   * FX providers, instead one is supplied. 
+   * FX providers, instead one is supplied.
    * 
    * @param other  the other rates provider
    * @param fxProvider  the FX rate provider to use

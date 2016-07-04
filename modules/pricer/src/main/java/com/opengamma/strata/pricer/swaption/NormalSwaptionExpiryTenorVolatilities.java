@@ -55,10 +55,10 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 public final class NormalSwaptionExpiryTenorVolatilities
     implements NormalSwaptionVolatilities, ImmutableBean, Serializable {
 
-  /** 
+  /**
    * The valuation date-time.
    * <p>
-   * The volatilities are calibrated for this date-time. 
+   * The volatilities are calibrated for this date-time.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
@@ -70,7 +70,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface surface;
-  /** 
+  /**
    * The swap convention that the surface is calibrated against.
    */
   private final FixedIborSwapConvention convention;  // cached, not a property

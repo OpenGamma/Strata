@@ -56,7 +56,7 @@ public final class IborFixingDeposit
   /**
    * Whether the Ibor fixing deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received. 
+   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received.
    * A value of 'Sell' implies that the floating rate is received from the counterparty, with the fixed rate being paid.
    */
   @PropertyDefinition(validate = "notNull")

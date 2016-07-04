@@ -31,7 +31,7 @@ import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 
-/** 
+/**
  * A trade in a capital indexed bond, resolved for pricing.
  * <p>
  * This is the resolved form of {@link CapitalIndexedBondTrade} and is the primary input to the pricers.

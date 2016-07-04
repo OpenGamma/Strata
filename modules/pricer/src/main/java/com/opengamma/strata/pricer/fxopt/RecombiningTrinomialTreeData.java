@@ -30,7 +30,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Recombining trinomial tree data. 
+ * Recombining trinomial tree data.
  * <p>
  * This includes state values and transition probabilities for all of the nodes,
  * as well as discount factors and time (time from valuation date) for individual time steps.
@@ -39,34 +39,34 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 public final class RecombiningTrinomialTreeData implements ImmutableBean, Serializable {
 
   /**
-   * The state value. 
+   * The state value.
    * <p>
    * The {@code (i,j)} component of this matrix represents the underlying asset price at the {@code j}-th lowest node 
-   * at the {@code i}-th time layer. 
+   * at the {@code i}-th time layer.
    */
   @PropertyDefinition
   private final DoubleMatrix stateValue;
   /**
-   * The transition probability. 
+   * The transition probability.
    * <p>
    * The {@code i}-th element of the list represents the transition probability values for the nodes 
-   * at the {@code i}-th time layer. 
+   * at the {@code i}-th time layer.
    * The matrix is {@code (2*i+1)} times {@code 3}, and its {@code j}-th row involves [0] down probability, 
-   * [1] middle probability and [2] up probability for the {@code j}-th lowest node. 
+   * [1] middle probability and [2] up probability for the {@code j}-th lowest node.
    */
   @PropertyDefinition
   private final ImmutableList<DoubleMatrix> transitionProbability;
   /**
-   * The discount factor. 
+   * The discount factor.
    * <p>
-   * The {@code i}-th element is the discount factor between the {@code i}-th layer and the {@code (i+1)}-th layer. 
+   * The {@code i}-th element is the discount factor between the {@code i}-th layer and the {@code (i+1)}-th layer.
    */
   @PropertyDefinition
   private final DoubleArray discountFactor;
   /**
    * The time.
    * <p>
-   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code i}-th layer.   
+   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code i}-th layer.
    */
   @PropertyDefinition
   private final DoubleArray time;
@@ -105,7 +105,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the number of time steps. 
+   * Obtains the number of time steps.
    * 
    * @return the number of time steps
    */
@@ -144,7 +144,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the spot. 
+   * Obtains the spot.
    * 
    * @return the spot
    */
@@ -153,7 +153,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the time for the {@code i}-th layer. 
+   * Obtains the time for the {@code i}-th layer.
    * <p>
    * The time is the year fraction between the {@code 0}-th layer and the {@code i}-th layer.
    * 

@@ -20,7 +20,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 /**
  * Log natural cubic spline interpolator for discount factors.
  * <p>
- * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic filter. 
+ * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic filter.
  * <p>
  * The natural cubic spline is determined by {@link LogNaturalSplineHelper}, where the tridiagonal
  * algorithm is used to solve a linear system.

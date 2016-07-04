@@ -40,15 +40,15 @@ public final class IssuerCurveDiscountFactors
     implements ImmutableBean, Serializable {
 
   /**
-   * The underlying discount factors for a single currency. 
+   * The underlying discount factors for a single currency.
    * <p>
-   * This contains curve, curve currency, valuation date and day count convention. 
+   * This contains curve, curve currency, valuation date and day count convention.
    * The discount factor, its point sensitivity and curve sensitivity are computed by this {@code DiscountFactors}.
    */
   @PropertyDefinition(validate = "notNull")
   private final DiscountFactors discountFactors;
   /**
-   * The legal entity group. 
+   * The legal entity group.
    * <p>
    * The group defines the legal entity that the discount factors are for.
    */

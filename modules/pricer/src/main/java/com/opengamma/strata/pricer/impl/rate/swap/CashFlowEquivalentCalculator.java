@@ -34,12 +34,12 @@ import com.opengamma.strata.product.swap.SwapLegType;
 /**
  * Computes cash flow equivalent of products.
  * <p>
- * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316. 
+ * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316.
  */
 public final class CashFlowEquivalentCalculator {
 
   /**
-   * Computes cash flow equivalent of swap. 
+   * Computes cash flow equivalent of swap.
    * <p>
    * The swap should be a fix-for-Ibor swap without compounding, and its swap legs should not involve {@code PaymentEvent}.
    * <p>
@@ -63,7 +63,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent of Ibor leg. 
+   * Computes cash flow equivalent of Ibor leg.
    * <p>
    * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
    * 
@@ -104,7 +104,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent of fixed leg. 
+   * Computes cash flow equivalent of fixed leg.
    * <p>
    * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
    * 
@@ -138,7 +138,7 @@ public final class CashFlowEquivalentCalculator {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes cash flow equivalent and sensitivity of swap. 
+   * Computes cash flow equivalent and sensitivity of swap.
    * <p>
    * The swap should be a fix-for-Ibor swap without compounding, and its swap legs should not involve {@code PaymentEvent}.
    * <p>
@@ -160,7 +160,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent and sensitivity of Ibor leg. 
+   * Computes cash flow equivalent and sensitivity of Ibor leg.
    * <p>
    * The return type is a map of {@code NotionalExchange} and {@code PointSensitivityBuilder}.
    * 
@@ -208,7 +208,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent and sensitivity of fixed leg. 
+   * Computes cash flow equivalent and sensitivity of fixed leg.
    * <p>
    * The return type is a map of {@code NotionalExchange} and {@code PointSensitivityBuilder}.
    * 

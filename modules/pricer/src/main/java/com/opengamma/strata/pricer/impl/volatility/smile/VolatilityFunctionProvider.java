@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Provides functions that return volatility and its sensitivity to volatility model parameters. 
+ * Provides functions that return volatility and its sensitivity to volatility model parameters.
  * 
  * @param <T> Type of the data needed for the volatility function
  */
@@ -21,7 +21,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   private static final double EPS = 1.0e-6;
 
   /**
-   * Calculates the volatility. 
+   * Calculates the volatility.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
@@ -34,8 +34,8 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   /**
    * Calculates volatility and the adjoint (volatility sensitivity to forward, strike and model parameters). 
    * <p>
-   * By default the derivatives are computed by central finite difference approximation. 
-   * This should be overridden in each subclass. 
+   * By default the derivatives are computed by central finite difference approximation.
+   * This should be overridden in each subclass.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
@@ -57,11 +57,11 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   }
 
   /**
-   * Computes the first and second order derivatives of the volatility. 
+   * Computes the first and second order derivatives of the volatility.
    * <p>
    * The first derivative values will be stored in the input array {@code volatilityD} 
    * The array contains, [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, then followed by model 
-   * parameters. 
+   * parameters.
    * Thus the length of the array should be 2 + (number of model parameters).  
    * <p>
    * The second derivative values will be stored in the input array {@code volatilityD2}. 

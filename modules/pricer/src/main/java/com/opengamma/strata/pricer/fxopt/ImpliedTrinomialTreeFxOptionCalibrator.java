@@ -27,7 +27,7 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
   private final int nSteps;
 
   /**
-   * Calibrator with the specified number of time steps. 
+   * Calibrator with the specified number of time steps.
    * 
    * @param nSteps  number of time steps
    */
@@ -48,10 +48,10 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Calibrate trinomial tree to Black volatilities by using a vanilla option.  
+   * Calibrate trinomial tree to Black volatilities by using a vanilla option.
    * <p>
    * {@code ResolvedFxVanillaOption} is typically the underlying option of an exotic instrument to price using the 
-   * calibrated tree, and is used to ensure that the grid points properly cover the lifetime of the target option. 
+   * calibrated tree, and is used to ensure that the grid points properly cover the lifetime of the target option.
    * 
    * @param option  the vanilla option
    * @param ratesProvider  the rates provider
@@ -69,10 +69,10 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
   }
 
   /**
-   * Calibrate trinomial tree to Black volatilities. 
+   * Calibrate trinomial tree to Black volatilities.
    * <p>
-   * {@code timeToExpiry} determines the coverage of the resulting trinomial tree. 
-   * Thus this should match the time to expiry of the target instrument to price using the calibrated tree.  
+   * {@code timeToExpiry} determines the coverage of the resulting trinomial tree.
+   * Thus this should match the time to expiry of the target instrument to price using the calibrated tree.
    * 
    * @param timeToExpiry  the time to expiry
    * @param currencyPair  the currency pair

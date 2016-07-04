@@ -65,9 +65,9 @@ public class FxVolatilitySmileDataSet {
       InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(NAME, TIME_6, DELTA, ATM_6, RISK_REVERSAL_6, STRANGLE_6);
 
   /**
-   * Creates volatility provider with term structure of smile parameters. 
+   * Creates volatility provider with term structure of smile parameters.
    * <p>
-   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA.
    * 
    * @param dateTime  the valuation date time
    * @return  the volatility provider
@@ -77,9 +77,9 @@ public class FxVolatilitySmileDataSet {
   }
 
   /**
-   * Creates volatility provider with term structure of smile parameters. 
+   * Creates volatility provider with term structure of smile parameters.
    * <p>
-   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA.
    * 
    * @param dateTime  the valuation date time
    * @return  the volatility provider
@@ -89,10 +89,10 @@ public class FxVolatilitySmileDataSet {
   }
 
   /**
-   * Creates volatility provider with term structure of smile parameters. 
+   * Creates volatility provider with term structure of smile parameters.
    * <p>
    * The resulting volatility surface is flat along the strike direction.
-   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA.
    * 
    * @param dateTime  the valuation date time
    * @return  the volatility provider
@@ -102,10 +102,10 @@ public class FxVolatilitySmileDataSet {
   }
 
   /**
-   * Creates volatility provider with term structure of smile parameters. 
+   * Creates volatility provider with term structure of smile parameters.
    * <p>
    * The resulting volatility surface is totally flat.
-   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA.
    * 
    * @param dateTime  the valuation date time
    * @return  the volatility provider
@@ -115,7 +115,7 @@ public class FxVolatilitySmileDataSet {
   }
 
   /**
-   * Creates volatility provider with term structure of smile parameters. 
+   * Creates volatility provider with term structure of smile parameters.
    * <p>
    * The number of time slices are 6, and the day count convention is ACT/365F.
    * 
@@ -127,9 +127,9 @@ public class FxVolatilitySmileDataSet {
   }
 
   /**
-   * Get the underlying smile term structure. 
+   * Get the underlying smile term structure.
    * <p>
-   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA.
    * 
    * @return the smile term structure
    */
@@ -138,7 +138,7 @@ public class FxVolatilitySmileDataSet {
   }
 
   /**
-   * Get the underlying smile term structure. 
+   * Get the underlying smile term structure.
    * <p>
    * The number of time slices are 6, and the day count convention is ACT/365F.
    * 

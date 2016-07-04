@@ -43,7 +43,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-   * The small parameter. 
+   * The small parameter.
    */
   private static final double SMALL = 1.0e-9;
 

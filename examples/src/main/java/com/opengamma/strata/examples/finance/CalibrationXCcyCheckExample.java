@@ -48,9 +48,9 @@ import com.opengamma.strata.product.Trade;
  * <p>
  * The curves are
  *  - Discounting and Fed Fund forward in USD
- *  - USD Libor 3M forward. 
+ *  - USD Libor 3M forward.
  *  - Discounting and EONIA forward in EUR
- *  - EUR Euribor 3M forward. 
+ *  - EUR Euribor 3M forward.
  * <p>
  * Curve configuration and market data loaded from csv files.
  * Tests that the trades used for calibration have a total converted PV of 0.
@@ -100,7 +100,7 @@ public class CalibrationXCcyCheckExample {
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/fx-rates-xccy.csv");
 
   //-------------------------------------------------------------------------
-  /** 
+  /**
    * Runs the calibration and checks that all the trades used in the curve calibration have a PV of 0.
    * 
    * @param args  -p to run the performance estimate

@@ -310,7 +310,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * Calculates the price sensitivity of the bond future option product based on the price of the underlying future.
    * <p>
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
-   * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name. 
+   * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider

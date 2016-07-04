@@ -150,7 +150,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the currency exposure of a single payment period. 
+   * Calculates the currency exposure of a single payment period.
    * 
    * @param period  the period
    * @param provider  the rates provider
@@ -159,7 +159,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
   public abstract MultiCurrencyAmount currencyExposure(T period, RatesProvider provider);
 
   /**
-   * Calculates the current cash of a single payment period. 
+   * Calculates the current cash of a single payment period.
    * 
    * @param period  the period
    * @param provider  the rates provider

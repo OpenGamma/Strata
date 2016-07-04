@@ -214,7 +214,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
   }
 
   /**
-   * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period. 
+   * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period.
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
    */
   public void rateChfNoCutOff() {
@@ -244,7 +244,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
   }
 
   /**
-   * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period. 
+   * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period.
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
    */
   public void rateChfNoCutOffSensitivity() {
@@ -270,7 +270,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
     }
   }
 
-  /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period. 
+  /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period.
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
   public void rateGbpNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
@@ -298,7 +298,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
-  /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period. 
+  /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period.
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
   public void rateGbpNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);

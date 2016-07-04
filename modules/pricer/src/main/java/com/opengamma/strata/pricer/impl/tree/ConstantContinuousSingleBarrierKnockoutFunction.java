@@ -31,7 +31,7 @@ import com.opengamma.strata.product.fxopt.BarrierType;
 /**
  * Single barrier knock-out option function.
  * <p>
- * The barrier is continuous and the level is constant. 
+ * The barrier is continuous and the level is constant.
  */
 @BeanDefinition(builderScope = "private")
 public final class ConstantContinuousSingleBarrierKnockoutFunction
@@ -48,7 +48,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
   @PropertyDefinition(overrideGet = true)
   private final double timeToExpiry;
   /**
-   * The sign. 
+   * The sign.
    * <p>
    * The sign is +1 for call and -1 for put.
    */
@@ -68,13 +68,13 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
   private final BarrierType barrierType;
 
   /**
-   * The constant barrier level. 
+   * The constant barrier level.
    */
   @PropertyDefinition
   private final double barrierLevel;
 
   /**
-   * The rebate. 
+   * The rebate.
    * <p>
    * The rebate amounts for individual time layer.
    * The size must be equal to {@code numberOfSteps + 1} 
@@ -84,7 +84,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance. 
+   * Obtains an instance.
    * 
    * @param strike  the strike
    * @param timeToExpiry  the time to expiry

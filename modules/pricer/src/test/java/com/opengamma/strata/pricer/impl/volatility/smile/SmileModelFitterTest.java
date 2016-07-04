@@ -26,7 +26,7 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
 /**
- * Test case for smile model fitters. 
+ * Test case for smile model fitters.
  * 
  * @param <T> the smile model data
  */

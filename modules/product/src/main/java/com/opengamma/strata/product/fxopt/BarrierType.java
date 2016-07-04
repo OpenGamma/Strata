@@ -12,17 +12,17 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The barrier type of barrier event. 
+ * The barrier type of barrier event.
  * <p>
  * This defines the barrier type of {@link Barrier}.
  */
 public enum BarrierType {
 
-  /** 
+  /**
    * Down 
    */
   DOWN,
-  /** 
+  /**
    * Up 
    */
   UP;

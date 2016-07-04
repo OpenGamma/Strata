@@ -17,12 +17,12 @@ import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation
 
 /**
  * Rate computation implementation for rate based on the weighted average of fixings 
- * of a single price index. 
+ * of a single price index.
  * <p>
  * The rate computed by this instance is based on fixed start index value
- * and two observations relative to the end date  of the period. 
+ * and two observations relative to the end date  of the period.
  * The start index is given by {@code InflationEndInterpolatedRateComputation}.
- * The end index is the weighted average of the index values associated with the two reference dates. 
+ * The end index is the weighted average of the index values associated with the two reference dates.
  * Then the pay-off for a unit notional is {@code IndexEnd / IndexStart}. 
  */
 public class ForwardInflationEndInterpolatedRateComputationFn

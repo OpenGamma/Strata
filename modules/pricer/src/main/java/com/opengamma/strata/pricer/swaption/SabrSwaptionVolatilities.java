@@ -10,7 +10,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
- * Volatility for swaptions in SABR model. 
+ * Volatility for swaptions in SABR model.
  * <p>
  * The volatility is represented in terms of SABR model parameters.
  * <p>

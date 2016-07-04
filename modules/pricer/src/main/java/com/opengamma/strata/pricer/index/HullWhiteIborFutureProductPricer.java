@@ -20,7 +20,7 @@ import com.opengamma.strata.product.index.ResolvedIborFuture;
  * Pricer for for Ibor future products.
  * <p>
  * This function provides the ability to price a {@link IborFuture} based on
- * Hull-White one-factor model with piecewise constant volatility.  
+ * Hull-White one-factor model with piecewise constant volatility.
  * <p> 
  * Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>

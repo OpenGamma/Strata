@@ -218,7 +218,7 @@ public final class AdjustablePayment
    * <p>
    * This takes this payment and negates it.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a payment based on this with the value negated
    */

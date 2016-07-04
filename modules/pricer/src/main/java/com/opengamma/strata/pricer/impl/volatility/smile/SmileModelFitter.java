@@ -24,7 +24,7 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquar
  * Smile model fitter.
  * <p>
  * Attempts to calibrate a smile model to the implied volatilities of European vanilla options, by minimising the sum of 
- * squares between the market and model implied volatilities. 
+ * squares between the market and model implied volatilities.
  * <p>
  * All the options must be for the same expiry and (implicitly) on the same underlying.
  * 
@@ -47,7 +47,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   private final DoubleArray _errors;
 
   /**
-   * Constructs smile model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
+   * Constructs smile model fitter from forward, strikes, time to expiry, implied volatilities and error values.
    * <p>
    * {@code strikes}, {@code impliedVols} and {@code error} should be the same length and ordered coherently.
    * 
@@ -102,7 +102,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Solves using the default NonLinearParameterTransforms for the concrete implementation. 
+   * Solves using the default NonLinearParameterTransforms for the concrete implementation.
    * <p>
    * This returns {@link LeastSquareResults}.
    * 
@@ -129,7 +129,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Solve using a user supplied NonLinearParameterTransforms. 
+   * Solve using a user supplied NonLinearParameterTransforms.
    * <p>
    * This returns {@link LeastSquareResults}.
    * 
@@ -145,7 +145,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Obtains volatility function of the smile model. 
+   * Obtains volatility function of the smile model.
    * <p>
    * The function is defined in {@link VolatilityFunctionProvider}.
    * 
@@ -169,12 +169,12 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   /**
    * Obtains the maximum number of iterations.
    * 
-   * @return the maximum number. 
+   * @return the maximum number.
    */
   protected abstract DoubleArray getMaximumStep();
 
   /**
-   * Obtains the nonlinear transformation of parameters from the initial values. 
+   * Obtains the nonlinear transformation of parameters from the initial values.
    * 
    * @param start  the initial values
    * @return the nonlinear transformation
@@ -182,7 +182,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   protected abstract NonLinearParameterTransforms getTransform(DoubleArray start);
 
   /**
-   * Obtains the nonlinear transformation of parameters from the initial values with some parameters fixed. 
+   * Obtains the nonlinear transformation of parameters from the initial values with some parameters fixed.
    * 
    * @param start  the initial values
    * @param fixed  the parameters are fixed
@@ -191,7 +191,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   protected abstract NonLinearParameterTransforms getTransform(DoubleArray start, BitSet fixed);
 
   /**
-   * Obtains {@code SmileModelData} instance from the model parameters. 
+   * Obtains {@code SmileModelData} instance from the model parameters.
    * 
    * @param modelParameters  the model parameters
    * @return the smile model data
@@ -199,7 +199,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   public abstract T toSmileModelData(DoubleArray modelParameters);
 
   /**
-   * Obtains the constraint function. 
+   * Obtains the constraint function.
    * <p>
    * This is defaulted to be "unconstrained".
    * 
@@ -212,7 +212,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Obtains the volatility function provider. 
+   * Obtains the volatility function provider.
    * 
    * @return the volatility function provider
    */

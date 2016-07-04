@@ -37,7 +37,7 @@ import com.opengamma.strata.pricer.rate.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 
 /**
- * The data set for testing capital indexed bonds. 
+ * The data set for testing capital indexed bonds.
  */
 public class CapitalIndexedBondCurveDataSet {
 
@@ -94,9 +94,9 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains an immutable rates providers with valuation date and time series. 
+   * Obtains an immutable rates providers with valuation date and time series.
    * <p>
-   * The time series must contain historical data for the price index. 
+   * The time series must contain historical data for the price index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
@@ -113,9 +113,9 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains an immutable rates providers with valuation date and time series. 
+   * Obtains an immutable rates providers with valuation date and time series.
    * <p>
-   * The time series must contain historical data for the price index. 
+   * The time series must contain historical data for the price index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
@@ -132,9 +132,9 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains an immutable rates providers with valuation date and time series. 
+   * Obtains an immutable rates providers with valuation date and time series.
    * <p>
-   * The time series must contain historical data for the price index. 
+   * The time series must contain historical data for the price index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
@@ -151,7 +151,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains legal entity discounting rates provider from valuation date. 
+   * Obtains legal entity discounting rates provider from valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discounting rates provider
@@ -170,7 +170,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains legal entity discounting rates provider from valuation date. 
+   * Obtains legal entity discounting rates provider from valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discounting rates provider
@@ -189,7 +189,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains legal entity discounting rates provider from valuation date. 
+   * Obtains legal entity discounting rates provider from valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discounting rates provider
@@ -208,7 +208,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains issuer curve discount factors form valuation date. 
+   * Obtains issuer curve discount factors form valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discount factors
@@ -228,7 +228,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains time series of price index up to valuation date. 
+   * Obtains time series of price index up to valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the time series
@@ -290,7 +290,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains time series of price index up to valuation date. 
+   * Obtains time series of price index up to valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the time series
@@ -314,7 +314,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains time series of price index up to valuation date. 
+   * Obtains time series of price index up to valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the time series

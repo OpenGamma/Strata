@@ -26,7 +26,7 @@ import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistrib
 import cern.jet.random.engine.MersenneTwister;
 
 /**
- * This tests the time to calibrate the yield and credit curves. By default the tests are disabled.  
+ * This tests the time to calibrate the yield and credit curves. By default the tests are disabled.
  */
 @Test
 public class CalibrationTimingTest extends IsdaBaseTest {

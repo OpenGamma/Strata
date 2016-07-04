@@ -10,19 +10,19 @@ import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
- * Pricer for cap/floor products in normal or Bachelier model. 
+ * Pricer for cap/floor products in normal or Bachelier model.
  */
 public class NormalIborCapFloorProductPricer
     extends VolatilityIborCapFloorProductPricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final NormalIborCapFloorProductPricer DEFAULT =
       new NormalIborCapFloorProductPricer(NormalIborCapFloorLegPricer.DEFAULT, DiscountingSwapLegPricer.DEFAULT);
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param capFloorLegPricer  the pricer for {@link IborCapFloorLeg}
    * @param payLegPricer  the pricer for {@link SwapLeg}

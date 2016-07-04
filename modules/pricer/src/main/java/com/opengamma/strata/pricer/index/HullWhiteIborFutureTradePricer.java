@@ -21,7 +21,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * Pricer for for Ibor future trades.
  * <p>
  * This function provides the ability to price a {@link IborFutureTrade} based on
- * Hull-White one-factor model with piecewise constant volatility.  
+ * Hull-White one-factor model with piecewise constant volatility.
  * <p> 
  * Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
@@ -189,7 +189,7 @@ public class HullWhiteIborFutureTradePricer
   /**
    * Calculates the currency exposure of the Ibor future trade.
    * <p>
-   * Since the Ibor future is based on a single currency, the trade is exposed to only this currency.  
+   * Since the Ibor future is based on a single currency, the trade is exposed to only this currency.
    * <p>
    * The calculation is performed against a reference price. On the trade date, the reference price
    * is the trade price, otherwise it is the settlement price.

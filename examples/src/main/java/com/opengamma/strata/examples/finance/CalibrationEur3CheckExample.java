@@ -42,7 +42,7 @@ import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 
 /**
- * Test for curve calibration with 3 curves in EUR. 
+ * Test for curve calibration with 3 curves in EUR.
  * <p>
  * One curve is used for Discounting and Eonia forward.
  * The other curves are used for EURIBOR 3M and EURIBOR 6M forward.
@@ -94,7 +94,7 @@ public class CalibrationEur3CheckExample {
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/quotes-eur.csv");
 
   //-------------------------------------------------------------------------
-  /** 
+  /**
    * Runs the calibration and checks that all the trades used in the curve calibration have a PV of 0.
    * 
    * @param args  -p to run the performance estimate

@@ -101,7 +101,7 @@ public class DiscountingTermDepositTradePricer {
   /**
    * Calculates the spread to be added to the deposit rate to have a zero present value.
    * <p>
-   * The calculation is based on both the initial and final payments. 
+   * The calculation is based on both the initial and final payments.
    * Thus the resulting number may not be meaningful when deposit has already started and only the final
    * payment remains (no initial payment).
    * 

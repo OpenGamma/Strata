@@ -1514,7 +1514,7 @@ public final class BlackFormulaRepository {
   }
 
   /**
-   * Compute the normal implied volatility from a normal volatility using an approximate explicit formula. 
+   * Compute the normal implied volatility from a normal volatility using an approximate explicit formula.
    * <p>
    * The formula is usually not good enough to be used as such, but provide a good initial guess for a 
    * root-finding procedure. Use {@link BlackFormulaRepository#impliedVolatilityFromNormalApproximated} for

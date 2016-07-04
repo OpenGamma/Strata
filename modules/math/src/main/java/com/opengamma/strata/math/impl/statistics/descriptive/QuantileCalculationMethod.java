@@ -61,7 +61,7 @@ public abstract class QuantileCalculationMethod {
    * the smallest 99% observations and 1% of the observation are above that level.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
-   * quantile is computed with flat extrapolation.  
+   * quantile is computed with flat extrapolation.
    * <p> 
    * The sample observations are sorted from the smallest to the largest. 
    * 
@@ -102,7 +102,7 @@ public abstract class QuantileCalculationMethod {
    * the average of the smallest 99% of the observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
-   * expected short fall is computed with flat extrapolation.  
+   * expected short fall is computed with flat extrapolation.
    * Thus this is coherent to {@link #quantileWithExtrapolationFromSorted(double, DoubleArray)}.
    * <p> 
    * The sample observations are sorted from the smallest to the largest. 
@@ -123,7 +123,7 @@ public abstract class QuantileCalculationMethod {
    * the average of the smallest 99% of the observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
-   * expected short fall is computed with flat extrapolation.  
+   * expected short fall is computed with flat extrapolation.
    * Thus this is coherent to {@link #quantileWithExtrapolationFromUnsorted(double, DoubleArray)}.
    * <p> 
    * The sample observations are supposed to be unsorted, the first step is to sort the data.

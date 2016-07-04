@@ -57,15 +57,15 @@ public final class RepoCurveZeroRateSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The bond group. 
+   * The bond group.
    * <p>
    * This defines the bond group that the discount factors are for.
-   * The bond group typically represents the legal entity and bond security. 
+   * The bond group typically represents the legal entity and bond security.
    */
   @PropertyDefinition(validate = "notNull")
   private final BondGroup bondGroup;
-  /** 
-   * The value of the sensitivity. 
+  /**
+   * The value of the sensitivity.
    */
   @PropertyDefinition(overrideGet = true)
   private final double sensitivity;
@@ -92,7 +92,7 @@ public final class RepoCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains an instance from zero rate sensitivity and bond group. 
+   * Obtains an instance from zero rate sensitivity and bond group.
    * 
    * @param zeroRateSensitivity  the zero rate sensitivity
    * @param bondGroup  the bond group
@@ -191,7 +191,7 @@ public final class RepoCurveZeroRateSensitivity
   /**
    * Obtains the underlying {@code ZeroRateSensitivity}. 
    * <p>
-   * This creates the zero rate sensitivity object by omitting the bond group. 
+   * This creates the zero rate sensitivity object by omitting the bond group.
    * 
    * @return the point sensitivity object
    */

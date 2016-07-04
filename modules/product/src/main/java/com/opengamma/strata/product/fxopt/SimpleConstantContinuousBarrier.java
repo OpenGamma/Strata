@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Continuous barrier with constant barrier level.
  * <p>
- * This defines a simple continuous barrier with a constant barrier level. 
+ * This defines a simple continuous barrier with a constant barrier level.
  * It is assumed that the barrier event period agrees with the lifetime of the option, thus observation start date and 
  * end date are not specified in this class.
  */
@@ -53,7 +53,7 @@ public final class SimpleConstantContinuousBarrier
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the continuous barrier with constant barrier level. 
+   * Obtains the continuous barrier with constant barrier level.
    * 
    * @param barrierType  the barrier type
    * @param knockType  the knock type

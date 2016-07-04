@@ -227,7 +227,7 @@ public interface IborCapletFloorletVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Converts a time and date to a relative year fraction. 
+   * Converts a time and date to a relative year fraction.
    * <p>
    * When the date is after the valuation date (and potentially time), the returned number is negative.
    * 

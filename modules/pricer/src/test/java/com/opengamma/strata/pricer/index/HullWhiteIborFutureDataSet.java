@@ -33,7 +33,7 @@ import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
- * Data set used for testing futures pricers under Hull-White one factor model. 
+ * Data set used for testing futures pricers under Hull-White one factor model.
  */
 public class HullWhiteIborFutureDataSet {
 
@@ -81,7 +81,7 @@ public class HullWhiteIborFutureDataSet {
   }
 
   /**
-   * Creates rates provider with specified  valuation date. 
+   * Creates rates provider with specified  valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return  the rates provider

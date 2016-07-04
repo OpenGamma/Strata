@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.impl.tree;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Lattice specification interface. 
+ * Lattice specification interface.
  * <p>
  * An implementation of the lattice specification defines construction of binomial and trinomial trees, and computes
  * transition probabilities and state steps.
@@ -18,12 +18,12 @@ import com.opengamma.strata.collect.array.DoubleArray;
 public interface LatticeSpecification {
 
   /**
-   * Computes parameters for uniform trinomial tree. 
+   * Computes parameters for uniform trinomial tree.
    * <p>
    * The interest rate must be zero-coupon continuously compounded rate.
    * <p>
    * The trinomial tree parameters are represented as {@code DoubleArray} containing [0] up factor, [1] middle factor, 
-   * [2] down factor, [3] up probability, [4] middle probability, [5] down probability. 
+   * [2] down factor, [3] up probability, [4] middle probability, [5] down probability.
    * 
    * @param volatility  the volatility 
    * @param interestRate  the interest rate

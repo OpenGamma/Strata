@@ -38,10 +38,10 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.SecurityId;
 
 /**
- * The discounting factors provider, used to calculate analytic measures. 
+ * The discounting factors provider, used to calculate analytic measures.
  * <p>
- * The primary usage of this provider is to price bonds issued by a legal entity. 
- * This includes discount factors of repo curves and issuer curves. 
+ * The primary usage of this provider is to price bonds issued by a legal entity.
+ * This includes discount factors of repo curves and issuer curves.
  */
 @BeanDefinition
 public final class LegalEntityDiscountingProvider
@@ -188,7 +188,7 @@ public final class LegalEntityDiscountingProvider
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * <p>
    * The sensitivities handled here are {@link RepoCurveZeroRateSensitivity} and {@link IssuerCurveZeroRateSensitivity}. 
-   * For the other sensitivity objects, use {@link RatesProvider} instead. 
+   * For the other sensitivity objects, use {@link RatesProvider} instead.
    * 
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters

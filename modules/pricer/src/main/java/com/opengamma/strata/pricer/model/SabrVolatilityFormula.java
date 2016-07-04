@@ -17,7 +17,7 @@ public interface SabrVolatilityFormula {
    * The Hagan SABR volatility formula.
    * <p>
    * This provides the functions of volatility and its sensitivity to the SABR model
-   * parameters based on the original Hagan SABR formula.  
+   * parameters based on the original Hagan SABR formula.
    * <p>
    * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
    * <p>
@@ -31,7 +31,7 @@ public interface SabrVolatilityFormula {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the volatility. 
+   * Calculates the volatility.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
@@ -54,8 +54,8 @@ public interface SabrVolatilityFormula {
   /**
    * Calculates volatility and the adjoint (volatility sensitivity to forward, strike and model parameters). 
    * <p>
-   * By default the derivatives are computed by central finite difference approximation. 
-   * This should be overridden in each subclass. 
+   * By default the derivatives are computed by central finite difference approximation.
+   * This should be overridden in each subclass.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option

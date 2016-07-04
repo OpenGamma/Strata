@@ -46,7 +46,7 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * Volatility environment for swaptions in the SABR model. 
+ * Volatility environment for swaptions in the SABR model.
  * <p>
  * The volatility is represented in terms of SABR model parameters.
  * <p>
@@ -63,14 +63,14 @@ public final class SabrParametersSwaptionVolatilities
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SwaptionVolatilitiesName name;
-  /** 
+  /**
    * The valuation date-time.
    * <p>
-   * The volatilities are calibrated for this date-time. 
+   * The volatilities are calibrated for this date-time.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
-  /** 
+  /**
    * The SABR model parameters.
    * <p>
    * Each model parameter of SABR model is a surface.
@@ -79,28 +79,28 @@ public final class SabrParametersSwaptionVolatilities
    */
   @PropertyDefinition(validate = "notNull")
   private final SabrInterestRateParameters parameters;
-  /** 
+  /**
    * The sensitivity of the Alpha parameters to the raw data used for calibration.
    * <p>
    * The order of the sensitivities have to be coherent with the surface parameter metadata.
    */
   @PropertyDefinition(get = "optional")
   private final ImmutableList<DoubleArray> dataSensitivityAlpha;
-  /** 
+  /**
    * The sensitivity of the Beta parameters to the raw data used for calibration.
    * <p>
    * The order of the sensitivities have to be coherent with the surface parameter metadata.
    */
   @PropertyDefinition(get = "optional")
   private final ImmutableList<DoubleArray> dataSensitivityBeta;
-  /** 
+  /**
    * The sensitivity of the Rho parameters to the raw data used for calibration.
    * <p>
    * The order of the sensitivities have to be coherent with the surface parameter metadata.
    */
   @PropertyDefinition(get = "optional")
   private final ImmutableList<DoubleArray> dataSensitivityRho;
-  /** 
+  /**
    * The sensitivity of the Nu parameters to the raw data used for calibration.
    * <p>
    * The order of the sensitivities have to be coherent with the surface parameter metadata.

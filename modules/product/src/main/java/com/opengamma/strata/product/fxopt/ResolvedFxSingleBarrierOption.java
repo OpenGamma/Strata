@@ -30,7 +30,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
 
 /**
- * Resolved FX (European) single barrier option. 
+ * Resolved FX (European) single barrier option.
  * <p>
  * An FX option is a financial instrument that provides an option to exchange two currencies at a specified future time 
  * only when barrier event occurs (knock-in option) or does not occur (knock-out option).
@@ -40,10 +40,10 @@ import com.opengamma.strata.product.ResolvedProduct;
  * <p>
  * For example, an up-and-out call on a 'EUR 1.00 / USD -1.41' exchange with barrier of 1.5 is the option to
  * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00, only when EUR/USD rate does 
- * not exceed 1.5 during the barrier event observation period.  
+ * not exceed 1.5 during the barrier event observation period.
  * <p>
  * In case of the occurrence (non-occurrence for knock-in options) of the barrier event, the option becomes worthless, 
- * or alternatively, a rebate is made. 
+ * or alternatively, a rebate is made.
  */
 @BeanDefinition(builderScope = "private")
 public final class ResolvedFxSingleBarrierOption
@@ -58,7 +58,7 @@ public final class ResolvedFxSingleBarrierOption
    * The barrier description.
    * <p>
    * The barrier level stored in this field must be represented based on the direction of the currency pair in the 
-   * underlying FX transaction. 
+   * underlying FX transaction.
    * <p>
    * For example, if the underlying option is an option on EUR/GBP, the barrier should be a certain level of EUR/GBP rate.
    */
@@ -68,15 +68,15 @@ public final class ResolvedFxSingleBarrierOption
    * For a 'out' option, the amount is paid when the barrier is reached; 
    * for a 'in' option, the amount is paid at expiry if the barrier is not reached.
    * <p>
-   * This is the notional amount represented in one of the currency pair. 
-   * The amount should be positive. 
+   * This is the notional amount represented in one of the currency pair.
+   * The amount should be positive.
    */
   @PropertyDefinition(get = "optional")
   private final CurrencyAmount rebate;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains FX single barrier option with rebate. 
+   * Obtains FX single barrier option with rebate.
    * 
    * @param underlyingOption  the underlying FX vanilla option
    * @param barrier  the barrier
@@ -92,7 +92,7 @@ public final class ResolvedFxSingleBarrierOption
   }
 
   /**
-   * Obtains FX single barrier option without rebate. 
+   * Obtains FX single barrier option without rebate.
    * 
    * @param underlyingOption  the underlying FX vanilla option
    * @param barrier  the barrier

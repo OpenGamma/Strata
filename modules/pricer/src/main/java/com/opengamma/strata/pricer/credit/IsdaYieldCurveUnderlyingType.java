@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.credit;
 
 /**
- * Enumerates the supported types of underlying instruments on an ISDA yield curve. 
+ * Enumerates the supported types of underlying instruments on an ISDA yield curve.
  */
 public enum IsdaYieldCurveUnderlyingType {
 

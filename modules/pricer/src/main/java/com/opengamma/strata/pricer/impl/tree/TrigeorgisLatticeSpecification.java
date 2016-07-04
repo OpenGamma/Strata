@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.impl.tree;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Trigeorgis lattice specification. 
+ * Trigeorgis lattice specification.
  */
 public final class TrigeorgisLatticeSpecification implements LatticeSpecification {
 

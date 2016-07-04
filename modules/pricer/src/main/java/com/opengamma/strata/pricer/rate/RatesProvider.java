@@ -230,7 +230,7 @@ public interface RatesProvider
   /**
    * Gets the time series.
    * <p>
-   * This returns time series for the index. 
+   * This returns time series for the index.
    * 
    * @param index  the index
    * @return the time series

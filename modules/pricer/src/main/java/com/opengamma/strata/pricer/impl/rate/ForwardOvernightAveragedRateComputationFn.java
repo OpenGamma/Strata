@@ -21,7 +21,7 @@ import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
 * Rate computation implementation for a rate based on a single overnight index that is arithmetically averaged.
 * <p>
 * The rate computation retrieves the rate at each fixing date in the period 
-* from the {@link RatesProvider} and average them. 
+* from the {@link RatesProvider} and average them.
 */
 public class ForwardOvernightAveragedRateComputationFn
     implements RateComputationFn<OvernightAveragedRateComputation> {
@@ -51,7 +51,7 @@ public class ForwardOvernightAveragedRateComputationFn
     int cutoffOffset = computation.getRateCutOffDays() > 1 ? computation.getRateCutOffDays() : 1;
     double accumulatedInterest = 0.0d;
     double accrualFactorTotal = 0.0d;
-    // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end. 
+    // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end.
     // When the fixing period end-date is not a good business day in the index calendar, 
     // the last fixing end date will be after the fixing end-date.
     double cutoffAccrualFactor = 0.0;
@@ -91,7 +91,7 @@ public class ForwardOvernightAveragedRateComputationFn
     LocalDate lastNonCutoffFixing = computation.getEndDate();
     int cutoffOffset = computation.getRateCutOffDays() > 1 ? computation.getRateCutOffDays() : 1;
     double accrualFactorTotal = 0.0d;
-    // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end. 
+    // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end.
     // When the fixing period end-date is not a good business day in the index calendar, 
     // the last fixing end date will be after the fixing end-date.
     double cutoffAccrualFactor = 0.0;

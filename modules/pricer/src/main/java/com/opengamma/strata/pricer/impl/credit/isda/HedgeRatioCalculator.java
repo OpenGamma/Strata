@@ -107,7 +107,7 @@ public class HedgeRatioCalculator {
    * The hedge is such that the total portfolio (the CDS <b>minus</b> the hedging CDSs, with notionals of the
    * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the the credit curve.
    * <p>
-   * Here the credit curve is built using the hedging CDSs as pillars. 
+   * Here the credit curve is built using the hedging CDSs as pillars.
    * 
    * @param cds  the CDS to be hedged
    * @param coupon  the coupon of the CDS to be hedged
@@ -171,7 +171,7 @@ public class HedgeRatioCalculator {
    * Hedge a CDS with other CDSs on the same underlying (single-name or index) at different maturities.
    * <p>
    * The hedge is such that the total portfolio (the CDS <b>minus</b> the hedging CDSs, with notionals of the
-   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the the credit curve. 
+   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the the credit curve.
    * <p>
    * If the number of hedge-CDSs equals the number of credit-curve knots, the system is
    * square and is solved exactly (see below).<br>
@@ -184,7 +184,7 @@ public class HedgeRatioCalculator {
    * 
    * @param cdsSensitivities  the vector of sensitivities of the CDS to the zero hazard rates at the credit curve knots
    * @param hedgeCDSSensitivities  the matrix of sensitivities of the hedging-CDSs to the zero hazard rates
-   *  at the credit curve knots. The (i,j) element is the sensitivity of the jth CDS to the ith knot. 
+   *  at the credit curve knots. The (i,j) element is the sensitivity of the jth CDS to the ith knot.
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
    */

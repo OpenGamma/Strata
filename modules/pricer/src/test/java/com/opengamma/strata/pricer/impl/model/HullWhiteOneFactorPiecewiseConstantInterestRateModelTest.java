@@ -389,8 +389,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   }
 
   //-------------------------------------------------------------------------
-  // Here methods used for Bermudan swaption pricing and Monte-Carlo are test weakly by regression to 2.x. 
-  // Proper tests should be added when these pricing methodologies are available. 
+  // Here methods used for Bermudan swaption pricing and Monte-Carlo are test weakly by regression to 2.x.
+  // Proper tests should be added when these pricing methodologies are available.
   public void test_beta() {
     double[] theta = new double[] {0.0, 0.9930234298974474, 1.5013698630136987, 1.9917808219178081, 2.5013698630136987,
       2.9972602739726026, 3.5013698630136987, 3.9972602739726026, 4.501220151208923, 4.998487910771765,
@@ -472,7 +472,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   }
 
   /**
-   * Test the payment delay convexity adjustment factor. Analysis of the size. 
+   * Test the payment delay convexity adjustment factor. Analysis of the size.
    * In normal test, should have (enabled=false)
    */
   @Test(enabled = false)

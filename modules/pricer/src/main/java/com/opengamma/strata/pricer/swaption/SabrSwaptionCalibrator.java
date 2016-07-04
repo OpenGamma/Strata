@@ -124,7 +124,7 @@ public class SabrSwaptionCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Calibrate SABR parameters to a set of raw swaption data. 
+   * Calibrate SABR parameters to a set of raw swaption data.
    * <p>
    * The SABR parameters are calibrated with fixed beta and fixed shift surfaces.
    * The raw data can be (shifted) log-normal volatilities, normal volatilities or option prices
@@ -170,7 +170,7 @@ public class SabrSwaptionCalibrator {
   }
 
   /**
-   * Calibrate SABR parameters to a set of raw swaption data. 
+   * Calibrate SABR parameters to a set of raw swaption data.
    * <p>
    * The SABR parameters are calibrated with fixed beta and fixed shift surfaces.
    * The raw data can be (shifted) log-normal volatilities, normal volatilities or option prices
@@ -405,7 +405,7 @@ public class SabrSwaptionCalibrator {
   }
 
   /**
-   * Calibrate SABR alpha parameters to a set of ATM swaption volatilities. 
+   * Calibrate SABR alpha parameters to a set of ATM swaption volatilities.
    * <p>
    * The SABR parameters are calibrated with all the parameters other than alpha (beta, rhu, nu, shift) fixed.
    * The at-the-money volatilities can be log-normal or normal volatilities.

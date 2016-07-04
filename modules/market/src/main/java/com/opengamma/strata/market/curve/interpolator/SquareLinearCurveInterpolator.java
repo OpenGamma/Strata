@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * The interpolation is linear on y^2. The interpolator is used for interpolation on variance for options.
- * All values of y must be positive. 
+ * All values of y must be positive.
  */
 final class SquareLinearCurveInterpolator implements CurveInterpolator, Serializable {
 
@@ -27,8 +27,8 @@ final class SquareLinearCurveInterpolator implements CurveInterpolator, Serializ
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-  /** 
-   * Level below which the value is consider to be 0. 
+  /**
+   * Level below which the value is consider to be 0.
    */
   private static final double EPS = 1.0E-10;
 

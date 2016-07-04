@@ -47,7 +47,7 @@ import com.opengamma.strata.product.rate.IborRateComputation;
  * Ibor caplet: a * (I-K)^+ ; K=caplet<br>
  * Ibor floorlet: a * (K-I)^+ ; K=floorlet
  * <p>
- * The payment is a caplet or floorlet. 
+ * The payment is a caplet or floorlet.
  * If {@code caplet} ({@code floorlet}) is not null, the payment is a caplet (floorlet).
  * Thus one of the two fields must be null.
  * <p>

@@ -41,9 +41,9 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 /**
  * An interpolated term structure of smiles as used in Forex market.
  * <p>
- * The term structure defined here is composed of smile descriptions at different times. 
+ * The term structure defined here is composed of smile descriptions at different times.
  * The data of each smile contains delta and volatility in {@link SmileDeltaParameters}. 
- * The delta values must be common to all of the smiles. 
+ * The delta values must be common to all of the smiles.
  * <p>
  * Time interpolation and extrapolation are used to obtain a smile for the objective time.
  * Strike interpolation and extrapolation are used in the expiry-strike space where the delta values are converted to 
@@ -97,7 +97,7 @@ public final class InterpolatedSmileDeltaTermStructureStrikeInterpolation
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator strikeRightExtrapolator;
   /**
-   * A set of expiry times for the smile descriptions. 
+   * A set of expiry times for the smile descriptions.
    * <p>
    * This set must be consistent with time to expiry in {@code volatilityTerm}, thus can be derived if 
    * {@code volatilityTerm} is the primary input.
@@ -194,7 +194,7 @@ public final class InterpolatedSmileDeltaTermStructureStrikeInterpolation
   }
 
   /**
-   * Obtains volatility term structure from expiry times, delta values and volatilities. 
+   * Obtains volatility term structure from expiry times, delta values and volatilities.
    * <p>
    * The market date consists of time to expiry, delta and volatility.
    * The delta must be positive and sorted in ascending order.

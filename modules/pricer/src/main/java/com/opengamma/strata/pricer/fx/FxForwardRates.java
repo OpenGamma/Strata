@@ -20,7 +20,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * Provides access to rates for a currency pair.
  * <p>
  * This provides forward rates for a single {@link Currency pair}, such as 'EUR/GBP'.
- * The forward rate is the conversion rate between two currencies on a fixing date in the future. 
+ * The forward rate is the conversion rate between two currencies on a fixing date in the future.
  */
 public interface FxForwardRates
     extends MarketDataView, ParameterizedData {

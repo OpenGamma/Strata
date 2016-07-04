@@ -37,21 +37,21 @@ import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
  * <p>
  * This function provides the ability to price an {@link ResolvedFxSingleBarrierOption}.
  * <p>
- * All of the computation is be based on the counter currency of the underlying FX transaction. 
+ * All of the computation is be based on the counter currency of the underlying FX transaction.
  * For example, price, PV and risk measures of the product will be expressed in USD for an option on EUR/USD.
  */
 public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
 
   /**
-   * The trinomial tree. 
+   * The trinomial tree.
    */
   private static final TrinomialTree TREE = new TrinomialTree();
   /**
-   * Small parameter. 
+   * Small parameter.
    */
   private static final double SMALL = 1.0e-12;
   /**
-   * Default number of time steps. 
+   * Default number of time steps.
    */
   private static final int NUM_STEPS_DEFAULT = 51;
 
@@ -61,14 +61,14 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
   private final ImpliedTrinomialTreeFxOptionCalibrator calibrator;
 
   /**
-   * Pricer with the default number of time steps. 
+   * Pricer with the default number of time steps.
    */
   public ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer() {
     this(NUM_STEPS_DEFAULT);
   }
 
   /**
-   * Pricer with the specified number of time steps. 
+   * Pricer with the specified number of time steps.
    * 
    * @param nSteps  number of time steps
    */
@@ -78,7 +78,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the calibrator. 
+   * Obtains the calibrator.
    * 
    * @return the calibrator
    */
@@ -91,7 +91,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * Calculates the price of the FX barrier option product.
    * <p>
    * The price of the product is the value on the valuation date for one unit of the base currency 
-   * and is expressed in the counter currency. The price does not take into account the long/short flag. 
+   * and is expressed in the counter currency. The price does not take into account the long/short flag.
    * See {@linkplain #presentValue(ResolvedFxSingleBarrierOption, RatesProvider, BlackVolatilityFxProvider) presentValue} 
    * for scaling and currency.
    * <p>
@@ -117,7 +117,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * Calculates the price of the FX barrier option product.
    * <p>
    * The price of the product is the value on the valuation date for one unit of the base currency 
-   * and is expressed in the counter currency. The price does not take into account the long/short flag. 
+   * and is expressed in the counter currency. The price does not take into account the long/short flag.
    * See {@linkplain #presentValue(ResolvedFxSingleBarrierOption, RatesProvider, BlackVolatilityFxProvider, RecombiningTrinomialTreeData) presnetValue} 
    * for scaling and currency.
    * <p>
@@ -143,7 +143,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the present value of the FX barrier option product.
    * <p>
-   * The present value of the product is the value on the valuation date. 
+   * The present value of the product is the value on the valuation date.
    * It is expressed in the counter currency.
    * <p>
    * The trinomial tree is first calibrated to Black volatilities, 
@@ -167,7 +167,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the present value of the FX barrier option product.
    * <p>
-   * The present value of the product is the value on the valuation date. 
+   * The present value of the product is the value on the valuation date.
    * It is expressed in the counter currency.
    * <p>
    * This assumes the tree is already calibrated and the tree data is stored as {@code RecombiningTrinomialTreeData}.

@@ -30,9 +30,9 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 
 /**
- * Data provider of volatility for Ibor future options in the normal or Bachelier model. 
+ * Data provider of volatility for Ibor future options in the normal or Bachelier model.
  * <p>
- * The volatility is represented by a surface on the expiry and simple moneyness. 
+ * The volatility is represented by a surface on the expiry and simple moneyness.
  * The expiry is measured in number of days (not time) according to a day-count convention.
  * The simple moneyness can be on the price or on the rate (1-price).
  */

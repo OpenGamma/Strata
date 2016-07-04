@@ -56,7 +56,7 @@ public final class ResolvedSwaption
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
-   * Settlement method.  
+   * Settlement method.
    * <p>
    * The settlement of the option is specified by {@link SwaptionSettlement}.
    */
@@ -73,7 +73,7 @@ public final class ResolvedSwaption
    * The underlying swap.
    * <p>
    * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap 
-   * as viewed by the party long the option. 
+   * as viewed by the party long the option.
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedSwap underlying;

@@ -43,12 +43,12 @@ public final class CashFlows
     implements FxConvertible<CashFlows>, ImmutableBean, Serializable {
 
   /**
-   * A cash flows instance to be used when there is no cash flow. 
+   * A cash flows instance to be used when there is no cash flow.
    */
   public static final CashFlows NONE = new CashFlows(ImmutableList.of());
 
   /**
-   * The cash flows. 
+   * The cash flows.
    * <p>
    * Each entry includes details of a single cash flow.
    */
@@ -57,7 +57,7 @@ public final class CashFlows
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a single cash flow. 
+   * Obtains an instance from a single cash flow.
    * 
    * @param cashFlow The cash flow
    * @return the cash flows instance
@@ -67,7 +67,7 @@ public final class CashFlows
   }
 
   /**
-   * Obtains an instance from a list of cash flows. 
+   * Obtains an instance from a list of cash flows.
    * 
    * @param cashFlows the list of cash flows
    * @return the cash flows instance
@@ -91,9 +91,9 @@ public final class CashFlows
   /**
    * Combines this cash flows instance with another cash flow.
    * <p>
-   * This returns a new cash flows instance with a combined list of cash flow instances. 
+   * This returns a new cash flows instance with a combined list of cash flow instances.
    * This instance is immutable and unaffected by this method.
-   * The result may contain duplicate cash flows. 
+   * The result may contain duplicate cash flows.
    * 
    * @param cashFlow  the additional single cash flow
    * @return the new instance of {@code CashFlows} based on this instance, with the additional single cash flow added
@@ -108,9 +108,9 @@ public final class CashFlows
   /**
    * Combines this cash flows instance with another one.
    * <p>
-   * This returns a new cash flows instance with a combined list of cash flow instances. 
+   * This returns a new cash flows instance with a combined list of cash flow instances.
    * This instance is immutable and unaffected by this method.
-   * The result may contain duplicate cash flows. 
+   * The result may contain duplicate cash flows.
    * 
    * @param other  the other cash flows
    * @return the new instance of {@code CashFlows} based on this instance, with the other instance added

@@ -104,7 +104,7 @@ public final class CurveGroupDefinition
   }
 
   /**
-   * Returns a curve group definition with the specified name and containing the specified entries. 
+   * Returns a curve group definition with the specified name and containing the specified entries.
    * <p>
    * The Jacobian matrices are computed. The Present Value sensitivity to Market quotes are not computed.
    *

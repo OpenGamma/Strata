@@ -35,15 +35,15 @@ public final class CashSwaptionSettlement
     implements SwaptionSettlement, ImmutableBean, Serializable {
 
   /**
-   * The settlement date. 
+   * The settlement date.
    * <p>
-   * The payoff of the option is settled at this date. 
+   * The payoff of the option is settled at this date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate settlementDate;
 
   /**
-   * The cash settlement method. 
+   * The cash settlement method.
    * <p>
    * The settlement rate of the cash settled swaption is specified by respective cash settlement methods.
    */

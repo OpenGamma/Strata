@@ -51,7 +51,7 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
     _penalty = penalty;
   }
 
-  /** 
+  /**
    * get the value of the penalty 
    * @return the penalty 
    */

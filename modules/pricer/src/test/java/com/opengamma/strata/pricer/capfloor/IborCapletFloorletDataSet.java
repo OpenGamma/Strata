@@ -36,7 +36,7 @@ import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
- * Data set of Ibor caplet/floorlet. 
+ * Data set of Ibor caplet/floorlet.
  */
 public class IborCapletFloorletDataSet {
 
@@ -66,7 +66,7 @@ public class IborCapletFloorletDataSet {
       InterpolatedNodalCurve.of(META_FWD6, FWD6_TIME, FWD6_RATE, INTERPOLATOR);
 
   /**
-   * Creates rates provider with specified valuation date. 
+   * Creates rates provider with specified valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return  the rates provider
@@ -80,7 +80,7 @@ public class IborCapletFloorletDataSet {
   }
 
   /**
-   * Creates rates provider with specified valuation date and time series of the index. 
+   * Creates rates provider with specified valuation date and time series of the index.
    * 
    * @param valuationDate  the valuation date
    * @param index  the index

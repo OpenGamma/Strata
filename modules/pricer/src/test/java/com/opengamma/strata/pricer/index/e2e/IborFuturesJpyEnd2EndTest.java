@@ -45,7 +45,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 /**
  * End to end test on JPY-dominated trades.
  * <p>
- * The trades involve futures contract on 3m Euroyen TIBOR. 
+ * The trades involve futures contract on 3m Euroyen TIBOR.
  */
 @Test
 public class IborFuturesJpyEnd2EndTest {

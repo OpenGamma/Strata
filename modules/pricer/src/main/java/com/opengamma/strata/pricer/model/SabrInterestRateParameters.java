@@ -32,12 +32,12 @@ import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * The volatility surface description under SABR model.  
+ * The volatility surface description under SABR model.
  * <p>
- * This is used in interest rate modeling. 
+ * This is used in interest rate modeling.
  * Each SABR parameter is a {@link Surface} defined by expiry and tenor.
  * <p>
- * The implementation allows for shifted SABR model. 
+ * The implementation allows for shifted SABR model.
  * The shift parameter is also {@link Surface} defined by expiry and tenor.
  */
 @BeanDefinition(style = "light")
@@ -50,28 +50,28 @@ public final class SabrInterestRateParameters
   private static final ConstantSurface ZERO_SHIFT = ConstantSurface.of("Zero shift", 0d);
 
   /**
-   * The alpha (volatility level) surface. 
+   * The alpha (volatility level) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface alphaSurface;
   /**
-   * The beta (elasticity) surface. 
+   * The beta (elasticity) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface betaSurface;
   /**
-   * The rho (correlation) surface. 
+   * The rho (correlation) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface rhoSurface;
   /**
-   * The nu (volatility of volatility) surface. 
+   * The nu (volatility of volatility) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
@@ -90,7 +90,7 @@ public final class SabrInterestRateParameters
    */
   @PropertyDefinition(validate = "notNull")
   private final SabrVolatilityFormula sabrVolatilityFormula;
-  /** 
+  /**
    * The swap convention that the surfaces are calibrated against.
    */
   private final FixedIborSwapConvention convention;  // cached, not a property

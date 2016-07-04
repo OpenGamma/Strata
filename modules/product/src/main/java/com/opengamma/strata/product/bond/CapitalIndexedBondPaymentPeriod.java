@@ -64,10 +64,10 @@ public final class CapitalIndexedBondPaymentPeriod
   @PropertyDefinition
   private final double notional;
   /**
-   * The rate of real coupon. 
+   * The rate of real coupon.
    * <p>
    * The real coupon is the rate before taking the inflation into account.
-   * For example, a real coupon of c for semi-annual payments is c/2. 
+   * For example, a real coupon of c for semi-annual payments is c/2.
    */
   @PropertyDefinition
   private final double realCoupon;
@@ -110,7 +110,7 @@ public final class CapitalIndexedBondPaymentPeriod
    * <p>
    * Some bonds trade ex-coupon before the coupon payment.
    * The coupon is paid not to the owner of the bond on the payment date but to the
-   * owner of the bond on the detachment date. 
+   * owner of the bond on the detachment date.
    * <p>
    * When building, this will default to the end date if not specified.
    */
@@ -158,9 +158,9 @@ public final class CapitalIndexedBondPaymentPeriod
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a payment period with unit real coupon and 0 ex-coupon days from this instance. 
+   * Creates a payment period with unit real coupon and 0 ex-coupon days from this instance.
    * <p>
-   * The main use of this method is to create a nominal payment from the final periodic payment. 
+   * The main use of this method is to create a nominal payment from the final periodic payment.
    * 
    * @param startDate  the start date
    * @param unadjustedStartDate  the unadjusted start date

@@ -21,7 +21,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  * Log natural cubic interpolation with monotonicity filter.
  * <p>
  * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a Natural cubic
- * spline with Monotonicity cubic filter. 
+ * spline with Monotonicity cubic filter.
  */
 final class LogNaturalSplineMonotoneCubicInterpolator
     implements CurveInterpolator, Serializable {

@@ -51,7 +51,7 @@ import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
 
 /**
- * Defines the calculation of a swap leg of a zero-coupon inflation coupon based on a price index. 
+ * Defines the calculation of a swap leg of a zero-coupon inflation coupon based on a price index.
  * <p>
  * This defines the data necessary to calculate the amount payable on the leg.
  * The amount is based on the observed value of a price index.
@@ -86,7 +86,7 @@ public final class InflationRateCalculation
   @PropertyDefinition(validate = "notNull")
   private final Period lag;
   /**
-   * Reference price index calculation method. 
+   * Reference price index calculation method.
    * <p>
    * This specifies how the reference index calculation occurs.
    */

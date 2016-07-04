@@ -42,7 +42,7 @@ import com.opengamma.strata.product.fx.FxSingle;
  * a foreign exchange. The option is European, exercised only on the exercise date.
  * <p>
  * For example, a call on a 'EUR 1.00 / USD -1.41' exchange is the option to
- * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00. 
+ * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00.
  */
 @BeanDefinition
 public final class FxVanillaOption
@@ -57,21 +57,21 @@ public final class FxVanillaOption
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
-   * The expiry date of the option.  
+   * The expiry date of the option.
    * <p>
-   * The option is European, and can only be exercised on the expiry date. 
+   * The option is European, and can only be exercised on the expiry date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expiryDate;
   /**
-   * The expiry time of the option.  
+   * The expiry time of the option.
    * <p>
    * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiry time.  
+   * The time-zone of the expiry time.
    * <p>
    * The expiry time-zone is related to the expiry date and time.
    */

@@ -22,7 +22,7 @@ import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDiffe
 import com.opengamma.strata.math.impl.differentiation.VectorFieldSecondOrderDifferentiator;
 
 /**
- * Local volatility computation based on the exact formula. 
+ * Local volatility computation based on the exact formula.
  * <p>
  * Bruno Dupire, "Pricing with a Smile", Risk (1994).
  */

@@ -91,7 +91,7 @@ public interface BlackVolatilityFxProvider {
   public abstract CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point);
 
   /**
-   * Calculates the surface parameter sensitivities from the point sensitivities. 
+   * Calculates the surface parameter sensitivities from the point sensitivities.
    * 
    * @param sensitivities  the point sensitivities
    * @return the parameter sensitivity

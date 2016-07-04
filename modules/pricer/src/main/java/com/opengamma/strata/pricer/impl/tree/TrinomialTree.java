@@ -24,7 +24,7 @@ public class TrinomialTree {
    * Price an option under the specified trinomial lattice.
    * <p>
    * It is assumed that the volatility, interest rate and continuous dividend rate are constant 
-   * over the lifetime of the option. 
+   * over the lifetime of the option.
    * 
    * @param function  the option
    * @param lattice  the lattice specification
@@ -90,7 +90,7 @@ public class TrinomialTree {
    * Compute option price and delta under the specified trinomial tree gird.
    * <p>
    * The delta is the first derivative of the price with respect to spot, and approximated by the data embedded in 
-   * the trinomial tree. 
+   * the trinomial tree.
    * 
    * @param function  the option
    * @param data  the trinomial tree data

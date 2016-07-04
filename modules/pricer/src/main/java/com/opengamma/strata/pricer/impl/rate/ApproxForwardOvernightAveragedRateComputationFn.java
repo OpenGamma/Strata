@@ -102,7 +102,7 @@ public class ApproxForwardOvernightAveragedRateComputationFn
   }
 
   //-------------------------------------------------------------------------
-  // Compute the approximated rate in the case where the whole period is forward. 
+  // Compute the approximated rate in the case where the whole period is forward.
   // There is no need to compute overnight periods, except for the cut-off period.
   private double rateForward(OvernightAveragedRateComputation computation, OvernightIndexRates rates) {
     OvernightIndex index = computation.getIndex();
@@ -253,7 +253,7 @@ public class ApproxForwardOvernightAveragedRateComputationFn
       this.observations = Collections.unmodifiableList(indexObsList);
     }
 
-    // Accumulated rate - publication strictly before valuation date: try accessing fixing time-series. 
+    // Accumulated rate - publication strictly before valuation date: try accessing fixing time-series.
     // fixedPeriod is altered by this method.
     private double pastAccumulation() {
       double accumulatedInterest = 0.0d;
@@ -268,7 +268,7 @@ public class ApproxForwardOvernightAveragedRateComputationFn
       return accumulatedInterest;
     }
 
-    // Accumulated rate - publication on valuation: Check if a fixing is available on current date. 
+    // Accumulated rate - publication on valuation: Check if a fixing is available on current date.
     // fixedPeriod is altered by this method.
     private double valuationDateAccumulation() {
       double accumulatedInterest = 0.0d;

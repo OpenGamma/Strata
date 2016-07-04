@@ -13,13 +13,13 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A convention defining accrued interest calculation type for inflation bond securities. 
+ * A convention defining accrued interest calculation type for inflation bond securities.
  * <p>
  * Yield of a bond security is a conventional number representing the internal rate of
  * return of standardized cash flows.
  * When calculating accrued interest, it is necessary to use a formula specific to each 
  * yield convention. Accordingly, the computation of price, convexity and duration from 
- * the yield should be based on this yield convention. 
+ * the yield should be based on this yield convention.
  * <p>
  * "Inflation Instruments: Swap Zero-coupon, Year-on-year and Bonds."
  */

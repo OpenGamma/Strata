@@ -82,7 +82,7 @@ public class DiscountingCmsLegPricer {
   }
 
   /**
-   * Calculates the current cash of the leg. 
+   * Calculates the current cash of the leg.
    * 
    * @param cmsLeg  the CMS leg
    * @param ratesProvider  the rates provider

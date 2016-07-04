@@ -217,7 +217,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
 
   @Test
   /**
-   * Tests the second order adjoint derivatives for the SABR Hagan volatility function. 
+   * Tests the second order adjoint derivatives for the SABR Hagan volatility function.
    * Only the derivatives with respect to the forward and the strike are provided.
    */
   public void volatilityAdjoint2() {
@@ -297,10 +297,10 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   public void test_rho_close_to_1() {
     double rhoEps = 1.e-5;
     // rhoIn is larger than the cutoff, 
-    // thus vol and sensitivities are computed by approximation formulas which are regular in the limit rho -> 1. 
+    // thus vol and sensitivities are computed by approximation formulas which are regular in the limit rho -> 1.
     double rhoIn = 1.0 - 0.5 * rhoEps;
     double rho1 = 1.0d;
-    // rhoOut is smaller than the cutoff, thus vol and sensitivities are computed by full formula. 
+    // rhoOut is smaller than the cutoff, thus vol and sensitivities are computed by full formula.
     double rhoOut = 1.0 - 1.5 * rhoEps;
     SabrFormulaData data1 = SabrFormulaData.of(ALPHA, BETA, rho1, NU);
     SabrFormulaData dataIn = SabrFormulaData.of(ALPHA, BETA, rhoIn, NU);

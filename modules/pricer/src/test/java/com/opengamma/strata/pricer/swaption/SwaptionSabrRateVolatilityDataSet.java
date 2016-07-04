@@ -54,7 +54,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
 
   /*
-   * Data set used to test the pricers for physical delivery swaption. 
+   * Data set used to test the pricers for physical delivery swaption.
    */
   static final FixedIborSwapConvention SWAP_CONVENTION_USD = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
   private static final double[] TIME_DSC_USD = new double[] {0.0027397260273972603, 0.005479452054794521,
@@ -151,7 +151,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       SabrVolatilityFormula.hagan());
 
   /**
-   * Obtains {@code ImmutableRatesProvider} for specified valuation date. 
+   * Obtains {@code ImmutableRatesProvider} for specified valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the rates provider
@@ -164,7 +164,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   /**
-   * Obtains {@code SABRVolatilitySwaptionProvider} for specified valuation date. 
+   * Obtains {@code SABRVolatilitySwaptionProvider} for specified valuation date.
    * 
    * @param valuationDate  the valuation date
    * @param shift  nonzero shift if true, zero shift otherwise
@@ -177,7 +177,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   /*
-   * Data set used to test the pricers for cash settled swaption. 
+   * Data set used to test the pricers for cash settled swaption.
    */
   static final FixedIborSwapConvention SWAP_CONVENTION_EUR = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
   private static final double[] TIME_DSC_EUR = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
@@ -264,7 +264,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       SURFACE_BETA_EUR, SURFACE_RHO_EUR, SURFACE_NU_EUR, SURFACE_SHIFT_EUR, SabrVolatilityFormula.hagan());
 
   /**
-   * Obtains {@code ImmutableRatesProvider} for specified valuation date. 
+   * Obtains {@code ImmutableRatesProvider} for specified valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the rates provider
@@ -277,7 +277,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   /**
-   * Obtains {@code ImmutableRatesProvider} for specified valuation date and time series of swap index. 
+   * Obtains {@code ImmutableRatesProvider} for specified valuation date and time series of swap index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
@@ -292,7 +292,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   /**
-   * Obtains {@code SABRVolatilitySwaptionProvider} for specified valuation date. 
+   * Obtains {@code SABRVolatilitySwaptionProvider} for specified valuation date.
    * 
    * @param valuationDate  the valuation date
    * @param shift  nonzero shift if true, zero shift otherwise

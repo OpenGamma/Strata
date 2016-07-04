@@ -32,7 +32,7 @@ public class BlackOneTouchAssetPriceFormulaRepository {
   private static final double SMALL = 1.0e-6;
 
   /**
-   * Computes the price of a one-touch/no-touch option. 
+   * Computes the price of a one-touch/no-touch option.
    * 
    * @param spot  the spot 
    * @param timeToExpiry  the time to expiry 
@@ -77,9 +77,9 @@ public class BlackOneTouchAssetPriceFormulaRepository {
   }
 
   /**
-   * Computes the price and derivatives of a one-touch/no-touch option. 
+   * Computes the price and derivatives of a one-touch/no-touch option.
    * <p>
-   * The derivatives are [0] spot, [1] rate, [2] cost-of-carry, [3] volatility, [4] timeToExpiry, [5] spot twice. 
+   * The derivatives are [0] spot, [1] rate, [2] cost-of-carry, [3] volatility, [4] timeToExpiry, [5] spot twice.
    * 
    * @param spot  the spot 
    * @param timeToExpiry  the time to expiry 
@@ -252,8 +252,8 @@ public class BlackOneTouchAssetPriceFormulaRepository {
     return e;
   }
 
-  // The firstDerivatives are [0] s, [1] z, [2] lognormalVolT, [3] mu, [4] lambda. 
-  // The second derivatives are [0] s twice, [1] z twice, [2] s and z. 
+  // The firstDerivatives are [0] s, [1] z, [2] lognormalVolT, [3] mu, [4] lambda.
+  // The second derivatives are [0] s twice, [1] z twice, [2] s and z.
   private double getFAdjoint(
       double s,
       double z,

@@ -289,7 +289,7 @@ public abstract class PenaltyMatrixGenerator {
    *  (see {@link #flattenMatrix}) that is, the <b>last</b> index changes most rapidly. 
    * Given a matrix, M, that acts on the elements of one index only, i.e.
    * $$y_{i, i_1, i_2, \dots,i_{k-1}, i_{k+1},\dots, i_n} =  \sum_{i_k=0}^{N_k-1} M_{i,i_k}  x_{i_1, i_2, \dots,i_k,\dots, i_n} $$
-   * form the larger matrix that acts on the flattened vector.  
+   * form the larger matrix that acts on the flattened vector.
    * @param numElements The number of elements in each index. In the example above, this would be {n,m} 
    * @param m the matrix M
    * @param index Which index does the matrix act on 

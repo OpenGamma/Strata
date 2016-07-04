@@ -640,7 +640,7 @@ public class SabrExtrapolationRightFunctionTest {
   }
 
   /**
-   * Extrapolator is not calibrated in this case, then the gap may be produced at the cutoff. 
+   * Extrapolator is not calibrated in this case, then the gap may be produced at the cutoff.
    */
   @Test
   public void smallExpiryTest() {
