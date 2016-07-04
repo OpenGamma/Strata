@@ -71,7 +71,7 @@ public class SwaptionNormalVolatilityDataSets {
   private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME_STD = VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD);
   public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_STD =
-      NormalSwaptionExpiryTenorVolatilities.of(SURFACE_STD, VAL_DATE_TIME_STD);
+      NormalSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME_STD, SURFACE_STD);
 
   /**
    * Returns the swaption normal volatility surface shifted by a given amount. The shift is parallel.
@@ -80,11 +80,11 @@ public class SwaptionNormalVolatilityDataSets {
    */
   public static NormalSwaptionExpiryTenorVolatilities normalVolSwaptionProviderUsdStsShifted(double shift) {
     DoubleArray volShifted = NORMAL_VOL.map(v -> v + shift);
-    return NormalSwaptionExpiryTenorVolatilities.of(SURFACE_STD.withZValues(volShifted), VAL_DATE_TIME_STD);
+    return NormalSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME_STD, SURFACE_STD.withZValues(volShifted));
   }
 
   public static NormalSwaptionExpiryTenorVolatilities normalVolSwaptionProviderUsdStd(LocalDate valuationDate) {
-    return NormalSwaptionExpiryTenorVolatilities.of(SURFACE_STD, valuationDate, VAL_TIME_STD, VAL_ZONE_STD);
+    return NormalSwaptionExpiryTenorVolatilities.of(valuationDate.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD), SURFACE_STD);
   }
 
   //     =====     Flat volatilities for testing     =====
@@ -96,7 +96,7 @@ public class SwaptionNormalVolatilityDataSets {
       InterpolatedNodalSurface.of(METADATA, TIMES_FLAT, TENOR_FLAT, NORMAL_VOL_FLAT, INTERPOLATOR_2D);
 
   public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
-      NormalSwaptionExpiryTenorVolatilities.of(SURFACE_FLAT, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);
+      NormalSwaptionExpiryTenorVolatilities.of(VAL_DATE_TIME_STD, SURFACE_FLAT);
 
   //     =====     Market data as of 2014-03-20     =====
 
@@ -131,6 +131,6 @@ public class SwaptionNormalVolatilityDataSets {
 
   public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_20150320 =
       NormalSwaptionExpiryTenorVolatilities.of(
-          SURFACE_20150320, VAL_DATE_20150320, VAL_TIME_20150320, VAL_ZONE_20150320);
+          VAL_DATE_20150320.atTime(VAL_TIME_20150320).atZone(VAL_ZONE_20150320), SURFACE_20150320);
 
 }

@@ -322,8 +322,8 @@ public class SabrSwaptionCalibrator {
         alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
-        .parameters(params)
         .valuationDateTime(calibrationDateTime)
+        .parameters(params)
         .dataSensitivityAlpha(dataSensitivityAlpha)
         .dataSensitivityRho(dataSensitivityRho)
         .dataSensitivityNu(dataSensitivityNu).build();
@@ -478,8 +478,8 @@ public class SabrSwaptionCalibrator {
         sabr.getParameters().getNuSurface(), sabr.getParameters().getShiftSurface(), sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
-        .parameters(params)
         .valuationDateTime(sabr.getValuationDateTime())
+        .parameters(params)
         .dataSensitivityAlpha(dataSensitivityAlpha).build();
   }
 

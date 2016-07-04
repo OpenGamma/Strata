@@ -172,8 +172,8 @@ public class SwaptionSabrRateVolatilityDataSet {
    */
   public static SabrParametersSwaptionVolatilities getVolatilitiesUsd(LocalDate valuationDate, boolean shift) {
     ZonedDateTime dateTime = valuationDate.atStartOfDay(ZoneOffset.UTC);
-    return shift ? SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_SHIFT_USD, dateTime)
-        : SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_USD, dateTime);
+    return shift ? SabrParametersSwaptionVolatilities.of(NAME, dateTime, SABR_PARAM_SHIFT_USD)
+        : SabrParametersSwaptionVolatilities.of(NAME, dateTime, SABR_PARAM_USD);
   }
 
   /*
@@ -300,7 +300,7 @@ public class SwaptionSabrRateVolatilityDataSet {
    */
   public static SabrParametersSwaptionVolatilities getVolatilitiesEur(LocalDate valuationDate, boolean shift) {
     ZonedDateTime dateTime = valuationDate.atStartOfDay(ZoneOffset.UTC);
-    return shift ? SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_SHIFT_EUR, dateTime)
-        : SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_EUR, dateTime);
+    return shift ? SabrParametersSwaptionVolatilities.of(NAME, dateTime, SABR_PARAM_SHIFT_EUR)
+        : SabrParametersSwaptionVolatilities.of(NAME, dateTime, SABR_PARAM_EUR);
   }
 }
