@@ -60,6 +60,10 @@ public class ResultsTest {
     assertThrows(() -> test.get(2, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
     assertThrows(() -> test.get(0, -1), IllegalArgumentException.class, "Column index must be greater than or.*");
     assertThrows(() -> test.get(0, 3), IllegalArgumentException.class, "Column index must be greater than or.*");
+    assertThrows(() -> test.get(0, 0, Integer.class), ClassCastException.class,
+        "Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
+    assertThrows(() -> test.get(0, NAME_A, Integer.class), ClassCastException.class,
+        "Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
   }
 
   /**
