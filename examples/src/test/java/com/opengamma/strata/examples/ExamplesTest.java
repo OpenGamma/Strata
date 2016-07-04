@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance;
+package com.opengamma.strata.examples;
 
 import static com.opengamma.strata.collect.TestHelper.caputureSystemOut;
 import static org.testng.Assert.assertFalse;
@@ -15,6 +15,24 @@ import java.io.FileInputStream;
 import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.examples.CdsPricingExample;
+import com.opengamma.strata.examples.DsfPricingExample;
+import com.opengamma.strata.examples.FraPricingExample;
+import com.opengamma.strata.examples.FxPricingExample;
+import com.opengamma.strata.examples.GenericSecurityPricingExample;
+import com.opengamma.strata.examples.StirFuturePricingExample;
+import com.opengamma.strata.examples.SwapPricingExample;
+import com.opengamma.strata.examples.TermDepositPricingExample;
+import com.opengamma.strata.examples.finance.CalibrationCheckExample;
+import com.opengamma.strata.examples.finance.CalibrationEur3CheckExample;
+import com.opengamma.strata.examples.finance.CalibrationSimpleForwardCheckExample;
+import com.opengamma.strata.examples.finance.CalibrationXCcyCheckExample;
+import com.opengamma.strata.examples.finance.CdsTradeExample;
+import com.opengamma.strata.examples.finance.CurveScenarioExample;
+import com.opengamma.strata.examples.finance.HistoricalScenarioExample;
+import com.opengamma.strata.examples.finance.SwapPricingCcpExample;
+import com.opengamma.strata.examples.finance.SwapPricingWithCalibrationExample;
+import com.opengamma.strata.examples.finance.SwapTradeExample;
 import com.opengamma.strata.examples.report.ReportRunnerTool;
 import com.opengamma.strata.examples.report.TradeList;
 
@@ -131,7 +149,7 @@ public class ExamplesTest {
 
   //-------------------------------------------------------------------------
   public void test_swapTrade() {
-    String captured = caputureSystemOut(() -> SwapTradeModelDemo.main(NO_ARGS));
+    String captured = caputureSystemOut(() -> SwapTradeExample.main(NO_ARGS));
     assertTrue(captured.contains("<product>"));
     assertValidCaptured(captured);
   }

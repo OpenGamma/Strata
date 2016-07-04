@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance.swaption;
+package com.opengamma.strata.examples.finance;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -18,7 +18,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 /**
  * Swaption cube data.
  */
-public class SwaptionCubeData {
+class SwaptionCubeData {
 
   /** Normal volatility for EUR - Data from 29-February-2016*/
   public static final LocalDate DATA_DATE = LocalDate.of(2016, 2, 29);
