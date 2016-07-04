@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
-
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -29,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.basics.currency.CurrencyAmountArray;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -47,18 +45,22 @@ public final class CurrencyScenarioArray
     implements ScenarioArray<CurrencyAmount>, ScenarioFxConvertible<CurrencyScenarioArray>, ImmutableBean {
 
   /**
-   * The currency of the values.
-   * All values have the same currency.
+   * The currency amounts, one per scenario.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Currency currency;
-  /**
-   * The calculated values, one per scenario.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DoubleArray values;
+  private final CurrencyAmountArray amounts;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from the specified currency and array of values.
+   *
+   * @param amounts  the amounts, one for each scenario
+   * @return an instance with the specified currency and values
+   */
+  public static CurrencyScenarioArray of(CurrencyAmountArray amounts) {
+    return new CurrencyScenarioArray(amounts);
+  }
+
   /**
    * Obtains an instance from the specified currency and array of values.
    *
@@ -67,7 +69,7 @@ public final class CurrencyScenarioArray
    * @return an instance with the specified currency and values
    */
   public static CurrencyScenarioArray of(Currency currency, DoubleArray values) {
-    return new CurrencyScenarioArray(currency, values);
+    return new CurrencyScenarioArray(CurrencyAmountArray.of(currency, values));
   }
 
   /**
@@ -80,15 +82,7 @@ public final class CurrencyScenarioArray
    * @throws IllegalArgumentException if multiple currencies are found
    */
   public static CurrencyScenarioArray of(List<CurrencyAmount> amounts) {
-    Currency currency = amounts.stream()
-        .map(ca -> ca.getCurrency())
-        .distinct()
-        .reduce(ensureOnlyOne())
-        .get();
-    double[] values = amounts.stream()
-        .mapToDouble(ca -> ca.getAmount())
-        .toArray();
-    return new CurrencyScenarioArray(currency, DoubleArray.ofUnsafe(values));
+    return new CurrencyScenarioArray(CurrencyAmountArray.of(amounts));
   }
 
   /**
@@ -101,54 +95,52 @@ public final class CurrencyScenarioArray
    * then call {@link #of(Currency, DoubleArray)}.
    * 
    * @param size  the number of elements, at least size one
-   * @param valueFunction  the function used to obtain each value
+   * @param amountFunction  the function used to obtain each amount
    * @return an instance initialized using the function
    * @throws IllegalArgumentException is size is zero or less
    */
-  public static CurrencyScenarioArray of(int size, IntFunction<CurrencyAmount> valueFunction) {
-    ArgChecker.notNegativeOrZero(size, "size");
-    double[] array = new double[size];
-    CurrencyAmount ca0 = valueFunction.apply(0);
-    Currency currency = ca0.getCurrency();
-    array[0] = ca0.getAmount();
-    for (int i = 1; i < size; i++) {
-      CurrencyAmount ca = valueFunction.apply(i);
-      if (!ca.getCurrency().equals(currency)) {
-        throw new IllegalArgumentException(Messages.format("Currencies differ: {} and {}", currency, ca.getCurrency()));
-      }
-      array[i] = ca.getAmount();
-    }
-    return new CurrencyScenarioArray(currency, DoubleArray.ofUnsafe(array));
+  public static CurrencyScenarioArray of(int size, IntFunction<CurrencyAmount> amountFunction) {
+    return new CurrencyScenarioArray(CurrencyAmountArray.of(size, amountFunction));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * 
+   * @return the currency
+   */
+  public Currency getCurrency() {
+    return amounts.getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyScenarioArray convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
-    if (currency.equals(reportingCurrency)) {
-      return this;
-    }
-    if (fxRateProvider.getScenarioCount() != values.size()) {
-      throw new IllegalArgumentException(Messages.format(
-          "Expected {} FX rates but received {}", values.size(), fxRateProvider.getScenarioCount()));
-    }
-    DoubleArray convertedValues =
-        values.mapWithIndex((i, v) -> v * fxRateProvider.fxRate(currency, reportingCurrency, i));
-    return new CurrencyScenarioArray(reportingCurrency, convertedValues);
-  }
-
-  @Override
   public int getScenarioCount() {
-    return values.size();
+    return amounts.size();
   }
 
   @Override
   public CurrencyAmount get(int index) {
-    return CurrencyAmount.of(currency, values.get(index));
+    return amounts.get(index);
   }
 
   @Override
   public Stream<CurrencyAmount> stream() {
-    return values.stream().mapToObj(amount -> CurrencyAmount.of(currency, amount));
+    return amounts.stream();
+  }
+
+  @Override
+  public CurrencyScenarioArray convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
+    if (getCurrency().equals(reportingCurrency)) {
+      return this;
+    }
+    if (fxRateProvider.getScenarioCount() != amounts.size()) {
+      throw new IllegalArgumentException(Messages.format(
+          "Expected {} FX rates but received {}", amounts.size(), fxRateProvider.getScenarioCount()));
+    }
+    DoubleArray convertedValues =
+        amounts.getValues().mapWithIndex((i, v) -> v * fxRateProvider.fxRate(getCurrency(), reportingCurrency, i));
+    return of(reportingCurrency, convertedValues);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -166,12 +158,9 @@ public final class CurrencyScenarioArray
   }
 
   private CurrencyScenarioArray(
-      Currency currency,
-      DoubleArray values) {
-    JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(values, "values");
-    this.currency = currency;
-    this.values = values;
+      CurrencyAmountArray amounts) {
+    JodaBeanUtils.notNull(amounts, "amounts");
+    this.amounts = amounts;
   }
 
   @Override
@@ -191,21 +180,11 @@ public final class CurrencyScenarioArray
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the values.
-   * All values have the same currency.
+   * Gets the currency amounts, one per scenario.
    * @return the value of the property, not null
    */
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the calculated values, one per scenario.
-   * @return the value of the property, not null
-   */
-  public DoubleArray getValues() {
-    return values;
+  public CurrencyAmountArray getAmounts() {
+    return amounts;
   }
 
   //-----------------------------------------------------------------------
@@ -216,8 +195,7 @@ public final class CurrencyScenarioArray
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurrencyScenarioArray other = (CurrencyScenarioArray) obj;
-      return JodaBeanUtils.equal(currency, other.currency) &&
-          JodaBeanUtils.equal(values, other.values);
+      return JodaBeanUtils.equal(amounts, other.amounts);
     }
     return false;
   }
@@ -225,17 +203,15 @@ public final class CurrencyScenarioArray
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(values);
+    hash = hash * 31 + JodaBeanUtils.hashCode(amounts);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("CurrencyScenarioArray{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("values").append('=').append(JodaBeanUtils.toString(values));
+    buf.append("amounts").append('=').append(JodaBeanUtils.toString(amounts));
     buf.append('}');
     return buf.toString();
   }
@@ -251,22 +227,16 @@ public final class CurrencyScenarioArray
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code amounts} property.
      */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", CurrencyScenarioArray.class, Currency.class);
-    /**
-     * The meta-property for the {@code values} property.
-     */
-    private final MetaProperty<DoubleArray> values = DirectMetaProperty.ofImmutable(
-        this, "values", CurrencyScenarioArray.class, DoubleArray.class);
+    private final MetaProperty<CurrencyAmountArray> amounts = DirectMetaProperty.ofImmutable(
+        this, "amounts", CurrencyScenarioArray.class, CurrencyAmountArray.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "currency",
-        "values");
+        "amounts");
 
     /**
      * Restricted constructor.
@@ -277,10 +247,8 @@ public final class CurrencyScenarioArray
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return currency;
-        case -823812830:  // values
-          return values;
+        case -879772901:  // amounts
+          return amounts;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -302,29 +270,19 @@ public final class CurrencyScenarioArray
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code amounts} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
-     * The meta-property for the {@code values} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DoubleArray> values() {
-      return values;
+    public MetaProperty<CurrencyAmountArray> amounts() {
+      return amounts;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return ((CurrencyScenarioArray) bean).getCurrency();
-        case -823812830:  // values
-          return ((CurrencyScenarioArray) bean).getValues();
+        case -879772901:  // amounts
+          return ((CurrencyScenarioArray) bean).getAmounts();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -346,8 +304,7 @@ public final class CurrencyScenarioArray
    */
   private static final class Builder extends DirectFieldsBeanBuilder<CurrencyScenarioArray> {
 
-    private Currency currency;
-    private DoubleArray values;
+    private CurrencyAmountArray amounts;
 
     /**
      * Restricted constructor.
@@ -359,10 +316,8 @@ public final class CurrencyScenarioArray
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return currency;
-        case -823812830:  // values
-          return values;
+        case -879772901:  // amounts
+          return amounts;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -371,11 +326,8 @@ public final class CurrencyScenarioArray
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
-        case -823812830:  // values
-          this.values = (DoubleArray) newValue;
+        case -879772901:  // amounts
+          this.amounts = (CurrencyAmountArray) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -410,17 +362,15 @@ public final class CurrencyScenarioArray
     @Override
     public CurrencyScenarioArray build() {
       return new CurrencyScenarioArray(
-          currency,
-          values);
+          amounts);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(64);
       buf.append("CurrencyScenarioArray.Builder{");
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("values").append('=').append(JodaBeanUtils.toString(values));
+      buf.append("amounts").append('=').append(JodaBeanUtils.toString(amounts));
       buf.append('}');
       return buf.toString();
     }
