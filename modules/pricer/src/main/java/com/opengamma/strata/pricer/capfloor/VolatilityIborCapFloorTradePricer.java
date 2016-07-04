@@ -64,7 +64,7 @@ public class VolatilityIborCapFloorTradePricer {
    * 
    * @param trade  the Ibor cap/floor trade
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value
    */
   public MultiCurrencyAmount presentValue(
@@ -87,7 +87,7 @@ public class VolatilityIborCapFloorTradePricer {
    * 
    * @param trade  the Ibor cap/floor trade
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueSensitivity(
@@ -111,7 +111,7 @@ public class VolatilityIborCapFloorTradePricer {
    * 
    * @param trade  the Ibor cap/floor trade
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
@@ -132,7 +132,7 @@ public class VolatilityIborCapFloorTradePricer {
    * 
    * @param trade  the Ibor cap/floor trade
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the current cash
    */
   public MultiCurrencyAmount currentCash(

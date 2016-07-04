@@ -35,7 +35,7 @@ public interface IborFutureOptionVolatilities
   /**
    * Gets the index of the underlying future for which the data is valid.
    * 
-   * @return the convention
+   * @return the index
    */
   public abstract IborIndex getIndex();
 

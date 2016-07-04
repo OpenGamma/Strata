@@ -17,8 +17,8 @@ public class NormalIborCapletFloorletPeriodPricer
     extends VolatilityIborCapletFloorletPeriodPricer {
 
   /**
-  * Default implementation.
-  */
+   * Default implementation.
+   */
   public static final NormalIborCapletFloorletPeriodPricer DEFAULT = new NormalIborCapletFloorletPeriodPricer();
 
   @Override

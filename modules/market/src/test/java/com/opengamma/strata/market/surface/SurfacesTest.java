@@ -24,6 +24,56 @@ public class SurfacesTest {
   private static final SurfaceName SURFACE_NAME = SurfaceName.of(NAME);
 
   //-------------------------------------------------------------------------
+  public void iborCapletFloorletBlackExpiryStrike_string() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletBlackExpiryStrike(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void iborCapletFloorletBlackExpiryStrike_surfaceName() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletBlackExpiryStrike(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void iborCapletFloorletNormalExpiryStrike_string() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletNormalExpiryStrike(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void iborCapletFloorletNormalExpiryStrike_surfaceName() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletNormalExpiryStrike(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void iborFutureOptionNormalExpirySimpleMoneyness_string() {
     SurfaceMetadata test = Surfaces.iborFutureOptionNormalExpirySimpleMoneyness(NAME, ACT_360, MoneynessType.PRICE);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
