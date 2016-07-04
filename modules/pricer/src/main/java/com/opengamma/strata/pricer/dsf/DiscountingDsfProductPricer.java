@@ -19,6 +19,9 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
  * Pricer for for Deliverable Swap Futures (DSFs).
  * <p>
  * This function provides the ability to price a {@link ResolvedDsf}.
+ * <p>
+ * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
+ * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
  */
 public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer {
 
@@ -60,14 +63,14 @@ public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer 
    * 
    * @param future  the future
    * @param ratesProvider  the rates provider
-   * @return the price of the product, in decimal form
+   * @return the price of the product
    */
   public double price(ResolvedDsf future, RatesProvider ratesProvider) {
     ResolvedSwap swap = future.getUnderlyingSwap();
     Currency currency = future.getCurrency();
     CurrencyAmount pvSwap = swapPricer.presentValue(swap, currency, ratesProvider);
     double df = ratesProvider.discountFactor(currency, future.getDeliveryDate());
-    return 1d + pvSwap.getAmount() / df;
+    return (1d + pvSwap.getAmount() / df) * 100d;
   }
 
   //-------------------------------------------------------------------------
@@ -88,7 +91,7 @@ public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer 
     PointSensitivityBuilder sensiSwapPv = swapPricer.presentValueSensitivity(swap, ratesProvider).multipliedBy(dfInv);
     PointSensitivityBuilder sensiDf = ratesProvider.discountFactors(currency)
         .zeroRatePointSensitivity(future.getDeliveryDate()).multipliedBy(-pvSwap * dfInv * dfInv);
-    return sensiSwapPv.combinedWith(sensiDf).build();
+    return sensiSwapPv.combinedWith(sensiDf).build().multipliedBy(100d);
   }
 
 }

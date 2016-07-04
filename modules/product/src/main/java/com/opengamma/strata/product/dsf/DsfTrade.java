@@ -33,6 +33,9 @@ import com.opengamma.strata.product.TradeInfo;
  * A trade representing a futures contract based on an interest rate swap.
  * <p>
  * A trade in an underlying {@link Dsf}.
+ * <p>
+ * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
+ * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
  */
 @BeanDefinition(constructorScope = "package")
 public final class DsfTrade
@@ -61,7 +64,7 @@ public final class DsfTrade
   @PropertyDefinition(overrideGet = true)
   private final double quantity;
   /**
-   * The price that was traded, in decimal form.
+   * The price that was traded.
    * <p>
    * This is the price agreed when the trade occurred.
    */
@@ -182,7 +185,7 @@ public final class DsfTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded, in decimal form.
+   * Gets the price that was traded.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
@@ -514,7 +517,7 @@ public final class DsfTrade
     }
 
     /**
-     * Sets the price that was traded, in decimal form.
+     * Sets the price that was traded.
      * <p>
      * This is the price agreed when the trade occurred.
      * @param price  the new value
