@@ -16,7 +16,9 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
  * The result of a single calculation.
@@ -40,7 +42,13 @@ public final class CalculationResult
   private final int columnIndex;
   /**
    * The result of the calculation.
-   * This captures the result value, or the failure that prevented the result from being calculated.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
    */
   @PropertyDefinition(validate = "notNull")
   private final Result<?> result;
@@ -59,6 +67,32 @@ public final class CalculationResult
    */
   public static CalculationResult of(int rowIndex, int columnIndex, Result<?> result) {
     return new CalculationResult(rowIndex, columnIndex, result);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the result of the calculation, casting the result to a known type.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param <T>  the result type
+   * @param type  the result type
+   * @return the result, cast to the specified type
+   * @throws ClassCastException if the result is not of the specified type
+   */
+  @SuppressWarnings("unchecked")
+  public <T> Result<T> getResult(Class<T> type) {
+    // cannot use result.map() as we want the exception to be thrown
+    if (result.isFailure() || type.isInstance(result.getValue())) {
+      return (Result<T>) result;
+    }
+    throw new ClassCastException(Messages.format(
+        "Result queried with type '{}' but was '{}'", type.getName(), result.getValue().getClass().getName()));
   }
 
   //-------------------------------------------------------------------------
@@ -142,7 +176,13 @@ public final class CalculationResult
   //-----------------------------------------------------------------------
   /**
    * Gets the result of the calculation.
-   * This captures the result value, or the failure that prevented the result from being calculated.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
    * @return the value of the property, not null
    */
   public Result<?> getResult() {
