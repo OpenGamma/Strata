@@ -20,7 +20,6 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.NodalCurve;
 
 /**
  * Builder for the immutable rates provider.
@@ -241,9 +240,7 @@ public final class ImmutableRatesProviderBuilder {
       this.indexCurves.put(index, forwardCurve);
       this.timeSeries.put(index, timeSeries);
     } else if (index instanceof PriceIndex) {
-      ArgChecker.isTrue(forwardCurve instanceof NodalCurve, "Price index curve must be a NodalCurve");
-      NodalCurve curve = (NodalCurve) forwardCurve;
-      priceIndexValues(PriceIndexValues.of((PriceIndex) index, valuationDate, curve, timeSeries));
+      priceIndexValues(PriceIndexValues.of((PriceIndex) index, valuationDate, forwardCurve, timeSeries));
     } else {
       throw new IllegalArgumentException("Unsupported index: " + index);
     }

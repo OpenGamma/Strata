@@ -157,7 +157,7 @@ public final class SimplePriceIndexValues
   public static SimplePriceIndexValues of(
       PriceIndex index,
       LocalDate valuationDate,
-      InterpolatedNodalCurve curve,
+      NodalCurve curve,
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
 
