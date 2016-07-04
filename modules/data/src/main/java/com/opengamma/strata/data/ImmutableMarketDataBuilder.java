@@ -81,6 +81,17 @@ public class ImmutableMarketDataBuilder {
     return addValueMap(values);
   }
 
+  /**
+   * Sets the time-series in the builder, replacing any existing values.
+   *
+   * @param timeSeries  the time-series
+   * @return this builder
+   */
+  public ImmutableMarketDataBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+    this.timeSeries.clear();
+    return addTimeSeriesMap(timeSeries);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Adds a value to the builder.
@@ -110,17 +121,6 @@ public class ImmutableMarketDataBuilder {
       this.values.put(e.getKey(), e.getValue());
     });
     return this;
-  }
-
-  /**
-   * Sets the time-series in the builder, replacing any existing values.
-   *
-   * @param timeSeries  the time-series
-   * @return this builder
-   */
-  public ImmutableMarketDataBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
-    this.timeSeries.clear();
-    return addTimeSeriesMap(timeSeries);
   }
 
   //-------------------------------------------------------------------------
