@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.basics;
+package com.opengamma.strata.examples.gui;
 
 import java.time.LocalDate;
 import java.time.Period;

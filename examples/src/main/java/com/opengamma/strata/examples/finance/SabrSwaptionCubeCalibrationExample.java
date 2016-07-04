@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance.swaption;
+package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.DATA_ARRAY_FULL;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.DATA_ARRAY_SPARSE;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.EXPIRIES;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.MONEYNESS;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.TENORS;
+import static com.opengamma.strata.examples.finance.SwaptionCubeData.DATA_ARRAY_FULL;
+import static com.opengamma.strata.examples.finance.SwaptionCubeData.DATA_ARRAY_SPARSE;
+import static com.opengamma.strata.examples.finance.SwaptionCubeData.EXPIRIES;
+import static com.opengamma.strata.examples.finance.SwaptionCubeData.MONEYNESS;
+import static com.opengamma.strata.examples.finance.SwaptionCubeData.TENORS;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 

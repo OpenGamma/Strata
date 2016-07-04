@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.data;
+package com.opengamma.strata.examples.marketdata;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

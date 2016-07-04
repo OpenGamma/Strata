@@ -46,7 +46,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * This class exists for demonstration purposes to aid with understanding interest rate swaps.
  * It is not intended to be used in a production environment.
  */
-public class SwapTradeModelDemo {
+public class SwapTradeExample {
 
   /**
    * Launch demo, no arguments needed.
@@ -54,7 +54,7 @@ public class SwapTradeModelDemo {
    * @param args  no arguments needed
    */
   public static void main(String[] args) {
-    SwapTradeModelDemo demo = new SwapTradeModelDemo();
+    SwapTradeExample demo = new SwapTradeExample();
     demo.fixedSwapLeg();
     demo.floatingSwapLeg();
     demo.vanillaFixedVsLibor3mSwap();

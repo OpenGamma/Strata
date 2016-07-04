@@ -3,7 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance;
+package com.opengamma.strata.examples;
+
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,37 +13,37 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.examples.data.ExampleData;
+import com.opengamma.strata.examples.marketdata.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.dsf.Dsf;
-import com.opengamma.strata.product.dsf.DsfTrade;
-import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.deposit.TermDeposit;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
 
 /**
- * Example to illustrate using the engine to price a Deliverable Swap Future (DSF).
+ * Example to illustrate using the engine to price a Term Deposit.
  * <p>
  * This makes use of the example engine and the example market data environment.
  */
-public class DsfPricingExample {
+public class TermDepositPricingExample {
 
   /**
    * Runs the example, pricing the instruments, producing the output as an ASCII table.
@@ -58,16 +60,15 @@ public class DsfPricingExample {
 
   // obtains the data and calculates the grid of results
   private static void calculate(CalculationRunner runner) {
-    // the reference data, such as holidays and securities
-    ReferenceData refData = ReferenceData.standard();
-
     // the trades that will have measures calculated
-    List<Trade> trades = ImmutableList.of(createTrade1(refData), createTrade2(refData));
+    List<Trade> trades = ImmutableList.of(createTrade1(), createTrade2());
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.PV01_CALIBRATED_SUM),
+        Column.of(Measures.PAR_RATE),
+        Column.of(Measures.PAR_SPREAD),
         Column.of(Measures.PV01_CALIBRATED_BUCKETED));
 
     // use the built-in example market data
@@ -79,6 +80,9 @@ public class DsfPricingExample {
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.ratesLookup(valuationDate));
 
+    // the reference data, such as holidays and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // calculate the results
     Results results = runner.calculate(rules, trades, columns, marketData, refData);
 
@@ -86,63 +90,57 @@ public class DsfPricingExample {
     ReportCalculationResults calculationResults =
         ReportCalculationResults.of(valuationDate, trades, columns, results, functions, refData);
 
-    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("dsf-report-template");
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("term-deposit-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
   }
 
   //-----------------------------------------------------------------------  
-  // create a trade
-  private static Trade createTrade1(ReferenceData refData) {
-    Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
-        LocalDate.of(2015, 3, 18), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
-
-    Dsf product = Dsf.builder()
-        .securityId(SecurityId.of("OG-Future", "CME-F1U-Mar15"))
-        .lastTradeDate(LocalDate.of(2015, 3, 16))
-        .deliveryDate(LocalDate.of(2015, 3, 18))
-        .notional(100_000)
-        .underlyingSwap(swap)
+  // create a TermDeposit trade
+  private static Trade createTrade1() {
+    TermDeposit td = TermDeposit.builder()
+        .buySell(BuySell.BUY)
+        .startDate(LocalDate.of(2014, 9, 12))
+        .endDate(LocalDate.of(2014, 12, 12))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO))
+        .currency(Currency.USD)
+        .notional(10_000_000)
+        .dayCount(DayCounts.THIRTY_360_ISDA)
+        .rate(0.003)
         .build();
 
-    return DsfTrade.builder()
+    return TermDepositTrade.builder()
+        .product(td)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "CME-5Y-DSF Mar15")
-            .counterparty(StandardId.of("mn", "Dealer G"))
-            .tradeDate(LocalDate.of(2015, 3, 18))
-            .settlementDate(LocalDate.of(2015, 3, 18))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Deposit 10M at 3%")
+            .counterparty(StandardId.of("example", "A"))
+            .settlementDate(LocalDate.of(2014, 12, 16))
             .build())
-        .product(product)
-        .quantity(20)
-        .price(1.0075)
         .build();
   }
 
-  // create a trade
-  private static Trade createTrade2(ReferenceData refData) {
-    Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
-        LocalDate.of(2015, 6, 17), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
-
-    Dsf product = Dsf.builder()
-        .securityId(SecurityId.of("OG-Future", "CME-F1U-Jun15"))
-        .lastTradeDate(LocalDate.of(2015, 6, 15))
-        .deliveryDate(LocalDate.of(2015, 6, 17))
-        .notional(100_000)
-        .underlyingSwap(swap)
+  // create a TermDeposit trade
+  private static Trade createTrade2() {
+    TermDeposit td = TermDeposit.builder()
+        .buySell(BuySell.BUY)
+        .startDate(LocalDate.of(2014, 12, 12))
+        .endDate(LocalDate.of(2015, 12, 12))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO))
+        .currency(Currency.USD)
+        .notional(5_000_000)
+        .dayCount(DayCounts.THIRTY_360_ISDA)
+        .rate(0.0038)
         .build();
 
-    return DsfTrade.builder()
+    return TermDepositTrade.builder()
+        .product(td)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "CME-5Y-DSF Jun15")
-            .counterparty(StandardId.of("mn", "Dealer G"))
-            .tradeDate(LocalDate.of(2015, 6, 17))
-            .settlementDate(LocalDate.of(2015, 6, 17))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Deposit 5M at 3.8%")
+            .counterparty(StandardId.of("example", "A"))
+            .settlementDate(LocalDate.of(2015, 12, 16))
             .build())
-        .product(product)
-        .quantity(20)
-        .price(1.0085)
         .build();
   }
 

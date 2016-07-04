@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance;
+package com.opengamma.strata.examples;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
@@ -30,7 +30,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.examples.data.ExampleData;
+import com.opengamma.strata.examples.marketdata.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.AdvancedMeasures;
