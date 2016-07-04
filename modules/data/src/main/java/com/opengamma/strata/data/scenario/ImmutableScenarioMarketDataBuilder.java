@@ -72,6 +72,29 @@ public final class ImmutableScenarioMarketDataBuilder {
 
   //-------------------------------------------------------------------------
   /**
+   * Sets the values in the builder, replacing any existing values.
+   *
+   * @param values  the values
+   * @return this builder
+   */
+  public ImmutableScenarioMarketDataBuilder values(Map<? extends MarketDataId<?>, ?> values) {
+    this.values.clear();
+    return addValueMap(values);
+  }
+
+  /**
+   * Sets the time-series in the builder, replacing any existing values.
+   *
+   * @param timeSeries  the time-series
+   * @return this builder
+   */
+  public ImmutableScenarioMarketDataBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+    this.timeSeries.clear();
+    return addTimeSeriesMap(timeSeries);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Adds market data that is valid for all scenarios.
    * <p>
    * Any existing value with the same identifier will be replaced.
@@ -121,10 +144,10 @@ public final class ImmutableScenarioMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, List<T> values) {
+  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, List<? extends T> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
-    MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
+    MarketDataBox<? extends T> box = MarketDataBox.ofScenarioValues(values);
     checkAndUpdateScenarioCount(box);
     this.values.put(id, box);
     return this;
@@ -140,10 +163,10 @@ public final class ImmutableScenarioMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioArray<T> value) {
+  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioArray<? extends T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "values");
-    MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
+    MarketDataBox<? extends T> box = MarketDataBox.ofScenarioValue(value);
     checkAndUpdateScenarioCount(box);
     this.values.put(id, box);
     return this;
@@ -184,7 +207,7 @@ public final class ImmutableScenarioMarketDataBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> ImmutableScenarioMarketDataBuilder addBox(MarketDataId<T> id, MarketDataBox<T> value) {
+  public <T> ImmutableScenarioMarketDataBuilder addBox(MarketDataId<T> id, MarketDataBox<? extends T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     checkAndUpdateScenarioCount(value);
