@@ -11,7 +11,6 @@ import org.joda.convert.FromString;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.TypedString;
 import com.opengamma.strata.market.model.MoneynessType;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * The type that provides meaning to additional surface information.
@@ -36,10 +35,6 @@ public final class SurfaceInfoType<T>
    * Key used to access information about the {@link DayCount}.
    */
   public static final SurfaceInfoType<DayCount> DAY_COUNT = SurfaceInfoType.of("DayCount");
-  /**
-   * Key used to access information about the swaption convention.
-   */
-  public static final SurfaceInfoType<FixedIborSwapConvention> SWAP_CONVENTION = SurfaceInfoType.of("SwapConvention");
   /**
    * Key used to access information about the type of moneyness.
    */

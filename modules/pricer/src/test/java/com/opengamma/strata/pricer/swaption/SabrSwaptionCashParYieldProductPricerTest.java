@@ -446,9 +446,9 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     SwaptionVolatilities volSabr = SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), false);
     double impliedVol = PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, volSabr);
     SurfaceMetadata blackMeta =
-        Surfaces.swaptionBlackExpiryTenor("CST", VOL_PROVIDER.getDayCount(), VOL_PROVIDER.getConvention());
+        Surfaces.swaptionBlackExpiryTenor("CST", VOL_PROVIDER.getDayCount());
     SwaptionVolatilities volCst = BlackSwaptionExpiryTenorVolatilities.of(
-        VOL_PROVIDER.getValuationDateTime(), ConstantSurface.of(blackMeta, impliedVol));
+        VOL_PROVIDER.getConvention(), VOL_PROVIDER.getValuationDateTime(), ConstantSurface.of(blackMeta, impliedVol));
     // To obtain a constant volatility surface which create a sticky strike sensitivity
     PointSensitivityBuilder pointRec =
         PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, volSabr);

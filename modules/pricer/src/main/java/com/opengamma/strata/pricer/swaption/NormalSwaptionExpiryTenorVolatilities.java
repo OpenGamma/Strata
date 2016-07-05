@@ -56,6 +56,11 @@ public final class NormalSwaptionExpiryTenorVolatilities
     implements NormalSwaptionVolatilities, ImmutableBean, Serializable {
 
   /**
+   * The swap convention that the volatilities are to be used for.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final FixedIborSwapConvention convention;
+  /**
    * The valuation date-time.
    * <p>
    * The volatilities are calibrated for this date-time.
@@ -70,10 +75,6 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface surface;
-  /**
-   * The swap convention that the surface is calibrated against.
-   */
-  private final FixedIborSwapConvention convention;  // cached, not a property
   /**
    * The day count convention of the surface.
    */
@@ -90,27 +91,30 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * <li>The y-value type must be {@link ValueType#YEAR_FRACTION}
    * <li>The z-value type must be {@link ValueType#NORMAL_VOLATILITY}
    * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
-   * <li>The swap convention must be set in the additional information using {@link SurfaceInfoType#SWAP_CONVENTION}
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionNormalExpiryTenor(String, DayCount, FixedIborSwapConvention)}.
+   * {@link Surfaces#swaptionNormalExpiryTenor(String, DayCount)}.
    * 
+   * @param convention  the swap convention that the volatilities are to be used for
    * @param valuationDateTime  the valuation date-time
    * @param surface  the implied volatility surface
    * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
+      FixedIborSwapConvention convention,
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
-    return new NormalSwaptionExpiryTenorVolatilities(valuationDateTime, surface);
+    return new NormalSwaptionExpiryTenorVolatilities(convention, valuationDateTime, surface);
   }
 
   @ImmutableConstructor
   private NormalSwaptionExpiryTenorVolatilities(
+      FixedIborSwapConvention convention,
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
+    ArgChecker.notNull(convention, "convention");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.notNull(surface, "surface");
     surface.getMetadata().getXValueType().checkEquals(
@@ -119,14 +123,12 @@ public final class NormalSwaptionExpiryTenorVolatilities
         ValueType.YEAR_FRACTION, "Incorrect y-value type for Normal volatilities");
     surface.getMetadata().getZValueType().checkEquals(
         ValueType.NORMAL_VOLATILITY, "Incorrect z-value type for Normal volatilities");
-    FixedIborSwapConvention swapConvention = surface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION)
-        .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing swap convention"));
     DayCount dayCount = surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing DayCount"));
 
     this.valuationDateTime = valuationDateTime;
     this.surface = surface;
-    this.convention = swapConvention;
+    this.convention = convention;
     this.dayCount = dayCount;
   }
 
@@ -134,11 +136,6 @@ public final class NormalSwaptionExpiryTenorVolatilities
   @Override
   public SwaptionVolatilitiesName getName() {
     return SwaptionVolatilitiesName.of(surface.getName().getName());
-  }
-
-  @Override
-  public FixedIborSwapConvention getConvention() {
-    return convention;
   }
 
   @Override
@@ -166,12 +163,14 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   @Override
   public NormalSwaptionExpiryTenorVolatilities withParameter(int parameterIndex, double newValue) {
-    return new NormalSwaptionExpiryTenorVolatilities(valuationDateTime, surface.withParameter(parameterIndex, newValue));
+    return new NormalSwaptionExpiryTenorVolatilities(
+        convention, valuationDateTime, surface.withParameter(parameterIndex, newValue));
   }
 
   @Override
   public NormalSwaptionExpiryTenorVolatilities withPerturbation(ParameterPerturbation perturbation) {
-    return new NormalSwaptionExpiryTenorVolatilities(valuationDateTime, surface.withPerturbation(perturbation));
+    return new NormalSwaptionExpiryTenorVolatilities(
+        convention, valuationDateTime, surface.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------
@@ -278,6 +277,16 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the swap convention that the volatilities are to be used for.
+   * @return the value of the property, not null
+   */
+  @Override
+  public FixedIborSwapConvention getConvention() {
+    return convention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the valuation date-time.
    * <p>
    * The volatilities are calibrated for this date-time.
@@ -308,7 +317,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       NormalSwaptionExpiryTenorVolatilities other = (NormalSwaptionExpiryTenorVolatilities) obj;
-      return JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
+      return JodaBeanUtils.equal(convention, other.convention) &&
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
           JodaBeanUtils.equal(surface, other.surface);
     }
     return false;
@@ -317,6 +327,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(surface);
     return hash;
@@ -324,8 +335,9 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("NormalSwaptionExpiryTenorVolatilities{");
+    buf.append("convention").append('=').append(convention).append(',').append(' ');
     buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
     buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
     buf.append('}');
@@ -343,6 +355,11 @@ public final class NormalSwaptionExpiryTenorVolatilities
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code convention} property.
+     */
+    private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", NormalSwaptionExpiryTenorVolatilities.class, FixedIborSwapConvention.class);
+    /**
      * The meta-property for the {@code valuationDateTime} property.
      */
     private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
@@ -357,6 +374,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "convention",
         "valuationDateTime",
         "surface");
 
@@ -369,6 +387,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          return convention;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
         case -1853231955:  // surface
@@ -394,6 +414,14 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code convention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FixedIborSwapConvention> convention() {
+      return convention;
+    }
+
+    /**
      * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
@@ -413,6 +441,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          return ((NormalSwaptionExpiryTenorVolatilities) bean).getConvention();
         case -949589828:  // valuationDateTime
           return ((NormalSwaptionExpiryTenorVolatilities) bean).getValuationDateTime();
         case -1853231955:  // surface
@@ -438,6 +468,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   private static final class Builder extends DirectFieldsBeanBuilder<NormalSwaptionExpiryTenorVolatilities> {
 
+    private FixedIborSwapConvention convention;
     private ZonedDateTime valuationDateTime;
     private Surface surface;
 
@@ -451,6 +482,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          return convention;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
         case -1853231955:  // surface
@@ -463,6 +496,9 @@ public final class NormalSwaptionExpiryTenorVolatilities
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          this.convention = (FixedIborSwapConvention) newValue;
+          break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
           break;
@@ -502,6 +538,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
     @Override
     public NormalSwaptionExpiryTenorVolatilities build() {
       return new NormalSwaptionExpiryTenorVolatilities(
+          convention,
           valuationDateTime,
           surface);
     }
@@ -509,8 +546,9 @@ public final class NormalSwaptionExpiryTenorVolatilities
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("NormalSwaptionExpiryTenorVolatilities.Builder{");
+      buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
       buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
       buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
       buf.append('}');

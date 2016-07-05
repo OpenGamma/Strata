@@ -64,6 +64,11 @@ public final class SabrParametersSwaptionVolatilities
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SwaptionVolatilitiesName name;
   /**
+   * The swap convention that the volatilities are to be used for.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final FixedIborSwapConvention convention;
+  /**
    * The valuation date-time.
    * <p>
    * The volatilities are calibrated for this date-time.
@@ -113,24 +118,21 @@ public final class SabrParametersSwaptionVolatilities
    * Obtains an instance from the SABR model parameters and the date-time for which it is valid.
    * 
    * @param name  the name
+   * @param convention  the swap convention that the volatilities are to be used for
    * @param valuationDateTime  the valuation date-time
    * @param parameters  the SABR model parameters
    * @return the volatilities
    */
   public static SabrParametersSwaptionVolatilities of(
       SwaptionVolatilitiesName name,
+      FixedIborSwapConvention convention,
       ZonedDateTime valuationDateTime,
       SabrInterestRateParameters parameters) {
 
-    return new SabrParametersSwaptionVolatilities(name, valuationDateTime, parameters, null, null, null, null);
+    return new SabrParametersSwaptionVolatilities(name, convention, valuationDateTime, parameters, null, null, null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public FixedIborSwapConvention getConvention() {
-    return getParameters().getConvention();
-  }
-
   /**
    * Gets the day count used to calculate the expiry year fraction.
    * 
@@ -180,6 +182,7 @@ public final class SabrParametersSwaptionVolatilities
     SabrInterestRateParameters updated = parameters.withParameter(parameterIndex, newValue);
     return new SabrParametersSwaptionVolatilities(
         name,
+        convention,
         valuationDateTime,
         updated,
         dataSensitivityAlpha,
@@ -193,6 +196,7 @@ public final class SabrParametersSwaptionVolatilities
     SabrInterestRateParameters updated = parameters.withPerturbation(perturbation);
     return new SabrParametersSwaptionVolatilities(
         name,
+        convention,
         valuationDateTime,
         updated,
         dataSensitivityAlpha,
@@ -327,6 +331,7 @@ public final class SabrParametersSwaptionVolatilities
 
   private SabrParametersSwaptionVolatilities(
       SwaptionVolatilitiesName name,
+      FixedIborSwapConvention convention,
       ZonedDateTime valuationDateTime,
       SabrInterestRateParameters parameters,
       List<DoubleArray> dataSensitivityAlpha,
@@ -334,9 +339,11 @@ public final class SabrParametersSwaptionVolatilities
       List<DoubleArray> dataSensitivityRho,
       List<DoubleArray> dataSensitivityNu) {
     JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(convention, "convention");
     JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
     JodaBeanUtils.notNull(parameters, "parameters");
     this.name = name;
+    this.convention = convention;
     this.valuationDateTime = valuationDateTime;
     this.parameters = parameters;
     this.dataSensitivityAlpha = (dataSensitivityAlpha != null ? ImmutableList.copyOf(dataSensitivityAlpha) : null);
@@ -368,6 +375,16 @@ public final class SabrParametersSwaptionVolatilities
   @Override
   public SwaptionVolatilitiesName getName() {
     return name;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the swap convention that the volatilities are to be used for.
+   * @return the value of the property, not null
+   */
+  @Override
+  public FixedIborSwapConvention getConvention() {
+    return convention;
   }
 
   //-----------------------------------------------------------------------
@@ -456,6 +473,7 @@ public final class SabrParametersSwaptionVolatilities
     if (obj != null && obj.getClass() == this.getClass()) {
       SabrParametersSwaptionVolatilities other = (SabrParametersSwaptionVolatilities) obj;
       return JodaBeanUtils.equal(name, other.name) &&
+          JodaBeanUtils.equal(convention, other.convention) &&
           JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
           JodaBeanUtils.equal(parameters, other.parameters) &&
           JodaBeanUtils.equal(dataSensitivityAlpha, other.dataSensitivityAlpha) &&
@@ -470,6 +488,7 @@ public final class SabrParametersSwaptionVolatilities
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     hash = hash * 31 + JodaBeanUtils.hashCode(dataSensitivityAlpha);
@@ -481,9 +500,10 @@ public final class SabrParametersSwaptionVolatilities
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("SabrParametersSwaptionVolatilities{");
     buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("convention").append('=').append(convention).append(',').append(' ');
     buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
     buf.append("parameters").append('=').append(parameters).append(',').append(' ');
     buf.append("dataSensitivityAlpha").append('=').append(dataSensitivityAlpha).append(',').append(' ');
@@ -509,6 +529,11 @@ public final class SabrParametersSwaptionVolatilities
      */
     private final MetaProperty<SwaptionVolatilitiesName> name = DirectMetaProperty.ofImmutable(
         this, "name", SabrParametersSwaptionVolatilities.class, SwaptionVolatilitiesName.class);
+    /**
+     * The meta-property for the {@code convention} property.
+     */
+    private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", SabrParametersSwaptionVolatilities.class, FixedIborSwapConvention.class);
     /**
      * The meta-property for the {@code valuationDateTime} property.
      */
@@ -549,6 +574,7 @@ public final class SabrParametersSwaptionVolatilities
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
+        "convention",
         "valuationDateTime",
         "parameters",
         "dataSensitivityAlpha",
@@ -567,6 +593,8 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 2039569265:  // convention
+          return convention;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
         case 458736106:  // parameters
@@ -605,6 +633,14 @@ public final class SabrParametersSwaptionVolatilities
      */
     public MetaProperty<SwaptionVolatilitiesName> name() {
       return name;
+    }
+
+    /**
+     * The meta-property for the {@code convention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FixedIborSwapConvention> convention() {
+      return convention;
     }
 
     /**
@@ -661,6 +697,8 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((SabrParametersSwaptionVolatilities) bean).getName();
+        case 2039569265:  // convention
+          return ((SabrParametersSwaptionVolatilities) bean).getConvention();
         case -949589828:  // valuationDateTime
           return ((SabrParametersSwaptionVolatilities) bean).getValuationDateTime();
         case 458736106:  // parameters
@@ -695,6 +733,7 @@ public final class SabrParametersSwaptionVolatilities
   public static final class Builder extends DirectFieldsBeanBuilder<SabrParametersSwaptionVolatilities> {
 
     private SwaptionVolatilitiesName name;
+    private FixedIborSwapConvention convention;
     private ZonedDateTime valuationDateTime;
     private SabrInterestRateParameters parameters;
     private List<DoubleArray> dataSensitivityAlpha;
@@ -714,6 +753,7 @@ public final class SabrParametersSwaptionVolatilities
      */
     private Builder(SabrParametersSwaptionVolatilities beanToCopy) {
       this.name = beanToCopy.getName();
+      this.convention = beanToCopy.getConvention();
       this.valuationDateTime = beanToCopy.getValuationDateTime();
       this.parameters = beanToCopy.getParameters();
       this.dataSensitivityAlpha = beanToCopy.dataSensitivityAlpha;
@@ -728,6 +768,8 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 2039569265:  // convention
+          return convention;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
         case 458736106:  // parameters
@@ -751,6 +793,9 @@ public final class SabrParametersSwaptionVolatilities
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (SwaptionVolatilitiesName) newValue;
+          break;
+        case 2039569265:  // convention
+          this.convention = (FixedIborSwapConvention) newValue;
           break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
@@ -804,6 +849,7 @@ public final class SabrParametersSwaptionVolatilities
     public SabrParametersSwaptionVolatilities build() {
       return new SabrParametersSwaptionVolatilities(
           name,
+          convention,
           valuationDateTime,
           parameters,
           dataSensitivityAlpha,
@@ -821,6 +867,17 @@ public final class SabrParametersSwaptionVolatilities
     public Builder name(SwaptionVolatilitiesName name) {
       JodaBeanUtils.notNull(name, "name");
       this.name = name;
+      return this;
+    }
+
+    /**
+     * Sets the swap convention that the volatilities are to be used for.
+     * @param convention  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder convention(FixedIborSwapConvention convention) {
+      JodaBeanUtils.notNull(convention, "convention");
+      this.convention = convention;
       return this;
     }
 
@@ -943,9 +1000,10 @@ public final class SabrParametersSwaptionVolatilities
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("SabrParametersSwaptionVolatilities.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
       buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
       buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
       buf.append("dataSensitivityAlpha").append('=').append(JodaBeanUtils.toString(dataSensitivityAlpha)).append(',').append(' ');

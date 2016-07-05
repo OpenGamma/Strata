@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.market.model.MoneynessType;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Test {@link SurfaceInfoType}.
@@ -22,11 +21,6 @@ public class SurfaceInfoTypeTest {
   public void test_DAY_COUNT() {
     SurfaceInfoType<DayCount> test = SurfaceInfoType.DAY_COUNT;
     assertEquals(test.toString(), "DayCount");
-  }
-
-  public void test_SWAP_CONVENTION() {
-    SurfaceInfoType<FixedIborSwapConvention> test = SurfaceInfoType.SWAP_CONVENTION;
-    assertEquals(test.toString(), "SwapConvention");
   }
 
   public void test_MONEYNESS_TYPE() {
