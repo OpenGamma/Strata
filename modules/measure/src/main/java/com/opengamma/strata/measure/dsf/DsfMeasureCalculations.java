@@ -185,7 +185,7 @@ final class DsfMeasureCalculations {
   private double settlementPrice(ResolvedDsfTrade trade, RatesProvider ratesProvider) {
     StandardId standardId = trade.getProduct().getSecurityId().getStandardId();
     QuoteId id = QuoteId.of(standardId, FieldName.SETTLEMENT_PRICE);
-    return ratesProvider.data(id) / 100;  // convert market quote to value needed
+    return ratesProvider.data(id);
   }
 
 }

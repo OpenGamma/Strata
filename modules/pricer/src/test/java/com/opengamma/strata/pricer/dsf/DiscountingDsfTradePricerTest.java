@@ -145,7 +145,7 @@ public class DiscountingDsfTradePricerTest {
       .build()
       .resolve(REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
-  private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
+  private static final double TRADE_PRICE = 98 + 31d / 32; // price quoted in 32nd
   private static final long QUANTITY = 1234L;
   private static final ResolvedDsfTrade FUTURE_TRADE = ResolvedDsfTrade.builder()
       .info(TRADE_INFO)
@@ -153,7 +153,7 @@ public class DiscountingDsfTradePricerTest {
       .quantity(QUANTITY)
       .price(TRADE_PRICE)
       .build();
-  private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0;
+  private static final double LASTMARG_PRICE = 99 + 8d / 32d;
   // calculators
   private static final double TOL = 1.0e-13;
   private static final double EPS = 1.0e-6;
@@ -172,7 +172,7 @@ public class DiscountingDsfTradePricerTest {
 
   public void test_presentValue() {
     CurrencyAmount computed = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
-    double expected = QUANTITY * NOTIONAL * (PRODUCT_PRICER.price(FUTURE, PROVIDER) - LASTMARG_PRICE);
+    double expected = QUANTITY * NOTIONAL * (PRODUCT_PRICER.price(FUTURE, PROVIDER) - LASTMARG_PRICE) / 100d;
     assertEquals(computed.getCurrency(), USD);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }

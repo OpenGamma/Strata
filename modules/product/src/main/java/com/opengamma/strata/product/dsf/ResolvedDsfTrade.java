@@ -66,7 +66,7 @@ public final class ResolvedDsfTrade
   @PropertyDefinition
   private final double quantity;
   /**
-   * The price that was traded, in decimal form.
+   * The price that was traded.
    * <p>
    * This is the price agreed when the trade occurred.
    */
@@ -179,7 +179,7 @@ public final class ResolvedDsfTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded, in decimal form.
+   * Gets the price that was traded.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
@@ -510,7 +510,7 @@ public final class ResolvedDsfTrade
     }
 
     /**
-     * Sets the price that was traded, in decimal form.
+     * Sets the price that was traded.
      * <p>
      * This is the price agreed when the trade occurred.
      * @param price  the new value
