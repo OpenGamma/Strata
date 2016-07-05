@@ -173,6 +173,19 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(DoubleArray.of(4d, 5d, 7d, 8d));
   }
 
+  public void test_withNode_inMiddle_withMetadata() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
+    LabelDateParameterMetadata item = LabelDateParameterMetadata.of(date(2015, 6, 30), TNR_1Y);
+    InterpolatedNodalCurve test = base.withNode(2.5d, 4d, item);
+    List<ParameterMetadata> list = new ArrayList<>(METADATA_ENTRIES.getParameterMetadata().get());
+    list.add(2, item);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getParameterCount()).isEqualTo(SIZE + 1);
+    assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES.withParameterMetadata(list));
+    assertThat(test.getXValues()).isEqualTo(DoubleArray.of(1d, 2d, 2.5d, 3d));
+    assertThat(test.getYValues()).isEqualTo(DoubleArray.of(5d, 7d, 4d, 8d));
+  }
+
   public void test_withNode_atEnd_withoutMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
     LabelDateParameterMetadata item = LabelDateParameterMetadata.of(date(2015, 6, 30), TNR_1Y);
