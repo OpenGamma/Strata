@@ -47,15 +47,15 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
-   * @param futureProvider  the provider of future/option pricing data
+   * @param volatilities  the volatilities
    * @return the price of the product, in decimal form
    */
   public double price(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      IborFutureProvider futureProvider) {
+      IborFutureOptionVolatilities volatilities) {
 
-    return getProductPricer().price(trade.getProduct(), ratesProvider, futureProvider);
+    return getProductPricer().price(trade.getProduct(), ratesProvider, volatilities);
   }
 
   //-------------------------------------------------------------------------
@@ -94,17 +94,17 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
-   * @param futureProvider  the provider of future/option pricing data
+   * @param volatilities  the volatilities
    * @param lastClosingPrice  the last closing price
    * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      IborFutureProvider futureProvider,
+      IborFutureOptionVolatilities volatilities,
       double lastClosingPrice) {
 
-    double price = price(trade, ratesProvider, futureProvider);
+    double price = price(trade, ratesProvider, volatilities);
     return presentValue(trade, ratesProvider.getValuationDate(), price, lastClosingPrice);
   }
 
@@ -117,16 +117,16 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
-   * @param futureProvider  the provider of future/option pricing data
+   * @param volatilities  the volatilities
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      IborFutureProvider futureProvider) {
+      IborFutureOptionVolatilities volatilities) {
 
     ResolvedIborFutureOption product = trade.getProduct();
-    PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, futureProvider);
+    PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, volatilities);
     PointSensitivities marginIndexSensi = getProductPricer().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }

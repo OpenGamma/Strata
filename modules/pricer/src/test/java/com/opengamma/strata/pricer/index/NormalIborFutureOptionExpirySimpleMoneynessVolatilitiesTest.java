@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.index;
 
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
@@ -24,17 +24,18 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
+import com.opengamma.strata.market.model.MoneynessType;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
+import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 
 /**
- * Tests {@link NormalVolatilityExpSimpleMoneynessIborFutureProvider}
+ * Tests {@link NormalIborFutureOptionExpirySimpleMoneynessVolatilities}
  */
 @Test
-public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
+public class NormalIborFutureOptionExpirySimpleMoneynessVolatilitiesTest {
 
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final DoubleArray TIMES =
@@ -48,22 +49,28 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
   private static final DoubleArray NORMAL_VOL_RATES =
       DoubleArray.of(0.010, 0.012, 0.011, 0.01, 0.012, 0.013, 0.012, 0.011, 0.014, 0.014, 0.013, 0.012);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
-      DefaultSurfaceMetadata.of("Price"), TIMES, MONEYNESS_PRICES, NORMAL_VOL_PRICES, INTERPOLATOR_2D);
+      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Price", ACT_365F, MoneynessType.PRICE),
+      TIMES,
+      MONEYNESS_PRICES,
+      NORMAL_VOL_PRICES,
+      INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface PARAMETERS_RATE = InterpolatedNodalSurface.of(
-      DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, NORMAL_VOL_RATES, INTERPOLATOR_2D);
+      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
+      TIMES,
+      MONEYNESS_RATES,
+      NORMAL_VOL_RATES,
+      INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
 
-  private static final NormalVolatilityExpSimpleMoneynessIborFutureProvider VOL_SIMPLE_MONEY_PRICE =
-      NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
-          PARAMETERS_PRICE, true, EUR_EURIBOR_3M, ACT_365F, VAL_DATE_TIME);
+  private static final NormalIborFutureOptionExpirySimpleMoneynessVolatilities VOL_SIMPLE_MONEY_PRICE =
+      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(EUR_EURIBOR_3M, VAL_DATE_TIME, PARAMETERS_PRICE);
 
-  private static final NormalVolatilityExpSimpleMoneynessIborFutureProvider VOL_SIMPLE_MONEY_RATE =
-      NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
-          PARAMETERS_RATE, false, EUR_EURIBOR_3M, ACT_365F, VAL_DATE_TIME);
+  private static final NormalIborFutureOptionExpirySimpleMoneynessVolatilities VOL_SIMPLE_MONEY_RATE =
+      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(EUR_EURIBOR_3M, VAL_DATE_TIME, PARAMETERS_RATE);
 
   private static final ZonedDateTime[] TEST_EXPIRY = new ZonedDateTime[] {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
@@ -77,28 +84,27 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
   private static final double TOLERANCE_DELTA = 1.0E-2;
 
   //-------------------------------------------------------------------------
-  public void test_valuationDate() {
+  public void test_basics() {
+    assertEquals(VOL_SIMPLE_MONEY_PRICE.getValuationDate(), VAL_DATE_TIME.toLocalDate());
     assertEquals(VOL_SIMPLE_MONEY_PRICE.getValuationDateTime(), VAL_DATE_TIME);
+    assertEquals(VOL_SIMPLE_MONEY_PRICE.getIndex(), EUR_EURIBOR_3M);
+    assertEquals(VOL_SIMPLE_MONEY_PRICE.getName(), IborFutureOptionVolatilitiesName.of("Price"));
   }
 
-  public void test_futureIndex() {
-    assertEquals(VOL_SIMPLE_MONEY_PRICE.getFutureIndex(), EUR_EURIBOR_3M);
-  }
-
-  public void volatility_price() {
+  public void test_volatility_price() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
-      double volExpected = PARAMETERS_PRICE.zValue(expiryTime, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
+      double timeToExpiry = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
+      double volExpected = PARAMETERS_PRICE.zValue(timeToExpiry, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
       double volComputed = VOL_SIMPLE_MONEY_PRICE.volatility(
           TEST_EXPIRY[i], TEST_FIXING[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
     }
   }
 
-  public void volatility_rate() {
+  public void test_volatility_rate() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
-      double volExpected = PARAMETERS_RATE.zValue(expiryTime, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
+      double timeToExpiry = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
+      double volExpected = PARAMETERS_RATE.zValue(timeToExpiry, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
       double volComputed = VOL_SIMPLE_MONEY_RATE.volatility(
           TEST_EXPIRY[i], TEST_FIXING[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
@@ -106,39 +112,41 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
   }
 
   //-------------------------------------------------------------------------
-  public void node_sensitivity() {
-    ZonedDateTime expiry = LocalDate.of(2015, 8, 14).atTime(11, 0).atZone(LONDON_ZONE);
+  public void test_parameterSensitivity() {
+    double expiry = ACT_365F.relativeYearFraction(VAL_DATE, LocalDate.of(2015, 8, 14));
     LocalDate fixing = LocalDate.of(2016, 9, 14);
     double strikePrice = 1.0025;
     double futurePrice = 0.9975;
     double sensitivity = 123456;
     IborFutureOptionSensitivity point =
         IborFutureOptionSensitivity.of(EUR_EURIBOR_3M, expiry, fixing, strikePrice, futurePrice, sensitivity);
-    UnitParameterSensitivity ps = VOL_SIMPLE_MONEY_RATE.nodeSensitivity(point);
+    CurrencyParameterSensitivities ps = VOL_SIMPLE_MONEY_RATE.parameterSensitivity(point);
     double shift = 1.0E-6;
     double v0 = VOL_SIMPLE_MONEY_RATE.volatility(expiry, fixing, strikePrice, futurePrice);
     for (int i = 0; i < NORMAL_VOL_RATES.size(); i++) {
       DoubleArray v = NORMAL_VOL_RATES.with(i, NORMAL_VOL_RATES.get(i) + shift);
       InterpolatedNodalSurface param = InterpolatedNodalSurface.of(
-          DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, v, INTERPOLATOR_2D);
-      NormalVolatilityExpSimpleMoneynessIborFutureProvider vol = NormalVolatilityExpSimpleMoneynessIborFutureProvider
-          .of(param, false, EUR_EURIBOR_3M, ACT_365F, VAL_DATE_TIME);
+          Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
+          TIMES,
+          MONEYNESS_RATES,
+          v,
+          INTERPOLATOR_2D);
+      NormalIborFutureOptionExpirySimpleMoneynessVolatilities vol =
+          NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(EUR_EURIBOR_3M, VAL_DATE_TIME, param);
       double vP = vol.volatility(expiry, fixing, strikePrice, futurePrice);
-      double s = ps.getSensitivity().get(i);
+      double s = ps.getSensitivity(PARAMETERS_RATE.getName(), EUR).getSensitivity().get(i);
       assertEquals(s, (vP - v0) / shift * sensitivity, TOLERANCE_DELTA);
     }
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    NormalVolatilityExpSimpleMoneynessIborFutureProvider test =
-        NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
-            PARAMETERS_RATE, false, EUR_EURIBOR_3M, ACT_365F, VAL_DATE_TIME);
+    NormalIborFutureOptionExpirySimpleMoneynessVolatilities test =
+        NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(EUR_EURIBOR_3M, VAL_DATE_TIME, PARAMETERS_RATE);
     coverImmutableBean(test);
-
-    NormalVolatilityExpSimpleMoneynessIborFutureProvider test2 =
-        NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
-            PARAMETERS_RATE, true, EUR_EURIBOR_6M, ACT_360, VAL_DATE_TIME.plusDays(1));
+    NormalIborFutureOptionExpirySimpleMoneynessVolatilities test2 =
+        NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(
+            EUR_EURIBOR_6M, VAL_DATE_TIME.plusDays(1), PARAMETERS_PRICE);
     coverBeanEquals(test, test2);
   }
 

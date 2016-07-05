@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.index;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -49,12 +48,12 @@ public final class IborFutureOptionSensitivity
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
   /**
-   * The expiry date-time of the option.
+   * The time to expiry of the option as a year fraction.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ZonedDateTime expiry;
+  private final double expiry;
   /**
-   * The underlying future last trading or fixing date.
+   * The fixing date of the underlying future.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
@@ -86,7 +85,7 @@ public final class IborFutureOptionSensitivity
    * The currency is defaulted from the index.
    * 
    * @param index  the index of the curve
-   * @param expiryDate  the expiry date of the option
+   * @param expiry  the expiry date-time of the option as a year fraction
    * @param fixingDate  the fixing date of the underlying future
    * @param strikePrice  the strike price of the option
    * @param futurePrice  the price of the underlying future
@@ -95,21 +94,21 @@ public final class IborFutureOptionSensitivity
    */
   public static IborFutureOptionSensitivity of(
       IborIndex index,
-      ZonedDateTime expiryDate,
+      double expiry,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
       double sensitivity) {
 
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, index.getCurrency(), sensitivity);
+        index, expiry, fixingDate, strikePrice, futurePrice, index.getCurrency(), sensitivity);
   }
 
   /**
    * Obtains an instance based on the index, specifying the sensitivity currency.
    * 
    * @param index  the index of the curve
-   * @param expiryDate  the expiry date of the option
+   * @param expiry  the expiry date-time of the option as a year fraction
    * @param fixingDate  the fixing date of the underlying future
    * @param strikePrice  the strike price of the option
    * @param futurePrice  the price of the underlying future
@@ -119,7 +118,7 @@ public final class IborFutureOptionSensitivity
    */
   public static IborFutureOptionSensitivity of(
       IborIndex index,
-      ZonedDateTime expiryDate,
+      double expiry,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
@@ -127,7 +126,7 @@ public final class IborFutureOptionSensitivity
       double sensitivity) {
 
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
+        index, expiry, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -216,7 +215,7 @@ public final class IborFutureOptionSensitivity
 
   private IborFutureOptionSensitivity(
       IborIndex index,
-      ZonedDateTime expiry,
+      double expiry,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
@@ -261,16 +260,16 @@ public final class IborFutureOptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry date-time of the option.
+   * Gets the time to expiry of the option as a year fraction.
    * @return the value of the property, not null
    */
-  public ZonedDateTime getExpiry() {
+  public double getExpiry() {
     return expiry;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying future last trading or fixing date.
+   * Gets the fixing date of the underlying future.
    * @return the value of the property, not null
    */
   public LocalDate getFixingDate() {
@@ -380,8 +379,8 @@ public final class IborFutureOptionSensitivity
     /**
      * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<ZonedDateTime> expiry = DirectMetaProperty.ofImmutable(
-        this, "expiry", IborFutureOptionSensitivity.class, ZonedDateTime.class);
+    private final MetaProperty<Double> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", IborFutureOptionSensitivity.class, Double.TYPE);
     /**
      * The meta-property for the {@code fixingDate} property.
      */
@@ -475,7 +474,7 @@ public final class IborFutureOptionSensitivity
      * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ZonedDateTime> expiry() {
+    public MetaProperty<Double> expiry() {
       return expiry;
     }
 
@@ -559,7 +558,7 @@ public final class IborFutureOptionSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<IborFutureOptionSensitivity> {
 
     private IborIndex index;
-    private ZonedDateTime expiry;
+    private double expiry;
     private LocalDate fixingDate;
     private double strikePrice;
     private double futurePrice;
@@ -602,7 +601,7 @@ public final class IborFutureOptionSensitivity
           this.index = (IborIndex) newValue;
           break;
         case -1289159373:  // expiry
-          this.expiry = (ZonedDateTime) newValue;
+          this.expiry = (Double) newValue;
           break;
         case 1255202043:  // fixingDate
           this.fixingDate = (LocalDate) newValue;

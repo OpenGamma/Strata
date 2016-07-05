@@ -12,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.model.MoneynessType;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
@@ -24,6 +25,33 @@ public class SurfacesTest {
   private static final String NAME = "Foo";
   private static final SurfaceName SURFACE_NAME = SurfaceName.of(NAME);
   private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
+
+  //-------------------------------------------------------------------------
+  public void iborFutureOptionNormalExpirySimpleMoneyness_string() {
+    SurfaceMetadata test = Surfaces.iborFutureOptionNormalExpirySimpleMoneyness(NAME, ACT_360, MoneynessType.PRICE);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.MONEYNESS_TYPE, MoneynessType.PRICE)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void iborFutureOptionNormalExpirySimpleMoneyness_surfaceName() {
+    SurfaceMetadata test = Surfaces.iborFutureOptionNormalExpirySimpleMoneyness(SURFACE_NAME, ACT_360, MoneynessType.PRICE);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.MONEYNESS_TYPE, MoneynessType.PRICE)
+        .build();
+    assertEquals(test, expected);
+  }
 
   //-------------------------------------------------------------------------
   public void swaptionBlackExpiryTenor_string() {
