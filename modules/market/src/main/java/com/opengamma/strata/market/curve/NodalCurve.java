@@ -90,16 +90,19 @@ public interface NodalCurve
   }
 
   /**
-   * Returns a new curve with an additional node with no parameter metadata.
+   * Returns a new curve with an additional node, specifying the parameter metadata.
    * <p>
-   * The result will contain the additional node.
-   * The result will have no parameter metadata, even if this curve does.
+   * The result will contain the specified node.
+   * If the x-value equals an existing x-value, the y-value will be changed.
+   * If the x-value does not equal an existing x-value, the node will be added.
+   * <p>
+   * The result will only contain the specified parameter metadata if this curve also has parameter meta-data.
    * 
-   * @param index  the index to insert at
    * @param x  the new x-value
    * @param y  the new y-value
+   * @param paramMetadata  the new parameter metadata
    * @return the updated curve
    */
-  public abstract NodalCurve withNode(int index, double x, double y);
+  public abstract NodalCurve withNode(double x, double y, ParameterMetadata paramMetadata);
 
 }

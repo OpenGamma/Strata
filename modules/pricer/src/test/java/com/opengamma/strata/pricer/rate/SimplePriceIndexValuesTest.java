@@ -34,6 +34,7 @@ import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -135,7 +136,7 @@ public class SimplePriceIndexValuesTest {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
       double nbMonthLast = VAL_MONTH.until(lastMonth, MONTHS);
-      InterpolatedNodalCurve finalCurve = CURVE.withNode(0, nbMonthLast, USCPI_TS.getLatestValue());
+      InterpolatedNodalCurve finalCurve = CURVE.withNode(nbMonthLast, USCPI_TS.getLatestValue(), ParameterMetadata.empty());
       double nbMonth = VAL_MONTH.until(TEST_MONTHS[i], MONTHS);
       OptionalDouble valueTs = USCPI_TS.get(TEST_MONTHS[i].atEndOfMonth());
       double adj = SEASONALITY.get(TEST_MONTHS[i].getMonthValue() - 1);
