@@ -32,8 +32,6 @@ import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecuritizedProductTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A trade representing a capital indexed bond.
@@ -91,9 +89,9 @@ public final class CapitalIndexedBondTrade
     if (settlementDate.isBefore(resolvedProduct.getStartDate())) {
       throw new IllegalArgumentException("Settlement date must not be before bond starts");
     }
-    PaymentPeriod settlement;
+    BondPaymentPeriod settlement;
     if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
-      settlement = KnownAmountPaymentPeriod.of(
+      settlement = KnownAmountBondPaymentPeriod.of(
           Payment.of(product.getCurrency(),
               -product.getNotional() * quantity * (price + accruedInterest), settlementDate),
           SchedulePeriod.of(
