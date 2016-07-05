@@ -145,7 +145,7 @@ public class DiscountingFixedCouponBondProductPricer {
 
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
         bond.getLegalEntityId(), bond.getCurrency());
-    CurrencyAmount pvNominal = nominalPricer.presentValue(
+    CurrencyAmount pvNominal = nominalPricer.presentValueWithSpread(
         bond.getNominalPayment(), discountFactors.getDiscountFactors(), zSpread, compoundedRateType, periodsPerYear);
     CurrencyAmount pvCoupon = presentValueCouponFromZSpread(
         bond, discountFactors, zSpread, compoundedRateType, periodsPerYear, referenceDate);
@@ -906,7 +906,7 @@ public class DiscountingFixedCouponBondProductPricer {
       int periodsPerYear) {
 
     Payment nominal = bond.getNominalPayment();
-    PointSensitivityBuilder pt = nominalPricer.presentValueSensitivity(
+    PointSensitivityBuilder pt = nominalPricer.presentValueSensitivityWithSpread(
         nominal, discountFactors.getDiscountFactors(), zSpread, compoundedRateType, periodsPerYear);
     if (pt instanceof ZeroRateSensitivity) {
       return IssuerCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getLegalEntityGroup());
