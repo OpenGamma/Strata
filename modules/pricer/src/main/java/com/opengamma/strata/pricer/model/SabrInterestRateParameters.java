@@ -29,7 +29,6 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * The volatility surface description under SABR model.
@@ -114,7 +113,7 @@ public final class SabrInterestRateParameters
    *   {@link SurfaceInfoType#DAY_COUNT}, if present on other surfaces it must match that on the Alpha
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, FixedIborSwapConvention, ValueType)}.
+   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, ValueType)}.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
