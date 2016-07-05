@@ -6,16 +6,13 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 
 /**
@@ -103,7 +100,7 @@ public class LinearInterpolatorTest {
 
     xValues = null;
 
-    NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
+    LinearInterpolator interp = new LinearInterpolator();
 
     interp.interpolate(xValues, yValues);
   }
@@ -139,23 +136,21 @@ public class LinearInterpolatorTest {
   /**
    * 
    */
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void shortDataLengthTest() {
     double[] xValues = new double[] {1. };
     double[] yValues = new double[] {4. };
-    double[] keys = new double[] {-1.5, 1.0, 2.3};
-    PiecewisePolynomialResult computed = INTERP.interpolate(xValues, yValues);
-    PiecewisePolynomialResult expected =
-        new PiecewisePolynomialResult(DoubleArray.ofUnsafe(xValues), DoubleMatrix.filled(1, 1, yValues[0]), 1, 1);
-    assertEquals(computed, expected);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        INTERP.interpolate(xValues, yValues, keys).toArray(), new double[] {4.0, 4.0, 4.0}, 0d));
-    assertEquals(INTERP.interpolate(xValues, yValues, 1.2), 4.0);
-    PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
-    assertEquals(func.evaluate(computed, 2.5).get(0), 4.0);
-    assertTrue(DoubleArrayMath.fuzzyEquals(func.evaluate(computed, keys).rowArray(0), new double[] {4.0, 4.0, 4.0}, 0d));
-    double delta = 1.0e-6;
-    testSensitivity(xValues, yValues, keys, delta);
+    INTERP.interpolate(xValues, yValues);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void shortDataLengthSensiTest() {
+    double[] xValues = new double[] {1.};
+    double[] yValues = new double[] {4.};
+    INTERP.interpolateWithSensitivity(xValues, yValues);
   }
 
   /**
@@ -333,28 +328,12 @@ public class LinearInterpolatorTest {
   /**
    * 
    */
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void shortDataLengthMultiTest() {
     double[] xValues = new double[] {1. };
     double[][] yValues = new double[][] { {4. }, {1. } };
-
     LinearInterpolator interp = new LinearInterpolator();
-    PiecewisePolynomialResult computed = interp.interpolate(xValues, yValues);
-    PiecewisePolynomialResult expected =
-        new PiecewisePolynomialResult(DoubleArray.ofUnsafe(xValues), DoubleMatrix.ofUnsafe(yValues), 1, 2);
-    assertEquals(computed, expected);
-    
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        interp.interpolate(xValues, yValues, new double[] {2, 3, 5}).rowArray(0), new double[] {4., 4., 4.}, 0d));
-    assertEquals(interp.interpolate(xValues, yValues, 1.2).get(0), 4.);
-    assertEquals(interp.interpolate(xValues, yValues, 1.2).get(1), 1.);
-    PiecewisePolynomialFunction1D func = new PiecewisePolynomialFunction1D();
-    assertEquals(func.evaluate(computed, 2.5).get(0), 4.);
-    assertEquals(func.evaluate(computed, 2.5).get(1), 1.);
-    assertTrue(DoubleArrayMath.fuzzyEquals(func.evaluate(computed, new double[] {2.5, 1.5}).rowArray(0),
-        new double[] {4., 4.}, 0d));
-    assertTrue(DoubleArrayMath.fuzzyEquals(func.evaluate(computed, new double[] {2.5, 1.5}).rowArray(1),
-        new double[] {1., 1.}, 0d));
+    interp.interpolate(xValues, yValues);
   }
 
   /**

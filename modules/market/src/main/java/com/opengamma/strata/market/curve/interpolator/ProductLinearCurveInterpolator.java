@@ -1,5 +1,21 @@
-package com.opengamma.strata.market.interpolator;
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.market.curve.interpolator;
 
+/**
+ * Product linear interpolation. 
+ * <p>
+ * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by linear functions. 
+ * <p>
+ * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose
+ * the condition that all of the x data to be the same sign, such that the origin is not within data range.
+ * The x key value must not be close to zero.
+ * <p>
+ * See {@link LinearInterpolator} for the detail on the underlying interpolator. 
+ */
 import java.io.Serializable;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -15,7 +31,7 @@ implements CurveInterpolator, Serializable {
   /**
   * The interpolator name.
   */
-  public static final String NAME = "ProductNaturalCubicSpline";
+  public static final String NAME = "ProductLinear";
   /**
   * The interpolator instance.
   */

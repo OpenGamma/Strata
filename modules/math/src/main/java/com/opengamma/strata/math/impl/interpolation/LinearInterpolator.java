@@ -13,9 +13,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Interpolate consecutive two points by a straight line
- * Note that this interpolator is NOT included in {@link Interpolator1DFactory} 
- * Use {@link LinearInterpolator1D} for node sensitivity
+ * Interpolate consecutive two points by a straight line. 
  */
 public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
@@ -26,6 +24,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     ArgChecker.notEmpty(xValues, "xValues");
     ArgChecker.notEmpty(yValues, "yValues");
     int nDataPts = xValues.length;
+    ArgChecker.isTrue(nDataPts > 1, "at least two data points required");
     ArgChecker.isTrue(nDataPts == yValues.length, "xValues length = yValues length");
     for (int i = 0; i < nDataPts; ++i) {
       ArgChecker.isFalse(Double.isNaN(xValues[i]), "xData containing NaN");
@@ -75,6 +74,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     ArgChecker.notEmpty(yValuesMatrix, "yValuesMatrix");
 
     int nDataPts = xValues.length;
+    ArgChecker.isTrue(nDataPts > 1, "at least two data points required");
     ArgChecker.isTrue(nDataPts == yValuesMatrix[0].length, "(xValues length = yValuesMatrix's row vector length)");
     int dim = yValuesMatrix.length;
     for (int i = 0; i < nDataPts; ++i) {
@@ -84,9 +84,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
         ArgChecker.isFalse(Double.isNaN(yValuesMatrix[j][i]), "yValuesMatrix containing NaN");
         ArgChecker.isFalse(Double.isInfinite(yValuesMatrix[j][i]), "yValuesMatrix containing Infinity");
       }
-    }
-    if (nDataPts == 1) {
-      return new PiecewisePolynomialResult(DoubleArray.copyOf(xValues), DoubleMatrix.copyOf(yValuesMatrix), 1, dim);
     }
     for (int k = 0; k < dim; ++k) {
       for (int i = 0; i < nDataPts; ++i) {
@@ -137,16 +134,13 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
     ArgChecker.notEmpty(xValues, "xValues");
     ArgChecker.notEmpty(yValues, "yValues");
     int nDataPts = xValues.length;
+    ArgChecker.isTrue(nDataPts > 1, "at least two data points required");
     ArgChecker.isTrue(nDataPts == yValues.length, "xValues length = yValues length");
     for (int i = 0; i < nDataPts; ++i) {
       ArgChecker.isFalse(Double.isNaN(xValues[i]), "xData containing NaN");
       ArgChecker.isFalse(Double.isInfinite(xValues[i]), "xData containing Infinity");
       ArgChecker.isFalse(Double.isNaN(yValues[i]), "yData containing NaN");
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
-    }
-    if (nDataPts == 1) {
-      return new PiecewisePolynomialResultsWithSensitivity(
-          DoubleArray.ofUnsafe(xValues), DoubleMatrix.of(1, 1, yValues[0]), 1, 1, new DoubleMatrix[] {DoubleMatrix.of(1, 1, 1d)});
     }
     for (int i = 0; i < nDataPts; ++i) {
       for (int j = i + 1; j < nDataPts; ++j) {

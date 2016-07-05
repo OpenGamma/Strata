@@ -14,7 +14,7 @@ public class IsdaCdsProductPricer {
   public double protectionLeg(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
-      LocalDate referenceDate) {
+      LocalDate referenceDate) { // TODO mention reference date == cash settle date
 
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");

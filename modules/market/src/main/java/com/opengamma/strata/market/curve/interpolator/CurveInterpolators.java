@@ -104,6 +104,17 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator PRODUCT_NATURAL_SPLINE =
       CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_NATURAL_SPLINE.getName());
+  /**
+   * Product linear interpolator.
+   * <p>
+   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by linear functions. 
+   * <p>
+   * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose
+   * the condition that all of the x data to be the same sign, such that the origin is not within data range.
+   * The x key value must not be close to zero.
+   */
+  public static final CurveInterpolator PRODUCT_LINEAR =
+      CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_LINEAR.getName());
 
   //-------------------------------------------------------------------------
   /**
