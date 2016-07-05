@@ -190,7 +190,7 @@ public final class SimplePriceIndexValues
     double nbMonth = numberOfMonths(lastMonth);
     DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
-    this.extendedCurve = curve.withNode(0, nbMonth, fixings.getLatestValue());
+    this.extendedCurve = curve.withNode(nbMonth, fixings.getLatestValue(), ParameterMetadata.empty());
   }
 
   //-------------------------------------------------------------------------

@@ -26,6 +26,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
@@ -674,7 +675,7 @@ public class IsdaCompliantCurve
   }
 
   @Override
-  public NodalCurve withNode(int index, double x, double y) {
+  public IsdaCompliantCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
     throw new UnsupportedOperationException("ISDA credit curve does not allow node to be inserted");
   }
 
