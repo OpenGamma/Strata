@@ -161,7 +161,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
   public void test_presentValueWithZSpread_continuous() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    CurrencyAmount expected = PRICER_NOMINAL.presentValue(
+    CurrencyAmount expected = PRICER_NOMINAL.presentValueWithSpread(
         PRODUCT.getNominalPayment(), DSC_FACTORS_ISSUER, Z_SPREAD, CONTINUOUS, 0);
     int size = PRODUCT.getPeriodicPayments().size();
     double pvcCupon = 0d;
@@ -178,7 +178,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_presentValueWithZSpread_periodic() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurrencyAmount expected = PRICER_NOMINAL.presentValue(
+    CurrencyAmount expected = PRICER_NOMINAL.presentValueWithSpread(
         PRODUCT.getNominalPayment(), DSC_FACTORS_ISSUER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     int size = PRODUCT.getPeriodicPayments().size();
     double pvcCupon = 0d;
@@ -209,7 +209,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_presentValueWithZSpread_continuous_noExcoupon() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    CurrencyAmount expected = PRICER_NOMINAL.presentValue(
+    CurrencyAmount expected = PRICER_NOMINAL.presentValueWithSpread(
         PRODUCT.getNominalPayment(), DSC_FACTORS_ISSUER, Z_SPREAD, CONTINUOUS, 0);
     int size = PRODUCT.getPeriodicPayments().size();
     double pvcCupon = 0d;
@@ -226,7 +226,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_presentValueWithZSpread_periodic_noExcoupon() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurrencyAmount expected = PRICER_NOMINAL.presentValue(
+    CurrencyAmount expected = PRICER_NOMINAL.presentValueWithSpread(
         PRODUCT.getNominalPayment(), DSC_FACTORS_ISSUER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     int size = PRODUCT.getPeriodicPayments().size();
     double pvcCupon = 0d;

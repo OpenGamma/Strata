@@ -46,7 +46,7 @@ public class ResolvedSwapTest {
   private static final IborRateComputation GBP_LIBOR_3M_2014_06_28 =
       IborRateComputation.of(GBP_LIBOR_3M, date(2014, 6, 28), REF_DATA);
   private static final NotionalExchange NOTIONAL_EXCHANGE =
-      NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 2000d));
+      NotionalExchange.of(CurrencyAmount.of(GBP, 2000d), DATE_2014_10_01);
   private static final RateAccrualPeriod RAP = RateAccrualPeriod.builder()
       .startDate(DATE_2014_06_30)
       .endDate(DATE_2014_09_30)

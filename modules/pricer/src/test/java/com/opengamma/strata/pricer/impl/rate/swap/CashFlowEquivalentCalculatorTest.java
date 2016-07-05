@@ -147,8 +147,8 @@ public class CashFlowEquivalentCalculatorTest {
     assertEquals(computedIborLeg.getPaymentEvents(), computed.getPaymentEvents().subList(2, 6));
 
     // expected payments from fixed leg
-    NotionalExchange fixedPayment1 = NotionalExchange.of(PAYMENT1, CurrencyAmount.of(GBP, NOTIONAL * RATE * PAY_YC1));
-    NotionalExchange fixedPayment2 = NotionalExchange.of(PAYMENT2, CurrencyAmount.of(GBP, NOTIONAL * RATE * PAY_YC2));
+    NotionalExchange fixedPayment1 = NotionalExchange.of(CurrencyAmount.of(GBP, NOTIONAL * RATE * PAY_YC1), PAYMENT1);
+    NotionalExchange fixedPayment2 = NotionalExchange.of(CurrencyAmount.of(GBP, NOTIONAL * RATE * PAY_YC2), PAYMENT2);
     // expected payments from ibor leg
     LocalDate fixingSTART1 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING1, REF_DATA);
     double fixedYearFraction1 = GBP_LIBOR_3M.getDayCount().relativeYearFraction(fixingSTART1,
@@ -156,18 +156,18 @@ public class CashFlowEquivalentCalculatorTest {
     double beta1 = (1d + fixedYearFraction1 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_COMP1.getObservation()))
         * PROVIDER.discountFactor(GBP, PAYMENT1) / PROVIDER.discountFactor(GBP, fixingSTART1);
     NotionalExchange iborPayment11 =
-        NotionalExchange.of(fixingSTART1, CurrencyAmount.of(GBP, -NOTIONAL * beta1 * PAY_YC1 / fixedYearFraction1));
+        NotionalExchange.of(CurrencyAmount.of(GBP, -NOTIONAL * beta1 * PAY_YC1 / fixedYearFraction1), fixingSTART1);
     NotionalExchange iborPayment12 =
-        NotionalExchange.of(PAYMENT1, CurrencyAmount.of(GBP, NOTIONAL * PAY_YC1 / fixedYearFraction1));
+        NotionalExchange.of(CurrencyAmount.of(GBP, NOTIONAL * PAY_YC1 / fixedYearFraction1), PAYMENT1);
     LocalDate fixingSTART2 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING2, REF_DATA);
     double fixedYearFraction2 = GBP_LIBOR_3M.getDayCount().relativeYearFraction(fixingSTART2,
         GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART2, REF_DATA));
     double beta2 = (1d + fixedYearFraction2 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_COMP2.getObservation()))
         * PROVIDER.discountFactor(GBP, PAYMENT2) / PROVIDER.discountFactor(GBP, fixingSTART2);
     NotionalExchange iborPayment21 =
-        NotionalExchange.of(fixingSTART2, CurrencyAmount.of(GBP, -NOTIONAL * beta2 * PAY_YC2 / fixedYearFraction2));
+        NotionalExchange.of(CurrencyAmount.of(GBP, -NOTIONAL * beta2 * PAY_YC2 / fixedYearFraction2), fixingSTART2);
     NotionalExchange iborPayment22 =
-        NotionalExchange.of(PAYMENT2, CurrencyAmount.of(GBP, NOTIONAL * PAY_YC2 / fixedYearFraction2));
+        NotionalExchange.of(CurrencyAmount.of(GBP, NOTIONAL * PAY_YC2 / fixedYearFraction2), PAYMENT2);
 
     ResolvedSwapLeg expected = ResolvedSwapLeg
         .builder()
