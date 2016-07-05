@@ -13,13 +13,12 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.SortedMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
@@ -41,10 +40,14 @@ import com.opengamma.strata.calc.marketdata.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
+import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -52,8 +55,11 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurvePointShifts;
 import com.opengamma.strata.market.curve.CurvePointShiftsBuilder;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.math.impl.statistics.descriptive.SampleInterpolationQuantileMethod;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
+import com.opengamma.strata.measure.rate.RatesMarketData;
+import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
@@ -67,8 +73,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * Example to illustrate using the engine to run a set of historical scenarios on a single swap
- * to produce a P&L series. This P&L series could then be used to calculate historical VaR.
+ * Example to illustrate using the calculation API to run a set of historical scenarios on a single swap.
  * <p>
  * In this example we are provided with market data containing:
  * <li>a complete snapshot to value the swap on the valuation date (curves only as the swap is forward-starting)
@@ -95,50 +100,72 @@ public class HistoricalScenarioExample {
     }
   }
 
-  // obtains the data and calculates the grid of results
+  // loads the trade and market data, and performs the calculations
   private static void calculate(CalculationRunner runner) {
-    // the trades for which to calculate a P&L series
+    // the trade to price
     List<Trade> trades = ImmutableList.of(createTrade());
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE));
 
-    // use the built-in example historical scenario market data
-    ExampleMarketDataBuilder marketDataBuilder = ExampleMarketDataBuilder.ofResource(MARKET_DATA_RESOURCE_ROOT);
-
-    // the complete set of rules for calculating measures
-    CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.ratesLookup(LocalDate.of(2015, 4, 23)));
-
-    // load the historical calibrated curves from which we will build our scenarios
-    // these curves are provided in the example data environment
-    SortedMap<LocalDate, CurveGroup> historicalCurves = marketDataBuilder.loadAllRatesCurves();
-
-    // sorted list of dates for the available series of curves
-    // the entries in the P&L vector we produce will correspond to these dates
-    List<LocalDate> scenarioDates = new ArrayList<>(historicalCurves.keySet());
+    // build the set of market data for the base scenario on the valuation date
+    // this is the snapshot which will be perturbed in the scenarios
+    RatesMarketData baseMarketData = buildBaseMarketData();
 
     // build the historical scenarios
-    ScenarioDefinition historicalScenarios = buildHistoricalScenarios(historicalCurves, scenarioDates);
+    ScenarioDefinition scenarios = buildScenarios(baseMarketData.getMarketData());
 
-    // build a market data snapshot for the valuation date
-    // this is the base snapshot which will be perturbed by the scenarios
-    LocalDate valuationDate = LocalDate.of(2015, 4, 23);
-    MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
+    // use the standard rules defining how to calculate the measures we are requesting
+    CalculationFunctions functions = StandardComponents.calculationFunctions();
+    CalculationRules rules = CalculationRules.of(functions, baseMarketData.getLookup());
 
-    // the reference data, such as holidays and securities
+    // use the built-in reference data, which includes some holiday calendars
     ReferenceData refData = ReferenceData.standard();
 
-    // calculate the results
+    // now combine the base market data with the scenario definition to create the full set of scenario market data
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
     ScenarioMarketData scenarioMarketData =
-        marketDataFactory().createMultiScenario(reqs, MarketDataConfig.empty(), marketData, refData, historicalScenarios);
+        marketDataFactory().createMultiScenario(reqs, MarketDataConfig.empty(), baseMarketData, refData, scenarios);
+
+    // calculate the results
     Results results = runner.calculateMultiScenario(rules, trades, columns, scenarioMarketData, refData);
 
     // the results contain the one measure requested (Present Value) for each scenario
-    ScenarioArray<?> scenarioValuations = (ScenarioArray<?>) results.get(0, 0).getValue();
-    outputPnl(scenarioDates, scenarioValuations);
+    // the first scenario is the base
+    ScenarioArray<?> pvVector = (ScenarioArray<?>) results.get(0, 0).getValue();
+    outputCurrencyValues("PVs", pvVector);
+
+    // transform the present values into P&Ls, sorted from greatest loss to greatest profit
+    CurrencyValuesArray pnlVector = getSortedPnls(pvVector);
+    outputCurrencyValues("Scenario PnLs", pnlVector);
+
+    // use a built-in utility to calculate VaR
+    // since the P&Ls are sorted starting with the greatest loss, the 95% greatest loss occurs at the 5% position
+    double var95 = SampleInterpolationQuantileMethod.DEFAULT.quantileFromSorted(0.05, pnlVector.getValues());
+    System.out.println(Messages.format("95% VaR: {}", var95));
+  }
+
+  //-------------------------------------------------------------------------
+  // builds the set of market data representing the base scenario
+  private static RatesMarketData buildBaseMarketData() {
+
+    // initialise the market data builder for the valuation date
+    LocalDate valuationDate = LocalDate.of(2015, 4, 23);
+    ImmutableMarketDataBuilder baseMarketDataBuilder = ImmutableMarketData.builder(valuationDate);
+
+    ResourceLocator curveGroupsResource = ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/curves/groups.csv");
+    ResourceLocator curveSettingsResource = ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/curves/settings.csv");
+    ResourceLocator curvesResource = ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/curves/2015-04-23.csv");
+    List<ResourceLocator> curvesResources = ImmutableList.of(curvesResource);
+
+    List<CurveGroup> baseCurveGroups = RatesCurvesCsvLoader.load(valuationDate, curveGroupsResource, curveSettingsResource, curvesResources);
+    CurveGroup baseCurveGroup = Iterables.getOnlyElement(baseCurveGroups);
+
+    // build a single market data snapshot for the valuation date
+    MarketData baseMarketData = baseMarketDataBuilder.build();
+
+    return RatesMarketDataLookup.of(baseCurveGroup).marketDataView(baseMarketData);
   }
 
   private static ScenarioDefinition buildHistoricalScenarios(
