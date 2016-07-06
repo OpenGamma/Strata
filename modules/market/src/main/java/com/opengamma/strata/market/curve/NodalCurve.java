@@ -80,6 +80,17 @@ public interface NodalCurve
    */
   public abstract NodalCurve withYValues(DoubleArray values);
 
+  /**
+   * Returns a new curve with the specified x-values and y-values.
+   * <p>
+   * This allows the x values and y-values of the curve to be changed.
+   * 
+   * @param xValues  the new x-values for the curve
+   * @param yValues  the new y-values for the curve
+   * @return the new curve
+   */
+  public abstract NodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues);
+
   //-------------------------------------------------------------------------
   @Override
   abstract NodalCurve withParameter(int parameterIndex, double newValue);

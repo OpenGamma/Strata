@@ -186,6 +186,11 @@ public class IsdaCdsPricer {
       throw new UnsupportedOperationException("ISDA credit curve does not allow node to be inserted");
     }
 
+    @Override
+    public NodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
+      throw new UnsupportedOperationException();
+    }
+
     //-------------------------------------------------------------------------
     @Override
     public double yValue(double x) {

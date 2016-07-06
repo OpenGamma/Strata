@@ -159,6 +159,23 @@ public class InterpolatedNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withXYValues() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    InterpolatedNodalCurve test = base.withXYValues(XVALUES2, YVALUES_BUMPED);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getMetadata()).isEqualTo(METADATA);
+    assertThat(test.getXValues()).isEqualTo(XVALUES2);
+    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
+  }
+
+  public void test_withXYValues_badSize() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    assertThrowsIllegalArg(() -> base.withXYValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withXYValues(DoubleArray.of(1d, 3d, 5d), DoubleArray.of(4d, 6d)));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_withNode_atStart_withMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
     LabelDateParameterMetadata item = LabelDateParameterMetadata.of(date(2015, 6, 30), TNR_1Y);

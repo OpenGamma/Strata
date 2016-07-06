@@ -264,6 +264,11 @@ public final class InterpolatedNodalCurve
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
+  @Override
+  public InterpolatedNodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
+    return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a new curve with an additional node, specifying the parameter metadata.
