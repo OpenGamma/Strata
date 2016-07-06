@@ -810,50 +810,6 @@ public class BlackFormulaRepositoryTest {
     BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], true);
   }
 
-  /**
-   * Use SimpleOptionData class for price
-   */
-  public void useSimpleOptionDataTest() {
-    int nStrikes = STRIKES_INPUT.length;
-    int nVols = VOLS.length;
-
-    for (int i = 0; i < nStrikes; ++i) {
-      for (int j = 0; j < nVols; ++j) {
-        double strike = STRIKES_INPUT[i];
-        double vol = VOLS[j];
-        SimpleOptionData dataC = SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1d, CALL);
-        SimpleOptionData dataP = SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1d, PUT);
-        SimpleOptionData[] dataV = new SimpleOptionData[] {
-            SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1., CALL),
-            SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1., CALL)};
-        double resC1 = BlackFormulaRepository.price(FORWARD, strike, TIME_TO_EXPIRY, vol, true);
-        double resC2 = BlackFormulaRepository.price(dataC, vol);
-        double resC3 = BlackFormulaRepository.price(dataV, vol);
-        double resP1 = BlackFormulaRepository.price(FORWARD, strike, TIME_TO_EXPIRY, vol, false);
-        double resP2 = BlackFormulaRepository.price(dataP, vol);
-        assertEquals(resC1, resC2, EPS);
-        assertEquals(2. * resC1, resC3, EPS);
-        assertEquals(resP1, resP2, EPS);
-      }
-    }
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullSimpleOptionDataTest() {
-    SimpleOptionData data = SimpleOptionData.of(FORWARD, STRIKES_INPUT[1], TIME_TO_EXPIRY, 1d, PUT);
-    data = null;
-    BlackFormulaRepository.price(data, VOLS[1]);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullSimpleOptionDataArrayTest() {
-    SimpleOptionData[] data = new SimpleOptionData[] {
-        SimpleOptionData.of(FORWARD, STRIKES_INPUT[1], TIME_TO_EXPIRY, 1., CALL),
-        SimpleOptionData.of(FORWARD, STRIKES_INPUT[0], TIME_TO_EXPIRY, 1., CALL)};
-    data = null;
-    BlackFormulaRepository.price(data, VOLS[0]);
-  }
-
   /*
    * Tests for "delta"
    */
@@ -6782,33 +6738,6 @@ public class BlackFormulaRepositoryTest {
     BlackFormulaRepository.vega(FORWARD, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1]);
   }
 
-  public void useSimpleOptionDataVegaTest() {
-    int nStrikes = STRIKES_INPUT.length;
-    int nVols = VOLS.length;
-
-    for (int i = 0; i < nStrikes; ++i) {
-      for (int j = 0; j < nVols; ++j) {
-        double strike = STRIKES_INPUT[i];
-        double vol = VOLS[j];
-        SimpleOptionData dataC = SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1d, CALL);
-        SimpleOptionData dataP = SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1d, PUT);
-        double resC1 = BlackFormulaRepository.vega(FORWARD, strike, TIME_TO_EXPIRY, vol);
-        double resC2 = BlackFormulaRepository.vega(dataC, vol);
-        double resP1 = BlackFormulaRepository.vega(FORWARD, strike, TIME_TO_EXPIRY, vol);
-        double resP2 = BlackFormulaRepository.vega(dataP, vol);
-        assertEquals(resC1, resC2, EPS);
-        assertEquals(resP1, resP2, EPS);
-      }
-    }
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullSimpleOptionDataVegaTest() {
-    SimpleOptionData data = SimpleOptionData.of(FORWARD, STRIKES_INPUT[1], TIME_TO_EXPIRY, 1d, CALL);
-    data = null;
-    BlackFormulaRepository.vega(data, VOLS[1]);
-  }
-
   /*
    * vanna
    */
@@ -8364,30 +8293,6 @@ public class BlackFormulaRepositoryTest {
         assertEquals(NORMAL.getInverseCDF(0.5 * (Math.pow(strike, 0.6) / strike + 1)) * 2 / Math.sqrt(TIME_TO_EXPIRY),
             atm, 1.e-13);
 
-      }
-    }
-  }
-
-  public void volRecoveryFromDataTest() {
-    int nStrikes = STRIKES_INPUT.length;
-    int nVols = VOLS.length;
-    for (int i = 0; i < nStrikes; ++i) {
-      for (int j = 0; j < nVols; ++j) {
-        double strike = STRIKES_INPUT[i];
-        double vol = VOLS[j];
-
-        SimpleOptionData dataC = SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1., CALL);
-        SimpleOptionData dataP = SimpleOptionData.of(FORWARD, strike, TIME_TO_EXPIRY, 1., PUT);
-        SimpleOptionData[] dataVec = new SimpleOptionData[] {dataC, dataC};
-
-        double cPrice = BlackFormulaRepository.price(dataC, vol);
-        double pPrice = BlackFormulaRepository.price(dataP, vol);
-        double cRes = BlackFormulaRepository.impliedVolatility(dataC, cPrice);
-        double pRes = BlackFormulaRepository.impliedVolatility(dataP, pPrice);
-        double res = BlackFormulaRepository.impliedVolatility(dataVec, 2. * cPrice);
-        assertEquals(vol, cRes, Math.abs(vol) * 1.e-8);
-        assertEquals(vol, pRes, Math.abs(vol) * 1.e-8);
-        assertEquals(vol, res, Math.abs(vol) * 1.e-8);
       }
     }
   }
