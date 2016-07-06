@@ -45,6 +45,14 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  * </ul>
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future is based on the interest rate of the underlying index.
+ * It is defined as {@code (100 - percentRate)}.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
 public class IborFutureTradeCalculationFunction
     implements CalculationFunction<IborFutureTrade> {
