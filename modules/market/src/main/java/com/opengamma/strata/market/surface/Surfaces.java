@@ -22,6 +22,80 @@ public final class Surfaces {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates metadata for a surface providing Black expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Black volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletBlackExpiryStrike(String name, DayCount dayCount) {
+    return iborCapletFloorletBlackExpiryStrike(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Black expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Black volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletBlackExpiryStrike(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates metadata for a surface providing Normal expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletNormalExpiryStrike(String name, DayCount dayCount) {
+    return iborCapletFloorletNormalExpiryStrike(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Normal expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletNormalExpiryStrike(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates metadata for a surface providing Normal expiry-tenor volatility for swaptions.
    * <p>
    * The x-values represent time to expiry year fractions as defined by the specified day count.

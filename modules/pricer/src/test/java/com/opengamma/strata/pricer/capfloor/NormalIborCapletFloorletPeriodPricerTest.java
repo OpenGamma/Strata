@@ -447,8 +447,8 @@ public class NormalIborCapletFloorletPeriodPricerTest {
     for (int i = 0; i < nParams; ++i) {
       DoubleArray zBumped = surfaceBase.getZValues().with(i, surfaceBase.getZValues().get(i) + EPS_FD);
       InterpolatedNodalSurface surfaceBumped = surfaceBase.withZValues(zBumped);
-      NormalIborCapletFloorletExpiryStrikeVolatilities volsBumped = NormalIborCapletFloorletExpiryStrikeVolatilities
-          .of(surfaceBumped, vols.getIndex(), vols.getValuationDateTime(), vols.getDayCount());
+      NormalIborCapletFloorletExpiryStrikeVolatilities volsBumped =
+          NormalIborCapletFloorletExpiryStrikeVolatilities.of(vols.getIndex(), vols.getValuationDateTime(), surfaceBumped);
       double fd = (valueFn.apply(volsBumped).getAmount() - pvBase) / EPS_FD;
       assertEquals(
           computed.getSensitivity().get(i), fd, NOTIONAL * EPS_FD);
