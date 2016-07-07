@@ -5,13 +5,22 @@
  */
 package com.opengamma.strata.basics.index;
 
+import com.opengamma.strata.collect.named.ExtendedEnum;
+
 /**
  * Constants and implementations for standard Floating rate names.
  * <p>
  * Each constant refers to a standard definition of the specified index.
  */
 public final class FloatingRateNames {
+  // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
 
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  static final ExtendedEnum<FloatingRateName> ENUM_LOOKUP = ExtendedEnum.of(FloatingRateName.class);
+
+  //-------------------------------------------------------------------------
   /**
    * Constant for GBP-LIBOR.
    */
