@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.curve;
+package com.opengamma.strata.pricer.option;
 
 import java.io.Serializable;
 import java.time.Period;
@@ -28,12 +28,17 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 
 /**
- * Raw data from volatility market.
+ * Raw data from the volatility market.
  */
 @BeanDefinition(style = "light")
 public final class RawOptionData
     implements ImmutableBean, Serializable {
 
+  /**
+   * The expiry values.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableList<Period> expiries;
   /**
    * The strike values. Can be directly strike or moneyness (simple or log)
    */
@@ -44,11 +49,6 @@ public final class RawOptionData
    */
   @PropertyDefinition(validate = "notNull")
   private final ValueType strikeType;
-  /**
-   * The expiry values.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<Period> expiries;
   /**
    * The data. The values can be model parameters (like Black or normal volatilities) or direct 
    * option prices. The first (outer) dimension is the expiry, the second dimension is the strike.
@@ -69,21 +69,21 @@ public final class RawOptionData
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains and instance of the raw volatility.
+   * Obtains an instance of the raw volatility.
    * <p>
    * The data values can be model parameters (like Black or normal volatilities) or direct option prices.
    * 
+   * @param expiries  the expiries
    * @param strikes  the strikes-like data
    * @param strikeType  the value type of the strike-like dimension
-   * @param expiries  the expiries
    * @param data  the data
    * @param dataType  the data type
    * @return the instance
    */
   public static RawOptionData of(
+      List<Period> expiries,
       DoubleArray strikes,
       ValueType strikeType,
-      List<Period> expiries,
       DoubleMatrix data,
       ValueType dataType) {
 
@@ -93,23 +93,23 @@ public final class RawOptionData
       ArgChecker.isTrue(strikes.size() == data.columnCount(),
           "strikes should be of the same size as the inner data dimension");
     }
-    return new RawOptionData(strikes, strikeType, expiries, data, dataType, 0.0);
+    return new RawOptionData(expiries, strikes, strikeType, data, dataType, 0.0);
   }
 
   /**
-   * Obtains and instance of the raw volatility for shifted Black (log-normal) volatility.
+   * Obtains an instance of the raw volatility for shifted Black (log-normal) volatility.
    * 
+   * @param expiries  the expiries
    * @param strikes  the strikes-like data
    * @param strikeType  the value type of the strike-like dimension
-   * @param expiries  the expiries
    * @param data  the data
    * @param shift  the shift
    * @return the instance
    */
-  public static RawOptionData of(
+  public static RawOptionData ofBlackVolatility(
+      List<Period> expiries,
       DoubleArray strikes,
       ValueType strikeType,
-      List<Period> expiries,
       DoubleMatrix data,
       Double shift) {
 
@@ -119,7 +119,7 @@ public final class RawOptionData
       ArgChecker.isTrue(strikes.size() == data.columnCount(),
           "strikes should be of the same size as the inner data dimension");
     }
-    return new RawOptionData(strikes, strikeType, expiries, data, ValueType.BLACK_VOLATILITY, shift);
+    return new RawOptionData(expiries, strikes, strikeType, data, ValueType.BLACK_VOLATILITY, shift);
   }
 
   //-------------------------------------------------------------------------
@@ -168,20 +168,20 @@ public final class RawOptionData
   private static final long serialVersionUID = 1L;
 
   private RawOptionData(
+      List<Period> expiries,
       DoubleArray strikes,
       ValueType strikeType,
-      List<Period> expiries,
       DoubleMatrix data,
       ValueType dataType,
       Double shift) {
+    JodaBeanUtils.notNull(expiries, "expiries");
     JodaBeanUtils.notNull(strikes, "strikes");
     JodaBeanUtils.notNull(strikeType, "strikeType");
-    JodaBeanUtils.notNull(expiries, "expiries");
     JodaBeanUtils.notNull(data, "data");
     JodaBeanUtils.notNull(dataType, "dataType");
+    this.expiries = ImmutableList.copyOf(expiries);
     this.strikes = strikes;
     this.strikeType = strikeType;
-    this.expiries = ImmutableList.copyOf(expiries);
     this.data = data;
     this.dataType = dataType;
     this.shift = shift;
@@ -204,6 +204,15 @@ public final class RawOptionData
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the expiry values.
+   * @return the value of the property, not null
+   */
+  public ImmutableList<Period> getExpiries() {
+    return expiries;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the strike values. Can be directly strike or moneyness (simple or log)
    * @return the value of the property, not null
    */
@@ -218,15 +227,6 @@ public final class RawOptionData
    */
   public ValueType getStrikeType() {
     return strikeType;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the expiry values.
-   * @return the value of the property, not null
-   */
-  public ImmutableList<Period> getExpiries() {
-    return expiries;
   }
 
   //-----------------------------------------------------------------------
@@ -266,9 +266,9 @@ public final class RawOptionData
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RawOptionData other = (RawOptionData) obj;
-      return JodaBeanUtils.equal(strikes, other.strikes) &&
+      return JodaBeanUtils.equal(expiries, other.expiries) &&
+          JodaBeanUtils.equal(strikes, other.strikes) &&
           JodaBeanUtils.equal(strikeType, other.strikeType) &&
-          JodaBeanUtils.equal(expiries, other.expiries) &&
           JodaBeanUtils.equal(data, other.data) &&
           JodaBeanUtils.equal(dataType, other.dataType) &&
           JodaBeanUtils.equal(shift, other.shift);
@@ -279,9 +279,9 @@ public final class RawOptionData
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiries);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikes);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikeType);
-    hash = hash * 31 + JodaBeanUtils.hashCode(expiries);
     hash = hash * 31 + JodaBeanUtils.hashCode(data);
     hash = hash * 31 + JodaBeanUtils.hashCode(dataType);
     hash = hash * 31 + JodaBeanUtils.hashCode(shift);
@@ -292,9 +292,9 @@ public final class RawOptionData
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("RawOptionData{");
+    buf.append("expiries").append('=').append(expiries).append(',').append(' ');
     buf.append("strikes").append('=').append(strikes).append(',').append(' ');
     buf.append("strikeType").append('=').append(strikeType).append(',').append(' ');
-    buf.append("expiries").append('=').append(expiries).append(',').append(' ');
     buf.append("data").append('=').append(data).append(',').append(' ');
     buf.append("dataType").append('=').append(dataType).append(',').append(' ');
     buf.append("shift").append('=').append(JodaBeanUtils.toString(shift));

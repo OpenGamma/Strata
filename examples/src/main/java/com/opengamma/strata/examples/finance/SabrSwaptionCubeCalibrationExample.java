@@ -11,6 +11,8 @@ import static com.opengamma.strata.examples.finance.SwaptionCubeData.DATA_ARRAY_
 import static com.opengamma.strata.examples.finance.SwaptionCubeData.EXPIRIES;
 import static com.opengamma.strata.examples.finance.SwaptionCubeData.MONEYNESS;
 import static com.opengamma.strata.examples.finance.SwaptionCubeData.TENORS;
+import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
+import static com.opengamma.strata.market.ValueType.SIMPLE_MONEYNESS;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 
@@ -18,13 +20,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -32,7 +34,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
-import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.surface.ConstantSurface;
@@ -41,12 +42,14 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
-import com.opengamma.strata.pricer.curve.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
+import com.opengamma.strata.pricer.option.RawOptionData;
+import com.opengamma.strata.pricer.option.TenorRawOptionData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrator;
+import com.opengamma.strata.pricer.swaption.SabrSwaptionDefinition;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -87,9 +90,12 @@ public class SabrSwaptionCubeCalibrationExample {
 
   private static final int NB_EXPIRIES = EXPIRIES.size();
   private static final int NB_TENORS = TENORS.size();
-  private static final List<RawOptionData> DATA_FULL = rawData(DATA_ARRAY_FULL);
-  private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_ARRAY_SPARSE);
+  private static final TenorRawOptionData DATA_FULL = rawData(DATA_ARRAY_FULL);
+  private static final TenorRawOptionData DATA_SPARSE = rawData(DATA_ARRAY_SPARSE);
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
+  private static final SwaptionVolatilitiesName NAME_SABR = SwaptionVolatilitiesName.of("Calibrated-SABR");
+  private static final SabrSwaptionDefinition DEFINITION =
+      SabrSwaptionDefinition.of(NAME_SABR, EUR_FIXED_1Y_EURIBOR_6M, ACT_365F, INTERPOLATOR_2D);
 
   //-------------------------------------------------------------------------
   /**
@@ -100,7 +106,7 @@ public class SabrSwaptionCubeCalibrationExample {
   public static void main(String[] args) {
 
     // select data
-    List<RawOptionData> data = DATA_FULL;
+    TenorRawOptionData data = DATA_FULL;
     if (args.length > 0) {
       if (args[0].equals("-s")) {
         data = DATA_SPARSE;
@@ -112,16 +118,7 @@ public class SabrSwaptionCubeCalibrationExample {
     double shift = 0.0300;
     Surface shiftSurface = ConstantSurface.of("Shift", shift);
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        SwaptionVolatilitiesName.of("Calibrated-SABR"),
-        EUR_FIXED_1Y_EURIBOR_6M,
-        CALIBRATION_TIME,
-        ACT_365F,
-        TENORS,
-        data,
-        MULTICURVE,
-        betaSurface,
-        shiftSurface,
-        INTERPOLATOR_2D);
+        DEFINITION, CALIBRATION_TIME, data, MULTICURVE, betaSurface, shiftSurface);
     /* Graph calibration */
     int nbStrikesGraph = 50;
     double moneyMin = -0.0250;
@@ -184,13 +181,13 @@ public class SabrSwaptionCubeCalibrationExample {
     System.out.println(svn);
   }
 
-  private static List<RawOptionData> rawData(double[][][] dataArray) {
-    List<RawOptionData> raw = new ArrayList<>();
+  private static TenorRawOptionData rawData(double[][][] dataArray) {
+    Map<Tenor, RawOptionData> raw = new TreeMap<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
-          DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.NORMAL_VOLATILITY));
+      DoubleMatrix matrix = DoubleMatrix.ofUnsafe(dataArray[looptenor]);
+      raw.put(TENORS.get(looptenor), RawOptionData.of(EXPIRIES, MONEYNESS, SIMPLE_MONEYNESS, matrix, NORMAL_VOLATILITY));
     }
-    return raw;
+    return TenorRawOptionData.of(raw);
   }
 
 }
