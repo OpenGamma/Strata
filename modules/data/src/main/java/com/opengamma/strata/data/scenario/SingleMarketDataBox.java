@@ -40,7 +40,7 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
  * @param <T>  the type of data held in the box
  */
 @BeanDefinition
-public final class SingleMarketDataBox<T>
+final class SingleMarketDataBox<T>
     implements ImmutableBean, MarketDataBox<T>, Serializable {
 
   /**
@@ -85,7 +85,7 @@ public final class SingleMarketDataBox<T>
 
   @Override
   public int getScenarioCount() {
-    return 1;
+    return -1;
   }
 
   @Override

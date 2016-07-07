@@ -105,6 +105,7 @@ public interface ScenarioArray<T> {
    *
    * @param scenarioIndex  the zero-based index of the scenario
    * @return the value at the specified index
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
   public abstract T get(int scenarioIndex);
 

@@ -158,6 +158,7 @@ public final class MultiCurrencyScenarioArray
    *
    * @param index  the index that should be returned
    * @return a multi currency amount containing the currency values at the specified index
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
   @Override
   public MultiCurrencyAmount get(int index) {
