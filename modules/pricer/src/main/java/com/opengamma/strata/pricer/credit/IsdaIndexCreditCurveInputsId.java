@@ -30,7 +30,7 @@ import com.opengamma.strata.product.credit.IndexReferenceInformation;
  * Market data ID for a set of par rates to be used in the ISDA credit model's credit curve
  * calibration for an index.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class IsdaIndexCreditCurveInputsId
     implements MarketDataId<IsdaCreditCurveInputs>, ImmutableBean, Serializable {
 
@@ -75,6 +75,11 @@ public final class IsdaIndexCreditCurveInputsId
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   private IsdaIndexCreditCurveInputsId(
       IndexReferenceInformation referenceInformation) {
@@ -121,8 +126,12 @@ public final class IsdaIndexCreditCurveInputsId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

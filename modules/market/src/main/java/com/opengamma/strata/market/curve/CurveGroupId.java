@@ -31,7 +31,7 @@ import com.opengamma.strata.data.ObservableSource;
  * <p>
  * This is used when there is a need to obtain an instance of {@link CurveGroup}.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class CurveGroupId
     implements MarketDataId<CurveGroup>, ImmutableBean, Serializable {
 
@@ -103,6 +103,11 @@ public final class CurveGroupId
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   private CurveGroupId(
       CurveGroupName curveGroupName,
       ObservableSource observableSource) {
@@ -161,9 +166,13 @@ public final class CurveGroupId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
-    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
+      hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

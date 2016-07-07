@@ -31,7 +31,7 @@ import com.opengamma.strata.data.NamedMarketDataId;
  * <p>
  * This is used when there is a need to obtain an instance of {@link IborCapletFloorletVolatilities}.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class IborCapletFloorletVolatilitiesId
     implements NamedMarketDataId<IborCapletFloorletVolatilities>, ImmutableBean, Serializable {
 
@@ -92,6 +92,11 @@ public final class IborCapletFloorletVolatilitiesId
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   private IborCapletFloorletVolatilitiesId(
       IborCapletFloorletVolatilitiesName name) {
     JodaBeanUtils.notNull(name, "name");
@@ -137,8 +142,12 @@ public final class IborCapletFloorletVolatilitiesId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(name);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

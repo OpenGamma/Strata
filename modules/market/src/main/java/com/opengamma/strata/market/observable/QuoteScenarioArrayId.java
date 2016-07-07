@@ -32,7 +32,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketDataId;
  * An identifier identifying a {@link QuoteScenarioArray} containing values for a piece
  * of quoted market data in multiple scenarios.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class QuoteScenarioArrayId
     implements ScenarioMarketDataId<Double, QuoteScenarioArray>, ImmutableBean {
 
@@ -90,6 +90,11 @@ public final class QuoteScenarioArrayId
     JodaBeanUtils.registerMetaBean(QuoteScenarioArrayId.Meta.INSTANCE);
   }
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   private QuoteScenarioArrayId(
       QuoteId id) {
     JodaBeanUtils.notNull(id, "id");
@@ -135,8 +140,12 @@ public final class QuoteScenarioArrayId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(id);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(id);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 
