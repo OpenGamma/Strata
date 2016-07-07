@@ -226,7 +226,7 @@ public final class InterpolatedNodalCurve
 
   @Override
   public InterpolatedNodalCurve withParameter(int parameterIndex, double newValue) {
-    return withYValues(yValues.with(parameterIndex, newValue));
+    return withValues(yValues.with(parameterIndex, newValue));
   }
 
   @Override
@@ -234,7 +234,7 @@ public final class InterpolatedNodalCurve
     int size = yValues.size();
     DoubleArray perturbedValues = DoubleArray.of(
         size, i -> perturbation.perturbParameter(i, yValues.get(i), getParameterMetadata(i)));
-    return withYValues(perturbedValues);
+    return withValues(perturbedValues);
   }
 
   //-------------------------------------------------------------------------
@@ -260,12 +260,12 @@ public final class InterpolatedNodalCurve
   }
 
   @Override
-  public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
+  public InterpolatedNodalCurve withValues(DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
   @Override
-  public InterpolatedNodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
+  public InterpolatedNodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 

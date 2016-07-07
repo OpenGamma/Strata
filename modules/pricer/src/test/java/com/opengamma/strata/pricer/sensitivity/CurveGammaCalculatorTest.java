@@ -108,7 +108,7 @@ public class CurveGammaCalculatorTest {
           for (int j = 0; j < nbNode; j++) {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
-          Curve curveBumped = USD_SINGLE_CURVE.withYValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
+          Curve curveBumped = USD_SINGLE_CURVE.withValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
           ImmutableRatesProvider providerBumped = provider.toBuilder()
               .discountCurves(provider.getDiscountCurves().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))

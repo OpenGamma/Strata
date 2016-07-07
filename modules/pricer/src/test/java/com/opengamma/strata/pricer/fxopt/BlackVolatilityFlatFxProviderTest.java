@@ -175,8 +175,8 @@ public class BlackVolatilityFlatFxProviderTest {
         index = i;
       }
     }
-    NodalCurve curveUp = curve.withYValues(yValues.with(index, yValues.get(index) + EPS));
-    NodalCurve curveDw = curve.withYValues(yValues.with(index, yValues.get(index) - EPS));
+    NodalCurve curveUp = curve.withValues(yValues.with(index, yValues.get(index) + EPS));
+    NodalCurve curveDw = curve.withValues(yValues.with(index, yValues.get(index) - EPS));
     BlackVolatilityFlatFxProvider provUp =
         BlackVolatilityFlatFxProvider.of(curveUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     BlackVolatilityFlatFxProvider provDw =

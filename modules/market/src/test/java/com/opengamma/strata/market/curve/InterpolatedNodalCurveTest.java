@@ -142,9 +142,9 @@ public class InterpolatedNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_withYValues() {
+  public void test_withValues() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    InterpolatedNodalCurve test = base.withYValues(YVALUES_BUMPED);
+    InterpolatedNodalCurve test = base.withValues(YVALUES_BUMPED);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
@@ -152,16 +152,16 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
   }
 
-  public void test_withYValues_badSize() {
+  public void test_withValues_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------
-  public void test_withXYValues() {
+  public void test_withValuesXy() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    InterpolatedNodalCurve test = base.withXYValues(XVALUES2, YVALUES_BUMPED);
+    InterpolatedNodalCurve test = base.withValues(XVALUES2, YVALUES_BUMPED);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
@@ -169,10 +169,10 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
   }
 
-  public void test_withXYValues_badSize() {
+  public void test_withValuesXy_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withXYValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withXYValues(DoubleArray.of(1d, 3d, 5d), DoubleArray.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.of(1d, 3d, 5d), DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------

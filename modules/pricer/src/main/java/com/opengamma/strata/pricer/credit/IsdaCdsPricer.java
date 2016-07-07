@@ -146,7 +146,7 @@ public class IsdaCdsPricer {
     }
 
     @Override
-    public NodalCurve withYValues(DoubleArray values) {
+    public NodalCurve withValues(DoubleArray values) {
       return new IsdaNodalCurve(IsdaCompliantCurve.makeFromRT(getXValues(), values), curveMetadata);
     }
 
@@ -187,8 +187,8 @@ public class IsdaCdsPricer {
     }
 
     @Override
-    public NodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
-      throw new UnsupportedOperationException();
+    public NodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
+      return new IsdaNodalCurve(IsdaCompliantCurve.makeFromRT(xValues, yValues), curveMetadata);
     }
 
     //-------------------------------------------------------------------------
