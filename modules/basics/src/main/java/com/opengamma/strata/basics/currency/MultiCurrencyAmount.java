@@ -148,7 +148,7 @@ public final class MultiCurrencyAmount
    */
   public static MultiCurrencyAmount total(Iterable<CurrencyAmount> amounts) {
     ArgChecker.notNull(amounts, "amounts");
-    return Guavate.stream(amounts).collect(collector());
+    return Guavate.stream(amounts).collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -160,7 +160,7 @@ public final class MultiCurrencyAmount
    *
    * @return the collector
    */
-  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collector() {
+  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> toMultiCurrencyAmount() {
     return Collector.<CurrencyAmount, Map<Currency, CurrencyAmount>, MultiCurrencyAmount>of(
         // accumulate into a map
         HashMap::new,
@@ -297,7 +297,7 @@ public final class MultiCurrencyAmount
    */
   public MultiCurrencyAmount plus(CurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(collector());
+    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(toMultiCurrencyAmount());
   }
 
   /**
@@ -315,7 +315,7 @@ public final class MultiCurrencyAmount
    */
   public MultiCurrencyAmount plus(MultiCurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(collector());
+    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------

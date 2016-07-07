@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.CAD;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmountArray.toMultiCurrencyAmountArray;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -320,6 +321,31 @@ public class MultiCurrencyAmountArrayTest {
             Currency.CHF, DoubleArray.of(250, 254, 256)));
 
     assertThrowsIllegalArg(() -> array1.minus(array2));
+  }
+
+  public void collector() {
+    List<CurrencyAmountArray> arrays = ImmutableList.of(
+        CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
+        CurrencyAmountArray.of(USD, DoubleArray.of(5, 6, 7)),
+        CurrencyAmountArray.of(EUR, DoubleArray.of(2, 4, 6)),
+        CurrencyAmountArray.of(GBP, DoubleArray.of(11, 12, 13)),
+        CurrencyAmountArray.of(GBP, DoubleArray.of(1, 2, 3)));
+
+    Map<Currency, DoubleArray> expectedMap = ImmutableMap.of(
+        USD, DoubleArray.of(15, 26, 37),
+        EUR, DoubleArray.of(2, 4, 6),
+        GBP, DoubleArray.of(12, 14, 16));
+
+    MultiCurrencyAmountArray expected = MultiCurrencyAmountArray.of(expectedMap);
+    assertThat(arrays.stream().collect(toMultiCurrencyAmountArray())).isEqualTo(expected);
+  }
+
+  public void collectorDifferentArrayLengths() {
+    List<CurrencyAmountArray> arrays = ImmutableList.of(
+        CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
+        CurrencyAmountArray.of(GBP, DoubleArray.of(1, 2)));
+
+    assertThrowsIllegalArg(() -> arrays.stream().collect(toMultiCurrencyAmountArray()));
   }
 
 }

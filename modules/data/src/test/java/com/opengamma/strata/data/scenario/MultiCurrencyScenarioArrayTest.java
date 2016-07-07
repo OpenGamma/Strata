@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray.toMultiCurrencyScenarioArray;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -191,6 +192,31 @@ public class MultiCurrencyScenarioArrayTest {
 
   public void getCurrencies() {
     assertThat(VALUES_ARRAY.getCurrencies()).isEqualTo(ImmutableSet.of(Currency.GBP, Currency.USD, Currency.EUR));
+  }
+
+  public void collector() {
+    List<CurrencyScenarioArray> arrays = ImmutableList.of(
+        CurrencyScenarioArray.of(USD, DoubleArray.of(10, 20, 30)),
+        CurrencyScenarioArray.of(USD, DoubleArray.of(5, 6, 7)),
+        CurrencyScenarioArray.of(EUR, DoubleArray.of(2, 4, 6)),
+        CurrencyScenarioArray.of(GBP, DoubleArray.of(11, 12, 13)),
+        CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2, 3)));
+
+    Map<Currency, DoubleArray> expectedMap = ImmutableMap.of(
+        USD, DoubleArray.of(15, 26, 37),
+        EUR, DoubleArray.of(2, 4, 6),
+        GBP, DoubleArray.of(12, 14, 16));
+
+    MultiCurrencyScenarioArray expected = MultiCurrencyScenarioArray.of(expectedMap);
+    assertThat(arrays.stream().collect(toMultiCurrencyScenarioArray())).isEqualTo(expected);
+  }
+
+  public void collectorDifferentArrayLengths() {
+    List<CurrencyScenarioArray> arrays = ImmutableList.of(
+        CurrencyScenarioArray.of(USD, DoubleArray.of(10, 20, 30)),
+        CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2)));
+
+    assertThrowsIllegalArg(() -> arrays.stream().collect(toMultiCurrencyScenarioArray()));
   }
 
   public void coverage() {
