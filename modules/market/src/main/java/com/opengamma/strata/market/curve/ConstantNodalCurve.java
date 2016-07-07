@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -171,14 +170,14 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public ConstantNodalCurve withValues(DoubleArray yValues) {
-    ArgChecker.isTrue(yValues.size() == 1, "single parameter");
+  public ConstantNodalCurve withYValues(DoubleArray yValues) {
+    ArgChecker.isTrue(yValues.size() == 1, "Invalid number of parameters, only one allowed");
     return new ConstantNodalCurve(metadata, xValue, yValues.get(0));
   }
 
   @Override
   public ConstantNodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
-    ArgChecker.isTrue(xValues.size() == 1 && yValues.size() == 1, "single parameter");
+    ArgChecker.isTrue(xValues.size() == 1 && yValues.size() == 1, "Invalid number of parameters, only one allowed");
     return new ConstantNodalCurve(metadata, xValues.get(0), yValues.get(0));
   }
 
@@ -186,13 +185,7 @@ public final class ConstantNodalCurve
   @Override
   public ConstantNodalCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
     ArgChecker.isTrue(x == xValue, "x should be equal to the existing x-value");
-    CurveMetadata md = metadata.getParameterMetadata()
-        .map(params -> {
-          List<ParameterMetadata> newList = new ArrayList<>(params);
-          newList.set(0, paramMetadata);
-          return metadata.withParameterMetadata(newList);
-        })
-        .orElse(metadata);
+    CurveMetadata md = metadata.withParameterMetadata(ImmutableList.of(paramMetadata));
     return new ConstantNodalCurve(md, x, y);
   }
 

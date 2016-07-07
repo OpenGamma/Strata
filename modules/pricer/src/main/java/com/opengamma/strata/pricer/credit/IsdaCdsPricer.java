@@ -146,8 +146,13 @@ public class IsdaCdsPricer {
     }
 
     @Override
-    public NodalCurve withValues(DoubleArray values) {
+    public NodalCurve withYValues(DoubleArray values) {
       return new IsdaNodalCurve(IsdaCompliantCurve.makeFromRT(getXValues(), values), curveMetadata);
+    }
+
+    @Override
+    public NodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
+      return new IsdaNodalCurve(IsdaCompliantCurve.makeFromRT(xValues, yValues), curveMetadata);
     }
 
     @Override
@@ -184,11 +189,6 @@ public class IsdaCdsPricer {
     @Override
     public IsdaNodalCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
       throw new UnsupportedOperationException("ISDA credit curve does not allow node to be inserted");
-    }
-
-    @Override
-    public NodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
-      return new IsdaNodalCurve(IsdaCompliantCurve.makeFromRT(xValues, yValues), curveMetadata);
     }
 
     //-------------------------------------------------------------------------

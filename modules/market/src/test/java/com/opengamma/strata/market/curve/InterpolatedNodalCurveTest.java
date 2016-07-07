@@ -144,7 +144,7 @@ public class InterpolatedNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withValues() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    InterpolatedNodalCurve test = base.withValues(YVALUES_BUMPED);
+    InterpolatedNodalCurve test = base.withYValues(YVALUES_BUMPED);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
@@ -154,8 +154,8 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withValues_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------

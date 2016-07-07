@@ -78,7 +78,7 @@ public interface NodalCurve
    * @param values  the new y-values for the curve
    * @return the new curve
    */
-  public abstract NodalCurve withValues(DoubleArray values);
+  public abstract NodalCurve withYValues(DoubleArray values);
 
   /**
    * Returns a new curve with the specified x-values and y-values.
