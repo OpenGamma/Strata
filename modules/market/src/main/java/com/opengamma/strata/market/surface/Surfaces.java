@@ -218,6 +218,80 @@ public final class Surfaces {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates metadata for a surface providing Normal expiry-simple moneyness volatility for swaptions.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent simple moneyness (strike - forward).
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata swaptionNormalExpirySimpleMoneyness(String name, DayCount dayCount) {
+    return swaptionNormalExpirySimpleMoneyness(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Normal expiry-simple moneyness volatility for swaptions.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent simple moneyness (strike - forward).
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata swaptionNormalExpirySimpleMoneyness(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates metadata for a surface providing Normal expiry-strike volatility for swaptions.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike.
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata swaptionNormalExpiryStrike(String name, DayCount dayCount) {
+    return swaptionNormalExpiryStrike(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Normal expiry-strike volatility for swaptions.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike.
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata swaptionNormalExpiryStrike(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates metadata for a surface providing SABR expiry-tenor volatility for swaptions.
    * <p>
    * The x-values represent time to expiry year fractions as defined by the specified day count.

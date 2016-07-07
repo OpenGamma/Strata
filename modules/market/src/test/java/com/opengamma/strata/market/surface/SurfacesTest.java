@@ -151,6 +151,56 @@ public class SurfacesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void swaptionNormalExpirySimpleMoneyness_string() {
+    SurfaceMetadata test = Surfaces.swaptionNormalExpirySimpleMoneyness(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void swaptionNormalExpirySimpleMoneyness_surfaceName() {
+    SurfaceMetadata test = Surfaces.swaptionNormalExpirySimpleMoneyness(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void swaptionNormalExpiryStrike_string() {
+    SurfaceMetadata test = Surfaces.swaptionNormalExpiryStrike(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void swaptionNormalExpiryStrike_surfaceName() {
+    SurfaceMetadata test = Surfaces.swaptionNormalExpiryStrike(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void swaptionSabrExpiryTenor_string() {
     SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(NAME, ACT_360, ValueType.SABR_BETA);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
