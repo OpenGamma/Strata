@@ -51,7 +51,7 @@ public class DiscountingNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public double presentValue(NotionalExchange event, RatesProvider provider) {
-    return paymentPricer.presentValue(event.getPayment(), provider).getAmount();
+    return paymentPricer.presentValueAmount(event.getPayment(), provider);
   }
 
   @Override

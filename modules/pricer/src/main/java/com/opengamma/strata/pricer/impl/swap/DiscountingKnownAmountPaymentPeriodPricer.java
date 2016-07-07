@@ -52,7 +52,7 @@ public class DiscountingKnownAmountPaymentPeriodPricer
   //-------------------------------------------------------------------------
   @Override
   public double presentValue(KnownAmountPaymentPeriod period, RatesProvider provider) {
-    return paymentPricer.presentValue(period.getPayment(), provider).getAmount();
+    return paymentPricer.presentValueAmount(period.getPayment(), provider);
   }
 
   @Override

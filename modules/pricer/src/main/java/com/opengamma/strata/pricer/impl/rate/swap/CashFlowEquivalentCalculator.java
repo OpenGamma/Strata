@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
@@ -41,9 +42,11 @@ public final class CashFlowEquivalentCalculator {
   /**
    * Computes cash flow equivalent of swap.
    * <p>
-   * The swap should be a fix-for-Ibor swap without compounding, and its swap legs should not involve {@code PaymentEvent}.
+   * The swap should be a fix-for-Ibor swap without compounding, and its swap legs
+   * should not involve {@code PaymentEvent}.
    * <p>
-   * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
+   * The return type is {@code ResolvedSwapLeg} in which individual payments are
+   * represented in terms of {@code NotionalExchange}.
    * 
    * @param swap  the swap product
    * @param ratesProvider  the rates provider
@@ -65,7 +68,8 @@ public final class CashFlowEquivalentCalculator {
   /**
    * Computes cash flow equivalent of Ibor leg.
    * <p>
-   * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
+   * The return type is {@code ResolvedSwapLeg} in which individual payments are
+   * represented in terms of {@code NotionalExchange}.
    * 
    * @param iborLeg  the Ibor leg
    * @param ratesProvider  the rates provider
@@ -106,7 +110,8 @@ public final class CashFlowEquivalentCalculator {
   /**
    * Computes cash flow equivalent of fixed leg.
    * <p>
-   * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
+   * The return type is {@code ResolvedSwapLeg} in which individual payments are
+   * represented in terms of {@code NotionalExchange}.
    * 
    * @param fixedLeg  the fixed leg
    * @param ratesProvider  the rates provider
@@ -148,15 +153,16 @@ public final class CashFlowEquivalentCalculator {
    * @param ratesProvider  the rates provider
    * @return the cash flow equivalent and sensitivity
    */
-  public static ImmutableMap<NotionalExchange, PointSensitivityBuilder> cashFlowEquivalentAndSensitivitySwap(
+  public static ImmutableMap<Payment, PointSensitivityBuilder> cashFlowEquivalentAndSensitivitySwap(
       ResolvedSwap swap,
       RatesProvider ratesProvider) {
+
     validateSwap(swap);
-    ImmutableMap<NotionalExchange, PointSensitivityBuilder> mapFixed =
+    ImmutableMap<Payment, PointSensitivityBuilder> mapFixed =
         cashFlowEquivalentAndSensitivityFixedLeg(swap.getLegs(SwapLegType.FIXED).get(0), ratesProvider);
-    ImmutableMap<NotionalExchange, PointSensitivityBuilder> mapIbor =
+    ImmutableMap<Payment, PointSensitivityBuilder> mapIbor =
         cashFlowEquivalentAndSensitivityIborLeg(swap.getLegs(SwapLegType.IBOR).get(0), ratesProvider);
-    return ImmutableMap.<NotionalExchange, PointSensitivityBuilder>builder().putAll(mapFixed).putAll(mapIbor).build();
+    return ImmutableMap.<Payment, PointSensitivityBuilder>builder().putAll(mapFixed).putAll(mapIbor).build();
   }
 
   /**
@@ -168,12 +174,13 @@ public final class CashFlowEquivalentCalculator {
    * @param ratesProvider  the rates provider
    * @return the cash flow equivalent and sensitivity
    */
-  public static ImmutableMap<NotionalExchange, PointSensitivityBuilder> cashFlowEquivalentAndSensitivityIborLeg(
+  public static ImmutableMap<Payment, PointSensitivityBuilder> cashFlowEquivalentAndSensitivityIborLeg(
       ResolvedSwapLeg iborLeg,
       RatesProvider ratesProvider) {
+
     ArgChecker.isTrue(iborLeg.getType().equals(SwapLegType.IBOR), "Leg type should be IBOR");
     ArgChecker.isTrue(iborLeg.getPaymentEvents().isEmpty(), "PaymentEvent should be empty");
-    Map<NotionalExchange, PointSensitivityBuilder> res = new HashMap<NotionalExchange, PointSensitivityBuilder>();
+    Map<Payment, PointSensitivityBuilder> res = new HashMap<Payment, PointSensitivityBuilder>();
     for (PaymentPeriod paymentPeriod : iborLeg.getPaymentPeriods()) {
       ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "rate payment should be RatePaymentPeriod");
       RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
@@ -191,8 +198,8 @@ public final class CashFlowEquivalentCalculator {
       double dfStart = ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
       double beta = factorIndex * dfPayment / dfStart;
       double ycRatio = rateAccrualPeriod.getYearFraction() / fixingYearFraction;
-      NotionalExchange payStart = NotionalExchange.of(notional.multipliedBy(beta * ycRatio), fixingStartDate);
-      NotionalExchange payEnd = NotionalExchange.of(notional.multipliedBy(-ycRatio), paymentDate);
+      Payment payStart = Payment.of(notional.multipliedBy(beta * ycRatio), fixingStartDate);
+      Payment payEnd = Payment.of(notional.multipliedBy(-ycRatio), paymentDate);
       double factor = ycRatio * notional.getAmount() / dfStart;
 
       PointSensitivityBuilder factorIndexSensi = ratesProvider.iborIndexRates(index)
@@ -216,12 +223,13 @@ public final class CashFlowEquivalentCalculator {
    * @param ratesProvider  the rates provider
    * @return the cash flow equivalent and sensitivity
    */
-  public static ImmutableMap<NotionalExchange, PointSensitivityBuilder> cashFlowEquivalentAndSensitivityFixedLeg(
+  public static ImmutableMap<Payment, PointSensitivityBuilder> cashFlowEquivalentAndSensitivityFixedLeg(
       ResolvedSwapLeg fixedLeg,
       RatesProvider ratesProvider) {
+
     ArgChecker.isTrue(fixedLeg.getType().equals(SwapLegType.FIXED), "Leg type should be FIXED");
     ArgChecker.isTrue(fixedLeg.getPaymentEvents().isEmpty(), "PaymentEvent should be empty");
-    Map<NotionalExchange, PointSensitivityBuilder> res = new HashMap<NotionalExchange, PointSensitivityBuilder>();
+    Map<Payment, PointSensitivityBuilder> res = new HashMap<Payment, PointSensitivityBuilder>();
     for (PaymentPeriod paymentPeriod : fixedLeg.getPaymentPeriods()) {
       ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "rate payment should be RatePaymentPeriod");
       RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
@@ -231,7 +239,7 @@ public final class CashFlowEquivalentCalculator {
           ((FixedRateComputation) rateAccrualPeriod.getRateComputation()).getRate();
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount().multipliedBy(factor);
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      NotionalExchange pay = NotionalExchange.of(notional, paymentDate);
+      Payment pay = Payment.of(notional, paymentDate);
       res.put(pay, PointSensitivityBuilder.none());
     }
     return ImmutableMap.copyOf(res);
@@ -243,4 +251,5 @@ public final class CashFlowEquivalentCalculator {
     ArgChecker.isTrue(swap.getLegs(SwapLegType.FIXED).size() == 1, "swap should have unique fixed leg");
     ArgChecker.isTrue(swap.getLegs(SwapLegType.IBOR).size() == 1, "swap should have unique Ibor leg");
   }
+
 }

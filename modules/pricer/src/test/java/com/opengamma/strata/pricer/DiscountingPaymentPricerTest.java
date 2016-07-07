@@ -49,6 +49,18 @@ public class DiscountingPaymentPricerTest {
   private static final double EPS = 1.0e-6;
 
   //-------------------------------------------------------------------------
+  public void test_presentValue_provider() {
+    CurrencyAmount computed = PRICER.presentValue(PAYMENT, PROVIDER);
+    double expected = NOTIONAL_USD * DF;
+    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+  }
+
+  public void test_presentValue_provider_ended() {
+    CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, PROVIDER);
+    assertEquals(computed, CurrencyAmount.zero(USD));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_presentValue_df() {
     CurrencyAmount computed = PRICER.presentValue(PAYMENT, DISCOUNT_FACTORS);
     double expected = NOTIONAL_USD * DF;
@@ -61,15 +73,15 @@ public class DiscountingPaymentPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_presentValue_provider() {
-    CurrencyAmount computed = PRICER.presentValue(PAYMENT, PROVIDER);
+  public void test_presentValueAmount_provider() {
+    double computed = PRICER.presentValueAmount(PAYMENT, PROVIDER);
     double expected = NOTIONAL_USD * DF;
-    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+    assertEquals(computed, expected, NOTIONAL_USD * TOL);
   }
 
-  public void test_presentValue_provider_ended() {
-    CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, PROVIDER);
-    assertEquals(computed, CurrencyAmount.zero(USD));
+  public void test_presentValueAmount_provider_ended() {
+    double computed = PRICER.presentValueAmount(PAYMENT_PAST, PROVIDER);
+    assertEquals(computed, 0d, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -101,23 +113,6 @@ public class DiscountingPaymentPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_presentValueSensitivity_df() {
-    PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS).build();
-    double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
-    double expected = -DF * relativeYearFraction * NOTIONAL_USD;
-    ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
-    assertEquals(actual.getCurrency(), USD);
-    assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getYearFraction(), relativeYearFraction);
-    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
-  }
-
-  public void test_presentValueSensitivity_df_ended() {
-    PointSensitivities computed = PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS).build();
-    assertEquals(computed, PointSensitivities.empty());
-  }
-
-  //-------------------------------------------------------------------------
   public void test_presentValueSensitivity_provider() {
     PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, PROVIDER).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
@@ -131,6 +126,23 @@ public class DiscountingPaymentPricerTest {
 
   public void test_presentValueSensitivity_provider_ended() {
     PointSensitivities computed = PRICER.presentValueSensitivity(PAYMENT_PAST, PROVIDER).build();
+    assertEquals(computed, PointSensitivities.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueSensitivity_df() {
+    PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS).build();
+    double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
+    double expected = -DF * relativeYearFraction * NOTIONAL_USD;
+    ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
+    assertEquals(actual.getCurrency(), USD);
+    assertEquals(actual.getCurveCurrency(), USD);
+    assertEquals(actual.getYearFraction(), relativeYearFraction);
+    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
+  }
+
+  public void test_presentValueSensitivity_df_ended() {
+    PointSensitivities computed = PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS).build();
     assertEquals(computed, PointSensitivities.empty());
   }
 
