@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -133,7 +134,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector() {
     List<CurrencyAmount> amount = ImmutableList.of(
         CurrencyAmount.of(CCY1, 100), CurrencyAmount.of(CCY1, 150), CurrencyAmount.of(CCY2, 100));
-    MultiCurrencyAmount test = amount.stream().collect(MultiCurrencyAmount.collector());
+    MultiCurrencyAmount test = amount.stream().collect(toMultiCurrencyAmount());
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(CCY1, 250), CurrencyAmount.of(CCY2, 100));
     assertEquals(test, expected);
   }
@@ -141,7 +142,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector_parallel() {
     List<CurrencyAmount> amount = ImmutableList.of(
         CurrencyAmount.of(CCY1, 100), CurrencyAmount.of(CCY1, 150), CurrencyAmount.of(CCY2, 100));
-    MultiCurrencyAmount test = amount.parallelStream().collect(MultiCurrencyAmount.collector());
+    MultiCurrencyAmount test = amount.parallelStream().collect(toMultiCurrencyAmount());
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(CCY1, 250), CurrencyAmount.of(CCY2, 100));
     assertEquals(test, expected);
   }
@@ -149,7 +150,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector_null() {
     List<CurrencyAmount> amount = Arrays.asList(
         CurrencyAmount.of(CCY1, 100), null, CurrencyAmount.of(CCY2, 100));
-    assertThrowsIllegalArg(() -> amount.stream().collect(MultiCurrencyAmount.collector()));
+    assertThrowsIllegalArg(() -> amount.stream().collect(toMultiCurrencyAmount()));
   }
 
   //-------------------------------------------------------------------------
@@ -348,7 +349,7 @@ public class MultiCurrencyAmountTest {
     MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
     MultiCurrencyAmount test = base.stream()
         .map(ca -> ca.mapAmount(a -> a * 3))
-        .collect(MultiCurrencyAmount.collector());
+        .collect(toMultiCurrencyAmount());
     assertMCA(test, CA1.mapAmount(a -> a * 3), CA2.mapAmount(a -> a * 3));
   }
 

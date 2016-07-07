@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.param;
 
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -286,7 +288,7 @@ public final class CurrencyParameterSensitivities
   public MultiCurrencyAmount total() {
     return sensitivities.stream()
         .map(CurrencyParameterSensitivity::total)
-        .collect(MultiCurrencyAmount.collector());
+        .collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------

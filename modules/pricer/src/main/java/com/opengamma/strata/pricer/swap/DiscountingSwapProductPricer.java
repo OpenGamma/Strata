@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.swap;
 
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
+
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
@@ -128,7 +130,7 @@ public class DiscountingSwapProductPricer {
     if (swap.isCrossCurrency()) {
       return swap.getLegs().stream()
           .map(leg -> CurrencyAmount.of(leg.getCurrency(), legFn.applyAsDouble(leg, provider)))
-          .collect(MultiCurrencyAmount.collector());
+          .collect(toMultiCurrencyAmount());
     } else {
       Currency currency = swap.getLegs().iterator().next().getCurrency();
       double total = 0d;
