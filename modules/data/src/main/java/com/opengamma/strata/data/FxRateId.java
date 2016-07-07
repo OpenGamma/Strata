@@ -37,8 +37,9 @@ import com.opengamma.strata.collect.ArgChecker;
  * {@link FxRate} identified by the ID as it can handle both currency pairs that can be
  * created from the two currencies.
  */
-@BeanDefinition(builderScope = "private")
-public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Serializable {
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
+public final class FxRateId
+    implements MarketDataId<FxRate>, ImmutableBean, Serializable {
 
   /**
    * The currency pair that is required.
@@ -131,6 +132,11 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   @Override
   public FxRateId.Meta metaBean() {
     return FxRateId.Meta.INSTANCE;
@@ -182,9 +188,13 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(pair);
-    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(pair);
+      hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

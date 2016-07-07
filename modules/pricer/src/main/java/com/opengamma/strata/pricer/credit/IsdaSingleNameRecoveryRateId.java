@@ -30,7 +30,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * Market data ID for a recovery rate to be used in the ISDA credit model's
  * pricing for a single-name.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class IsdaSingleNameRecoveryRateId
     implements MarketDataId<CdsRecoveryRate>, ImmutableBean, Serializable {
 
@@ -75,6 +75,11 @@ public final class IsdaSingleNameRecoveryRateId
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   private IsdaSingleNameRecoveryRateId(
       SingleNameReferenceInformation referenceInformation) {
@@ -121,8 +126,12 @@ public final class IsdaSingleNameRecoveryRateId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

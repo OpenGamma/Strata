@@ -34,8 +34,9 @@ import com.opengamma.strata.data.ObservableSource;
  * <p>
  * This identifier can also be used to access the historic time-series of values.
  */
-@BeanDefinition(builderScope = "private")
-public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializable {
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
+public final class IndexQuoteId
+    implements ObservableId, ImmutableBean, Serializable {
 
   /**
    * The index.
@@ -132,6 +133,11 @@ public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializ
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   private IndexQuoteId(
       Index index,
       FieldName fieldName,
@@ -206,10 +212,14 @@ public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializ
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
-    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(index);
+      hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
+      hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 
