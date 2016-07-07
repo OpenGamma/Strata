@@ -6,8 +6,6 @@
 package com.opengamma.strata.measure.swaption;
 
 import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.data.MarketData;
@@ -29,16 +27,6 @@ public interface SwaptionMarketData {
    */
   public default LocalDate getValuationDate() {
     return getMarketData().getValuationDate();
-  }
-
-  /**
-   * Gets the valuation date-time.
-   *
-   * @return the valuation date-time
-   */
-  public default ZonedDateTime getValuationDateTime() {
-    // TODO: need valuation date-time in market data
-    return getMarketData().getValuationDate().atStartOfDay(ZoneOffset.UTC);
   }
 
   //-------------------------------------------------------------------------
