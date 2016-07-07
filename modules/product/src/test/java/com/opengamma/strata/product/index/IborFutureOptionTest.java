@@ -56,6 +56,7 @@ public class IborFutureOptionTest {
     assertEquals(test.getRounding(), Rounding.none());
     assertEquals(test.getUnderlyingFuture(), FUTURE);
     assertEquals(test.getCurrency(), FUTURE.getCurrency());
+    assertEquals(test.getIndex(), FUTURE.getIndex());
   }
 
   public void test_builder_expiryNotAfterTradeDate() {
