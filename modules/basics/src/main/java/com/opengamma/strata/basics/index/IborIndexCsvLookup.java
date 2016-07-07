@@ -78,8 +78,6 @@ final class IborIndexCsvLookup
    */
   private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH[:mm]", Locale.ENGLISH);
   /**
-
-  /**
    * The cache by name.
    */
   private static final ImmutableMap<String, IborIndex> BY_NAME = loadFromCsv();
