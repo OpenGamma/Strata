@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
@@ -71,6 +72,26 @@ public class SabrExtrapolationReplicationCmsTradePricer {
     return pvCms.plus(pvPremium);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of the CMS trade.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param cms  the CMS product
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the explain PV map
+   */
+  public ExplainMap explainPresentValue(
+      ResolvedCms cms,
+      RatesProvider ratesProvider,
+      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+
+    return productPricer.explainPresentValue(cms, ratesProvider, swaptionVolatilities);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value curve sensitivity of the CMS trade.
    * <p>
@@ -81,13 +102,13 @@ public class SabrExtrapolationReplicationCmsTradePricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivity(
+  public PointSensitivities presentValueSensitivityRates(
       ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
     PointSensitivityBuilder pvSensiCms =
-        productPricer.presentValueSensitivity(trade.getProduct(), ratesProvider, swaptionVolatilities);
+        productPricer.presentValueSensitivityRates(trade.getProduct(), ratesProvider, swaptionVolatilities);
     if (!trade.getPremium().isPresent()) {
       return pvSensiCms.build();
     }
@@ -106,12 +127,12 @@ public class SabrExtrapolationReplicationCmsTradePricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivitySabrParameter(
+  public PointSensitivities presentValueSensitivityModelParamsSabr(
       ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    return productPricer.presentValueSensitivitySabrParameter(
+    return productPricer.presentValueSensitivityModelParamsSabr(
         trade.getProduct(), ratesProvider, swaptionVolatilities).build();
   }
 
