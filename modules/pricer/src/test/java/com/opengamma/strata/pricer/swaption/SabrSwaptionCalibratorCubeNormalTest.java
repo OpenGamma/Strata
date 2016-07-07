@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
-import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DATA_ARRAY_SPARSE;
+import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DAY_COUNT;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.MONEYNESS;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.TENORS;
@@ -19,7 +19,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -42,9 +41,9 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
-import com.opengamma.strata.pricer.curve.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
+import com.opengamma.strata.pricer.option.TenorRawOptionData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.BuySell;
@@ -85,9 +84,12 @@ public class SabrSwaptionCalibratorCubeNormalTest {
       CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA, TS);
 
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
-  private static final List<RawOptionData> DATA_SPARSE = SabrSwaptionCalibratorSmileTestUtils
-      .rawData(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.NORMAL_VOLATILITY, DATA_ARRAY_SPARSE);
+  private static final TenorRawOptionData DATA_SPARSE = SabrSwaptionCalibratorSmileTestUtils
+      .rawData(TENORS, EXPIRIES, ValueType.SIMPLE_MONEYNESS, MONEYNESS, ValueType.NORMAL_VOLATILITY, DATA_ARRAY_SPARSE);
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
+  private static final SwaptionVolatilitiesName NAME_SABR = SwaptionVolatilitiesName.of("Calibrated-SABR");
+  private static final SabrSwaptionDefinition DEFINITION =
+      SabrSwaptionDefinition.of(NAME_SABR, EUR_FIXED_1Y_EURIBOR_6M, DAY_COUNT, INTERPOLATOR_2D);
 
   private static final double TOLERANCE_PRICE_CALIBRATION_LS = 5.0E-4; // Calibration Least Square; result not exact
 
@@ -103,16 +105,7 @@ public class SabrSwaptionCalibratorCubeNormalTest {
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        SwaptionVolatilitiesName.of("Calibrated-SABR"),
-        EUR_FIXED_1Y_EURIBOR_6M,
-        CALIBRATION_TIME,
-        ACT_365F,
-        TENORS,
-        DATA_SPARSE,
-        MULTICURVE,
-        betaSurface,
-        shiftSurface,
-        INTERPOLATOR_2D);
+        DEFINITION, CALIBRATION_TIME, DATA_SPARSE, MULTICURVE, betaSurface, shiftSurface);
 
     for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
       double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);

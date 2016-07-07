@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.curve;
+package com.opengamma.strata.pricer.option;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -31,7 +31,6 @@ public class RawOptionDataTest {
   private static final DoubleArray MONEYNESS = DoubleArray.of(-0.010, 0.00, 0.0100, 0.0200);
   private static final DoubleArray STRIKES = DoubleArray.of(-0.0050, 0.0050, 0.0150, 0.0250);
   private static final List<Period> EXPIRIES = new ArrayList<>();
-
   static {
     EXPIRIES.add(Period.ofMonths(1));
     EXPIRIES.add(Period.ofMonths(3));
@@ -47,19 +46,19 @@ public class RawOptionDataTest {
           {Double.NaN, 0.10, 0.11, 0.12},
           {0.10, 0.11, 0.12, 0.13}});
 
+  //-------------------------------------------------------------------------
   public void of() {
-    RawOptionData test =
-        RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, DATA_FULL, ValueType.NORMAL_VOLATILITY);
+    RawOptionData test = sut();
     assertEquals(test.getStrikes(), MONEYNESS);
     assertEquals(test.getStrikeType(), ValueType.SIMPLE_MONEYNESS);
     assertEquals(test.getData(), DATA_FULL);
     assertEquals(test.getDataType(), ValueType.NORMAL_VOLATILITY);
   }
 
-  public void of2() {
+  public void ofBlackVolatility() {
     double shift = 0.0075;
     RawOptionData test =
-        RawOptionData.of(STRIKES, ValueType.STRIKE, EXPIRIES, DATA_SPARSE, shift);
+        RawOptionData.ofBlackVolatility(EXPIRIES, STRIKES, ValueType.STRIKE, DATA_SPARSE, shift);
     assertEquals(test.getStrikes(), STRIKES);
     assertEquals(test.getStrikeType(), ValueType.STRIKE);
     assertEquals(test.getData(), DATA_SPARSE);
@@ -70,7 +69,7 @@ public class RawOptionDataTest {
   public void available_smile_at_expiry() {
     double shift = 0.0075;
     RawOptionData test =
-        RawOptionData.of(STRIKES, ValueType.STRIKE, EXPIRIES, DATA_SPARSE, shift);
+        RawOptionData.ofBlackVolatility(EXPIRIES, STRIKES, ValueType.STRIKE, DATA_SPARSE, shift);
     DoubleArray[] strikesAvailable = new DoubleArray[3];
     strikesAvailable[0] = DoubleArray.EMPTY;
     strikesAvailable[1] = DoubleArray.of(0.0050, 0.0150, 0.0250);
@@ -87,22 +86,31 @@ public class RawOptionDataTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    RawOptionData test =
-        RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, DATA_FULL, ValueType.NORMAL_VOLATILITY);
+    RawOptionData test = sut();
     coverImmutableBean(test);
-    List<Period> expiries2 = new ArrayList<>();
-    expiries2.add(Period.ofMonths(3));
-    expiries2.add(Period.ofYears(1));
-    expiries2.add(Period.ofYears(5));
-    RawOptionData test2 =
-        RawOptionData.of(STRIKES, ValueType.STRIKE, expiries2, DATA_SPARSE, ValueType.BLACK_VOLATILITY);
+    RawOptionData test2 = sut2();
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
     RawOptionData test =
-        RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, DATA_FULL, ValueType.BLACK_VOLATILITY);
+        RawOptionData.of(EXPIRIES, MONEYNESS, ValueType.SIMPLE_MONEYNESS, DATA_FULL, ValueType.BLACK_VOLATILITY);
     assertSerialization(test);
+  }
+
+  //-------------------------------------------------------------------------
+  static RawOptionData sut() {
+    return RawOptionData.of(EXPIRIES, MONEYNESS, ValueType.SIMPLE_MONEYNESS, DATA_FULL, ValueType.NORMAL_VOLATILITY);
+  }
+
+  static RawOptionData sut2() {
+    List<Period> expiries2 = new ArrayList<>();
+    expiries2.add(Period.ofMonths(3));
+    expiries2.add(Period.ofYears(1));
+    expiries2.add(Period.ofYears(5));
+    RawOptionData test2 =
+        RawOptionData.of(expiries2, STRIKES, ValueType.STRIKE, DATA_SPARSE, ValueType.BLACK_VOLATILITY);
+    return test2;
   }
 
 }
