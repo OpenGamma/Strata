@@ -26,10 +26,11 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 
 @BeanDefinition(builderScope = "private")
-public class ConstantRecoveryRates
-    implements ImmutableBean, Serializable {
+public final class ConstantRecoveryRates
+    implements RecoveryRates, ImmutableBean, Serializable {
 
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
@@ -48,6 +49,17 @@ public class ConstantRecoveryRates
    * The day count convention of the curve.
    */
   private final DayCount dayCount;  // cached, not a property
+
+  //-------------------------------------------------------------------------
+  @Override
+  public RecoveryRateSensitivity recoveryRatePointSensitivity(LocalDate date) {
+    return null;
+  }
+
+  @Override
+  public CurrencyParameterSensitivities parameterSensitivities(RecoveryRateSensitivity pointSensitivity) {
+    return null;
+  }
 
   //-------------------------------------------------------------------------
   public static ConstantRecoveryRates of(StandardId legalEntityId, LocalDate valuationDate, ConstantCurve curve) {
@@ -179,26 +191,18 @@ public class ConstantRecoveryRates
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ConstantRecoveryRates{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("curve").append('=').append(JodaBeanUtils.toString(curve));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
-    buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConstantRecoveryRates}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -231,7 +235,7 @@ public class ConstantRecoveryRates
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -267,7 +271,7 @@ public class ConstantRecoveryRates
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<StandardId> legalEntityId() {
+    public MetaProperty<StandardId> legalEntityId() {
       return legalEntityId;
     }
 
@@ -275,7 +279,7 @@ public class ConstantRecoveryRates
      * The meta-property for the {@code valuationDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> valuationDate() {
+    public MetaProperty<LocalDate> valuationDate() {
       return valuationDate;
     }
 
@@ -283,7 +287,7 @@ public class ConstantRecoveryRates
      * The meta-property for the {@code curve} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ConstantCurve> curve() {
+    public MetaProperty<ConstantCurve> curve() {
       return curve;
     }
 
@@ -316,7 +320,7 @@ public class ConstantRecoveryRates
   /**
    * The bean-builder for {@code ConstantRecoveryRates}.
    */
-  private static class Builder extends DirectFieldsBeanBuilder<ConstantRecoveryRates> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ConstantRecoveryRates> {
 
     private StandardId legalEntityId;
     private LocalDate valuationDate;
@@ -325,7 +329,7 @@ public class ConstantRecoveryRates
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -398,19 +402,11 @@ public class ConstantRecoveryRates
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("ConstantRecoveryRates.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
-      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
+      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

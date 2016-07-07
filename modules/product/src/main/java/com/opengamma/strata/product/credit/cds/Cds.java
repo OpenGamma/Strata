@@ -165,6 +165,7 @@ public final class Cds
         .payAccruedOnDefault(payAccruedOnDefault)
         .periodicPayments(periodicPayments)
         .settlementDateOffset(settlementDateOffset)
+        .dayCount(dayCount)
         .build();
   }
 

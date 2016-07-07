@@ -58,7 +58,7 @@ public final class CreditRatesProvider
   }
 
   public LegalEntitySurvivalProbabilities survivalProbabilities(StandardId legalEntity, Currency currency) {
-    LegalEntitySurvivalProbabilities survivalProbabilities = creditCurves.get(legalEntity);
+    LegalEntitySurvivalProbabilities survivalProbabilities = creditCurves.get(Pair.of(legalEntity, currency));
     if (survivalProbabilities == null) {
       throw new IllegalArgumentException("Unable to find credit curve: " + legalEntity + ", " + currency);
     }

@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class LegalEntitySurvivalProbabilities
     implements ImmutableBean, Serializable {
 
@@ -106,6 +106,14 @@ public final class LegalEntitySurvivalProbabilities
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static LegalEntitySurvivalProbabilities.Builder builder() {
+    return new LegalEntitySurvivalProbabilities.Builder();
+  }
+
   private LegalEntitySurvivalProbabilities(
       Currency currency,
       StandardId legalEntityId,
@@ -174,6 +182,14 @@ public final class LegalEntitySurvivalProbabilities
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -273,7 +289,7 @@ public final class LegalEntitySurvivalProbabilities
     }
 
     @Override
-    public BeanBuilder<? extends LegalEntitySurvivalProbabilities> builder() {
+    public LegalEntitySurvivalProbabilities.Builder builder() {
       return new LegalEntitySurvivalProbabilities.Builder();
     }
 
@@ -351,7 +367,7 @@ public final class LegalEntitySurvivalProbabilities
   /**
    * The bean-builder for {@code LegalEntitySurvivalProbabilities}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<LegalEntitySurvivalProbabilities> {
+  public static final class Builder extends DirectFieldsBeanBuilder<LegalEntitySurvivalProbabilities> {
 
     private Currency currency;
     private StandardId legalEntityId;
@@ -362,6 +378,17 @@ public final class LegalEntitySurvivalProbabilities
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(LegalEntitySurvivalProbabilities beanToCopy) {
+      this.currency = beanToCopy.getCurrency();
+      this.legalEntityId = beanToCopy.getLegalEntityId();
+      this.valuationDate = beanToCopy.getValuationDate();
+      this.survivalProbabilities = beanToCopy.getSurvivalProbabilities();
     }
 
     //-----------------------------------------------------------------------
@@ -433,6 +460,52 @@ public final class LegalEntitySurvivalProbabilities
           legalEntityId,
           valuationDate,
           survivalProbabilities);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the currency that the discount factors are for.
+     * @param currency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the legalEntityId.
+     * @param legalEntityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder legalEntityId(StandardId legalEntityId) {
+      JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+      this.legalEntityId = legalEntityId;
+      return this;
+    }
+
+    /**
+     * Sets the valuation date.
+     * @param valuationDate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder valuationDate(LocalDate valuationDate) {
+      JodaBeanUtils.notNull(valuationDate, "valuationDate");
+      this.valuationDate = valuationDate;
+      return this;
+    }
+
+    /**
+     * Sets the underlying curve.
+     * The metadata of the curve must define a day count.
+     * @param survivalProbabilities  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder survivalProbabilities(CreditDiscountFactors survivalProbabilities) {
+      JodaBeanUtils.notNull(survivalProbabilities, "survivalProbabilities");
+      this.survivalProbabilities = survivalProbabilities;
+      return this;
     }
 
     //-----------------------------------------------------------------------
