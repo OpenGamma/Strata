@@ -51,6 +51,10 @@ public class ResolvedIborFutureOptionTest {
         .build());
   }
 
+  public void test_builder_badPrice() {
+    assertThrowsIllegalArg(() -> sut().toBuilder().strikePrice(2.1).build());
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());

@@ -40,6 +40,16 @@ import com.opengamma.strata.product.TradeInfo;
  * A {@code ResolvedIborFutureOptionTrade} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future option is based on the price of the underlying future, the volatility
+ * and the time to expiry. The price of the at-the-money option tends to zero as expiry approaches.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
+ * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
+ * represents the price of the option as 0.002.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedIborFutureOptionTrade
@@ -71,6 +81,12 @@ public final class ResolvedIborFutureOptionTrade
    * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
+   * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
+   * represents the price of the option as 0.002.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double price;
@@ -200,6 +216,12 @@ public final class ResolvedIborFutureOptionTrade
    * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
+   * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
+   * represents the price of the option as 0.002.
    * @return the value of the property
    */
   public double getPrice() {
@@ -531,6 +553,12 @@ public final class ResolvedIborFutureOptionTrade
      * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
+     * <p>
+     * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+     * The decimal price is based on the decimal rate equivalent to the percentage.
+     * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
+     * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
+     * represents the price of the option as 0.002.
      * @param price  the new value
      * @return this, for chaining, not null
      */

@@ -8,6 +8,7 @@ package com.opengamma.strata.product.index;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -52,6 +53,10 @@ public class IborFutureOptionSecurityTest {
     assertEquals(test.getPremiumStyle(), OPTION.getPremiumStyle());
     assertEquals(test.getUnderlyingFutureId(), FUTURE_ID);
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of(FUTURE_ID));
+  }
+
+  public void test_builder_badPrice() {
+    assertThrowsIllegalArg(() -> sut().toBuilder().strikePrice(2.1).build());
   }
 
   //-------------------------------------------------------------------------

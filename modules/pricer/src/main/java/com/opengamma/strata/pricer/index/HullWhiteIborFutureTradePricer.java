@@ -25,6 +25,14 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * <p> 
  * Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future is based on the interest rate of the underlying index.
+ * It is defined as {@code (100 - percentRate)}.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
 public class HullWhiteIborFutureTradePricer
     extends AbstractIborFutureTradePricer {

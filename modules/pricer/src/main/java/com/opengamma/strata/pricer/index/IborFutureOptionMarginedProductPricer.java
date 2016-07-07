@@ -16,8 +16,16 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOption;
  * <p>
  * This function provides the ability to price an {@link IborFutureOption}.
  * The option must be based on {@linkplain FutureOptionPremiumStyle#DAILY_MARGIN daily margin}.
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future option is based on the price of the underlying future, the volatility
+ * and the time to expiry. The price of the at-the-money option tends to zero as expiry approaches.
  * <p>
- * Implementations must be immutable and thread-safe functions.
+ * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
+ * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
+ * represents the price of the option as 0.002.
  */
 public abstract class IborFutureOptionMarginedProductPricer {
 
