@@ -131,8 +131,9 @@ public class NormalSwaptionExpiryStrikeVolatilitiesTest {
     double eps = 1.0e-6;
     int nData = TIME.size();
     for (int i = 0; i < NB_TEST; i++) {
+      double expiryTime = PROVIDER.relativeTime(TEST_OPTION_EXPIRY[i]);
       SwaptionSensitivity point = SwaptionSensitivity.of(
-          CONVENTION, TEST_OPTION_EXPIRY[i], TEST_TENOR, TEST_STRIKE[i], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+          CONVENTION, expiryTime, TEST_TENOR, TEST_STRIKE[i], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
       CurrencyParameterSensitivities sensActual = PROVIDER.parameterSensitivity(point);
       CurrencyParameterSensitivity sensi = sensActual.getSensitivity(SURFACE.getName(), GBP);
       DoubleArray computed = sensi.getSensitivity();
