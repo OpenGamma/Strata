@@ -33,6 +33,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * Perform calculations on a single {@code SwapTrade} for each of a set of scenarios.
  * <p>
  * This uses the standard discounting calculation method.
+ * An instance of {@link RatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}

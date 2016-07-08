@@ -32,7 +32,10 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Perform calculations on a single {@code SwaptionTrade} for each of a set of scenarios.
  * <p>
- * This uses Black, Normal or SABR pricing, depending on the inputs.
+ * This uses Black, Normal or SABR swaption volatilities,
+ * which must be specified using {@link SwaptionMarketDataLookup}.
+ * An instance of {@link RatesMarketDataLookup} must also be specified.
+ * <p>
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}

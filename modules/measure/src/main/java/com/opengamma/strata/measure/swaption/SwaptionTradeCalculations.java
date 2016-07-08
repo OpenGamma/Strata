@@ -21,9 +21,9 @@ import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
- * Calculates pricing and risk measures for forward rate agreement (FRA) trades.
+ * Calculates pricing and risk measures for swaption trades.
  * <p>
- * This provides a high-level entry point for FRA pricing and risk measures.
+ * This provides a high-level entry point for swaption pricing and risk measures.
  * <p>
  * Each method takes a {@link ResolvedSwaptionTrade}, whereas application code will
  * typically work with {@link SwaptionTrade}. Call
