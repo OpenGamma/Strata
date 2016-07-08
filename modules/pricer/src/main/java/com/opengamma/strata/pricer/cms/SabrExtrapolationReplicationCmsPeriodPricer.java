@@ -291,7 +291,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
@@ -368,7 +368,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {

@@ -79,6 +79,33 @@ public class SabrExtrapolationReplicationCmsProductPricer {
     return MultiCurrencyAmount.of(pvCmsLeg).plus(pvPayLeg);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of the CMS product.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param cms  the CMS product
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the explain PV map
+   */
+  public ExplainMap explainPresentValue(
+      ResolvedCms cms,
+      RatesProvider ratesProvider,
+      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+    ExplainMapBuilder builder = ExplainMap.builder();
+    builder.put(ExplainKey.ENTRY_TYPE, "CmsSwap");
+    List<ExplainMap> legsExplain = new ArrayList<>();
+    legsExplain.add(cmsLegPricer.explainPresentValue(cms.getCmsLeg(), ratesProvider, swaptionVolatilities));
+    if (cms.getPayLeg().isPresent()) {
+      legsExplain.add(payLegPricer.explainPresentValue(cms.getPayLeg().get(), ratesProvider));
+    }
+    builder.put(ExplainKey.LEGS, legsExplain);
+    return builder.build();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value curve sensitivity of the CMS product.
    * <p>
@@ -89,13 +116,13 @@ public class SabrExtrapolationReplicationCmsProductPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       ResolvedCms cms,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
     PointSensitivityBuilder pvSensiCmsLeg =
-        cmsLegPricer.presentValueSensitivity(cms.getCmsLeg(), ratesProvider, swaptionVolatilities);
+        cmsLegPricer.presentValueSensitivityRates(cms.getCmsLeg(), ratesProvider, swaptionVolatilities);
     if (!cms.getPayLeg().isPresent()) {
       return pvSensiCmsLeg;
     }
@@ -106,20 +133,20 @@ public class SabrExtrapolationReplicationCmsProductPricer {
   /**
    * Calculates the present value sensitivity to the SABR model parameters.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to the SABR model parameters, 
-   * alpha, beta, rho and nu.
+   * The present value sensitivity of the product is the sensitivity of the present value
+   * to the SABR model parameters, alpha, beta, rho and nu.
    * 
    * @param cms  the CMS product
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
       ResolvedCms cms,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    return cmsLegPricer.presentValueSensitivitySabrParameter(cms.getCmsLeg(), ratesProvider, swaptionVolatilities);
+    return cmsLegPricer.presentValueSensitivityModelParamsSabr(cms.getCmsLeg(), ratesProvider, swaptionVolatilities);
   }
 
   /**
@@ -182,32 +209,6 @@ public class SabrExtrapolationReplicationCmsProductPricer {
     }
     CurrencyAmount ccPayLeg = payLegPricer.currentCash(cms.getPayLeg().get(), ratesProvider);
     return MultiCurrencyAmount.of(ccPayLeg).plus(ccCmsLeg);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Explains the present value of the swap product.
-   * <p>
-   * This returns explanatory information about the calculation.
-   * 
-   * @param cms  the CMS product
-   * @param ratesProvider  the rates provider
-   * @param swaptionVolatilities  the swaption volatilities
-   * @return the explain PV map
-   */
-  public ExplainMap explainPresentValue(
-      ResolvedCms cms,
-      RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
-    ExplainMapBuilder builder = ExplainMap.builder();
-    builder.put(ExplainKey.ENTRY_TYPE, "CmsSwap");
-    List<ExplainMap> legsExplain = new ArrayList<>();
-    legsExplain.add(cmsLegPricer.explainPresentValue(cms.getCmsLeg(), ratesProvider, swaptionVolatilities));
-    if (cms.getPayLeg().isPresent()) {
-      legsExplain.add(payLegPricer.explainPresentValue(cms.getPayLeg().get(), ratesProvider));
-    }
-    builder.put(ExplainKey.LEGS, legsExplain);
-    return builder.build();
   }
 
 }

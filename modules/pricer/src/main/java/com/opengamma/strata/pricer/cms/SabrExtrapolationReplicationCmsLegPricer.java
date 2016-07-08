@@ -76,14 +76,14 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
     validate(ratesProvider, swaptionVolatilities);
     return cmsLeg.getCmsPeriods().stream()
-        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivity(cmsPeriod, ratesProvider, swaptionVolatilities))
+        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityRates(cmsPeriod, ratesProvider, swaptionVolatilities))
         .reduce((p1, p2) -> p1.combinedWith(p2))
         .get();
   }
@@ -99,14 +99,14 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
       ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
     validate(ratesProvider, swaptionVolatilities);
     return cmsLeg.getCmsPeriods().stream()
-        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivitySabrParameter(cmsPeriod, ratesProvider, swaptionVolatilities))
+        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityModelParamsSabr(cmsPeriod, ratesProvider, swaptionVolatilities))
         .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith)
         .normalize();
   }
