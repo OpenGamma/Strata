@@ -638,14 +638,14 @@ public class BlackSwaptionCashParYieldProductPricerTest {
     assertEquals(sensiRec.getCurrency(), EUR);
     assertEquals(sensiRec.getSensitivity(), expectedRec, NOTIONAL * TOL);
     assertEquals(sensiRec.getConvention(), SWAP_CONVENTION);
-    assertEquals(sensiRec.getExpiry(), SWAPTION_REC_LONG.getExpiry());
+    assertEquals(sensiRec.getExpiry(), expiry);
     assertEquals(sensiRec.getTenor(), 5.0);
     assertEquals(sensiRec.getStrike(), RATE);
     assertEquals(sensiRec.getForward(), forward, TOL);
     assertEquals(sensiPay.getCurrency(), EUR);
     assertEquals(sensiPay.getSensitivity(), expectedPay, NOTIONAL * TOL);
     assertEquals(sensiRec.getConvention(), SWAP_CONVENTION);
-    assertEquals(sensiPay.getExpiry(), SWAPTION_REC_LONG.getExpiry());
+    assertEquals(sensiPay.getExpiry(), expiry);
     assertEquals(sensiPay.getTenor(), 5.0);
     assertEquals(sensiPay.getStrike(), RATE);
     assertEquals(sensiPay.getForward(), forward, TOL);

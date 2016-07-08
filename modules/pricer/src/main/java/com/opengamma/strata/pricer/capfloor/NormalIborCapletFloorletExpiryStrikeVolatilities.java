@@ -195,7 +195,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
   private CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity point) {
     ArgChecker.isTrue(point.getIndex().equals(index),
         "Ibor index of provider must be the same as Ibor index of point sensitivity");
-    double expiry = relativeTime(point.getExpiry());
+    double expiry = point.getExpiry();
     double strike = point.getStrike();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());

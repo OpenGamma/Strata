@@ -262,7 +262,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     double vega = df * period.getYearFraction() * volatilities.priceVega(expiry, putCall, strike, forward, volatility);
     return IborCapletFloorletSensitivity.of(
         period.getIndex(),
-        period.getFixingDateTime(),
+        expiry,
         strike,
         forward,
         currency,

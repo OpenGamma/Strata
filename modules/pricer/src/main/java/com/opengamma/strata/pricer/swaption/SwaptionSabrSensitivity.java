@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.swaption;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -49,10 +48,10 @@ public final class SwaptionSabrSensitivity
   @PropertyDefinition(validate = "notNull")
   private final FixedIborSwapConvention convention;
   /**
-  * The expiry date/time of the option.
-  */
+   * The time to expiry of the option as a year fraction.
+   */
   @PropertyDefinition(validate = "notNull")
-  private final ZonedDateTime expiry;
+  private final double expiry;
   /**
   * The underlying swap tenor.
   */
@@ -79,7 +78,7 @@ public final class SwaptionSabrSensitivity
    * Obtains an instance from the specified elements.
    * 
    * @param convention  the convention of the swap for which the data is valid
-   * @param expiry  the expiry date/time of the option
+   * @param expiry  the time to expiry of the option as a year fraction
    * @param tenor  the underlying swap tenor
    * @param sensitivityType  the type of the sensitivity
    * @param sensitivityCurrency  the currency of the sensitivity
@@ -88,7 +87,7 @@ public final class SwaptionSabrSensitivity
    */
   public static SwaptionSabrSensitivity of(
       FixedIborSwapConvention convention,
-      ZonedDateTime expiry,
+      double expiry,
       double tenor,
       SabrParameterType sensitivityType,
       Currency sensitivityCurrency,
@@ -185,7 +184,7 @@ public final class SwaptionSabrSensitivity
 
   private SwaptionSabrSensitivity(
       FixedIborSwapConvention convention,
-      ZonedDateTime expiry,
+      double expiry,
       double tenor,
       SabrParameterType sensitivityType,
       Currency currency,
@@ -226,10 +225,10 @@ public final class SwaptionSabrSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry date/time of the option.
+   * Gets the time to expiry of the option as a year fraction.
    * @return the value of the property, not null
    */
-  public ZonedDateTime getExpiry() {
+  public double getExpiry() {
     return expiry;
   }
 
@@ -333,8 +332,8 @@ public final class SwaptionSabrSensitivity
     /**
      * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<ZonedDateTime> expiry = DirectMetaProperty.ofImmutable(
-        this, "expiry", SwaptionSabrSensitivity.class, ZonedDateTime.class);
+    private final MetaProperty<Double> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", SwaptionSabrSensitivity.class, Double.TYPE);
     /**
      * The meta-property for the {@code tenor} property.
      */
@@ -420,7 +419,7 @@ public final class SwaptionSabrSensitivity
      * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ZonedDateTime> expiry() {
+    public MetaProperty<Double> expiry() {
       return expiry;
     }
 
@@ -494,7 +493,7 @@ public final class SwaptionSabrSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<SwaptionSabrSensitivity> {
 
     private FixedIborSwapConvention convention;
-    private ZonedDateTime expiry;
+    private double expiry;
     private double tenor;
     private SabrParameterType sensitivityType;
     private Currency currency;
@@ -534,7 +533,7 @@ public final class SwaptionSabrSensitivity
           this.convention = (FixedIborSwapConvention) newValue;
           break;
         case -1289159373:  // expiry
-          this.expiry = (ZonedDateTime) newValue;
+          this.expiry = (Double) newValue;
           break;
         case 110246592:  // tenor
           this.tenor = (Double) newValue;

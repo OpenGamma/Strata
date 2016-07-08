@@ -119,8 +119,7 @@ public class SabrSwaptionPhysicalProductPricer
       SabrSwaptionVolatilities swaptionVolatilities) {
 
     validate(swaption, ratesProvider, swaptionVolatilities);
-    ZonedDateTime expiryDateTime = swaption.getExpiry();
-    double expiry = swaptionVolatilities.relativeTime(expiryDateTime);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
     ResolvedSwap underlying = swaption.getUnderlying();
     ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -131,7 +130,7 @@ public class SabrSwaptionPhysicalProductPricer
       return PointSensitivityBuilder.none();
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
-    double volatility = swaptionVolatilities.volatility(expiryDateTime, tenor, strike, forward);
+    double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     DoubleArray derivative =
         swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
     // Backward sweep
@@ -141,10 +140,10 @@ public class SabrSwaptionPhysicalProductPricer
     FixedIborSwapConvention conv = swaptionVolatilities.getConvention();
     Currency ccy = fixedLeg.getCurrency();
     return PointSensitivityBuilder.of(
-        SwaptionSabrSensitivity.of(conv, expiryDateTime, tenor, ALPHA, ccy, vega * derivative.get(2)),
-        SwaptionSabrSensitivity.of(conv, expiryDateTime, tenor, BETA, ccy, vega * derivative.get(3)),
-        SwaptionSabrSensitivity.of(conv, expiryDateTime, tenor, RHO, ccy, vega * derivative.get(4)),
-        SwaptionSabrSensitivity.of(conv, expiryDateTime, tenor, NU, ccy, vega * derivative.get(5)));
+        SwaptionSabrSensitivity.of(conv, expiry, tenor, ALPHA, ccy, vega * derivative.get(2)),
+        SwaptionSabrSensitivity.of(conv, expiry, tenor, BETA, ccy, vega * derivative.get(3)),
+        SwaptionSabrSensitivity.of(conv, expiry, tenor, RHO, ccy, vega * derivative.get(4)),
+        SwaptionSabrSensitivity.of(conv, expiry, tenor, NU, ccy, vega * derivative.get(5)));
   }
 
 }

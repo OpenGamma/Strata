@@ -478,7 +478,6 @@ public class SabrSwaptionPhysicalProductPricerTest {
       SwaptionSabrSensitivity sens = (SwaptionSabrSensitivity) point;
       assertEquals(sens.getCurrency(), USD);
       assertEquals(sens.getConvention(), SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD);
-      assertEquals(sens.getExpiry(), SWAPTION_REC_LONG.getExpiry());
       assertEquals(sens.getTenor(), (double) TENOR_YEAR);
       if (sens.getSensitivityType() == type) {
         assertEquals(sens.getSensitivity(), expected, NOTIONAL * tol);

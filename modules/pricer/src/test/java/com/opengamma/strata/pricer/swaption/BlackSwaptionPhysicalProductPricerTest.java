@@ -449,7 +449,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
     assertEquals(pvnvsAd.getCurrency(), USD);
     assertEquals(pvnvsAd.getSensitivity(), pvnvsFd, TOLERANCE_PV_VEGA);
     assertEquals(pvnvsAd.getConvention(), USD_FIXED_6M_LIBOR_3M);
-    assertEquals(pvnvsAd.getExpiry(), SWAPTION_LONG_PAY.getExpiry());
+    assertEquals(pvnvsAd.getExpiry(), BLACK_VOL_CST_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_PAY.getExpiry()));
     assertEquals(pvnvsAd.getTenor(), SWAP_TENOR_YEAR, TOLERANCE_RATE);
     assertEquals(pvnvsAd.getStrike(), STRIKE, TOLERANCE_RATE);
     double forward = PRICER_SWAP.parRate(RSWAP_REC, MULTI_USD);
