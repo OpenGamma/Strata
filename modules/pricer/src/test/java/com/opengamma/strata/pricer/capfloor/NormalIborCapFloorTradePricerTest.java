@@ -99,10 +99,10 @@ public class NormalIborCapFloorTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivities computedWithPayLeg = PRICER.presentValueSensitivity(TRADE_PAYLEG, RATES, VOLS);
-    PointSensitivities computedWithPremium = PRICER.presentValueSensitivity(TRADE_PREMIUM, RATES, VOLS);
-    PointSensitivities pvOneLeg = PRICER_PRODUCT.presentValueSensitivity(CAP_ONE_LEG, RATES, VOLS).build();
-    PointSensitivities pvTwoLegs = PRICER_PRODUCT.presentValueSensitivity(CAP_TWO_LEGS, RATES, VOLS).build();
+    PointSensitivities computedWithPayLeg = PRICER.presentValueSensitivityRates(TRADE_PAYLEG, RATES, VOLS);
+    PointSensitivities computedWithPremium = PRICER.presentValueSensitivityRates(TRADE_PREMIUM, RATES, VOLS);
+    PointSensitivities pvOneLeg = PRICER_PRODUCT.presentValueSensitivityRates(CAP_ONE_LEG, RATES, VOLS).build();
+    PointSensitivities pvTwoLegs = PRICER_PRODUCT.presentValueSensitivityRates(CAP_TWO_LEGS, RATES, VOLS).build();
     PointSensitivities pvPrem = PRICER_PREMIUM.presentValueSensitivity(PREMIUM, RATES).build();
     assertEquals(computedWithPayLeg, pvTwoLegs);
     assertEquals(computedWithPremium, pvOneLeg.combinedWith(pvPrem));
@@ -113,8 +113,8 @@ public class NormalIborCapFloorTradePricerTest {
     MultiCurrencyAmount computedWithPremium = PRICER.currencyExposure(TRADE_PREMIUM, RATES, VOLS);
     MultiCurrencyAmount pvWithPayLeg = PRICER.presentValue(TRADE_PAYLEG, RATES, VOLS);
     MultiCurrencyAmount pvWithPremium = PRICER.presentValue(TRADE_PREMIUM, RATES, VOLS);
-    PointSensitivities pointWithPayLeg = PRICER.presentValueSensitivity(TRADE_PAYLEG, RATES, VOLS);
-    PointSensitivities pointWithPremium = PRICER.presentValueSensitivity(TRADE_PREMIUM, RATES, VOLS);
+    PointSensitivities pointWithPayLeg = PRICER.presentValueSensitivityRates(TRADE_PAYLEG, RATES, VOLS);
+    PointSensitivities pointWithPremium = PRICER.presentValueSensitivityRates(TRADE_PREMIUM, RATES, VOLS);
     MultiCurrencyAmount expectedWithPayLeg = RATES.currencyExposure(pointWithPayLeg).plus(pvWithPayLeg);
     MultiCurrencyAmount expectedWithPremium = RATES.currencyExposure(pointWithPremium).plus(pvWithPremium);
     assertEquals(computedWithPayLeg.getAmount(EUR).getAmount(),

@@ -373,9 +373,9 @@ public class BlackIborCapletFloorletPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivity(CAPLET_LONG, RATES, VOLS);
+    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES, VOLS);
     CurrencyParameterSensitivities computedCaplet = RATES.parameterSensitivity(pointCaplet.build());
-    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivity(FLOORLET_SHORT, RATES, VOLS);
+    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivityRates(FLOORLET_SHORT, RATES, VOLS);
     CurrencyParameterSensitivities computedFloorlet = RATES.parameterSensitivity(pointFloorlet.build());
     CurrencyParameterSensitivities expectedCaplet =
         FD_CAL.sensitivity(RATES, p -> PRICER_BASE.presentValue(CAPLET_LONG, p, VOLS));
@@ -386,9 +386,9 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   }
 
   public void test_presentValueSensitivity_onFix() {
-    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivity(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
+    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyParameterSensitivities computedCaplet = RATES_ON_FIX.parameterSensitivity(pointCaplet.build());
-    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivity(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
+    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivityRates(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyParameterSensitivities computedFloorlet = RATES_ON_FIX.parameterSensitivity(pointFloorlet.build());
     CurrencyParameterSensitivities expectedCaplet =
         FD_CAL.sensitivity(RATES_ON_FIX, p -> PRICER_BASE.presentValue(CAPLET_LONG, p, VOLS_ON_FIX));
@@ -399,10 +399,10 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   }
 
   public void test_presentValueSensitivity_afterFix() {
-    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivity(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
+    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyParameterSensitivities computedCaplet = RATES_AFTER_FIX.parameterSensitivity(pointCaplet.build());
     PointSensitivityBuilder pointFloorlet =
-        PRICER.presentValueSensitivity(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
+        PRICER.presentValueSensitivityRates(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyParameterSensitivities computedFloorlet =
         RATES_AFTER_FIX.parameterSensitivity(pointFloorlet.build());
     CurrencyParameterSensitivities expectedCaplet =
@@ -415,19 +415,19 @@ public class BlackIborCapletFloorletPeriodPricerTest {
 
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder computedCaplet =
-        PRICER.presentValueSensitivity(CAPLET_LONG, RATES_AFTER_PAY, VOLS_AFTER_PAY);
+        PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES_AFTER_PAY, VOLS_AFTER_PAY);
     PointSensitivityBuilder computedFloorlet =
-        PRICER.presentValueSensitivity(FLOORLET_SHORT, RATES_AFTER_PAY, VOLS_AFTER_PAY);
+        PRICER.presentValueSensitivityRates(FLOORLET_SHORT, RATES_AFTER_PAY, VOLS_AFTER_PAY);
     assertEquals(computedCaplet, PointSensitivityBuilder.none());
     assertEquals(computedFloorlet, PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityVolatility() {
-    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityVolatility(CAPLET_LONG, RATES, VOLS);
+    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, VOLS);
     CurrencyParameterSensitivity computedCaplet =
         VOLS.parameterSensitivity(pointCaplet.build()).getSensitivities().get(0);
-    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivityVolatility(FLOORLET_SHORT, RATES, VOLS);
+    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES, VOLS);
     CurrencyParameterSensitivity computedFloorlet =
         VOLS.parameterSensitivity(pointFloorlet.build()).getSensitivities().get(0);
     testSurfaceSensitivity(computedCaplet, VOLS, v -> PRICER.presentValue(CAPLET_LONG, RATES, v));
@@ -453,9 +453,9 @@ public class BlackIborCapletFloorletPeriodPricerTest {
 
   public void test_presentValueSensitivityVolatility_onFix() {
     PointSensitivityBuilder computedCaplet =
-        PRICER.presentValueSensitivityVolatility(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
+        PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     PointSensitivityBuilder computedFloorlet =
-        PRICER.presentValueSensitivityVolatility(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
+        PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
     assertEquals(computedCaplet, PointSensitivityBuilder.none());
     assertEquals(computedFloorlet, PointSensitivityBuilder.none());
 
@@ -463,9 +463,9 @@ public class BlackIborCapletFloorletPeriodPricerTest {
 
   public void test_presentValueSensitivityVolatility_afterFix() {
     PointSensitivityBuilder computedCaplet =
-        PRICER.presentValueSensitivityVolatility(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
+        PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     PointSensitivityBuilder computedFloorlet =
-        PRICER.presentValueSensitivityVolatility(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
+        PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     assertEquals(computedCaplet, PointSensitivityBuilder.none());
     assertEquals(computedFloorlet, PointSensitivityBuilder.none());
   }
@@ -477,8 +477,8 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertThrowsIllegalArg(() -> PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS_NORMAL));
     assertThrowsIllegalArg(() -> PRICER.presentValueGamma(CAPLET_LONG, RATES, VOLS_NORMAL));
     assertThrowsIllegalArg(() -> PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivity(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityVolatility(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, VOLS_NORMAL));
   }
 
   //-------------------------------------------------------------------------
@@ -497,7 +497,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   }
 
   public void regression_pvSensi() {
-    PointSensitivityBuilder point = PRICER.presentValueSensitivity(CAPLET_REG, RATES, VOLS);
+    PointSensitivityBuilder point = PRICER.presentValueSensitivityRates(CAPLET_REG, RATES, VOLS);
     CurrencyParameterSensitivities sensi = RATES.parameterSensitivity(point.build());
     double[] sensiDsc = new double[] {0.0, 0.0, 0.0, -7.148360371957523, -1.8968344850148018, 0.0}; // 2.x
     double[] sensiFwd = new double[] {0.0, 0.0, 0.0, -3999.714444844649, 5987.977558683395, 0.0, 0.0, 0.0}; // 2.x

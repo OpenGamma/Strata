@@ -33,11 +33,11 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value of the caplet/floorlet period.
+   * Calculates the present value of the Ibor caplet/floorlet period.
    * <p>
    * The result is expressed using the currency of the period.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the present value
@@ -69,9 +69,9 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the implied volatility of the caplet/floorlet.
+   * Computes the implied volatility of the Ibor caplet/floorlet.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the implied volatility
@@ -91,11 +91,11 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value delta of the caplet/floorlet period.
+   * Calculates the present value delta of the Ibor caplet/floorlet period.
    * <p>
    * The present value delta is given by the first derivative of the present value with respect to forward.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the present value delta
@@ -123,11 +123,11 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value gamma of the caplet/floorlet period.
+   * Calculates the present value gamma of the Ibor caplet/floorlet period.
    * <p>
    * The present value gamma is given by the second derivative of the present value with respect to forward.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the present value gamma
@@ -155,12 +155,12 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value theta of the caplet/floorlet period.
+   * Calculates the present value theta of the Ibor caplet/floorlet period.
    * <p>
    * The present value theta is given by the minus of the present value sensitivity to the {@code timeToExpiry} 
    * parameter of the model.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the present value theta
@@ -188,16 +188,17 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the caplet/floorlet.
+   * Calculates the present value rates sensitivity of the Ibor caplet/floorlet.
    * <p>
-   * The present value sensitivity is the sensitivity of the present value to the underlying curves.
+   * The present value rates sensitivity of the caplet/floorlet is the sensitivity
+   * of the present value to the underlying curves.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the present value curve sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       IborCapletFloorletPeriod period,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
@@ -230,16 +231,19 @@ public class VolatilityIborCapletFloorletPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity to the implied volatility of the caplet/floorlet.
+   * Calculates the present value volatility sensitivity of the Ibor caplet/floorlet.
+   * <p>
+   * The present value volatility sensitivity of the caplet/floorlet is the sensitivity
+   * of the present value to the implied volatility.
    * <p>
    * The sensitivity to the implied volatility is also called vega.
    * 
-   * @param period  the caplet/floorlet period
+   * @param period  the Ibor caplet/floorlet period
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @return the point sensitivity to the volatility
    */
-  public PointSensitivityBuilder presentValueSensitivityVolatility(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsVolatility(
       IborCapletFloorletPeriod period,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
