@@ -77,6 +77,15 @@ public class SabrSwaptionVolatilitiesTest {
     assertEquals(test.findData(SurfaceName.of("Rubbish")), Optional.empty());
   }
 
+  public void test_calc() {
+    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
+    assertEquals(test.alpha(1d, 2d), PARAM.alpha(1d, 2d));
+    assertEquals(test.beta(1d, 2d), PARAM.beta(1d, 2d));
+    assertEquals(test.rho(1d, 2d), PARAM.rho(1d, 2d));
+    assertEquals(test.nu(1d, 2d), PARAM.nu(1d, 2d));
+    assertEquals(test.shift(1d, 2d), PARAM.shift(1d, 2d));
+  }
+
   public void test_tenor() {
     SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     double test1 = prov.tenor(DATE, DATE);

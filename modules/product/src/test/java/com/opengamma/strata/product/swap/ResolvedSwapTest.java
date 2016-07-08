@@ -91,7 +91,7 @@ public class ResolvedSwapTest {
     assertEquals(test.getStartDate(), LEG1.getStartDate());
     assertEquals(test.getEndDate(), LEG1.getEndDate());
     assertEquals(test.isCrossCurrency(), true);
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
     assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
   }
 
@@ -99,7 +99,7 @@ public class ResolvedSwapTest {
     ResolvedSwap test = ResolvedSwap.of(LEG1);
     assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
     assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
     assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
   }
 
@@ -109,7 +109,7 @@ public class ResolvedSwapTest {
         .build();
     assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
     assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
     assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
   }
 

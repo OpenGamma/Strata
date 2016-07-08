@@ -14,7 +14,7 @@ import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
+import com.opengamma.strata.pricer.swaption.SabrSwaptionVolatilities;
 import com.opengamma.strata.product.cms.CmsLeg;
 import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.cms.ResolvedCmsLeg;
@@ -56,7 +56,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
   public CurrencyAmount presentValue(
       ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     validate(ratesProvider, swaptionVolatilities);
     return cmsLeg.getCmsPeriods().stream()
@@ -65,101 +65,13 @@ public class SabrExtrapolationReplicationCmsLegPricer {
         .get();
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the present value curve sensitivity of the CMS leg.
-   * <p>
-   * The present value sensitivity of the leg is the sensitivity of the present value to
-   * the underlying curves.
-   * 
-   * @param cmsLeg  the CMS leg
-   * @param ratesProvider  the rates provider
-   * @param swaptionVolatilities  the swaption volatilities
-   * @return the present value sensitivity
-   */
-  public PointSensitivityBuilder presentValueSensitivityRates(
-      ResolvedCmsLeg cmsLeg,
-      RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
-
-    validate(ratesProvider, swaptionVolatilities);
-    return cmsLeg.getCmsPeriods().stream()
-        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityRates(cmsPeriod, ratesProvider, swaptionVolatilities))
-        .reduce((p1, p2) -> p1.combinedWith(p2))
-        .get();
-  }
-
-  /**
-   * Calculates the present value sensitivity to the SABR model parameters.
-   * <p>
-   * The present value sensitivity of the leg is the sensitivity of the present value to
-   * the SABR model parameters, alpha, beta, rho and nu.
-   * 
-   * @param cmsLeg  the CMS leg
-   * @param ratesProvider  the rates provider
-   * @param swaptionVolatilities  the swaption volatilities
-   * @return the present value sensitivity
-   */
-  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
-      ResolvedCmsLeg cmsLeg,
-      RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
-
-    validate(ratesProvider, swaptionVolatilities);
-    return cmsLeg.getCmsPeriods().stream()
-        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityModelParamsSabr(cmsPeriod, ratesProvider, swaptionVolatilities))
-        .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith)
-        .normalize();
-  }
-
-  /**
-   * Calculates the present value sensitivity to the strike value.
-   * <p>
-   * The present value sensitivity of the leg is the sensitivity of the present value to the strike value.
-   * This is not relevant for CMS coupons and an exception is thrown in the underlying pricer.
-   * 
-   * @param cmsLeg  the CMS leg
-   * @param ratesProvider  the rates provider
-   * @param swaptionVolatilities  the swaption volatilities
-   * @return the present value sensitivity
-   */
-  public double presentValueSensitivityStrike(
-      ResolvedCmsLeg cmsLeg,
-      RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
-
-    validate(ratesProvider, swaptionVolatilities);
-    return cmsLeg.getCmsPeriods().stream()
-        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityStrike(cmsPeriod, ratesProvider, swaptionVolatilities))
-        .collect(Collectors.summingDouble(Double::doubleValue));
-  }
-
-  /**
-   * Calculates the current cash of the leg.
-   * 
-   * @param cmsLeg  the CMS leg
-   * @param ratesProvider  the rates provider
-   * @param swaptionVolatilities  the swaption volatilities
-   * @return the current cash
-   */
-  public CurrencyAmount currentCash(
-      ResolvedCmsLeg cmsLeg,
-      RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
-
-    validate(ratesProvider, swaptionVolatilities);
-    return cmsLeg.getCmsPeriods().stream()
-        .filter(x -> x.getPaymentDate().equals(ratesProvider.getValuationDate()))
-        .map(x -> cmsPeriodPricer.presentValue(x, ratesProvider, swaptionVolatilities))
-        .reduce((c1, c2) -> c1.plus(c2))
-        .orElse(CurrencyAmount.zero(cmsLeg.getCurrency()));
-  }
-
-  /**
-   * Explains the present value of a cms leg.
+   * Explains the present value of a CMS leg.
    * <p>
    * This returns explanatory information about the calculation.
    * 
-   * @param cmsLeg  the cms leg
+   * @param cmsLeg  the CMS leg
    * @param provider  the rates provider
    * @param volatilities  the swaption volatilities
    * @return the explanatory information
@@ -167,7 +79,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
   public ExplainMap explainPresentValue(
       ResolvedCmsLeg cmsLeg,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities volatilities) {
+      SabrSwaptionVolatilities volatilities) {
 
     ExplainMapBuilder builder = ExplainMap.builder();
     builder.put(ExplainKey.ENTRY_TYPE, "CmsLeg");
@@ -185,7 +97,100 @@ public class SabrExtrapolationReplicationCmsLegPricer {
   }
 
   //-------------------------------------------------------------------------
-  private void validate(RatesProvider ratesProvider, SabrParametersSwaptionVolatilities swaptionVolatilities) {
+  /**
+   * Calculates the present value curve sensitivity of the CMS leg.
+   * <p>
+   * The present value sensitivity of the leg is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param cmsLeg  the CMS leg
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder presentValueSensitivityRates(
+      ResolvedCmsLeg cmsLeg,
+      RatesProvider ratesProvider,
+      SabrSwaptionVolatilities swaptionVolatilities) {
+
+    validate(ratesProvider, swaptionVolatilities);
+    return cmsLeg.getCmsPeriods().stream()
+        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityRates(cmsPeriod, ratesProvider, swaptionVolatilities))
+        .reduce((p1, p2) -> p1.combinedWith(p2))
+        .get();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity to the SABR model parameters.
+   * <p>
+   * The present value sensitivity of the leg is the sensitivity of the present value to
+   * the SABR model parameters, alpha, beta, rho and nu.
+   * 
+   * @param cmsLeg  the CMS leg
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
+      ResolvedCmsLeg cmsLeg,
+      RatesProvider ratesProvider,
+      SabrSwaptionVolatilities swaptionVolatilities) {
+
+    validate(ratesProvider, swaptionVolatilities);
+    return cmsLeg.getCmsPeriods().stream()
+        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityModelParamsSabr(cmsPeriod, ratesProvider, swaptionVolatilities))
+        .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith)
+        .normalize();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity to the strike value.
+   * <p>
+   * The present value sensitivity of the leg is the sensitivity of the present value to the strike value.
+   * This is not relevant for CMS coupons and an exception is thrown in the underlying pricer.
+   * 
+   * @param cmsLeg  the CMS leg
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the present value sensitivity
+   */
+  public double presentValueSensitivityStrike(
+      ResolvedCmsLeg cmsLeg,
+      RatesProvider ratesProvider,
+      SabrSwaptionVolatilities swaptionVolatilities) {
+
+    validate(ratesProvider, swaptionVolatilities);
+    return cmsLeg.getCmsPeriods().stream()
+        .map(cmsPeriod -> cmsPeriodPricer.presentValueSensitivityStrike(cmsPeriod, ratesProvider, swaptionVolatilities))
+        .collect(Collectors.summingDouble(Double::doubleValue));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the current cash of the leg.
+   * 
+   * @param cmsLeg  the CMS leg
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the current cash
+   */
+  public CurrencyAmount currentCash(
+      ResolvedCmsLeg cmsLeg,
+      RatesProvider ratesProvider,
+      SabrSwaptionVolatilities swaptionVolatilities) {
+
+    validate(ratesProvider, swaptionVolatilities);
+    return cmsLeg.getCmsPeriods().stream()
+        .filter(x -> x.getPaymentDate().equals(ratesProvider.getValuationDate()))
+        .map(x -> cmsPeriodPricer.presentValue(x, ratesProvider, swaptionVolatilities))
+        .reduce((c1, c2) -> c1.plus(c2))
+        .orElse(CurrencyAmount.zero(cmsLeg.getCurrency()));
+  }
+
+  //-------------------------------------------------------------------------
+  private void validate(RatesProvider ratesProvider, SabrSwaptionVolatilities swaptionVolatilities) {
     ArgChecker.isTrue(swaptionVolatilities.getValuationDate().equals(ratesProvider.getValuationDate()),
         "volatility and rate data must be for the same date");
   }

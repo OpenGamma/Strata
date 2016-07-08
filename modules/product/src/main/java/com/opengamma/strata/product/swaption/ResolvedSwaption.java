@@ -96,7 +96,7 @@ public final class ResolvedSwaption
    * @return the currency
    */
   public Currency getCurrency() {
-    return Iterables.getOnlyElement(underlying.allCurrencies());
+    return Iterables.getOnlyElement(underlying.allPaymentCurrencies());
   }
 
   /**

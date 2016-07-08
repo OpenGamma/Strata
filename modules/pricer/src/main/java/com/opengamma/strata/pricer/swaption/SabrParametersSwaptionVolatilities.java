@@ -217,6 +217,26 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   @Override
+  public double alpha(double expiry, double tenor) {
+    return parameters.alpha(expiry, tenor);
+  }
+
+  @Override
+  public double beta(double expiry, double tenor) {
+    return parameters.beta(expiry, tenor);
+  }
+
+  @Override
+  public double rho(double expiry, double tenor) {
+    return parameters.rho(expiry, tenor);
+  }
+
+  @Override
+  public double nu(double expiry, double tenor) {
+    return parameters.nu(expiry, tenor);
+  }
+
+  @Override
   public double shift(double expiry, double tenor) {
     return parameters.shift(expiry, tenor);
   }

@@ -20,6 +20,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -72,12 +73,15 @@ public class CmsTest {
     Cms test = sutCap();
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
+    assertEquals(test.allRateIndices(), ImmutableSet.of(CMS_LEG.getUnderlyingIndex()));
   }
 
   public void test_of_oneLeg() {
     Cms test = Cms.of(CMS_LEG);
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertFalse(test.getPayLeg().isPresent());
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
   }
 
   public void test_resolve_twoLegs() {
