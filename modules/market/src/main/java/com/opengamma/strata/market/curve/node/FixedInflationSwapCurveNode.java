@@ -44,7 +44,7 @@ import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -183,7 +183,7 @@ public final class FixedInflationSwapCurveNode
     SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     SwapLeg inflationLeg = trade.getProduct().getLegs(SwapLegType.INFLATION).get(0);
     ResolvedSwapLeg inflationLegExpanded = inflationLeg.resolve(refData);
-    List<PaymentPeriod> periods = inflationLegExpanded.getPaymentPeriods();
+    List<SwapPaymentPeriod> periods = inflationLegExpanded.getPaymentPeriods();
     int nbPeriods = periods.size();
     RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
     List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();

@@ -193,7 +193,7 @@ public final class NotionalSchedule
    * @param refData  the reference data to use
    * @return the list of payment events
    */
-  ImmutableList<PaymentEvent> createEvents(
+  ImmutableList<SwapPaymentEvent> createEvents(
       List<NotionalPaymentPeriod> payPeriods,
       LocalDate initialExchangeDate,
       ReferenceData refData) {
@@ -217,7 +217,7 @@ public final class NotionalSchedule
    * @param refData  the reference data to use
    * @return the list of payment events
    */
-  static ImmutableList<PaymentEvent> createEvents(
+  static ImmutableList<SwapPaymentEvent> createEvents(
       List<NotionalPaymentPeriod> payPeriods,
       LocalDate initialExchangeDate,
       boolean initialExchange,
@@ -240,12 +240,12 @@ public final class NotionalSchedule
   }
 
   // create notional exchange events when FxReset specified
-  private static ImmutableList<PaymentEvent> createFxResetEvents(
+  private static ImmutableList<SwapPaymentEvent> createFxResetEvents(
       List<NotionalPaymentPeriod> payPeriods,
       LocalDate initialExchangeDate,
       ReferenceData refData) {
 
-    ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
+    ImmutableList.Builder<SwapPaymentEvent> events = ImmutableList.builder();
     for (int i = 0; i < payPeriods.size(); i++) {
       NotionalPaymentPeriod period = payPeriods.get(i);
       LocalDate startPaymentDate = (i == 0 ? initialExchangeDate : payPeriods.get(i - 1).getPaymentDate());
@@ -271,7 +271,7 @@ public final class NotionalSchedule
   }
 
   // create notional exchange events when no FxReset
-  private static ImmutableList<PaymentEvent> createStandardEvents(
+  private static ImmutableList<SwapPaymentEvent> createStandardEvents(
       List<NotionalPaymentPeriod> payPeriods,
       LocalDate initialExchangePaymentDate,
       boolean initialExchange,
@@ -279,7 +279,7 @@ public final class NotionalSchedule
       boolean finalExchange) {
 
     NotionalPaymentPeriod firstPeriod = payPeriods.get(0);
-    ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
+    ImmutableList.Builder<SwapPaymentEvent> events = ImmutableList.builder();
     if (initialExchange) {
       events.add(NotionalExchange.of(firstPeriod.getNotionalAmount().negated(), initialExchangePaymentDate));
     }

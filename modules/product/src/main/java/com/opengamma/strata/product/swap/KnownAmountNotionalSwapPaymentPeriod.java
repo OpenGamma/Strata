@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjuster;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -28,10 +29,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A period within a swap that results in a known amount.
@@ -42,8 +46,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * where the amount of the payment is known and fixed.
  */
 @BeanDefinition
-public final class KnownAmountPaymentPeriod
-    implements PaymentPeriod, ImmutableBean, Serializable {
+public final class KnownAmountNotionalSwapPaymentPeriod
+    implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The payment.
@@ -87,22 +91,75 @@ public final class KnownAmountPaymentPeriod
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate unadjustedEndDate;
+  /**
+   * The notional amount, positive if receiving, negative if paying.
+   * <p>
+   * The notional amount applicable during the period.
+   * The currency of the notional is typically the same as {@code currency}.
+   * However, if FX reset applies, the currency will differ.
+   */
+  @PropertyDefinition(overrideGet = true)
+  private final CurrencyAmount notionalAmount;
+  /**
+   * The FX reset definition, optional.
+   * <p>
+   * This property is used when the defined amount of the notional is specified in
+   * a currency other than the currency of the swap leg. When this occurs, the notional
+   * amount has to be converted using an FX rate to the swap leg currency.
+   * <p>
+   * The FX reset definition must be valid. The payment currency and the currency
+   * of the notional must differ, and the currency pair must be that of the observation.
+   */
+  @PropertyDefinition(get = "optional", overrideGet = true)
+  private final FxIndexObservation fxResetObservation;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on a payment and schedule period.
+   * Obtains an instance based on a payment, schedule period and notional.
    * 
    * @param payment  the payment
    * @param period  the schedule period
+   * @param notional  the notional
    * @return the period
    */
-  public static KnownAmountPaymentPeriod of(Payment payment, SchedulePeriod period) {
-    return KnownAmountPaymentPeriod.builder()
+  public static KnownAmountNotionalSwapPaymentPeriod of(
+      Payment payment,
+      SchedulePeriod period,
+      CurrencyAmount notional) {
+
+    return KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(payment)
         .startDate(period.getStartDate())
         .endDate(period.getEndDate())
         .unadjustedStartDate(period.getUnadjustedStartDate())
         .unadjustedEndDate(period.getUnadjustedEndDate())
+        .notionalAmount(notional)
+        .build();
+  }
+
+  /**
+   * Obtains an instance based on a payment, schedule period, notional and FX reset.
+   * 
+   * @param payment  the payment
+   * @param period  the schedule period
+   * @param notional  the notional
+   * @param fxResetObservation  the FX reset observation
+   * @return the period
+   */
+  public static KnownAmountNotionalSwapPaymentPeriod of(
+      Payment payment,
+      SchedulePeriod period,
+      CurrencyAmount notional,
+      FxIndexObservation fxResetObservation) {
+
+    return KnownAmountNotionalSwapPaymentPeriod.builder()
+        .payment(payment)
+        .startDate(period.getStartDate())
+        .endDate(period.getEndDate())
+        .unadjustedStartDate(period.getUnadjustedStartDate())
+        .unadjustedEndDate(period.getUnadjustedEndDate())
+        .notionalAmount(notional)
+        .fxResetObservation(fxResetObservation)
         .build();
   }
 
@@ -122,6 +179,27 @@ public final class KnownAmountPaymentPeriod
     // check for unadjusted must be after firstNonNull
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(unadjustedStartDate, unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
+    Currency payCcy = payment.getCurrency();
+    Currency notionalCcy = notionalAmount.getCurrency();
+    if (fxResetObservation != null) {
+      if (notionalCcy.equals(payCcy)) {
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must not equal notional currency {} when FX reset applies", payCcy, notionalCcy));
+      }
+      if (!fxResetObservation.getIndex().getCurrencyPair().contains(payCcy)) {
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must be one of those in the FxReset index {}", payCcy, fxResetObservation.getIndex()));
+      }
+      if (!fxResetObservation.getIndex().getCurrencyPair().contains(notionalCcy)) {
+        throw new IllegalArgumentException(Messages.format(
+            "Notional currency {} must be one of those in the FxReset index {}", notionalCcy, fxResetObservation.getIndex()));
+      }
+    } else {
+      if (!notionalCcy.equals(payCcy)) {
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must equal notional currency {}", payCcy, notionalCcy));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -130,6 +208,17 @@ public final class KnownAmountPaymentPeriod
     return payment.getDate();
   }
 
+  /**
+   * Gets the primary currency of the payment period.
+   * <p>
+   * This is the currency of the swap leg and the currency that interest calculation is made in.
+   * <p>
+   * The amounts of the notional are usually expressed in terms of this currency,
+   * however they can be converted from amounts in a different currency.
+   * See the optional {@code fxReset} property.
+   * 
+   * @return the primary currency
+   */
   @Override
   public Currency getCurrency() {
     return payment.getCurrency();
@@ -137,28 +226,28 @@ public final class KnownAmountPaymentPeriod
 
   //-------------------------------------------------------------------------
   @Override
-  public KnownAmountPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
+  public KnownAmountNotionalSwapPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
     Payment adjusted = payment.adjustDate(adjuster);
     return adjusted == payment ? this : toBuilder().payment(adjusted).build();
   }
 
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    // no indices
+    getFxResetObservation().ifPresent(fxReset -> builder.add(fxReset.getIndex()));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code KnownAmountPaymentPeriod}.
+   * The meta-bean for {@code KnownAmountNotionalSwapPaymentPeriod}.
    * @return the meta-bean, not null
    */
-  public static KnownAmountPaymentPeriod.Meta meta() {
-    return KnownAmountPaymentPeriod.Meta.INSTANCE;
+  public static KnownAmountNotionalSwapPaymentPeriod.Meta meta() {
+    return KnownAmountNotionalSwapPaymentPeriod.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(KnownAmountPaymentPeriod.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(KnownAmountNotionalSwapPaymentPeriod.Meta.INSTANCE);
   }
 
   /**
@@ -170,16 +259,18 @@ public final class KnownAmountPaymentPeriod
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static KnownAmountPaymentPeriod.Builder builder() {
-    return new KnownAmountPaymentPeriod.Builder();
+  public static KnownAmountNotionalSwapPaymentPeriod.Builder builder() {
+    return new KnownAmountNotionalSwapPaymentPeriod.Builder();
   }
 
-  private KnownAmountPaymentPeriod(
+  private KnownAmountNotionalSwapPaymentPeriod(
       Payment payment,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate) {
+      LocalDate unadjustedEndDate,
+      CurrencyAmount notionalAmount,
+      FxIndexObservation fxResetObservation) {
     JodaBeanUtils.notNull(payment, "payment");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
@@ -190,12 +281,14 @@ public final class KnownAmountPaymentPeriod
     this.endDate = endDate;
     this.unadjustedStartDate = unadjustedStartDate;
     this.unadjustedEndDate = unadjustedEndDate;
+    this.notionalAmount = notionalAmount;
+    this.fxResetObservation = fxResetObservation;
     validate();
   }
 
   @Override
-  public KnownAmountPaymentPeriod.Meta metaBean() {
-    return KnownAmountPaymentPeriod.Meta.INSTANCE;
+  public KnownAmountNotionalSwapPaymentPeriod.Meta metaBean() {
+    return KnownAmountNotionalSwapPaymentPeriod.Meta.INSTANCE;
   }
 
   @Override
@@ -274,6 +367,37 @@ public final class KnownAmountPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the notional amount, positive if receiving, negative if paying.
+   * <p>
+   * The notional amount applicable during the period.
+   * The currency of the notional is typically the same as {@code currency}.
+   * However, if FX reset applies, the currency will differ.
+   * @return the value of the property
+   */
+  @Override
+  public CurrencyAmount getNotionalAmount() {
+    return notionalAmount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the FX reset definition, optional.
+   * <p>
+   * This property is used when the defined amount of the notional is specified in
+   * a currency other than the currency of the swap leg. When this occurs, the notional
+   * amount has to be converted using an FX rate to the swap leg currency.
+   * <p>
+   * The FX reset definition must be valid. The payment currency and the currency
+   * of the notional must differ, and the currency pair must be that of the observation.
+   * @return the optional value of the property, not null
+   */
+  @Override
+  public Optional<FxIndexObservation> getFxResetObservation() {
+    return Optional.ofNullable(fxResetObservation);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -287,12 +411,14 @@ public final class KnownAmountPaymentPeriod
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      KnownAmountPaymentPeriod other = (KnownAmountPaymentPeriod) obj;
+      KnownAmountNotionalSwapPaymentPeriod other = (KnownAmountNotionalSwapPaymentPeriod) obj;
       return JodaBeanUtils.equal(payment, other.payment) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
           JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
-          JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate);
+          JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate) &&
+          JodaBeanUtils.equal(notionalAmount, other.notionalAmount) &&
+          JodaBeanUtils.equal(fxResetObservation, other.fxResetObservation);
     }
     return false;
   }
@@ -305,25 +431,29 @@ public final class KnownAmountPaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notionalAmount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxResetObservation);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("KnownAmountPaymentPeriod{");
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("KnownAmountNotionalSwapPaymentPeriod{");
     buf.append("payment").append('=').append(payment).append(',').append(' ');
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
     buf.append("endDate").append('=').append(endDate).append(',').append(' ');
     buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate));
+    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
+    buf.append("notionalAmount").append('=').append(notionalAmount).append(',').append(' ');
+    buf.append("fxResetObservation").append('=').append(JodaBeanUtils.toString(fxResetObservation));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code KnownAmountPaymentPeriod}.
+   * The meta-bean for {@code KnownAmountNotionalSwapPaymentPeriod}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -335,27 +465,37 @@ public final class KnownAmountPaymentPeriod
      * The meta-property for the {@code payment} property.
      */
     private final MetaProperty<Payment> payment = DirectMetaProperty.ofImmutable(
-        this, "payment", KnownAmountPaymentPeriod.class, Payment.class);
+        this, "payment", KnownAmountNotionalSwapPaymentPeriod.class, Payment.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", KnownAmountPaymentPeriod.class, LocalDate.class);
+        this, "startDate", KnownAmountNotionalSwapPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", KnownAmountPaymentPeriod.class, LocalDate.class);
+        this, "endDate", KnownAmountNotionalSwapPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code unadjustedStartDate} property.
      */
     private final MetaProperty<LocalDate> unadjustedStartDate = DirectMetaProperty.ofImmutable(
-        this, "unadjustedStartDate", KnownAmountPaymentPeriod.class, LocalDate.class);
+        this, "unadjustedStartDate", KnownAmountNotionalSwapPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code unadjustedEndDate} property.
      */
     private final MetaProperty<LocalDate> unadjustedEndDate = DirectMetaProperty.ofImmutable(
-        this, "unadjustedEndDate", KnownAmountPaymentPeriod.class, LocalDate.class);
+        this, "unadjustedEndDate", KnownAmountNotionalSwapPaymentPeriod.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code notionalAmount} property.
+     */
+    private final MetaProperty<CurrencyAmount> notionalAmount = DirectMetaProperty.ofImmutable(
+        this, "notionalAmount", KnownAmountNotionalSwapPaymentPeriod.class, CurrencyAmount.class);
+    /**
+     * The meta-property for the {@code fxResetObservation} property.
+     */
+    private final MetaProperty<FxIndexObservation> fxResetObservation = DirectMetaProperty.ofImmutable(
+        this, "fxResetObservation", KnownAmountNotionalSwapPaymentPeriod.class, FxIndexObservation.class);
     /**
      * The meta-properties.
      */
@@ -365,7 +505,9 @@ public final class KnownAmountPaymentPeriod
         "startDate",
         "endDate",
         "unadjustedStartDate",
-        "unadjustedEndDate");
+        "unadjustedEndDate",
+        "notionalAmount",
+        "fxResetObservation");
 
     /**
      * Restricted constructor.
@@ -386,18 +528,22 @@ public final class KnownAmountPaymentPeriod
           return unadjustedStartDate;
         case 31758114:  // unadjustedEndDate
           return unadjustedEndDate;
+        case -902123592:  // notionalAmount
+          return notionalAmount;
+        case 1301329999:  // fxResetObservation
+          return fxResetObservation;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public KnownAmountPaymentPeriod.Builder builder() {
-      return new KnownAmountPaymentPeriod.Builder();
+    public KnownAmountNotionalSwapPaymentPeriod.Builder builder() {
+      return new KnownAmountNotionalSwapPaymentPeriod.Builder();
     }
 
     @Override
-    public Class<? extends KnownAmountPaymentPeriod> beanType() {
-      return KnownAmountPaymentPeriod.class;
+    public Class<? extends KnownAmountNotionalSwapPaymentPeriod> beanType() {
+      return KnownAmountNotionalSwapPaymentPeriod.class;
     }
 
     @Override
@@ -446,20 +592,40 @@ public final class KnownAmountPaymentPeriod
       return unadjustedEndDate;
     }
 
+    /**
+     * The meta-property for the {@code notionalAmount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurrencyAmount> notionalAmount() {
+      return notionalAmount;
+    }
+
+    /**
+     * The meta-property for the {@code fxResetObservation} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FxIndexObservation> fxResetObservation() {
+      return fxResetObservation;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -786681338:  // payment
-          return ((KnownAmountPaymentPeriod) bean).getPayment();
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).getPayment();
         case -2129778896:  // startDate
-          return ((KnownAmountPaymentPeriod) bean).getStartDate();
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((KnownAmountPaymentPeriod) bean).getEndDate();
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).getEndDate();
         case 1457691881:  // unadjustedStartDate
-          return ((KnownAmountPaymentPeriod) bean).getUnadjustedStartDate();
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).getUnadjustedStartDate();
         case 31758114:  // unadjustedEndDate
-          return ((KnownAmountPaymentPeriod) bean).getUnadjustedEndDate();
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).getUnadjustedEndDate();
+        case -902123592:  // notionalAmount
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).getNotionalAmount();
+        case 1301329999:  // fxResetObservation
+          return ((KnownAmountNotionalSwapPaymentPeriod) bean).fxResetObservation;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -477,15 +643,17 @@ public final class KnownAmountPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code KnownAmountPaymentPeriod}.
+   * The bean-builder for {@code KnownAmountNotionalSwapPaymentPeriod}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<KnownAmountPaymentPeriod> {
+  public static final class Builder extends DirectFieldsBeanBuilder<KnownAmountNotionalSwapPaymentPeriod> {
 
     private Payment payment;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate unadjustedStartDate;
     private LocalDate unadjustedEndDate;
+    private CurrencyAmount notionalAmount;
+    private FxIndexObservation fxResetObservation;
 
     /**
      * Restricted constructor.
@@ -497,12 +665,14 @@ public final class KnownAmountPaymentPeriod
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(KnownAmountPaymentPeriod beanToCopy) {
+    private Builder(KnownAmountNotionalSwapPaymentPeriod beanToCopy) {
       this.payment = beanToCopy.getPayment();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
       this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
+      this.notionalAmount = beanToCopy.getNotionalAmount();
+      this.fxResetObservation = beanToCopy.fxResetObservation;
     }
 
     //-----------------------------------------------------------------------
@@ -519,6 +689,10 @@ public final class KnownAmountPaymentPeriod
           return unadjustedStartDate;
         case 31758114:  // unadjustedEndDate
           return unadjustedEndDate;
+        case -902123592:  // notionalAmount
+          return notionalAmount;
+        case 1301329999:  // fxResetObservation
+          return fxResetObservation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -541,6 +715,12 @@ public final class KnownAmountPaymentPeriod
           break;
         case 31758114:  // unadjustedEndDate
           this.unadjustedEndDate = (LocalDate) newValue;
+          break;
+        case -902123592:  // notionalAmount
+          this.notionalAmount = (CurrencyAmount) newValue;
+          break;
+        case 1301329999:  // fxResetObservation
+          this.fxResetObservation = (FxIndexObservation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -573,14 +753,16 @@ public final class KnownAmountPaymentPeriod
     }
 
     @Override
-    public KnownAmountPaymentPeriod build() {
+    public KnownAmountNotionalSwapPaymentPeriod build() {
       preBuild(this);
-      return new KnownAmountPaymentPeriod(
+      return new KnownAmountNotionalSwapPaymentPeriod(
           payment,
           startDate,
           endDate,
           unadjustedStartDate,
-          unadjustedEndDate);
+          unadjustedEndDate,
+          notionalAmount,
+          fxResetObservation);
     }
 
     //-----------------------------------------------------------------------
@@ -656,16 +838,49 @@ public final class KnownAmountPaymentPeriod
       return this;
     }
 
+    /**
+     * Sets the notional amount, positive if receiving, negative if paying.
+     * <p>
+     * The notional amount applicable during the period.
+     * The currency of the notional is typically the same as {@code currency}.
+     * However, if FX reset applies, the currency will differ.
+     * @param notionalAmount  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notionalAmount(CurrencyAmount notionalAmount) {
+      this.notionalAmount = notionalAmount;
+      return this;
+    }
+
+    /**
+     * Sets the FX reset definition, optional.
+     * <p>
+     * This property is used when the defined amount of the notional is specified in
+     * a currency other than the currency of the swap leg. When this occurs, the notional
+     * amount has to be converted using an FX rate to the swap leg currency.
+     * <p>
+     * The FX reset definition must be valid. The payment currency and the currency
+     * of the notional must differ, and the currency pair must be that of the observation.
+     * @param fxResetObservation  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder fxResetObservation(FxIndexObservation fxResetObservation) {
+      this.fxResetObservation = fxResetObservation;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("KnownAmountPaymentPeriod.Builder{");
+      StringBuilder buf = new StringBuilder(256);
+      buf.append("KnownAmountNotionalSwapPaymentPeriod.Builder{");
       buf.append("payment").append('=').append(JodaBeanUtils.toString(payment)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
-      buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate));
+      buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
+      buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(notionalAmount)).append(',').append(' ');
+      buf.append("fxResetObservation").append('=').append(JodaBeanUtils.toString(fxResetObservation));
       buf.append('}');
       return buf.toString();
     }

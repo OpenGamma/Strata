@@ -130,18 +130,18 @@ public class KnownAmountSwapLegTest {
         .currency(GBP)
         .build();
     // expected
-    KnownAmountPaymentPeriod rpp1 = KnownAmountPaymentPeriod.builder()
+    KnownAmountSwapPaymentPeriod rpp1 = KnownAmountSwapPaymentPeriod.builder()
         .payment(Payment.ofPay(CurrencyAmount.of(GBP, 123d), DATE_02_07))
         .startDate(DATE_01_06)
         .endDate(DATE_02_05)
         .unadjustedStartDate(DATE_01_05)
         .build();
-    KnownAmountPaymentPeriod rpp2 = KnownAmountPaymentPeriod.builder()
+    KnownAmountSwapPaymentPeriod rpp2 = KnownAmountSwapPaymentPeriod.builder()
         .payment(Payment.ofPay(CurrencyAmount.of(GBP, 234d), DATE_03_07))
         .startDate(DATE_02_05)
         .endDate(DATE_03_05)
         .build();
-    KnownAmountPaymentPeriod rpp3 = KnownAmountPaymentPeriod.builder()
+    KnownAmountSwapPaymentPeriod rpp3 = KnownAmountSwapPaymentPeriod.builder()
         .payment(Payment.ofPay(CurrencyAmount.of(GBP, 234d), DATE_04_09))
         .startDate(DATE_03_05)
         .endDate(DATE_04_07)

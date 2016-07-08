@@ -25,7 +25,7 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.NotionalExchange;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -79,7 +79,7 @@ public final class CashFlowEquivalentCalculator {
     ArgChecker.isTrue(iborLeg.getType().equals(SwapLegType.IBOR), "Leg type should be IBOR");
     ArgChecker.isTrue(iborLeg.getPaymentEvents().isEmpty(), "PaymentEvent should be empty");
     List<NotionalExchange> paymentEvents = new ArrayList<NotionalExchange>();
-    for (PaymentPeriod paymentPeriod : iborLeg.getPaymentPeriods()) {
+    for (SwapPaymentPeriod paymentPeriod : iborLeg.getPaymentPeriods()) {
       ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "rate payment should be RatePaymentPeriod");
       RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
       ArgChecker.isTrue(ratePaymentPeriod.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
@@ -121,7 +121,7 @@ public final class CashFlowEquivalentCalculator {
     ArgChecker.isTrue(fixedLeg.getType().equals(SwapLegType.FIXED), "Leg type should be FIXED");
     ArgChecker.isTrue(fixedLeg.getPaymentEvents().isEmpty(), "PaymentEvent should be empty");
     List<NotionalExchange> paymentEvents = new ArrayList<NotionalExchange>();
-    for (PaymentPeriod paymentPeriod : fixedLeg.getPaymentPeriods()) {
+    for (SwapPaymentPeriod paymentPeriod : fixedLeg.getPaymentPeriods()) {
       ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "rate payment should be RatePaymentPeriod");
       RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
       ArgChecker.isTrue(ratePaymentPeriod.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
@@ -181,7 +181,7 @@ public final class CashFlowEquivalentCalculator {
     ArgChecker.isTrue(iborLeg.getType().equals(SwapLegType.IBOR), "Leg type should be IBOR");
     ArgChecker.isTrue(iborLeg.getPaymentEvents().isEmpty(), "PaymentEvent should be empty");
     Map<Payment, PointSensitivityBuilder> res = new HashMap<Payment, PointSensitivityBuilder>();
-    for (PaymentPeriod paymentPeriod : iborLeg.getPaymentPeriods()) {
+    for (SwapPaymentPeriod paymentPeriod : iborLeg.getPaymentPeriods()) {
       ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "rate payment should be RatePaymentPeriod");
       RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
       ArgChecker.isTrue(ratePaymentPeriod.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
@@ -230,7 +230,7 @@ public final class CashFlowEquivalentCalculator {
     ArgChecker.isTrue(fixedLeg.getType().equals(SwapLegType.FIXED), "Leg type should be FIXED");
     ArgChecker.isTrue(fixedLeg.getPaymentEvents().isEmpty(), "PaymentEvent should be empty");
     Map<Payment, PointSensitivityBuilder> res = new HashMap<Payment, PointSensitivityBuilder>();
-    for (PaymentPeriod paymentPeriod : fixedLeg.getPaymentPeriods()) {
+    for (SwapPaymentPeriod paymentPeriod : fixedLeg.getPaymentPeriods()) {
       ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "rate payment should be RatePaymentPeriod");
       RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
       ArgChecker.isTrue(ratePaymentPeriod.getAccrualPeriods().size() == 1, "rate payment should not be compounding");

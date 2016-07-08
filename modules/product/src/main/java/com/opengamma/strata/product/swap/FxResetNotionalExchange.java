@@ -56,7 +56,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition(builderScope = "private")
 public final class FxResetNotionalExchange
-    implements PaymentEvent, ImmutableBean, Serializable {
+    implements SwapPaymentEvent, ImmutableBean, Serializable {
 
   /**
    * The notional amount, positive if receiving, negative if paying.

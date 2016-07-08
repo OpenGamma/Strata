@@ -149,7 +149,7 @@ public final class RatePeriodSwapLeg
    * Notional exchange may also be specified here instead of via the dedicated fields.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<PaymentEvent> paymentEvents;
+  private final ImmutableList<SwapPaymentEvent> paymentEvents;
   /**
    * The business day date adjustment to be applied to each payment date, default is to apply no adjustment.
    * <p>
@@ -171,7 +171,7 @@ public final class RatePeriodSwapLeg
       boolean initialExchange,
       boolean intermediateExchange,
       boolean finalExchange,
-      List<PaymentEvent> paymentEvents,
+      List<SwapPaymentEvent> paymentEvents,
       BusinessDayAdjustment paymentBusinessDayAdjustment) {
 
     JodaBeanUtils.notNull(type, "type");
@@ -187,8 +187,8 @@ public final class RatePeriodSwapLeg
     this.paymentBusinessDayAdjustment = firstNonNull(paymentBusinessDayAdjustment, BusinessDayAdjustment.NONE);
     this.paymentEvents = ImmutableList.copyOf(paymentEvents);
     // determine and validate currency, with explicit error message
-    Stream<Currency> periodCurrencies = paymentPeriods.stream().map(PaymentPeriod::getCurrency);
-    Stream<Currency> eventCurrencies = paymentEvents.stream().map(PaymentEvent::getCurrency);
+    Stream<Currency> periodCurrencies = paymentPeriods.stream().map(SwapPaymentPeriod::getCurrency);
+    Stream<Currency> eventCurrencies = paymentEvents.stream().map(SwapPaymentEvent::getCurrency);
     Set<Currency> currencies = Stream.concat(periodCurrencies, eventCurrencies).collect(Collectors.toSet());
     if (currencies.size() > 1) {
       throw new IllegalArgumentException("Swap leg must have a single currency, found: " + currencies);
@@ -222,7 +222,7 @@ public final class RatePeriodSwapLeg
    * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
    * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
-   * the schedules resolved to be {@link PaymentPeriod} instances.
+   * the schedules resolved to be {@link SwapPaymentPeriod} instances.
    * 
    * @return the equivalent resolved swap leg
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
@@ -243,12 +243,12 @@ public final class RatePeriodSwapLeg
   }
 
   // notional exchange events
-  private ImmutableList<PaymentEvent> createEvents(
+  private ImmutableList<SwapPaymentEvent> createEvents(
       List<NotionalPaymentPeriod> adjPaymentPeriods,
       DateAdjuster paymentDateAdjuster,
       ReferenceData refData) {
 
-    ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
+    ImmutableList.Builder<SwapPaymentEvent> events = ImmutableList.builder();
     LocalDate initialExchangeDate = paymentDateAdjuster.adjust(adjPaymentPeriods.get(0).getStartDate());
     events.addAll(NotionalSchedule.createEvents(
         adjPaymentPeriods, initialExchangeDate, initialExchange, intermediateExchange, finalExchange, refData));
@@ -403,7 +403,7 @@ public final class RatePeriodSwapLeg
    * Notional exchange may also be specified here instead of via the dedicated fields.
    * @return the value of the property, not null
    */
-  public ImmutableList<PaymentEvent> getPaymentEvents() {
+  public ImmutableList<SwapPaymentEvent> getPaymentEvents() {
     return paymentEvents;
   }
 
@@ -521,7 +521,7 @@ public final class RatePeriodSwapLeg
      * The meta-property for the {@code paymentEvents} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<PaymentEvent>> paymentEvents = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<SwapPaymentEvent>> paymentEvents = DirectMetaProperty.ofImmutable(
         this, "paymentEvents", RatePeriodSwapLeg.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code paymentBusinessDayAdjustment} property.
@@ -639,7 +639,7 @@ public final class RatePeriodSwapLeg
      * The meta-property for the {@code paymentEvents} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<PaymentEvent>> paymentEvents() {
+    public MetaProperty<ImmutableList<SwapPaymentEvent>> paymentEvents() {
       return paymentEvents;
     }
 
@@ -698,7 +698,7 @@ public final class RatePeriodSwapLeg
     private boolean initialExchange;
     private boolean intermediateExchange;
     private boolean finalExchange;
-    private List<PaymentEvent> paymentEvents = ImmutableList.of();
+    private List<SwapPaymentEvent> paymentEvents = ImmutableList.of();
     private BusinessDayAdjustment paymentBusinessDayAdjustment;
 
     /**
@@ -770,7 +770,7 @@ public final class RatePeriodSwapLeg
           this.finalExchange = (Boolean) newValue;
           break;
         case 1031856831:  // paymentEvents
-          this.paymentEvents = (List<PaymentEvent>) newValue;
+          this.paymentEvents = (List<SwapPaymentEvent>) newValue;
           break;
         case -1420083229:  // paymentBusinessDayAdjustment
           this.paymentBusinessDayAdjustment = (BusinessDayAdjustment) newValue;
@@ -941,7 +941,7 @@ public final class RatePeriodSwapLeg
      * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentEvents(List<PaymentEvent> paymentEvents) {
+    public Builder paymentEvents(List<SwapPaymentEvent> paymentEvents) {
       JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
       this.paymentEvents = paymentEvents;
       return this;
@@ -953,7 +953,7 @@ public final class RatePeriodSwapLeg
      * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentEvents(PaymentEvent... paymentEvents) {
+    public Builder paymentEvents(SwapPaymentEvent... paymentEvents) {
       return paymentEvents(ImmutableList.copyOf(paymentEvents));
     }
 

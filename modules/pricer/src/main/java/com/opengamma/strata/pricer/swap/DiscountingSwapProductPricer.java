@@ -25,12 +25,12 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Pricer for for rate swap products.
@@ -196,7 +196,7 @@ public class DiscountingSwapProductPricer {
       // Par rate
       return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
     }
-    PaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(firstPeriod instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
     RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
     if (payment.getAccrualPeriods().size() == 1) { // no compounding
@@ -235,7 +235,7 @@ public class DiscountingSwapProductPricer {
       double pvbp = legPricer.pvbp(referenceLeg, provider);
       return -convertedPv / pvbp;
     }
-    PaymentPeriod firstPeriod = referenceLeg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod firstPeriod = referenceLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(firstPeriod instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
     RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
     if (payment.getAccrualPeriods().size() == 1) { // no compounding
@@ -393,7 +393,7 @@ public class DiscountingSwapProductPricer {
       PointSensitivityBuilder pvbpDr = legPricer.pvbpSensitivity(referenceLeg, provider);
       return convertedPvDr.multipliedBy(convertedPvBar).combinedWith(pvbpDr.multipliedBy(pvbpBar));
     }
-    PaymentPeriod firstPeriod = referenceLeg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod firstPeriod = referenceLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(firstPeriod instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
     RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
     if (payment.getAccrualPeriods().size() == 1) { // no compounding

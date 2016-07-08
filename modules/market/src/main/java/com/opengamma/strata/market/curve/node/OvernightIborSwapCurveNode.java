@@ -38,7 +38,7 @@ import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.rate.IborRateComputation;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -182,7 +182,7 @@ public final class OvernightIborSwapCurveNode
     SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(0);
     ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
-    List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
+    List<SwapPaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
     int nbPeriods = periods.size();
     RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
     List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();

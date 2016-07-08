@@ -20,7 +20,7 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.common.SettlementType;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -375,7 +375,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the strike
    */
   protected double calculateStrike(ResolvedSwapLeg fixedLeg) {
-    PaymentPeriod paymentPeriod = fixedLeg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod paymentPeriod = fixedLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "Payment period must be RatePaymentPeriod");
     RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
     // compounding is caught when par rate is computed

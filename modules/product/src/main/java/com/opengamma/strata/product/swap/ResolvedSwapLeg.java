@@ -89,15 +89,15 @@ public final class ResolvedSwapLeg
    * The start date and end date of the leg are determined from the first and last period.
    * As such, the periods should be sorted.
    */
-  @PropertyDefinition(validate = "notEmpty", builderType = "List<? extends PaymentPeriod>")
-  private final ImmutableList<PaymentPeriod> paymentPeriods;
+  @PropertyDefinition(validate = "notEmpty", builderType = "List<? extends SwapPaymentPeriod>")
+  private final ImmutableList<SwapPaymentPeriod> paymentPeriods;
   /**
    * The payment events that are associated with the swap leg.
    * <p>
    * Payment events include notional exchange and fees.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "List<? extends PaymentEvent>")
-  private final ImmutableList<PaymentEvent> paymentEvents;
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends SwapPaymentEvent>")
+  private final ImmutableList<SwapPaymentEvent> paymentEvents;
   /**
    * The currency of the leg.
    */
@@ -108,16 +108,16 @@ public final class ResolvedSwapLeg
   private ResolvedSwapLeg(
       SwapLegType type,
       PayReceive payReceive,
-      List<? extends PaymentPeriod> paymentPeriods,
-      List<? extends PaymentEvent> paymentEvents) {
+      List<? extends SwapPaymentPeriod> paymentPeriods,
+      List<? extends SwapPaymentEvent> paymentEvents) {
 
     this.type = ArgChecker.notNull(type, "type");
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
     this.paymentEvents = ImmutableList.copyOf(paymentEvents);
     // determine and validate currency, with explicit error message
-    Stream<Currency> periodCurrencies = paymentPeriods.stream().map(PaymentPeriod::getCurrency);
-    Stream<Currency> eventCurrencies = paymentEvents.stream().map(PaymentEvent::getCurrency);
+    Stream<Currency> periodCurrencies = paymentPeriods.stream().map(SwapPaymentPeriod::getCurrency);
+    Stream<Currency> eventCurrencies = paymentEvents.stream().map(SwapPaymentEvent::getCurrency);
     Set<Currency> currencies = Stream.concat(periodCurrencies, eventCurrencies).collect(Collectors.toSet());
     if (currencies.size() > 1) {
       throw new IllegalArgumentException("Swap leg must have a single currency, found: " + currencies);
@@ -173,7 +173,7 @@ public final class ResolvedSwapLeg
    * @param date  the date to find
    * @return the payment period applicable at the date
    */
-  public Optional<PaymentPeriod> findPaymentPeriod(LocalDate date) {
+  public Optional<SwapPaymentPeriod> findPaymentPeriod(LocalDate date) {
     return paymentPeriods.stream()
         .filter(period -> period.getStartDate().compareTo(date) < 0 && date.compareTo(period.getEndDate()) <= 0)
         .findFirst();
@@ -204,7 +204,7 @@ public final class ResolvedSwapLeg
    * @return the notional on the specified date, if available
    */
   public Optional<CurrencyAmount> findNotional(LocalDate date) {
-    PaymentPeriod paymentPeriod;
+    SwapPaymentPeriod paymentPeriod;
 
     if (!date.isAfter(paymentPeriods.get(0).getStartDate())) {
       // Use the first payment period if the date is before the start
@@ -302,7 +302,7 @@ public final class ResolvedSwapLeg
    * As such, the periods should be sorted.
    * @return the value of the property, not empty
    */
-  public ImmutableList<PaymentPeriod> getPaymentPeriods() {
+  public ImmutableList<SwapPaymentPeriod> getPaymentPeriods() {
     return paymentPeriods;
   }
 
@@ -313,7 +313,7 @@ public final class ResolvedSwapLeg
    * Payment events include notional exchange and fees.
    * @return the value of the property, not null
    */
-  public ImmutableList<PaymentEvent> getPaymentEvents() {
+  public ImmutableList<SwapPaymentEvent> getPaymentEvents() {
     return paymentEvents;
   }
 
@@ -387,13 +387,13 @@ public final class ResolvedSwapLeg
      * The meta-property for the {@code paymentPeriods} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<PaymentPeriod>> paymentPeriods = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<SwapPaymentPeriod>> paymentPeriods = DirectMetaProperty.ofImmutable(
         this, "paymentPeriods", ResolvedSwapLeg.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code paymentEvents} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<PaymentEvent>> paymentEvents = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<SwapPaymentEvent>> paymentEvents = DirectMetaProperty.ofImmutable(
         this, "paymentEvents", ResolvedSwapLeg.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
@@ -462,7 +462,7 @@ public final class ResolvedSwapLeg
      * The meta-property for the {@code paymentPeriods} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<PaymentPeriod>> paymentPeriods() {
+    public MetaProperty<ImmutableList<SwapPaymentPeriod>> paymentPeriods() {
       return paymentPeriods;
     }
 
@@ -470,7 +470,7 @@ public final class ResolvedSwapLeg
      * The meta-property for the {@code paymentEvents} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<PaymentEvent>> paymentEvents() {
+    public MetaProperty<ImmutableList<SwapPaymentEvent>> paymentEvents() {
       return paymentEvents;
     }
 
@@ -509,8 +509,8 @@ public final class ResolvedSwapLeg
 
     private SwapLegType type;
     private PayReceive payReceive;
-    private List<? extends PaymentPeriod> paymentPeriods = ImmutableList.of();
-    private List<? extends PaymentEvent> paymentEvents = ImmutableList.of();
+    private List<? extends SwapPaymentPeriod> paymentPeriods = ImmutableList.of();
+    private List<? extends SwapPaymentEvent> paymentEvents = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -557,10 +557,10 @@ public final class ResolvedSwapLeg
           this.payReceive = (PayReceive) newValue;
           break;
         case -1674414612:  // paymentPeriods
-          this.paymentPeriods = (List<? extends PaymentPeriod>) newValue;
+          this.paymentPeriods = (List<? extends SwapPaymentPeriod>) newValue;
           break;
         case 1031856831:  // paymentEvents
-          this.paymentEvents = (List<? extends PaymentEvent>) newValue;
+          this.paymentEvents = (List<? extends SwapPaymentEvent>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -645,7 +645,7 @@ public final class ResolvedSwapLeg
      * @param paymentPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder paymentPeriods(List<? extends PaymentPeriod> paymentPeriods) {
+    public Builder paymentPeriods(List<? extends SwapPaymentPeriod> paymentPeriods) {
       JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
       this.paymentPeriods = paymentPeriods;
       return this;
@@ -657,7 +657,7 @@ public final class ResolvedSwapLeg
      * @param paymentPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder paymentPeriods(PaymentPeriod... paymentPeriods) {
+    public Builder paymentPeriods(SwapPaymentPeriod... paymentPeriods) {
       return paymentPeriods(ImmutableList.copyOf(paymentPeriods));
     }
 
@@ -668,7 +668,7 @@ public final class ResolvedSwapLeg
      * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentEvents(List<? extends PaymentEvent> paymentEvents) {
+    public Builder paymentEvents(List<? extends SwapPaymentEvent> paymentEvents) {
       JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
       this.paymentEvents = paymentEvents;
       return this;
@@ -680,7 +680,7 @@ public final class ResolvedSwapLeg
      * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentEvents(PaymentEvent... paymentEvents) {
+    public Builder paymentEvents(SwapPaymentEvent... paymentEvents) {
       return paymentEvents(ImmutableList.copyOf(paymentEvents));
     }
 
