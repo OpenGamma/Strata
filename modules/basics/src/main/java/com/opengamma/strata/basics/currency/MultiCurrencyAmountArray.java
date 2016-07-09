@@ -39,6 +39,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Sets;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -330,6 +331,18 @@ public final class MultiCurrencyAmountArray
       }
     }
     return MultiCurrencyAmountArray.of(builder.build());
+  }
+
+  /**
+   * Returns a multi currency amount array representing the total of the input arrays.
+   * <p>
+   * If the input contains the same currency more than once, the amounts are added together.
+   *
+   * @param arrays  the amount arrays
+   * @return the total amounts
+   */
+  public static MultiCurrencyAmountArray total(Iterable<CurrencyAmountArray> arrays) {
+    return Guavate.stream(arrays).collect(toMultiCurrencyAmountArray());
   }
 
   /**

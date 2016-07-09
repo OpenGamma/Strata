@@ -340,6 +340,23 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(arrays.stream().collect(toMultiCurrencyAmountArray())).isEqualTo(expected);
   }
 
+  public void total() {
+    List<CurrencyAmountArray> arrays = ImmutableList.of(
+        CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
+        CurrencyAmountArray.of(USD, DoubleArray.of(5, 6, 7)),
+        CurrencyAmountArray.of(EUR, DoubleArray.of(2, 4, 6)),
+        CurrencyAmountArray.of(GBP, DoubleArray.of(11, 12, 13)),
+        CurrencyAmountArray.of(GBP, DoubleArray.of(1, 2, 3)));
+
+    Map<Currency, DoubleArray> expectedMap = ImmutableMap.of(
+        USD, DoubleArray.of(15, 26, 37),
+        EUR, DoubleArray.of(2, 4, 6),
+        GBP, DoubleArray.of(12, 14, 16));
+
+    MultiCurrencyAmountArray expected = MultiCurrencyAmountArray.of(expectedMap);
+    assertThat(MultiCurrencyAmountArray.total(arrays)).isEqualTo(expected);
+  }
+
   public void collectorDifferentArrayLengths() {
     List<CurrencyAmountArray> arrays = ImmutableList.of(
         CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
