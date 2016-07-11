@@ -277,7 +277,7 @@ public class CalibrationInflationUsdTest {
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unused")
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     int nbTests = 100;
