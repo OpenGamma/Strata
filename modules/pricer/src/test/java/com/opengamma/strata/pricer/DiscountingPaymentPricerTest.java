@@ -184,6 +184,17 @@ public class DiscountingPaymentPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_forecastValue_provider() {
+    assertEquals(PRICER.forecastValue(PAYMENT, PROVIDER).getAmount(), NOTIONAL_USD, 0d);
+    assertEquals(PRICER.forecastValueAmount(PAYMENT, PROVIDER), NOTIONAL_USD, 0d);
+  }
+
+  public void test_forecastValue_provider_ended() {
+    assertEquals(PRICER.forecastValue(PAYMENT_PAST, PROVIDER).getAmount(), 0d, 0d);
+    assertEquals(PRICER.forecastValueAmount(PAYMENT_PAST, PROVIDER), 0d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     assertEquals(
         PRICER.currencyExposure(PAYMENT, PROVIDER),

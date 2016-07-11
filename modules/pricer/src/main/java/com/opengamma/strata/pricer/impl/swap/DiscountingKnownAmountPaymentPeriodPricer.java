@@ -57,10 +57,7 @@ public class DiscountingKnownAmountPaymentPeriodPricer
 
   @Override
   public double forecastValue(KnownAmountPaymentPeriod period, RatesProvider provider) {
-    if (period.getPaymentDate().isBefore(provider.getValuationDate())) {
-      return 0;
-    }
-    return period.getPayment().getAmount();
+    return paymentPricer.forecastValueAmount(period.getPayment(), provider);
   }
 
   @Override

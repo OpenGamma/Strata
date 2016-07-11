@@ -191,6 +191,39 @@ public class DiscountingPaymentPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Computes the forecast value of the payment.
+   * <p>
+   * The present value is zero if the payment date is before the valuation date.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the forecast value
+   */
+  public CurrencyAmount forecastValue(Payment payment, BaseProvider provider) {
+    if (provider.getValuationDate().isAfter(payment.getDate())) {
+      return CurrencyAmount.zero(payment.getCurrency());
+    }
+    return payment.getValue();
+  }
+
+  /**
+   * Computes the forecast value of the payment.
+   * <p>
+   * The present value is zero if the payment date is before the valuation date.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the forecast value
+   */
+  public double forecastValueAmount(Payment payment, BaseProvider provider) {
+    if (provider.getValuationDate().isAfter(payment.getDate())) {
+      return 0d;
+    }
+    return payment.getAmount();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the currency exposure.
    * 
    * @param payment  the payment

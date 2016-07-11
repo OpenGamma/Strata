@@ -37,7 +37,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.impl.swap.DiscountingKnownAmountPaymentPeriodPricer;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
@@ -201,8 +201,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       DiscountingCapitalIndexedBondProductPricer.DEFAULT;
   private static final DiscountingCapitalIndexedBondPaymentPeriodPricer PERIOD_PRICER =
       DiscountingCapitalIndexedBondPaymentPeriodPricer.DEFAULT;
-  private static final DiscountingKnownAmountPaymentPeriodPricer KNOWN_PERIOD_PRICER =
-      DiscountingKnownAmountPaymentPeriodPricer.DEFAULT;
+  private static final DiscountingPaymentPricer PAYMENT_PRICER = DiscountingPaymentPricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
@@ -223,8 +222,8 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_netAmountfixed() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_ILF_STANDARD, RATES_PROVIDER);
-    double expected = KNOWN_PERIOD_PRICER.forecastValue(
-        (KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement(), RATES_PROVIDER);
+    double expected = PAYMENT_PRICER.forecastValueAmount(
+        ((KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
@@ -520,8 +519,8 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         RPRODUCT_ILF, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_STANDARD).getAmount() * QUANTITY;
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
-    double expected2 = df * KNOWN_PERIOD_PRICER.forecastValue(
-        (KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement(), RATES_PROVIDER);
+    double expected2 = df * PAYMENT_PRICER.forecastValueAmount(
+        ((KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 
