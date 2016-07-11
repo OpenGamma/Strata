@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.swaption;
+package com.opengamma.strata.product.common;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -12,21 +12,24 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Settlement types for {@code Swaption}. 
+ * Flag indicating how a financial instrument is to be settled.
+ * <p>
+ * Some financial instruments have a choice of settlement, either by cash or by
+ * delivering the underlying instrument that was tracked.
+ * For example, a swaption might be cash settled or produce an actual interest rate swap.
  */
 public enum SettlementType {
 
   /**
-   * Cash settlement
+   * Cash settlement.
    * <p>
-   * Cash amount is paid (by the short party to the long party) at the exercise date (or more exactly 
-   * at the spot lag after the exercise) and the actual swap is not entered into.
+   * Cash amount is paid (by the short party to the long party) at expiry.
    */
   CASH,
   /**
    * Physical delivery.
    * <p>
-   * The two parties enter into actual interest rate swap (the underlying swap) at the expiry date of the option.
+   * The two parties enter into a new financial instrument at expiry.
    */
   PHYSICAL;
 
