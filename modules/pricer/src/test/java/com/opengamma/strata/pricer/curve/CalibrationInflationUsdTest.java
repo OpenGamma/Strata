@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -43,11 +43,9 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeDate;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
@@ -73,7 +71,7 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
 /**
  * Test for curve calibration with 2 curves in USD.
- * One curve is Discounting and Fed Fund forward and the other one is Libor 3M forward.
+ * One curve is Discounting and Fed Fund forward and the other one is USD CPI price index.
  */
 @Test
 public class CalibrationInflationUsdTest {
@@ -82,6 +80,8 @@ public class CalibrationInflationUsdTest {
 
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
+  private static final CurveInterpolator INTERPOLATOR_LOGLINEAR = CurveInterpolators.LOG_LINEAR;
+  private static final CurveExtrapolator EXTRAPOLATOR_EXP = CurveExtrapolators.EXPONENTIAL;
   private static final DayCount CURVE_DC = ACT_365F;
 
   // reference data
@@ -169,9 +169,6 @@ public class CalibrationInflationUsdTest {
           .rateId(QuoteId.of(StandardId.of(SCHEME, CPI_ID_VALUE[i])))
           .date(CurveNodeDate.LAST_FIXING)
           .build();
-//          FixedInflationSwapCurveNode.of(
-//          FixedInflationSwapTemplate.of(Tenor.of(CPI_TENORS[i]), FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI),
-//          QuoteId.of(StandardId.of(SCHEME, CPI_ID_VALUE[i])));
     }
   }
 
@@ -201,19 +198,6 @@ public class CalibrationInflationUsdTest {
     CURVES_NODES.add(groupCpi);
   }
 
-  /** All metadata by groups */
-  private static final List<List<CurveMetadata>> CURVES_METADATA = new ArrayList<>();
-  static {
-    List<CurveMetadata> groupDsc = new ArrayList<>();
-    groupDsc.add(DefaultCurveMetadata.builder().curveName(DSCON_CURVE_NAME).xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.ZERO_RATE).dayCount(CURVE_DC).build());
-    CURVES_METADATA.add(groupDsc);
-    List<CurveMetadata> groupCpi = new ArrayList<>();
-    groupCpi.add(DefaultCurveMetadata.builder().curveName(CPI_CURVE_NAME).xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.PRICE_INDEX).dayCount(CURVE_DC).build());
-    CURVES_METADATA.add(groupCpi);
-  }
-
   private static final DiscountingSwapProductPricer SWAP_PRICER =
       DiscountingSwapProductPricer.DEFAULT;
   private static final DiscountingTermDepositProductPricer DEPO_PRICER =
@@ -241,9 +225,9 @@ public class CalibrationInflationUsdTest {
           .xValueType(ValueType.MONTHS)
           .yValueType(ValueType.PRICE_INDEX)
           .dayCount(CURVE_DC)
-          .interpolator(INTERPOLATOR_LINEAR) // TODO: This is not good for inflation but will do for the test
+          .interpolator(INTERPOLATOR_LOGLINEAR)
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
-          .extrapolatorRight(EXTRAPOLATOR_FLAT)
+          .extrapolatorRight(EXTRAPOLATOR_EXP)
           .nodes(CPI_NODES).build();
   private static final CurveGroupDefinition CURVE_GROUP_CONFIG =
       CurveGroupDefinition.builder()
@@ -293,8 +277,8 @@ public class CalibrationInflationUsdTest {
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unused")
-  @Test(enabled = false)
-  void performance() {
+  @Test(enabled = true)
+  public void performance() {
     long startTime, endTime;
     int nbTests = 100;
     int nbRep = 3;
@@ -311,7 +295,7 @@ public class CalibrationInflationUsdTest {
           + (endTime - startTime) + " ms.");
     }
     System.out.println("Avoiding hotspot: " + count);
-    // Previous run: 1050 ms for 100 calibrations (2 curves simultaneous - 35 nodes)
+    // Previous run: 275 ms for 100 calibrations (2 curves simultaneous - 35 nodes)
   }
 
 }

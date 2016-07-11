@@ -195,7 +195,11 @@ public final class CurveGroupDefinitionBuilder {
   }
 
   /**
-   * TODO
+   * Adds the definition of a price index curve to the curve group definition.
+   *
+   * @param curveDefinition  the definition of the price index curve
+   * @param index  the index for which the curve provides prices
+   * @param otherIndices  the additional indices for which the curve provides prices
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addPriceIndexCurve(
@@ -213,7 +217,14 @@ public final class CurveGroupDefinitionBuilder {
   }
 
   /**
-   * TODO
+   * Adds the definition of a price index curve to the curve group definition.
+   * <p>
+   * A curve added with this method cannot be calibrated by the market data system as it does not include
+   * a curve definition. It is intended to be used with curves which are supplied by the user.
+   *
+   * @param curveName  the name of the curve
+   * @param index  the index for which the curve provides prices
+   * @param otherIndices  the additional indices for which the curve provides prices
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addPriceIndexCurve(CurveName curveName, PriceIndex index, PriceIndex... otherIndices) {
@@ -304,7 +315,7 @@ public final class CurveGroupDefinitionBuilder {
   }
 
   /**
-   * Returns a set containing any Price indices in the arguments.
+   * Returns a set containing any price indices in the arguments.
    */
   private static Set<PriceIndex> priceIndices(PriceIndex index, PriceIndex... otherIndices) {
     // The type parameter is needed for the benefit of the Eclipse compiler

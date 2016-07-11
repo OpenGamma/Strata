@@ -184,14 +184,11 @@ public class ImmutableRatesProviderGenerator
         priceIndexValues.put(index, priceValue);
       }
     }
-
-    // create child provider
-    ImmutableRatesProvider provider = knownProvider.toBuilder()
+    return knownProvider.toBuilder()
         .discountCurves(discountCurves)
         .indexCurves(indexCurves)
         .priceIndexValues(priceIndexValues)
         .build();
-    return provider;
   }
 
   // build the map of additional info
