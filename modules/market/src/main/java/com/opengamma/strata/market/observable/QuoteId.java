@@ -56,8 +56,9 @@ import com.opengamma.strata.data.ObservableSource;
  *
  * @see FieldName
  */
-@BeanDefinition(builderScope = "private")
-public final class QuoteId implements ObservableId, ImmutableBean, Serializable {
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
+public final class QuoteId
+    implements ObservableId, ImmutableBean, Serializable {
 
   /**
    * The identifier of the data.
@@ -142,6 +143,11 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   private QuoteId(
       StandardId standardId,
       FieldName fieldName,
@@ -218,10 +224,14 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
-    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
+      hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
+      hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

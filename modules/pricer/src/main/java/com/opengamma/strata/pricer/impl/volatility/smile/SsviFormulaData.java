@@ -21,21 +21,21 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * The data bundle for SSVI smile formula. 
+ * The data bundle for SSVI smile formula.
  * <p>
- * The bundle contains the SSVI model parameters, ATM volatility, rho and eta. 
+ * The bundle contains the SSVI model parameters, ATM volatility, rho and eta.
  */
 @BeanDefinition(style = "light")
 public final class SsviFormulaData
     implements SmileModelData, ImmutableBean, Serializable {
 
   /**
-   * The number of model parameters. 
+   * The number of model parameters.
    */
   private static final int NUM_PARAMETERS = 3;
 
   /**
-   * The model parameters. 
+   * The model parameters.
    * <p>
    * This must be an array of length 3.
    * The parameters in the array are in the order of sigma (ATM volatility), rho and eta.
@@ -46,7 +46,7 @@ public final class SsviFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of the SSVI formula data. 
+   * Obtains an instance of the SSVI formula data.
    * 
    * @param sigma  the sigma parameter, ATM volatility
    * @param rho  the rho parameter
@@ -58,9 +58,9 @@ public final class SsviFormulaData
   }
 
   /**
-   * Obtains an instance of the SSVI formula data. 
+   * Obtains an instance of the SSVI formula data.
    * <p>
-   * The parameters in the input array should be in the order of sigma (ATM volatility), rho and eta.  
+   * The parameters in the input array should be in the order of sigma (ATM volatility), rho and eta.
    * 
    * @param parameters  the parameters
    * @return the instance
@@ -80,7 +80,7 @@ public final class SsviFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the sigma parameter. 
+   * Gets the sigma parameter.
    * 
    * @return the sigma parameter
    */
@@ -89,7 +89,7 @@ public final class SsviFormulaData
   }
 
   /**
-   * Gets the rho parameter. 
+   * Gets the rho parameter.
    * 
    * @return the rho parameter
    */

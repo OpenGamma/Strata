@@ -30,7 +30,7 @@ import com.opengamma.strata.product.rate.RateComputation;
 public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final DiscountingCapitalIndexedBondPaymentPeriodPricer DEFAULT =
       new DiscountingCapitalIndexedBondPaymentPeriodPricer(RateComputationFn.standard());
@@ -40,7 +40,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
   private final RateComputationFn<RateComputation> rateComputationFn;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param rateComputationFn  the rate computation function
    */
@@ -49,7 +49,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
   }
 
   /**
-   * Obtains the rate computation function. 
+   * Obtains the rate computation function.
    * 
    * @return the rate computation function
    */

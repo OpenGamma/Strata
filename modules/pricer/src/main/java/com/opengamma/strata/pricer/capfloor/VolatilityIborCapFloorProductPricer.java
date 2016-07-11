@@ -40,7 +40,7 @@ public class VolatilityIborCapFloorProductPricer {
   private final DiscountingSwapLegPricer payLegPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param capFloorLegPricer  the pricer for {@link IborCapFloorLeg}
    * @param payLegPricer  the pricer for {@link SwapLeg}
@@ -64,7 +64,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value
    */
   public MultiCurrencyAmount presentValue(
@@ -91,7 +91,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value delta
    */
   public MultiCurrencyAmount presentValueDelta(
@@ -114,7 +114,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value gamma
    */
   public MultiCurrencyAmount presentValueGamma(
@@ -137,7 +137,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value theta
    */
   public MultiCurrencyAmount presentValueTheta(
@@ -157,7 +157,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivity(
@@ -183,7 +183,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivityVolatility(
@@ -201,7 +201,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
@@ -223,7 +223,7 @@ public class VolatilityIborCapFloorProductPricer {
    * 
    * @param capFloor  the cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the current cash
    */
   public MultiCurrencyAmount currentCash(

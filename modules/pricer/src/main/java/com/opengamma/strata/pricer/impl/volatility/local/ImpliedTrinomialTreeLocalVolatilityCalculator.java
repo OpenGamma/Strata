@@ -31,7 +31,7 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackScholesFormulaRepository;
 
 /**
- * Local volatility calculation based on trinomila tree model. 
+ * Local volatility calculation based on trinomila tree model.
  * <p>
  * Emanuel Derman, Iraj Kani and Neil Chriss, "Implied Trinomial Trees of the Volatility Smile" (1996).
  */
@@ -43,29 +43,29 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
   private static final GridSurfaceInterpolator DEFAULT_INTERPOLATOR = GridSurfaceInterpolator.of(TIME_SQUARE, LINEAR);
 
   /**
-   * The number of steps in trinomial tree. 
+   * The number of steps in trinomial tree.
    */
   private final int nSteps;
   /**
-   * The maximum value of time in trinomial tree. 
+   * The maximum value of time in trinomial tree.
    * <p>
    * The time step in the tree is then given by {@code maxTime/nSteps}. 
    */
   private final double maxTime;
   /**
-   * The interpolator for local volatilities. 
+   * The interpolator for local volatilities.
    * <p>
-   * The resulting local volatilities are interpolated by this interpolator along time and spot dimensions. 
+   * The resulting local volatilities are interpolated by this interpolator along time and spot dimensions.
    */
   private final SurfaceInterpolator interpolator;
 
   /**
-   * Creates an instance with default setups. 
+   * Creates an instance with default setups.
    * <p>
-   * The number of time steps is 20, and the tree covers up to 3 years.  
+   * The number of time steps is 20, and the tree covers up to 3 years.
    * The time square linear interpolator is used for time direction, 
-   * whereas the linear interpolator is used for spot dimension. 
-   * The extrapolation is flat for both the dimensions. 
+   * whereas the linear interpolator is used for spot dimension.
+   * The extrapolation is flat for both the dimensions.
    */
   public ImpliedTrinomialTreeLocalVolatilityCalculator() {
     this(20, 3d, DEFAULT_INTERPOLATOR);
@@ -75,7 +75,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
    * Creates an instance with the number of steps and maximum time fixed.
    * <p>
    * The default interpolators are used: the time square linear interpolator for time direction, 
-   * the linear interpolator for spot dimension, and flat extrapolator for both the dimensions. 
+   * the linear interpolator for spot dimension, and flat extrapolator for both the dimensions.
    * 
    * @param nSteps  the number of steps
    * @param maxTime  the maximum time
@@ -127,7 +127,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
   }
 
   /**
-   * Calibrate trinomial tree to implied volatility surface. 
+   * Calibrate trinomial tree to implied volatility surface.
    * 
    * @param impliedVolatilitySurface  the implied volatility surface
    * @param spot  the spot

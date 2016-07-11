@@ -130,7 +130,7 @@ public class RatesProviderFxDataSets {
   }
 
   /**
-   * Creates rates provider for EUR, USD with FX matrix. 
+   * Creates rates provider for EUR, USD with FX matrix.
    * 
    * @param valuationDate  the valuation date
    * @return the rates provider
@@ -145,7 +145,7 @@ public class RatesProviderFxDataSets {
   }
 
   /**
-   * Creates rates provider for EUR, USD with FX matrix. 
+   * Creates rates provider for EUR, USD with FX matrix.
    * <p>
    * The discount curves are based on the day count convention, ACT/ACT ISDA.
    * 
@@ -162,7 +162,7 @@ public class RatesProviderFxDataSets {
   }
 
   /**
-   * Creates rates provider for EUR, USD with FX matrix. 
+   * Creates rates provider for EUR, USD with FX matrix.
    * <p>
    * The discount curves are flat.
    * 

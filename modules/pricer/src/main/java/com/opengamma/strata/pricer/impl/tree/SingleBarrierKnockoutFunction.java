@@ -16,7 +16,7 @@ import com.opengamma.strata.product.fxopt.BarrierType;
  * Single barrier knock-out option function.
  * <p>
  * Note that there is no option function responsible for knock-in options because a knock-in option is priced via
- * the in-out parity in a tree model.  
+ * the in-out parity in a tree model.
  */
 abstract class SingleBarrierKnockoutFunction implements OptionFunction {
 
@@ -36,7 +36,7 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
   public abstract double getBarrierLevel(int step);
 
   /**
-   * Obtains the sign.  
+   * Obtains the sign.
    * <p>
    * The sign is +1 for call and -1 for put.
    * 
@@ -45,7 +45,7 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
   public abstract double getSign();
 
   /**
-   * Obtains the barrier type. 
+   * Obtains the barrier type.
    * 
    * @return the barrier type
    */

@@ -65,38 +65,30 @@ public final class SwapDummyData {
   /**
    * NotionalExchange (receive - GBP).
    */
-  public static final NotionalExchange NOTIONAL_EXCHANGE_REC_GBP = NotionalExchange.builder()
-      .paymentDate(date(2014, 7, 1))
-      .paymentAmount(CurrencyAmount.of(Currency.GBP, NOTIONAL))
-      .build();
+  public static final NotionalExchange NOTIONAL_EXCHANGE_REC_GBP =
+      NotionalExchange.of(CurrencyAmount.of(Currency.GBP, NOTIONAL), date(2014, 7, 1));
   /**
    * NotionalExchange (pay - GBP).
    */
-  public static final NotionalExchange NOTIONAL_EXCHANGE_PAY_GBP = NotionalExchange.builder()
-      .paymentDate(date(2014, 7, 1))
-      .paymentAmount(CurrencyAmount.of(Currency.GBP, -NOTIONAL))
-      .build();
+  public static final NotionalExchange NOTIONAL_EXCHANGE_PAY_GBP =
+      NotionalExchange.of(CurrencyAmount.of(Currency.GBP, -NOTIONAL), date(2014, 7, 1));
   /**
    * NotionalExchange (pay - USD).
    */
-  public static final NotionalExchange NOTIONAL_EXCHANGE_PAY_USD = NotionalExchange.builder()
-      .paymentDate(date(2014, 7, 1))
-      .paymentAmount(CurrencyAmount.of(Currency.USD, -1.5d * NOTIONAL))
-      .build();
+  public static final NotionalExchange NOTIONAL_EXCHANGE_PAY_USD =
+      NotionalExchange.of(CurrencyAmount.of(Currency.USD, -1.5d * NOTIONAL), date(2014, 7, 1));
   /**
    * NotionalExchange.
    */
-  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_REC_USD = FxResetNotionalExchange.builder()
-      .paymentDate(date(2014, 7, 1))
-      .notionalAmount(CurrencyAmount.of(Currency.USD, NOTIONAL))
-      .observation(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA))
-      .build();
+  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_REC_USD = FxResetNotionalExchange.of(
+      CurrencyAmount.of(Currency.USD, NOTIONAL),
+      date(2014, 7, 1),
+      FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA));
 
-  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP = FxResetNotionalExchange.builder()
-      .paymentDate(date(2014, 7, 1))
-      .notionalAmount(CurrencyAmount.of(Currency.GBP, -NOTIONAL))
-      .observation(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA))
-      .build();
+  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP = FxResetNotionalExchange.of(
+      CurrencyAmount.of(Currency.GBP, -NOTIONAL),
+      date(2014, 7, 1),
+      FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA));
 
   /**
    * IborRateComputation.

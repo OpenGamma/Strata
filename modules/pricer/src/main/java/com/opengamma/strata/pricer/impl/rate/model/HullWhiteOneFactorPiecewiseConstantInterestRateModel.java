@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
@@ -40,7 +40,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future convexity factor used in future pricing.  
+   * Calculates the future convexity factor used in future pricing.
    * <p>
    * The factor is called gamma in the reference: 
    * Henrard, M. "The Irony in the derivatives discounting Part II: the crisis", Wilmott Journal, 2010, 2, 301-316
@@ -77,7 +77,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   /**
-   * Calculates the future convexity factor and its derivatives with respect to the model volatilities. 
+   * Calculates the future convexity factor and its derivatives with respect to the model volatilities.
    * <p>
    * The factor is called gamma in the reference: 
    * Henrard, M. "The Irony in the derivatives discounting Part II: the crisis", Wilmott Journal, 2010, 2, 301-316
@@ -124,7 +124,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   /**
-   * Calculates the payment delay convexity factor used in coupons with mismatched dates pricing. 
+   * Calculates the payment delay convexity factor used in coupons with mismatched dates pricing.
    * 
    * @param parameters  the Hull-White model parameters
    * @param startExpiry  the start expiry time
@@ -167,7 +167,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   /**
-   * Calculates the (zero-coupon) bond volatility divided by a bond numeraire, i.e., alpha, for a given period. 
+   * Calculates the (zero-coupon) bond volatility divided by a bond numeraire, i.e., alpha, for a given period.
    * 
    * @param data  the Hull-White model data
    * @param startExpiry the start time of the expiry period
@@ -209,7 +209,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
 
   /**
    * Calculates the (zero-coupon) bond volatility divided by a bond numeraire, i.e., alpha, for a given period and 
-   * its derivatives. 
+   * its derivatives.
    * <p>
    * The derivative values are the derivatives of the function alpha with respect to the piecewise constant volatilities.
    *  
@@ -330,7 +330,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   /**
-   * Calculates the common part of the exercise boundary of European swaptions forward. 
+   * Calculates the common part of the exercise boundary of European swaptions forward.
    * <p>
    * This is intended to be used in particular for Bermudan swaption first step of the pricing.
    * <p>

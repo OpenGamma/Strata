@@ -38,7 +38,7 @@ import com.opengamma.strata.product.Product;
  * A Non-Deliverable Forward (NDF).
  * <p>
  * An NDF is a financial instrument that returns the difference between a fixed FX rate 
- * agreed at the inception of the trade and the FX rate at maturity. 
+ * agreed at the inception of the trade and the FX rate at maturity.
  * It is primarily used to handle FX requirements for currencies that have settlement restrictions.
  * For example, the forward may be between USD and CNY (Chinese Yuan).
  */

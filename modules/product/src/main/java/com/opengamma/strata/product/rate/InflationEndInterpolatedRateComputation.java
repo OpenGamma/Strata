@@ -37,7 +37,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * A typical application of this rate computation is payments of a capital indexed bond,
  * where the reference start month is the start month of the bond rather than start month
- * of the payment period. 
+ * of the payment period.
  * <p>
  * A price index is typically published monthly and has a delay before publication.
  * The rate observed by this instance will be based on the specified start index value

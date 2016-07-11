@@ -12,8 +12,8 @@ import com.opengamma.strata.collect.TypedString;
 /**
  * The type of a strike.
  * <p>
- * The strike of option instruments is represented in different ways. 
- * For example, the strike types include delta, moneyness, log-moneyness, and strike itself. 
+ * The strike of option instruments is represented in different ways.
+ * For example, the strike types include delta, moneyness, log-moneyness, and strike itself.
  */
 public final class StrikeType
     extends TypedString<StrikeType> {

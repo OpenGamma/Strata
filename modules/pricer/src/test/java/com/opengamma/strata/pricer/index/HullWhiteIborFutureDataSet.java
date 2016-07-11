@@ -24,6 +24,8 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
@@ -31,7 +33,7 @@ import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
- * Data set used for testing futures pricers under Hull-White one factor model. 
+ * Data set used for testing futures pricers under Hull-White one factor model.
  */
 public class HullWhiteIborFutureDataSet {
 
@@ -79,7 +81,7 @@ public class HullWhiteIborFutureDataSet {
   }
 
   /**
-   * Creates rates provider with specified  valuation date. 
+   * Creates rates provider with specified  valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return  the rates provider

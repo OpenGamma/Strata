@@ -7,10 +7,10 @@ package com.opengamma.strata.measure.credit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.credit.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
@@ -45,11 +45,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
+  static CurrencyScenarioArray presentValue(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculatePresentValue(trade, marketData.scenario(i)));
   }
@@ -74,11 +74,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates IR01 for all scenarios
-  static CurrencyValuesArray ir01ParallelZero(
+  static CurrencyScenarioArray ir01ParallelZero(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateIr01ParallelZero(trade, marketData.scenario(i)));
   }
@@ -132,11 +132,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates IR01 for all scenarios
-  static CurrencyValuesArray ir01ParallelPar(
+  static CurrencyScenarioArray ir01ParallelPar(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateIr01ParallelPar(trade, marketData.scenario(i)));
   }
@@ -190,11 +190,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates CS01 for all scenarios
-  static CurrencyValuesArray cs01ParallelPar(
+  static CurrencyScenarioArray cs01ParallelPar(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateCs01ParallelPar(trade, marketData.scenario(i)));
   }
@@ -248,11 +248,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates CS01 for all scenarios
-  static CurrencyValuesArray cs01ParallelHazard(
+  static CurrencyScenarioArray cs01ParallelHazard(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateCs01ParallelHazard(trade, marketData.scenario(i)));
   }
@@ -306,11 +306,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates recovery01 for all scenarios
-  static CurrencyValuesArray recovery01(
+  static CurrencyScenarioArray recovery01(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateRecovery01(trade, marketData.scenario(i)));
   }
@@ -335,11 +335,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates jump to default for all scenarios
-  static CurrencyValuesArray jumpToDefault(
+  static CurrencyScenarioArray jumpToDefault(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return CurrencyValuesArray.of(
+    return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateJumpToDefault(trade, marketData.scenario(i)));
   }
@@ -393,11 +393,11 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates par rate for all scenarios
-  static ValuesArray parRate(
+  static DoubleScenarioArray parRate(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return ValuesArray.of(
+    return DoubleScenarioArray.of(
         marketData.getScenarioCount(),
         index -> calculateParRate(trade, marketData.scenario(index)));
   }

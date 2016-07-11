@@ -114,7 +114,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
   /**
    * Calculates the present value sensitivity to the strike value.
    * <p>
-   * The present value sensitivity of the leg is the sensitivity of the present value to the strike value. 
+   * The present value sensitivity of the leg is the sensitivity of the present value to the strike value.
    * This is not relevant for CMS coupons and an exception is thrown in the underlying pricer.
    * 
    * @param cmsLeg  the CMS leg
@@ -134,7 +134,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
   }
 
   /**
-   * Calculates the current cash of the leg. 
+   * Calculates the current cash of the leg.
    * 
    * @param cmsLeg  the CMS leg
    * @param ratesProvider  the rates provider

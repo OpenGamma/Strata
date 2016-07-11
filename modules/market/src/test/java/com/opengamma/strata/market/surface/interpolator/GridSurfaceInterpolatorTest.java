@@ -16,25 +16,15 @@ import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.testng.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Test {@link GridSurfaceInterpolator}.
  */
 @Test
 public class GridSurfaceInterpolatorTest {
-
-  private static final Random RANDOM = new Random(0L);
 
   private static final DoubleArray X_DATA = DoubleArray.of(0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0);
   private static final DoubleArray Y_DATA = DoubleArray.of(3.0, 4.0, 5.0, 3.0, 4.0, 5.0, 3.0, 4.0, 5.0, 4.0);
@@ -112,39 +102,6 @@ public class GridSurfaceInterpolatorTest {
     }
     for (int i = 0; i < X_TEST.size(); i++) {
       assertEquals(bci.interpolate(X_TEST.get(i), Y_TEST.get(i)), Z_TEST.get(i), TOL);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_sameAsPrevious() {
-    GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
-        LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
-    BoundSurfaceInterpolator bound = test.bind(X_DATA, Y_DATA, Z_DATA);
-    
-    GridInterpolator2D oldInterp = new GridInterpolator2D(
-        Interpolator1DFactory.LINEAR_INSTANCE,
-        Interpolator1DFactory.LINEAR_INSTANCE,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
-    Map<DoublesPair, Double> surfaceMap = new HashMap<DoublesPair, Double>();
-    for (int i = 0; i < X_DATA.size(); i++) {
-      surfaceMap.put(DoublesPair.of(X_DATA.get(i), Y_DATA.get(i)), Z_DATA.get(i));
-    }
-    Map<Double, Interpolator1DDataBundle> data = oldInterp.getDataBundle(surfaceMap);
-
-    for (int i = 0; i < 100; i++) {
-      double x = Math.abs(RANDOM.nextDouble()) * 2.5;
-      double y = Math.abs(RANDOM.nextDouble()) * 2.5 + 3;
-      if (x >= 0 && x <= 5.0) {
-        assertEquals(bound.interpolate(x, y), oldInterp.interpolate(data, DoublesPair.of(x, y)), TOL);
-
-        Map<DoublesPair, Double> oldSensMap = oldInterp.getNodeSensitivitiesForValue(data, DoublesPair.of(x, y));
-        for (int j = 0; j < X_DATA.size(); j++) {
-          double calcSens = bound.parameterSensitivity(x, y).get(j);
-          double oldSens = oldSensMap.get(DoublesPair.of(X_DATA.get(j), Y_DATA.get(j)));
-          assertEquals(calcSens, oldSens, TOL);
-        }
-      }
     }
   }
 

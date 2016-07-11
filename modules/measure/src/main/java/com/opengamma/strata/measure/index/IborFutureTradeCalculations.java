@@ -7,11 +7,11 @@ package com.opengamma.strata.measure.index;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
@@ -28,6 +28,14 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * typically work with {@link IborFutureTrade}. Call
  * {@link IborFutureTrade#resolve(com.opengamma.strata.basics.ReferenceData) IborFutureTrade::resolve(ReferenceData)}
  * to convert {@code IborFutureTrade} to {@code ResolvedIborFutureTrade}.
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future is based on the interest rate of the underlying index.
+ * It is defined as {@code (100 - percentRate)}.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
 public class IborFutureTradeCalculations {
 
@@ -63,7 +71,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the present value, one entry per scenario
    */
-  public CurrencyValuesArray presentValue(
+  public CurrencyScenarioArray presentValue(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -99,7 +107,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01CalibratedSum(
+  public MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -181,7 +189,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public MultiCurrencyValuesArray pv01MarketQuoteSum(
+  public MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
@@ -258,7 +266,7 @@ public class IborFutureTradeCalculations {
    * @param marketData  the market data
    * @return the par spread, one entry per scenario
    */
-  public ValuesArray parSpread(
+  public DoubleScenarioArray parSpread(
       ResolvedIborFutureTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {

@@ -13,7 +13,7 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
  */
 public interface NormalSwaptionVolatilities
     extends SwaptionVolatilities {
-  
+
   @Override
   public default ValueType getVolatilityType() {
     return ValueType.NORMAL_VOLATILITY;

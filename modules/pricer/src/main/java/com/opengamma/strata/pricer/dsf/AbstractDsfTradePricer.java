@@ -13,6 +13,9 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * Base pricer for Deliverable Swap Futures (DSFs).
  * <p>
  * This function provides common code used when pricing an {@link ResolvedDsfTrade}.
+ * <p>
+ * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
+ * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
  */
 public abstract class AbstractDsfTradePricer {
 

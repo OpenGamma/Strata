@@ -43,7 +43,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   private final DiscountingCapitalIndexedBondProductPricer productPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param productPricer  pricer for {@link ResolvedCapitalIndexedBond}
    */
@@ -59,7 +59,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The present value of the trade is the value on the valuation date.
    * The result is expressed using the payment currency of the bond.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -89,7 +89,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -128,7 +128,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -156,7 +156,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -189,7 +189,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * Calculates the present value of the bond trade from the clean price.
    * <p>
    * Since the sign of the settlement notional is opposite to that of the product, negative amount will be returned 
-   * for positive quantity of trade.  
+   * for positive quantity of trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -237,7 +237,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * Calculates the present value of the settlement of the bond trade from the clean price with z-spread.
    * <p>
    * Since the sign of the settlement notional is opposite to that of the product, negative amount will be returned 
-   * for positive quantity of trade.  
+   * for positive quantity of trade.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
@@ -564,10 +564,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the net amount of the settlement of the bond trade. 
+   * Calculates the net amount of the settlement of the bond trade.
    * <p>
    * Since the sign of the settlement notional is opposite to that of the product, negative amount will be returned 
-   * for positive quantity of trade.  
+   * for positive quantity of trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values

@@ -34,12 +34,12 @@ import com.opengamma.strata.product.swap.SwapLegType;
 /**
  * Computes cash flow equivalent of products.
  * <p>
- * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316. 
+ * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316.
  */
 public final class CashFlowEquivalentCalculator {
 
   /**
-   * Computes cash flow equivalent of swap. 
+   * Computes cash flow equivalent of swap.
    * <p>
    * The swap should be a fix-for-Ibor swap without compounding, and its swap legs should not involve {@code PaymentEvent}.
    * <p>
@@ -63,7 +63,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent of Ibor leg. 
+   * Computes cash flow equivalent of Ibor leg.
    * <p>
    * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
    * 
@@ -90,8 +90,8 @@ public final class CashFlowEquivalentCalculator {
           * ratesProvider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate())
           / ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
       double ycRatio = rateAccrualPeriod.getYearFraction() / fixingYearFraction;
-      NotionalExchange payStart = NotionalExchange.of(fixingStartDate, notional.multipliedBy(beta * ycRatio));
-      NotionalExchange payEnd = NotionalExchange.of(paymentDate, notional.multipliedBy(-ycRatio));
+      NotionalExchange payStart = NotionalExchange.of(notional.multipliedBy(beta * ycRatio), fixingStartDate);
+      NotionalExchange payEnd = NotionalExchange.of(notional.multipliedBy(-ycRatio), paymentDate);
       paymentEvents.add(payStart);
       paymentEvents.add(payEnd);
     }
@@ -104,7 +104,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent of fixed leg. 
+   * Computes cash flow equivalent of fixed leg.
    * <p>
    * The return type is {@code ExpandedSwapLeg} in which individual payments are represented in terms of {@code NotionalExchange}.
    * 
@@ -125,7 +125,7 @@ public final class CashFlowEquivalentCalculator {
           ((FixedRateComputation) rateAccrualPeriod.getRateComputation()).getRate();
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount().multipliedBy(factor);
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      NotionalExchange pay = NotionalExchange.of(paymentDate, notional);
+      NotionalExchange pay = NotionalExchange.of(notional, paymentDate);
       paymentEvents.add(pay);
     }
     ResolvedSwapLeg leg = ResolvedSwapLeg.builder()
@@ -138,7 +138,7 @@ public final class CashFlowEquivalentCalculator {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes cash flow equivalent and sensitivity of swap. 
+   * Computes cash flow equivalent and sensitivity of swap.
    * <p>
    * The swap should be a fix-for-Ibor swap without compounding, and its swap legs should not involve {@code PaymentEvent}.
    * <p>
@@ -160,7 +160,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent and sensitivity of Ibor leg. 
+   * Computes cash flow equivalent and sensitivity of Ibor leg.
    * <p>
    * The return type is a map of {@code NotionalExchange} and {@code PointSensitivityBuilder}.
    * 
@@ -191,8 +191,8 @@ public final class CashFlowEquivalentCalculator {
       double dfStart = ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
       double beta = factorIndex * dfPayment / dfStart;
       double ycRatio = rateAccrualPeriod.getYearFraction() / fixingYearFraction;
-      NotionalExchange payStart = NotionalExchange.of(fixingStartDate, notional.multipliedBy(beta * ycRatio));
-      NotionalExchange payEnd = NotionalExchange.of(paymentDate, notional.multipliedBy(-ycRatio));
+      NotionalExchange payStart = NotionalExchange.of(notional.multipliedBy(beta * ycRatio), fixingStartDate);
+      NotionalExchange payEnd = NotionalExchange.of(notional.multipliedBy(-ycRatio), paymentDate);
       double factor = ycRatio * notional.getAmount() / dfStart;
 
       PointSensitivityBuilder factorIndexSensi = ratesProvider.iborIndexRates(index)
@@ -208,7 +208,7 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Computes cash flow equivalent and sensitivity of fixed leg. 
+   * Computes cash flow equivalent and sensitivity of fixed leg.
    * <p>
    * The return type is a map of {@code NotionalExchange} and {@code PointSensitivityBuilder}.
    * 
@@ -231,7 +231,7 @@ public final class CashFlowEquivalentCalculator {
           ((FixedRateComputation) rateAccrualPeriod.getRateComputation()).getRate();
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount().multipliedBy(factor);
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      NotionalExchange pay = NotionalExchange.of(paymentDate, notional);
+      NotionalExchange pay = NotionalExchange.of(notional, paymentDate);
       res.put(pay, PointSensitivityBuilder.none());
     }
     return ImmutableMap.copyOf(res);

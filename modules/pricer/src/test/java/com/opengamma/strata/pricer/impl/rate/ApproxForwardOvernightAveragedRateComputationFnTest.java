@@ -246,7 +246,7 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation.  
+  /** Test rate sensitivity against FD approximation.
    * Two days cutoff and the period is entirely forward. Test Approximation part plus cutoff specifics.*/
   public void rateFedFund2CutOffForwardSensitivity() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
@@ -419,7 +419,7 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation.  
+  /** Test rate sensitivity against FD approximation.
    * Two days cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate.*/
   public void rateFedFund2CutOffValuation1Sensitivity() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 1
@@ -569,7 +569,7 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation.  
+  /** Test rate sensitivity against FD approximation.
    * Two days cutoff and two already fixed ON rate. ON index is Fed Fund. */
   public void rateFedFund2CutOffValuation2Sensitivity() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
@@ -724,7 +724,7 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation.  
+  /** Test rate sensitivity against FD approximation.
    * Two days cutoff and two already fixed ON rate. ON index is SONIA. */
   public void rateSonia2CutOffValuation2Sensitivity() {
     // publication=0, cutoff=2, effective offset=0, TS: Fixing 2
@@ -873,7 +873,7 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
     }
   }
 
-  /** Test rate sensitivity against FD approximation. 
+  /** Test rate sensitivity against FD approximation.
    * No cutoff period and two already fixed ON rate. ON index is SONIA. */
   public void rateSonia0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2

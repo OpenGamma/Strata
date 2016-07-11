@@ -38,15 +38,15 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A fixed coupon bond.
  * <p>
- * A fixed coupon bond is a financial instrument that represents a stream of fixed payments. 
+ * A fixed coupon bond is a financial instrument that represents a stream of fixed payments.
  * The payments consist two types: periodic coupon payments and nominal payment.
- * The periodic payments are made {@code n} times a year with a fixed coupon rate at individual coupon dates.   
+ * The periodic payments are made {@code n} times a year with a fixed coupon rate at individual coupon dates.
  * The nominal payment is the unique payment at the final coupon date.
  * <p>
  * The periodic coupon payment schedule is defined using {@link PeriodicSchedule}. 
@@ -132,7 +132,7 @@ public final class FixedCouponBond
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
   /**
-   * Ex-coupon period. 
+   * Ex-coupon period.
    * <p>
    * Some bonds trade ex-coupons before the coupon payment. The coupon is paid not to the
    * owner of the bond on the payment date but to the owner of the bond on the detachment date.

@@ -114,7 +114,7 @@ public interface DayCount
    * <p>
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
-   * The result of this method will be negative if the first date is after the second date. 
+   * The result of this method will be negative if the first date is after the second date.
    * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
    * <p>
    * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
@@ -136,7 +136,7 @@ public interface DayCount
    * <p>
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
-   * The result of this method will be negative if the first date is after the second date. 
+   * The result of this method will be negative if the first date is after the second date.
    * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
    * 
    * @param firstDate  the first date

@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.common.BuySell.BUY;
@@ -466,27 +467,24 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   public void implied_volatility_round_trip() { // Compute pv and then implied vol from PV and compare with direct implied vol
     CurrencyAmount pvLongRec =
         PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    double impliedLongRecComputed =
-        PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_REC_LONG, RATE_PROVIDER,
-            VOL_PROVIDER.getDayCount(), pvLongRec.getAmount());
+    double impliedLongRecComputed = PRICER_SWAPTION.impliedVolatilityFromPresentValue(
+        SWAPTION_REC_LONG, RATE_PROVIDER, ACT_365F, pvLongRec.getAmount());
     double impliedLongRecInterpolated =
         PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(impliedLongRecComputed, impliedLongRecInterpolated, TOL);
 
     CurrencyAmount pvLongPay =
         PRICER_SWAPTION.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    double impliedLongPayComputed =
-        PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_PAY_LONG, RATE_PROVIDER,
-            VOL_PROVIDER.getDayCount(), pvLongPay.getAmount());
+    double impliedLongPayComputed = PRICER_SWAPTION.impliedVolatilityFromPresentValue(
+        SWAPTION_PAY_LONG, RATE_PROVIDER, ACT_365F, pvLongPay.getAmount());
     double impliedLongPayInterpolated =
         PRICER_SWAPTION.impliedVolatility(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(impliedLongPayComputed, impliedLongPayInterpolated, TOL);
 
     CurrencyAmount pvShortRec =
         PRICER_SWAPTION.presentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    double impliedShortRecComputed =
-        PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_REC_SHORT, RATE_PROVIDER,
-            VOL_PROVIDER.getDayCount(), pvShortRec.getAmount());
+    double impliedShortRecComputed = PRICER_SWAPTION.impliedVolatilityFromPresentValue(
+        SWAPTION_REC_SHORT, RATE_PROVIDER, ACT_365F, pvShortRec.getAmount());
     double impliedShortRecInterpolated =
         PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(impliedShortRecComputed, impliedShortRecInterpolated, TOL);
@@ -495,8 +493,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   public void implied_volatility_wrong_sign() {
     CurrencyAmount pvLongRec =
         PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatilityFromPresentValue(SWAPTION_REC_LONG, RATE_PROVIDER,
-        VOL_PROVIDER.getDayCount(), -pvLongRec.getAmount()));
+    assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatilityFromPresentValue(
+        SWAPTION_REC_LONG, RATE_PROVIDER, ACT_365F, -pvLongRec.getAmount()));
   }
 
   //-------------------------------------------------------------------------

@@ -7,7 +7,7 @@ package com.opengamma.strata.market.surface;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.market.model.MoneynessType;
 
 /**
  * Helper for creating common types of surfaces.
@@ -22,49 +22,160 @@ public final class Surfaces {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates metadata for a surface providing Black expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Black volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletBlackExpiryStrike(String name, DayCount dayCount) {
+    return iborCapletFloorletBlackExpiryStrike(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Black expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Black volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletBlackExpiryStrike(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates metadata for a surface providing Normal expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletNormalExpiryStrike(String name, DayCount dayCount) {
+    return iborCapletFloorletNormalExpiryStrike(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Normal expiry-strike volatility for Ibor caplet/floorlet.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent strike
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborCapletFloorletNormalExpiryStrike(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates metadata for a surface providing Normal expiry-tenor volatility for swaptions.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent simple moneyness.
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @param moneynessType  the moneyness type, prices or rates
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborFutureOptionNormalExpirySimpleMoneyness(
+      String name,
+      DayCount dayCount,
+      MoneynessType moneynessType) {
+
+    return iborFutureOptionNormalExpirySimpleMoneyness(SurfaceName.of(name), dayCount, moneynessType);
+  }
+
+  /**
+   * Creates metadata for a surface providing Normal expiry-tenor volatility for swaptions.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent simple moneyness.
+   * The z-values represent Normal volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @param moneynessType  the moneyness type, prices or rates
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata iborFutureOptionNormalExpirySimpleMoneyness(
+      SurfaceName name,
+      DayCount dayCount,
+      MoneynessType moneynessType) {
+
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .addInfo(SurfaceInfoType.MONEYNESS_TYPE, moneynessType)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates metadata for a surface providing Black expiry-tenor volatility for swaptions.
    * <p>
-   * The x-values represent expiry year fractions as defined by the specified day count.
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions, rounded to the month.
    * The z-values represent Black volatility.
    * 
    * @param name  the surface name
    * @param dayCount  the day count
-   * @param convention  the swap convention
    * @return the surface metadata
    */
-  public static SurfaceMetadata swaptionBlackExpiryTenor(
-      String name,
-      DayCount dayCount,
-      FixedIborSwapConvention convention) {
-
-    return swaptionBlackExpiryTenor(SurfaceName.of(name), dayCount, convention);
+  public static SurfaceMetadata swaptionBlackExpiryTenor(String name, DayCount dayCount) {
+    return swaptionBlackExpiryTenor(SurfaceName.of(name), dayCount);
   }
 
   /**
    * Creates metadata for a surface providing Black expiry-tenor volatility for swaptions.
    * <p>
-   * The x-values represent expiry year fractions as defined by the specified day count.
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions, rounded to the month.
    * The z-values represent Black volatility.
    * 
    * @param name  the surface name
    * @param dayCount  the day count
-   * @param convention  the swap convention
    * @return the surface metadata
    */
-  public static SurfaceMetadata swaptionBlackExpiryTenor(
-      SurfaceName name,
-      DayCount dayCount,
-      FixedIborSwapConvention convention) {
-
+  public static SurfaceMetadata swaptionBlackExpiryTenor(SurfaceName name, DayCount dayCount) {
     return DefaultSurfaceMetadata.builder()
         .surfaceName(name)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.BLACK_VOLATILITY)
         .dayCount(dayCount)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, convention)
         .build();
   }
 
@@ -72,47 +183,36 @@ public final class Surfaces {
   /**
    * Creates metadata for a surface providing Normal expiry-tenor volatility for swaptions.
    * <p>
-   * The x-values represent expiry year fractions as defined by the specified day count.
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions, rounded to the month.
    * The z-values represent Normal volatility.
    * 
    * @param name  the surface name
    * @param dayCount  the day count
-   * @param convention  the swap convention
    * @return the surface metadata
    */
-  public static SurfaceMetadata swaptionNormalExpiryTenor(
-      String name,
-      DayCount dayCount,
-      FixedIborSwapConvention convention) {
-
-    return swaptionNormalExpiryTenor(SurfaceName.of(name), dayCount, convention);
+  public static SurfaceMetadata swaptionNormalExpiryTenor(String name, DayCount dayCount) {
+    return swaptionNormalExpiryTenor(SurfaceName.of(name), dayCount);
   }
 
   /**
    * Creates metadata for a surface providing Normal expiry-tenor volatility for swaptions.
    * <p>
-   * The x-values represent expiry year fractions as defined by the specified day count.
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions, rounded to the month.
    * The z-values represent Normal volatility.
    * 
    * @param name  the surface name
    * @param dayCount  the day count
-   * @param convention  the swap convention
    * @return the surface metadata
    */
-  public static SurfaceMetadata swaptionNormalExpiryTenor(
-      SurfaceName name,
-      DayCount dayCount,
-      FixedIborSwapConvention convention) {
-
+  public static SurfaceMetadata swaptionNormalExpiryTenor(SurfaceName name, DayCount dayCount) {
     return DefaultSurfaceMetadata.builder()
         .surfaceName(name)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.NORMAL_VOLATILITY)
         .dayCount(dayCount)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, convention)
         .build();
   }
 
@@ -120,40 +220,36 @@ public final class Surfaces {
   /**
    * Creates metadata for a surface providing SABR expiry-tenor volatility for swaptions.
    * <p>
-   * The x-values represent expiry year fractions as defined by the specified day count.
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions, rounded to the month.
    * 
    * @param name  the surface name
    * @param dayCount  the day count
-   * @param convention  the swap convention
    * @param zType  the z-value type
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionSabrExpiryTenor(
       String name,
       DayCount dayCount,
-      FixedIborSwapConvention convention,
       ValueType zType) {
 
-    return swaptionSabrExpiryTenor(SurfaceName.of(name), dayCount, convention, zType);
+    return swaptionSabrExpiryTenor(SurfaceName.of(name), dayCount, zType);
   }
 
   /**
    * Creates metadata for a surface providing SABR expiry-tenor volatility for swaptions.
    * <p>
-   * The x-values represent expiry year fractions as defined by the specified day count.
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions, rounded to the month.
    * 
    * @param name  the surface name
    * @param dayCount  the day count
-   * @param convention  the swap convention
    * @param zType  the z-value type
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionSabrExpiryTenor(
       SurfaceName name,
       DayCount dayCount,
-      FixedIborSwapConvention convention,
       ValueType zType) {
 
     if (!zType.equals(ValueType.SABR_ALPHA) && !zType.equals(ValueType.SABR_BETA) &&
@@ -166,7 +262,6 @@ public final class Surfaces {
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(zType)
         .dayCount(dayCount)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, convention)
         .build();
   }
 

@@ -7,16 +7,10 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-
-import java.util.Random;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Test {@link LogNaturalSplineDiscountFactorCurveInterpolator}.
@@ -24,7 +18,6 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
 @Test
 public class LogNaturalSplineDiscountFactorCurveInterpolatorTest {
 
-  private static final Random RANDOM = new Random(0L);
   private static final CurveInterpolator LNDFC_INTERPOLATOR = LogNaturalSplineDiscountFactorCurveInterpolator.INSTANCE;
   private static final CurveExtrapolator FLAT_EXTRAPOLATOR = CurveExtrapolators.FLAT;
 
@@ -82,22 +75,6 @@ public class LogNaturalSplineDiscountFactorCurveInterpolatorTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_sameAsPrevious() {
-    BoundCurveInterpolator bci = LNDFC_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    Interpolator1D oldInterp = Interpolator1DFactory.LOG_NATURAL_CUBIC_DISCOUNT_FACTOR_INSTANCE;
-    Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());
-
-    for (int i = 0; i < 100; i++) {
-      double x = RANDOM.nextDouble() * 5.0;
-      if (x >= 0.2 && x <= 5.0) {
-        assertEquals(bci.interpolate(x), oldInterp.interpolate(data, x), TOL);
-        assertEquals(bci.firstDerivative(x), oldInterp.firstDerivative(data, x), TOL);
-        assertTrue(bci.parameterSensitivity(x).equalWithTolerance(
-            DoubleArray.copyOf(oldInterp.getNodeSensitivitiesForValue(data, x)), 1e-9));
-      }
-    }
-  }
-
   public void test_serialization() {
     assertSerialization(LNDFC_INTERPOLATOR);
   }

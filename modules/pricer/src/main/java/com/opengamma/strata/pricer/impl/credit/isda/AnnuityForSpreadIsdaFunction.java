@@ -18,7 +18,7 @@ public class AnnuityForSpreadIsdaFunction extends AnnuityForSpreadFunction {
    * (aka risky PV01, RPV01 or risky duration).
    * This works by first calibrating a constant hazard rate that recovers the given spread,
    * then computing the value of the annuity from this constant hazard rate.
-   * The ISDA standard CDS model is used for these calculations. 
+   * The ISDA standard CDS model is used for these calculations.
    * 
    * @param cds  the analytic description of a CDS traded at a certain time 
    * @param yieldCurve  the calibrated yield curve 

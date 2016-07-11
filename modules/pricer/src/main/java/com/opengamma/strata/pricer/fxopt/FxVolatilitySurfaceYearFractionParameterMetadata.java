@@ -64,7 +64,7 @@ public final class FxVolatilitySurfaceYearFractionParameterMetadata
 
   //-------------------------------------------------------------------------
   /**
-   * Creates node metadata using year fraction, strike and currency pair. 
+   * Creates node metadata using year fraction, strike and currency pair.
    * 
    * @param yearFraction  the year fraction
    * @param strike  the strike
@@ -81,7 +81,7 @@ public final class FxVolatilitySurfaceYearFractionParameterMetadata
   }
 
   /**
-   * Creates node using year fraction, strike, label and currency pair.  
+   * Creates node using year fraction, strike, label and currency pair.
    * 
    * @param yearFraction  the year fraction
    * @param strike  the strike

@@ -36,7 +36,7 @@ public class AnalyticCdsPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Which formula to use for the accrued on default calculation. 
+   * Which formula to use for the accrued on default calculation.
    * 
    * @param formula  the formula Options are the formula given in the ISDA model (version 1.8.2 and lower);
    *  the proposed fix by Markit (given as a comment in  
@@ -263,7 +263,7 @@ public class AnalyticCdsPricer {
       // For forward starting CDS (accStart > trade-date), and more than one coupon, the C code generates
       // an extra integration point (a node at protection start and one the day before) - normally
       // the second point could be ignored (since is doesn't correspond to a node of the curves,
-      // nor is it the start point), but the Markit fix is mathematically incorrect, so this point affects the result.  
+      // nor is it the start point), but the Markit fix is mathematically incorrect, so this point affects the result.
       double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getAccStart();
       double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       double accPV = 0.0;

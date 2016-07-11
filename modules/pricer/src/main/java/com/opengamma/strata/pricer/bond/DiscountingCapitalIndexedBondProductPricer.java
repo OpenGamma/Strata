@@ -64,7 +64,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   private final DiscountingCapitalIndexedBondPaymentPeriodPricer periodPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param periodPricer  the pricer for {@link CapitalIndexedBondPaymentPeriod}.
    */
@@ -74,7 +74,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the period pricer. 
+   * Obtains the period pricer.
    * 
    * @return the period pricer
    */
@@ -89,7 +89,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The present value of the product is the value on the valuation date.
    * The result is expressed using the payment currency of the bond.
    * <p>
-   * Coupon payments of the product are considered based on the valuation date. 
+   * Coupon payments of the product are considered based on the valuation date.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -127,13 +127,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   /**
-   * Calculates the present value of the bond product with z-spread. 
+   * Calculates the present value of the bond product with z-spread.
    * <p>
    * The present value of the product is the value on the valuation date.
    * The result is expressed using the payment currency of the bond.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or
-   * periodic compounded rates of the issuer discounting curve. 
+   * periodic compounded rates of the issuer discounting curve.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -233,7 +233,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * the underlying curves.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or
-   * periodic compounded rates of the issuer discounting curve. 
+   * periodic compounded rates of the issuer discounting curve.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -304,7 +304,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * Calculates the currency exposure of the bond product with z-spread.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or
-   * periodic compounded rates of the issuer discounting curve. 
+   * periodic compounded rates of the issuer discounting curve.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -571,9 +571,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Computes the dirty price from the conventional real yield.
    * <p>
-   * The resulting dirty price is real price or nominal price depending on the yield convention.  
+   * The resulting dirty price is real price or nominal price depending on the yield convention.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -678,9 +678,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Computes the clean price from the conventional real yield.
    * <p>
-   * The resulting clean price is real price or nominal price depending on the yield convention. 
+   * The resulting clean price is real price or nominal price depending on the yield convention.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -707,7 +707,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The input dirty price should be real price or nominal price depending on the yield convention. This is coherent to  
    * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
    * <p>
-   * The input price and output are expressed in fraction. 
+   * The input price and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -733,7 +733,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   /**
-   * Computes the conventional real yield from the curves. 
+   * Computes the conventional real yield from the curves.
    * <p>
    * The yield is in the bill yield convention.
    * 
@@ -765,7 +765,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Computes the dirty price from the standard yield.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -802,12 +802,12 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * Calculates the modified duration from the conventional real yield using finite difference approximation.
    * <p>
    * The modified duration is defined as the minus of the first derivative of clean price with respect to yield, 
-   * divided by the clean price. 
+   * divided by the clean price.
    * <p>
    * The clean price here is real price or nominal price depending on the yield convention. This is coherent to 
    * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -830,12 +830,12 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the convexity from the conventional real yield using finite difference approximation.
    * <p>
-   * The convexity is defined as the second derivative of clean price with respect to yield, divided by the clean price. 
+   * The convexity is defined as the second derivative of clean price with respect to yield, divided by the clean price.
    * <p>
    * The clean price here is real price or nominal price depending on the yield convention. This is coherent to 
    * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -859,9 +859,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * Computes the modified duration from the standard yield.
    * <p>
    * The modified duration is defined as the minus of the first derivative of dirty price with respect to yield, 
-   * divided by the dirty price. 
+   * divided by the dirty price.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -902,9 +902,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Computes the covexity from the standard yield.
    * <p>
-   * The convexity is defined as the second derivative of dirty price with respect to yield, divided by the dirty price. 
+   * The convexity is defined as the second derivative of dirty price with respect to yield, divided by the dirty price.
    * <p>
-   * The input yield and output are expressed in fraction. 
+   * The input yield and output are expressed in fraction.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -1021,7 +1021,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the real price of the bond from its settlement date and nominal price.
    * <p>
-   * The input and output prices are both clean or dirty. 
+   * The input and output prices are both clean or dirty.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -1042,7 +1042,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the nominal price of the bond from its settlement date and real price.
    * <p>
-   * The input and output prices are both clean or dirty. 
+   * The input and output prices are both clean or dirty.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -1064,7 +1064,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the z-spread of the bond from curves and clean price.
    * <p>
-   * The input clean price is real price or nominal price depending on the yield convention. 
+   * The input clean price is real price or nominal price depending on the yield convention.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve associated to the bond (Issuer Entity)

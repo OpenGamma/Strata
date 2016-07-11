@@ -32,9 +32,9 @@ import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.product.SecurityId;
 
 /**
- * Data provider of volatility for bond future options in the log-normal or Black model. 
+ * Data provider of volatility for bond future options in the log-normal or Black model.
  * <p>
- * The volatility is represented by a surface on the expiry and log moneyness. 
+ * The volatility is represented by a surface on the expiry and log moneyness.
  * The expiry is measured in number of days (not time) according to a day-count convention.
  */
 @BeanDefinition

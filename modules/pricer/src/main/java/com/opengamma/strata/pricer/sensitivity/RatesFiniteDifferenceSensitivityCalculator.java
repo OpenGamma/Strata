@@ -62,7 +62,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   /**
    * Computes the first order sensitivities of a function of a RatesProvider to a double by finite difference.
    * <p>
-   * The finite difference is computed by forward type. 
+   * The finite difference is computed by forward type.
    * The function should return a value in the same currency for any rate provider.
    * 
    * @param provider  the rates provider
@@ -146,7 +146,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   /**
    * Computes the first order sensitivities of a function of a LegalEntityDiscountingProvider to a double by finite difference.
    * <p>
-   * The finite difference is computed by forward type. 
+   * The finite difference is computed by forward type.
    * The function should return a value in the same currency for any rates provider of LegalEntityDiscountingProvider.
    * 
    * @param provider  the rates provider

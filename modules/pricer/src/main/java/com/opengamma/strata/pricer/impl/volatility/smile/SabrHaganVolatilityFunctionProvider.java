@@ -28,7 +28,7 @@ import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
  * The Hagan SABR volatility function provider.
  * <p>
  * This class provides the functions of volatility and its sensitivity to the SABR model parameters based on the original
- * Hagan SABR formula.  
+ * Hagan SABR formula.
  * <p>
  * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
  * <p>
@@ -40,7 +40,7 @@ public final class SabrHaganVolatilityFunctionProvider
     implements SabrVolatilityFormula, ImmutableBean, Serializable {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final SabrHaganVolatilityFunctionProvider DEFAULT = new SabrHaganVolatilityFunctionProvider();
 
@@ -328,11 +328,11 @@ public final class SabrHaganVolatilityFunctionProvider
   }
 
   /**
-   * Computes the first and second order derivatives of the Black implied volatility in the SABR model. 
+   * Computes the first and second order derivatives of the Black implied volatility in the SABR model.
    * <p>
    * The first derivative values will be stored in the input array {@code volatilityD} 
    * The array contains, [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, [2] the derivative w.r.t. to alpha,
-   * [3] the derivative w.r.t. to beta, [4] the derivative w.r.t. to rho, and [5] the derivative w.r.t. to nu. 
+   * [3] the derivative w.r.t. to beta, [4] the derivative w.r.t. to rho, and [5] the derivative w.r.t. to nu.
    * Thus the length of the array should be 6.
    * <p>
    * The second derivative values will be stored in the input array {@code volatilityD2}. 
@@ -340,7 +340,7 @@ public final class SabrHaganVolatilityFunctionProvider
    * The array contains [0][0] forward-forward; [0][1] forward-strike; [1][1] strike-strike.
    * Thus the size should be 2 x 2.
    * <p>
-   * Around ATM, a first order expansion is used to due to some 0/0-type indetermination. 
+   * Around ATM, a first order expansion is used to due to some 0/0-type indetermination.
    * The second order derivative produced is poor around ATM.
    * 
    * @param forward  the forward value of the underlying

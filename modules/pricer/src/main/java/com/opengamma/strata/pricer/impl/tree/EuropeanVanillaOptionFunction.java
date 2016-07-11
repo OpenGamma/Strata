@@ -28,7 +28,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PutCall;
 
 /**
- * European vanilla option function. 
+ * European vanilla option function.
  */
 @BeanDefinition(builderScope = "private")
 public final class EuropeanVanillaOptionFunction
@@ -45,7 +45,7 @@ public final class EuropeanVanillaOptionFunction
   @PropertyDefinition(overrideGet = true)
   private final double timeToExpiry;
   /**
-   * The sign. 
+   * The sign.
    * <p>
    * The sign is +1 for call and -1 for put.
    */
@@ -60,7 +60,7 @@ public final class EuropeanVanillaOptionFunction
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance. 
+   * Obtains an instance.
    * 
    * @param strike  the strike
    * @param timeToExpiry  the time to expiry

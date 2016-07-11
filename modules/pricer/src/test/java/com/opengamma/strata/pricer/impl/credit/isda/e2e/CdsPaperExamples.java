@@ -42,7 +42,7 @@ import com.opengamma.strata.pricer.impl.credit.isda.MarketQuoteConverter;
 /**
  * This code generates the results in the paper <i>The Pricing and Risk Management of Credit Default Swaps, with a Focus
  * on the ISDA Model</i>. Tests either produce tables for Latex (directly using dumpLatexTable or via the Exce2LaTeX pluin)
- * or data sets used to produce graphs in Excel.  
+ * or data sets used to produce graphs in Excel.
  */
 @Test(enabled = false)
 public class CdsPaperExamples extends IsdaBaseTest {
@@ -311,7 +311,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
   /**
    * Take a hedged CDS portfolio (1.0 of June 20th 2015 and -0.47556 & -0.52474 of June 20th 2014 & June 20th 2016),
    * and compute its change in PV for both parallel shifts and tilts to the credit curve. The results are shown for a
-   * notional of 10MM. 
+   * notional of 10MM.
    */
   @Test(description = "Demo", enabled = false)
   public void hedgingPerformanceDemo() {
@@ -352,7 +352,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
    * The sensitivity of the PV of a set of CDSs to the par spreads of the CDSs used to construct the credit curve.
    * The last column shows the sensitivity of all the spreads moving in parallel. The (priced) CDSs all have a coupon of 100bps.
    * All CDSs have a recovery rate of 40\% and the Trade date is 13-Jun-2011. <p>
-   * This uses the method dumpLatexTable to format the output into a Latex table. 
+   * This uses the method dumpLatexTable to format the output into a Latex table.
    */
   @Test(description = "Demo", enabled = false)
   public void analyticCS01test() {
@@ -389,7 +389,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
   /**
    * The sensitivity of the PV of 8Y CDSs to the par spreads of the CDSs used to construct the credit curve.  The calculation
    * methods are analytic and forward finite difference (or bump and reprice). The bump in the forward difference is 1bps.<p>
-   *  This uses the method dumpLatexTable to format the output into a Latex table. 
+   *  This uses the method dumpLatexTable to format the output into a Latex table.
    */
   @Test(description = "Demo", enabled = false)
   void analyticVFDCS01Test() {
@@ -428,7 +428,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
   /**
    * This calculates hedge ratios from bucketed CS01. The main point this demonstrates is that this gives exactly (up to
    * numerical tolerances) as from  pvHedgingDemo, but this involves a lot more work (i.e. calculating the CS01). <p>
-   *  <b>Note:</b> This does not appear as a table in the paper. 
+   *  <b>Note:</b> This does not appear as a table in the paper.
    */
   @Test(description = "Demo", enabled = false)
   public void spreadHedgeDemo() {

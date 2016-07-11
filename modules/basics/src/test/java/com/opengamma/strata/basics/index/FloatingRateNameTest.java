@@ -14,9 +14,11 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
+import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
@@ -83,7 +85,6 @@ public class FloatingRateNameTest {
   public void test_name(String name, String indexName, FloatingRateType type) {
     FloatingRateName convention = FloatingRateName.of(name);
     assertEquals(convention.getName(), name);
-    assertEquals(convention.getIndexName(), indexName);
     assertEquals(convention.getType(), type);
   }
 
@@ -113,23 +114,28 @@ public class FloatingRateNameTest {
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_12M), IborIndices.GBP_LIBOR_12M);
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_1Y), IborIndices.GBP_LIBOR_12M);
     assertThrows(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndex(Tenor.TENOR_6M), IllegalStateException.class);
+    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").getTenors(), ImmutableSet.of(
+        Tenor.TENOR_1W, Tenor.TENOR_1M, Tenor.TENOR_2M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_12M));
   }
 
   public void test_toOvernightIndex() {
     assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toOvernightIndex(), OvernightIndices.GBP_SONIA);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toOvernightIndex(), IllegalStateException.class);
+    assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").getTenors(), ImmutableSet.of());
   }
 
   public void test_toPriceIndex() {
     assertEquals(FloatingRateName.of("UK-HICP").toPriceIndex(), PriceIndices.GB_HICP);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toPriceIndex(), IllegalStateException.class);
+    assertEquals(FloatingRateName.of("UK-HICP").getTenors(), ImmutableSet.of());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(FloatingRateNames.class);
-    coverImmutableBean(FloatingRateName.of("GBP-LIBOR-BBA"));
-    coverBeanEquals(FloatingRateName.of("GBP-LIBOR-BBA"), FloatingRateName.of("USD-Federal Funds-H.15"));
+    ImmutableBean test = (ImmutableBean) FloatingRateName.of("GBP-LIBOR-BBA");
+    coverImmutableBean(test);
+    coverBeanEquals(test, (ImmutableBean) FloatingRateName.of("USD-Federal Funds-H.15"));
   }
 
   public void test_jodaConvert() {

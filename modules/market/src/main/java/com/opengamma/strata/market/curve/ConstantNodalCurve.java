@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -45,7 +44,7 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
  * The {@link #getYValues()} method returns a single y-value of the node.
  * The sensitivity is 1 and the first derivative is 0.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class ConstantNodalCurve
     implements NodalCurve, ImmutableBean, Serializable {
 
@@ -57,7 +56,7 @@ public final class ConstantNodalCurve
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveMetadata metadata;
   /**
-   * The single y-value.
+   * The single x-value.
    */
   @PropertyDefinition(validate = "notNull")
   private final double xValue;
@@ -71,7 +70,7 @@ public final class ConstantNodalCurve
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a constant curve with metadata.
+   * Creates a constant nodal curve with metadata.
    * 
    * @param metadata  the curve metadata
    * @param xValue  the x-value
@@ -83,7 +82,7 @@ public final class ConstantNodalCurve
   }
 
   /**
-   * Creates a constant curve with metadata.
+   * Creates a constant nodal curve with metadata.
    * 
    * @param metadata  the curve metadata
    * @param xValue  the x-value
@@ -171,21 +170,23 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public ConstantNodalCurve withYValues(DoubleArray yValues) {
-    ArgChecker.isTrue(yValues.size() == 1, "single parameter");
+  public ConstantNodalCurve withValues(DoubleArray yValues) {
+    ArgChecker.isTrue(yValues.size() == 1, "Invalid number of parameters, only one allowed");
     return new ConstantNodalCurve(metadata, xValue, yValues.get(0));
   }
 
   @Override
-  public ConstantNodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
-    ArgChecker.isTrue(xValues.size() == 1 && yValues.size() == 1, "single parameter");
+  public ConstantNodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
+    ArgChecker.isTrue(xValues.size() == 1 && yValues.size() == 1, "Invalid number of parameters, only one allowed");
     return new ConstantNodalCurve(metadata, xValues.get(0), yValues.get(0));
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public InterpolatedNodalCurve withNode(int index, double x, double y) {
-    throw new IllegalArgumentException("Not well-defined due to unspecified interpolator");
+  public ConstantNodalCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
+    ArgChecker.isTrue(x == xValue, "x should be equal to the existing x-value");
+    CurveMetadata md = metadata.withParameterMetadata(ImmutableList.of(paramMetadata));
+    return new ConstantNodalCurve(md, x, y);
   }
 
   //-------------------------------------------------------------------------
@@ -218,6 +219,14 @@ public final class ConstantNodalCurve
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static ConstantNodalCurve.Builder builder() {
+    return new ConstantNodalCurve.Builder();
+  }
+
   @Override
   public ConstantNodalCurve.Meta metaBean() {
     return ConstantNodalCurve.Meta.INSTANCE;
@@ -247,7 +256,7 @@ public final class ConstantNodalCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the single y-value.
+   * Gets the single x-value.
    * @return the value of the property, not null
    */
   public double getXValue() {
@@ -264,6 +273,14 @@ public final class ConstantNodalCurve
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -352,7 +369,7 @@ public final class ConstantNodalCurve
     }
 
     @Override
-    public BeanBuilder<? extends ConstantNodalCurve> builder() {
+    public ConstantNodalCurve.Builder builder() {
       return new ConstantNodalCurve.Builder();
     }
 
@@ -420,7 +437,7 @@ public final class ConstantNodalCurve
   /**
    * The bean-builder for {@code ConstantNodalCurve}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ConstantNodalCurve> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ConstantNodalCurve> {
 
     private CurveMetadata metadata;
     private double xValue;
@@ -430,6 +447,16 @@ public final class ConstantNodalCurve
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(ConstantNodalCurve beanToCopy) {
+      this.metadata = beanToCopy.getMetadata();
+      this.xValue = beanToCopy.getXValue();
+      this.yValue = beanToCopy.getYValue();
     }
 
     //-----------------------------------------------------------------------
@@ -495,6 +522,42 @@ public final class ConstantNodalCurve
           metadata,
           xValue,
           yValue);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the curve metadata.
+     * <p>
+     * The metadata will have a single parameter metadata.
+     * @param metadata  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder metadata(CurveMetadata metadata) {
+      JodaBeanUtils.notNull(metadata, "metadata");
+      this.metadata = metadata;
+      return this;
+    }
+
+    /**
+     * Sets the single x-value.
+     * @param xValue  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder xValue(double xValue) {
+      JodaBeanUtils.notNull(xValue, "xValue");
+      this.xValue = xValue;
+      return this;
+    }
+
+    /**
+     * Sets the single y-value.
+     * @param yValue  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder yValue(double yValue) {
+      JodaBeanUtils.notNull(yValue, "yValue");
+      this.yValue = yValue;
+      return this;
     }
 
     //-----------------------------------------------------------------------

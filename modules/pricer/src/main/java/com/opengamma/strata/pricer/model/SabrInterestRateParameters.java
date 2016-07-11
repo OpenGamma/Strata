@@ -29,15 +29,14 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * The volatility surface description under SABR model.  
+ * The volatility surface description under SABR model.
  * <p>
- * This is used in interest rate modeling. 
+ * This is used in interest rate modeling.
  * Each SABR parameter is a {@link Surface} defined by expiry and tenor.
  * <p>
- * The implementation allows for shifted SABR model. 
+ * The implementation allows for shifted SABR model.
  * The shift parameter is also {@link Surface} defined by expiry and tenor.
  */
 @BeanDefinition(style = "light")
@@ -50,28 +49,28 @@ public final class SabrInterestRateParameters
   private static final ConstantSurface ZERO_SHIFT = ConstantSurface.of("Zero shift", 0d);
 
   /**
-   * The alpha (volatility level) surface. 
+   * The alpha (volatility level) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface alphaSurface;
   /**
-   * The beta (elasticity) surface. 
+   * The beta (elasticity) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface betaSurface;
   /**
-   * The rho (correlation) surface. 
+   * The rho (correlation) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface rhoSurface;
   /**
-   * The nu (volatility of volatility) surface. 
+   * The nu (volatility of volatility) surface.
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
@@ -90,10 +89,6 @@ public final class SabrInterestRateParameters
    */
   @PropertyDefinition(validate = "notNull")
   private final SabrVolatilityFormula sabrVolatilityFormula;
-  /** 
-   * The swap convention that the surfaces are calibrated against.
-   */
-  private final FixedIborSwapConvention convention;  // cached, not a property
   /**
    * The day count convention of the surfaces.
    */
@@ -116,11 +111,9 @@ public final class SabrInterestRateParameters
    *   {@link ValueType#SABR_RHO} or {@link ValueType#SABR_NU}
    * <li>The day count must be set in the additional information of the Alpha surface using
    *   {@link SurfaceInfoType#DAY_COUNT}, if present on other surfaces it must match that on the Alpha
-   * <li>The swap convention must be set in the additional information of the Alpha surface using
-   *   {@link SurfaceInfoType#SWAP_CONVENTION}, if present on other surfaces it must match that on the Alpha
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, FixedIborSwapConvention, ValueType)}.
+   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, ValueType)}.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -153,14 +146,12 @@ public final class SabrInterestRateParameters
    *   {@link ValueType#SABR_RHO} or {@link ValueType#SABR_NU} as appropriate
    * <li>The day count must be set in the additional information of the alpha surface using
    *   {@link SurfaceInfoType#DAY_COUNT}, if present on other surfaces it must match that on the alpha
-   * <li>The swap convention must be set in the additional information of the alpha surface using
-   *   {@link SurfaceInfoType#SWAP_CONVENTION}, if present on other surfaces it must match that on the alpha
    * </ul>
    * The shift surface does not have to contain any metadata.
    * If it does, the day count and convention must match that on the alpha surface.
    * <p>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, FixedIborSwapConvention, ValueType)}.
+   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, ValueType)}.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -197,14 +188,12 @@ public final class SabrInterestRateParameters
     validate(nuSurface, "nuSurface", ValueType.SABR_NU);
     ArgChecker.notNull(shiftSurface, "shiftSurface");
     ArgChecker.notNull(sabrFormula, "sabrFormula");
-    FixedIborSwapConvention swapConvention = alphaSurface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION)
-        .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing swap convention"));
     DayCount dayCount = alphaSurface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing DayCount"));
-    validate(betaSurface, swapConvention, dayCount);
-    validate(rhoSurface, swapConvention, dayCount);
-    validate(nuSurface, swapConvention, dayCount);
-    validate(shiftSurface, swapConvention, dayCount);
+    validate(betaSurface, dayCount);
+    validate(rhoSurface, dayCount);
+    validate(nuSurface, dayCount);
+    validate(shiftSurface, dayCount);
 
     this.alphaSurface = alphaSurface;
     this.betaSurface = betaSurface;
@@ -212,7 +201,6 @@ public final class SabrInterestRateParameters
     this.nuSurface = nuSurface;
     this.shiftSurface = shiftSurface;
     this.sabrVolatilityFormula = sabrFormula;
-    this.convention = swapConvention;
     this.dayCount = dayCount;
     this.paramCombiner = ParameterizedDataCombiner.of(alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface);
   }
@@ -230,25 +218,13 @@ public final class SabrInterestRateParameters
   }
 
   // ensure all surfaces that specify convention or day count are consistent
-  private static void validate(Surface surface, FixedIborSwapConvention swapConvention, DayCount dayCount) {
-    if (!surface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION).orElse(swapConvention).equals(swapConvention)) {
-      throw new IllegalArgumentException("SABR surfaces must have the same swap convention");
-    }
+  private static void validate(Surface surface, DayCount dayCount) {
     if (!surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT).orElse(dayCount).equals(dayCount)) {
       throw new IllegalArgumentException("SABR surfaces must have the same day count");
     }
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the swap convention that the surfaces are calibrated against.
-   * 
-   * @return the convention
-   */
-  public FixedIborSwapConvention getConvention() {
-    return convention;
-  }
-
   /**
    * Gets the day count used to calculate the expiry year fraction.
    * 

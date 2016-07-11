@@ -35,7 +35,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * where the start index value is known.
  * <p>
  * A typical application of this rate computation is payments of a capital indexed bond, 
- * where the reference start month is start month of the bond rather than start month of the payment period. 
+ * where the reference start month is start month of the bond rather than start month of the payment period.
  * <p>
  * A price index is typically published monthly and has a delay before publication.
  * The rate observed by this instance will be based on the start index value
@@ -46,9 +46,9 @@ public final class InflationEndMonthRateComputation
     implements RateComputation, ImmutableBean, Serializable {
 
   /**
-   * The start index value. 
+   * The start index value.
    * <p>
-   * The published index value of the start month. 
+   * The published index value of the start month.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double startIndexValue;

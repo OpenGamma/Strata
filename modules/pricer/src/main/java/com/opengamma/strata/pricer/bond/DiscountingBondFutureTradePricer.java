@@ -68,7 +68,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * The price of the trade is the price on the valuation date.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
@@ -116,7 +116,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * The present value of the product is the value on the valuation date.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * <p>
    * The calculation is performed against a reference price. The reference price should
    * be the settlement price except on the trade date, when it is the trade price.
@@ -169,7 +169,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * the underlying curves.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
@@ -222,7 +222,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * is increased by the par spread, the present value of the trade is zero.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * <p>
    * The calculation is performed against a reference price. The reference price should
    * be the settlement price except on the trade date, when it is the trade price.
@@ -271,7 +271,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * the underlying curves.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
@@ -316,7 +316,7 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * Calculates the currency exposure of the bond future trade with z-spread.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
-   * of the issuer discounting curve. 
+   * of the issuer discounting curve.
    * 
    * @param trade  the trade
    * @param provider  the rates provider

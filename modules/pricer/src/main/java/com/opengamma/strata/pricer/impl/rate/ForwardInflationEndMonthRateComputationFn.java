@@ -16,7 +16,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 
 /**
- * Rate computation implementation for a price index. 
+ * Rate computation implementation for a price index.
  * <p>
  * The pay-off for a unit notional is {@code (IndexEnd / IndexStart)}, where
  * the start index value is given by  {@code InflationEndMonthRateComputation}

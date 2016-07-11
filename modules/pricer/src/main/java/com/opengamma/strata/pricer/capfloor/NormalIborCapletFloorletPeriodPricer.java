@@ -8,17 +8,17 @@ package com.opengamma.strata.pricer.capfloor;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Pricer for caplet/floorlet in a normal or Bachelier model. 
+ * Pricer for caplet/floorlet in a normal or Bachelier model.
  * <p>
  * The value of the caplet/floorlet after expiry is a fixed payoff amount. The value is zero if valuation date is 
- * after payment date of the caplet/floorlet. 
+ * after payment date of the caplet/floorlet.
  */
 public class NormalIborCapletFloorletPeriodPricer
     extends VolatilityIborCapletFloorletPeriodPricer {
 
   /**
-  * Default implementation.
-  */
+   * Default implementation.
+   */
   public static final NormalIborCapletFloorletPeriodPricer DEFAULT = new NormalIborCapletFloorletPeriodPricer();
 
   @Override

@@ -56,7 +56,7 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
  * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * </ul>
  * The period between the start date and end date is specified by {@link IborFixingDepositTemplate},
- * not by this convention. However, the period is typically equal to the tenor of the index. 
+ * not by this convention. However, the period is typically equal to the tenor of the index.
  */
 @BeanDefinition
 public final class ImmutableIborFixingDepositConvention

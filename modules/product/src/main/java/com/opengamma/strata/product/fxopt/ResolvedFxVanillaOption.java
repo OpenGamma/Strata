@@ -91,7 +91,7 @@ public final class ResolvedFxVanillaOption
   }
 
   /**
-   * Gets the strike rate. 
+   * Gets the strike rate.
    * 
    * @return the strike
    */
@@ -103,7 +103,7 @@ public final class ResolvedFxVanillaOption
   /**
    * Returns the put/call flag.
    * <p>
-   * This is the put/call for the base currency. 
+   * This is the put/call for the base currency.
    * If the amount for the base currency is positive, the option is a call on the base currency (put on counter currency). 
    * If the amount for the base currency is negative, the option is a put on the base currency (call on counter currency).
    * 
@@ -114,7 +114,7 @@ public final class ResolvedFxVanillaOption
   }
 
   /**
-   * Get the counter currency of the underlying FX transaction. 
+   * Get the counter currency of the underlying FX transaction.
    * 
    * @return the counter currency
    */

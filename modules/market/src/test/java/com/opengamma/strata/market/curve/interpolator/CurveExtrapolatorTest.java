@@ -12,7 +12,6 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LOG_LINEAR;
-import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.RECIPROCAL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -31,10 +30,14 @@ public class CurveExtrapolatorTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {FLAT, "Flat"},
-        {LINEAR, "Linear"},
-        {LOG_LINEAR, "LogLinear"},
-        {RECIPROCAL, "Reciprocal"},
+        {CurveExtrapolators.EXCEPTION, "Exception"},
+        {CurveExtrapolators.EXPONENTIAL, "Exponential"},
+        {CurveExtrapolators.FLAT, "Flat"},
+        {CurveExtrapolators.INTERPOLATOR, "Interpolator"},
+        {CurveExtrapolators.LINEAR, "Linear"},
+        {CurveExtrapolators.LOG_LINEAR, "LogLinear"},
+        {CurveExtrapolators.PRODUCT_LINEAR, "ProductLinear"},
+        {CurveExtrapolators.QUADRATIC_LEFT, "QuadraticLeft"},
     };
   }
 
@@ -77,7 +80,7 @@ public class CurveExtrapolatorTest {
 
   public void test_serialization() {
     assertSerialization(FLAT);
-    assertSerialization(RECIPROCAL);
+    assertSerialization(LINEAR);
   }
 
   public void test_jodaConvert() {

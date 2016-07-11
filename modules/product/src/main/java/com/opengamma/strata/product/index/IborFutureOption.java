@@ -33,8 +33,8 @@ import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -47,6 +47,16 @@ import com.opengamma.strata.product.common.PutCall;
  * <p>
  * An Ibor future option is also known as a <i>STIR future option</i> (Short Term Interest Rate).
  * This class represents the structure of a single option contract.
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future option is based on the price of the underlying future, the volatility
+ * and the time to expiry. The price of the at-the-money option tends to zero as expiry approaches.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
+ * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
+ * represents the price of the option as 0.002.
  */
 @BeanDefinition(constructorScope = "package")
 public final class IborFutureOption
@@ -68,32 +78,34 @@ public final class IborFutureOption
   @PropertyDefinition
   private final PutCall putCall;
   /**
-   * The strike price, represented in decimal form.
+   * The strike price, in decimal form.
    * <p>
    * This is the price at which the option applies and refers to the price of the underlying future.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * The rate implied by the strike can take negative values.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
    */
   @PropertyDefinition
   private final double strikePrice;
   /**
-   * The expiry date of the option.  
+   * The expiry date of the option.
    * <p>
    * The expiry date is related to the expiry time and time-zone.
-   * The date must not be after last trade date of the underlying future. 
+   * The date must not be after last trade date of the underlying future.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expiryDate;
   /**
-   * The expiry time of the option.  
+   * The expiry time of the option.
    * <p>
    * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiry time.  
+   * The time-zone of the expiry time.
    * <p>
    * The expiry time-zone is related to the expiry date and time.
    */
@@ -111,8 +123,6 @@ public final class IborFutureOption
    * <p>
    * The price is represented in decimal form, not percentage form.
    * As such, the decimal places expressed by the rounding refers to this decimal form.
-   * For example, the common market price of 99.7125 is represented as 0.997125 which
-   * has 6 decimal places.
    */
   @PropertyDefinition(validate = "notNull")
   private final Rounding rounding;
@@ -131,6 +141,8 @@ public final class IborFutureOption
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderOrEqual(expiryDate, underlyingFuture.getLastTradeDate(), "expiryDate", "lastTradeDate");
+    ArgChecker.isTrue(
+        strikePrice < 2, "Strike price must be in decimal form, such as 0.993 for a 0.7% rate, but was: {}", strikePrice);
   }
 
   //-------------------------------------------------------------------------
@@ -268,12 +280,14 @@ public final class IborFutureOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strike price, represented in decimal form.
+   * Gets the strike price, in decimal form.
    * <p>
    * This is the price at which the option applies and refers to the price of the underlying future.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * The rate implied by the strike can take negative values.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
    * @return the value of the property
    */
   public double getStrikePrice() {
@@ -331,8 +345,6 @@ public final class IborFutureOption
    * <p>
    * The price is represented in decimal form, not percentage form.
    * As such, the decimal places expressed by the rounding refers to this decimal form.
-   * For example, the common market price of 99.7125 is represented as 0.997125 which
-   * has 6 decimal places.
    * @return the value of the property, not null
    */
   public Rounding getRounding() {
@@ -803,12 +815,14 @@ public final class IborFutureOption
     }
 
     /**
-     * Sets the strike price, represented in decimal form.
+     * Sets the strike price, in decimal form.
      * <p>
      * This is the price at which the option applies and refers to the price of the underlying future.
-     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
      * The rate implied by the strike can take negative values.
+     * <p>
+     * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+     * The decimal price is based on the decimal rate equivalent to the percentage.
+     * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
      * @param strikePrice  the new value
      * @return this, for chaining, not null
      */
@@ -875,8 +889,6 @@ public final class IborFutureOption
      * <p>
      * The price is represented in decimal form, not percentage form.
      * As such, the decimal places expressed by the rounding refers to this decimal form.
-     * For example, the common market price of 99.7125 is represented as 0.997125 which
-     * has 6 decimal places.
      * @param rounding  the new value, not null
      * @return this, for chaining, not null
      */

@@ -38,16 +38,16 @@ import com.opengamma.strata.product.swap.SwapIndex;
  * <p>
  * This represents a single payment period within a CMS leg.
  * This class specifies the data necessary to calculate the value of the period.
- * The payment period contains the unique accrual period. 
+ * The payment period contains the unique accrual period.
  * The value of the period is based on the observed value of {@code SwapIndex}.
  * <p>
- * The payment is a CMS coupon, CMS caplet or CMS floorlet. 
+ * The payment is a CMS coupon, CMS caplet or CMS floorlet.
  * The pay-offs are, for a swap index on the fixingDate of 'S' and an year fraction 'a'<br>
  * CMS Coupon: a * S<br>
  * CMS Caplet: a * (S-K)^+ ; K=caplet<br>
  * CMS Floorlet: a * (K-S)^+ ; K=floorlet
  * <p>
- * If {@code caplet} ({@code floorlet}) is not null, the payment is a caplet (floorlet). 
+ * If {@code caplet} ({@code floorlet}) is not null, the payment is a caplet (floorlet).
  * If both of {@code caplet} and {@code floorlet} are null, this class represents a CMS coupon payment.
  * Thus at least one of the fields must be null.
  * <p>
@@ -133,7 +133,7 @@ public final class CmsPeriod
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
   /**
-   * The optional caplet strike. 
+   * The optional caplet strike.
    * <p>
    * This defines the strike value of a caplet.
    * <p>
@@ -142,7 +142,7 @@ public final class CmsPeriod
   @PropertyDefinition(get = "optional")
   private final Double caplet;
   /**
-   * The optional floorlet strike. 
+   * The optional floorlet strike.
    * <p>
    * This defines the strike value of a floorlet.
    * <p>
@@ -158,14 +158,14 @@ public final class CmsPeriod
   /**
    * The swap index.
    * <p>
-   * The swap rate to be paid is the observed value of this index. 
+   * The swap rate to be paid is the observed value of this index.
    */
   @PropertyDefinition(validate = "notNull")
   private final SwapIndex index;
   /**
-   * The underlying swap. 
+   * The underlying swap.
    * <p>
-   * The interest rate swap for which the swap rate is referred. 
+   * The interest rate swap for which the swap rate is referred.
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedSwap underlyingSwap;
@@ -187,6 +187,7 @@ public final class CmsPeriod
       DayCount dayCount,
       SwapIndex index,
       ResolvedSwap underlyingSwap) {
+
     this.index = ArgChecker.notNull(index, "index");
     this.currency = ArgChecker.notNull(currency, "currency");
     this.notional = notional;
@@ -210,7 +211,7 @@ public final class CmsPeriod
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type of the CMS period. 
+   * Obtains the type of the CMS period.
    * <p>
    * The period type is caplet, floorlet or coupon.
    * 
@@ -227,7 +228,7 @@ public final class CmsPeriod
   }
 
   /**
-   * Obtains the strike value. 
+   * Obtains the strike value.
    * <p>
    * If the CMS period type is coupon, 0 is returned.
    * 
@@ -243,13 +244,13 @@ public final class CmsPeriod
     }
     return 0d;
   }
-  
+
   /**
    * Return the CMS coupon equivalent to the period.
    * <p>
    * For cap or floor the result is the coupon with the same dates and index but with no cap or floor strike.
    * 
-   * @return  the CMAS coupon
+   * @return  the CMS coupon
    */
   public CmsPeriod toCouponEquivalent() {
     return this.toBuilder().floorlet(null).caplet(null).build();

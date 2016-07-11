@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.Messages;
+import org.joda.beans.BeanBuilder;
 
 /**
  * An FX rate conversion for the notional amount of a swap leg.
@@ -43,7 +44,7 @@ import com.opengamma.strata.collect.Messages;
  * <p>
  * Defined by the 2006 ISDA definitions article 10.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class FxReset
     implements ImmutableBean, Serializable {
 
@@ -82,10 +83,7 @@ public final class FxReset
    * @throws IllegalArgumentException if the currency is not one of those in the index
    */
   public static FxReset of(FxIndexObservation observation, Currency referenceCurrency) {
-    return FxReset.builder()
-        .observation(observation)
-        .referenceCurrency(referenceCurrency)
-        .build();
+    return new FxReset(observation, referenceCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -126,14 +124,6 @@ public final class FxReset
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static FxReset.Builder builder() {
-    return new FxReset.Builder();
-  }
 
   private FxReset(
       FxIndexObservation observation,
@@ -193,14 +183,6 @@ public final class FxReset
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -278,7 +260,7 @@ public final class FxReset
     }
 
     @Override
-    public FxReset.Builder builder() {
+    public BeanBuilder<? extends FxReset> builder() {
       return new FxReset.Builder();
     }
 
@@ -336,7 +318,7 @@ public final class FxReset
   /**
    * The bean-builder for {@code FxReset}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FxReset> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FxReset> {
 
     private FxIndexObservation observation;
     private Currency referenceCurrency;
@@ -345,15 +327,6 @@ public final class FxReset
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FxReset beanToCopy) {
-      this.observation = beanToCopy.getObservation();
-      this.referenceCurrency = beanToCopy.getReferenceCurrency();
     }
 
     //-----------------------------------------------------------------------
@@ -413,43 +386,6 @@ public final class FxReset
       return new FxReset(
           observation,
           referenceCurrency);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the FX index observation.
-     * <p>
-     * This defines the observation of the index used to obtain the FX reset rate.
-     * <p>
-     * An FX index is a daily rate of exchange between two currencies.
-     * Note that the order of the currencies in the index does not matter, as the
-     * conversion direction is fully defined by the currency of the reference amount.
-     * @param observation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder observation(FxIndexObservation observation) {
-      JodaBeanUtils.notNull(observation, "observation");
-      this.observation = observation;
-      return this;
-    }
-
-    /**
-     * Sets the currency of the notional amount defined in the contract.
-     * <p>
-     * This is the currency of notional amount as defined in the contract.
-     * The amount will be converted from this reference currency to the swap leg currency
-     * when calculating the value of the leg.
-     * <p>
-     * The reference currency must be one of the two currencies of the index.
-     * <p>
-     * The reference currency is also known as the <i>constant currency</i>.
-     * @param referenceCurrency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder referenceCurrency(Currency referenceCurrency) {
-      JodaBeanUtils.notNull(referenceCurrency, "referenceCurrency");
-      this.referenceCurrency = referenceCurrency;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -40,6 +40,14 @@ import com.opengamma.strata.product.TradeInfo;
  * A {@code ResolvedIborFutureTrade} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future is based on the interest rate of the underlying index.
+ * It is defined as {@code (100 - percentRate)}.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedIborFutureTrade
@@ -71,8 +79,10 @@ public final class ResolvedIborFutureTrade
    * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double price;
@@ -86,6 +96,7 @@ public final class ResolvedIborFutureTrade
   @ImmutableValidator
   private void validate() {
     ArgChecker.isTrue(info.getTradeDate().isPresent(), "Trade date must be present on TradeInfo");
+    ArgChecker.isTrue(price < 2, "Price must be in decimal form, such as 0.993 for a 0.7% rate, but was: {}", price);
   }
 
   //-------------------------------------------------------------------------
@@ -202,8 +213,10 @@ public final class ResolvedIborFutureTrade
    * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
    * @return the value of the property
    */
   public double getPrice() {
@@ -535,8 +548,10 @@ public final class ResolvedIborFutureTrade
      * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
-     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
+     * <p>
+     * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+     * The decimal price is based on the decimal rate equivalent to the percentage.
+     * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
      * @param price  the new value
      * @return this, for chaining, not null
      */

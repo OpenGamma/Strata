@@ -14,13 +14,13 @@ public class BlackIborCapFloorLegPricer
     extends VolatilityIborCapFloorLegPricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final BlackIborCapFloorLegPricer DEFAULT =
       new BlackIborCapFloorLegPricer(BlackIborCapletFloorletPeriodPricer.DEFAULT);
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param periodPricer  the pricer for {@link IborCapletFloorletPeriod}.
    */

@@ -76,7 +76,7 @@ public final class SimplePriceIndexValues
   private final LocalDate valuationDate;
   /**
    * The underlying curve.
-   * Each x-value on the curve is the number of months between the valuation month and the estimation month. 
+   * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    */
   @PropertyDefinition(validate = "notNull")
@@ -109,7 +109,7 @@ public final class SimplePriceIndexValues
    * Obtains an instance based on a curve with no seasonality adjustment.
    * <p>
    * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
-   * Each x-value on the curve is the number of months between the valuation month and the estimation month. 
+   * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
    * The time-series contains one value per month and must have at least one entry.
@@ -137,7 +137,7 @@ public final class SimplePriceIndexValues
    * Obtains an instance based on a curve with seasonality adjustment.
    * <p>
    * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
-   * Each x-value on the curve is the number of months between the valuation month and the estimation month. 
+   * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
    * The time-series contains one value per month and must have at least one entry.
@@ -157,7 +157,7 @@ public final class SimplePriceIndexValues
   public static SimplePriceIndexValues of(
       PriceIndex index,
       LocalDate valuationDate,
-      InterpolatedNodalCurve curve,
+      NodalCurve curve,
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
 
@@ -190,7 +190,7 @@ public final class SimplePriceIndexValues
     double nbMonth = numberOfMonths(lastMonth);
     DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
-    this.extendedCurve = curve.withNode(0, nbMonth, fixings.getLatestValue());
+    this.extendedCurve = curve.withNode(nbMonth, fixings.getLatestValue(), ParameterMetadata.empty());
   }
 
   //-------------------------------------------------------------------------

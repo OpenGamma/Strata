@@ -13,7 +13,7 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A convention defining accrued interest calculation type for a bond security. 
+ * A convention defining accrued interest calculation type for a bond security.
  * <p>
  * Yield of a bond security is a conventional number representing the internal rate of
  * return of standardized cash flows.
@@ -26,7 +26,7 @@ import com.opengamma.strata.collect.ArgChecker;
 public enum FixedCouponBondYieldConvention {
 
   /**
-   * UK BUMP/DMO method. 
+   * UK BUMP/DMO method.
    */
   UK_BUMP_DMO("UK-Bump-DMO"),
 
@@ -36,12 +36,12 @@ public enum FixedCouponBondYieldConvention {
   US_STREET("US-Street"),
 
   /**
-   * German bonds. 
+   * German bonds.
    */
   GERMAN_BONDS("German-Bonds"),
 
   /**
-   * Japan Simple yield. 
+   * Japan Simple yield.
    */
   JAPAN_SIMPLE("Japan-Simple");
 

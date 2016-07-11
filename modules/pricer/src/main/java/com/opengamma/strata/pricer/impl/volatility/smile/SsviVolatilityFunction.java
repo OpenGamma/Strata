@@ -29,7 +29,7 @@ public final class SsviVolatilityFunction
     extends VolatilityFunctionProvider<SsviFormulaData> implements ImmutableBean, Serializable {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final SsviVolatilityFunction DEFAULT = new SsviVolatilityFunction();
 

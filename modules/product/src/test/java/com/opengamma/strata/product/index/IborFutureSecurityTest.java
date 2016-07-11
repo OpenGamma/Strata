@@ -51,9 +51,9 @@ public class IborFutureSecurityTest {
         .info(tradeInfo)
         .product(PRODUCT)
         .quantity(100)
-        .price(123.50)
+        .price(0.995)
         .build();
-    assertEquals(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty()), expectedTrade);
+    assertEquals(test.createTrade(tradeInfo, 100, 0.995, ReferenceData.empty()), expectedTrade);
   }
 
   //-------------------------------------------------------------------------

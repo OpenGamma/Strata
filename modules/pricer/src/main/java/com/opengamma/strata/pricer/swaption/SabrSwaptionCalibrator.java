@@ -34,12 +34,13 @@ import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.strata.pricer.curve.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.SabrModelFitter;
 import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
+import com.opengamma.strata.pricer.option.RawOptionData;
+import com.opengamma.strata.pricer.option.TenorRawOptionData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.BuySell;
@@ -124,53 +125,42 @@ public class SabrSwaptionCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Calibrate SABR parameters to a set of raw swaption data. 
+   * Calibrate SABR parameters to a set of raw swaption data.
    * <p>
    * The SABR parameters are calibrated with fixed beta and fixed shift surfaces.
    * The raw data can be (shifted) log-normal volatilities, normal volatilities or option prices
    * 
-   * @param name  the name
-   * @param convention  the swaption underlying convention
+   * @param definition  the definition of the calibration to be performed
    * @param calibrationDateTime  the data and time of the calibration
-   * @param dayCount  the day-count used for expiry time computation
-   * @param tenors  the tenors associated to the different raw option data
-   * @param data  the list of raw option data
+   * @param data  the map of raw option data, keyed by tenor
    * @param ratesProvider  the rate provider used to compute the swap forward rates
    * @param betaSurface  the beta surface
    * @param shiftSurface  the shift surface
-   * @param interpolator  the interpolator for the alpha, rho and nu surfaces
    * @return the SABR volatility object
    */
   @SuppressWarnings("null")
   public SabrParametersSwaptionVolatilities calibrateWithFixedBetaAndShift(
-      SwaptionVolatilitiesName name,
-      FixedIborSwapConvention convention,
+      SabrSwaptionDefinition definition,
       ZonedDateTime calibrationDateTime,
-      DayCount dayCount,
-      List<Tenor> tenors,
-      List<RawOptionData> data,
+      TenorRawOptionData data,
       RatesProvider ratesProvider,
       Surface betaSurface,
-      Surface shiftSurface,
-      SurfaceInterpolator interpolator) {
+      Surface shiftSurface) {
 
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
     return calibrateWithFixedBetaAndShift(
-        name,
-        convention,
+        definition,
         calibrationDateTime,
-        dayCount,
-        tenors,
         data,
         ratesProvider,
         betaSurface,
         shiftSurface,
-        interpolator,
         true);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calibrate SABR parameters to a set of raw swaption data. 
+   * Calibrate SABR parameters to a set of raw swaption data.
    * <p>
    * The SABR parameters are calibrated with fixed beta and fixed shift surfaces.
    * The raw data can be (shifted) log-normal volatilities, normal volatilities or option prices
@@ -178,37 +168,33 @@ public class SabrSwaptionCalibrator {
    * This method offers the flexibility to skip the data sets that throw a MathException (stopOnMathException = false).
    * The option to skip those data sets should be use with care, as part of the input data may be unused in the output.
    * 
-   * @param name  the name
-   * @param convention  the swaption underlying convention
+   * @param definition  the definition of the calibration to be performed
    * @param calibrationDateTime  the data and time of the calibration
-   * @param dayCount  the day-count used for expiry time computation
-   * @param tenors  the tenors associated to the different raw option data
-   * @param data  the list of raw option data
+   * @param data  the map of raw option data, keyed by tenor
    * @param ratesProvider  the rate provider used to compute the swap forward rates
    * @param betaSurface  the beta surface
    * @param shiftSurface  the shift surface
-   * @param interpolator  the interpolator for the alpha, rho and nu surfaces
    * @param stopOnMathException  flag indicating if the calibration should stop on math exceptions or skip the 
    *   expiries/tenors which throw MathException
    * @return the SABR volatility object
    */
   @SuppressWarnings("null")
   public SabrParametersSwaptionVolatilities calibrateWithFixedBetaAndShift(
-      SwaptionVolatilitiesName name,
-      FixedIborSwapConvention convention,
+      SabrSwaptionDefinition definition,
       ZonedDateTime calibrationDateTime,
-      DayCount dayCount,
-      List<Tenor> tenors,
-      List<RawOptionData> data,
+      TenorRawOptionData data,
       RatesProvider ratesProvider,
       Surface betaSurface,
       Surface shiftSurface,
-      SurfaceInterpolator interpolator,
       boolean stopOnMathException) {
+
+    SwaptionVolatilitiesName name = definition.getName();
+    FixedIborSwapConvention convention = definition.getConvention();
+    DayCount dayCount = definition.getDayCount();
+    SurfaceInterpolator interpolator = definition.getInterpolator();
 
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
-    int nbTenors = tenors.size();
     BusinessDayAdjustment bda = convention.getFloatingLeg().getStartDateBusinessDayAdjustment();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     // Sorted maps to obtain the surfaces nodes in standard order
@@ -217,12 +203,13 @@ public class SabrSwaptionCalibrator {
     TreeMap<Double, TreeMap<Double, DoubleArray>>  dataSensitivityRhoTmp = new TreeMap<>();
     TreeMap<Double, TreeMap<Double, DoubleArray>>  dataSensitivityNuTmp = new TreeMap<>();
     TreeMap<Double, TreeMap<Double, SabrFormulaData>>  sabrPointTmp = new TreeMap<>();
-    for (int looptenor = 0; looptenor < nbTenors; looptenor++) {
-      double timeTenor = tenors.get(looptenor).getPeriod().getYears() + tenors.get(looptenor).getPeriod().getMonths() / 12;
-      List<Period> expiries = data.get(looptenor).getExpiries();
+    for (Tenor tenor : data.getTenors()) {
+      RawOptionData tenorData = data.getData(tenor);
+      double timeTenor = tenor.getPeriod().getYears() + tenor.getPeriod().getMonths() / 12;
+      List<Period> expiries = tenorData.getExpiries();
       int nbExpiries = expiries.size();
       for (int loopexpiry = 0; loopexpiry < nbExpiries; loopexpiry++) {
-        Pair<DoubleArray, DoubleArray> availableSmile = data.get(looptenor).availableSmileAtExpiry(expiries.get(loopexpiry));
+        Pair<DoubleArray, DoubleArray> availableSmile = tenorData.availableSmileAtExpiry(expiries.get(loopexpiry));
         if (availableSmile.getFirst().size() == 0) { // If not data is available, no calibration possible
           continue;
         }
@@ -231,7 +218,7 @@ public class SabrSwaptionCalibrator {
         double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
         double beta = betaSurface.zValue(timeToExpiry, timeTenor);
         double shift = shiftSurface.zValue(timeToExpiry, timeTenor);
-        LocalDate endDate = effectiveDate.plus(tenors.get(looptenor));
+        LocalDate endDate = effectiveDate.plus(tenor);
         SwapTrade swap0 = convention.toTrade(calibrationDate, effectiveDate, endDate, BuySell.BUY, 1.0, 0.0);
         double forward = swapPricer.parRate(swap0.getProduct().resolve(refData), ratesProvider);
         SabrFormulaData sabrPoint = null;
@@ -240,14 +227,14 @@ public class SabrSwaptionCalibrator {
         try {
           Pair<SabrFormulaData, DoubleMatrix> calibrationResult =
               calibration(forward, shift, beta, fixed, bda, calibrationDateTime, dayCount,
-                  availableSmile.getFirst(), availableSmile.getSecond(), expiries.get(loopexpiry), data.get(looptenor));
+                  availableSmile.getFirst(), availableSmile.getSecond(), expiries.get(loopexpiry), tenorData);
           sabrPoint = calibrationResult.getFirst();
           inverseJacobian = calibrationResult.getSecond();
         } catch (MathException e) {
           error = true;
           if (stopOnMathException) {
             String message = Messages.format("{} at expiry {} and tenor {}", e.getMessage(),
-                expiries.get(loopexpiry), tenors.get(looptenor));
+                expiries.get(loopexpiry), tenor);
             throw new MathException(message, e);
           }
         }
@@ -267,7 +254,7 @@ public class SabrSwaptionCalibrator {
           parameterMetadataExpiryMap.put(timeTenor, SwaptionSurfaceExpiryTenorParameterMetadata.of(
               timeToExpiry,
               timeTenor,
-              expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
+              expiries.get(loopexpiry).toString() + "x" + tenor.toString()));
           dataSensitivityAlphaExpiryMap.put(timeTenor, inverseJacobian.row(0));
           dataSensitivityRhoExpiryMap.put(timeTenor, inverseJacobian.row(2));
           dataSensitivityNuExpiryMap.put(timeTenor, inverseJacobian.row(3));
@@ -304,13 +291,13 @@ public class SabrSwaptionCalibrator {
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        name.getName() + "-Alpha", dayCount, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Rho", dayCount, convention, ValueType.SABR_RHO)
+        name.getName() + "-Rho", dayCount, ValueType.SABR_RHO)
         .withParameterMetadata(parameterMetadata);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Nu", dayCount, convention, ValueType.SABR_NU)
+        name.getName() + "-Nu", dayCount, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
@@ -322,8 +309,9 @@ public class SabrSwaptionCalibrator {
         alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
-        .parameters(params)
+        .convention(convention)
         .valuationDateTime(calibrationDateTime)
+        .parameters(params)
         .dataSensitivityAlpha(dataSensitivityAlpha)
         .dataSensitivityRho(dataSensitivityRho)
         .dataSensitivityNu(dataSensitivityNu).build();
@@ -404,8 +392,9 @@ public class SabrSwaptionCalibrator {
     return Pair.of(sabrParameters, parameterSensitivityToData);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calibrate SABR alpha parameters to a set of ATM swaption volatilities. 
+   * Calibrate SABR alpha parameters to a set of ATM swaption volatilities.
    * <p>
    * The SABR parameters are calibrated with all the parameters other than alpha (beta, rhu, nu, shift) fixed.
    * The at-the-money volatilities can be log-normal or normal volatilities.
@@ -469,7 +458,7 @@ public class SabrSwaptionCalibrator {
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        name.getName() + "-Alpha", dayCount, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
@@ -478,8 +467,9 @@ public class SabrSwaptionCalibrator {
         sabr.getParameters().getNuSurface(), sabr.getParameters().getShiftSurface(), sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
-        .parameters(params)
+        .convention(convention)
         .valuationDateTime(sabr.getValuationDateTime())
+        .parameters(params)
         .dataSensitivityAlpha(dataSensitivityAlpha).build();
   }
 
@@ -572,6 +562,7 @@ public class SabrSwaptionCalibrator {
     return Pair.of(result, volAndDerivatives.getSecond());
   }
   
+  //-------------------------------------------------------------------------
   /**
    * Calibrate the SABR alpha parameter to an ATM Black volatility and compute the derivative of the result with 
    * respect to the input volatility.
@@ -797,6 +788,7 @@ public class SabrSwaptionCalibrator {
     return Pair.of(result, volAndDerivatives.getSecond());
   }
   
+  //-------------------------------------------------------------------------
   /**
    * Calibrate the SABR alpha parameter to an ATM normal volatility and compute the derivative of the result 
    * with respect to the input volatility.

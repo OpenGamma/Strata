@@ -468,7 +468,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  /** 
+  /**
    * @param intervals 
    * @param slopes 
    * @return Parabola slopes, each row vactor is (p^{-1}, p^{0}, p^{1}) for xValues_1,...,xValues_{nDataPts-2}

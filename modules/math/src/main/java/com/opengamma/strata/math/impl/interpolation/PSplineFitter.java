@@ -41,7 +41,7 @@ public class PSplineFitter {
 
   /**
    * Given a set of data {x_i ,y_i} where each x_i is a vector and the y_i are scalars, we wish to find a function (represented
-   * by B-splines) that fits the data while maintaining smoothness in each direction.  
+   * by B-splines) that fits the data while maintaining smoothness in each direction.
    * @param x The independent (vector) variables, as List<double[]>
    * @param y The dependent variables, as List<Double> y
    * @param sigma The error (or tolerance) on the y variables 

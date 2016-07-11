@@ -411,9 +411,9 @@ public class RateCalculationSwapLegTest {
         .compoundingMethod(STRAIGHT)
         .build();
     // events (only one intermediate exchange)
-    NotionalExchange nexInitial = NotionalExchange.of(DATE_01_06, CurrencyAmount.of(GBP, 1000d));
-    NotionalExchange nexIntermediate = NotionalExchange.of(DATE_03_07, CurrencyAmount.of(GBP, 500d));
-    NotionalExchange nexFinal = NotionalExchange.of(DATE_06_09, CurrencyAmount.of(GBP, -1500d));
+    NotionalExchange nexInitial = NotionalExchange.of(CurrencyAmount.of(GBP, 1000d), DATE_01_06);
+    NotionalExchange nexIntermediate = NotionalExchange.of(CurrencyAmount.of(GBP, 500d), DATE_03_07);
+    NotionalExchange nexFinal = NotionalExchange.of(CurrencyAmount.of(GBP, -1500d), DATE_06_09);
     // assertion
     assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(IBOR)
@@ -552,36 +552,18 @@ public class RateCalculationSwapLegTest {
         .notional(-1000d)
         .fxReset(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA), EUR))
         .build();
-    FxResetNotionalExchange ne1a = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_01_06)
-        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
-        .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA))
-        .build();
-    FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_02_07)
-        .notionalAmount(CurrencyAmount.of(EUR, -1000d))
-        .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA))
-        .build();
-    FxResetNotionalExchange ne2a = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_02_07)
-        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
-        .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA))
-        .build();
-    FxResetNotionalExchange ne2b = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_03_07)
-        .notionalAmount(CurrencyAmount.of(EUR, -1000d))
-        .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA))
-        .build();
-    FxResetNotionalExchange ne3a = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_03_07)
-        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
-        .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA))
-        .build();
-    FxResetNotionalExchange ne3b = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_04_09)
-        .notionalAmount(CurrencyAmount.of(EUR, -1000d))
-        .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA))
-        .build();
+    FxResetNotionalExchange ne1a = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, 1000d), DATE_01_06, FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA));
+    FxResetNotionalExchange ne1b = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, -1000d), DATE_02_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA));
+    FxResetNotionalExchange ne2a = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, 1000d), DATE_02_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA));
+    FxResetNotionalExchange ne2b = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, -1000d), DATE_03_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA));
+    FxResetNotionalExchange ne3a = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, 1000d), DATE_03_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA));
+    FxResetNotionalExchange ne3b = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, -1000d), DATE_04_09, FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA));
     // assertion
     assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)

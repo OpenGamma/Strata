@@ -41,7 +41,7 @@ public class MarketQuoteSensitivityCalculator {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the market quote sensitivities from parameter sensitivity.  
+   * Calculates the market quote sensitivities from parameter sensitivity.
    * 
    * @param paramSensitivities  the curve parameter sensitivities
    * @param provider  the rates provider, containing Jacobian calibration information

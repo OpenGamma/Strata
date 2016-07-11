@@ -120,7 +120,7 @@ public final class ThreeLegBasisSwapTemplate
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the swap, the rate of the floating flat leg is received from the counterparty,
-   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid.
    * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade

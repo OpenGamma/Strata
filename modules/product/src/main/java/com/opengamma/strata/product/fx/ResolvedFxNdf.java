@@ -124,7 +124,7 @@ public final class ResolvedFxNdf
   /**
    * Gets the settlement notional.
    * <p>
-   * Returns the signed notional amount that is to be settled in the settlement currency. 
+   * Returns the signed notional amount that is to be settled in the settlement currency.
    * 
    * @return the notional
    */

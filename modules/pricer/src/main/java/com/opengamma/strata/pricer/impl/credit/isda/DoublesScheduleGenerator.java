@@ -21,7 +21,7 @@ public abstract class DoublesScheduleGenerator {
    * only the smaller value is kept (with the exception of the end value which takes precedence).
    * <p>
    * Since ISDACompliantCurve is piecewise constant in the forward rate, this makes the integrals
-   * that appear in CDS pricing (i.e. 
+   * that appear in CDS pricing (i.e.
    * $$\int_0^T P(t) \frac{dQ(t)}{dt} dt$$ on the protection leg and $$\sum_{i=0}^{N-1}\int_{T_i}^{T_{i+1}} (t-T_i) P(t) \frac{dQ(t)}{dt} dt$$
    * on the premium leg) analytic between the points in the list.
    * 
@@ -87,7 +87,7 @@ public abstract class DoublesScheduleGenerator {
   }
 
   /**
-   * Combines two sets of numbers (times) and return the unique sorted set. 
+   * Combines two sets of numbers (times) and return the unique sorted set.
    * If two times are very close (defined as  less than half a day - 1/730 years different)
    * only the smaller value is kept.
    *  

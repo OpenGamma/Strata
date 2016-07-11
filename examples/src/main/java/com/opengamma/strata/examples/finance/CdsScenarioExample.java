@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
@@ -120,16 +120,16 @@ public class CdsScenarioExample {
 
     // the results contain the one measure requested (Present Value) for each scenario
     // the first scenario is the base
-    CurrencyValuesArray pvVector = (CurrencyValuesArray) results.get(0, 0).getValue();
+    CurrencyScenarioArray pvVector = (CurrencyScenarioArray) results.get(0, 0).getValue();
     outputCurrencyValues("PVs", pvVector);
 
     // transform the present values into P&Ls, sorted from greatest loss to greatest profit
-    CurrencyValuesArray pnlVector = getSortedPnls(pvVector);
+    CurrencyScenarioArray pnlVector = getSortedPnls(pvVector);
     outputCurrencyValues("Scenario PnLs", pnlVector);
 
     // use a built-in utility to calculate VaR
     // since the P&Ls are sorted starting with the greatest loss, the 95% greatest loss occurs at the 5% position
-    double var95 = SampleInterpolationQuantileMethod.DEFAULT.quantileFromSorted(0.05, pnlVector.getValues());
+    double var95 = SampleInterpolationQuantileMethod.DEFAULT.quantileFromSorted(0.05, pnlVector.getAmounts().getValues());
     System.out.println(Messages.format("95% VaR: {}", var95));
   }
 
@@ -244,15 +244,15 @@ public class CdsScenarioExample {
   }
 
   //-------------------------------------------------------------------------
-  private static CurrencyValuesArray getSortedPnls(CurrencyValuesArray pvVector) {
+  private static CurrencyScenarioArray getSortedPnls(CurrencyScenarioArray pvVector) {
     double[] scenarioPnls = new double[pvVector.getScenarioCount() - 1];
 
     // the base PV was calculated in the first scenario where no shifts were applied
-    double basePv = pvVector.getValues().get(0);
+    double basePv = pvVector.get(0).getAmount();
 
     // for the remaining scenarios, work out the scenario P&L by subtracting the base PV
     for (int i = 1; i < pvVector.getScenarioCount(); i++) {
-      double scenarioPv = pvVector.getValues().get(i);
+      double scenarioPv = pvVector.get(i).getAmount();
       double pnl = scenarioPv - basePv;
       scenarioPnls[i - 1] = pnl;
     }
@@ -260,15 +260,15 @@ public class CdsScenarioExample {
     // sort the P&Ls, so we have the highest loss to the highest profit
     Arrays.sort(scenarioPnls);
 
-    return CurrencyValuesArray.of(pvVector.getCurrency(), DoubleArray.ofUnsafe(scenarioPnls));
+    return CurrencyScenarioArray.of(pvVector.getCurrency(), DoubleArray.ofUnsafe(scenarioPnls));
   }
 
   //-------------------------------------------------------------------------
-  private static void outputCurrencyValues(String title, CurrencyValuesArray currencyValues) {
+  private static void outputCurrencyValues(String title, CurrencyScenarioArray currencyValues) {
     NumberFormat numberFormat = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
     System.out.println(Messages.format("{} ({}):", title, currencyValues.getCurrency()));
     for (int i = 0; i < currencyValues.getScenarioCount(); i++) {
-      double scenarioValue = currencyValues.getValues().get(i);
+      double scenarioValue = currencyValues.get(i).getAmount();
       System.out.println(numberFormat.format(scenarioValue));
     }
     System.out.println();

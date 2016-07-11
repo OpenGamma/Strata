@@ -40,18 +40,18 @@ import com.opengamma.strata.product.rate.IborRateComputation;
  * <p>
  * This represents a single payment period within an Ibor cap/floor leg.
  * This class specifies the data necessary to calculate the value of the period.
- * The payment period contains the unique accrual period. 
+ * The payment period contains the unique accrual period.
  * The value of the period is based on the observed value of {@code IborRateComputation}.
  * <p>
  * The pay-offs are, for an Ibor index on the fixingDate of 'I' and an year fraction 'a'<br>
  * Ibor caplet: a * (I-K)^+ ; K=caplet<br>
  * Ibor floorlet: a * (K-I)^+ ; K=floorlet
  * <p>
- * The payment is a caplet or floorlet. 
- * If {@code caplet} ({@code floorlet}) is not null, the payment is a caplet (floorlet). 
+ * The payment is a caplet or floorlet.
+ * If {@code caplet} ({@code floorlet}) is not null, the payment is a caplet (floorlet).
  * Thus one of the two fields must be null.
  * <p>
- * If start date and end date of the period, and payment date are not specified, a standard caplet/floorlet is created 
+ * If start date and end date of the period, and payment date are not specified, a standard caplet/floorlet is created
  * based on the data and convention in {@code rateComputation},  i.e., the Ibor is fixed in advance and paid in arrears.
  * <p>
  * An {@code IborCapletFloorletPeriod} is bound to data that changes over time, such as holiday calendars.
@@ -129,7 +129,7 @@ public final class IborCapletFloorletPeriod
   @PropertyDefinition(validate = "notNull")
   private final LocalDate paymentDate;
   /**
-   * The optional caplet strike. 
+   * The optional caplet strike.
    * <p>
    * This defines the strike value of a caplet.
    * <p>
@@ -138,7 +138,7 @@ public final class IborCapletFloorletPeriod
   @PropertyDefinition(get = "optional")
   private final Double caplet;
   /**
-   * The optional floorlet strike. 
+   * The optional floorlet strike.
    * <p>
    * This defines the strike value of a floorlet.
    * <p>
@@ -190,7 +190,7 @@ public final class IborCapletFloorletPeriod
   /**
    * Gets the fixing date of the index.
    * 
-   * @return the fixing date. 
+   * @return the fixing date
    */
   public LocalDate getFixingDate() {
     return iborRate.getFixingDate();
@@ -199,7 +199,7 @@ public final class IborCapletFloorletPeriod
   /**
    * Gets the fixing date-time of the index.
    * 
-   * @return the fixing date-time. 
+   * @return the fixing date-time
    */
   public ZonedDateTime getFixingDateTime() {
     return iborRate.getIndex().calculateFixingDateTime(iborRate.getFixingDate());
@@ -215,7 +215,7 @@ public final class IborCapletFloorletPeriod
   }
 
   /**
-   * Gets put or call. 
+   * Gets put or call.
    * <p>
    * CALL is returned for a caplet, whereas PUT is returned for a floorlet.
    * 

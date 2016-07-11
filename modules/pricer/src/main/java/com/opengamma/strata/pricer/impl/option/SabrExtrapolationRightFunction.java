@@ -39,7 +39,7 @@ import com.opengamma.strata.product.common.PutCall;
 public class SabrExtrapolationRightFunction {
 
   /**
-   * Matrix decomposition. 
+   * Matrix decomposition.
    */
   private static final SVDecompositionCommons SVD = new SVDecompositionCommons();
   /**
@@ -47,7 +47,7 @@ public class SabrExtrapolationRightFunction {
    */
   private static final double SMALL_EXPIRY = 1.0E-6;
   /**
-   * If the time-to-expiry is smaller than {@code SMALL_EXPIRY}, the parameter 'a' is set to be this value. 
+   * If the time-to-expiry is smaller than {@code SMALL_EXPIRY}, the parameter 'a' is set to be this value.
    */
   private static final double SMALL_PARAMETER = -1.0E4;
   /**
@@ -56,7 +56,7 @@ public class SabrExtrapolationRightFunction {
   private static final double SMALL_PRICE = 1.0E-15;
 
   /**
-   * The volatility provider. 
+   * The volatility provider.
    */
   private final VolatilityFunctionProvider<SabrFormulaData> sabrFunction;
   /**
@@ -106,7 +106,7 @@ public class SabrExtrapolationRightFunction {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance with default volatility provider. 
+   * Obtains an instance with default volatility provider.
    * <p>
    * The default volatility provider is {@link SabrHaganVolatilityFunctionProvider}.
    * 
@@ -129,7 +129,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Obtains an instance with volatility provider specified. 
+   * Obtains an instance with volatility provider specified.
    * 
    * @param forward  the forward
    * @param sabrData  the SABR formula data
@@ -172,7 +172,7 @@ public class SabrExtrapolationRightFunction {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the option price with numeraire=1. 
+   * Computes the option price with numeraire=1.
    * <p>
    * The price is SABR below the cut-off strike and extrapolated beyond.
    * 
@@ -195,7 +195,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Computes the option price derivative with respect to the strike. 
+   * Computes the option price derivative with respect to the strike.
    * <p>
    * The price is SABR below the cut-off strike and extrapolated beyond.
    * 
@@ -220,7 +220,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Computes the option price derivative with respect to the forward. 
+   * Computes the option price derivative with respect to the forward.
    * <p>
    * The price is SABR below the cut-off strike and extrapolated beyond.
    * 
@@ -254,7 +254,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Computes the option price derivative with respect to the SABR parameters. 
+   * Computes the option price derivative with respect to the SABR parameters.
    * <p>
    * The price is SABR below the cut-off strike and extrapolated beyond.
    * 
@@ -302,7 +302,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Gets the cut-off strike. 
+   * Gets the cut-off strike.
    * <p>
    * The smile is extrapolated above that level.
    * 
@@ -393,7 +393,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Computes the derivative of the three fitting parameters with respect to the forward. 
+   * Computes the derivative of the three fitting parameters with respect to the forward.
    * The computation requires some third order derivatives; they are computed by finite
    * difference on the second order derivatives.
    * Used to compute the derivative of the price with respect to the forward.
@@ -456,7 +456,7 @@ public class SabrExtrapolationRightFunction {
   }
 
   /**
-   * Computes the derivative of the three fitting parameters with respect to the SABR parameters. 
+   * Computes the derivative of the three fitting parameters with respect to the SABR parameters.
    * The computation requires some third order derivatives; they are computed by finite difference
    * on the second order derivatives.
    * Used to compute the derivative of the price with respect to the SABR parameters.

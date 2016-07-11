@@ -21,7 +21,7 @@ public class AnnuityForSpreadContPemiumApproxFunction extends AnnuityForSpreadFu
   /**
    * For a given quoted spread (aka 'flat' spread), this function returns the risky annuity
    * (aka risky PV01, RPV01 or risky duration).
-   * This works by using the credit triangle approximation; that is, the premiums are assumed to be paid continuously. 
+   * This works by using the credit triangle approximation; that is, the premiums are assumed to be paid continuously.
    * 
    * @param cds  the analytic description of a CDS traded at a certain time 
    * @param yieldCurve  the calibrated yield curve 

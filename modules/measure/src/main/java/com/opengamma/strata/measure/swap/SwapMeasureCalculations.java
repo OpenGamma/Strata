@@ -26,9 +26,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
@@ -93,11 +93,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  MultiCurrencyValuesArray presentValue(
+  MultiCurrencyScenarioArray presentValue(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -131,11 +131,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates calibrated sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01CalibratedSum(
+  MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -171,11 +171,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates market quote sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01MarketQuoteSum(
+  MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -274,11 +274,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates par rate for all scenarios
-  ValuesArray parRate(
+  DoubleScenarioArray parRate(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return ValuesArray.of(
+    return DoubleScenarioArray.of(
         marketData.getScenarioCount(),
         i -> parRate(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -293,11 +293,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
-  ValuesArray parSpread(
+  DoubleScenarioArray parSpread(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return ValuesArray.of(
+    return DoubleScenarioArray.of(
         marketData.getScenarioCount(),
         i -> parSpread(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -331,11 +331,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates accrued interest for all scenarios
-  MultiCurrencyValuesArray accruedInterest(
+  MultiCurrencyScenarioArray accruedInterest(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> accruedInterest(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -419,11 +419,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
-  MultiCurrencyValuesArray currencyExposure(
+  MultiCurrencyScenarioArray currencyExposure(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currencyExposure(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -438,11 +438,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates current cash for all scenarios
-  MultiCurrencyValuesArray currentCash(
+  MultiCurrencyScenarioArray currentCash(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currentCash(trade, marketData.scenario(i).ratesProvider()));
   }

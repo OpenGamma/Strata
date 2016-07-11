@@ -125,10 +125,10 @@ public final class InflationRateSwapLegConvention
    * @return the convention
    */
   public static InflationRateSwapLegConvention of(
-      PriceIndex index, 
-      Period lag, 
+      PriceIndex index,
+      Period lag,
       BusinessDayAdjustment businessDayAdjustment) {
-    
+
     return new InflationRateSwapLegConvention(index, lag, PriceIndexCalculationMethod.MONTHLY, false,
         DaysAdjustment.NONE, businessDayAdjustment);
   }

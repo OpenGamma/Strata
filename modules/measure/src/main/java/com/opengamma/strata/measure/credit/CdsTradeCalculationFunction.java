@@ -42,16 +42,16 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
- *   <li>{@linkplain Measures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
- *   <li>{@linkplain Measures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
- *   <li>{@linkplain Measures#IR01_PARALLEL_PAR Scalar IR01, based on par interest rates}
- *   <li>{@linkplain Measures#IR01_BUCKETED_PAR Vector curve node IR01, based on par interest rates}
- *   <li>{@linkplain Measures#CS01_PARALLEL_PAR Scalar CS01, based on credit par rates}
- *   <li>{@linkplain Measures#CS01_BUCKETED_PAR Vector curve node CS01, based on credit par rates}
- *   <li>{@linkplain Measures#CS01_PARALLEL_HAZARD Scalar CS01, based on hazard rates}
- *   <li>{@linkplain Measures#CS01_BUCKETED_HAZARD Vector curve node CS01, based on hazard rates}
- *   <li>{@linkplain Measures#RECOVERY01 Recovery01}
- *   <li>{@linkplain Measures#JUMP_TO_DEFAULT Jump to Default}
+ *   <li>{@linkplain CreditMeasures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
+ *   <li>{@linkplain CreditMeasures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
+ *   <li>{@linkplain CreditMeasures#IR01_PARALLEL_PAR Scalar IR01, based on par interest rates}
+ *   <li>{@linkplain CreditMeasures#IR01_BUCKETED_PAR Vector curve node IR01, based on par interest rates}
+ *   <li>{@linkplain CreditMeasures#CS01_PARALLEL_PAR Scalar CS01, based on credit par rates}
+ *   <li>{@linkplain CreditMeasures#CS01_BUCKETED_PAR Vector curve node CS01, based on credit par rates}
+ *   <li>{@linkplain CreditMeasures#CS01_PARALLEL_HAZARD Scalar CS01, based on hazard rates}
+ *   <li>{@linkplain CreditMeasures#CS01_BUCKETED_HAZARD Vector curve node CS01, based on hazard rates}
+ *   <li>{@linkplain CreditMeasures#RECOVERY01 Recovery01}
+ *   <li>{@linkplain CreditMeasures#JUMP_TO_DEFAULT Jump to Default}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  * </ul>
  * <p>
@@ -66,16 +66,16 @@ public class CdsTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, CdsMeasureCalculations::presentValue)
-          .put(Measures.IR01_PARALLEL_ZERO, CdsMeasureCalculations::ir01ParallelZero)
-          .put(Measures.IR01_BUCKETED_ZERO, CdsMeasureCalculations::ir01BucketedZero)
-          .put(Measures.IR01_PARALLEL_PAR, CdsMeasureCalculations::ir01ParallelPar)
-          .put(Measures.IR01_BUCKETED_PAR, CdsMeasureCalculations::ir01BucketedPar)
-          .put(Measures.CS01_PARALLEL_PAR, CdsMeasureCalculations::cs01ParallelPar)
-          .put(Measures.CS01_BUCKETED_PAR, CdsMeasureCalculations::cs01BucketedPar)
-          .put(Measures.CS01_PARALLEL_HAZARD, CdsMeasureCalculations::cs01ParallelHazard)
-          .put(Measures.CS01_BUCKETED_HAZARD, CdsMeasureCalculations::cs01BucketedHazard)
-          .put(Measures.RECOVERY01, CdsMeasureCalculations::recovery01)
-          .put(Measures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
+          .put(CreditMeasures.IR01_PARALLEL_ZERO, CdsMeasureCalculations::ir01ParallelZero)
+          .put(CreditMeasures.IR01_BUCKETED_ZERO, CdsMeasureCalculations::ir01BucketedZero)
+          .put(CreditMeasures.IR01_PARALLEL_PAR, CdsMeasureCalculations::ir01ParallelPar)
+          .put(CreditMeasures.IR01_BUCKETED_PAR, CdsMeasureCalculations::ir01BucketedPar)
+          .put(CreditMeasures.CS01_PARALLEL_PAR, CdsMeasureCalculations::cs01ParallelPar)
+          .put(CreditMeasures.CS01_BUCKETED_PAR, CdsMeasureCalculations::cs01BucketedPar)
+          .put(CreditMeasures.CS01_PARALLEL_HAZARD, CdsMeasureCalculations::cs01ParallelHazard)
+          .put(CreditMeasures.CS01_BUCKETED_HAZARD, CdsMeasureCalculations::cs01BucketedHazard)
+          .put(CreditMeasures.RECOVERY01, CdsMeasureCalculations::recovery01)
+          .put(CreditMeasures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
           .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
           .build();
 

@@ -29,7 +29,7 @@ import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
  * <p>
  * This function provides the ability to price an {@link ResolvedFxSingleBarrierOption}.
  * <p>
- * All of the computation is be based on the counter currency of the underlying FX transaction. 
+ * All of the computation is be based on the counter currency of the underlying FX transaction.
  * For example, price, PV and risk measures of the product will be expressed in USD for an option on EUR/USD.
  */
 public class BlackFxSingleBarrierOptionProductPricer {
@@ -62,10 +62,10 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the present value of the FX barrier option product.
    * <p>
-   * The present value of the product is the value on the valuation date. 
+   * The present value of the product is the value on the valuation date.
    * It is expressed in the counter currency.
    * <p>
-   * The volatility used in this computation is the Black implied volatility at expiry time and strike. 
+   * The volatility used in this computation is the Black implied volatility at expiry time and strike.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -86,10 +86,10 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * Calculates the price of the FX barrier option product.
    * <p>
    * The price of the product is the value on the valuation date for one unit of the base currency 
-   * and is expressed in the counter currency. The price does not take into account the long/short flag. 
+   * and is expressed in the counter currency. The price does not take into account the long/short flag.
    * See {@link #presentValue} for scaling and currency.
    * <p>
-   * The volatility used in this computation is the Black implied volatility at expiry time and strike. 
+   * The volatility used in this computation is the Black implied volatility at expiry time and strike.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -183,7 +183,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the present value delta of the FX barrier option product.
    * <p>
-   * The present value delta is the first derivative of {@link #presentValue} with respect to spot. 
+   * The present value delta is the first derivative of {@link #presentValue} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -203,7 +203,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the delta of the FX barrier option product.
    * <p>
-   * The delta is the first derivative of {@link #price} with respect to spot. 
+   * The delta is the first derivative of {@link #price} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -226,7 +226,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the present value gamma of the FX barrier option product.
    * <p>
-   * The present value gamma is the second derivative of {@link #presentValue} with respect to spot. 
+   * The present value gamma is the second derivative of {@link #presentValue} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -246,7 +246,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the gamma of the FX barrier option product.
    * <p>
-   * The delta is the second derivative of {@link #price} with respect to spot. 
+   * The delta is the second derivative of {@link #price} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -303,7 +303,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Calculates the vega of the FX barrier option product.
    * <p>
-   * The delta is the first derivative of {@link #price} with respect to Black volatility. 
+   * The delta is the first derivative of {@link #price} with respect to Black volatility.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider

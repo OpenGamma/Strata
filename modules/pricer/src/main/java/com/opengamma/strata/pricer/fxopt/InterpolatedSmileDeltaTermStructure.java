@@ -15,11 +15,11 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 /**
  * An interpolated term structure of smile as used in Forex market.
  * <p>
- * The term structure defined here is composed of smile descriptions at different times. 
+ * The term structure defined here is composed of smile descriptions at different times.
  * The data of each smile contains delta and volatility in {@link SmileDeltaParameters}. 
- * The delta values must be common to all of the smiles. 
+ * The delta values must be common to all of the smiles.
  * <p>
- * This interface in particular defines interpolation in the time dimension given a set of interpolator and extrapolators. 
+ * This interface in particular defines interpolation in the time dimension given a set of interpolator and extrapolators.
  * Smile construction methodology of each time slice is specified in a subclass.
  */
 public interface InterpolatedSmileDeltaTermStructure extends SmileDeltaTermStructure {
@@ -73,21 +73,21 @@ public interface InterpolatedSmileDeltaTermStructure extends SmileDeltaTermStruc
   }
 
   /**
-   * Gets the time left extrapolator. 
+   * Gets the time left extrapolator.
    * 
    * @return the time left extrapolator
    */
   public abstract CurveExtrapolator getTimeLeftExtrapolator();
 
   /**
-   * Gets the time interpolator. 
+   * Gets the time interpolator.
    * 
    * @return the time interpolator
    */
   public abstract CurveInterpolator getTimeInterpolator();
 
   /**
-   * Gets the time right extrapolator. 
+   * Gets the time right extrapolator.
    * 
    * @return the time right extrapolator
    */

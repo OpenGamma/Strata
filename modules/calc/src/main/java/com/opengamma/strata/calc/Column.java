@@ -62,7 +62,7 @@ public final class Column implements ImmutableBean {
    * If the result is not associated with a currency, such as for "par rate", then the
    * reporting currency will effectively be ignored.
    * <p>
-   * If empty, the reporting currency from {@link CalculationRules} will be used. 
+   * If empty, the reporting currency from {@link CalculationRules} will be used.
    */
   @PropertyDefinition(get = "optional")
   private final ReportingCurrency reportingCurrency;

@@ -438,9 +438,11 @@ public class BlackSwaptionPhysicalProductPricerTest {
     Surface surfaceDw = ConstantSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackSwaptionExpiryTenorVolatilities.of(surfaceUp, VAL_DATE.atStartOfDay(ZoneOffset.UTC)));
+        BlackSwaptionExpiryTenorVolatilities.of(
+            BLACK_VOL_CST_SWAPTION_PROVIDER_USD.getConvention(), VAL_DATE.atStartOfDay(ZoneOffset.UTC), surfaceUp));
     CurrencyAmount pvM = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackSwaptionExpiryTenorVolatilities.of(surfaceDw, VAL_DATE.atStartOfDay(ZoneOffset.UTC)));
+        BlackSwaptionExpiryTenorVolatilities.of(
+            BLACK_VOL_CST_SWAPTION_PROVIDER_USD.getConvention(), VAL_DATE.atStartOfDay(ZoneOffset.UTC), surfaceDw));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_BLACK
         .presentValueSensitivityModelParamsVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);

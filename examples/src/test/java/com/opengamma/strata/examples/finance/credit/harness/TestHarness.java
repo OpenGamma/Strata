@@ -16,6 +16,7 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.measure.Measures;
+import com.opengamma.strata.measure.credit.CreditMeasures;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -109,27 +110,27 @@ public class TestHarness {
     }
 
     public ScalarMeasureOnADay jumpToDefaultShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measures.JUMP_TO_DEFAULT, expected, tradeSource);
+      return new ScalarMeasureOnADay(CreditMeasures.JUMP_TO_DEFAULT, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay recovery01ShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measures.RECOVERY01, expected, tradeSource);
+      return new ScalarMeasureOnADay(CreditMeasures.RECOVERY01, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay ir01ParallelParShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measures.IR01_PARALLEL_PAR, expected, tradeSource);
+      return new ScalarMeasureOnADay(CreditMeasures.IR01_PARALLEL_PAR, expected, tradeSource);
     }
 
     public VectorMeasureOnADay ir01BucketedParShouldBe(double... expected) {
-      return new VectorMeasureOnADay(Measures.IR01_BUCKETED_PAR, expected, tradeSource);
+      return new VectorMeasureOnADay(CreditMeasures.IR01_BUCKETED_PAR, expected, tradeSource);
     }
 
     public ScalarMeasureOnADay cs01ParallelParShouldBe(double expected) {
-      return new ScalarMeasureOnADay(Measures.CS01_PARALLEL_PAR, expected, tradeSource);
+      return new ScalarMeasureOnADay(CreditMeasures.CS01_PARALLEL_PAR, expected, tradeSource);
     }
 
     public VectorMeasureOnADay cs01BucketedParShouldBe(double... expected) {
-      return new VectorMeasureOnADay(Measures.CS01_BUCKETED_PAR, expected, tradeSource);
+      return new VectorMeasureOnADay(CreditMeasures.CS01_BUCKETED_PAR, expected, tradeSource);
     }
 
   }

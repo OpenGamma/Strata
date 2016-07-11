@@ -10,24 +10,20 @@ import java.io.Serializable;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.strata.math.impl.interpolation.ClampedPiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.LogNaturalSplineHelper;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DLogPiecewisePoynomialDataBundle;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
 /**
  * Log natural cubic spline interpolator for discount factors.
  * <p>
- * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic filter. 
+ * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic filter.
  * <p>
  * The natural cubic spline is determined by {@link LogNaturalSplineHelper}, where the tridiagonal
- * algorithm is used to solve a linear system. Since {@link PiecewisePolynomialResultsWithSensitivity}
- * in {@link Interpolator1DLogPiecewisePoynomialDataBundle} contains information on f(x) (NOT F(x)), 
- * computation done by {@link PiecewisePolynomialWithSensitivityFunction1D} MUST be exponentiated.
+ * algorithm is used to solve a linear system.
  */
 final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInterpolator, Serializable {
 

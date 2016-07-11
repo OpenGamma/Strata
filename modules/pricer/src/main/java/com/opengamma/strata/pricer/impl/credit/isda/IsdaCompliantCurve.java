@@ -670,12 +670,17 @@ public class IsdaCompliantCurve
   }
 
   @Override
+  public NodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
+    return IsdaCompliantCreditCurve.makeFromRT(xValues, yValues);
+  }
+
+  @Override
   public IsdaCompliantCurve withMetadata(CurveMetadata metadata) {
     return this;
   }
 
   @Override
-  public NodalCurve withNode(int index, double x, double y) {
+  public IsdaCompliantCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
     throw new UnsupportedOperationException("ISDA credit curve does not allow node to be inserted");
   }
 

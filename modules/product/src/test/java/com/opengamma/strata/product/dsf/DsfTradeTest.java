@@ -16,9 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.dsf.Dsf;
-import com.opengamma.strata.product.dsf.DsfTrade;
-import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
  * Test {@link DsfTrade}.
@@ -35,8 +32,8 @@ public class DsfTradeTest {
       .build();
   private static final double QUANTITY = 100L;
   private static final double QUANTITY2 = 200L;
-  private static final double PRICE = 0.99;
-  private static final double PRICE2 = 0.98;
+  private static final double PRICE = 101.23;
+  private static final double PRICE2 = 98.45;
 
   //-------------------------------------------------------------------------
   public void test_builder() {

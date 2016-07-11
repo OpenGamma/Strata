@@ -40,7 +40,7 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * A security representing a fixed coupon bond.
  * <p>
- * A fixed coupon bond is a financial instrument that represents a stream of fixed payments. 
+ * A fixed coupon bond is a financial instrument that represents a stream of fixed payments.
  */
 @BeanDefinition
 public final class FixedCouponBondSecurity
@@ -117,7 +117,7 @@ public final class FixedCouponBondSecurity
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
   /**
-   * Ex-coupon period. 
+   * Ex-coupon period.
    * <p>
    * Some bonds trade ex-coupons before the coupon payment. The coupon is paid not to the
    * owner of the bond on the payment date but to the owner of the bond on the detachment date.

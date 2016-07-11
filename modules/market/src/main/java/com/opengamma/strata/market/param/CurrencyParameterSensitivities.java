@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.param;
 
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -286,7 +288,7 @@ public final class CurrencyParameterSensitivities
   public MultiCurrencyAmount total() {
     return sensitivities.stream()
         .map(CurrencyParameterSensitivity::total)
-        .collect(MultiCurrencyAmount.collector());
+        .collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -294,7 +296,7 @@ public final class CurrencyParameterSensitivities
    * Returns an instance with the sensitivity values multiplied by the specified factor.
    * <p>
    * The result will consist of the same entries, but with each sensitivity value multiplied.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return an instance based on this one, with each sensitivity multiplied by the factor
@@ -307,7 +309,7 @@ public final class CurrencyParameterSensitivities
    * Returns an instance with the specified operation applied to the sensitivity values.
    * <p>
    * The result will consist of the same entries, but with the operator applied to each sensitivity value.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * <p>
    * This is used to apply a mathematical operation to the sensitivity values.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.

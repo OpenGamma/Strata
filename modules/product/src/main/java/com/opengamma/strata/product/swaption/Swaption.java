@@ -59,14 +59,14 @@ public final class Swaption
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
-   * Settlement method.  
+   * Settlement method.
    * <p>
    * The settlement of the option is specified by {@link SwaptionSettlement}.
    */
   @PropertyDefinition(validate = "notNull")
   private final SwaptionSettlement swaptionSettlement;
   /**
-   * The expiry date of the option.  
+   * The expiry date of the option.
    * <p>
    * The option is European, and can only be exercised on the expiry date.
    * <p>
@@ -76,14 +76,14 @@ public final class Swaption
   @PropertyDefinition(validate = "notNull")
   private final AdjustableDate expiryDate;
   /**
-   * The expiry time of the option.  
+   * The expiry time of the option.
    * <p>
    * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiry time.  
+   * The time-zone of the expiry time.
    * <p>
    * The expiry time-zone is related to the expiry date and time.
    */
@@ -93,7 +93,7 @@ public final class Swaption
    * The underlying swap.
    * <p>
    * At expiry, if the option is exercised, this swap will be entered into.
-   * The swap description is the swap as viewed by the party long the option. 
+   * The swap description is the swap as viewed by the party long the option.
    */
   @PropertyDefinition(validate = "notNull")
   private final Swap underlying;

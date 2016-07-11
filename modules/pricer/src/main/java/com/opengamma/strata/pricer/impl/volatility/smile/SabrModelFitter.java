@@ -20,7 +20,7 @@ import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
  * SABR model fitter.
  * <p>
  * Attempts to calibrate SABR model to the implied volatilities of European vanilla options, by minimizing the sum of 
- * squares between the market and model implied volatilities. 
+ * squares between the market and model implied volatilities.
  * <p>
  * All the options must be for the same expiry and (implicitly) on the same underlying.
  */
@@ -40,7 +40,7 @@ public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
 
   //-------------------------------------------------------------------------
   /**
-   * Constructs SABR model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
+   * Constructs SABR model fitter from forward, strikes, time to expiry, implied volatilities and error values.
    * <p>
    * {@code strikes}, {@code impliedVols} and {@code error} should be the same length and ordered coherently.
    * 
@@ -70,7 +70,7 @@ public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
   }
 
   /**
-   * Constructs SABR model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
+   * Constructs SABR model fitter from forward, strikes, time to expiry, implied volatilities and error values.
    * <p>
    * {@code strikes}, {@code impliedVols} and {@code error} should be the same length and ordered coherently.
    * 

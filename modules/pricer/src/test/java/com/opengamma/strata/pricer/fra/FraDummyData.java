@@ -27,7 +27,7 @@ public class FraDummyData {
   public static final double NOTIONAL = 1_000_000d;
 
   /**
-   * Fra, default discounting method. 
+   * Fra, default discounting method.
    */
   public static final Fra FRA = Fra.builder()
       .buySell(BUY)
@@ -40,7 +40,7 @@ public class FraDummyData {
       .build();
 
   /**
-   * Fra, AFMA discounting method. 
+   * Fra, AFMA discounting method.
    */
   public static final Fra FRA_AFMA = Fra.builder()
       .buySell(SELL)
@@ -54,7 +54,7 @@ public class FraDummyData {
       .build();
 
   /**
-   * Fra, NONE discounting method. 
+   * Fra, NONE discounting method.
    */
   public static final Fra FRA_NONE = Fra.builder()
       .buySell(BUY)

@@ -15,15 +15,15 @@ import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
 
 /**
- * Product natural cubic spline interpolation. 
+ * Product natural cubic spline interpolation.
  * <p>
- * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline. 
+ * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline.
  * <p>
  * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose
  * the condition that all of the x data to be the same sign, such that the origin is not within data range.
  * The x key value must not be close to zero.
  * <p>
- * See {@link NaturalSplineInterpolator} for the detail on the underlying interpolator. 
+ * See {@link NaturalSplineInterpolator} for the detail on the underlying interpolator.
  */
 final class ProductNaturalSplineCurveInterpolator
     implements CurveInterpolator, Serializable {
@@ -42,7 +42,7 @@ final class ProductNaturalSplineCurveInterpolator
   */
   private static final long serialVersionUID = 1L;
   /**
-   * The small parameter. 
+   * The small parameter.
    */
   private static final double SMALL = 1e-10;
   /**

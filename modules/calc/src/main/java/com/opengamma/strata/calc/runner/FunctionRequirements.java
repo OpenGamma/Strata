@@ -45,7 +45,7 @@ public final class FunctionRequirements implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<? extends MarketDataId<?>> valueRequirements;
-  /** 
+  /**
    * The market data identifiers of the time-series of required for the calculation.
    */
   @PropertyDefinition(validate = "notNull")

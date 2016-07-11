@@ -57,7 +57,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   private static final double EPS_FD = 1.0e-6;
 
   /**
-   * Check "in + out = vanilla" is satisfied. 
+   * Check "in + out = vanilla" is satisfied.
    */
   public void inOutParity() {
     for (double strike : STRIKES) {
@@ -89,7 +89,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   }
 
   /**
-   * Upper barrier level is very high: knock-in is close to 0, knock-out is close to vanilla. 
+   * Upper barrier level is very high: knock-in is close to 0, knock-out is close to vanilla.
    */
   public void largeBarrierTest() {
     SimpleConstantContinuousBarrier upIn = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 1.0e4);
@@ -111,7 +111,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   }
 
   /**
-   * Lower barrier level is very small: knock-in is close to 0, knock-out is close to vanilla.  
+   * Lower barrier level is very small: knock-in is close to 0, knock-out is close to vanilla.
    */
   public void smallBarrierTest() {
     SimpleConstantContinuousBarrier dwIn =
@@ -135,7 +135,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   }
 
   /**
-   * Greeks against finite difference approximation. 
+   * Greeks against finite difference approximation.
    */
   public void greekfdTest() {
     for (double strike : STRIKES) {
@@ -153,7 +153,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   }
 
   /**
-   * smoothly connected to limiting cases. 
+   * smoothly connected to limiting cases.
    */
   public void smallsigmaTTest() {
     for (double strike : STRIKES) {
@@ -171,7 +171,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   }
 
   /**
-   * Barrier event has occured already. 
+   * Barrier event has occured already.
    */
   public void illegalBarrierLevelTest() {
     assertThrowsIllegalArg(() -> BARRIER_PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, STRIKE_MID,

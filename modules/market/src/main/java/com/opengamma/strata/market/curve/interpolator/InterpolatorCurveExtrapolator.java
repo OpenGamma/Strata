@@ -25,8 +25,8 @@ final class InterpolatorCurveExtrapolator
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-  /** 
-   * The interpolator name. 
+  /**
+   * The interpolator name.
    */
   public static final String NAME = "Interpolator";
   /**

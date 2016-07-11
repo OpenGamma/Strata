@@ -39,7 +39,7 @@ public class SabrExtrapolationReplicationCmsProductPricer {
   private final DiscountingSwapLegPricer payLegPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param cmsLegPricer  the pricer for {@link CmsLeg}
    * @param payLegPricer  the pricer for {@link SwapLeg}
@@ -125,7 +125,7 @@ public class SabrExtrapolationReplicationCmsProductPricer {
   /**
    * Calculates the present value sensitivity to the strike value.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to the strike value. 
+   * The present value sensitivity of the product is the sensitivity of the present value to the strike value.
    * This is not relevant for CMS coupons and an exception is thrown in the underlying pricer.
    * 
    * @param cms  the CMS product

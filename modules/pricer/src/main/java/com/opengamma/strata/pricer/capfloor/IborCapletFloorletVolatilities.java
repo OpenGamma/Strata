@@ -7,24 +7,31 @@ package com.opengamma.strata.pricer.capfloor;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Volatilities for pricing Ibor caplet/floorlet.
  * <p>
  * This provides access to the volatilities for various pricing models, such as normal and Black.
- * The price and derivatives are also made available.
  */
 public interface IborCapletFloorletVolatilities
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
+
+  /**
+   * Gets the name of these volatilities.
+   * 
+   * @return the name
+   */
+  public abstract IborCapletFloorletVolatilitiesName getName();
 
   /**
    * Gets the Ibor index for which the data is valid.
@@ -34,9 +41,16 @@ public interface IborCapletFloorletVolatilities
   public abstract IborIndex getIndex();
 
   /**
+   * Gets the type of volatility returned by the {@link IborCapletFloorletVolatilities#volatility} method.
+   * 
+   * @return the type
+   */
+  public abstract ValueType getVolatilityType();
+
+  /**
    * Gets the valuation date.
    * <p>
-   * The raw data in this provider is calibrated for this date.
+   * The volatilities are calibrated for this date.
    * 
    * @return the valuation date
    */
@@ -48,15 +62,21 @@ public interface IborCapletFloorletVolatilities
   /**
    * Gets the valuation date-time.
    * <p>
-   * The raw data in this provider is calibrated for this date-time.
+   * The volatilities are calibrated for this date-time.
    * 
    * @return the valuation date-time
    */
   public abstract ZonedDateTime getValuationDateTime();
 
+  @Override
+  public abstract IborCapletFloorletVolatilities withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract IborCapletFloorletVolatilities withPerturbation(ParameterPerturbation perturbation);
+
   //-------------------------------------------------------------------------
   /**
-   * Calculates the volatility at the specified date-time.
+   * Calculates the volatility at the specified expiry.
    * 
    * @param expiryDateTime  the option expiry
    * @param strike  the option strike rate
@@ -69,7 +89,7 @@ public interface IborCapletFloorletVolatilities
   }
 
   /**
-   * Calculates the volatility at the specified date-time.
+   * Calculates the volatility at the specified expiry.
    * <p>
    * This relies on expiry supplied by {@link #relativeTime(ZonedDateTime)}.
    * 
@@ -83,33 +103,28 @@ public interface IborCapletFloorletVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity.
    * <p>
-   * This is used to convert point sensitivity to parameter sensitivity.
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the internal parameters representation.
    * 
-   * @param pointSensitivities  the point sensitivities to convert
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the result cannot be calculated
+   * @param pointSensitivities  the point sensitivities
+   * @return the sensitivity to the underlying parameters
    */
-  default CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
-    List<CurrencyParameterSensitivity> sensitivitiesTotal = pointSensitivities.getSensitivities()
-        .stream()
-        .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
-        .map(pointSensitivity -> parameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
-        .collect(Collectors.toList());
-    return CurrencyParameterSensitivities.of(sensitivitiesTotal);
+  public default CurrencyParameterSensitivities parameterSensitivity(PointSensitivity... pointSensitivities) {
+    return parameterSensitivity(PointSensitivities.of(pointSensitivities));
   }
 
   /**
-   * Calculates the parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to parameter sensitivity.
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the internal parameters representation.
    * 
-   * @param pointSensitivity  the point sensitivity to convert
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the result cannot be calculated
+   * @param pointSensitivities  the point sensitivities
+   * @return the sensitivity to the underlying parameters
    */
-  public abstract CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
   /**
@@ -227,13 +242,13 @@ public interface IborCapletFloorletVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Converts a time and date to a relative year fraction. 
+   * Converts a time and date to a relative year fraction.
    * <p>
    * When the date is after the valuation date (and potentially time), the returned number is negative.
    * 
-   * @param date  the date/time to find the relative year fraction of
+   * @param dateTime  the date-time to find the relative year fraction of
    * @return the relative year fraction
    */
-  public abstract double relativeTime(ZonedDateTime date);
+  public abstract double relativeTime(ZonedDateTime dateTime);
 
 }

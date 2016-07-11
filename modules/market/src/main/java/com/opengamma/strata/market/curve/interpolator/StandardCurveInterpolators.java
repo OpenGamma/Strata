@@ -44,8 +44,7 @@ final class StandardCurveInterpolators {
   public static final CurveInterpolator PRODUCT_NATURAL_SPLINE =
       ProductNaturalSplineCurveInterpolator.INSTANCE;
   // Product linear interpolator.
-  public static final CurveInterpolator PRODUCT_LINEAR =
-      ProductLinearCurveInterpolator.INSTANCE;
+  public static final CurveInterpolator PRODUCT_LINEAR = ProductLinearCurveInterpolator.INSTANCE;
 
   //-------------------------------------------------------------------------
   /**

@@ -31,7 +31,7 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.surface.Surface;
 
 /**
- * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
+ * Data provider of volatility for FX options in the lognormal or Black-Scholes model.
  * <p>
  * The volatility is represented by a surface on the expiry and strike value.
  */

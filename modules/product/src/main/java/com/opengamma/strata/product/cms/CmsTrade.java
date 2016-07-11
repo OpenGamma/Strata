@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
@@ -57,15 +57,15 @@ public final class CmsTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Cms product;
   /**
-   * The optional premium of the product. 
+   * The optional premium of the product.
    * <p>
    * For certain CMS products, a premium is paid upfront. This typically occurs instead
    * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
-   * The premium sign must be compatible with the product Pay/Receive flag. 
+   * The premium sign must be compatible with the product Pay/Receive flag.
    */
   @PropertyDefinition(get = "optional")
-  private final Payment premium;
+  private final AdjustablePayment premium;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -79,7 +79,7 @@ public final class CmsTrade
     return ResolvedCmsTrade.builder()
         .info(info)
         .product(product.resolve(refData))
-        .premium(premium)
+        .premium(premium.resolve(refData))
         .build();
   }
 
@@ -113,7 +113,7 @@ public final class CmsTrade
   private CmsTrade(
       TradeInfo info,
       Cms product,
-      Payment premium) {
+      AdjustablePayment premium) {
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
     this.product = product;
@@ -169,7 +169,7 @@ public final class CmsTrade
    * The premium sign must be compatible with the product Pay/Receive flag.
    * @return the optional value of the property, not null
    */
-  public Optional<Payment> getPremium() {
+  public Optional<AdjustablePayment> getPremium() {
     return Optional.ofNullable(premium);
   }
 
@@ -239,8 +239,8 @@ public final class CmsTrade
     /**
      * The meta-property for the {@code premium} property.
      */
-    private final MetaProperty<Payment> premium = DirectMetaProperty.ofImmutable(
-        this, "premium", CmsTrade.class, Payment.class);
+    private final MetaProperty<AdjustablePayment> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", CmsTrade.class, AdjustablePayment.class);
     /**
      * The meta-properties.
      */
@@ -305,7 +305,7 @@ public final class CmsTrade
      * The meta-property for the {@code premium} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Payment> premium() {
+    public MetaProperty<AdjustablePayment> premium() {
       return premium;
     }
 
@@ -342,7 +342,7 @@ public final class CmsTrade
 
     private TradeInfo info;
     private Cms product;
-    private Payment premium;
+    private AdjustablePayment premium;
 
     /**
      * Restricted constructor.
@@ -386,7 +386,7 @@ public final class CmsTrade
           this.product = (Cms) newValue;
           break;
         case -318452137:  // premium
-          this.premium = (Payment) newValue;
+          this.premium = (AdjustablePayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -462,7 +462,7 @@ public final class CmsTrade
      * @param premium  the new value
      * @return this, for chaining, not null
      */
-    public Builder premium(Payment premium) {
+    public Builder premium(AdjustablePayment premium) {
       this.premium = premium;
       return this;
     }

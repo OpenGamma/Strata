@@ -24,7 +24,6 @@
 <listEntry value="com.opengamma.strata.math.impl.function.special"/>
 <listEntry value="com.opengamma.strata.math.impl.integration"/>
 <listEntry value="com.opengamma.strata.math.impl.interpolation"/>
-<listEntry value="com.opengamma.strata.math.impl.interpolation.data"/>
 <listEntry value="com.opengamma.strata.math.impl.linearalgebra"/>
 <listEntry value="com.opengamma.strata.math.impl.matrix"/>
 <listEntry value="com.opengamma.strata.math.impl.minimization"/>

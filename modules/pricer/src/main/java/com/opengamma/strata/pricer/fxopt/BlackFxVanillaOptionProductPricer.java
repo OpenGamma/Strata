@@ -23,7 +23,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
  * <p>
  * This function provides the ability to price an {@link ResolvedFxVanillaOption}.
  * <p>
- * All of the computation is be based on the counter currency of the underlying FX transaction. 
+ * All of the computation is be based on the counter currency of the underlying FX transaction.
  * For example, price, PV and risk measures of the product will be expressed in USD for an option on EUR/USD.
  */
 public class BlackFxVanillaOptionProductPricer {
@@ -64,7 +64,7 @@ public class BlackFxVanillaOptionProductPricer {
    * Calculates the price of the foreign exchange vanilla option product.
    * <p>
    * The price of the product is the value on the valuation date for one unit of the base currency 
-   * and is expressed in the counter currency. The price does not take into account the long/short flag. 
+   * and is expressed in the counter currency. The price does not take into account the long/short flag.
    * See {@link #presentValue} for scaling and currency.
    * 
    * @param option  the option product
@@ -86,7 +86,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the present value of the foreign exchange vanilla option product.
    * <p>
-   * The present value of the product is the value on the valuation date. 
+   * The present value of the product is the value on the valuation date.
    * It is expressed in the counter currency.
    * 
    * @param option  the option product
@@ -130,7 +130,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the delta of the foreign exchange vanilla option product.
    * <p>
-   * The delta is the first derivative of {@link #price} with respect to spot. 
+   * The delta is the first derivative of {@link #price} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -153,7 +153,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the present value delta of the foreign exchange vanilla option product.
    * <p>
-   * The present value delta is the first derivative of {@link #presentValue} with respect to spot. 
+   * The present value delta is the first derivative of {@link #presentValue} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -230,7 +230,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the gamma of the foreign exchange vanilla option product.
    * <p>
-   * The gamma is the second derivative of {@link #price} with respect to spot. 
+   * The gamma is the second derivative of {@link #price} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -263,7 +263,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the present value delta of the foreign exchange vanilla option product.
    * <p>
-   * The present value gamma is the second derivative of the {@link #presentValue} with respect to spot. 
+   * The present value gamma is the second derivative of the {@link #presentValue} with respect to spot.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -283,7 +283,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the vega of the foreign exchange vanilla option product.
    * <p>
-   * The vega is the first derivative of {@link #price} with respect to volatility. 
+   * The vega is the first derivative of {@link #price} with respect to volatility.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -313,7 +313,7 @@ public class BlackFxVanillaOptionProductPricer {
   /**
    * Calculates the present value vega of the foreign exchange vanilla option product.
    * <p>
-   * The present value vega is the first derivative of the {@link #presentValue} with respect to volatility. 
+   * The present value vega is the first derivative of the {@link #presentValue} with respect to volatility.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider

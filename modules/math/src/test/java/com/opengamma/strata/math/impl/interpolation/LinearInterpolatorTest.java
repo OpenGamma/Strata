@@ -97,12 +97,8 @@ public class LinearInterpolatorTest {
   public void NullXvaluesTest() {
     double[] xValues = new double[4];
     double[] yValues = new double[] {1., 2., 3., 4. };
-
     xValues = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -112,12 +108,8 @@ public class LinearInterpolatorTest {
   public void NullYvaluesTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[4];
-
     yValues = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -127,10 +119,7 @@ public class LinearInterpolatorTest {
   public void wrongDatalengthTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[] yValues = new double[] {1., 2., 3., 4. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -160,10 +149,7 @@ public class LinearInterpolatorTest {
   public void NaNxValuesTest() {
     double[] xValues = new double[] {1., 2., Double.NaN, 4. };
     double[] yValues = new double[] {1., 2., 3., 4. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -173,10 +159,7 @@ public class LinearInterpolatorTest {
   public void NaNyValuesTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[] {1., 2., Double.NaN, 4. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -186,10 +169,7 @@ public class LinearInterpolatorTest {
   public void InfxValuesTest() {
     double[] xValues = new double[] {1., 2., 3., INF };
     double[] yValues = new double[] {1., 2., 3., 4. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -199,10 +179,7 @@ public class LinearInterpolatorTest {
   public void InfyValuesTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[] {1., 2., 3., INF };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -212,10 +189,7 @@ public class LinearInterpolatorTest {
   public void coincideXvaluesTest() {
     double[] xValues = new double[] {1., 2., 3., 3. };
     double[] yValues = new double[] {1., 2., 3., 4. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -229,22 +203,18 @@ public class LinearInterpolatorTest {
     final int orderExp = 2;
     final int dimExp = 2;
     final double[][] coefsMatExp = new double[][] { {-5., 6. }, {3., 2. } };
-
     LinearInterpolator interpMatrix = new LinearInterpolator();
-
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
     assertEquals(result.getDimensions(), dimExp);
     assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
     assertEquals(result.getDimensions(), dimExp);
-
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
         assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
-
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
       assertEquals(result.getKnots().get(j), xValues[j]);
     }
@@ -261,22 +231,18 @@ public class LinearInterpolatorTest {
     final int orderExp = 2;
     final int dimExp = 2;
     final double[][] coefsMatExp = new double[][] { {-5., 6. }, {-2. / 3., 1. }, {7., 1. }, {-5. / 33., 1. / 3. }, {-10., 8. }, {-3. / 77., 2. / 11. } };
-
     LinearInterpolator interpMatrix = new LinearInterpolator();
-
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
     assertEquals(result.getDimensions(), dimExp);
     assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
     assertEquals(result.getDimensions(), dimExp);
-
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
         assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
       }
     }
-
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
       assertEquals(result.getKnots().get(j), xValues[j]);
     }
@@ -289,12 +255,8 @@ public class LinearInterpolatorTest {
   public void NullXvaluesMultiTest() {
     double[] xValues = new double[4];
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 5., 3., 4. } };
-
     xValues = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -304,12 +266,8 @@ public class LinearInterpolatorTest {
   public void NullYvaluesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[2][4];
-
     yValues = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -319,10 +277,7 @@ public class LinearInterpolatorTest {
   public void wrongDatalengthMultiTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -332,8 +287,7 @@ public class LinearInterpolatorTest {
   public void shortDataLengthMultiTest() {
     double[] xValues = new double[] {1. };
     double[][] yValues = new double[][] { {4. }, {1. } };
-    LinearInterpolator interp = new LinearInterpolator();
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -343,10 +297,7 @@ public class LinearInterpolatorTest {
   public void NaNxValuesMultiTest() {
     double[] xValues = new double[] {1., 2., Double.NaN, 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -356,10 +307,7 @@ public class LinearInterpolatorTest {
   public void NaNyValuesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., Double.NaN, 4. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -369,10 +317,7 @@ public class LinearInterpolatorTest {
   public void InfxValuesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., INF };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -382,10 +327,7 @@ public class LinearInterpolatorTest {
   public void InfyValuesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., 3., INF } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -395,10 +337,7 @@ public class LinearInterpolatorTest {
   public void coincideXvaluesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 3. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -470,10 +409,7 @@ public class LinearInterpolatorTest {
   public void LargeOutputTest() {
     double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
     double[] yValues = new double[] {1., 2., 1.e308, 3. };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -483,10 +419,7 @@ public class LinearInterpolatorTest {
   public void LargeOutputMultiTest() {
     double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
     double[][] yValues = new double[][] { {1., 2.e307, 3., 4. }, {2., 2., 3., 4. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues);
+    INTERP.interpolate(xValues, yValues);
   }
 
   /**
@@ -496,10 +429,7 @@ public class LinearInterpolatorTest {
   public void LargeInterpolantsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4. };
     final double[][] yValues = new double[][] { {2., 10., 2., 5. }, {1., 2., 10., 11. } };
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues[0], 1.e308);
+    INTERP.interpolate(xValues, yValues[0], 1.e308);
   }
 
   /**
@@ -510,12 +440,8 @@ public class LinearInterpolatorTest {
     double[] xValues = new double[] {1., 2., 3. };
     double[] yValues = new double[] {1., 3., 4. };
     double[] xKey = new double[3];
-
     xKey = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues, xKey);
+    INTERP.interpolate(xValues, yValues, xKey);
   }
 
   /**
@@ -526,12 +452,8 @@ public class LinearInterpolatorTest {
     double[] xValues = new double[] {1., 2., 3. };
     double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
     double[] xKey = new double[3];
-
     xKey = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues, xKey);
+    INTERP.interpolate(xValues, yValues, xKey);
   }
 
   /**
@@ -542,12 +464,8 @@ public class LinearInterpolatorTest {
     double[] xValues = new double[] {1., 2., 3. };
     double[] yValues = new double[] {1., 3., 4. };
     double[][] xKey = new double[3][3];
-
     xKey = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues, xKey);
+    INTERP.interpolate(xValues, yValues, xKey);
   }
 
   /**
@@ -558,12 +476,8 @@ public class LinearInterpolatorTest {
     double[] xValues = new double[] {1., 2., 3. };
     double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
     double[][] xKey = new double[3][4];
-
     xKey = null;
-
-    LinearInterpolator interp = new LinearInterpolator();
-
-    interp.interpolate(xValues, yValues, xKey);
+    INTERP.interpolate(xValues, yValues, xKey);
   }
 
   /**

@@ -30,7 +30,7 @@ import com.opengamma.strata.data.MarketDataId;
  * Market data ID identifying a set of par rates to be used in the ISDA credit model's yield
  * curve calibration for a currency.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class IsdaYieldCurveInputsId
     implements MarketDataId<IsdaYieldCurveInputs>, ImmutableBean, Serializable {
 
@@ -75,6 +75,11 @@ public final class IsdaYieldCurveInputsId
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   private IsdaYieldCurveInputsId(
       Currency currency) {
@@ -121,8 +126,12 @@ public final class IsdaYieldCurveInputsId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

@@ -48,6 +48,28 @@ public class ImmutableScenarioMarketDataBuilderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_values() {
+    FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
+    FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
+    FxRate eurGbpRate1 = FxRate.of(Currency.EUR, Currency.GBP, 0.85);
+    FxRate eurGbpRate2 = FxRate.of(Currency.EUR, Currency.GBP, 0.8);
+    FxRate eurUsdRate2 = FxRate.of(Currency.EUR, Currency.USD, 1.1);
+    Map<FxRateId, FxRate> values1 = ImmutableMap.of(
+        eurGbpId, eurGbpRate1);
+    Map<FxRateId, FxRate> values2 = ImmutableMap.of(
+        eurGbpId, eurGbpRate2,
+        eurUsdId, eurUsdRate2);
+
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
+        .values(values1)
+        .values(values2)  // replaces values1
+        .build();
+    assertEquals(marketData.getScenarioCount(), 1);
+    assertEquals(marketData.getIds(), ImmutableSet.of(eurGbpId, eurUsdId));
+    assertEquals(marketData.getValue(eurGbpId), MarketDataBox.ofSingleValue(eurGbpRate2));
+    assertEquals(marketData.getValue(eurUsdId), MarketDataBox.ofSingleValue(eurUsdRate2));
+  }
+
   public void test_addSingleAndList() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
@@ -119,9 +141,9 @@ public class ImmutableScenarioMarketDataBuilderTest {
   public void test_addScenarioValueMap() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
-    FxRatesArray eurGbpRates = FxRatesArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.79, 0.8, 0.81));
-    FxRatesArray eurUsdRates = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.09, 1.1, 1.11));
-    Map<FxRateId, FxRatesArray> values = ImmutableMap.of(
+    FxRateScenarioArray eurGbpRates = FxRateScenarioArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.79, 0.8, 0.81));
+    FxRateScenarioArray eurUsdRates = FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.09, 1.1, 1.11));
+    Map<FxRateId, FxRateScenarioArray> values = ImmutableMap.of(
         eurGbpId, eurGbpRates,
         eurUsdId, eurUsdRates);
 

@@ -12,8 +12,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.market.model.MoneynessType;
 
 /**
  * Test {@link Surfaces}.
@@ -23,85 +22,155 @@ public class SurfacesTest {
 
   private static final String NAME = "Foo";
   private static final SurfaceName SURFACE_NAME = SurfaceName.of(NAME);
-  private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
+
+  //-------------------------------------------------------------------------
+  public void iborCapletFloorletBlackExpiryStrike_string() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletBlackExpiryStrike(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void iborCapletFloorletBlackExpiryStrike_surfaceName() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletBlackExpiryStrike(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void iborCapletFloorletNormalExpiryStrike_string() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletNormalExpiryStrike(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void iborCapletFloorletNormalExpiryStrike_surfaceName() {
+    SurfaceMetadata test = Surfaces.iborCapletFloorletNormalExpiryStrike(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.STRIKE)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void iborFutureOptionNormalExpirySimpleMoneyness_string() {
+    SurfaceMetadata test = Surfaces.iborFutureOptionNormalExpirySimpleMoneyness(NAME, ACT_360, MoneynessType.PRICE);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.MONEYNESS_TYPE, MoneynessType.PRICE)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void iborFutureOptionNormalExpirySimpleMoneyness_surfaceName() {
+    SurfaceMetadata test = Surfaces.iborFutureOptionNormalExpirySimpleMoneyness(SURFACE_NAME, ACT_360, MoneynessType.PRICE);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SIMPLE_MONEYNESS)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.MONEYNESS_TYPE, MoneynessType.PRICE)
+        .build();
+    assertEquals(test, expected);
+  }
 
   //-------------------------------------------------------------------------
   public void swaptionBlackExpiryTenor_string() {
-    SurfaceMetadata test = Surfaces.swaptionBlackExpiryTenor(NAME, ACT_360, CONVENTION);
+    SurfaceMetadata test = Surfaces.swaptionBlackExpiryTenor(NAME, ACT_360);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.BLACK_VOLATILITY)
         .dayCount(ACT_360)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
         .build();
     assertEquals(test, expected);
   }
 
   public void swaptionBlackExpiryTenor_surfaceName() {
-    SurfaceMetadata test = Surfaces.swaptionBlackExpiryTenor(SURFACE_NAME, ACT_360, CONVENTION);
+    SurfaceMetadata test = Surfaces.swaptionBlackExpiryTenor(SURFACE_NAME, ACT_360);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.BLACK_VOLATILITY)
         .dayCount(ACT_360)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
         .build();
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void swaptionNormalExpiryTenor_string() {
-    SurfaceMetadata test = Surfaces.swaptionNormalExpiryTenor(NAME, ACT_360, CONVENTION);
+    SurfaceMetadata test = Surfaces.swaptionNormalExpiryTenor(NAME, ACT_360);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.NORMAL_VOLATILITY)
         .dayCount(ACT_360)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
         .build();
     assertEquals(test, expected);
   }
 
   public void swaptionNormalExpiryTenor_surfaceName() {
-    SurfaceMetadata test = Surfaces.swaptionNormalExpiryTenor(SURFACE_NAME, ACT_360, CONVENTION);
+    SurfaceMetadata test = Surfaces.swaptionNormalExpiryTenor(SURFACE_NAME, ACT_360);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.NORMAL_VOLATILITY)
         .dayCount(ACT_360)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
         .build();
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void swaptionSabrExpiryTenor_string() {
-    SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(NAME, ACT_360, CONVENTION, ValueType.SABR_BETA);
+    SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(NAME, ACT_360, ValueType.SABR_BETA);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.SABR_BETA)
         .dayCount(ACT_360)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
         .build();
     assertEquals(test, expected);
   }
 
   public void swaptionSabrExpiryTenor_surfaceName() {
-    SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(SURFACE_NAME, ACT_360, CONVENTION, ValueType.SABR_BETA);
+    SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(SURFACE_NAME, ACT_360, ValueType.SABR_BETA);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.YEAR_FRACTION)
         .zValueType(ValueType.SABR_BETA)
         .dayCount(ACT_360)
-        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
         .build();
     assertEquals(test, expected);
   }

@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * When calculating interest, it may be necessary to apply compounding.
  * Compound interest occurs where the basic interest is collected over one period but paid over a longer period.
- * For example, interest may be collected every three months but only paid every year. 
+ * For example, interest may be collected every three months but only paid every year.
  * <p>
  * For more information see this <a href="http://www.isda.org/c_and_a/pdf/ISDA-Compounding-memo.pdf">ISDA note</a>.
  */

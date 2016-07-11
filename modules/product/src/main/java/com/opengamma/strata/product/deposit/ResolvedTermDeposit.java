@@ -100,7 +100,7 @@ public final class ResolvedTermDeposit
   /**
    * The interest to be paid on the deposit.
    * <p>
-   * The interest is {@code rate * principal * yearFraction} and is a signed amount. 
+   * The interest is {@code rate * principal * yearFraction} and is a signed amount.
    * When the rate is positive, a 'buy' term deposit has a positive signed interest amount 
    * and a 'sell' term deposit has a negative signed interest amount.
    */

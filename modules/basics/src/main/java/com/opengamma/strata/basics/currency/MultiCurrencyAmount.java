@@ -148,7 +148,7 @@ public final class MultiCurrencyAmount
    */
   public static MultiCurrencyAmount total(Iterable<CurrencyAmount> amounts) {
     ArgChecker.notNull(amounts, "amounts");
-    return Guavate.stream(amounts).collect(collector());
+    return Guavate.stream(amounts).collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -160,7 +160,7 @@ public final class MultiCurrencyAmount
    *
    * @return the collector
    */
-  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collector() {
+  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> toMultiCurrencyAmount() {
     return Collector.<CurrencyAmount, Map<Currency, CurrencyAmount>, MultiCurrencyAmount>of(
         // accumulate into a map
         HashMap::new,
@@ -272,7 +272,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param currency  the currency to add to
    * @param amountToAdd  the amount to add
@@ -290,14 +290,14 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
    */
   public MultiCurrencyAmount plus(CurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(collector());
+    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(toMultiCurrencyAmount());
   }
 
   /**
@@ -308,14 +308,14 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
    */
   public MultiCurrencyAmount plus(MultiCurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(collector());
+    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -327,7 +327,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param currency  the currency to subtract from
    * @param amountToAdd  the amount to subtract
@@ -345,7 +345,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -363,7 +363,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -377,7 +377,7 @@ public final class MultiCurrencyAmount
   /**
    * Returns a copy of this {@code MultiCurrencyAmount} with all the amounts multiplied by the factor.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return an amount based on this with all the amounts multiplied by the factor
@@ -391,7 +391,7 @@ public final class MultiCurrencyAmount
    * <p>
    * This takes this amount and negates it.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return an amount based on this with the amount negated
    */

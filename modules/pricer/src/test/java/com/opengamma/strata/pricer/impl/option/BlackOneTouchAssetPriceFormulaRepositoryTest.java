@@ -64,7 +64,7 @@ public class BlackOneTouchAssetPriceFormulaRepositoryTest {
   }
 
   /**
-   * Upper barrier level is very high. 
+   * Upper barrier level is very high.
    */
   public void largeBarrierTest() {
     SimpleConstantContinuousBarrier in = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 1.0e4);
@@ -77,7 +77,7 @@ public class BlackOneTouchAssetPriceFormulaRepositoryTest {
   }
 
   /**
-   * Lower barrier level is very small.  
+   * Lower barrier level is very small.
    */
   public void smallBarrierTest() {
     SimpleConstantContinuousBarrier in =
@@ -91,7 +91,7 @@ public class BlackOneTouchAssetPriceFormulaRepositoryTest {
   }
 
   /**
-   * Greeks against finite difference approximation. 
+   * Greeks against finite difference approximation.
    */
   public void greekfdTest() {
     for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
@@ -131,7 +131,7 @@ public class BlackOneTouchAssetPriceFormulaRepositoryTest {
   }
 
   /**
-   * smoothly connected to limiting cases. 
+   * smoothly connected to limiting cases.
    */
   public void smallsigmaTTest() {
     for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
@@ -151,7 +151,7 @@ public class BlackOneTouchAssetPriceFormulaRepositoryTest {
   }
 
   /**
-   * Barrier event has occured already. 
+   * Barrier event has occured already.
    */
   public void illegalBarrierLevelTest() {
     assertThrowsIllegalArg(() -> PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,

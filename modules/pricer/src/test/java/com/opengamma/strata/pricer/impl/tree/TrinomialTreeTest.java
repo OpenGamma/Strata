@@ -22,7 +22,7 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link TrinomialTree}.
  * <p>
- * Further tests are done for implementations of {@code OptionFunction}. See their test classes. 
+ * Further tests are done for implementations of {@code OptionFunction}. See their test classes.
  */
 @Test
 public class TrinomialTreeTest {

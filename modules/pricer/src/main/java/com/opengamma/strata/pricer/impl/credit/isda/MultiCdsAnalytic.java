@@ -48,11 +48,11 @@ public class MultiCdsAnalytic {
    * @param stepinDate (aka Protection Effective sate or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
    * (and risk) starts in terms of the model. Note, this is sometimes just called the Effective Date, however this can cause
    * confusion with the legal effective date which is T-60 or T-90.
-   * @param cashSettlementDate The cash settlement date. The date that values are PVed to. Is is normally today + 3 business days. 
+   * @param cashSettlementDate The cash settlement date. The date that values are PVed to. Is is normally today + 3 business days.
    * @param accStartDate  Accrual Start Date. This is when the CDS nominally starts in terms of premium payments.  i.e. the number 
    * of days in the first period (and thus the amount of the first premium payment) is counted from this date.
    * @param maturityReferanceDate A reference date that maturities are measured from. For standard CDSSs, this is the next IMM  date after
-   * the trade date, so the actually maturities will be some fixed periods after this.  
+   * the trade date, so the actually maturities will be some fixed periods after this.
    * @param maturityIndexes The maturities are fixed integer multiples of the payment interval, so for 6M, 1Y and 2Y tenors with a 3M 
    * payment interval, would require 2, 4, and 8 as the indices    
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
@@ -245,8 +245,8 @@ public class MultiCdsAnalytic {
 
   /**
    * Year fraction (according to curve DCC) from trade date to accrual start date.
-   * This will be negative for spot starting CDS, but will be positive for forward starting CDS.   
-   * @return accrual start year-fraction. 
+   * This will be negative for spot starting CDS, but will be positive for forward starting CDS.
+   * @return accrual start year-fraction.
    */
   public double getAccStart() {
     return _accStart;

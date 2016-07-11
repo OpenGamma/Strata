@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -225,7 +226,7 @@ public final class InterpolatedNodalCurve
 
   @Override
   public InterpolatedNodalCurve withParameter(int parameterIndex, double newValue) {
-    return withYValues(yValues.with(parameterIndex, newValue));
+    return withValues(yValues.with(parameterIndex, newValue));
   }
 
   @Override
@@ -233,7 +234,7 @@ public final class InterpolatedNodalCurve
     int size = yValues.size();
     DoubleArray perturbedValues = DoubleArray.of(
         size, i -> perturbation.perturbParameter(i, yValues.get(i), getParameterMetadata(i)));
-    return withYValues(perturbedValues);
+    return withValues(perturbedValues);
   }
 
   //-------------------------------------------------------------------------
@@ -259,55 +260,52 @@ public final class InterpolatedNodalCurve
   }
 
   @Override
-  public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
+  public InterpolatedNodalCurve withValues(DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
   @Override
-  public InterpolatedNodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
+  public InterpolatedNodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new curve with an additional node with no parameter metadata.
+   * Returns a new curve with an additional node, specifying the parameter metadata.
    * <p>
-   * The result will contain the additional node.
-   * The result will have no parameter metadata, even if this curve does.
+   * The result will contain the specified node.
+   * If the x-value equals an existing x-value, the y-value will be changed.
+   * If the x-value does not equal an existing x-value, the node will be added.
+   * <p>
+   * The result will only contain the specified parameter metadata if this curve also has parameter meta-data.
    * 
-   * @param index  the index to insert at
    * @param x  the new x-value
    * @param y  the new y-value
+   * @param paramMetadata  the new parameter metadata
    * @return the updated curve
    */
   @Override
-  public InterpolatedNodalCurve withNode(int index, double x, double y) {
-    DoubleArray xExtended = xValues.subArray(0, index).concat(x).concat(xValues.subArray(index));
-    DoubleArray yExtended = yValues.subArray(0, index).concat(y).concat(yValues.subArray(index));
-    CurveMetadata metadata = getMetadata().withParameterMetadata(null);
-    return new InterpolatedNodalCurve(metadata, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
-  }
-
-  /**
-   * Returns a new curve with an additional node, specifying the parameter metadata.
-   * <p>
-   * The result will contain the additional node. The result will only contain the
-   * specified parameter meta-data if this curve also has parameter meta-data.
-   * 
-   * @param index  the index to insert at
-   * @param paramMetadata  the new parameter metadata
-   * @param x  the new x-value
-   * @param y  the new y-value
-   * @return the updated curve
-   */
-  public InterpolatedNodalCurve withNode(int index, ParameterMetadata paramMetadata, double x, double y) {
-    DoubleArray xExtended = xValues.subArray(0, index).concat(x).concat(xValues.subArray(index));
-    DoubleArray yExtended = yValues.subArray(0, index).concat(y).concat(yValues.subArray(index));
+  public InterpolatedNodalCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
+    int index = Arrays.binarySearch(xValues.toArrayUnsafe(), x);
+    if (index >= 0) {
+      CurveMetadata md = metadata.getParameterMetadata()
+          .map(params -> {
+            List<ParameterMetadata> extended = new ArrayList<>(params);
+            extended.set(index, paramMetadata);
+            return metadata.withParameterMetadata(extended);
+          })
+          .orElse(metadata);
+      DoubleArray yUpdated = yValues.with(index, y);
+      return new InterpolatedNodalCurve(md, xValues, yUpdated, extrapolatorLeft, interpolator, extrapolatorRight);
+    }
+    int insertion = -(index + 1);
+    DoubleArray xExtended = xValues.subArray(0, insertion).concat(x).concat(xValues.subArray(insertion));
+    DoubleArray yExtended = yValues.subArray(0, insertion).concat(y).concat(yValues.subArray(insertion));
     // add to existing metadata, or do nothing if no existing metadata
     CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {
           List<ParameterMetadata> extended = new ArrayList<>(params);
-          extended.add(index, paramMetadata);
+          extended.add(insertion, paramMetadata);
           return metadata.withParameterMetadata(extended);
         })
         .orElse(metadata);

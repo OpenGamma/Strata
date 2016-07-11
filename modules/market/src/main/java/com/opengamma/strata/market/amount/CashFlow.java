@@ -40,12 +40,12 @@ public final class CashFlow
   /**
    * The payment date.
    * <p>
-   * This is the date on which the cash flow occurs. 
+   * This is the date on which the cash flow occurs.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate paymentDate;
   /**
-   * The present value of the cash flow. 
+   * The present value of the cash flow.
    * <p>
    * The present value is signed.
    * A negative value indicates a payment while a positive value indicates receipt.
@@ -61,7 +61,7 @@ public final class CashFlow
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount forecastValue;
   /**
-   * The discount factor. 
+   * The discount factor.
    * <p>
    * This is the discount factor between valuation date and the payment date.
    * Thus present value is the forecast value multiplied by the discount factor.
@@ -72,7 +72,7 @@ public final class CashFlow
   //-------------------------------------------------------------------------
   /**
    * Creates a {@code CashFlow} representing a single cash flow from
-   * payment date, present value and discount factor. 
+   * payment date, present value and discount factor.
    * 
    * @param paymentDate  the payment date
    * @param presentValue  the present value as a currency amount
@@ -85,7 +85,7 @@ public final class CashFlow
 
   /**
    * Creates a {@code CashFlow} representing a single cash flow from payment date, present value amount, 
-   * discount factor and currency. 
+   * discount factor and currency.
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency
@@ -112,7 +112,7 @@ public final class CashFlow
 
   /**
    * Creates a {@code CashFlow} representing a single cash flow from payment date, forecast value amount,
-   * discount factor and currency. 
+   * discount factor and currency.
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency

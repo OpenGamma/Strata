@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
@@ -44,7 +44,7 @@ import com.opengamma.strata.product.index.type.IborFutureTemplate;
 /**
  * A curve node whose instrument is an Ibor Future.
  * <p>
- * The trade produced by the node will be a long for a positive quantity and a short for a negative quantity. 
+ * The trade produced by the node will be a long for a positive quantity and a short for a negative quantity.
  * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
@@ -63,6 +63,7 @@ public final class IborFutureCurveNode
   private final QuoteId rateId;
   /**
    * The additional spread added to the price.
+   * This amount is directly added to the price, where 0.993 represents a 0.7% rate.
    */
   @PropertyDefinition
   private final double additionalSpread;
@@ -157,7 +158,7 @@ public final class IborFutureCurveNode
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
-    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, 0, refData);
+    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, 1, refData);
     return trade.getProduct().getFixingDate();
   }
 
@@ -176,24 +177,22 @@ public final class IborFutureCurveNode
 
   @Override
   public double initialGuess(MarketData marketData, ValueType valueType) {
+    double rate = 1d - marketPrice(marketData);
     if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
-      return 1d - marketPrice(marketData);
+      return rate;
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
       double approximateMaturity = template.approximateMaturity(marketData.getValuationDate());
-      return Math.exp(-approximateMaturity * (1d - marketPrice(marketData)));
+      return Math.exp(-approximateMaturity * rate);
     }
     return 0d;
   }
 
   // check if market value is correct
   private double marketPrice(MarketData marketData) {
-    double rate = marketData.getValue(rateId);
-    if (rate > 2d) {
-      throw new IllegalArgumentException(Messages.format(
-          "Market value for Ibor future must be in decimal form, where 0.99 is 1%, but was {}", rate));
-    }
-    return rate;
+    double price = marketData.getValue(rateId);
+    ArgChecker.isTrue(price < 2, "Price must be in decimal form, such as 0.993 for a 0.7% rate, but was: {}", price);
+    return price;
   }
 
   //-------------------------------------------------------------------------
@@ -286,6 +285,7 @@ public final class IborFutureCurveNode
   //-----------------------------------------------------------------------
   /**
    * Gets the additional spread added to the price.
+   * This amount is directly added to the price, where 0.993 represents a 0.7% rate.
    * @return the value of the property
    */
   public double getAdditionalSpread() {
@@ -650,6 +650,7 @@ public final class IborFutureCurveNode
 
     /**
      * Sets the additional spread added to the price.
+     * This amount is directly added to the price, where 0.993 represents a 0.7% rate.
      * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */

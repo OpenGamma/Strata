@@ -66,7 +66,7 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
           SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.swaptionNormalExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F, CONVENTION).withParameterMetadata(list);
+    METADATA = Surfaces.swaptionNormalExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, TENOR, VOL, INTERPOLATOR_2D);
@@ -75,7 +75,7 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final NormalSwaptionExpiryTenorVolatilities PROVIDER =
-      NormalSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE, VAL_TIME, LONDON_ZONE);
+      NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
@@ -145,8 +145,10 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
             InterpolatedNodalSurface.of(METADATA, TIME, TENOR, volDataUp, INTERPOLATOR_2D);
         InterpolatedNodalSurface paramDw =
             InterpolatedNodalSurface.of(METADATA, TIME, TENOR, volDataDw, INTERPOLATOR_2D);
-        NormalSwaptionExpiryTenorVolatilities provUp = NormalSwaptionExpiryTenorVolatilities.of(paramUp, VAL_DATE_TIME);
-        NormalSwaptionExpiryTenorVolatilities provDw = NormalSwaptionExpiryTenorVolatilities.of(paramDw, VAL_DATE_TIME);
+        NormalSwaptionExpiryTenorVolatilities provUp =
+            NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, paramUp);
+        NormalSwaptionExpiryTenorVolatilities provDw =
+            NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, paramDw);
         double volUp = provUp.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double volDw = provDw.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double fd = 0.5 * (volUp - volDw) / eps;
@@ -165,10 +167,11 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    NormalSwaptionExpiryTenorVolatilities test1 = NormalSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE_TIME);
+    NormalSwaptionExpiryTenorVolatilities test1 =
+        NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
     coverImmutableBean(test1);
     NormalSwaptionExpiryTenorVolatilities test2 =
-        NormalSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE.atStartOfDay(ZoneOffset.UTC));
+        NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);
     coverBeanEquals(test1, test2);
   }
 

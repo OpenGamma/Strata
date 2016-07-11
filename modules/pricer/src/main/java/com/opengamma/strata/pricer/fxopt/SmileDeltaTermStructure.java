@@ -11,11 +11,11 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * A term structure of smile as used in Forex market.
  * <p>
- * The term structure defined here is composed of smile descriptions at different times. 
+ * The term structure defined here is composed of smile descriptions at different times.
  * The data of each smile contains delta and volatility in {@link SmileDeltaParameters}. 
- * The delta values must be common to all of the smiles. 
+ * The delta values must be common to all of the smiles.
  * <p>
- * The volatility and its sensitivities to data points are represented as a function of time, strike and forward. 
+ * The volatility and its sensitivities to data points are represented as a function of time, strike and forward.
  */
 public interface SmileDeltaTermStructure {
 
@@ -72,7 +72,7 @@ public interface SmileDeltaTermStructure {
   }
 
   /**
-   * Gets the number of strikes. 
+   * Gets the number of strikes.
    * 
    * @return the number of strikes
    */
@@ -111,7 +111,7 @@ public interface SmileDeltaTermStructure {
   public abstract String getName();
 
   /**
-   * Computes full delta for all strikes including put delta absolute value. 
+   * Computes full delta for all strikes including put delta absolute value.
    * <p>
    * The ATM is 0.50 delta and the x call are transformed in 1-x put.
    * 

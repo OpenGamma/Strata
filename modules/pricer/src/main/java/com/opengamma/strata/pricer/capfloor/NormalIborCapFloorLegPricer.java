@@ -8,19 +8,19 @@ package com.opengamma.strata.pricer.capfloor;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 
 /**
- * Pricer for cap/floor legs in normal or Bachelier model. 
+ * Pricer for cap/floor legs in normal or Bachelier model.
  */
 public class NormalIborCapFloorLegPricer
     extends VolatilityIborCapFloorLegPricer {
 
   /**
-  * Default implementation. 
+  * Default implementation.
   */
   public static final NormalIborCapFloorLegPricer DEFAULT =
       new NormalIborCapFloorLegPricer(NormalIborCapletFloorletPeriodPricer.DEFAULT);
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param periodPricer  the pricer for {@link IborCapletFloorletPeriod}.
    */

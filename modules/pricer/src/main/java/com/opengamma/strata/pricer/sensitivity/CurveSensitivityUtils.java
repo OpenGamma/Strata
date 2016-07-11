@@ -113,7 +113,7 @@ public class CurveSensitivityUtils {
   }
 
   /**
-   * Re-buckets a {@link CurrencyParameterSensitivities} to a given set of dates. 
+   * Re-buckets a {@link CurrencyParameterSensitivities} to a given set of dates.
    * <p>
    * The list of dates must be sorted in chronological order. All sensitivities are re-bucketed to the same date list.
    * The re-bucketing is done by linear weighting on the number of days, i.e. the sensitivities for dates outside the 
@@ -161,7 +161,7 @@ public class CurveSensitivityUtils {
   }
 
   /**
-   * Re-buckets a {@link CurrencyParameterSensitivities} to a given set of dates. 
+   * Re-buckets a {@link CurrencyParameterSensitivities} to a given set of dates.
    * <p>
    * The list of dates must be sorted in chronological order. All sensitivities are re-bucketed to the same date list.
    * The re-bucketing is done by linear weighting on the number of days, i.e. the sensitivities for dates outside the 

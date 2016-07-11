@@ -38,6 +38,9 @@ import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.temporal.UnsupportedTemporalTypeException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -257,6 +260,37 @@ public class TenorTest {
     assertEquals(LocalDate.of(2014, 6, 30).plus(TENOR_1W), LocalDate.of(2014, 7, 7));
     assertEquals(LocalDate.of(2014, 6, 30).minus(TENOR_1W), LocalDate.of(2014, 6, 23));
     assertThrows(() -> TENOR_10M.get(CENTURIES), UnsupportedTemporalTypeException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_compare() {
+    List<Tenor> tenors = ImmutableList.of(
+        Tenor.ofDays(1),
+        Tenor.ofDays(3),
+        Tenor.ofDays(7),
+        Tenor.ofWeeks(2),
+        Tenor.ofWeeks(4),
+        Tenor.ofDays(30),
+        Tenor.ofMonths(1),
+        Tenor.ofDays(31),
+        Tenor.of(Period.of(0, 1, 1)),
+        Tenor.ofDays(60),
+        Tenor.ofMonths(2),
+        Tenor.ofDays(61),
+        Tenor.ofDays(91),
+        Tenor.ofMonths(3),
+        Tenor.ofDays(92),
+        Tenor.ofDays(182),
+        Tenor.ofMonths(6),
+        Tenor.ofDays(183),
+        Tenor.ofDays(365),
+        Tenor.ofYears(1),
+        Tenor.ofDays(366));
+
+    List<Tenor> test = new ArrayList<>(tenors);
+    Collections.shuffle(test);
+    Collections.sort(test);
+    assertEquals(test, tenors);
   }
 
   //-------------------------------------------------------------------------

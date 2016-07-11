@@ -35,7 +35,7 @@ public class DiscountingCmsPeriodPricer {
       DiscountingSwapProductPricer.DEFAULT);
   
   /**
-   * Pricer for the underlying swap. 
+   * Pricer for the underlying swap.
    */
   private final DiscountingSwapProductPricer swapPricer;
 

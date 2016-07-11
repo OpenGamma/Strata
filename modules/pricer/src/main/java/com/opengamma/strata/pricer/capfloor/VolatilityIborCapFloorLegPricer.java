@@ -25,7 +25,7 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 public class VolatilityIborCapFloorLegPricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final VolatilityIborCapFloorLegPricer DEFAULT =
       new VolatilityIborCapFloorLegPricer(VolatilityIborCapletFloorletPeriodPricer.DEFAULT);
@@ -36,7 +36,7 @@ public class VolatilityIborCapFloorLegPricer {
   private final VolatilityIborCapletFloorletPeriodPricer periodPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param periodPricer  the pricer for {@link IborCapletFloorletPeriod}.
    */
@@ -190,7 +190,7 @@ public class VolatilityIborCapFloorLegPricer {
   }
 
   /**
-   * Calculates the current cash of the cap/floor leg. 
+   * Calculates the current cash of the cap/floor leg.
    * 
    * @param capFloorLeg  the cap/floor leg
    * @param ratesProvider  the rates provider 

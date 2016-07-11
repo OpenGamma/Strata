@@ -111,11 +111,10 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final DoubleArray TENOR = DoubleArray.of(2, 10, 2, 10, 2, 10);
   private static final DoubleArray VOL = DoubleArray.of(0.35, 0.30, 0.34, 0.25, 0.25, 0.20);
   private static final FixedIborSwapConvention SWAP_CONVENTION = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-  private static final SurfaceMetadata METADATA =
-      Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_ACT_ISDA, SWAP_CONVENTION);
+  private static final SurfaceMetadata METADATA = Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_ACT_ISDA);
   private static final Surface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
-      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE.atStartOfDay(ZoneOffset.UTC));
+      BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);
   // underlying swap and swaption
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
@@ -239,9 +238,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
           .iborIndexCurve(EUR_EURIBOR_6M, FWD6_CURVE)
           .build();
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER_AT_MATURITY =
-      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, MATURITY.atStartOfDay(ZoneOffset.UTC));
+      BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, MATURITY.atStartOfDay(ZoneOffset.UTC), SURFACE);
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER_AFTER_MATURITY =
-      BlackSwaptionExpiryTenorVolatilities.of(SURFACE, MATURITY.plusDays(1).atStartOfDay(ZoneOffset.UTC));
+      BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, MATURITY.plusDays(1).atStartOfDay(ZoneOffset.UTC), SURFACE);
   // test parameters
   private static final double TOL = 1.0e-12;
   private static final double FD_EPS = 1.0e-7;

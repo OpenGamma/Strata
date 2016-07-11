@@ -17,7 +17,7 @@ package com.opengamma.strata.product.swaption;
 public interface SwaptionSettlement {
 
   /**
-   * Gets the settlement type of swaption. 
+   * Gets the settlement type of swaption.
    * <p>
    * The settlement type is cash settlement or physical settlement, defined in {@link SettlementType}.
    * 

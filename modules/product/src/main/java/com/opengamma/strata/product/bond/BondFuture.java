@@ -36,8 +36,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A futures contract, based on a basket of fixed coupon bonds.
@@ -160,7 +160,7 @@ public final class BondFuture
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the notional of underlying fixed coupon bonds. 
+   * Obtains the notional of underlying fixed coupon bonds.
    * <p>
    * All of the bonds in the delivery basket have the same notional.
    * 
@@ -171,7 +171,7 @@ public final class BondFuture
   }
 
   /**
-   * Obtains the currency of the underlying fixed coupon bonds. 
+   * Obtains the currency of the underlying fixed coupon bonds.
    * <p>
    * All of the bonds in the delivery basket have the same currency.
    * 

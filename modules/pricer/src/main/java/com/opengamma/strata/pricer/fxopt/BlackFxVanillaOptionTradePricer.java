@@ -26,7 +26,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 public class BlackFxVanillaOptionTradePricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final BlackFxVanillaOptionTradePricer DEFAULT = new BlackFxVanillaOptionTradePricer();
 
@@ -34,8 +34,8 @@ public class BlackFxVanillaOptionTradePricer {
    * Pricer for {@link FxVanillaOption}.
    */
   private static final BlackFxVanillaOptionProductPricer PRICER_PRODUCT = BlackFxVanillaOptionProductPricer.DEFAULT;
-  /** 
-   * Pricer for {@link Payment} which is used to described the premium. 
+  /**
+   * Pricer for {@link Payment} which is used to described the premium.
    */
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
 

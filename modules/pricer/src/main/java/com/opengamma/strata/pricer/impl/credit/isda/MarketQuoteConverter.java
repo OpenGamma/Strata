@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * as Points Up-Front (PUF) or quoted spread - these method allow conversion via a single constant hazard rate.
  * <p>
  * A credit curve can be built that is consistent with market quotes;
- * this can then be used to imply equivalent par spreads, and vice-versa.  
+ * this can then be used to imply equivalent par spreads, and vice-versa.
  */
 public class MarketQuoteConverter {
 
@@ -249,7 +249,7 @@ public class MarketQuoteConverter {
 
   //**************************************************************************************************************
   // multiple Converters. These convert between N quotes as PUF or quoted spread by building N independent  
-  // constant hazard rate curves. 
+  // constant hazard rate curves.
   //**************************************************************************************************************
 
   public PointsUpFront[] convert(CdsAnalytic[] cds, CdsQuotedSpread[] qSpreads, IsdaCompliantYieldCurve yieldCurve) {

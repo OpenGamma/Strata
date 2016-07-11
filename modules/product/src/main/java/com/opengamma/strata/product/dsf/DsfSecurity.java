@@ -46,6 +46,9 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * The delivered swap is cleared by a central counterparty.
  * The last future price before delivery is quoted in term of the underlying swap present value.
  * The futures product is margined on a daily basis.
+ * <p>
+ * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
+ * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
  */
 @BeanDefinition
 public final class DsfSecurity

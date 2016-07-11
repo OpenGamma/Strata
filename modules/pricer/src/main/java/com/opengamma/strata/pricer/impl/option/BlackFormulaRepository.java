@@ -307,40 +307,6 @@ public final class BlackFormulaRepository {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the present value of a single option.
-   * 
-   * @param data  the option data
-   * @param lognormalVol  the Black volatility
-   * @return the option present value
-   */
-  public static double price(SimpleOptionData data, double lognormalVol) {
-    ArgChecker.notNull(data, "data");
-    boolean isCall = data.getPutCall().isCall();
-    double price = price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, isCall);
-    return data.getDiscountFactor() * price;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Computes the present value of a strip of options all with the same Black volatility.
-   * 
-   * @param data  the array of option data
-   * @param lognormalVol  the Black volatility
-   * @return the option strip present value
-   */
-  public static double price(SimpleOptionData[] data, double lognormalVol) {
-    ArgChecker.noNulls(data, "data");
-    double sum = 0;
-    for (int i = 0; i < data.length; i++) {
-      SimpleOptionData temp = data[i];
-      sum += temp.getDiscountFactor() *
-          price(temp.getForward(), temp.getStrike(), temp.getTimeToExpiry(), lognormalVol, temp.getPutCall().isCall());
-    }
-    return sum;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Computes the forward driftless delta.
    * 
    * @param forward  the forward value of the underlying
@@ -960,11 +926,6 @@ public final class BlackFormulaRepository {
     return nVal == 0d ? 0d : forward * rootT * nVal;
   }
 
-  public static double vega(SimpleOptionData data, double lognormalVol) {
-    ArgChecker.notNull(data, "null data");
-    return data.getDiscountFactor() * vega(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Computes the driftless vanna.
@@ -1316,72 +1277,6 @@ public final class BlackFormulaRepository {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the implied volatility.
-   * 
-   * @param data  the option data
-   * @param price  the (market) price of the option
-   * @return the implied volatility
-   */
-  public static double impliedVolatility(SimpleOptionData data, double price) {
-    ArgChecker.notNull(data, "null data");
-    return impliedVolatility(price / data.getDiscountFactor(), data.getForward(), data.getStrike(),
-        data.getTimeToExpiry(), data.getPutCall().isCall());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Computes the single volatility for a portfolio of European options such that the sum
-   * of Black prices of the options (with that volatility) equals the (market) price of the portfolio.
-   * This is the implied volatility of the portfolio. A concrete example is a cap (floor) which
-   * can be viewed as a portfolio of caplets (floorlets).
-   * 
-   * @param data  the array of option data
-   * @param price  the (market) price of the portfolio
-   * @return the implied volatility of the portfolio
-   */
-  public static double impliedVolatility(SimpleOptionData[] data, double price) {
-    ArgChecker.notEmpty(data, "no option data given");
-    double intrinsicPrice = 0d;
-    for (SimpleOptionData option : data) {
-      intrinsicPrice += Math.max(0, (option.getPutCall().isCall() ? 1 : -1) * option.getDiscountFactor() *
-          (option.getForward() - option.getStrike()));
-    }
-    ArgChecker.isTrue(price >= intrinsicPrice, "option price ({}) less than intrinsic value ({})", price, intrinsicPrice);
-
-    if (Double.doubleToLongBits(price) == Double.doubleToLongBits(intrinsicPrice)) {
-      return 0d;
-    }
-
-    double sigma = 0.3;
-
-    Function<Double, Double> priceFunc = new Function<Double, Double>() {
-      @Override
-      public Double apply(Double x) {
-        double modelPrice = 0d;
-        for (SimpleOptionData option : data) {
-          modelPrice += price(option, x);
-        }
-        return modelPrice;
-      }
-    };
-
-    Function<Double, Double> vegaFunc = new Function<Double, Double>() {
-      @Override
-      public Double apply(Double x) {
-        double vega = 0d;
-        for (SimpleOptionData option : data) {
-          vega += vega(option, x);
-        }
-        return vega;
-      }
-    };
-
-    GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(priceFunc, vegaFunc);
-    return solver.impliedVolatility(price, sigma);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Computes the implied strike from delta and volatility in the Black formula.
    * 
    * @param delta The option delta
@@ -1514,7 +1409,7 @@ public final class BlackFormulaRepository {
   }
 
   /**
-   * Compute the normal implied volatility from a normal volatility using an approximate explicit formula. 
+   * Compute the normal implied volatility from a normal volatility using an approximate explicit formula.
    * <p>
    * The formula is usually not good enough to be used as such, but provide a good initial guess for a 
    * root-finding procedure. Use {@link BlackFormulaRepository#impliedVolatilityFromNormalApproximated} for

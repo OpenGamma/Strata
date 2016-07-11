@@ -42,7 +42,7 @@ import com.opengamma.strata.pricer.impl.credit.isda.YieldCurveProvider;
 /**
  * The purpose of this class is the demonstrate the API for OpenGamma's implementation of the ISDA standard and extensions
  * we have built. Each method (test) demonstrates a new feature and outputs some results to the console - ideally they should 
- * be read and executed in order.  
+ * be read and executed in order.
  */
 @Test(enabled = false)
 public class CdsAnalyticsDemo extends IsdaBaseTest {

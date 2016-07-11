@@ -139,7 +139,7 @@ public class DiscountingFraProductPricerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test present value for ISDA FRA Discounting method. 
+   * Test present value for ISDA FRA Discounting method.
    */
   public void test_presentValue_ISDA() {
     SimpleRatesProvider prov = createProvider(RFRA);
@@ -155,7 +155,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value for NONE FRA Discounting method. 
+   * Test present value for NONE FRA Discounting method.
    */
   public void test_presentValue_NONE() {
     SimpleRatesProvider prov = createProvider(RFRA_NONE);
@@ -167,7 +167,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value for ISDA FRA Discounting method. 
+   * Test present value for ISDA FRA Discounting method.
    */
   public void test_presentValue_AFMA() {
     SimpleRatesProvider prov = createProvider(RFRA_AFMA);
@@ -300,7 +300,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value sensitivity for NONE FRA discounting method. 
+   * Test present value sensitivity for NONE FRA discounting method.
    */
   public void test_presentValueSensitivity_NONE() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
@@ -342,7 +342,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value sensitivity for AFMA FRA discounting method. 
+   * Test present value sensitivity for AFMA FRA discounting method.
    */
   public void test_presentValueSensitivity_AFMA() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
@@ -385,7 +385,7 @@ public class DiscountingFraProductPricerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test par rate for ISDA FRA Discounting method. 
+   * Test par rate for ISDA FRA Discounting method.
    */
   public void test_parRate_ISDA() {
     ResolvedFra fraExp = RFRA;
@@ -404,7 +404,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par rate for NONE FRA Discounting method. 
+   * Test par rate for NONE FRA Discounting method.
    */
   public void test_parRate_NONE() {
     ResolvedFra fraExp = RFRA_NONE;
@@ -419,7 +419,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par rate for AFMA FRA Discounting method. 
+   * Test par rate for AFMA FRA Discounting method.
    */
   public void test_parRate_AFMA() {
     ResolvedFra fraExp = RFRA_AFMA;
@@ -434,7 +434,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread for ISDA FRA Discounting method. 
+   * Test par spread for ISDA FRA Discounting method.
    */
   public void test_parSpread_ISDA() {
     ResolvedFra fraExp = RFRA;
@@ -452,7 +452,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread for NONE FRA Discounting method. 
+   * Test par spread for NONE FRA Discounting method.
    */
   public void test_parSpread_NONE() {
     ResolvedFra fraExp = RFRA_NONE;
@@ -466,7 +466,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread for AFMA FRA Discounting method. 
+   * Test par spread for AFMA FRA Discounting method.
    */
   public void test_parSpread_AFMA() {
     ResolvedFra fraExp = RFRA_AFMA;
@@ -502,7 +502,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread sensitivity for ISDA FRA Discounting method. 
+   * Test par spread sensitivity for ISDA FRA Discounting method.
    */
   public void test_parSpreadSensitivity_ISDA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV);
@@ -523,7 +523,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread sensitivity for NONE FRA Discounting method. 
+   * Test par spread sensitivity for NONE FRA Discounting method.
    */
   public void test_parSpreadSensitivity_NONE() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_NONE, IMM_PROV);
@@ -536,7 +536,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread sensitivity for AFMA FRA Discounting method. 
+   * Test par spread sensitivity for AFMA FRA Discounting method.
    */
   public void test_parSpreadSensitivity_AFMA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_AFMA, IMM_PROV);

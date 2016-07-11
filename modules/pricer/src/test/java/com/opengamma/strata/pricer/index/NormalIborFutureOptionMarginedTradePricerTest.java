@@ -23,9 +23,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.model.MoneynessType;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
+import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
@@ -49,15 +50,19 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final DoubleArray NORMAL_VOL =
       DoubleArray.of(0.01, 0.011, 0.012, 0.010, 0.011, 0.012, 0.013, 0.012, 0.012, 0.013, 0.014, 0.014);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
-      DefaultSurfaceMetadata.of("Test"), TIMES, MONEYNESS_PRICES, NORMAL_VOL, INTERPOLATOR_2D);
+      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Test", ACT_365F, MoneynessType.PRICE),
+      TIMES,
+      MONEYNESS_PRICES,
+      NORMAL_VOL,
+      INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
 
-  private static final NormalVolatilityIborFutureProvider VOL_SIMPLE_MONEY_PRICE =
-      NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
-          PARAMETERS_PRICE, true, GBP_LIBOR_2M, ACT_365F, VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE));
+  private static final NormalIborFutureOptionVolatilities VOL_SIMPLE_MONEY_PRICE =
+      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(
+          GBP_LIBOR_2M, VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE), PARAMETERS_PRICE);
 
   private static final ResolvedIborFutureOption OPTION = IborFutureDummyData.IBOR_FUTURE_OPTION_2.resolve(REF_DATA);
   private static final LocalDate TRADE_DATE = date(2015, 2, 16);

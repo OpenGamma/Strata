@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * The extrapolation is ambiguous at x=0. Thus the following rule applies: 
  * The x value of the first node must be strictly negative for the left extrapolation, whereas the x value of 
- * the last node must be strictly positive for the right extrapolation. 
+ * the last node must be strictly positive for the right extrapolation.
  */
 final class ProductLinearCurveExtrapolator
     implements CurveExtrapolator, Serializable {

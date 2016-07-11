@@ -45,7 +45,7 @@ public class SabrSwaptionVolatilitiesTest {
   private static final ZoneId ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime DATE_TIME = DATE.atTime(TIME).atZone(ZONE);
   private static final SabrInterestRateParameters PARAM = SwaptionSabrRateVolatilityDataSet.SABR_PARAM_SHIFT_USD;
-  private static final FixedIborSwapConvention CONV = PARAM.getConvention();
+  private static final FixedIborSwapConvention CONV = SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD;
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2014, 1, 3), dateUtc(2014, 1, 3), dateUtc(2015, 1, 3), dateUtc(2017, 1, 3)};
@@ -60,25 +60,15 @@ public class SabrSwaptionVolatilitiesTest {
   private static final double TOLERANCE_VOL = 1.0E-10;
 
   public void test_of() {
-    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     assertEquals(test.getConvention(), CONV);
     assertEquals(test.getDayCount(), ACT_ACT_ISDA);
     assertEquals(test.getParameters(), PARAM);
     assertEquals(test.getValuationDateTime(), DATE_TIME);
   }
 
-  public void test_of_dateTimeZone() {
-    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE, TIME, ZONE);
-    assertEquals(test1.getConvention(), CONV);
-    assertEquals(test1.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test1.getParameters(), PARAM);
-    assertEquals(test1.getValuationDateTime(), DATE.atTime(TIME).atZone(ZONE));
-    SabrParametersSwaptionVolatilities test2 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
-    assertEquals(test1, test2);
-  }
-
   public void test_findData() {
-    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     assertEquals(test.findData(PARAM.getAlphaSurface().getName()), Optional.of(PARAM.getAlphaSurface()));
     assertEquals(test.findData(PARAM.getBetaSurface().getName()), Optional.of(PARAM.getBetaSurface()));
     assertEquals(test.findData(PARAM.getRhoSurface().getName()), Optional.of(PARAM.getRhoSurface()));
@@ -88,7 +78,7 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_tenor() {
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     double test1 = prov.tenor(DATE, DATE);
     assertEquals(test1, 0d);
     double test2 = prov.tenor(DATE, DATE.plusYears(2));
@@ -101,7 +91,7 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_relativeTime() {
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     double test1 = prov.relativeTime(DATE_TIME);
     assertEquals(test1, 0d);
     double test2 = prov.relativeTime(DATE_TIME.plusYears(2));
@@ -110,7 +100,7 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_volatility() {
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     for (int i = 0; i < NB_TEST; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
         double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
@@ -123,7 +113,7 @@ public class SabrSwaptionVolatilitiesTest {
 
   public void test_parameterSensitivity() {
     double alphaSensi = 2.24, betaSensi = 3.45, rhoSensi = -2.12, nuSensi = -0.56;
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
       PointSensitivities point = PointSensitivities.of(
@@ -175,7 +165,7 @@ public class SabrSwaptionVolatilitiesTest {
     double[] points1 = new double[] {2.24, 3.45, -2.12, -0.56};
     double[] points2 = new double[] {-0.145, 1.01, -5.0, -11.0};
     double[] points3 = new double[] {1.3, -4.32, 2.1, -7.18};
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     for (int i = 0; i < NB_TEST; i++) {
       PointSensitivities sensi1 = PointSensitivities.of(
           SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], ALPHA, USD, points1[0]),
@@ -217,10 +207,13 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void coverage() {
-    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     coverImmutableBean(test1);
     SabrParametersSwaptionVolatilities test2 = SabrParametersSwaptionVolatilities.of(
-        NAME2, SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD, DATE_TIME.plusDays(1));
+        NAME2,
+        SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_EUR,
+        DATE_TIME.plusDays(1),
+        SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD);
     coverBeanEquals(test1, test2);
   }
 }

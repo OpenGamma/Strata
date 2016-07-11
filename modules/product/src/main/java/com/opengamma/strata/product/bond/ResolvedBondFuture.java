@@ -155,7 +155,7 @@ public final class ResolvedBondFuture
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the currency of the underlying fixed coupon bonds. 
+   * Obtains the currency of the underlying fixed coupon bonds.
    * <p>
    * All of the bonds in the delivery basket have the same currency.
    * 
@@ -166,7 +166,7 @@ public final class ResolvedBondFuture
   }
 
   /**
-   * Obtains the notional of underlying fixed coupon bonds. 
+   * Obtains the notional of underlying fixed coupon bonds.
    * <p>
    * All of the bonds in the delivery basket have the same notional.
    * The currency of the notional is specified by {@link #getCurrency()}.

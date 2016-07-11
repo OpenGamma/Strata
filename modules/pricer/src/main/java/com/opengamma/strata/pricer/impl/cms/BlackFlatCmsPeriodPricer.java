@@ -34,7 +34,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 public class BlackFlatCmsPeriodPricer {
 
   /**
-   * Pricer for the underlying swap. 
+   * Pricer for the underlying swap.
    */
   private final DiscountingSwapProductPricer swapPricer;
 
@@ -42,7 +42,7 @@ public class BlackFlatCmsPeriodPricer {
   protected static final double EPS = 1.0E-4;
   
   /**
-   * Obtains the pricer. 
+   * Obtains the pricer.
    * 
    * @param swapPricer  the pricer for underlying swap
    * @return the pricer

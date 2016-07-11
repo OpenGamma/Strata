@@ -543,7 +543,7 @@ public final class IntArray
    *   base.forEach((index, value) -> System.out.println(index + ": " + value));
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param action  the action to be applied
    */
@@ -557,7 +557,7 @@ public final class IntArray
   /**
    * Returns an instance with the value at the specified index changed.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param index  the zero-based index to set
    * @param newValue  the new value to store
@@ -580,7 +580,7 @@ public final class IntArray
    * This is used to add to the contents of this array, returning a new array.
    * <p>
    * This is a special case of {@link #map(IntUnaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amount  the amount to add, may be negative
    * @return a copy of this array with the amount added to each value
@@ -602,7 +602,7 @@ public final class IntArray
    * This is used to subtract from the contents of this array, returning a new array.
    * <p>
    * This is a special case of {@link #map(IntUnaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amount  the amount to subtract, may be negative
    * @return a copy of this array with the amount subtracted from each value
@@ -624,7 +624,7 @@ public final class IntArray
    * This is used to multiply the contents of this array, returning a new array.
    * <p>
    * This is a special case of {@link #map(IntUnaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return a copy of this array with the each value multiplied by the factor
@@ -672,7 +672,7 @@ public final class IntArray
    *   result = base.map(value -> value * 3 + 4);
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param operator  the operator to be applied
    * @return a copy of this array with the operator applied to the original values
@@ -695,7 +695,7 @@ public final class IntArray
    *   result = base.mapWithIndex((index, value) -> index * value);
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param function  the function to be applied
    * @return a copy of this array with the operator applied to the original values
@@ -719,7 +719,7 @@ public final class IntArray
    * The arrays must be of the same size.
    * <p>
    * This is a special case of {@link #combine(IntArray, IntBinaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other array
    * @return a copy of this array with matching elements added
@@ -746,7 +746,7 @@ public final class IntArray
    * The arrays must be of the same size.
    * <p>
    * This is a special case of {@link #combine(IntArray, IntBinaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other array
    * @return a copy of this array with matching elements subtracted
@@ -829,7 +829,7 @@ public final class IntArray
    * when applied to element {@code n} in this array and element {@code n} in the other array.
    * The arrays must be of the same size.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other array
    * @param operator  the operator used to combine each pair of values
@@ -858,7 +858,7 @@ public final class IntArray
    * The second argument to the operator is the element from this array.
    * The third argument to the operator is the element from the other array.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other array
    * @param operator  the operator used to combine each pair of values with the current total
@@ -882,7 +882,7 @@ public final class IntArray
    * <p>
    * The result will have a length equal to {@code this.size() + arrayToConcat.length}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param arrayToConcat  the array to add to the end of this array
    * @return a copy of this array with the specified array added at the end
@@ -906,7 +906,7 @@ public final class IntArray
    * <p>
    * The result will have a length equal to {@code this.size() + newArray.length}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param arrayToConcat  the new array to add to the end of this array
    * @return a copy of this array with the specified array added at the end
@@ -928,7 +928,7 @@ public final class IntArray
    * <p>
    * This uses {@link Arrays#sort(int[])}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a sorted copy of this array
    */
@@ -1010,7 +1010,7 @@ public final class IntArray
    * The first argument to the operator is the running total of the reduction, starting from zero.
    * The second argument to the operator is the element.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param identity  the identity value to start from
    * @param operator  the operator used to combine the value with the current total

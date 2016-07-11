@@ -15,10 +15,10 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
-import com.opengamma.strata.data.scenario.ValuesArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 
 /**
  * Static utility methods useful when writing calculation functions.
@@ -57,12 +57,12 @@ public final class FunctionUtils {
    * Returns a collector that builds a multi-currency scenerio result.
    * <p>
    * This is used at the end of a stream to collect per-scenario instances of {@link MultiCurrencyAmount}
-   * into a single instance of {@link MultiCurrencyValuesArray}, which is designed to be space-efficient.
+   * into a single instance of {@link MultiCurrencyScenarioArray}, which is designed to be space-efficient.
    *
    * @return a collector used at the end of a stream of {@link MultiCurrencyAmount}
-   *   to build a {@link MultiCurrencyValuesArray}
+   *   to build a {@link MultiCurrencyScenarioArray}
    */
-  public static Collector<MultiCurrencyAmount, List<MultiCurrencyAmount>, MultiCurrencyValuesArray> toMultiCurrencyValuesArray() {
+  public static Collector<MultiCurrencyAmount, List<MultiCurrencyAmount>, MultiCurrencyScenarioArray> toMultiCurrencyValuesArray() {
     return Collector.of(
         ArrayList<MultiCurrencyAmount>::new,
         (a, b) -> a.add(b),
@@ -70,18 +70,18 @@ public final class FunctionUtils {
           l.addAll(r);
           return l;
         },
-        list -> MultiCurrencyValuesArray.of(list));
+        list -> MultiCurrencyScenarioArray.of(list));
   }
 
   /**
    * Returns a collector that builds a single-currency scenerio result.
    * <p>
    * This is used at the end of a stream to collect per-scenario instances of {@link CurrencyAmount}
-   * into a single instance of {@link CurrencyValuesArray}, which is designed to be space-efficient.
+   * into a single instance of {@link CurrencyScenarioArray}, which is designed to be space-efficient.
    *
-   * @return a collector used at the end of a stream of {@link CurrencyAmount} to build a {@link CurrencyValuesArray}
+   * @return a collector used at the end of a stream of {@link CurrencyAmount} to build a {@link CurrencyScenarioArray}
    */
-  public static Collector<CurrencyAmount, List<CurrencyAmount>, CurrencyValuesArray> toCurrencyValuesArray() {
+  public static Collector<CurrencyAmount, List<CurrencyAmount>, CurrencyScenarioArray> toCurrencyValuesArray() {
     return Collector.of(
         ArrayList<CurrencyAmount>::new,
         (a, b) -> a.add(b),
@@ -89,21 +89,21 @@ public final class FunctionUtils {
           l.addAll(r);
           return l;
         },
-        list -> CurrencyValuesArray.of(list));
+        list -> CurrencyScenarioArray.of(list));
   }
 
   /**
    * Returns a collector that builds a scenario result based on {@code Double}.
    * <p>
    * This is used at the end of a stream to collect per-scenario instances of {@code Double}
-   * into a single instance of {@link ValuesArray}, which is designed to be space-efficient.
+   * into a single instance of {@link DoubleScenarioArray}, which is designed to be space-efficient.
    * <p>
    * Note that {@link DoubleStream} does not support collectors, which makes this less efficient
    * than it should be.
    *
-   * @return a collector used at the end of a stream of {@link Double} to build a {@link ValuesArray}
+   * @return a collector used at the end of a stream of {@link Double} to build a {@link DoubleScenarioArray}
    */
-  public static Collector<Double, List<Double>, ValuesArray> toValuesArray() {
+  public static Collector<Double, List<Double>, DoubleScenarioArray> toValuesArray() {
     return Collector.of(
         ArrayList<Double>::new,
         (a, b) -> a.add(b),
@@ -111,7 +111,7 @@ public final class FunctionUtils {
           l.addAll(r);
           return l;
         },
-        list -> ValuesArray.of(list));
+        list -> DoubleScenarioArray.of(list));
   }
 
   /**

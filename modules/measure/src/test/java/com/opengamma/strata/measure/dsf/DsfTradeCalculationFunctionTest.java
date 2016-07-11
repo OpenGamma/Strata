@@ -33,8 +33,8 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
-import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
@@ -86,9 +86,8 @@ public class DsfTradeCalculationFunctionTest {
       .notional(NOTIONAL)
       .underlyingSwap(SWAP)
       .build();
-  private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  public static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final double MARKET_PRICE = REF_PRICE * 100;
+  private static final double TRADE_PRICE = 98 + 31d / 32d; // price quoted in 32nd of 1%
+  public static final double REF_PRICE = 98 + 30d / 32d; // price quoted in 32nd of 1%
   private static final long QUANTITY = 1234L;
   public static final DsfTrade TRADE = DsfTrade.builder()
       .product(FUTURE)
@@ -132,9 +131,9 @@ public class DsfTradeCalculationFunctionTest {
         Measures.CURRENCY_EXPOSURE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+            Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure))));
+            Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure))));
   }
 
   public void test_pv01() {
@@ -152,7 +151,7 @@ public class DsfTradeCalculationFunctionTest {
         Measures.PV01_CALIBRATED_BUCKETED);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PV01_CALIBRATED_SUM, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
+            Measures.PV01_CALIBRATED_SUM, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
             Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
   }
@@ -165,7 +164,7 @@ public class DsfTradeCalculationFunctionTest {
         ImmutableMap.of(
             DISCOUNT_CURVE_ID, curve,
             FORWARD_CURVE_ID, curve,
-            QUOTE_KEY, MARKET_PRICE),
+            QUOTE_KEY, REF_PRICE),
         ImmutableMap.of());
     return md;
   }

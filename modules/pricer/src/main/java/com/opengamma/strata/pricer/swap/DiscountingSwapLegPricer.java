@@ -168,7 +168,7 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the Present Value of a Basis Point for a swap leg. 
+   * Computes the Present Value of a Basis Point for a swap leg.
    * <p>
    * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1.
    * A better name would be "Present Value of 1".
@@ -194,7 +194,7 @@ public class DiscountingSwapLegPricer {
    * Calculates the coupon equivalent of a swap leg.
    * <p>
    * The coupon equivalent is the common fixed coupon for all the periods which would
-   * result in the same present value of the leg. 
+   * result in the same present value of the leg.
    * <p>
    * This is used in particular for swaption pricing with a model on the swap rate.
    * 
@@ -267,7 +267,7 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the Present Value of a Basis Point curve sensitivity for a fixed swap leg. 
+   * Calculates the Present Value of a Basis Point curve sensitivity for a fixed swap leg.
    * <p>
    * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1.
    * A better name would be "Present Value of 1".
@@ -290,7 +290,7 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the conventional cash annuity from a swap leg. 
+   * Computes the conventional cash annuity from a swap leg.
    * <p>
    * The computation is relevant only for standard swaps with constant notional and regular payments.
    * The swap leg must be a fixed leg. However, this is not checked internally.
@@ -312,7 +312,7 @@ public class DiscountingSwapLegPricer {
   }
 
   /**
-   * Computes the conventional cash annuity for a given yield. 
+   * Computes the conventional cash annuity for a given yield.
    * 
    * @param nbPaymentsPerYear  the number of payment per year
    * @param nbPeriods  the total number of periods
@@ -451,10 +451,10 @@ public class DiscountingSwapLegPricer {
   }
 
   /**
-   * Computes the derivative of the conventional cash annuity with respect to the yield from a swap leg. 
+   * Computes the derivative of the conventional cash annuity with respect to the yield from a swap leg.
    * <p>
    * The computation is relevant only for standard swaps with constant notional and regular payments.
-   * The swap leg must be a fixed leg. However, this is not checked internally. 
+   * The swap leg must be a fixed leg. However, this is not checked internally.
    * 
    * @param fixedLeg  the fixed leg of the swap
    * @param yield  the yield

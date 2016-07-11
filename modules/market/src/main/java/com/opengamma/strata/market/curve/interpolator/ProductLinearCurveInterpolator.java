@@ -26,7 +26,7 @@ import com.opengamma.strata.math.impl.interpolation.LinearInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
 
 final class ProductLinearCurveInterpolator
-implements CurveInterpolator, Serializable {
+    implements CurveInterpolator, Serializable {
 
   /**
   * The interpolator name.

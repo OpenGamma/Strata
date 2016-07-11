@@ -138,7 +138,7 @@ public abstract class IsdaCompliantCreditCurveBuilder {
   }
 
   /**
-   * Bootstrapper the credit curve from a set of reference/calibration CDSs quoted with par spreads. 
+   * Bootstrapper the credit curve from a set of reference/calibration CDSs quoted with par spreads.
    * 
    * @param calibrationCDSs  The market CDSs - these are the reference instruments used to build the credit curve 
    * @param parSpreads The <b>fractional</b> par spreads of the market CDSs    
@@ -309,7 +309,7 @@ public abstract class IsdaCompliantCreditCurveBuilder {
     /**
      * If a particular spread implies a negative forward hazard rate, the hazard rate is set to zero, and the calibration 
      * continues. The resultant curve will of course not exactly reprice the input CDSs, but will find new spreads that
-     * just avoid arbitrage.   
+     * just avoid arbitrage.
      */
     ZeroHazardRate
   }

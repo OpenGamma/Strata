@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * Time square interpolator.
  * <p>
  * The interpolation is linear on x y^2. The interpolator is used for interpolation on integrated variance for options.
- * All values of y must be positive. 
+ * All values of y must be positive.
  */
 final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializable {
 
@@ -30,8 +30,8 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-  /** 
-   * Level below which the value is consider to be 0. 
+  /**
+   * Level below which the value is consider to be 0.
    */
   private static final double EPS = 1.0E-10;
 

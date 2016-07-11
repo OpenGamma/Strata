@@ -8,14 +8,17 @@ package com.opengamma.strata.pricer.swaption;
 import static org.testng.Assert.assertTrue;
 
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.pricer.curve.RawOptionData;
+import com.opengamma.strata.pricer.option.RawOptionData;
+import com.opengamma.strata.pricer.option.TenorRawOptionData;
 
 /**
  * Utilities for the different tests related to {@link SabrSwaptionCalibrator}
@@ -25,45 +28,50 @@ public class SabrSwaptionCalibratorSmileTestUtils {
   /**
    * Create a {@link RawOptionData} object for calibration from data.
    * 
-   * @param strikeLikeType  the type of the strike-like dimension
-   * @param strikeLikeData  the data related to the strik-like dimension
+   * @param tenors  the list of tenors
    * @param expiries  the list of expiries
+   * @param strikeLikeType  the type of the strike-like dimension
+   * @param strikeLikeData  the data related to the strike-like dimension
    * @param dataType  the type of the data
-   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data. 
+   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data.
    * @return the raw option data object
    */
-  public static List<RawOptionData> rawData(
+  public static TenorRawOptionData rawData(
+      List<Tenor> tenors,
+      List<Period> expiries,
       ValueType strikeLikeType,
       DoubleArray strikeLikeData,
-      List<Period> expiries,
       ValueType dataType,
       double[][][] dataArray) {
-    List<RawOptionData> raw = new ArrayList<>();
+
+    Map<Tenor, RawOptionData> raw = new TreeMap<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      raw.add(RawOptionData.of(strikeLikeData, strikeLikeType, expiries,
-          DoubleMatrix.ofUnsafe(dataArray[looptenor]), dataType));
+      DoubleMatrix matrix = DoubleMatrix.ofUnsafe(dataArray[looptenor]);
+      raw.put(tenors.get(looptenor), RawOptionData.of(expiries, strikeLikeData, strikeLikeType, matrix, dataType));
     }
-    return raw;
+    return TenorRawOptionData.of(raw);
   }
 
   /**
    * Create a {@link RawOptionData} object for calibration from data and shift one point.
    * 
-   * @param strikeLikeType  the type of the strike-like dimension
-   * @param strikeLikeData  the data related to the strik-like dimension
+   * @param tenors  the list of tenors
    * @param expiries  the list of expiries
+   * @param strikeLikeType  the type of the strike-like dimension
+   * @param strikeLikeData  the data related to the strike-like dimension
    * @param dataType  the type of the data
-   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data. 
+   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data.
    * @param i  the index of the tenor to shift
    * @param j  the index of the expiry to shift
    * @param k  the index of the strike-like dimension to shift
    * @param shift  the size of the shift
    * @return the raw option data object
    */
-  public static List<RawOptionData> rawDataShiftPoint(
+  public static TenorRawOptionData rawDataShiftPoint(
+      List<Tenor> tenors,
+      List<Period> expiries,
       ValueType strikeLikeType,
       DoubleArray strikeLikeData,
-      List<Period> expiries,
       ValueType dataType,
       double[][][] dataArray,
       int i,
@@ -71,7 +79,7 @@ public class SabrSwaptionCalibratorSmileTestUtils {
       int k,
       double shift) {
 
-    List<RawOptionData> raw = new ArrayList<>();
+    Map<Tenor, RawOptionData> raw = new TreeMap<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
       double[][] shiftedData = Arrays.stream(dataArray[looptenor])
           .map(row -> row.clone())
@@ -79,36 +87,38 @@ public class SabrSwaptionCalibratorSmileTestUtils {
       if (looptenor == i) {
         shiftedData[j][k] += shift;
       }
-      raw.add(RawOptionData.of(strikeLikeData, strikeLikeType, expiries,
-          DoubleMatrix.ofUnsafe(shiftedData), dataType));
+      DoubleMatrix matrix = DoubleMatrix.ofUnsafe(shiftedData);
+      raw.put(tenors.get(looptenor), RawOptionData.of(expiries, strikeLikeData, strikeLikeType, matrix, dataType));
     }
-    return raw;
+    return TenorRawOptionData.of(raw);
   }
 
   /**
    * Create a {@link RawOptionData} object for calibration from data and shift one smile.
    * 
-   * @param strikeLikeType  the type of the strike-like dimension
-   * @param strikeLikeData  the data related to the strik-like dimension
+   * @param tenors  the list of tenors
    * @param expiries  the list of expiries
+   * @param strikeLikeType  the type of the strike-like dimension
+   * @param strikeLikeData  the data related to the strike-like dimension
    * @param dataType  the type of the data
-   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data. 
+   * @param dataArray  the array with the raw data, including potential Double.NaN for missing data.
    * @param i  the index of the tenor to shift
    * @param j  the index of the expiry to shift
    * @param shift  the size of the shift
    * @return the raw option data object
    */
-  public static List<RawOptionData> rawDataShiftSmile(
+  public static TenorRawOptionData rawDataShiftSmile(
+      List<Tenor> tenors,
+      List<Period> expiries,
       ValueType strikeLikeType,
       DoubleArray strikeLikeData,
-      List<Period> expiries,
       ValueType dataType,
       double[][][] dataArray,
       int i,
       int j,
       double shift) {
 
-    List<RawOptionData> raw = new ArrayList<>();
+    Map<Tenor, RawOptionData> raw = new TreeMap<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
       double[][] shiftedData = Arrays.stream(dataArray[looptenor])
           .map(row -> row.clone())
@@ -118,10 +128,10 @@ public class SabrSwaptionCalibratorSmileTestUtils {
           shiftedData[j][k] += shift;
         }
       }
-      raw.add(RawOptionData.of(strikeLikeData, strikeLikeType, expiries,
-          DoubleMatrix.ofUnsafe(shiftedData), dataType));
+      DoubleMatrix matrix = DoubleMatrix.ofUnsafe(shiftedData);
+      raw.put(tenors.get(looptenor), RawOptionData.of(expiries, strikeLikeData, strikeLikeType, matrix, dataType));
     }
-    return raw;
+    return TenorRawOptionData.of(raw);
   }
 
   /**

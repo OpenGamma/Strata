@@ -128,7 +128,7 @@ public class DiscountingIborFixingDepositProductPricer {
   // query the forward rate
   private double forwardRate(ResolvedIborFixingDeposit product, RatesProvider provider) {
     IborIndexRates rates = provider.iborIndexRates(product.getFloatingRate().getIndex());
-    // The IborFixingDeposit are fictitious instruments to anchor the beginning of the IborIndex forward curve. 
+    // The IborFixingDeposit are fictitious instruments to anchor the beginning of the IborIndex forward curve.
     // By using the 'rateIgnoringTimeSeries' method (instead of 'rate') we ensure that only the forward curve is involved.
     return rates.rateIgnoringFixings(product.getFloatingRate().getObservation());
   }

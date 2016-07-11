@@ -44,7 +44,7 @@ public final class CurveInterpolators {
    * Square linear interpolator.
    * <p>
    * The interpolator is used for interpolation on variance for options.
-   * Interpolation is linear on y^2. All values of y must be positive. 
+   * Interpolation is linear on y^2. All values of y must be positive.
    */
   public static final CurveInterpolator SQUARE_LINEAR =
       CurveInterpolator.of(StandardCurveInterpolators.SQUARE_LINEAR.getName());
@@ -66,7 +66,7 @@ public final class CurveInterpolators {
    * Log natural spline interpolation with monotonicity filter.
    * <p>
    * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a Natural cubic
-   * spline with Monotonicity cubic filter. 
+   * spline with Monotonicity cubic filter.
    */
   public static final CurveInterpolator LOG_NATURAL_SPLINE_MONOTONE_CUBIC =
       CurveInterpolator.of(StandardCurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.getName());
@@ -96,7 +96,7 @@ public final class CurveInterpolators {
   /**
    * Product natural spline interpolator.
    * <p>
-   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline. 
+   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline.
    * <p>
    * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose
    * the condition that all of the x data to be the same sign, such that the origin is not within data range.

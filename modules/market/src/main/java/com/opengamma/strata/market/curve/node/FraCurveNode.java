@@ -47,7 +47,7 @@ import com.opengamma.strata.product.rate.IborRateComputation;
  * A curve node whose instrument is a Forward Rate Agreement (FRA).
  * <p>
  * The trade produced by the node will be a fixed rate receiver (SELL) for a positive quantity
- * and a payer (BUY) for a negative quantity. 
+ * and a payer (BUY) for a negative quantity.
  * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition

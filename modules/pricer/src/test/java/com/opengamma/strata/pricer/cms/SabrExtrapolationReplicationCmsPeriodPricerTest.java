@@ -646,7 +646,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       SabrInterestRateParameters sabrParams,
       SabrParametersSwaptionVolatilities orgVols) {
     return SabrParametersSwaptionVolatilities.of(
-        SwaptionVolatilitiesName.of("Test-SABR"), sabrParams, orgVols.getValuationDateTime());
+        SwaptionVolatilitiesName.of("Test-SABR"), orgVols.getConvention(), orgVols.getValuationDateTime(), sabrParams);
   }
 
   private void testSensitivityValue(

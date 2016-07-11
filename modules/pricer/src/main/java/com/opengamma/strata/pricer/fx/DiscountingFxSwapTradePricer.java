@@ -84,7 +84,7 @@ public class DiscountingFxSwapTradePricer {
   }
 
   /**
-   * Calculates the par spread sensitivity to the curves. 
+   * Calculates the par spread sensitivity to the curves.
    * <p>
    * The sensitivity is reported in the counter currency of the product, but is actually dimensionless.
    * 
