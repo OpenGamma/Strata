@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.option.Barrier;
 
 /**
  * FX (European) single barrier option.

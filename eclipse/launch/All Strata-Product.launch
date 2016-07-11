@@ -36,6 +36,7 @@
 <listEntry value="com.opengamma.strata.product.fxopt.type"/>
 <listEntry value="com.opengamma.strata.product.index"/>
 <listEntry value="com.opengamma.strata.product.index.type"/>
+<listEntry value="com.opengamma.strata.product.option"/>
 <listEntry value="com.opengamma.strata.product.payment"/>
 <listEntry value="com.opengamma.strata.product.rate"/>
 <listEntry value="com.opengamma.strata.product.swap"/>

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.fxopt;
+package com.opengamma.strata.product.option;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -28,8 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * Continuous barrier with constant barrier level.
  * <p>
  * This defines a simple continuous barrier with a constant barrier level.
- * It is assumed that the barrier event period agrees with the lifetime of the option, thus observation start date and 
- * end date are not specified in this class.
+ * It is assumed that the barrier event period agrees with the lifetime of the option,
+ * thus observation start date and end date are not specified in this class.
  */
 @BeanDefinition(builderScope = "private")
 public final class SimpleConstantContinuousBarrier

@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.common;
+package com.opengamma.strata.product.option;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -12,23 +12,20 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The style of premium for an option on a futures contract.
+ * The knock type of barrier event.
  * <p>
- * There are two styles of future options, one with daily margining, and one
- * with an up-front premium. This class specifies the types.
+ * This defines the knock type of {@link Barrier}.
  */
-public enum FutureOptionPremiumStyle {
+public enum KnockType {
 
   /**
-   * The "DailyMargin" style, used where the option has daily margining.
-   * This is also known as <i>future-style margining</i>.
+   * Knock-in 
    */
-  DAILY_MARGIN,
+  KNOCK_IN,
   /**
-   * The "UpfrontPremium" style, used where the option has an upfront premium.
-   * This is also known as <i>equity-style margining</i>.
+   * Knock-out 
    */
-  UPFRONT_PREMIUM;
+  KNOCK_OUT;
 
   //-------------------------------------------------------------------------
   /**
@@ -39,9 +36,19 @@ public enum FutureOptionPremiumStyle {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FutureOptionPremiumStyle of(String uniqueName) {
+  public static KnockType of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the type is 'Knock-in'.
+   * 
+   * @return true if knock-in, false if knock-out
+   */
+  public boolean isKnockIn() {
+    return this == KNOCK_IN;
   }
 
   //-------------------------------------------------------------------------
