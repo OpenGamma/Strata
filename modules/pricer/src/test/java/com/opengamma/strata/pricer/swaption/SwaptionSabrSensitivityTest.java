@@ -10,11 +10,8 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
-
-import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -35,7 +32,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 public class SwaptionSabrSensitivityTest {
 
   private static final FixedIborSwapConvention SWAP_CONV = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
-  private static final ZonedDateTime EXPIRY = dateUtc(2015, 8, 27);
+  private static final double EXPIRY = 1d;
   private static final double TENOR = 3d;
 
   //-------------------------------------------------------------------------
@@ -81,7 +78,7 @@ public class SwaptionSabrSensitivityTest {
     SwaptionSabrSensitivity b = SwaptionSabrSensitivity.of(
         SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d);
     SwaptionSabrSensitivity c = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY.plusDays(1), TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        SWAP_CONV, EXPIRY + 1, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity d = SwaptionSabrSensitivity.of(
         SWAP_CONV, EXPIRY, TENOR + 1, SabrParameterType.ALPHA, GBP, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
@@ -186,7 +183,7 @@ public class SwaptionSabrSensitivityTest {
         SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     coverImmutableBean(test);
     SwaptionSabrSensitivity test2 = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY.plusDays(1), TENOR + 1, SabrParameterType.BETA, GBP, 2d);
+        SWAP_CONV, EXPIRY + 1, TENOR + 1, SabrParameterType.BETA, GBP, 2d);
     coverBeanEquals(test, test2);
     ZeroRateSensitivity test3 = ZeroRateSensitivity.of(USD, 0.5d, 2d);
     coverBeanEquals(test, test3);

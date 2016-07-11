@@ -107,18 +107,18 @@ public class NormalIborCapFloorProductPricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder computed1 = PRICER.presentValueSensitivity(CAP_ONE_LEG, RATES, VOLS);
-    PointSensitivityBuilder computed2 = PRICER.presentValueSensitivity(CAP_TWO_LEGS, RATES, VOLS);
-    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivity(CAP_LEG, RATES, VOLS);
+    PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityRates(CAP_ONE_LEG, RATES, VOLS);
+    PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityRates(CAP_TWO_LEGS, RATES, VOLS);
+    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityRates(CAP_LEG, RATES, VOLS);
     PointSensitivityBuilder pay = PRICER_PAY_LEG.presentValueSensitivity(PAY_LEG, RATES);
     assertEquals(computed1, cap);
     assertEquals(computed2, cap.combinedWith(pay));
   }
 
   public void test_presentValueSensitivityVolatility() {
-    PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityVolatility(CAP_ONE_LEG, RATES, VOLS);
-    PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityVolatility(CAP_TWO_LEGS, RATES, VOLS);
-    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityVolatility(CAP_LEG, RATES, VOLS);
+    PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityModelParamsVolatility(CAP_ONE_LEG, RATES, VOLS);
+    PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityModelParamsVolatility(CAP_TWO_LEGS, RATES, VOLS);
+    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityModelParamsVolatility(CAP_LEG, RATES, VOLS);
     assertEquals(computed1, cap);
     assertEquals(computed2, cap);
   }
@@ -128,8 +128,8 @@ public class NormalIborCapFloorProductPricerTest {
     MultiCurrencyAmount computed2 = PRICER.currencyExposure(CAP_TWO_LEGS, RATES, VOLS);
     MultiCurrencyAmount pv1 = PRICER.presentValue(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount pv2 = PRICER.presentValue(CAP_TWO_LEGS, RATES, VOLS);
-    PointSensitivityBuilder point1 = PRICER.presentValueSensitivity(CAP_ONE_LEG, RATES, VOLS);
-    PointSensitivityBuilder point2 = PRICER.presentValueSensitivity(CAP_TWO_LEGS, RATES, VOLS);
+    PointSensitivityBuilder point1 = PRICER.presentValueSensitivityRates(CAP_ONE_LEG, RATES, VOLS);
+    PointSensitivityBuilder point2 = PRICER.presentValueSensitivityRates(CAP_TWO_LEGS, RATES, VOLS);
     MultiCurrencyAmount expected1 = RATES.currencyExposure(point1.build()).plus(pv1);
     MultiCurrencyAmount expected2 = RATES.currencyExposure(point2.build()).plus(pv2);
     assertEquals(computed1.getAmount(EUR).getAmount(), expected1.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);

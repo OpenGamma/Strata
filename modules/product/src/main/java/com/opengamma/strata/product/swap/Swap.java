@@ -194,7 +194,7 @@ public final class Swap
   }
 
   /**
-   * Returns the set of currencies referred to by the swap.
+   * Returns the set of payment currencies referred to by the swap.
    * <p>
    * This returns the complete set of payment currencies for the swap.
    * This will typically return one or two currencies.

@@ -36,6 +36,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyAmountArray;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmountArray;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -199,6 +200,18 @@ public final class MultiCurrencyScenarioArray
       }
     }
     return CurrencyScenarioArray.of(reportingCurrency, DoubleArray.ofUnsafe(singleCurrencyValues));
+  }
+
+  /**
+   * Returns a multi currency scenario array representing the total of the input arrays.
+   * <p>
+   * If the input contains the same currency more than once, the amounts are added together.
+   *
+   * @param arrays  the amount arrays
+   * @return the total amounts
+   */
+  public static MultiCurrencyScenarioArray total(Iterable<CurrencyScenarioArray> arrays) {
+    return Guavate.stream(arrays).collect(toMultiCurrencyScenarioArray());
   }
 
   /**

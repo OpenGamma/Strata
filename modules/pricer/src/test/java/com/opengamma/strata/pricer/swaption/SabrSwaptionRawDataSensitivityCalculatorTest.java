@@ -176,7 +176,7 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
       TenorRawOptionData dataRaw) {
 
     PointSensitivities points =
-        LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, MULTICURVE, sabrCalibrated).build();
+        LEG_PRICER.presentValueSensitivityModelParamsSabr(FLOOR_LEG, MULTICURVE, sabrCalibrated).build();
     CurrencyParameterSensitivities sabrParametersSurfaceSensitivities = sabrCalibrated.parameterSensitivity(points);
     CurrencyParameterSensitivity parallelSensitivitiesSurface =
         RDSC.parallelSensitivity(sabrParametersSurfaceSensitivities, sabrCalibrated);

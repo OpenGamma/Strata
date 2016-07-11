@@ -221,16 +221,16 @@ public class BlackIborCapFloorLegPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivity(CAP, RATES, VOLS);
-    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivity(FLOOR, RATES, VOLS);
+    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivityRates(CAP, RATES, VOLS);
+    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivityRates(FLOOR, RATES, VOLS);
     PointSensitivityBuilder capExpected = PointSensitivityBuilder.none();
     PointSensitivityBuilder floorExpected = PointSensitivityBuilder.none();
     int nPeriods = CAP.getCapletFloorletPeriods().size();
     for (int i = 0; i < nPeriods; ++i) {
       capExpected = capExpected.combinedWith(
-          PRICER_PERIOD.presentValueSensitivity(CAP.getCapletFloorletPeriods().get(i), RATES, VOLS));
+          PRICER_PERIOD.presentValueSensitivityRates(CAP.getCapletFloorletPeriods().get(i), RATES, VOLS));
       floorExpected = floorExpected.combinedWith(
-          PRICER_PERIOD.presentValueSensitivity(FLOOR.getCapletFloorletPeriods().get(i), RATES, VOLS));
+          PRICER_PERIOD.presentValueSensitivityRates(FLOOR.getCapletFloorletPeriods().get(i), RATES, VOLS));
     }
     CurrencyParameterSensitivities capSensiComputed = RATES_AFTER.parameterSensitivity(capComputed.build());
     CurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.parameterSensitivity(floorComputed.build());
@@ -241,8 +241,8 @@ public class BlackIborCapFloorLegPricerTest {
   }
 
   public void test_presentValueSensitivity_after() {
-    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivity(CAP, RATES_AFTER, VOLS_AFTER);
-    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivity(FLOOR, RATES_AFTER, VOLS_AFTER);
+    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivityRates(CAP, RATES_AFTER, VOLS_AFTER);
+    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivityRates(FLOOR, RATES_AFTER, VOLS_AFTER);
     PointSensitivityBuilder capExpected = PointSensitivityBuilder.none();
     IborCapletFloorletPeriod period = FLOOR.getCapletFloorletPeriods().get(1);
     PointSensitivityBuilder floorExpected = RATES_AFTER.discountFactors(EUR).zeroRatePointSensitivity(period.getPaymentDate())
@@ -250,9 +250,9 @@ public class BlackIborCapFloorLegPricerTest {
     int nPeriods = CAP.getCapletFloorletPeriods().size();
     for (int i = 2; i < nPeriods; ++i) {
       capExpected = capExpected.combinedWith(
-          PRICER_PERIOD.presentValueSensitivity(CAP.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
+          PRICER_PERIOD.presentValueSensitivityRates(CAP.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
       floorExpected = floorExpected.combinedWith(
-          PRICER_PERIOD.presentValueSensitivity(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
+          PRICER_PERIOD.presentValueSensitivityRates(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
     }
     CurrencyParameterSensitivities capSensiComputed = RATES_AFTER.parameterSensitivity(capComputed.build());
     CurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.parameterSensitivity(floorComputed.build());
@@ -264,16 +264,16 @@ public class BlackIborCapFloorLegPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityVolatility() {
-    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivityVolatility(CAP, RATES, VOLS);
-    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivityVolatility(FLOOR, RATES, VOLS);
+    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivityModelParamsVolatility(CAP, RATES, VOLS);
+    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivityModelParamsVolatility(FLOOR, RATES, VOLS);
     CurrencyParameterSensitivities capExpected = CurrencyParameterSensitivities.empty();
     CurrencyParameterSensitivities floorExpected = CurrencyParameterSensitivities.empty();
     int nPeriods = CAP.getCapletFloorletPeriods().size();
     for (int i = 0; i < nPeriods; ++i) {
       capExpected = capExpected.combinedWith(VOLS.parameterSensitivity(PRICER_PERIOD
-          .presentValueSensitivityVolatility(CAP.getCapletFloorletPeriods().get(i), RATES, VOLS).build()));
+          .presentValueSensitivityModelParamsVolatility(CAP.getCapletFloorletPeriods().get(i), RATES, VOLS).build()));
       floorExpected = floorExpected.combinedWith(VOLS.parameterSensitivity(PRICER_PERIOD
-          .presentValueSensitivityVolatility(FLOOR.getCapletFloorletPeriods().get(i), RATES, VOLS).build()));
+          .presentValueSensitivityModelParamsVolatility(FLOOR.getCapletFloorletPeriods().get(i), RATES, VOLS).build()));
     }
     CurrencyParameterSensitivities capSensiComputed =
         VOLS.parameterSensitivity(capComputed.build());
@@ -288,16 +288,16 @@ public class BlackIborCapFloorLegPricerTest {
   }
 
   public void test_presentValueSensitivityVolatility_after() {
-    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivityVolatility(CAP, RATES_AFTER, VOLS_AFTER);
-    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivityVolatility(FLOOR, RATES_AFTER, VOLS_AFTER);
+    PointSensitivityBuilder capComputed = PRICER.presentValueSensitivityModelParamsVolatility(CAP, RATES_AFTER, VOLS_AFTER);
+    PointSensitivityBuilder floorComputed = PRICER.presentValueSensitivityModelParamsVolatility(FLOOR, RATES_AFTER, VOLS_AFTER);
     CurrencyParameterSensitivities capExpected = CurrencyParameterSensitivities.empty();
     CurrencyParameterSensitivities floorExpected = CurrencyParameterSensitivities.empty();
     int nPeriods = CAP.getCapletFloorletPeriods().size();
     for (int i = 3; i < nPeriods; ++i) {
       capExpected = capExpected.combinedWith(VOLS_AFTER.parameterSensitivity(PRICER_PERIOD
-          .presentValueSensitivityVolatility(CAP.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
+          .presentValueSensitivityModelParamsVolatility(CAP.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
       floorExpected = floorExpected.combinedWith(VOLS_AFTER.parameterSensitivity(PRICER_PERIOD
-          .presentValueSensitivityVolatility(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
+          .presentValueSensitivityModelParamsVolatility(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
     }
     CurrencyParameterSensitivities capSensiComputed =
         VOLS_AFTER.parameterSensitivity(capComputed.build());

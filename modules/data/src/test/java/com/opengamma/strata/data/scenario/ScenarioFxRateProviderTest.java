@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.ObservableSource;
 
 @Test
 public class ScenarioFxRateProviderTest {
@@ -36,5 +37,18 @@ public class ScenarioFxRateProviderTest {
 
   public void fxRate() {
     assertThat(fxRateProvider.fxRate(Currency.GBP, Currency.USD, 0)).isEqualTo(1.4d);
+  }
+
+  public void specifySource() {
+    ObservableSource testSource = ObservableSource.of("test");
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.4d))
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD, testSource), FxRate.of(Currency.GBP, Currency.USD, 1.41d))
+        .build();
+
+    ScenarioFxRateProvider defaultRateProvider = ScenarioFxRateProvider.of(marketData);
+    ScenarioFxRateProvider sourceRateProvider = ScenarioFxRateProvider.of(marketData, testSource);
+    assertThat(defaultRateProvider.fxRate(Currency.GBP, Currency.USD, 0)).isEqualTo(1.4d);
+    assertThat(sourceRateProvider.fxRate(Currency.GBP, Currency.USD, 0)).isEqualTo(1.41d);
   }
 }

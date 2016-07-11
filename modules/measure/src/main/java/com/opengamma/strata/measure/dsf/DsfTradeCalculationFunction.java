@@ -36,6 +36,7 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * Perform calculations on a single {@code DsfTrade} for each of a set of scenarios.
  * <p>
  * This uses the standard discounting calculation method.
+ * An instance of {@link RatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}

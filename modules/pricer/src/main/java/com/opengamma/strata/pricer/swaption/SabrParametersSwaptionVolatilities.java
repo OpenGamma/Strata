@@ -217,6 +217,26 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   @Override
+  public double alpha(double expiry, double tenor) {
+    return parameters.alpha(expiry, tenor);
+  }
+
+  @Override
+  public double beta(double expiry, double tenor) {
+    return parameters.beta(expiry, tenor);
+  }
+
+  @Override
+  public double rho(double expiry, double tenor) {
+    return parameters.rho(expiry, tenor);
+  }
+
+  @Override
+  public double nu(double expiry, double tenor) {
+    return parameters.nu(expiry, tenor);
+  }
+
+  @Override
   public double shift(double expiry, double tenor) {
     return parameters.shift(expiry, tenor);
   }
@@ -238,7 +258,7 @@ public final class SabrParametersSwaptionVolatilities
     ArgChecker.isTrue(point.getConvention().equals(getConvention()),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     Surface surface = getSurface(point.getSensitivityType());
-    double expiry = relativeTime(point.getExpiry());
+    double expiry = point.getExpiry();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, point.getTenor());
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }

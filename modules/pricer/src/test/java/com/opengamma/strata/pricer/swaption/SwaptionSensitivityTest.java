@@ -10,11 +10,8 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
-
-import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -34,7 +31,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 public class SwaptionSensitivityTest {
 
   private static final FixedIborSwapConvention SWAP_CONV = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
-  private static final ZonedDateTime EXPIRY = dateUtc(2015, 8, 27);
+  private static final double EXPIRY = 1d;
   private static final double TENOR = 3d;
   private static final double STRIKE = 7d;
   private static final double FORWARD = 9d;
@@ -74,7 +71,7 @@ public class SwaptionSensitivityTest {
     SwaptionSensitivity a1 = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     SwaptionSensitivity a2 = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     SwaptionSensitivity b = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d);
-    SwaptionSensitivity c = SwaptionSensitivity.of(SWAP_CONV, EXPIRY.plusDays(1), TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity c = SwaptionSensitivity.of(SWAP_CONV, EXPIRY + 1, TENOR, STRIKE, FORWARD, GBP, 32d);
     SwaptionSensitivity d = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR + 1, STRIKE, FORWARD, GBP, 32d);
     SwaptionSensitivity e = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE + 1, FORWARD, GBP, 32d);
     SwaptionSensitivity f = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD + 1, GBP, 32d);
@@ -168,7 +165,7 @@ public class SwaptionSensitivityTest {
     SwaptionSensitivity test = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     coverImmutableBean(test);
     SwaptionSensitivity test2 = SwaptionSensitivity.of(
-        SWAP_CONV, EXPIRY.plusDays(1), TENOR + 1, STRIKE + 1, FORWARD + 1, USD, 32d);
+        SWAP_CONV, EXPIRY + 1, TENOR + 1, STRIKE + 1, FORWARD + 1, USD, 32d);
     coverBeanEquals(test, test2);
     ZeroRateSensitivity test3 = ZeroRateSensitivity.of(USD, 0.5d, 2d);
     coverBeanEquals(test, test3);

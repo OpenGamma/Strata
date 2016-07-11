@@ -42,48 +42,48 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
- * Test {@link NormalSwaptionExpiryTenorVolatilities}.
+ * Test {@link NormalSwaptionExpirySimpleMoneynessVolatilities}.
  */
 @Test
-public class NormalSwaptionExpiryTenorVolatilitiesTest {
+public class NormalSwaptionExpirySimpleMoneynessVolatilitiesTest {
 
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final DoubleArray TIME =
       DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1);
-  private static final DoubleArray TENOR =
-      DoubleArray.of(3, 5, 7, 10, 3, 5, 7, 10, 3, 5, 7, 10);
+  private static final DoubleArray SIMPLE_MONEYNESS =
+      DoubleArray.of(-0.025, -0.01, 0, 0.01, -0.025, -0.01, 0, 0.01, -0.025, -0.01, 0, 0.01);
   private static final DoubleArray VOL =
       DoubleArray.of(0.14, 0.14, 0.13, 0.12, 0.12, 0.13, 0.12, 0.11, 0.1, 0.12, 0.11, 0.1);
 
   private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
   private static final SurfaceMetadata METADATA;
   static {
-    List<SwaptionSurfaceExpiryTenorParameterMetadata> list =
-        new ArrayList<SwaptionSurfaceExpiryTenorParameterMetadata>();
+    List<SwaptionSurfaceExpirySimpleMoneynessParameterMetadata> list =
+        new ArrayList<SwaptionSurfaceExpirySimpleMoneynessParameterMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      SwaptionSurfaceExpiryTenorParameterMetadata parameterMetadata =
-          SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME.get(i), TENOR.get(i));
+      SwaptionSurfaceExpirySimpleMoneynessParameterMetadata parameterMetadata =
+          SwaptionSurfaceExpirySimpleMoneynessParameterMetadata.of(TIME.get(i), SIMPLE_MONEYNESS.get(i));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.swaptionNormalExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.swaptionNormalExpirySimpleMoneyness("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
-      InterpolatedNodalSurface.of(METADATA, TIME, TENOR, VOL, INTERPOLATOR_2D);
+      InterpolatedNodalSurface.of(METADATA, TIME, SIMPLE_MONEYNESS, VOL, INTERPOLATOR_2D);
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
-  private static final NormalSwaptionExpiryTenorVolatilities PROVIDER =
-      NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
+  private static final NormalSwaptionExpirySimpleMoneynessVolatilities PROVIDER =
+      NormalSwaptionExpirySimpleMoneynessVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
   private static final int NB_TEST = TEST_OPTION_EXPIRY.length;
-  private static final double[] TEST_TENOR = new double[] {2.0, 6.0, 7.0, 15.0};
+  private static final double[] TEST_FORWARD = new double[] {0.03, 0.03, 0.04, 0.05};
+  private static final double[] TEST_STRIKE = new double[] {0.025, 0.035, 0.04, 0.06};
   private static final double[] TEST_SENSITIVITY = new double[] {1.0, 1.0, 1.0, 1.0};
-  private static final double TEST_FORWARD = 0.025; // not used internally
-  private static final double TEST_STRIKE = 0.03; // not used internally
+  private static final double TEST_TENOR = 2.0; // not used internally
 
   private static final double TOLERANCE_VOL = 1.0E-10;
 
@@ -121,8 +121,8 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
   public void test_volatility() {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = PROVIDER.relativeTime(TEST_OPTION_EXPIRY[i]);
-      double volExpected = SURFACE.zValue(expiryTime, TEST_TENOR[i]);
-      double volComputed = PROVIDER.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
+      double volExpected = SURFACE.zValue(expiryTime, TEST_STRIKE[i] - TEST_FORWARD[i]);
+      double volComputed = PROVIDER.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR, TEST_STRIKE[i], TEST_FORWARD[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
     }
   }
@@ -133,7 +133,7 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = PROVIDER.relativeTime(TEST_OPTION_EXPIRY[i]);
       SwaptionSensitivity point = SwaptionSensitivity.of(
-          CONVENTION, expiryTime, TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+          CONVENTION, expiryTime, TEST_TENOR, TEST_STRIKE[i], TEST_FORWARD[i], GBP, TEST_SENSITIVITY[i]);
       CurrencyParameterSensitivities sensActual = PROVIDER.parameterSensitivity(point);
       CurrencyParameterSensitivity sensi = sensActual.getSensitivity(SURFACE.getName(), GBP);
       DoubleArray computed = sensi.getSensitivity();
@@ -143,24 +143,24 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
         DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);
         DoubleArray volDataDw = VOL.subArray(0, nData).with(j, VOL.get(j) - eps);
         InterpolatedNodalSurface paramUp =
-            InterpolatedNodalSurface.of(METADATA, TIME, TENOR, volDataUp, INTERPOLATOR_2D);
+            InterpolatedNodalSurface.of(METADATA, TIME, SIMPLE_MONEYNESS, volDataUp, INTERPOLATOR_2D);
         InterpolatedNodalSurface paramDw =
-            InterpolatedNodalSurface.of(METADATA, TIME, TENOR, volDataDw, INTERPOLATOR_2D);
-        NormalSwaptionExpiryTenorVolatilities provUp =
-            NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, paramUp);
-        NormalSwaptionExpiryTenorVolatilities provDw =
-            NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, paramDw);
-        double volUp = provUp.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
-        double volDw = provDw.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
+            InterpolatedNodalSurface.of(METADATA, TIME, SIMPLE_MONEYNESS, volDataDw, INTERPOLATOR_2D);
+        NormalSwaptionExpirySimpleMoneynessVolatilities provUp =
+            NormalSwaptionExpirySimpleMoneynessVolatilities.of(CONVENTION, VAL_DATE_TIME, paramUp);
+        NormalSwaptionExpirySimpleMoneynessVolatilities provDw =
+            NormalSwaptionExpirySimpleMoneynessVolatilities.of(CONVENTION, VAL_DATE_TIME, paramDw);
+        double volUp = provUp.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR, TEST_STRIKE[i], TEST_FORWARD[i]);
+        double volDw = provDw.volatility(TEST_OPTION_EXPIRY[i], TEST_TENOR, TEST_STRIKE[i], TEST_FORWARD[i]);
         double fd = 0.5 * (volUp - volDw) / eps;
-        map.put(DoublesPair.of(TIME.get(j), TENOR.get(j)), fd);
+        map.put(DoublesPair.of(TIME.get(j), SIMPLE_MONEYNESS.get(j)), fd);
       }
       List<ParameterMetadata> list = sensi.getParameterMetadata();
       assertEquals(computed.size(), nData);
       for (int j = 0; j < list.size(); ++j) {
-        SwaptionSurfaceExpiryTenorParameterMetadata metadata =
-            (SwaptionSurfaceExpiryTenorParameterMetadata) list.get(i);
-        double expected = map.get(DoublesPair.of(metadata.getYearFraction(), metadata.getTenor()));
+        SwaptionSurfaceExpirySimpleMoneynessParameterMetadata metadata =
+            (SwaptionSurfaceExpirySimpleMoneynessParameterMetadata) list.get(i);
+        double expected = map.get(DoublesPair.of(metadata.getYearFraction(), metadata.getSimpleMoneyness()));
         assertEquals(computed.get(i), expected, eps);
       }
     }
@@ -168,11 +168,11 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    NormalSwaptionExpiryTenorVolatilities test1 =
-        NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
+    NormalSwaptionExpirySimpleMoneynessVolatilities test1 =
+        NormalSwaptionExpirySimpleMoneynessVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
     coverImmutableBean(test1);
-    NormalSwaptionExpiryTenorVolatilities test2 =
-        NormalSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);
+    NormalSwaptionExpirySimpleMoneynessVolatilities test2 =
+        NormalSwaptionExpirySimpleMoneynessVolatilities.of(CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);
     coverBeanEquals(test1, test2);
   }
 

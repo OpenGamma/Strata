@@ -28,6 +28,7 @@ import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -38,6 +39,7 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.NotionalExchange;
+import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -243,13 +245,13 @@ public class CashFlowEquivalentCalculatorTest {
   //-------------------------------------------------------------------------
   public void test_cashFlowEquivalentAndSensitivity() {
     ResolvedSwap swap = ResolvedSwap.of(IBOR_LEG, FIXED_LEG);
-    ImmutableMap<NotionalExchange, PointSensitivityBuilder> computedFull =
+    ImmutableMap<Payment, PointSensitivityBuilder> computedFull =
         CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap, PROVIDER);
-    ImmutableList<NotionalExchange> keyComputedFull = computedFull.keySet().asList();
+    ImmutableList<Payment> keyComputedFull = computedFull.keySet().asList();
     ImmutableList<PointSensitivityBuilder> valueComputedFull = computedFull.values().asList();
-    ImmutableMap<NotionalExchange, PointSensitivityBuilder> computedIborLeg =
+    ImmutableMap<Payment, PointSensitivityBuilder> computedIborLeg =
         CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivityIborLeg(IBOR_LEG, PROVIDER);
-    ImmutableMap<NotionalExchange, PointSensitivityBuilder> computedFixedLeg =
+    ImmutableMap<Payment, PointSensitivityBuilder> computedFixedLeg =
         CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivityFixedLeg(FIXED_LEG, PROVIDER);
     assertEquals(computedFixedLeg.keySet().asList(), keyComputedFull.subList(0, 2));
     assertEquals(computedIborLeg.keySet().asList(), keyComputedFull.subList(2, 6));
@@ -264,8 +266,8 @@ public class CashFlowEquivalentCalculatorTest {
       CurrencyParameterSensitivities expected = calc.sensitivity(PROVIDER,
           p -> ((NotionalExchange) CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, p)
               .getPaymentEvents().get(index)).getPaymentAmount());
-      PointSensitivityBuilder point = computedFull.get(
-          CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER).getPaymentEvents().get(index));
+      PaymentEvent event = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER).getPaymentEvents().get(index);
+      PointSensitivityBuilder point = computedFull.get(((NotionalExchange) event).getPayment());
       CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
       assertTrue(computed.equalWithTolerance(expected, eps * NOTIONAL));
     }

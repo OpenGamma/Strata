@@ -66,6 +66,24 @@ public class DiscountingPaymentPricer {
   }
 
   /**
+   * Computes the present value of the payment by discounting.
+   * <p>
+   * The present value is zero if the payment date is before the valuation date.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the present value
+   */
+  public double presentValueAmount(Payment payment, BaseProvider provider) {
+    // duplicated code to avoid looking up in the provider when not necessary
+    if (provider.getValuationDate().isAfter(payment.getDate())) {
+      return 0d;
+    }
+    double df = provider.discountFactor(payment.getCurrency(), payment.getDate());
+    return payment.getAmount() * df;
+  }
+
+  /**
    * Computes the present value of the payment with z-spread by discounting.
    * <p>
    * The present value is zero if the payment date is before the valuation date.
@@ -169,6 +187,39 @@ public class DiscountingPaymentPricer {
     ZeroRateSensitivity sensi =
         discountFactors.zeroRatePointSensitivityWithSpread(payment.getDate(), zSpread, compoundedRateType, periodsPerYear);
     return sensi.multipliedBy(payment.getAmount());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the forecast value of the payment.
+   * <p>
+   * The present value is zero if the payment date is before the valuation date.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the forecast value
+   */
+  public CurrencyAmount forecastValue(Payment payment, BaseProvider provider) {
+    if (provider.getValuationDate().isAfter(payment.getDate())) {
+      return CurrencyAmount.zero(payment.getCurrency());
+    }
+    return payment.getValue();
+  }
+
+  /**
+   * Computes the forecast value of the payment.
+   * <p>
+   * The present value is zero if the payment date is before the valuation date.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the forecast value
+   */
+  public double forecastValueAmount(Payment payment, BaseProvider provider) {
+    if (provider.getValuationDate().isAfter(payment.getDate())) {
+      return 0d;
+    }
+    return payment.getAmount();
   }
 
   //-------------------------------------------------------------------------

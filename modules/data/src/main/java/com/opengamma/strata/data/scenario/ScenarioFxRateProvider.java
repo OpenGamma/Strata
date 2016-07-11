@@ -7,6 +7,7 @@ package com.opengamma.strata.data.scenario;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.data.ObservableSource;
 
 /**
  * A provider of FX rates for scenarios.
@@ -27,7 +28,18 @@ public interface ScenarioFxRateProvider {
    * @return a scenario FX rate provider which takes its data from the provided market data
    */
   public static ScenarioFxRateProvider of(ScenarioMarketData marketData) {
-    return new DefaultScenarioFxRateProvider(marketData);
+    return new DefaultScenarioFxRateProvider(marketData, ObservableSource.NONE);
+  }
+
+  /**
+   * Returns a scenario FX rate provider which takes its data from the provided market data.
+   *
+   * @param marketData  market data containing FX rates
+   * @param source  the source of the FX rates
+   * @return a scenario FX rate provider which takes its data from the provided market data
+   */
+  public static ScenarioFxRateProvider of(ScenarioMarketData marketData, ObservableSource source) {
+    return new DefaultScenarioFxRateProvider(marketData, source);
   }
 
   /**

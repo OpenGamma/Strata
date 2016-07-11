@@ -182,7 +182,7 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder point = LEG_PRICER.presentValueSensitivity(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivityBuilder point = LEG_PRICER.presentValueSensitivityRates(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
     CurrencyParameterSensitivities computed = RATES_PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATES_PROVIDER, p -> LEG_PRICER.presentValue(FLOOR_LEG, p, VOLATILITIES));
@@ -191,7 +191,7 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
 
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder point =
-        LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
+        LEG_PRICER.presentValueSensitivityRates(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
     CurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         RATES_PROVIDER_AFTER_PERIOD, p -> LEG_PRICER.presentValue(COUPON_LEG, p, VOLATILITIES_AFTER_PERIOD));
@@ -199,32 +199,32 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
   }
 
   public void test_presentValueSensitivity_ended() {
-    PointSensitivityBuilder computed = LEG_PRICER.presentValueSensitivity(CAP_LEG, RATES_PROVIDER_ENDED, VOLATILITIES_ENDED);
+    PointSensitivityBuilder computed = LEG_PRICER.presentValueSensitivityRates(CAP_LEG, RATES_PROVIDER_ENDED, VOLATILITIES_ENDED);
     assertEquals(computed, PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivitySabrParameter() {
     PointSensitivityBuilder computed =
-        LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
+        LEG_PRICER.presentValueSensitivityModelParamsSabr(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder expected = PointSensitivityBuilder.none();
     List<CmsPeriod> cms = FLOOR_LEG.getCmsPeriods();
     int size = cms.size();
     for (int i = 0; i < size; ++i) {
       expected = expected.combinedWith(
-          PERIOD_PRICER.presentValueSensitivitySabrParameter(cms.get(i), RATES_PROVIDER, VOLATILITIES));
+          PERIOD_PRICER.presentValueSensitivityModelParamsSabr(cms.get(i), RATES_PROVIDER, VOLATILITIES));
     }
     assertEquals(computed, expected);
   }
 
   public void test_presentValueSensitivitySabrParameter_afterPay() {
     PointSensitivityBuilder computed =
-        LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
+        LEG_PRICER.presentValueSensitivityModelParamsSabr(FLOOR_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
     PointSensitivityBuilder expected = PointSensitivityBuilder.none();
     List<CmsPeriod> cms = FLOOR_LEG.getCmsPeriods();
     int size = cms.size();
     for (int i = 0; i < size; ++i) {
-      expected = expected.combinedWith(PERIOD_PRICER.presentValueSensitivitySabrParameter(
+      expected = expected.combinedWith(PERIOD_PRICER.presentValueSensitivityModelParamsSabr(
           cms.get(i), RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD));
     }
     assertEquals(computed, expected);
@@ -232,7 +232,7 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
 
   public void test_presentValueSensitivitySabrParameter_ended() {
     PointSensitivities computed =
-        LEG_PRICER.presentValueSensitivitySabrParameter(CAP_LEG, RATES_PROVIDER_ENDED, VOLATILITIES_ENDED).build();
+        LEG_PRICER.presentValueSensitivityModelParamsSabr(CAP_LEG, RATES_PROVIDER_ENDED, VOLATILITIES_ENDED).build();
     assertEquals(computed, PointSensitivities.empty());
   }
 

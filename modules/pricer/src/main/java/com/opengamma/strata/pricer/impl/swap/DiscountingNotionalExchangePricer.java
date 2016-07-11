@@ -51,7 +51,7 @@ public class DiscountingNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public double presentValue(NotionalExchange event, RatesProvider provider) {
-    return paymentPricer.presentValue(event.getPayment(), provider).getAmount();
+    return paymentPricer.presentValueAmount(event.getPayment(), provider);
   }
 
   @Override
@@ -62,8 +62,7 @@ public class DiscountingNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public double forecastValue(NotionalExchange event, RatesProvider provider) {
-    // paymentAmount
-    return event.getPaymentAmount().getAmount();
+    return paymentPricer.forecastValueAmount(event.getPayment(), provider);
   }
 
   @Override

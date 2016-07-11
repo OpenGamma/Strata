@@ -125,10 +125,10 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder pt1 = PRODUCT_PRICER.presentValueSensitivity(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder pt2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivityBuilder pt1 = PRODUCT_PRICER.presentValueSensitivityRates(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivityBuilder pt2 = PRODUCT_PRICER.presentValueSensitivityRates(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptCms =
-        CMS_LEG_PRICER.presentValueSensitivity(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
+        CMS_LEG_PRICER.presentValueSensitivityRates(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptPay = SWAP_LEG_PRICER.presentValueSensitivity(PAY_LEG, RATES_PROVIDER);
     assertEquals(pt1, ptCms);
     assertEquals(pt2, ptCms.combinedWith(ptPay));
@@ -136,11 +136,11 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
 
   public void test_presentValueSensitivitySabrParameter() {
     PointSensitivities pt1 =
-        PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES).build();
+        PRODUCT_PRICER.presentValueSensitivityModelParamsSabr(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES).build();
     PointSensitivities pt2 =
-        PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES).build();
+        PRODUCT_PRICER.presentValueSensitivityModelParamsSabr(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES).build();
     PointSensitivities ptCms =
-        CMS_LEG_PRICER.presentValueSensitivitySabrParameter(CMS_LEG, RATES_PROVIDER, VOLATILITIES).build();
+        CMS_LEG_PRICER.presentValueSensitivityModelParamsSabr(CMS_LEG, RATES_PROVIDER, VOLATILITIES).build();
     assertEquals(pt1, ptCms);
     assertEquals(pt2, ptCms);
   }
@@ -157,10 +157,10 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     MultiCurrencyAmount computed1 = PRODUCT_PRICER.currencyExposure(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount computed2 = PRODUCT_PRICER.currencyExposure(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount pv1 = PRODUCT_PRICER.presentValue(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder pt1 = PRODUCT_PRICER.presentValueSensitivity(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivityBuilder pt1 = PRODUCT_PRICER.presentValueSensitivityRates(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount expected1 = RATES_PROVIDER.currencyExposure(pt1.build()).plus(pv1);
     MultiCurrencyAmount pv2 = PRODUCT_PRICER.presentValue(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder pt2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivityBuilder pt2 = PRODUCT_PRICER.presentValueSensitivityRates(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount expected2 = RATES_PROVIDER.currencyExposure(pt2.build()).plus(pv2);
     assertEquals(computed1.getAmount(EUR).getAmount(), expected1.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
     assertEquals(computed2.getAmount(EUR).getAmount(), expected2.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);

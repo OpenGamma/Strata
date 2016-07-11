@@ -85,7 +85,7 @@ public final class IborFutureOptionSensitivity
    * The currency is defaulted from the index.
    * 
    * @param index  the index of the curve
-   * @param expiry  the expiry date-time of the option as a year fraction
+   * @param expiry  the time to expiry of the option as a year fraction
    * @param fixingDate  the fixing date of the underlying future
    * @param strikePrice  the strike price of the option
    * @param futurePrice  the price of the underlying future
