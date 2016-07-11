@@ -40,7 +40,7 @@ public abstract class AbstractIborFutureProductPricer {
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  protected double marginIndex(ResolvedIborFuture future, double price) {
+  double marginIndex(ResolvedIborFuture future, double price) {
     return price * future.getNotional() * future.getAccrualFactor();
   }
 
@@ -55,7 +55,7 @@ public abstract class AbstractIborFutureProductPricer {
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  protected PointSensitivities marginIndexSensitivity(ResolvedIborFuture future, PointSensitivities priceSensitivity) {
+  PointSensitivities marginIndexSensitivity(ResolvedIborFuture future, PointSensitivities priceSensitivity) {
     return priceSensitivity.multipliedBy(future.getNotional() * future.getAccrualFactor());
   }
 

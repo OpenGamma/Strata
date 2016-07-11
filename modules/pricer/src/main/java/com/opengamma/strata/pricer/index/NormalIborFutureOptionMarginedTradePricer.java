@@ -12,11 +12,13 @@ import com.opengamma.strata.product.index.IborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFuture;
 import com.opengamma.strata.product.index.ResolvedIborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Pricer implementation for Ibor future option.
  * <p>
- * The Ibor future option is priced based on normal model.
+ * This provides the ability to price an Ibor future option.
+ * The option must be based on {@linkplain FutureOptionPremiumStyle#DAILY_MARGIN daily margin}.
  * 
  * <h4>Price</h4>
  * The price of an Ibor future option is based on the price of the underlying future, the volatility
@@ -62,12 +64,16 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * Calculates the present value of the Ibor future option trade from the underlying future price.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * The current price is calculated using the volatility model with a known future price.
+   * <p>
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
-   * @param futurePrice  the price of the underlying future
-   * @param lastClosingPrice  the last closing price
+   * @param futurePrice  the price of the underlying future, in decimal form
+   * @param lastOptionSettlementPrice  the last settlement price used for margining for the option, in decimal form
    * @return the present value
    */
   public CurrencyAmount presentValue(
@@ -75,10 +81,10 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
       RatesProvider ratesProvider,
       NormalIborFutureOptionVolatilities volatilities,
       double futurePrice,
-      double lastClosingPrice) {
+      double lastOptionSettlementPrice) {
 
     double optionPrice = getProductPricer().price(trade.getProduct(), ratesProvider, volatilities, futurePrice);
-    return presentValue(trade, ratesProvider.getValuationDate(), optionPrice, lastClosingPrice);
+    return presentValue(trade, ratesProvider.getValuationDate(), optionPrice, lastOptionSettlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -115,7 +121,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * @param futureOptionTrade  the trade
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
-   * @param futurePrice  the price of the underlying future
+   * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price sensitivity
    */
   public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
