@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -58,6 +59,12 @@ public final class CurveGroupEntry
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<Index> indices;
+  /**
+   * The price indices for which the curve provides forward index prices.
+   * This is empty if the curve is not used for forward prices.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableSet<PriceIndex> priceIndices;
 
   //-------------------------------------------------------------------------
   /**
@@ -80,6 +87,7 @@ public final class CurveGroupEntry
         .curveName(curveName)
         .discountCurrencies(Sets.union(discountCurrencies, newEntry.discountCurrencies))
         .indices(Sets.union(indices, newEntry.indices))
+        .priceIndices(Sets.union(priceIndices, newEntry.priceIndices))
         .build();
   }
 
@@ -113,13 +121,16 @@ public final class CurveGroupEntry
   private CurveGroupEntry(
       CurveName curveName,
       Set<Currency> discountCurrencies,
-      Set<Index> indices) {
+      Set<Index> indices,
+      Set<PriceIndex> priceIndices) {
     JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(discountCurrencies, "discountCurrencies");
     JodaBeanUtils.notNull(indices, "indices");
+    JodaBeanUtils.notNull(priceIndices, "priceIndices");
     this.curveName = curveName;
     this.discountCurrencies = ImmutableSet.copyOf(discountCurrencies);
     this.indices = ImmutableSet.copyOf(indices);
+    this.priceIndices = ImmutableSet.copyOf(priceIndices);
   }
 
   @Override
@@ -168,6 +179,16 @@ public final class CurveGroupEntry
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the price indices for which the curve provides forward index prices.
+   * This is empty if the curve is not used for forward prices.
+   * @return the value of the property, not null
+   */
+  public ImmutableSet<PriceIndex> getPriceIndices() {
+    return priceIndices;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -184,7 +205,8 @@ public final class CurveGroupEntry
       CurveGroupEntry other = (CurveGroupEntry) obj;
       return JodaBeanUtils.equal(curveName, other.curveName) &&
           JodaBeanUtils.equal(discountCurrencies, other.discountCurrencies) &&
-          JodaBeanUtils.equal(indices, other.indices);
+          JodaBeanUtils.equal(indices, other.indices) &&
+          JodaBeanUtils.equal(priceIndices, other.priceIndices);
     }
     return false;
   }
@@ -195,16 +217,18 @@ public final class CurveGroupEntry
     hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurrencies);
     hash = hash * 31 + JodaBeanUtils.hashCode(indices);
+    hash = hash * 31 + JodaBeanUtils.hashCode(priceIndices);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("CurveGroupEntry{");
     buf.append("curveName").append('=').append(curveName).append(',').append(' ');
     buf.append("discountCurrencies").append('=').append(discountCurrencies).append(',').append(' ');
-    buf.append("indices").append('=').append(JodaBeanUtils.toString(indices));
+    buf.append("indices").append('=').append(indices).append(',').append(' ');
+    buf.append("priceIndices").append('=').append(JodaBeanUtils.toString(priceIndices));
     buf.append('}');
     return buf.toString();
   }
@@ -237,13 +261,20 @@ public final class CurveGroupEntry
     private final MetaProperty<ImmutableSet<Index>> indices = DirectMetaProperty.ofImmutable(
         this, "indices", CurveGroupEntry.class, (Class) ImmutableSet.class);
     /**
+     * The meta-property for the {@code priceIndices} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableSet<PriceIndex>> priceIndices = DirectMetaProperty.ofImmutable(
+        this, "priceIndices", CurveGroupEntry.class, (Class) ImmutableSet.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "curveName",
         "discountCurrencies",
-        "indices");
+        "indices",
+        "priceIndices");
 
     /**
      * Restricted constructor.
@@ -260,6 +291,8 @@ public final class CurveGroupEntry
           return discountCurrencies;
         case 1943391143:  // indices
           return indices;
+        case 118185502:  // priceIndices
+          return priceIndices;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -304,6 +337,14 @@ public final class CurveGroupEntry
       return indices;
     }
 
+    /**
+     * The meta-property for the {@code priceIndices} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableSet<PriceIndex>> priceIndices() {
+      return priceIndices;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -314,6 +355,8 @@ public final class CurveGroupEntry
           return ((CurveGroupEntry) bean).getDiscountCurrencies();
         case 1943391143:  // indices
           return ((CurveGroupEntry) bean).getIndices();
+        case 118185502:  // priceIndices
+          return ((CurveGroupEntry) bean).getPriceIndices();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -338,6 +381,7 @@ public final class CurveGroupEntry
     private CurveName curveName;
     private Set<Currency> discountCurrencies = ImmutableSet.of();
     private Set<Index> indices = ImmutableSet.of();
+    private Set<PriceIndex> priceIndices = ImmutableSet.of();
 
     /**
      * Restricted constructor.
@@ -353,6 +397,7 @@ public final class CurveGroupEntry
       this.curveName = beanToCopy.getCurveName();
       this.discountCurrencies = beanToCopy.getDiscountCurrencies();
       this.indices = beanToCopy.getIndices();
+      this.priceIndices = beanToCopy.getPriceIndices();
     }
 
     //-----------------------------------------------------------------------
@@ -365,6 +410,8 @@ public final class CurveGroupEntry
           return discountCurrencies;
         case 1943391143:  // indices
           return indices;
+        case 118185502:  // priceIndices
+          return priceIndices;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -382,6 +429,9 @@ public final class CurveGroupEntry
           break;
         case 1943391143:  // indices
           this.indices = (Set<Index>) newValue;
+          break;
+        case 118185502:  // priceIndices
+          this.priceIndices = (Set<PriceIndex>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -418,7 +468,8 @@ public final class CurveGroupEntry
       return new CurveGroupEntry(
           curveName,
           discountCurrencies,
-          indices);
+          indices,
+          priceIndices);
     }
 
     //-----------------------------------------------------------------------
@@ -477,14 +528,37 @@ public final class CurveGroupEntry
       return indices(ImmutableSet.copyOf(indices));
     }
 
+    /**
+     * Sets the price indices for which the curve provides forward index prices.
+     * This is empty if the curve is not used for forward prices.
+     * @param priceIndices  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder priceIndices(Set<PriceIndex> priceIndices) {
+      JodaBeanUtils.notNull(priceIndices, "priceIndices");
+      this.priceIndices = priceIndices;
+      return this;
+    }
+
+    /**
+     * Sets the {@code priceIndices} property in the builder
+     * from an array of objects.
+     * @param priceIndices  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder priceIndices(PriceIndex... priceIndices) {
+      return priceIndices(ImmutableSet.copyOf(priceIndices));
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("CurveGroupEntry.Builder{");
       buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
       buf.append("discountCurrencies").append('=').append(JodaBeanUtils.toString(discountCurrencies)).append(',').append(' ');
-      buf.append("indices").append('=').append(JodaBeanUtils.toString(indices));
+      buf.append("indices").append('=').append(JodaBeanUtils.toString(indices)).append(',').append(' ');
+      buf.append("priceIndices").append('=').append(JodaBeanUtils.toString(priceIndices));
       buf.append('}');
       return buf.toString();
     }

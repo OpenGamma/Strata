@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -194,6 +195,39 @@ public final class CurveGroupDefinitionBuilder {
   }
 
   /**
+   * TODO
+   * @return this builder
+   */
+  public CurveGroupDefinitionBuilder addPriceIndexCurve(
+      NodalCurveDefinition curveDefinition,
+      PriceIndex index,
+      PriceIndex... otherIndices) {
+
+    ArgChecker.notNull(curveDefinition, "curveDefinition");
+    ArgChecker.notNull(index, "index");
+    CurveGroupEntry entry = CurveGroupEntry.builder()
+        .curveName(curveDefinition.getName())
+        .priceIndices(priceIndices(index, otherIndices))
+        .build();
+    return merge(entry, curveDefinition);
+  }
+
+  /**
+   * TODO
+   * @return this builder
+   */
+  public CurveGroupDefinitionBuilder addPriceIndexCurve(CurveName curveName, PriceIndex index, PriceIndex... otherIndices) {
+    ArgChecker.notNull(curveName, "curveName");
+    ArgChecker.notNull(index, "index");
+
+    CurveGroupEntry entry = CurveGroupEntry.builder()
+        .curveName(curveName)
+        .priceIndices(priceIndices(index, otherIndices))
+        .build();
+    return mergeEntry(entry);
+  }
+
+  /**
    * Adds the definition of a curve to the curve group definition which is used to provide
    * discount rates and forward rates.
    *
@@ -267,6 +301,14 @@ public final class CurveGroupDefinitionBuilder {
   private static Set<Index> indices(Index index, Index... otherIndices) {
     // The type parameter is needed for the benefit of the Eclipse compiler
     return ImmutableSet.<Index>builder().add(index).add(otherIndices).build();
+  }
+
+  /**
+   * Returns a set containing any Price indices in the arguments.
+   */
+  private static Set<PriceIndex> priceIndices(PriceIndex index, PriceIndex... otherIndices) {
+    // The type parameter is needed for the benefit of the Eclipse compiler
+    return ImmutableSet.<PriceIndex>builder().add(index).add(otherIndices).build();
   }
 
   //-------------------------------------------------------------------------

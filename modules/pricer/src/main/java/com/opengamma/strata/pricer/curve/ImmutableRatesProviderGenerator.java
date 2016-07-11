@@ -18,17 +18,21 @@ import com.google.common.collect.SetMultimap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.PriceIndexValues;
 
 /**
  * Generates a rates provider based on an existing provider.
@@ -60,11 +64,17 @@ public class ImmutableRatesProviderGenerator
    */
   private final ImmutableSetMultimap<CurveName, Currency> discountCurveNames;
   /**
-   * The map between curve name and indices for forward.
+   * The map between curve name and indices for forward rates.
    * The map should contains all the curve in the definition list but may have more names
    * than the curve definition list. Only the curves in the definitions list are created
    */
   private final ImmutableSetMultimap<CurveName, Index> forwardCurveNames;
+  /**
+   * The map between curve name and price indices for forward prices.
+   * The map should contains all the curve in the definition list but may have more names
+   * than the curve definition list. Only the curves in the definitions list are created
+   */
+  private final ImmutableSetMultimap<CurveName, PriceIndex> priceIndexCurveNames;
 
   /**
    * Obtains a generator from an existing provider and definition.
@@ -83,6 +93,7 @@ public class ImmutableRatesProviderGenerator
     List<CurveMetadata> curveMetadata = new ArrayList<>();
     SetMultimap<CurveName, Currency> discountNames = HashMultimap.create();
     SetMultimap<CurveName, Index> indexNames = HashMultimap.create();
+    SetMultimap<CurveName, PriceIndex> priceIndexCurveNames = HashMultimap.create();
 
     for (NodalCurveDefinition curveDefn : groupDefn.getCurveDefinitions()) {
       curveDefns.add(curveDefn);
@@ -93,8 +104,10 @@ public class ImmutableRatesProviderGenerator
       Set<Currency> ccy = entry.getDiscountCurrencies();
       discountNames.putAll(curveName, ccy);
       indexNames.putAll(curveName, entry.getIndices());
+      priceIndexCurveNames.putAll(curveName, entry.getPriceIndices());
     }
-    return new ImmutableRatesProviderGenerator(knownProvider, curveDefns, curveMetadata, discountNames, indexNames);
+    return new ImmutableRatesProviderGenerator(
+        knownProvider, curveDefns, curveMetadata, discountNames, indexNames, priceIndexCurveNames);
   }
 
   /**
@@ -111,13 +124,15 @@ public class ImmutableRatesProviderGenerator
       List<NodalCurveDefinition> curveDefinitions,
       List<CurveMetadata> curveMetadata,
       SetMultimap<CurveName, Currency> discountCurveNames,
-      SetMultimap<CurveName, Index> forwardCurveNames) {
+      SetMultimap<CurveName, Index> forwardCurveNames,
+      SetMultimap<CurveName, PriceIndex> priceIndexCurveNames) {
 
     this.knownProvider = ArgChecker.notNull(knownProvider, "knownProvider");
     this.curveDefinitions = ImmutableList.copyOf(ArgChecker.notNull(curveDefinitions, "curveDefinitions"));
     this.curveMetadata = ImmutableList.copyOf(ArgChecker.notNull(curveMetadata, "curveMetadata"));
     this.discountCurveNames = ImmutableSetMultimap.copyOf(ArgChecker.notNull(discountCurveNames, "discountCurveNames"));
     this.forwardCurveNames = ImmutableSetMultimap.copyOf(ArgChecker.notNull(forwardCurveNames, "forwardCurveNames"));
+    this.priceIndexCurveNames = ImmutableSetMultimap.copyOf(ArgChecker.notNull(priceIndexCurveNames, "priceIndexCurveNames"));
   }
 
   //-------------------------------------------------------------------------
@@ -130,8 +145,10 @@ public class ImmutableRatesProviderGenerator
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> indexCurves = new HashMap<>();
+    Map<PriceIndex, PriceIndexValues> priceIndexValues = new HashMap<>();
     discountCurves.putAll(knownProvider.getDiscountCurves());
     indexCurves.putAll(knownProvider.getIndexCurves());
+    priceIndexValues.putAll(knownProvider.getPriceIndexValues());
 
     // generate curves from combined parameter array
     int startIndex = 0;
@@ -155,13 +172,26 @@ public class ImmutableRatesProviderGenerator
       for (Index index : indices) {
         indexCurves.put(index, curve);
       }
+      Set<PriceIndex> priceIndices = priceIndexCurveNames.get(name);
+      for (PriceIndex index : priceIndices) {
+        ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, 
+            "curve associated to price index should be InterpolatedNodalCurve");
+        LocalDateDoubleTimeSeries ts = knownProvider.getTimeSeries().get(index);
+        ArgChecker.isTrue(ts != null, 
+            "historical time series requires for price index curves");
+        PriceIndexValues priceValue = 
+            PriceIndexValues.of(index, knownProvider.getValuationDate(), (InterpolatedNodalCurve) curve, ts);
+        priceIndexValues.put(index, priceValue);
+      }
     }
 
     // create child provider
-    return knownProvider.toBuilder()
+    ImmutableRatesProvider provider = knownProvider.toBuilder()
         .discountCurves(discountCurves)
         .indexCurves(indexCurves)
+        .priceIndexValues(priceIndexValues)
         .build();
+    return provider;
   }
 
   // build the map of additional info
