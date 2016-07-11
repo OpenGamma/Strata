@@ -322,15 +322,14 @@ public class VolatilitySwaptionCashParYieldProductPricer {
       SwaptionVolatilities swaptionVolatilities) {
 
     validate(swaption, ratesProvider, swaptionVolatilities);
-    ZonedDateTime expiryDateTime = swaption.getExpiry();
-    double expiry = swaptionVolatilities.relativeTime(expiryDateTime);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
     ResolvedSwap underlying = swaption.getUnderlying();
     ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double strike = calculateStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
       return SwaptionSensitivity.of(
-          swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
+          swaptionVolatilities.getConvention(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
@@ -339,7 +338,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
     return SwaptionSensitivity.of(
         swaptionVolatilities.getConvention(),
-        expiryDateTime,
+        expiry,
         tenor,
         strike,
         forward,

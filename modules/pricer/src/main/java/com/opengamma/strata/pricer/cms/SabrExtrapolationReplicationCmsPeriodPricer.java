@@ -426,10 +426,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     }
     FixedIborSwapConvention conv = cmsPeriod.getIndex().getTemplate().getConvention();
     return PointSensitivityBuilder.of(
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, ALPHA, ccy, totalSensi[0]),
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, BETA, ccy, totalSensi[1]),
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, RHO, ccy, totalSensi[2]),
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, NU, ccy, totalSensi[3]));
+        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, ALPHA, ccy, totalSensi[0]),
+        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, BETA, ccy, totalSensi[1]),
+        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, RHO, ccy, totalSensi[2]),
+        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, NU, ccy, totalSensi[3]));
   }
 
   /**

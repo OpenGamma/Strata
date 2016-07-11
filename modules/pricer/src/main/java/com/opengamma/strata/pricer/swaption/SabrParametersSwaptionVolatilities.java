@@ -238,7 +238,7 @@ public final class SabrParametersSwaptionVolatilities
     ArgChecker.isTrue(point.getConvention().equals(getConvention()),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     Surface surface = getSurface(point.getSensitivityType());
-    double expiry = relativeTime(point.getExpiry());
+    double expiry = point.getExpiry();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, point.getTenor());
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }

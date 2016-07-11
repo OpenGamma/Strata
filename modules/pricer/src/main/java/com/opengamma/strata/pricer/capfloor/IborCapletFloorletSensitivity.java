@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.capfloor;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -48,10 +47,10 @@ public final class IborCapletFloorletSensitivity
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
   /**
-   * The expiry date/time of the option.
+   * The time to expiry of the option as a year fraction.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ZonedDateTime expiry;
+  private final double expiry;
   /**
    * The strike rate.
    */
@@ -78,7 +77,7 @@ public final class IborCapletFloorletSensitivity
    * Obtains an instance, specifying sensitivity currency.
    * 
    * @param index  the Ibor index for which the data is valid
-   * @param expiry  the expiry date/time
+   * @param expiry  the time to expiry of the option as a year fraction
    * @param strike  the strike rate
    * @param forward  the forward rate
    * @param sensitivityCurrency  the currency of the sensitivity
@@ -87,7 +86,7 @@ public final class IborCapletFloorletSensitivity
    */
   public static IborCapletFloorletSensitivity of(
       IborIndex index,
-      ZonedDateTime expiry,
+      double expiry,
       double strike,
       double forward,
       Currency sensitivityCurrency,
@@ -102,7 +101,7 @@ public final class IborCapletFloorletSensitivity
    * The currency is defaulted from the index.
    * 
    * @param index  the Ibor index for which the data is valid
-   * @param expiry  the expiry date/time
+   * @param expiry  the time to expiry of the option as a year fraction
    * @param strike  the strike rate
    * @param forward  the forward rate
    * @param sensitivity  the value of the sensitivity
@@ -110,7 +109,7 @@ public final class IborCapletFloorletSensitivity
    */
   public static IborCapletFloorletSensitivity of(
       IborIndex index,
-      ZonedDateTime expiry,
+      double expiry,
       double strike,
       double forward,
       double sensitivity) {
@@ -199,7 +198,7 @@ public final class IborCapletFloorletSensitivity
 
   private IborCapletFloorletSensitivity(
       IborIndex index,
-      ZonedDateTime expiry,
+      double expiry,
       double strike,
       double forward,
       Currency currency,
@@ -241,10 +240,10 @@ public final class IborCapletFloorletSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry date/time of the option.
+   * Gets the time to expiry of the option as a year fraction.
    * @return the value of the property, not null
    */
-  public ZonedDateTime getExpiry() {
+  public double getExpiry() {
     return expiry;
   }
 
@@ -348,8 +347,8 @@ public final class IborCapletFloorletSensitivity
     /**
      * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<ZonedDateTime> expiry = DirectMetaProperty.ofImmutable(
-        this, "expiry", IborCapletFloorletSensitivity.class, ZonedDateTime.class);
+    private final MetaProperty<Double> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", IborCapletFloorletSensitivity.class, Double.TYPE);
     /**
      * The meta-property for the {@code strike} property.
      */
@@ -435,7 +434,7 @@ public final class IborCapletFloorletSensitivity
      * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ZonedDateTime> expiry() {
+    public MetaProperty<Double> expiry() {
       return expiry;
     }
 
@@ -509,7 +508,7 @@ public final class IborCapletFloorletSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<IborCapletFloorletSensitivity> {
 
     private IborIndex index;
-    private ZonedDateTime expiry;
+    private double expiry;
     private double strike;
     private double forward;
     private Currency currency;
@@ -549,7 +548,7 @@ public final class IborCapletFloorletSensitivity
           this.index = (IborIndex) newValue;
           break;
         case -1289159373:  // expiry
-          this.expiry = (ZonedDateTime) newValue;
+          this.expiry = (Double) newValue;
           break;
         case -891985998:  // strike
           this.strike = (Double) newValue;

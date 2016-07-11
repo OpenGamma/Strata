@@ -576,7 +576,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertEquals(computedRec.getCurrency(), USD);
     assertEquals(computedRec.getSensitivity(), expectedRec, FD_EPS * NOTIONAL);
     assertEquals(computedRec.getConvention(), SwaptionNormalVolatilityDataSets.USD_1Y_LIBOR3M);
-    assertEquals(computedRec.getExpiry(), SWAPTION_REC_LONG.getExpiry());
+    assertEquals(computedRec.getExpiry(), VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry()));
     assertEquals(computedRec.getTenor(), SWAP_TENOR_YEAR, TOL);
     assertEquals(computedRec.getStrike(), STRIKE, TOL);
     assertEquals(computedRec.getForward(), PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER), TOL);
@@ -590,7 +590,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertEquals(computedPay.getCurrency(), USD);
     assertEquals(computedPay.getSensitivity(), expectedPay, FD_EPS * NOTIONAL);
     assertEquals(computedPay.getConvention(), SwaptionNormalVolatilityDataSets.USD_1Y_LIBOR3M);
-    assertEquals(computedPay.getExpiry(), SWAPTION_PAY_SHORT.getExpiry());
+    assertEquals(computedPay.getExpiry(), VOL_PROVIDER.relativeTime(SWAPTION_PAY_SHORT.getExpiry()));
     assertEquals(computedPay.getTenor(), SWAP_TENOR_YEAR, TOL);
     assertEquals(computedPay.getStrike(), STRIKE, TOL);
     assertEquals(computedPay.getForward(), PRICER_SWAP.parRate(RSWAP_PAY, RATE_PROVIDER), TOL);

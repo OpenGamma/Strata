@@ -137,8 +137,9 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
     int nData = TIME.size();
     for (int i = 0; i < NB_TEST; i++) {
       for (int k = 0; k < NB_TEST; k++) {
+        double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
         IborCapletFloorletSensitivity point = IborCapletFloorletSensitivity.of(
-            GBP_LIBOR_3M, TEST_OPTION_EXPIRY[i], TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+            GBP_LIBOR_3M, expiryTime, TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
         double[] sensFd = new double[nData];
         for (int j = 0; j < nData; j++) {
           DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);

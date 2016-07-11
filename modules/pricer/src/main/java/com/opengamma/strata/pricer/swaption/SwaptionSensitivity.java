@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.swaption;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -48,10 +47,10 @@ public final class SwaptionSensitivity
   @PropertyDefinition(validate = "notNull")
   private final FixedIborSwapConvention convention;
   /**
-   * The expiry date/time of the option.
+   * The time to expiry of the option as a year fraction.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ZonedDateTime expiry;
+  private final double expiry;
   /**
    * The underlying swap tenor.
    */
@@ -83,7 +82,7 @@ public final class SwaptionSensitivity
    * Obtains an instance from the specified elements.
    * 
    * @param convention  the convention of the swap for which the data is valid
-   * @param expiry  the expiry date/time of the option
+   * @param expiry  the time to expiry of the option as a year fraction
    * @param tenor  the underlying swap tenor
    * @param strike  the swaption strike rate
    * @param forward  the underlying swap forward rate
@@ -93,7 +92,7 @@ public final class SwaptionSensitivity
    */
   public static SwaptionSensitivity of(
       FixedIborSwapConvention convention,
-      ZonedDateTime expiry,
+      double expiry,
       double tenor,
       double strike,
       double forward,
@@ -185,7 +184,7 @@ public final class SwaptionSensitivity
 
   private SwaptionSensitivity(
       FixedIborSwapConvention convention,
-      ZonedDateTime expiry,
+      double expiry,
       double tenor,
       double strike,
       double forward,
@@ -229,10 +228,10 @@ public final class SwaptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry date/time of the option.
+   * Gets the time to expiry of the option as a year fraction.
    * @return the value of the property, not null
    */
-  public ZonedDateTime getExpiry() {
+  public double getExpiry() {
     return expiry;
   }
 
@@ -348,8 +347,8 @@ public final class SwaptionSensitivity
     /**
      * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<ZonedDateTime> expiry = DirectMetaProperty.ofImmutable(
-        this, "expiry", SwaptionSensitivity.class, ZonedDateTime.class);
+    private final MetaProperty<Double> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", SwaptionSensitivity.class, Double.TYPE);
     /**
      * The meta-property for the {@code tenor} property.
      */
@@ -443,7 +442,7 @@ public final class SwaptionSensitivity
      * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ZonedDateTime> expiry() {
+    public MetaProperty<Double> expiry() {
       return expiry;
     }
 
@@ -527,7 +526,7 @@ public final class SwaptionSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<SwaptionSensitivity> {
 
     private FixedIborSwapConvention convention;
-    private ZonedDateTime expiry;
+    private double expiry;
     private double tenor;
     private double strike;
     private double forward;
@@ -570,7 +569,7 @@ public final class SwaptionSensitivity
           this.convention = (FixedIborSwapConvention) newValue;
           break;
         case -1289159373:  // expiry
-          this.expiry = (ZonedDateTime) newValue;
+          this.expiry = (Double) newValue;
           break;
         case 110246592:  // tenor
           this.tenor = (Double) newValue;
