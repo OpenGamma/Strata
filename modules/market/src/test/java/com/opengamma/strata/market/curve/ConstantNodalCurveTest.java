@@ -109,7 +109,7 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withValues() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    ConstantNodalCurve test = base.withValues(YVALUE_BUMPED);
+    ConstantNodalCurve test = base.withYValues(YVALUE_BUMPED);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
@@ -119,8 +119,8 @@ public class ConstantNodalCurveTest {
 
   public void test_withValues_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.of(4d, 6d)));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------

@@ -170,7 +170,7 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public ConstantNodalCurve withValues(DoubleArray yValues) {
+  public ConstantNodalCurve withYValues(DoubleArray yValues) {
     ArgChecker.isTrue(yValues.size() == 1, "Invalid number of parameters, only one allowed");
     return new ConstantNodalCurve(metadata, xValue, yValues.get(0));
   }

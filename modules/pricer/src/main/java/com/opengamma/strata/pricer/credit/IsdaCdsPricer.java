@@ -253,10 +253,6 @@ public class IsdaCdsPricer {
       return new IsdaNodalCurve(underlying, creditCurveInputs.getCurveMetaData());
     }
 
-    @Override
-    public NodalCurve withXYValues(DoubleArray xValues, DoubleArray yValues) {
-      throw new UnsupportedOperationException();
-    }
   }
 
   //-------------------------------------------------------------------------
