@@ -27,14 +27,13 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.bond.BondFutureOptionSecurity;
 import com.opengamma.strata.product.bond.FixedCouponBondSecurity;
-import com.opengamma.strata.product.equity.EquitySecurity;
 import com.opengamma.strata.product.index.IborFutureSecurity;
 
 /**
  * A generic security, defined in terms of the value of each tick.
  * <p>
  * In most cases, applications will choose to represent information about securities
- * using the relevant type, such as {@link EquitySecurity}, {@link FixedCouponBondSecurity},
+ * using the relevant type, such as {@link FixedCouponBondSecurity},
  * {@link BondFutureOptionSecurity} or {@link IborFutureSecurity}.
  * Sometimes however, it can be useful to store minimal information about the security,
  * expressing just the tick size and tick value.
