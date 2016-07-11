@@ -10,10 +10,10 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.index.IborFutureOptionTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Pricer for Ibor future option trades with daily margin.

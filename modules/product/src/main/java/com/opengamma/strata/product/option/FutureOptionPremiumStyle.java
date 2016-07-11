@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.fxopt;
+package com.opengamma.strata.product.option;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -12,20 +12,23 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The barrier type of barrier event.
+ * The style of premium for an option on a futures contract.
  * <p>
- * This defines the barrier type of {@link Barrier}.
+ * There are two styles of future options, one with daily margining, and one
+ * with an up-front premium. This class specifies the types.
  */
-public enum BarrierType {
+public enum FutureOptionPremiumStyle {
 
   /**
-   * Down 
+   * The "DailyMargin" style, used where the option has daily margining.
+   * This is also known as <i>future-style margining</i>.
    */
-  DOWN,
+  DAILY_MARGIN,
   /**
-   * Up 
+   * The "UpfrontPremium" style, used where the option has an upfront premium.
+   * This is also known as <i>equity-style margining</i>.
    */
-  UP;
+  UPFRONT_PREMIUM;
 
   //-------------------------------------------------------------------------
   /**
@@ -36,19 +39,9 @@ public enum BarrierType {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static BarrierType of(String uniqueName) {
+  public static FutureOptionPremiumStyle of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Checks if the type is 'Down'.
-   * 
-   * @return true if down, false if up
-   */
-  public boolean isDown() {
-    return this == DOWN;
   }
 
   //-------------------------------------------------------------------------

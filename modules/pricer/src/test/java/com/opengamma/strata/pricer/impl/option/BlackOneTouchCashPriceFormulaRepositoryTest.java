@@ -15,9 +15,9 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.TestHelper;
-import com.opengamma.strata.product.fxopt.BarrierType;
-import com.opengamma.strata.product.fxopt.KnockType;
-import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * Test {@link BlackOneTouchCashPriceFormulaRepository}.

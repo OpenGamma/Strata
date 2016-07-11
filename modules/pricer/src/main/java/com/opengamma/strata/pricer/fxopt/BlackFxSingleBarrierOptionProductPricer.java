@@ -22,7 +22,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
-import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * Pricer for FX barrier option products in Black-Scholes world.

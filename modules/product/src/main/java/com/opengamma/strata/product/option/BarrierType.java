@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.fxopt;
+package com.opengamma.strata.product.option;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -12,20 +12,20 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The knock type of barrier event.
+ * The barrier type of barrier event.
  * <p>
- * This defines the knock type of {@link Barrier}.
+ * This defines the barrier type of {@link Barrier}.
  */
-public enum KnockType {
+public enum BarrierType {
 
   /**
-   * Knock-in 
+   * Down 
    */
-  KNOCK_IN,
+  DOWN,
   /**
-   * Knock-out 
+   * Up 
    */
-  KNOCK_OUT;
+  UP;
 
   //-------------------------------------------------------------------------
   /**
@@ -36,19 +36,19 @@ public enum KnockType {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static KnockType of(String uniqueName) {
+  public static BarrierType of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the type is 'Knock-in'.
+   * Checks if the type is 'Down'.
    * 
-   * @return true if knock-in, false if knock-out
+   * @return true if down, false if up
    */
-  public boolean isKnockIn() {
-    return this == KNOCK_IN;
+  public boolean isDown() {
+    return this == DOWN;
   }
 
   //-------------------------------------------------------------------------

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.fxopt;
+package com.opengamma.strata.product.option;
 
 import java.time.LocalDate;
 

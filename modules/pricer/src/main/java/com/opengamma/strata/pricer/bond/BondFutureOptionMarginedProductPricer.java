@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.bond;
 
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Pricer for bond future option products with daily margin.
