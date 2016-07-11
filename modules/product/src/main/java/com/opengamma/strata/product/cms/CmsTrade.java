@@ -79,7 +79,7 @@ public final class CmsTrade
     return ResolvedCmsTrade.builder()
         .info(info)
         .product(product.resolve(refData))
-        .premium(premium.resolve(refData))
+        .premium(premium != null ? premium.resolve(refData) : null)
         .build();
   }
 
