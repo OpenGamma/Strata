@@ -113,10 +113,9 @@ public class CalibrationEur3CheckExample {
       Object pvValue = pv.getValue();
       ArgChecker.isTrue(pvValue instanceof CurrencyAmount, "result type");
       CurrencyAmount ca = (CurrencyAmount) pvValue;
-      ArgChecker.isTrue(Math.abs(ca.getAmount()) < TOLERANCE_PV, "PV should be small");
       output += " with value: " + ca;
       System.out.println(output);
-      System.out.println(output);
+      ArgChecker.isTrue(Math.abs(ca.getAmount()) < TOLERANCE_PV, "PV should be small");
     }
 
     // optionally test performance
@@ -175,7 +174,7 @@ public class CalibrationEur3CheckExample {
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
 
     Map<CurveGroupName, CurveGroupDefinition> defnMap = defns.stream().collect(toMap(def -> def.getName(), def -> def));
-    CurveGroupDefinition curveGroupDefinition = defnMap.get(CURVE_GROUP_NAME);
+    CurveGroupDefinition curveGroupDefinition = defnMap.get(CURVE_GROUP_NAME).filtered(VAL_DATE, refData);
 
     // extract the trades used for calibration
     List<Trade> trades = curveGroupDefinition.getCurveDefinitions().stream()
