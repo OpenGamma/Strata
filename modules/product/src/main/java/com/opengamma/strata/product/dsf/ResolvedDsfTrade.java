@@ -38,9 +38,6 @@ import com.opengamma.strata.product.TradeInfo;
  * A {@code ResolvedDsfTrade} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
- * <p>
- * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
- * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedDsfTrade
@@ -69,7 +66,7 @@ public final class ResolvedDsfTrade
   @PropertyDefinition
   private final double quantity;
   /**
-   * The price that was traded.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    */
@@ -182,7 +179,7 @@ public final class ResolvedDsfTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
@@ -513,7 +510,7 @@ public final class ResolvedDsfTrade
     }
 
     /**
-     * Sets the price that was traded.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
      * @param price  the new value

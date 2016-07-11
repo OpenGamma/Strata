@@ -115,7 +115,7 @@ public class DsfPricingExample {
             .build())
         .product(product)
         .quantity(20)
-        .price(100.75)
+        .price(1.0075)
         .build();
   }
 
@@ -142,7 +142,7 @@ public class DsfPricingExample {
             .build())
         .product(product)
         .quantity(20)
-        .price(100.85)
+        .price(1.0085)
         .build();
   }
 

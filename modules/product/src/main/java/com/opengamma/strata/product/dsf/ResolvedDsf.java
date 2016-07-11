@@ -47,9 +47,6 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * A {@code ResolvedDsf} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
- * <p>
- * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
- * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedDsf
