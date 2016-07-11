@@ -155,7 +155,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     double delta = OPTION_PRICER.deltaStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed =
-        OPTION_PRICER.priceSensitivityStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+        OPTION_PRICER.priceSensitivityRatesStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertTrue(optionPriceSensitivityExpected.equalWithTolerance(optionPriceSensitivityComputed, TOLERANCE_PRICE_DELTA));
   }
 
@@ -170,11 +170,8 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     double delta = OPTION_PRICER.deltaStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed =
-        OPTION_PRICER.priceSensitivityStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
+        OPTION_PRICER.priceSensitivityRatesStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     assertTrue(optionPriceSensitivityExpected.equalWithTolerance(optionPriceSensitivityComputed, TOLERANCE_PRICE_DELTA));
-    PointSensitivities optionPriceSensitivityComputed2 =
-        OPTION_PRICER.priceSensitivity(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
-    assertTrue(optionPriceSensitivityExpected.equalWithTolerance(optionPriceSensitivityComputed2, TOLERANCE_PRICE_DELTA));
   }
 
   // ----------     priceSensitivityNormalVolatility     ----------
@@ -192,7 +189,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, timeToExpiry, OPTION.getPutCall());
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, normalVol);
     double optionVegaExpected = NORMAL_FUNCTION.getVega(option, normalPoint);
-    IborFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityNormalVolatility(
+    IborFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityModelParamsVolatility(
         OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertEquals(optionVegaComputed.getSensitivity(), optionVegaExpected, TOLERANCE_PRICE);
     assertEquals(optionVegaComputed.getExpiry(), timeToExpiry);
@@ -208,9 +205,9 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 1.0 - RATE;
-    IborFutureOptionSensitivity optionVegaExpected = OPTION_PRICER.priceSensitivityNormalVolatility(
+    IborFutureOptionSensitivity optionVegaExpected = OPTION_PRICER.priceSensitivityModelParamsVolatility(
         OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
-    IborFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityNormalVolatility(
+    IborFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityModelParamsVolatility(
         OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     assertTrue(optionVegaExpected.compareKey(optionVegaComputed) == 0);
     assertEquals(optionVegaComputed.getSensitivity(), optionVegaExpected.getSensitivity(), TOLERANCE_PRICE_DELTA);

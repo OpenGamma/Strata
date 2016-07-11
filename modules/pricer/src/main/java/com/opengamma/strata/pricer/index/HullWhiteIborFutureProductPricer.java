@@ -33,7 +33,7 @@ import com.opengamma.strata.product.index.ResolvedIborFuture;
  * The decimal price is based on the decimal rate equivalent to the percentage.
  * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
-public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductPricer {
+public class HullWhiteIborFutureProductPricer {
 
   /**
   * Default implementation.
@@ -44,6 +44,36 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * Creates an instance.
   */
   public HullWhiteIborFutureProductPricer() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the number related to Ibor futures product on which the daily margin is computed.
+   * <p>
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param price  the price of the product, in decimal form
+   * @return the index
+   */
+  double marginIndex(ResolvedIborFuture future, double price) {
+    return price * future.getNotional() * future.getAccrualFactor();
+  }
+
+  /**
+   * Calculates the margin index sensitivity of the Ibor future product.
+   * <p>
+   * The margin index sensitivity is the sensitivity of the margin index to the underlying curves.
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param priceSensitivity  the price sensitivity of the product
+   * @return the index sensitivity
+   */
+  PointSensitivities marginIndexSensitivity(ResolvedIborFuture future, PointSensitivities priceSensitivity) {
+    return priceSensitivity.multipliedBy(future.getNotional() * future.getAccrualFactor());
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +152,7 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * @param hwProvider  the Hull-White model parameter provider
   * @return the price curve sensitivity of the product
   */
-  public PointSensitivities priceSensitivity(
+  public PointSensitivities priceSensitivityRates(
       ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
@@ -145,7 +175,7 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
   * @param hwProvider  the Hull-White model parameter provider
   * @return the price parameter sensitivity of the product
   */
-  public DoubleArray priceSensitivityHullWhiteParameter(
+  public DoubleArray priceSensitivityModelParamsHullWhite(
       ResolvedIborFuture future,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
