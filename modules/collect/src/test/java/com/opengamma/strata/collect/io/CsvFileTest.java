@@ -62,6 +62,11 @@ public class CsvFileTest {
       "a,b,c,b,c\n" +
       "aa,b1,c1,b2,c2\n";
 
+  private final String CSV6 = "" +
+      "a,b,c\n" +
+      "r11\n" +
+      "r21,r22";
+
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
     assertThrows(
@@ -175,6 +180,22 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).subRow(1, 3).getField("c"), "c1");
     assertEquals(csvFile.row(0).subRow(3).getField("b"), "b2");
     assertEquals(csvFile.row(0).subRow(3).getField("c"), "c2");
+  }
+
+  public void test_short_data_row() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV6), true);
+    assertEquals(csvFile.headers(), ImmutableList.of("a", "b", "c"));
+    assertEquals(csvFile.row(0).getField("a"), "r11");
+    assertEquals(csvFile.row(0).getField("b"), "");
+    assertEquals(csvFile.row(0).getField("c"), "");
+    assertEquals(csvFile.row(0).field(0), "r11");
+    assertEquals(csvFile.row(0).field(1), "");
+    assertEquals(csvFile.row(0).field(2), "");
+    assertThrows(() -> csvFile.row(0).field(4), IndexOutOfBoundsException.class);
+
+    assertEquals(csvFile.row(1).getField("a"), "r21");
+    assertEquals(csvFile.row(1).getField("b"), "r22");
+    assertEquals(csvFile.row(1).getField("c"), "");
   }
 
   public void test_comment_blank_no_header() {
