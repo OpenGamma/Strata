@@ -39,6 +39,7 @@ public class BlackFxSingleBarrierOptionTradePricer {
    */
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the FX barrier option trade.
    * <p>
@@ -75,14 +76,14 @@ public class BlackFxSingleBarrierOptionTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivityStickyStrike(
+  public PointSensitivities presentValueSensitivityRatesStickyStrike(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     ResolvedFxSingleBarrierOption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
-        PRICER_PRODUCT.presentValueSensitivityStickyStrike(product, ratesProvider, volatilityProvider);
+        PRICER_PRODUCT.presentValueSensitivityRatesStickyStrike(product, ratesProvider, volatilityProvider);
     Payment premium = trade.getPremium();
     PointSensitivityBuilder pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, ratesProvider);
     return pvcsProduct.combinedWith(pvcsPremium).build();
@@ -99,13 +100,13 @@ public class BlackFxSingleBarrierOptionTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivityBlackVolatility(
+  public PointSensitivities presentValueSensitivityModelParamsVolatility(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     ResolvedFxSingleBarrierOption product = trade.getProduct();
-    return PRICER_PRODUCT.presentValueSensitivityVolatility(product, ratesProvider, volatilityProvider).build();
+    return PRICER_PRODUCT.presentValueSensitivityModelParamsVolatility(product, ratesProvider, volatilityProvider).build();
   }
 
   //-------------------------------------------------------------------------
@@ -128,6 +129,7 @@ public class BlackFxSingleBarrierOptionTradePricer {
     return PRICER_PRODUCT.currencyExposure(product, ratesProvider, volatilityProvider).plus(pvPremium);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the current of the FX barrier option trade.
    * 

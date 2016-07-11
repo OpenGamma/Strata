@@ -150,7 +150,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the product
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
+  public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
@@ -273,7 +273,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivityVolatility(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsVolatility(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {

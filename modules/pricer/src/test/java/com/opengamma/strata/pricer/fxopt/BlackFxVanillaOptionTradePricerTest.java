@@ -98,8 +98,8 @@ public class BlackFxVanillaOptionTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivities pvSensiTrade = PRICER_TRADE.presentValueSensitivity(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
-    PointSensitivities pvSensiProduct = PRICER_PRODUCT.presentValueSensitivity(OPTION_PRODUCT, RATES_PROVIDER,
+    PointSensitivities pvSensiTrade = PRICER_TRADE.presentValueSensitivityRates(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pvSensiProduct = PRICER_PRODUCT.presentValueSensitivityRates(OPTION_PRODUCT, RATES_PROVIDER,
         VOL_PROVIDER);
     PointSensitivities pvSensiPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM, RATES_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct.combinedWith(pvSensiPremium));
@@ -107,15 +107,15 @@ public class BlackFxVanillaOptionTradePricerTest {
 
   public void test_presentValueSensitivityBlackVolatility() {
     PointSensitivities pvSensiTrade =
-        PRICER_TRADE.presentValueSensitivityBlackVolatility(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER_TRADE.presentValueSensitivityModelParamsVolatility(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
     PointSensitivities pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityBlackVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
+        PRICER_PRODUCT.presentValueSensitivityModelParamsVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct);
   }
 
   public void test_currencyExposure() {
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
-    PointSensitivities point = PRICER_TRADE.presentValueSensitivity(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = PRICER_TRADE.presentValueSensitivityRates(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
     MultiCurrencyAmount pv = PRICER_TRADE.presentValue(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
     MultiCurrencyAmount ceExpected = RATES_PROVIDER.currencyExposure(point).plus(pv);
     assertEquals(ceComputed.size(), 2);

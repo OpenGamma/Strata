@@ -39,6 +39,7 @@ public class BlackFxVanillaOptionTradePricer {
    */
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the foreign exchange vanilla option trade.
    * <p>
@@ -75,14 +76,14 @@ public class BlackFxVanillaOptionTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivity(
+  public PointSensitivities presentValueSensitivityRates(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
     PointSensitivities pvcsProduct =
-        PRICER_PRODUCT.presentValueSensitivity(product, ratesProvider, volatilityProvider);
+        PRICER_PRODUCT.presentValueSensitivityRates(product, ratesProvider, volatilityProvider);
     Payment premium = trade.getPremium();
     PointSensitivities pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, ratesProvider).build();
     return pvcsProduct.combinedWith(pvcsPremium);
@@ -99,13 +100,13 @@ public class BlackFxVanillaOptionTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivityBlackVolatility(
+  public PointSensitivities presentValueSensitivityModelParamsVolatility(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
-    return PRICER_PRODUCT.presentValueSensitivityBlackVolatility(product, ratesProvider, volatilityProvider).build();
+    return PRICER_PRODUCT.presentValueSensitivityModelParamsVolatility(product, ratesProvider, volatilityProvider).build();
   }
 
   //-------------------------------------------------------------------------

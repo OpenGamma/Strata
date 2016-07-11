@@ -223,7 +223,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     // call
-    PointSensitivities pointCall = PRICER.presentValueSensitivity(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pointCall = PRICER.presentValueSensitivityRates(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
     CurrencyParameterSensitivities computedCall = RATES_PROVIDER.parameterSensitivity(pointCall);
     CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
         (p) -> PRICER.presentValue(CALL_OTM, (p), VOL_PROVIDER));
@@ -235,7 +235,7 @@ public class BlackFxVanillaOptionProductPricerTest {
             .multipliedBy(-pvVegaCall.getAmount());
     assertTrue(computedCall.equalWithTolerance(expectedCall.combinedWith(impliedVolSenseCall), NOTIONAL * FD_EPS));
     // put
-    PointSensitivities pointPut = PRICER.presentValueSensitivity(PUT_OTM, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pointPut = PRICER.presentValueSensitivityRates(PUT_OTM, RATES_PROVIDER, VOL_PROVIDER);
     CurrencyParameterSensitivities computedPut = RATES_PROVIDER.parameterSensitivity(pointPut);
     CurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
         (p) -> PRICER.presentValue(PUT_OTM, (p), VOL_PROVIDER));
@@ -250,14 +250,14 @@ public class BlackFxVanillaOptionProductPricerTest {
 
   public void test_presentValueSensitivity_atExpiry() {
     // call
-    PointSensitivities pointCall = PRICER.presentValueSensitivity(CALL_OTM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
+    PointSensitivities pointCall = PRICER.presentValueSensitivityRates(CALL_OTM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
     CurrencyParameterSensitivities computedCall = RATES_PROVIDER_EXPIRY.parameterSensitivity(pointCall);
     CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity(
         (ImmutableRatesProvider) RATES_PROVIDER_EXPIRY,
         (p) -> PRICER.presentValue(CALL_OTM, (p), VOL_PROVIDER_EXPIRY));
     assertTrue(computedCall.equalWithTolerance(expectedCall, NOTIONAL * FD_EPS));
     // put
-    PointSensitivities pointPut = PRICER.presentValueSensitivity(PUT_OTM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
+    PointSensitivities pointPut = PRICER.presentValueSensitivityRates(PUT_OTM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
     CurrencyParameterSensitivities computedPut = RATES_PROVIDER_EXPIRY.parameterSensitivity(pointPut);
     CurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity(
         (ImmutableRatesProvider) RATES_PROVIDER_EXPIRY,
@@ -266,7 +266,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   }
 
   public void test_presentValueSensitivity_afterExpiry() {
-    PointSensitivities point = PRICER.presentValueSensitivity(CALL_ITM, RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+    PointSensitivities point = PRICER.presentValueSensitivityRates(CALL_ITM, RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
     assertEquals(point, PointSensitivities.empty());
   }
 
@@ -347,9 +347,9 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityBlackVolatility() {
     FxOptionSensitivity computedCall = (FxOptionSensitivity)
-        PRICER.presentValueSensitivityBlackVolatility(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
     FxOptionSensitivity computedPut = (FxOptionSensitivity)
-        PRICER.presentValueSensitivityBlackVolatility(PUT_ITM, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(PUT_ITM, RATES_PROVIDER, VOL_PROVIDER);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY);
     double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
@@ -363,13 +363,13 @@ public class BlackFxVanillaOptionProductPricerTest {
 
   public void test_presentValueSensitivityBlackVolatility_atExpiry() {
     PointSensitivityBuilder point =
-        PRICER.presentValueSensitivityBlackVolatility(PUT_ITM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
+        PRICER.presentValueSensitivityModelParamsVolatility(PUT_ITM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
     assertEquals(point, PointSensitivityBuilder.none());
   }
 
   public void test_presentValueSensitivityBlackVolatility_afterExpiry() {
     PointSensitivityBuilder point =
-        PRICER.presentValueSensitivityBlackVolatility(CALL_ITM, RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+        PRICER.presentValueSensitivityModelParamsVolatility(CALL_ITM, RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
     assertEquals(point, PointSensitivityBuilder.none());
   }
 
@@ -428,7 +428,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_currencyExposure() {
     MultiCurrencyAmount computedPricer = PRICER.currencyExposure(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
-    PointSensitivities point = PRICER.presentValueSensitivity(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = PRICER.presentValueSensitivityRates(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
     MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
     assertEquals(computedPricer.getAmount(EUR).getAmount(), computedPoint.getAmount(EUR).getAmount(), NOTIONAL * TOL);
     assertEquals(computedPricer.getAmount(USD).getAmount(), computedPoint.getAmount(USD).getAmount(), NOTIONAL * TOL);

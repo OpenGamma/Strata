@@ -301,7 +301,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
     ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer pricer =
         new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(21);
     CurrencyParameterSensitivities computed =
-        pricer.presentValueCurveParameterSensitivity(CALL_UKI_C, RATE_PROVIDER, VOL_PROVIDER);
+        pricer.presentValueRatesSensitivity(CALL_UKI_C, RATE_PROVIDER, VOL_PROVIDER);
     RatesFiniteDifferenceSensitivityCalculator calc = new RatesFiniteDifferenceSensitivityCalculator(1.0e-5);
     CurrencyParameterSensitivities expected =
         calc.sensitivity(RATE_PROVIDER, p -> pricer.presentValue(CALL_UKI_C, p, VOL_PROVIDER));
@@ -335,7 +335,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   }
 
   public void test_dataMismatch() {
-    assertThrowsIllegalArg(() -> PRICER_70.presentValueCurveParameterSensitivity(CALL_DKO, RATE_PROVIDER,
+    assertThrowsIllegalArg(() -> PRICER_70.presentValueRatesSensitivity(CALL_DKO, RATE_PROVIDER,
         VOL_PROVIDER, DATA_39));
   }
 
