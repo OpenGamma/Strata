@@ -10,7 +10,7 @@ Valuation Date,Symbology,Ticker,Field Name,Value
 2014-01-22,OG-Future,Ibor-USD-LIBOR-3M-Mar15,SettlementPrice,99.982
 2014-01-22,OG-Future,Ibor-USD-LIBOR-3M-Jun15,MarketValue,99.957
 2014-01-22,OG-Future,Ibor-USD-LIBOR-3M-Jun15,SettlementPrice,99.959
-2014-01-22,OG-Future,CME-F1U-Mar15,MarketValue,100.71
-2014-01-22,OG-Future,CME-F1U-Mar15,SettlementPrice,100.72
-2014-01-22,OG-Future,CME-F1U-Jun15,MarketValue,100.88
-2014-01-22,OG-Future,CME-F1U-Jun15,SettlementPrice,100.87
+2014-01-22,OG-Future,CME-F1U-Mar15,MarketValue,1.0071
+2014-01-22,OG-Future,CME-F1U-Mar15,SettlementPrice,1.0072
+2014-01-22,OG-Future,CME-F1U-Jun15,MarketValue,1.0088
+2014-01-22,OG-Future,CME-F1U-Jun15,SettlementPrice,1.0087

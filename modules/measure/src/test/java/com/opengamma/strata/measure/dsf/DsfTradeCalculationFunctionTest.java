@@ -88,7 +88,6 @@ public class DsfTradeCalculationFunctionTest {
       .build();
   private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   public static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final double MARKET_PRICE = REF_PRICE * 100;
   private static final long QUANTITY = 1234L;
   public static final DsfTrade TRADE = DsfTrade.builder()
       .product(FUTURE)
@@ -165,7 +164,7 @@ public class DsfTradeCalculationFunctionTest {
         ImmutableMap.of(
             DISCOUNT_CURVE_ID, curve,
             FORWARD_CURVE_ID, curve,
-            QUOTE_KEY, MARKET_PRICE),
+            QUOTE_KEY, REF_PRICE),
         ImmutableMap.of());
     return md;
   }

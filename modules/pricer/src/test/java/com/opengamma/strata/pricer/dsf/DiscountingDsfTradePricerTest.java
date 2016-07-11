@@ -172,7 +172,7 @@ public class DiscountingDsfTradePricerTest {
 
   public void test_presentValue() {
     CurrencyAmount computed = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
-    double expected = QUANTITY * NOTIONAL * (PRODUCT_PRICER.price(FUTURE, PROVIDER) - LASTMARG_PRICE);
+    double expected = QUANTITY * NOTIONAL * (PRODUCT_PRICER.price(FUTURE, PROVIDER) - TRADE_PRICE);
     assertEquals(computed.getCurrency(), USD);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
