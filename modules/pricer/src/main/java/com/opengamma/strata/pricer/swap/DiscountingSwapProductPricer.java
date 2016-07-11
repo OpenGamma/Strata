@@ -207,6 +207,8 @@ public class DiscountingSwapProductPricer {
     }
     // try Compounding
     Triple<Boolean, Integer, Double> fixedCompounded = checkFixedCompounded(fixedLeg);
+    ArgChecker.isTrue(fixedCompounded.getFirst(),
+        "Swap should have a fixed leg and for one payment it should be based on compunding witout spread.");
     double notional = payment.getNotional();
     double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
     return Math.pow(-(otherLegsConvertedPv + fixedLegEventsPv) / (notional * df) + 1.0d,
@@ -504,17 +506,10 @@ public class DiscountingSwapProductPricer {
   // When returning a 'true' for the first element, the second element is the number of periods which are used in 
   //   par rate/spread computation and the third element is the common fixed rate
   private Triple<Boolean, Integer, Double> checkFixedCompounded(ResolvedSwapLeg leg) {
-    if(leg.getPaymentPeriods().size() != 1) {
-      return Triple.of(false, 0, 0.0d); // Only one period
-    };
     if(leg.getPaymentEvents().size() != 0) {
       return Triple.of(false, 0, 0.0d); // No event
     }
-    PaymentPeriod paymentPeriods = leg.getPaymentPeriods().get(0);
-    if(!(paymentPeriods instanceof RatePaymentPeriod)) {
-      return Triple.of(false, 0, 0.0d); // Not a ratePaymentPeriod
-    }
-    RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriods;
+    RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) leg.getPaymentPeriods().get(0);
     if (ratePaymentPeriod.getCompoundingMethod() == CompoundingMethod.NONE) {
       return Triple.of(false, 0, 0.0d); // Should be compounded
     }
