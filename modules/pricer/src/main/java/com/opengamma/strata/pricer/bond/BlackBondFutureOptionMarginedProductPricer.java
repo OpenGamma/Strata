@@ -295,7 +295,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * @param volatilityProvider  the provider of Black volatility
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivityStickyStrike(
+  public PointSensitivities priceSensitivityRatesStickyStrike(
       ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
@@ -303,7 +303,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
     double futurePrice = futurePrice(futureOption, ratesProvider);
-    return priceSensitivityStickyStrike(futureOption, ratesProvider, volatilityProvider, futurePrice);
+    return priceSensitivityRatesStickyStrike(futureOption, ratesProvider, volatilityProvider, futurePrice);
   }
 
   /**
@@ -318,7 +318,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivityStickyStrike(
+  public PointSensitivities priceSensitivityRatesStickyStrike(
       ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
@@ -338,7 +338,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     ArgChecker.isTrue(volatilityProvider instanceof BlackVolatilityBondFutureProvider,
         "Provider must be of type BlackVolatilityBondFutureProvider");
-    return priceSensitivityStickyStrike(
+    return priceSensitivityRatesStickyStrike(
         futureOption, ratesProvider, (BlackVolatilityBondFutureProvider) volatilityProvider);
   }
 
@@ -353,13 +353,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * @param volatilityProvider  the provider of Black volatility
    * @return the sensitivity
    */
-  public BondFutureOptionSensitivity priceSensitivityBlackVolatility(
+  public BondFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
     double futurePrice = futurePrice(futureOption, ratesProvider);
-    return priceSensitivityBlackVolatility(futureOption, ratesProvider, volatilityProvider, futurePrice);
+    return priceSensitivityModelParamsVolatility(futureOption, ratesProvider, volatilityProvider, futurePrice);
   }
 
   /**
@@ -372,7 +372,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * @param futurePrice  the underlying future price
    * @return the sensitivity
    */
-  public BondFutureOptionSensitivity priceSensitivityBlackVolatility(
+  public BondFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,

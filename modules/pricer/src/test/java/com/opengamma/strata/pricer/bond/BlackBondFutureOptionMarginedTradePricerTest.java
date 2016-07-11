@@ -147,7 +147,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityBlackVolatility() {
-    BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityBlackVolatility(
+    BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityModelParamsVolatility(
         OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
     testPriceSensitivityBlackVolatility(VOL_PROVIDER.parameterSensitivity(sensi),
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), REFERENCE_PRICE).getAmount());
@@ -155,7 +155,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
 
   public void test_presentValueSensitivityBlackVolatility_from_future_price() {
     double futurePrice = 0.975d;
-    BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityBlackVolatility(
+    BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityModelParamsVolatility(
         OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
     testPriceSensitivityBlackVolatility(VOL_PROVIDER.parameterSensitivity(sensi), (p) ->
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), futurePrice, REFERENCE_PRICE).getAmount());
@@ -195,7 +195,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivity(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double futurePrice = FUTURE_PRICER.price(OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER);
     double strike = OPTION_PRODUCT.getStrikePrice();
@@ -233,7 +233,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     double[] sensiRepoExpected = new double[] {9266400.007519504, 6037835.299017232, 0.0, 0.0, 0.0, 0.0 };
     double[] sensiIssuerExpected = new double[]
     {0.0, -961498.734103331, -2189527.424010516, -3.7783587809228E7, -3.025330833183195E8, 0.0 };
-    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivity(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyParameterSensitivities pvSensi = RATE_PROVIDER.parameterSensitivity(point);
     double[] sensiIssuerComputed = pvSensi.getSensitivities().get(0).getSensitivity().toArray();
     double[] sensiRepoComputed = pvSensi.getSensitivities().get(1).getSensitivity().toArray();
