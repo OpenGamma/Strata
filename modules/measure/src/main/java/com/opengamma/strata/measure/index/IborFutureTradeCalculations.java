@@ -64,6 +64,45 @@ public class IborFutureTradeCalculations {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates price across one or more scenarios.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the present value, one entry per scenario
+   */
+  public DoubleScenarioArray price(
+      ResolvedIborFutureTrade trade,
+      RatesMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.price(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates price for a single set of market data.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the present value
+   */
+  public double price(
+      ResolvedIborFutureTrade trade,
+      RatesProvider ratesProvider) {
+
+    return calc.price(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates present value across one or more scenarios.
    * 
    * @param trade  the trade

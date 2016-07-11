@@ -119,6 +119,12 @@ public final class Measures {
    * Measure representing the forward FX rate of the calculation target.
    */
   public static final Measure FORWARD_FX_RATE = Measure.of(StandardMeasures.FORWARD_FX_RATE.getName());
+  /**
+   * Measure representing the price of the instrument.
+   * <p>
+   * The price is represented as a {@code double}, even if it is actually a currency amount.
+   */
+  public static final Measure PRICE = Measure.of(StandardMeasures.PRICE.getName());
 
   //-------------------------------------------------------------------------
   private Measures() {

@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.dsf;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -51,6 +52,45 @@ public class DsfTradeCalculations {
   public DsfTradeCalculations(
       DiscountingDsfTradePricer tradePricer) {
     this.calc = new DsfMeasureCalculations(tradePricer);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates price across one or more scenarios.
+   * <p>
+   * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+   * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+   * Thus the market price of 100.182 is represented in Strata by 1.00182.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the present value, one entry per scenario
+   */
+  public DoubleScenarioArray price(
+      ResolvedDsfTrade trade,
+      RatesMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.price(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates price for a single set of market data.
+   * <p>
+   * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+   * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+   * Thus the market price of 100.182 is represented in Strata by 1.00182.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the present value
+   */
+  public double price(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    return calc.price(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------

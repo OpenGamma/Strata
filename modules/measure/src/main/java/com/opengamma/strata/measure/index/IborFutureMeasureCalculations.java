@@ -60,6 +60,26 @@ final class IborFutureMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
+  // calculates price for all scenarios
+  DoubleScenarioArray price(
+      ResolvedIborFutureTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return DoubleScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> price(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // price for one scenario
+  double price(
+      ResolvedIborFutureTrade trade,
+      RatesProvider ratesProvider) {
+
+    // mark to model
+    return tradePricer.price(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   CurrencyScenarioArray presentValue(
       ResolvedIborFutureTrade trade,

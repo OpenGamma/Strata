@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -56,6 +57,26 @@ final class DsfMeasureCalculations {
   DsfMeasureCalculations(
       DiscountingDsfTradePricer tradePricer) {
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates price for all scenarios
+  DoubleScenarioArray price(
+      ResolvedDsfTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return DoubleScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> price(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // price for one scenario
+  double price(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    // mark to model
+    return tradePricer.price(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------

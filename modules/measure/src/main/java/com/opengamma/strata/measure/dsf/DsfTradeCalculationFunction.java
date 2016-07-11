@@ -39,6 +39,7 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * An instance of {@link RatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
+ *   <li>{@linkplain Measures#PRICE Price}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
@@ -57,6 +58,7 @@ public class DsfTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
+          .put(Measures.PRICE, DsfMeasureCalculations.DEFAULT::price)
           .put(Measures.PRESENT_VALUE, DsfMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.PV01_CALIBRATED_SUM, DsfMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, DsfMeasureCalculations.DEFAULT::pv01CalibratedBucketed)

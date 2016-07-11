@@ -86,13 +86,17 @@ public class IborFutureTradeCalculationFunctionTest {
     IborFutureTradeCalculationFunction function = new IborFutureTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
+    double expectedPrice = DiscountingIborFutureTradePricer.DEFAULT.price(RTRADE, provider);
     CurrencyAmount expectedPv = DiscountingIborFutureTradePricer.DEFAULT.presentValue(RTRADE, provider, MARKET_PRICE / 100);
     double expectedParSpread = DiscountingIborFutureTradePricer.DEFAULT.parSpread(RTRADE, provider, MARKET_PRICE / 100);
 
     Set<Measure> measures = ImmutableSet.of(
+        Measures.PRICE,
         Measures.PRESENT_VALUE,
         Measures.PAR_SPREAD);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
+        .containsEntry(
+            Measures.PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(

@@ -39,6 +39,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * An instance of {@link RatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
+ *   <li>{@linkplain Measures#PRICE Price}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
@@ -63,6 +64,7 @@ public class IborFutureTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
+          .put(Measures.PRICE, IborFutureMeasureCalculations.DEFAULT::price)
           .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.PV01_CALIBRATED_SUM, IborFutureMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
