@@ -41,7 +41,7 @@ import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
-import com.opengamma.strata.pricer.fx.DiscountFxIndexRates;
+import com.opengamma.strata.pricer.fx.ForwardFxIndexRates;
 import com.opengamma.strata.pricer.fx.FxForwardRates;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
@@ -172,7 +172,7 @@ final class DefaultLookupRatesProvider
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
     FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
-    return DiscountFxIndexRates.of(index, fxForwardRates, timeSeries(index));
+    return ForwardFxIndexRates.of(index, fxForwardRates, timeSeries(index));
   }
 
   //-------------------------------------------------------------------------
