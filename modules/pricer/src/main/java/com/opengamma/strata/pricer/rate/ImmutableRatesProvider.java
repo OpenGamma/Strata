@@ -49,7 +49,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
-import com.opengamma.strata.pricer.fx.DiscountFxIndexRates;
+import com.opengamma.strata.pricer.fx.ForwardFxIndexRates;
 import com.opengamma.strata.pricer.fx.FxForwardRates;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 
@@ -233,7 +233,7 @@ public final class ImmutableRatesProvider
   public FxIndexRates fxIndexRates(FxIndex index) {
     LocalDateDoubleTimeSeries fixings = timeSeries(index);
     FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
-    return DiscountFxIndexRates.of(index, fxForwardRates, fixings);
+    return ForwardFxIndexRates.of(index, fxForwardRates, fixings);
   }
 
   //-------------------------------------------------------------------------
