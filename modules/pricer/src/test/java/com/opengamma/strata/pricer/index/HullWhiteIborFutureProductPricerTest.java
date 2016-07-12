@@ -71,7 +71,7 @@ public class HullWhiteIborFutureProductPricerTest {
   }
 
   public void test_priceSensitivity() {
-    PointSensitivities point = PRICER.priceSensitivity(FUTURE, RATE_PROVIDER, HW_PROVIDER);
+    PointSensitivities point = PRICER.priceSensitivityRates(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> CurrencyAmount.of(EUR, PRICER.price(FUTURE, (p), HW_PROVIDER)));
@@ -79,7 +79,7 @@ public class HullWhiteIborFutureProductPricerTest {
   }
 
   public void test_priceSensitivityHullWhiteParameter() {
-    DoubleArray computed = PRICER.priceSensitivityHullWhiteParameter(FUTURE, RATE_PROVIDER, HW_PROVIDER);
+    DoubleArray computed = PRICER.priceSensitivityModelParamsHullWhite(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     DoubleArray vols = HW_PROVIDER.getParameters().getVolatility();
     int size = vols.size();
     double[] expected = new double[size];
@@ -116,7 +116,7 @@ public class HullWhiteIborFutureProductPricerTest {
   }
 
   public void regression_sensitivity() {
-    PointSensitivities point = PRICER.priceSensitivity(FUTURE, RATE_PROVIDER, HW_PROVIDER);
+    PointSensitivities point = PRICER.priceSensitivityRates(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double[] expected = new double[] {0.0, 0.0, 0.9514709785770106, -1.9399920741192112, 0.0, 0.0, 0.0, 0.0 };
     assertEquals(computed.size(), 1);

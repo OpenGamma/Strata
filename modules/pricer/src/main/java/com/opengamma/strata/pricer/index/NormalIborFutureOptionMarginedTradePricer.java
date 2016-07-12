@@ -5,8 +5,11 @@
  */
 package com.opengamma.strata.pricer.index;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFuture;
@@ -30,7 +33,7 @@ import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
  * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
  * represents the price of the option as 0.002.
  */
-public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureOptionMarginedTradePricer {
+public final class NormalIborFutureOptionMarginedTradePricer {
 
   /**
    * Default implementation.
@@ -54,9 +57,79 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public NormalIborFutureOptionMarginedProductPricer getProductPricer() {
-    return futureOptionPricer;
+  /**
+   * Calculates the price of the Ibor future option trade.
+   * <p>
+   * The price of the trade is the price on the valuation date.
+   * The price is calculated using the volatility model.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @return the price of the product, in decimal form
+   */
+  public double price(
+      ResolvedIborFutureOptionTrade trade,
+      RatesProvider ratesProvider,
+      NormalIborFutureOptionVolatilities volatilities) {
+
+    return futureOptionPricer.price(trade.getProduct(), ratesProvider, volatilities);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value of the Ibor future option trade from the current option price.
+   * <p>
+   * The present value of the product is the value on the valuation date.
+   * The current price is specified, not calculated.
+   * <p>
+   * This method calculates based on the difference between the specified current price and the
+   * last settlement price, or the trade price if traded on the valuation date.
+   * 
+   * @param trade  the trade
+   * @param valuationDate  the valuation date; required to asses if the trade or last closing price should be used
+   * @param currentOptionPrice  the current price for the option, in decimal form
+   * @param lastOptionSettlementPrice  the last settlement price used for margining for the option, in decimal form
+   * @return the present value
+   */
+  public CurrencyAmount presentValue(
+      ResolvedIborFutureOptionTrade trade,
+      LocalDate valuationDate,
+      double currentOptionPrice,
+      double lastOptionSettlementPrice) {
+
+    ResolvedIborFutureOption option = trade.getProduct();
+    double referencePrice = referencePrice(trade, valuationDate, lastOptionSettlementPrice);
+    double priceIndex = futureOptionPricer.marginIndex(option, currentOptionPrice);
+    double referenceIndex = futureOptionPricer.marginIndex(option, referencePrice);
+    double pv = (priceIndex - referenceIndex) * trade.getQuantity();
+    return CurrencyAmount.of(option.getUnderlyingFuture().getCurrency(), pv);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value of the Ibor future option trade.
+   * <p>
+   * The present value of the product is the value on the valuation date.
+   * The current price is calculated using the volatility model.
+   * <p>
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @param lastOptionSettlementPrice  the last settlement price used for margining for the option, in decimal form
+   * @return the present value
+   */
+  public CurrencyAmount presentValue(
+      ResolvedIborFutureOptionTrade trade,
+      RatesProvider ratesProvider,
+      NormalIborFutureOptionVolatilities volatilities,
+      double lastOptionSettlementPrice) {
+
+    double price = price(trade, ratesProvider, volatilities);
+    return presentValue(trade, ratesProvider.getValuationDate(), price, lastOptionSettlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -83,8 +156,32 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
       double futurePrice,
       double lastOptionSettlementPrice) {
 
-    double optionPrice = getProductPricer().price(trade.getProduct(), ratesProvider, volatilities, futurePrice);
+    double optionPrice = futureOptionPricer.price(trade.getProduct(), ratesProvider, volatilities, futurePrice);
     return presentValue(trade, ratesProvider.getValuationDate(), optionPrice, lastOptionSettlementPrice);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity of the Ibor future option trade.
+   * <p>
+   * The present value sensitivity of the trade is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @return the present value curve sensitivity of the trade
+   */
+  public PointSensitivities presentValueSensitivityRates(
+      ResolvedIborFutureOptionTrade trade,
+      RatesProvider ratesProvider,
+      NormalIborFutureOptionVolatilities volatilities) {
+
+    ResolvedIborFutureOption product = trade.getProduct();
+    PointSensitivities priceSensi =
+        futureOptionPricer.priceSensitivityRatesStickyStrike(product, ratesProvider, volatilities);
+    PointSensitivities marginIndexSensi = futureOptionPricer.marginIndexSensitivity(product, priceSensi);
+    return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
 
   //-------------------------------------------------------------------------
@@ -101,16 +198,17 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * @param volatilities  the volatilities
    * @return the price sensitivity
    */
-  public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
+  public IborFutureOptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedIborFutureOptionTrade futureOptionTrade,
       RatesProvider ratesProvider,
       NormalIborFutureOptionVolatilities volatilities) {
 
     ResolvedIborFuture future = futureOptionTrade.getProduct().getUnderlyingFuture();
     double futurePrice = futureOptionPricer.getFuturePricer().price(future, ratesProvider);
-    return presentValueSensitivityNormalVolatility(futureOptionTrade, ratesProvider, volatilities, futurePrice);
+    return presentValueSensitivityModelParamsVolatility(futureOptionTrade, ratesProvider, volatilities, futurePrice);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Computes the present value sensitivity to the normal volatility used in the pricing
    * based on the price of the underlying future.
@@ -124,7 +222,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price sensitivity
    */
-  public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
+  public IborFutureOptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedIborFutureOptionTrade futureOptionTrade,
       RatesProvider ratesProvider,
       NormalIborFutureOptionVolatilities volatilities,
@@ -132,9 +230,26 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
 
     ResolvedIborFutureOption product = futureOptionTrade.getProduct();
     IborFutureOptionSensitivity priceSensitivity =
-        futureOptionPricer.priceSensitivityNormalVolatility(product, ratesProvider, volatilities, futurePrice);
+        futureOptionPricer.priceSensitivityModelParamsVolatility(product, ratesProvider, volatilities, futurePrice);
     double factor = futureOptionPricer.marginIndex(product, 1) * futureOptionTrade.getQuantity();
     return priceSensitivity.multipliedBy(factor);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the reference price for the trade.
+   * <p>
+   * If the valuation date equals the trade date, then the reference price is the trade price.
+   * Otherwise, the reference price is the last settlement price used for margining.
+   * 
+   * @param trade  the trade
+   * @param valuationDate  the date for which the reference price should be calculated
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
+   * @return the reference price, in decimal form
+   */
+  private double referencePrice(ResolvedIborFutureOptionTrade trade, LocalDate valuationDate, double lastSettlementPrice) {
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    return (trade.getTradeDate().equals(valuationDate) ? trade.getPrice() : lastSettlementPrice);
   }
 
 }
