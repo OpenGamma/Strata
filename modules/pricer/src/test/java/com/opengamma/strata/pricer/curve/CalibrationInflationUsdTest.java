@@ -233,7 +233,7 @@ public class CalibrationInflationUsdTest {
       CurveGroupDefinition.builder()
           .name(CURVE_GROUP_NAME)
           .addCurve(DSC_CURVE_DEFN, USD, USD_FED_FUND)
-          .addPriceIndexCurve(CPI_CURVE_DEFN, US_CPI_U).build();
+          .addForwardCurve(CPI_CURVE_DEFN, US_CPI_U).build();
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {

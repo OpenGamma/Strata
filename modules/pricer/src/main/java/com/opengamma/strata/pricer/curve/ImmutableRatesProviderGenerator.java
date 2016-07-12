@@ -63,17 +63,11 @@ public class ImmutableRatesProviderGenerator
    */
   private final ImmutableSetMultimap<CurveName, Currency> discountCurveNames;
   /**
-   * The map between curve name and indices for forward rates.
+   * The map between curve name and indices for forward rates and prices.
    * The map should contains all the curve in the definition list but may have more names
    * than the curve definition list. Only the curves in the definitions list are created
    */
   private final ImmutableSetMultimap<CurveName, Index> forwardCurveNames;
-  /**
-   * The map between curve name and price indices for forward prices.
-   * The map should contains all the curve in the definition list but may have more names
-   * than the curve definition list. Only the curves in the definitions list are created
-   */
-  private final ImmutableSetMultimap<CurveName, PriceIndex> priceIndexCurveNames;
 
   /**
    * Obtains a generator from an existing provider and definition.
@@ -92,7 +86,6 @@ public class ImmutableRatesProviderGenerator
     List<CurveMetadata> curveMetadata = new ArrayList<>();
     SetMultimap<CurveName, Currency> discountNames = HashMultimap.create();
     SetMultimap<CurveName, Index> indexNames = HashMultimap.create();
-    SetMultimap<CurveName, PriceIndex> priceIndexCurveNames = HashMultimap.create();
 
     for (NodalCurveDefinition curveDefn : groupDefn.getCurveDefinitions()) {
       curveDefns.add(curveDefn);
@@ -103,10 +96,9 @@ public class ImmutableRatesProviderGenerator
       Set<Currency> ccy = entry.getDiscountCurrencies();
       discountNames.putAll(curveName, ccy);
       indexNames.putAll(curveName, entry.getIndices());
-      priceIndexCurveNames.putAll(curveName, entry.getPriceIndices());
     }
     return new ImmutableRatesProviderGenerator(
-        knownProvider, curveDefns, curveMetadata, discountNames, indexNames, priceIndexCurveNames);
+        knownProvider, curveDefns, curveMetadata, discountNames, indexNames);
   }
 
   /**
@@ -123,15 +115,13 @@ public class ImmutableRatesProviderGenerator
       List<NodalCurveDefinition> curveDefinitions,
       List<CurveMetadata> curveMetadata,
       SetMultimap<CurveName, Currency> discountCurveNames,
-      SetMultimap<CurveName, Index> forwardCurveNames,
-      SetMultimap<CurveName, PriceIndex> priceIndexCurveNames) {
+      SetMultimap<CurveName, Index> forwardCurveNames) {
 
     this.knownProvider = ArgChecker.notNull(knownProvider, "knownProvider");
     this.curveDefinitions = ImmutableList.copyOf(ArgChecker.notNull(curveDefinitions, "curveDefinitions"));
     this.curveMetadata = ImmutableList.copyOf(ArgChecker.notNull(curveMetadata, "curveMetadata"));
     this.discountCurveNames = ImmutableSetMultimap.copyOf(ArgChecker.notNull(discountCurveNames, "discountCurveNames"));
     this.forwardCurveNames = ImmutableSetMultimap.copyOf(ArgChecker.notNull(forwardCurveNames, "forwardCurveNames"));
-    this.priceIndexCurveNames = ImmutableSetMultimap.copyOf(ArgChecker.notNull(priceIndexCurveNames, "priceIndexCurveNames"));
   }
 
   //-------------------------------------------------------------------------
@@ -169,14 +159,15 @@ public class ImmutableRatesProviderGenerator
       }
       Set<Index> indices = forwardCurveNames.get(name);
       for (Index index : indices) {
-        indexCurves.put(index, curve);
-      }
-      Set<PriceIndex> priceIndices = priceIndexCurveNames.get(name);
-      for (PriceIndex index : priceIndices) {
-        LocalDateDoubleTimeSeries ts = knownProvider.getTimeSeries().get(index);
-        ArgChecker.isTrue(ts != null, "Price index curves require a historical time series");
-        PriceIndexValues priceValue = PriceIndexValues.of(index, knownProvider.getValuationDate(), curve, ts);
-        priceIndexValues.put(index, priceValue);
+        if (index instanceof PriceIndex) {
+          PriceIndex priceIndex = (PriceIndex) index;
+          LocalDateDoubleTimeSeries ts = knownProvider.getTimeSeries().get(index);
+          ArgChecker.isTrue(ts != null, "Price index curves require a historical time series");
+          PriceIndexValues priceValue = PriceIndexValues.of(priceIndex, knownProvider.getValuationDate(), curve, ts);
+          priceIndexValues.put(priceIndex, priceValue);
+        } else {
+          indexCurves.put(index, curve);
+        }
       }
     }
     return knownProvider.toBuilder()

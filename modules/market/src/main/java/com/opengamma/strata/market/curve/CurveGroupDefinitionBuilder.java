@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -150,6 +149,7 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds the definition of a forward curve to the curve group definition.
    *
@@ -160,8 +160,8 @@ public final class CurveGroupDefinitionBuilder {
    */
   public CurveGroupDefinitionBuilder addForwardCurve(
       NodalCurveDefinition curveDefinition,
-      RateIndex index,
-      RateIndex... otherIndices) {
+      Index index,
+      Index... otherIndices) {
 
     ArgChecker.notNull(curveDefinition, "curveDefinition");
     ArgChecker.notNull(index, "index");
@@ -183,7 +183,11 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addForwardCurve(CurveName curveName, RateIndex index, RateIndex... otherIndices) {
+  public CurveGroupDefinitionBuilder addForwardCurve(
+      CurveName curveName,
+      Index index,
+      Index... otherIndices) {
+
     ArgChecker.notNull(curveName, "curveName");
     ArgChecker.notNull(index, "index");
 
@@ -194,50 +198,7 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
-  /**
-   * Adds the definition of a price index curve to the curve group definition.
-   *
-   * @param curveDefinition  the definition of the price index curve
-   * @param index  the index for which the curve provides prices
-   * @param otherIndices  the additional indices for which the curve provides prices
-   * @return this builder
-   */
-  public CurveGroupDefinitionBuilder addPriceIndexCurve(
-      NodalCurveDefinition curveDefinition,
-      PriceIndex index,
-      PriceIndex... otherIndices) {
-
-    ArgChecker.notNull(curveDefinition, "curveDefinition");
-    ArgChecker.notNull(index, "index");
-    CurveGroupEntry entry = CurveGroupEntry.builder()
-        .curveName(curveDefinition.getName())
-        .priceIndices(priceIndices(index, otherIndices))
-        .build();
-    return merge(entry, curveDefinition);
-  }
-
-  /**
-   * Adds the definition of a price index curve to the curve group definition.
-   * <p>
-   * A curve added with this method cannot be calibrated by the market data system as it does not include
-   * a curve definition. It is intended to be used with curves which are supplied by the user.
-   *
-   * @param curveName  the name of the curve
-   * @param index  the index for which the curve provides prices
-   * @param otherIndices  the additional indices for which the curve provides prices
-   * @return this builder
-   */
-  public CurveGroupDefinitionBuilder addPriceIndexCurve(CurveName curveName, PriceIndex index, PriceIndex... otherIndices) {
-    ArgChecker.notNull(curveName, "curveName");
-    ArgChecker.notNull(index, "index");
-
-    CurveGroupEntry entry = CurveGroupEntry.builder()
-        .curveName(curveName)
-        .priceIndices(priceIndices(index, otherIndices))
-        .build();
-    return mergeEntry(entry);
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Adds the definition of a curve to the curve group definition which is used to provide
    * discount rates and forward rates.
@@ -312,14 +273,6 @@ public final class CurveGroupDefinitionBuilder {
   private static Set<Index> indices(Index index, Index... otherIndices) {
     // The type parameter is needed for the benefit of the Eclipse compiler
     return ImmutableSet.<Index>builder().add(index).add(otherIndices).build();
-  }
-
-  /**
-   * Returns a set containing any price indices in the arguments.
-   */
-  private static Set<PriceIndex> priceIndices(PriceIndex index, PriceIndex... otherIndices) {
-    // The type parameter is needed for the benefit of the Eclipse compiler
-    return ImmutableSet.<PriceIndex>builder().add(index).add(otherIndices).build();
   }
 
   //-------------------------------------------------------------------------
