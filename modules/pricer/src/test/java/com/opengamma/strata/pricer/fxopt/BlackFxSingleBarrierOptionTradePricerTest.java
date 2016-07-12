@@ -89,18 +89,18 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities pvSensiTrade =
-        PRICER_TRADE.presentValueSensitivityStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER_TRADE.presentValueSensitivityRatesStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
     PointSensitivities pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityStickyStrike(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
+        PRICER_PRODUCT.presentValueSensitivityRatesStickyStrike(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
     PointSensitivities pvSensiPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM, RATES_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct.combinedWith(pvSensiPremium));
   }
 
   public void test_presentValueSensitivityBlackVolatility() {
     PointSensitivities pvSensiTrade =
-        PRICER_TRADE.presentValueSensitivityBlackVolatility(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER_TRADE.presentValueSensitivityModelParamsVolatility(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
     PointSensitivities pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
+        PRICER_PRODUCT.presentValueSensitivityModelParamsVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct);
   }
 

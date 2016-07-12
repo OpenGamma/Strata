@@ -122,7 +122,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the product
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
+  public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilitySmileFxProvider volatilityProvider) {
@@ -174,7 +174,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivityVolatility(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsVolatility(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilitySmileFxProvider volatilityProvider) {

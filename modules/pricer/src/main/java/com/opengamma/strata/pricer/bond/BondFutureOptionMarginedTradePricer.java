@@ -119,7 +119,7 @@ public abstract class BondFutureOptionMarginedTradePricer {
    * @param futureProvider  the provider of future/option pricing data
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivity(
+  public PointSensitivities presentValueSensitivityRates(
       ResolvedBondFutureOptionTrade trade,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider futureProvider) {

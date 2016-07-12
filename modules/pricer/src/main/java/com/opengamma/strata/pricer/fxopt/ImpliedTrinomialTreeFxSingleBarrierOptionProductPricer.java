@@ -204,14 +204,14 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value of the product
    */
-  public CurrencyParameterSensitivities presentValueCurveParameterSensitivity(
+  public CurrencyParameterSensitivities presentValueRatesSensitivity(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     RecombiningTrinomialTreeData baseTreeData =
         calibrator.calibrateTrinomialTree(option.getUnderlyingOption(), ratesProvider, volatilityProvider);
-    return presentValueCurveParameterSensitivity(option, ratesProvider, volatilityProvider, baseTreeData);
+    return presentValueRatesSensitivity(option, ratesProvider, volatilityProvider, baseTreeData);
   }
 
   /**
@@ -228,7 +228,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * @param baseTreeData  the trinomial tree data
    * @return the present value of the product
    */
-  public CurrencyParameterSensitivities presentValueCurveParameterSensitivity(
+  public CurrencyParameterSensitivities presentValueRatesSensitivity(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,

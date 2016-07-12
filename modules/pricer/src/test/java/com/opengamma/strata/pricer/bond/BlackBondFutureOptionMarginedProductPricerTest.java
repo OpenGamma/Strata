@@ -205,7 +205,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_priceSensitivity() {
-    PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
+    PointSensitivities point = OPTION_PRICER.priceSensitivityRatesStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
@@ -230,7 +230,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
 
   public void test_priceSensitivity_from_future_price() {
     double futurePrice = 1.1d;
-    PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
+    PointSensitivities point = OPTION_PRICER.priceSensitivityRatesStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
@@ -242,7 +242,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   public void test_priceSensitivity_from_generic_provider() {
     BondFutureProvider volProvider = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
         SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
-    PointSensitivities expected = OPTION_PRICER.priceSensitivityStickyStrike(
+    PointSensitivities expected = OPTION_PRICER.priceSensitivityRatesStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivities computed = OPTION_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, volProvider);
     assertEquals(computed, expected);
@@ -250,7 +250,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_priceSensitivityBlackVolatility() {
-    BondFutureOptionSensitivity sensi = OPTION_PRICER.priceSensitivityBlackVolatility(
+    BondFutureOptionSensitivity sensi = OPTION_PRICER.priceSensitivityModelParamsVolatility(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     testPriceSensitivityBlackVolatility(
         VOL_PROVIDER.parameterSensitivity(sensi),
@@ -259,7 +259,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
 
   public void test_priceSensitivityBlackVolatility_from_future_price() {
     double futurePrice = 1.1d;
-    BondFutureOptionSensitivity sensi = OPTION_PRICER.priceSensitivityBlackVolatility(
+    BondFutureOptionSensitivity sensi = OPTION_PRICER.priceSensitivityModelParamsVolatility(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
     testPriceSensitivityBlackVolatility(
         VOL_PROVIDER.parameterSensitivity(sensi),
@@ -306,7 +306,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   }
 
   public void test_marginIndexSensitivity() {
-    PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
+    PointSensitivities point = OPTION_PRICER.priceSensitivityRatesStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivities computed = OPTION_PRICER.marginIndexSensitivity(FUTURE_OPTION_PRODUCT, point);
     assertEquals(computed, point.multipliedBy(FUTURE_OPTION_PRODUCT.getUnderlyingFuture().getNotional()));
