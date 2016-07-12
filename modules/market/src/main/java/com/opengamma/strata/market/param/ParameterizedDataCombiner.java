@@ -5,7 +5,10 @@
  */
 package com.opengamma.strata.market.param;
 
+import java.util.List;
+
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -33,6 +36,7 @@ public final class ParameterizedDataCombiner {
    */
   private final int paramCount;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance that can combine the specified underlying instances.
    * 
@@ -41,6 +45,16 @@ public final class ParameterizedDataCombiner {
    */
   public static ParameterizedDataCombiner of(ParameterizedData... instances) {
     return new ParameterizedDataCombiner(instances);
+  }
+
+  /**
+   * Obtains an instance that can combine the specified underlying instances.
+   * 
+   * @param instances  the underlying instances to combine
+   * @return the combiner
+   */
+  public static ParameterizedDataCombiner of(List<? extends ParameterizedData> instances) {
+    return new ParameterizedDataCombiner((ParameterizedData[]) instances.toArray(new ParameterizedData[0]));
   }
 
   //------------------------------------------------------------------------- 
@@ -113,7 +127,7 @@ public final class ParameterizedDataCombiner {
    * @param <R>  the type of the underlying
    * @param underlyingIndex  the index of the underlying instance
    * @param underlyingType  the type of the parameterized data at the specified index
-   * @param parameterIndex  the zero-based index of the parameter to get
+   * @param parameterIndex  the zero-based index of the parameter to change
    * @param newValue  the new value for the specified parameter
    * @return a parameterized data instance based on this with the specified parameter altered
    * @throws IndexOutOfBoundsException if the index is invalid
@@ -156,6 +170,61 @@ public final class ParameterizedDataCombiner {
     ParameterizedData perturbed = underlying.withPerturbation(
         (idx, value, meta) -> perturbation.perturbParameter(idx + adjustment, value, meta));
     return underlyingType.cast(perturbed);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates a parameter on the specified list of underlying instances.
+   * <p>
+   * The correct underlying is identified and updated, with the list returned.
+   * 
+   * @param <R>  the type of the underlying
+   * @param underlyingType  the type of the parameterized data at the specified index
+   * @param parameterIndex  the zero-based index of the parameter to change
+   * @param newValue  the new value for the specified parameter
+   * @return a parameterized data instance based on this with the specified parameter altered
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public <R extends ParameterizedData> List<R> withParameter(
+      Class<R> underlyingType,
+      int parameterIndex,
+      double newValue) {
+
+    int underlyingIndex = findUnderlyingIndex(parameterIndex);
+    ImmutableList.Builder<R> builder = ImmutableList.builder();
+    for (int i = 0; i < underlyings.length; i++) {
+      ParameterizedData underlying = underlyings[i];
+      if (i == underlyingIndex) {
+        int adjustment = lookup[underlyingIndex];
+        ParameterizedData perturbed = underlying.withParameter(parameterIndex - adjustment, newValue);
+        builder.add(underlyingType.cast(perturbed));
+      } else {
+        builder.add(underlyingType.cast(underlying));
+      }
+    }
+    return builder.build();
+  }
+
+  /**
+   * Applies a perturbation to each underlying.
+   * <p>
+   * The updated list of underlying instances is returned.
+   * 
+   * @param <R>  the type of the underlying
+   * @param underlyingType  the type of the parameterized data at the specified index
+   * @param perturbation  the perturbation to apply
+   * @return a parameterized data instance based on this with the specified parameter altered
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public <R extends ParameterizedData> List<R> withPerturbation(
+      Class<R> underlyingType,
+      ParameterPerturbation perturbation) {
+
+    ImmutableList.Builder<R> builder = ImmutableList.builder();
+    for (int i = 0; i < underlyings.length; i++) {
+      builder.add(underlyingWithPerturbation(i, underlyingType, perturbation));
+    }
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
