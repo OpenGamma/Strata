@@ -109,8 +109,9 @@ public class BlackVolatilityFlatFxProviderTest {
   public void test_surfaceParameterSensitivity() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
+        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], GBP, 1d);
+            CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
         CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
         Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
@@ -127,8 +128,9 @@ public class BlackVolatilityFlatFxProviderTest {
   public void test_surfaceParameterSensitivity_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
+        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
+            CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
         CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
         Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {

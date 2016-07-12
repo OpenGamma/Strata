@@ -109,7 +109,7 @@ final class BlackVolatilitySmileFxProvider
 
   @Override
   public CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
-    double expiryTime = relativeTime(point.getExpiryDateTime());
+    double expiryTime = point.getExpiry();
     double strike = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getStrike() : point.getStrike();
     double forward = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getForward() : point.getForward();
     double pointValue = point.getSensitivity();

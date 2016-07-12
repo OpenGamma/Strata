@@ -392,14 +392,14 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     assertEquals(computedCall.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(computedCall.getStrike(), STRIKE_RATE);
     assertEquals(computedCall.getForward(), forward, TOL);
-    assertEquals(computedCall.getExpiryDateTime(), EXPIRY_DATETIME);
+    assertEquals(computedCall.getExpiry(), timeToExpiry);
     assertEquals(computedVegaPut, expectedPut, TOL);
     assertEquals(computedPut.getSensitivity(), -expectedPut * NOTIONAL, TOL * NOTIONAL);
     assertEquals(computedPut.getCurrency(), USD);
     assertEquals(computedPut.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(computedPut.getStrike(), STRIKE_RATE);
     assertEquals(computedPut.getForward(), forward, TOL);
-    assertEquals(computedPut.getExpiryDateTime(), EXPIRY_DATETIME);
+    assertEquals(computedPut.getExpiry(), timeToExpiry);
   }
 
   public void test_vega_presentValueSensitivityVolatility_atExpiry() {

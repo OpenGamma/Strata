@@ -227,7 +227,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
         assertEquals(sensi.getForward(), forwardRate, TOL);
         assertEquals(sensi.getCurrency(), USD);
         assertEquals(sensi.getCurrencyPair(), CURRENCY_PAIR);
-        assertEquals(sensi.getExpiryDateTime(), EXPIRY);
+        assertEquals(sensi.getExpiry(), timeToExpiry);
       }
     }
   }

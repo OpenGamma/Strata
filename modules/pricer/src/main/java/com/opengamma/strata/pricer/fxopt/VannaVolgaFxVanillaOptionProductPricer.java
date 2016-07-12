@@ -206,14 +206,19 @@ public class VannaVolgaFxVanillaOptionProductPricer {
       sensiSmile = sensiSmile.combinedWith(
           FxOptionSensitivity.of(
               currencyPair,
-              option.getExpiry(),
+              timeToExpiry,
               strikes[i],
               forwardRate,
               ccyCounter,
               df * signedNotional * x[i] * vegaFwdSmile));
     }
     FxOptionSensitivity sensiAtm = FxOptionSensitivity.of(
-        currencyPair, option.getExpiry(), strikes[1], forwardRate, ccyCounter, df * signedNotional * vegaAtm);
+        currencyPair,
+        timeToExpiry,
+        strikes[1],
+        forwardRate,
+        ccyCounter,
+        df * signedNotional * vegaAtm);
     return sensiAtm.combinedWith(sensiSmile);
   }
 

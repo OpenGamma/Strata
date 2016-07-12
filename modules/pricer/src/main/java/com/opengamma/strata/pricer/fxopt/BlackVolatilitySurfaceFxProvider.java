@@ -102,7 +102,7 @@ public final class BlackVolatilitySurfaceFxProvider
 
   @Override
   public CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
-    double expiryTime = relativeTime(point.getExpiryDateTime());
+    double expiryTime = point.getExpiry();
     double strike = point.getCurrencyPair().isInverse(currencyPair) ? 1d / point.getStrike() : point.getStrike();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiryTime, strike);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());

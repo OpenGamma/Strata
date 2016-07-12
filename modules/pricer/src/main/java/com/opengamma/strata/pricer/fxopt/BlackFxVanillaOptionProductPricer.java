@@ -351,8 +351,13 @@ public class BlackFxVanillaOptionProductPricer {
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     CurrencyPair strikePair = underlying.getCurrencyPair();
     CurrencyAmount valueVega = presentValueVega(option, ratesProvider, volatilityProvider);
-    return FxOptionSensitivity.of(strikePair, option.getExpiry(), option.getStrike(), forward.fxRate(strikePair),
-        valueVega.getCurrency(), valueVega.getAmount());
+    return FxOptionSensitivity.of(
+        strikePair,
+        volatilityProvider.relativeTime(option.getExpiry()),
+        option.getStrike(),
+        forward.fxRate(strikePair),
+        valueVega.getCurrency(),
+        valueVega.getAmount());
   }
 
   //-------------------------------------------------------------------------

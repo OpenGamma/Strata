@@ -355,7 +355,7 @@ public class BlackFxVanillaOptionProductPricerTest {
     double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
         .fxRate(CURRENCY_PAIR);
     double vol = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
-    FxOptionSensitivity expected = FxOptionSensitivity.of(CURRENCY_PAIR, EXPIRY, STRIKE_RATE_HIGH, forward, USD,
+    FxOptionSensitivity expected = FxOptionSensitivity.of(CURRENCY_PAIR, timeToExpiry, STRIKE_RATE_HIGH, forward, USD,
         -NOTIONAL * df * BlackFormulaRepository.vega(forward, STRIKE_RATE_HIGH, timeToExpiry, vol));
     assertTrue(computedCall.build().equalWithTolerance(expected.build(), NOTIONAL * TOL));
     assertTrue(computedPut.build().equalWithTolerance(expected.build().multipliedBy(-1d), NOTIONAL * TOL));

@@ -105,7 +105,7 @@ public final class BlackVolatilityFlatFxProvider
   @Override
   public CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
     // transforms curve sensitivity to surface sensitivity
-    double expiryTime = relativeTime(point.getExpiryDateTime());
+    double expiryTime = point.getExpiry();
     UnitParameterSensitivity yValueParameterSensitivity = curve.yValueParameterSensitivity(expiryTime);
     DoubleArray times = curve.getXValues();
     double pointValue = point.getSensitivity();
