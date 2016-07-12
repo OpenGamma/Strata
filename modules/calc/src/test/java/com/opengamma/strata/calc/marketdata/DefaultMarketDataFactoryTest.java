@@ -67,6 +67,7 @@ public class DefaultMarketDataFactoryTest {
     BuiltMarketData marketData = factory.create(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA);
     assertThat(marketData.getTimeSeries(id1)).isEqualTo(timeSeries1);
     assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
+    assertThat(marketData.getTimeSeriesIds()).isEqualTo(ImmutableSet.of(id1, id2));
   }
 
   /**

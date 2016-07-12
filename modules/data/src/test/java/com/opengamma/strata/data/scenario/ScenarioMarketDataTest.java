@@ -156,6 +156,11 @@ public class ScenarioMarketDataTest {
       public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
         return ImmutableSet.of();
       }
+
+      @Override
+      public Set<ObservableId> getTimeSeriesIds() {
+        return ImmutableSet.of();
+      }
     };
     assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
     assertThat(test.containsValue(ID1)).isTrue();
@@ -333,6 +338,11 @@ public class ScenarioMarketDataTest {
     @Override
     public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
       throw new UnsupportedOperationException("getTimeSeries(ObservableKey) not implemented");
+    }
+
+    @Override
+    public Set<ObservableId> getTimeSeriesIds() {
+      return ImmutableSet.of();
     }
   }
 }
