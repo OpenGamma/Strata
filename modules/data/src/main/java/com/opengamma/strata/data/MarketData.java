@@ -141,6 +141,13 @@ public interface MarketData {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the time-series identifiers.
+   *
+   * @return the set of observable identifiers
+   */
+  public abstract Set<ObservableId> getTimeSeriesIds();
+  
+  /**
    * Gets the time-series identified by the specified identifier, empty if not found.
    *
    * @param id  the identifier to find

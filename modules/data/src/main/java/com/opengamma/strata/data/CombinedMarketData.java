@@ -93,6 +93,14 @@ final class CombinedMarketData
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return ImmutableSet.<ObservableId>builder()
+        .addAll(underlying1.getTimeSeriesIds())
+        .addAll(underlying2.getTimeSeriesIds())
+        .build();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = underlying1.getTimeSeries(id);
     return !timeSeries.isEmpty() ? timeSeries : underlying2.getTimeSeries(id);

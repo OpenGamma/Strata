@@ -101,6 +101,11 @@ final class SingleScenarioMarketData
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return marketData.getTimeSeriesIds();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     return marketData.getTimeSeries(id);
   }
