@@ -27,7 +27,6 @@
 <listEntry value="com.opengamma.strata.product.deposit"/>
 <listEntry value="com.opengamma.strata.product.deposit.type"/>
 <listEntry value="com.opengamma.strata.product.dsf"/>
-<listEntry value="com.opengamma.strata.product.equity"/>
 <listEntry value="com.opengamma.strata.product.fra"/>
 <listEntry value="com.opengamma.strata.product.fra.type"/>
 <listEntry value="com.opengamma.strata.product.fx"/>
