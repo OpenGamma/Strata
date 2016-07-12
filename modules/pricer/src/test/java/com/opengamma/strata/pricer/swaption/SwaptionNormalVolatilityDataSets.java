@@ -62,7 +62,7 @@ public class SwaptionNormalVolatilityDataSets {
   public static final FixedIborSwapConvention USD_1Y_LIBOR3M =
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   private static final SurfaceMetadata METADATA =
-      Surfaces.swaptionNormalExpiryTenor("Normal Vol", ACT_365F);
+      Surfaces.normalVolatilityByExpiryTenor("Normal Vol", ACT_365F);
   private static final InterpolatedNodalSurface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA, TIMES, TENORS, NORMAL_VOL, INTERPOLATOR_2D);
 

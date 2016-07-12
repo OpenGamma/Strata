@@ -111,7 +111,7 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final DoubleArray TENOR = DoubleArray.of(2, 10, 2, 10, 2, 10);
   private static final DoubleArray VOL = DoubleArray.of(0.35, 0.30, 0.34, 0.25, 0.25, 0.20);
   private static final FixedIborSwapConvention SWAP_CONVENTION = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-  private static final SurfaceMetadata METADATA = Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_ACT_ISDA);
+  private static final SurfaceMetadata METADATA = Surfaces.blackVolatilityByExpiryTenor("Black Vol", ACT_ACT_ISDA);
   private static final Surface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
       BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);

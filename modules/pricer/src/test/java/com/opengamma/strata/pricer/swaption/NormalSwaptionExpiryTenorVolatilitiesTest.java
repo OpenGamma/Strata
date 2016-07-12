@@ -66,7 +66,7 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
           SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.swaptionNormalExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.normalVolatilityByExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, TENOR, VOL, INTERPOLATOR_2D);

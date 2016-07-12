@@ -61,7 +61,7 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
           GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME.get(i), SimpleStrike.of(STRIKE.get(i)));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.iborCapletFloorletBlackExpiryStrike("CAP_VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.blackVolatilityByExpiryStrike("CAP_VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, STRIKE, VOL, INTERPOLATOR_2D);

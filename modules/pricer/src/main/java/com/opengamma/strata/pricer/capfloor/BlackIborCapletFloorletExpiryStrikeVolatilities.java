@@ -95,7 +95,7 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
    * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#iborCapletFloorletBlackExpiryStrike(String, DayCount)}.
+   * {@link Surfaces#blackVolatilityByExpiryStrike(String, DayCount)}.
    * 
    * @param index  the Ibor index for which the data is valid
    * @param valuationDateTime  the valuation date-time

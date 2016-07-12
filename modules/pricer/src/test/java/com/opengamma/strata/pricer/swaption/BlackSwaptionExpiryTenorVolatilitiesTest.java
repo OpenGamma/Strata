@@ -60,7 +60,7 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
           SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.swaptionBlackExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.blackVolatilityByExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, TENOR, VOL, INTERPOLATOR_2D);

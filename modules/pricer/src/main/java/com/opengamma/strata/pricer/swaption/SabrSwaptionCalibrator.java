@@ -290,13 +290,13 @@ public class SabrSwaptionCalibrator {
         nuArray = nuArray.concat(sabrPt.getNu());
       }
     }
-    SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
+    SurfaceMetadata metadataAlpha = Surfaces.sabrParameterByExpiryTenor(
         name.getName() + "-Alpha", dayCount, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata);
-    SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
+    SurfaceMetadata metadataRho = Surfaces.sabrParameterByExpiryTenor(
         name.getName() + "-Rho", dayCount, ValueType.SABR_RHO)
         .withParameterMetadata(parameterMetadata);
-    SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
+    SurfaceMetadata metadataNu = Surfaces.sabrParameterByExpiryTenor(
         name.getName() + "-Nu", dayCount, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
@@ -457,7 +457,7 @@ public class SabrSwaptionCalibrator {
         dataSensitivityAlpha.add(DoubleArray.of(calibrationResult.getSecond()));
       }
     }
-    SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
+    SurfaceMetadata metadataAlpha = Surfaces.sabrParameterByExpiryTenor(
         name.getName() + "-Alpha", dayCount, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface

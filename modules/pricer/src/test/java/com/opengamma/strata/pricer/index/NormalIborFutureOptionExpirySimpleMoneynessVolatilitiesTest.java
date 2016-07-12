@@ -49,13 +49,13 @@ public class NormalIborFutureOptionExpirySimpleMoneynessVolatilitiesTest {
   private static final DoubleArray NORMAL_VOL_RATES =
       DoubleArray.of(0.010, 0.012, 0.011, 0.01, 0.012, 0.013, 0.012, 0.011, 0.014, 0.014, 0.013, 0.012);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
-      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Price", ACT_365F, MoneynessType.PRICE),
+      Surfaces.normalVolatilityByExpirySimpleMoneyness("Price", ACT_365F, MoneynessType.PRICE),
       TIMES,
       MONEYNESS_PRICES,
       NORMAL_VOL_PRICES,
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface PARAMETERS_RATE = InterpolatedNodalSurface.of(
-      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
+      Surfaces.normalVolatilityByExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
       TIMES,
       MONEYNESS_RATES,
       NORMAL_VOL_RATES,
@@ -126,7 +126,7 @@ public class NormalIborFutureOptionExpirySimpleMoneynessVolatilitiesTest {
     for (int i = 0; i < NORMAL_VOL_RATES.size(); i++) {
       DoubleArray v = NORMAL_VOL_RATES.with(i, NORMAL_VOL_RATES.get(i) + shift);
       InterpolatedNodalSurface param = InterpolatedNodalSurface.of(
-          Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
+          Surfaces.normalVolatilityByExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
           TIMES,
           MONEYNESS_RATES,
           v,

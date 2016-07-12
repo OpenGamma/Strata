@@ -96,7 +96,7 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
    * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#iborFutureOptionNormalExpirySimpleMoneyness(String, DayCount, MoneynessType)}.
+   * {@link Surfaces#normalVolatilityByExpirySimpleMoneyness(String, DayCount, MoneynessType)}.
    * 
    * @param index  the Ibor index
    * @param surface  the implied volatility surface
