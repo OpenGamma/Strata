@@ -92,14 +92,12 @@ public final class IsdaCompliantZeroRateDiscountFactors
   //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    // TODO Auto-generated method stub
-    return 0;
+    return curve.getParameterCount();
   }
 
   @Override
   public double getParameter(int parameterIndex) {
-    // TODO Auto-generated method stub
-    return 0;
+    return curve.getParameter(parameterIndex);
   }
 
   @Override
@@ -128,20 +126,18 @@ public final class IsdaCompliantZeroRateDiscountFactors
 
   @Override
   public double relativeYearFraction(LocalDate date) {
-    // TODO Auto-generated method stub
-    return 0;
+    return dayCount.relativeYearFraction(valuationDate, date);
   }
 
   @Override
   public double discountFactor(double yearFraction) {
-    // TODO Auto-generated method stub
-    return 0;
+    // convert zero rate to discount factor
+    return Math.exp(-yearFraction * curve.yValue(yearFraction));
   }
 
   @Override
   public double zeroRate(double yearFraction) {
-    // TODO Auto-generated method stub
-    return 0;
+    return curve.yValue(yearFraction);
   }
 
   @Override

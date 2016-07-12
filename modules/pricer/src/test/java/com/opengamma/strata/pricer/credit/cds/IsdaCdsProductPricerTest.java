@@ -120,7 +120,7 @@ public class IsdaCdsProductPricerTest {
 
   public void test(){
     double res = PRICER.protectionLeg(PRODUCT.resolve(REF_DATA), RATES_PROVIDER, REF_DATE);
-    System.out.println(res);
+    System.out.println(res); // 0.1176383576255324
   }
 
 }
