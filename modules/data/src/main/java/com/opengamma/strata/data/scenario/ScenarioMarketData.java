@@ -271,7 +271,7 @@ public interface ScenarioMarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the time series identifiers.
+   * Gets the time-series identifiers.
    * <p>
    * Time series are not affected by scenarios, therefore there is a single time-series
    * for each identifier which is shared between all scenarios.

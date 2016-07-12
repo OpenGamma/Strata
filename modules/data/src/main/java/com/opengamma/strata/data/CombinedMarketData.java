@@ -95,9 +95,9 @@ final class CombinedMarketData
   @Override
   public Set<ObservableId> getTimeSeriesIds() {
     return ImmutableSet.<ObservableId>builder()
-    .addAll(underlying1.getTimeSeriesIds())
-    .addAll(underlying2.getTimeSeriesIds())
-    .build();
+        .addAll(underlying1.getTimeSeriesIds())
+        .addAll(underlying2.getTimeSeriesIds())
+        .build();
   }
 
   @Override

@@ -141,7 +141,7 @@ public interface MarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the time series identifiers.
+   * Gets the time-series identifiers.
    *
    * @return the set of observable identifiers
    */
