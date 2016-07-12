@@ -39,6 +39,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataFxRateProvider;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -53,6 +54,7 @@ import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.rate.DiscountIborIndexRates;
 import com.opengamma.strata.pricer.rate.DiscountOvernightIndexRates;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -178,6 +180,15 @@ public class RatesMarketDataLookupTest {
     assertThrowsIllegalArg(() -> ratesProvider.overnightIndexRates(GBP_SONIA));
     // check price curve must be interpolated
     assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(US_CPI_U));
+    // to immutable
+    ImmutableRatesProvider expectedImmutable = ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(MarketDataFxRateProvider.of(md))
+        .discountCurve(USD, dscCurve)
+        .indexCurve(USD_FED_FUND, dscCurve)
+        .indexCurve(USD_LIBOR_3M, fwdCurve)
+        .indexCurve(US_CPI_U, fwdCurve)
+        .build();
+    assertEquals(ratesProvider.toImmutableRatesProvider(), expectedImmutable);
   }
 
   public void test_fxProvider() {

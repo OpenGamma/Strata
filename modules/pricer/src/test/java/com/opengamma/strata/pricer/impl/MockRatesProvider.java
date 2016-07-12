@@ -23,6 +23,7 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.FxForwardRates;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.OvernightIndexRates;
 import com.opengamma.strata.pricer.rate.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -145,6 +146,11 @@ public class MockRatesProvider
 
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ImmutableRatesProvider toImmutableRatesProvider() {
     throw new UnsupportedOperationException();
   }
 

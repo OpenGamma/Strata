@@ -17,6 +17,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
@@ -71,6 +72,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(GBP_USD_WM, ts));
+    assertSame(test.toImmutableRatesProvider(), test);
   }
 
   //-------------------------------------------------------------------------
