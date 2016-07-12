@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.fxopt;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -33,12 +32,12 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
- * Test {@link BlackVolatilitySmileFxProvider}.
+ * Test {@link BlackFxOptionSmileVolatilities}.
  */
 @Test
-public class BlackVolatilitySmileFxProviderTest {
+public class BlackFxOptionSmileVolatilitiesTest {
 
-  private static final String NAME = "smileEurUsd";
+  private static final FxOptionVolatilitiesName NAME = FxOptionVolatilitiesName.of("Test");
   private static final DoubleArray TIME_TO_EXPIRY = DoubleArray.of(0.01, 0.252, 0.501, 1.0, 2.0, 5.0);
   private static final DoubleArray ATM = DoubleArray.of(0.175, 0.185, 0.18, 0.17, 0.16, 0.16);
   private static final DoubleArray DELTA = DoubleArray.of(0.10, 0.25);
@@ -46,17 +45,16 @@ public class BlackVolatilitySmileFxProviderTest {
     {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 }, {-0.014, -0.0090 } });
   private static final DoubleMatrix STRANGLE = DoubleMatrix.ofUnsafe(new double[][] {
     {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } });
-  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
-      InterpolatedSmileDeltaTermStructureStrikeInterpolation
-          .of(NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
+  private static final InterpolatedStrikeSmileDeltaTermStructure SMILE_TERM = InterpolatedStrikeSmileDeltaTermStructure.of(
+      TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE, ACT_365F);
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
 
-  private static final BlackVolatilitySmileFxProvider PROVIDER =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
+  private static final BlackFxOptionSmileVolatilities PROVIDER =
+      BlackFxOptionSmileVolatilities.of(NAME, CURRENCY_PAIR, VAL_DATE_TIME, SMILE_TERM);
   private static final LocalTime TIME = LocalTime.of(11, 45);
   private static final ZonedDateTime[] TEST_EXPIRY = new ZonedDateTime[] {
     date(2015, 2, 18).atTime(LocalTime.MIDNIGHT).atZone(LONDON_ZONE),
@@ -73,15 +71,15 @@ public class BlackVolatilitySmileFxProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    BlackVolatilitySmileFxProvider test = BlackVolatilitySmileFxProvider.builder()
+    BlackFxOptionSmileVolatilities test = BlackFxOptionSmileVolatilities.builder()
+        .name(NAME)
         .currencyPair(CURRENCY_PAIR)
-        .dayCount(ACT_365F)
         .smile(SMILE_TERM)
         .valuationDateTime(VAL_DATE_TIME)
         .build();
+    assertEquals(test.getName(), NAME);
     assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getSmile(), SMILE_TERM);
     assertEquals(PROVIDER, test);
   }
@@ -117,7 +115,7 @@ public class BlackVolatilitySmileFxProviderTest {
         double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
             CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
+        CurrencyParameterSensitivity computed = PROVIDER.parameterSensitivity(sensi).getSensitivities().get(0);
         Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
           FxVolatilitySurfaceYearFractionParameterMetadata meta = ((FxVolatilitySurfaceYearFractionParameterMetadata) itr.next());
@@ -138,7 +136,7 @@ public class BlackVolatilitySmileFxProviderTest {
         double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
             CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
+        CurrencyParameterSensitivity computed = PROVIDER.parameterSensitivity(sensi).getSensitivities().get(0);
         Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
           FxVolatilitySurfaceYearFractionParameterMetadata meta = ((FxVolatilitySurfaceYearFractionParameterMetadata) itr.next());
@@ -154,21 +152,21 @@ public class BlackVolatilitySmileFxProviderTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    BlackVolatilitySmileFxProvider test1 =
-        BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
+    BlackFxOptionSmileVolatilities test1 =
+        BlackFxOptionSmileVolatilities.of(NAME, CURRENCY_PAIR, VAL_DATE_TIME, SMILE_TERM);
     coverImmutableBean(test1);
-    BlackVolatilitySmileFxProvider test2 = BlackVolatilitySmileFxProvider.of(
-        SMILE_TERM,
+    BlackFxOptionSmileVolatilities test2 = BlackFxOptionSmileVolatilities.of(
+        FxOptionVolatilitiesName.of("Boo"),
         CURRENCY_PAIR.inverse(),
-        ACT_360,
-        ZonedDateTime.of(2015, 12, 21, 11, 15, 0, 0, ZoneId.of("Z")));
+        ZonedDateTime.of(2015, 12, 21, 11, 15, 0, 0, ZoneId.of("Z")),
+        SMILE_TERM);
     coverBeanEquals(test1, test2);
   }
 
   //-------------------------------------------------------------------------
   // bumping a node point at (nodeExpiry, nodeDelta)
   private double nodeSensitivity(
-      BlackVolatilitySmileFxProvider provider,
+      BlackFxOptionSmileVolatilities provider,
       CurrencyPair pair,
       ZonedDateTime expiry,
       double strike,
@@ -179,9 +177,9 @@ public class BlackVolatilitySmileFxProviderTest {
     double strikeMod = provider.getCurrencyPair().equals(pair) ? strike : 1.0 / strike;
     double forwardMod = provider.getCurrencyPair().equals(pair) ? forward : 1.0 / forward;
 
-    InterpolatedSmileDeltaTermStructureStrikeInterpolation smileTerm =
-        (InterpolatedSmileDeltaTermStructureStrikeInterpolation) provider.getSmile();
-    double[] times = smileTerm.getTimeToExpiry().toArray();
+    InterpolatedStrikeSmileDeltaTermStructure smileTerm =
+        (InterpolatedStrikeSmileDeltaTermStructure) provider.getSmile();
+    double[] times = smileTerm.getExpiries().toArray();
     int nTimes = times.length;
     SmileDeltaParameters[] volTermUp = new SmileDeltaParameters[nTimes];
     SmileDeltaParameters[] volTermDw = new SmileDeltaParameters[nTimes];
@@ -209,21 +207,21 @@ public class BlackVolatilitySmileFxProviderTest {
       volTermUp[i] = SmileDeltaParameters.of(times[i], deltas, DoubleArray.copyOf(volsUp));
       volTermDw[i] = SmileDeltaParameters.of(times[i], deltas, DoubleArray.copyOf(volsDw));
     }
-    InterpolatedSmileDeltaTermStructureStrikeInterpolation smileTermUp =
-        InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(smileTerm.getName(), ImmutableList.copyOf(volTermUp));
-    InterpolatedSmileDeltaTermStructureStrikeInterpolation smileTermDw =
-        InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(smileTerm.getName(), ImmutableList.copyOf(volTermDw));
-    BlackVolatilitySmileFxProvider provUp =
-        BlackVolatilitySmileFxProvider.of(smileTermUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
-    BlackVolatilitySmileFxProvider provDw =
-        BlackVolatilitySmileFxProvider.of(smileTermDw, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
+    InterpolatedStrikeSmileDeltaTermStructure smileTermUp =
+        InterpolatedStrikeSmileDeltaTermStructure.of(ImmutableList.copyOf(volTermUp), ACT_365F);
+    InterpolatedStrikeSmileDeltaTermStructure smileTermDw =
+        InterpolatedStrikeSmileDeltaTermStructure.of(ImmutableList.copyOf(volTermDw), ACT_365F);
+    BlackFxOptionSmileVolatilities provUp =
+        BlackFxOptionSmileVolatilities.of(NAME, CURRENCY_PAIR, VAL_DATE_TIME, smileTermUp);
+    BlackFxOptionSmileVolatilities provDw =
+        BlackFxOptionSmileVolatilities.of(NAME, CURRENCY_PAIR, VAL_DATE_TIME, smileTermDw);
     double volUp = provUp.volatility(pair, expiry, strike, forward);
     double volDw = provDw.volatility(pair, expiry, strike, forward);
     double totalSensi = 0.5 * (volUp - volDw) / EPS;
 
     double expiryTime = provider.relativeTime(expiry);
-    SmileDeltaParameters singleSmile = smileTerm.smileForTime(expiryTime);
-    double[] strikesUp = singleSmile.getStrike(forwardMod).toArray();
+    SmileDeltaParameters singleSmile = smileTerm.smileForExpiry(expiryTime);
+    double[] strikesUp = singleSmile.strike(forwardMod).toArray();
     double[] strikesDw = strikesUp.clone();
     double[] vols = singleSmile.getVolatility().toArray();
     strikesUp[deltaIndex] += EPS;
@@ -233,10 +231,10 @@ public class BlackVolatilitySmileFxProviderTest {
     double volStrikeDw =
         LINEAR.bind(DoubleArray.ofUnsafe(strikesDw), DoubleArray.ofUnsafe(vols), FLAT, FLAT).interpolate(strikeMod);
     double sensiStrike = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
-    SmileDeltaParameters singleSmileUp = smileTermUp.smileForTime(expiryTime);
-    double strikeUp = singleSmileUp.getStrike(forwardMod).get(deltaIndex);
-    SmileDeltaParameters singleSmileDw = smileTermDw.smileForTime(expiryTime);
-    double strikeDw = singleSmileDw.getStrike(forwardMod).get(deltaIndex);
+    SmileDeltaParameters singleSmileUp = smileTermUp.smileForExpiry(expiryTime);
+    double strikeUp = singleSmileUp.strike(forwardMod).get(deltaIndex);
+    SmileDeltaParameters singleSmileDw = smileTermDw.smileForExpiry(expiryTime);
+    double strikeDw = singleSmileDw.strike(forwardMod).get(deltaIndex);
     double sensiVol = 0.5 * (strikeUp - strikeDw) / EPS;
 
     return totalSensi - sensiStrike * sensiVol;

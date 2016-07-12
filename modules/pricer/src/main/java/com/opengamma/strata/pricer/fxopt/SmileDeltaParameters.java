@@ -26,6 +26,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 
 /**
@@ -36,13 +39,13 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
  */
 @BeanDefinition(builderScope = "private")
 public final class SmileDeltaParameters
-    implements ImmutableBean, Serializable {
+    implements ParameterizedData, ImmutableBean, Serializable {
 
   /**
-   * The time to expiry associated to the data.
+   * The time to expiry associated with the data.
    */
   @PropertyDefinition
-  private final double timeToExpiry;
+  private final double expiry;
   /**
    * The delta of the different data points.
    * Must be positive and sorted in ascending order.
@@ -60,23 +63,23 @@ public final class SmileDeltaParameters
   /**
    * Obtains an instance from volatility.
    * 
-   * @param timeToExpiry  the time to expiry associated to the data
+   * @param expiry  the time to expiry associated to the data
    * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
    *  the put will have as delta the opposite of the numbers
    * @param volatility  the volatilities
    * @return the smile definition
    */
-  public static SmileDeltaParameters of(double timeToExpiry, DoubleArray delta, DoubleArray volatility) {
+  public static SmileDeltaParameters of(double expiry, DoubleArray delta, DoubleArray volatility) {
     ArgChecker.notNull(delta, "delta");
     ArgChecker.notNull(volatility, "volatility");
-    return new SmileDeltaParameters(timeToExpiry, delta, volatility);
+    return new SmileDeltaParameters(expiry, delta, volatility);
   }
 
   /**
    * Obtains an instance from market data at-the-money, delta, risk-reversal and strangle.
    * 
-   * @param timeToExpiry  the time to expiry associated to the data
-   * @param atm  the at-the-money volatility
+   * @param expiry  the time to expiry associated to the data
+   * @param atmVolatility  the at-the-money volatility
    * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
    *  the put will have as delta the opposite of the numbers
    * @param riskReversal  the risk reversal volatility figures, in the same order as the delta
@@ -84,27 +87,27 @@ public final class SmileDeltaParameters
    * @return the smile definition
    */
   public static SmileDeltaParameters of(
-      double timeToExpiry,
-      double atm,
+      double expiry,
+      double atmVolatility,
       DoubleArray delta,
       DoubleArray riskReversal,
       DoubleArray strangle) {
 
     ArgChecker.notNull(delta, "delta");
-    ArgChecker.notNull(riskReversal, "risk reversal");
+    ArgChecker.notNull(riskReversal, "riskReversal");
     ArgChecker.notNull(strangle, "strangle");
     ArgChecker.isTrue(delta.size() == riskReversal.size(),
-        "Length of delta {} should be equal to length of risk reversal {}", delta.size(), riskReversal.size());
+        "Length of delta {} should be equal to length of riskReversal {}", delta.size(), riskReversal.size());
     ArgChecker.isTrue(delta.size() == strangle.size(),
         "Length of delta {} should be equal to length of strangle {} ", delta.size(), strangle.size());
     int nbDelta = delta.size();
     double[] volatility = new double[2 * nbDelta + 1];
-    volatility[nbDelta] = atm;
+    volatility[nbDelta] = atmVolatility;
     for (int i = 0; i < nbDelta; i++) {
-      volatility[i] = strangle.get(i) + atm - riskReversal.get(i) / 2.0; // Put
-      volatility[2 * nbDelta - i] = strangle.get(i) + atm + riskReversal.get(i) / 2.0; // Call
+      volatility[i] = strangle.get(i) + atmVolatility - riskReversal.get(i) / 2.0; // Put
+      volatility[2 * nbDelta - i] = strangle.get(i) + atmVolatility + riskReversal.get(i) / 2.0; // Call
     }
-    return new SmileDeltaParameters(timeToExpiry, delta, DoubleArray.ofUnsafe(volatility));
+    return new SmileDeltaParameters(expiry, delta, DoubleArray.ofUnsafe(volatility));
   }
 
   @ImmutableValidator
@@ -120,22 +123,53 @@ public final class SmileDeltaParameters
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public int getParameterCount() {
+    return volatility.size();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return volatility.get(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return ParameterMetadata.empty();
+  }
+
+  @Override
+  public SmileDeltaParameters withParameter(int parameterIndex, double newValue) {
+    return new SmileDeltaParameters(expiry, delta, volatility.with(parameterIndex, newValue));
+  }
+
+  @Override
+  public SmileDeltaParameters withPerturbation(ParameterPerturbation perturbation) {
+    int size = volatility.size();
+    DoubleArray perturbedValues = DoubleArray.of(
+        size, i -> perturbation.perturbParameter(i, volatility.get(i), getParameterMetadata(i)));
+    return new SmileDeltaParameters(expiry, delta, perturbedValues);
+  }
+
+  //-------------------------------------------------------------------------
   /**
-   * Computes the strikes in ascending order.
-   * Put with lower delta (in absolute value) first, at-the-money and call with larger delta first.
+   * Calculates the strikes in ascending order.
+   * <p>
+   * The result has twice the number of values plus one as the delta/volatility.
+   * The put with lower delta (in absolute value) first, at-the-money and call with larger delta first.
    * 
    * @param forward  the forward
    * @return the strikes
    */
-  public DoubleArray getStrike(double forward) {
+  public DoubleArray strike(double forward) {
     int nbDelta = delta.size();
     double[] strike = new double[2 * nbDelta + 1];
-    strike[nbDelta] = forward * Math.exp(volatility.get(nbDelta) * volatility.get(nbDelta) * timeToExpiry / 2.0);
+    strike[nbDelta] = forward * Math.exp(volatility.get(nbDelta) * volatility.get(nbDelta) * expiry / 2.0);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       strike[loopdelta] = BlackFormulaRepository.impliedStrike(
-          -delta.get(loopdelta), false, forward, timeToExpiry, volatility.get(loopdelta)); // Put
+          -delta.get(loopdelta), false, forward, expiry, volatility.get(loopdelta)); // Put
       strike[2 * nbDelta - loopdelta] = BlackFormulaRepository.impliedStrike(
-          delta.get(loopdelta), true, forward, timeToExpiry, volatility.get(2 * nbDelta - loopdelta)); // Call
+          delta.get(loopdelta), true, forward, expiry, volatility.get(2 * nbDelta - loopdelta)); // Call
     }
     return DoubleArray.ofUnsafe(strike);
   }
@@ -160,10 +194,10 @@ public final class SmileDeltaParameters
   private static final long serialVersionUID = 1L;
 
   private SmileDeltaParameters(
-      double timeToExpiry,
+      double expiry,
       DoubleArray delta,
       DoubleArray volatility) {
-    this.timeToExpiry = timeToExpiry;
+    this.expiry = expiry;
     this.delta = delta;
     this.volatility = volatility;
     validate();
@@ -186,11 +220,11 @@ public final class SmileDeltaParameters
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time to expiry associated to the data.
+   * Gets the time to expiry associated with the data.
    * @return the value of the property
    */
-  public double getTimeToExpiry() {
-    return timeToExpiry;
+  public double getExpiry() {
+    return expiry;
   }
 
   //-----------------------------------------------------------------------
@@ -221,7 +255,7 @@ public final class SmileDeltaParameters
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SmileDeltaParameters other = (SmileDeltaParameters) obj;
-      return JodaBeanUtils.equal(timeToExpiry, other.timeToExpiry) &&
+      return JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(delta, other.delta) &&
           JodaBeanUtils.equal(volatility, other.volatility);
     }
@@ -231,7 +265,7 @@ public final class SmileDeltaParameters
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(timeToExpiry);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(delta);
     hash = hash * 31 + JodaBeanUtils.hashCode(volatility);
     return hash;
@@ -241,7 +275,7 @@ public final class SmileDeltaParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SmileDeltaParameters{");
-    buf.append("timeToExpiry").append('=').append(timeToExpiry).append(',').append(' ');
+    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("delta").append('=').append(delta).append(',').append(' ');
     buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility));
     buf.append('}');
@@ -259,10 +293,10 @@ public final class SmileDeltaParameters
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code timeToExpiry} property.
+     * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<Double> timeToExpiry = DirectMetaProperty.ofImmutable(
-        this, "timeToExpiry", SmileDeltaParameters.class, Double.TYPE);
+    private final MetaProperty<Double> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", SmileDeltaParameters.class, Double.TYPE);
     /**
      * The meta-property for the {@code delta} property.
      */
@@ -278,7 +312,7 @@ public final class SmileDeltaParameters
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "timeToExpiry",
+        "expiry",
         "delta",
         "volatility");
 
@@ -291,8 +325,8 @@ public final class SmileDeltaParameters
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1831499397:  // timeToExpiry
-          return timeToExpiry;
+        case -1289159373:  // expiry
+          return expiry;
         case 95468472:  // delta
           return delta;
         case -1917967323:  // volatility
@@ -318,11 +352,11 @@ public final class SmileDeltaParameters
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code timeToExpiry} property.
+     * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> timeToExpiry() {
-      return timeToExpiry;
+    public MetaProperty<Double> expiry() {
+      return expiry;
     }
 
     /**
@@ -345,8 +379,8 @@ public final class SmileDeltaParameters
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1831499397:  // timeToExpiry
-          return ((SmileDeltaParameters) bean).getTimeToExpiry();
+        case -1289159373:  // expiry
+          return ((SmileDeltaParameters) bean).getExpiry();
         case 95468472:  // delta
           return ((SmileDeltaParameters) bean).getDelta();
         case -1917967323:  // volatility
@@ -372,7 +406,7 @@ public final class SmileDeltaParameters
    */
   private static final class Builder extends DirectFieldsBeanBuilder<SmileDeltaParameters> {
 
-    private double timeToExpiry;
+    private double expiry;
     private DoubleArray delta;
     private DoubleArray volatility;
 
@@ -386,8 +420,8 @@ public final class SmileDeltaParameters
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1831499397:  // timeToExpiry
-          return timeToExpiry;
+        case -1289159373:  // expiry
+          return expiry;
         case 95468472:  // delta
           return delta;
         case -1917967323:  // volatility
@@ -400,8 +434,8 @@ public final class SmileDeltaParameters
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1831499397:  // timeToExpiry
-          this.timeToExpiry = (Double) newValue;
+        case -1289159373:  // expiry
+          this.expiry = (Double) newValue;
           break;
         case 95468472:  // delta
           this.delta = (DoubleArray) newValue;
@@ -442,7 +476,7 @@ public final class SmileDeltaParameters
     @Override
     public SmileDeltaParameters build() {
       return new SmileDeltaParameters(
-          timeToExpiry,
+          expiry,
           delta,
           volatility);
     }
@@ -452,7 +486,7 @@ public final class SmileDeltaParameters
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("SmileDeltaParameters.Builder{");
-      buf.append("timeToExpiry").append('=').append(JodaBeanUtils.toString(timeToExpiry)).append(',').append(' ');
+      buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("delta").append('=').append(JodaBeanUtils.toString(delta)).append(',').append(' ');
       buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility));
       buf.append('}');

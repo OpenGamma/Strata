@@ -46,11 +46,13 @@ public class BlackFxSingleBarrierOptionProductPricer {
   /**
    * Pricer for rebate.
    */
-  private static final BlackOneTouchAssetPriceFormulaRepository ASSET_REBATE_PRICER = new BlackOneTouchAssetPriceFormulaRepository();
+  private static final BlackOneTouchAssetPriceFormulaRepository ASSET_REBATE_PRICER =
+      new BlackOneTouchAssetPriceFormulaRepository();
   /**
    * Pricer for rebate.
    */
-  private static final BlackOneTouchCashPriceFormulaRepository CASH_REBATE_PRICER = new BlackOneTouchCashPriceFormulaRepository();
+  private static final BlackOneTouchCashPriceFormulaRepository CASH_REBATE_PRICER =
+      new BlackOneTouchCashPriceFormulaRepository();
 
   /**
    * Creates an instance.
@@ -69,15 +71,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value of the product
    */
   public CurrencyAmount presentValue(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    double price = price(option, ratesProvider, volatilityProvider);
+    double price = price(option, ratesProvider, volatilities);
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     return CurrencyAmount.of(underlyingOption.getCounterCurrency(), signedNotional(underlyingOption) * price);
   }
@@ -93,18 +95,18 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the price of the product
    */
   public double price(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    validate(option, ratesProvider, volatilityProvider);
+    validate(option, ratesProvider, volatilities);
     SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilityProvider.relativeTime(underlyingOption.getExpiry()) < 0d) {
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
       return 0d;
     }
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
@@ -122,8 +124,8 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
     double forward = todayFx * dfBase / dfCounter;
-    double volatility = volatilityProvider.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
-    double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
+    double volatility = volatilities.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
+    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
     double price = BARRIER_PRICER.price(
         todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
     if (option.getRebate().isPresent()) {
@@ -147,19 +149,19 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value curve sensitivity of the product
    */
   public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilityProvider.relativeTime(underlyingOption.getExpiry()) <= 0d) {
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) <= 0d) {
       return PointSensitivityBuilder.none();
     }
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     double signedNotional = signedNotional(underlyingOption);
@@ -187,15 +189,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value delta of the product
    */
   public CurrencyAmount presentValueDelta(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    double delta = delta(option, ratesProvider, volatilityProvider);
+    double delta = delta(option, ratesProvider, volatilities);
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     return CurrencyAmount.of(underlyingOption.getCounterCurrency(), signedNotional(underlyingOption) * delta);
   }
@@ -207,18 +209,18 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the delta of the product
    */
   public double delta(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    if (volatilityProvider.relativeTime(option.getUnderlyingOption().getExpiry()) < 0d) {
+    if (volatilities.relativeTime(option.getUnderlyingOption().getExpiry()) < 0d) {
       return 0d;
     }
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return priceDerivatives.getDerivative(0);
   }
 
@@ -230,15 +232,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value gamma of the product
    */
   public CurrencyAmount presentValueGamma(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    double gamma = gamma(option, ratesProvider, volatilityProvider);
+    double gamma = gamma(option, ratesProvider, volatilities);
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     return CurrencyAmount.of(underlyingOption.getCounterCurrency(), signedNotional(underlyingOption) * gamma);
   }
@@ -250,15 +252,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the gamma of the product
    */
   public double gamma(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return priceDerivatives.getDerivative(6);
   }
 
@@ -270,19 +272,19 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivityModelParamsVolatility(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilityProvider.relativeTime(underlyingOption.getExpiry()) <= 0d) {
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) <= 0d) {
       return PointSensitivityBuilder.none();
     }
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     Currency ccyBase = currencyPair.getBase();
@@ -293,7 +295,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double forward = todayFx * dfBase / dfCounter;
     return FxOptionSensitivity.of(
         currencyPair,
-        volatilityProvider.relativeTime(underlyingOption.getExpiry()),
+        volatilities.relativeTime(underlyingOption.getExpiry()),
         underlyingOption.getStrike(),
         forward,
         ccyCounter,
@@ -307,15 +309,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the vega of the product
    */
   public double vega(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return priceDerivatives.getDerivative(4);
   }
 
@@ -327,15 +329,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value theta of the product
    */
   public CurrencyAmount presentValueTheta(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    double theta = theta(option, ratesProvider, volatilityProvider);
+    double theta = theta(option, ratesProvider, volatilities);
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     return CurrencyAmount.of(underlyingOption.getCounterCurrency(), signedNotional(underlyingOption) * theta);
   }
@@ -347,15 +349,15 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the theta of the product
    */
   public double theta(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return -priceDerivatives.getDerivative(5);
   }
 
@@ -365,19 +367,19 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilityProvider.relativeTime(underlyingOption.getExpiry()) < 0d) {
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
       return MultiCurrencyAmount.empty();
     }
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilityProvider);
+    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     double price = priceDerivatives.getValue();
     double delta = priceDerivatives.getDerivative(0);
     CurrencyPair currencyPair = underlyingOption.getUnderlying().getCurrencyPair();
@@ -393,13 +395,13 @@ public class BlackFxSingleBarrierOptionProductPricer {
   private ValueDerivatives priceDerivatives(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    validate(option, ratesProvider, volatilityProvider);
+    validate(option, ratesProvider, volatilities);
     SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     double[] derivatives = new double[7];
-    if (volatilityProvider.relativeTime(underlyingOption.getExpiry()) < 0d) {
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
       return ValueDerivatives.of(0d, DoubleArray.ofUnsafe(derivatives));
     }
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
@@ -417,8 +419,8 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
     double forward = todayFx * dfBase / dfCounter;
-    double volatility = volatilityProvider.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
-    double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
+    double volatility = volatilities.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
+    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
     ValueDerivatives valueDerivatives = BARRIER_PRICER.priceAdjoint(
         todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
     if (!option.getRebate().isPresent()) {
@@ -441,11 +443,11 @@ public class BlackFxSingleBarrierOptionProductPricer {
   //-------------------------------------------------------------------------
   private void validate(ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ArgChecker.isTrue(option.getBarrier() instanceof SimpleConstantContinuousBarrier,
-        "barrier should be SimpleConstantContinuousBarrier");
-    ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(volatilityProvider.getValuationDateTime().toLocalDate()),
+        "Barrier should be SimpleConstantContinuousBarrier");
+    ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(volatilities.getValuationDateTime().toLocalDate()),
         "Volatility and rate data must be for the same date");
   }
 
@@ -454,4 +456,5 @@ public class BlackFxSingleBarrierOptionProductPricer {
     return (option.getLongShort().isLong() ? 1d : -1d) *
         Math.abs(option.getUnderlying().getBaseCurrencyPayment().getAmount());
   }
+
 }

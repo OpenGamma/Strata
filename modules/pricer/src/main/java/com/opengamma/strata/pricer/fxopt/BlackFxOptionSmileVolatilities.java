@@ -5,12 +5,14 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -26,26 +28,47 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.option.DeltaStrike;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.surface.SurfaceName;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
+import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
- * Data provider of volatility for FX options in the lognormal or Black-Scholes model.
+ * Data provider of volatility for FX options in the log-normal or Black-Scholes model.
  * <p>
  * The volatility is represented by a term structure of interpolated smile, 
  * {@link SmileDeltaTermStructure}, which represents expiry dependent smile formed of
  * ATM, risk reversal and strangle as used in FX market.
  */
 @BeanDefinition
-final class BlackVolatilitySmileFxProvider
-    implements BlackVolatilityFxProvider, ImmutableBean {
+public final class BlackFxOptionSmileVolatilities
+    implements BlackFxOptionVolatilities, ImmutableBean, Serializable {
 
+  /**
+   * The name of the volatilities.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final FxOptionVolatilitiesName name;
+  /**
+   * The currency pair that the volatilities are for.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final CurrencyPair currencyPair;
+  /**
+   * The valuation date-time.
+   * All data items in this provider is calibrated for this date-time.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ZonedDateTime valuationDateTime;
   /**
    * The volatility model.
    * <p>
@@ -54,40 +77,60 @@ final class BlackVolatilitySmileFxProvider
    */
   @PropertyDefinition(validate = "notNull")
   private final SmileDeltaTermStructure smile;
-  /**
-   * The currency pair for which the volatility data are presented.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final CurrencyPair currencyPair;
-  /**
-   * The day count applicable to the model.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DayCount dayCount;
-  /**
-   * The valuation date-time.
-   * All data items in this provider is calibrated for this date-time.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final ZonedDateTime valuationDateTime;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance based on a smile.
    * 
-   * @param smile  the term structure of smile
+   * @param name  the name of the volatilities
    * @param currencyPair  the currency pair
-   * @param dayCount  the day count applicable to the model
    * @param valuationTime  the valuation date-time
+   * @param smile  the term structure of smile
    * @return the provider
    */
-  public static BlackVolatilitySmileFxProvider of(
-      SmileDeltaTermStructure smile,
+  public static BlackFxOptionSmileVolatilities of(
+      FxOptionVolatilitiesName name,
       CurrencyPair currencyPair,
-      DayCount dayCount,
-      ZonedDateTime valuationTime) {
+      ZonedDateTime valuationTime,
+      SmileDeltaTermStructure smile) {
 
-    return new BlackVolatilitySmileFxProvider(smile, currencyPair, dayCount, valuationTime);
+    return new BlackFxOptionSmileVolatilities(name, currencyPair, valuationTime, smile);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (this.name.equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(this));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public int getParameterCount() {
+    return smile.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return smile.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return smile.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public BlackFxOptionSmileVolatilities withParameter(int parameterIndex, double newValue) {
+    return new BlackFxOptionSmileVolatilities(
+        name, currencyPair, valuationDateTime, smile.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
+  public BlackFxOptionSmileVolatilities withPerturbation(ParameterPerturbation perturbation) {
+    return new BlackFxOptionSmileVolatilities(
+        name, currencyPair, valuationDateTime, smile.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------
@@ -99,22 +142,25 @@ final class BlackVolatilitySmileFxProvider
     return smile.volatility(expiryTime, strike, forward);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public double relativeTime(ZonedDateTime zonedDateTime) {
-    ArgChecker.notNull(zonedDateTime, "zonedDateTime");
-    LocalDate date = zonedDateTime.toLocalDate(); // TODO: time and zone
-    return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), date);
+  public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof FxOptionSensitivity) {
+        FxOptionSensitivity pt = (FxOptionSensitivity) point;
+        sens = sens.combinedWith(parameterSensitivity(pt));
+      }
+    }
+    return sens;
   }
 
-  @Override
-  public CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
+  private CurrencyParameterSensitivity parameterSensitivity(FxOptionSensitivity point) {
     double expiryTime = point.getExpiry();
     double strike = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getStrike() : point.getStrike();
     double forward = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getForward() : point.getForward();
     double pointValue = point.getSensitivity();
     DoubleMatrix bucketedSensi = smile.volatilityAndSensitivities(expiryTime, strike, forward).getSensitivities();
-    double[] times = smile.getTimeToExpiry().toArray();
+    double[] times = smile.getExpiries().toArray();
     int nTimes = times.length;
     List<Double> sensiList = new ArrayList<Double>();
     List<ParameterMetadata> paramList = new ArrayList<ParameterMetadata>();
@@ -135,50 +181,69 @@ final class BlackVolatilitySmileFxProvider
         paramList.add(parameterMetadata);
       }
     }
-    SurfaceName name = SurfaceName.of(smile.getName());  // TODO: SmileName
     return CurrencyParameterSensitivity.of(name, paramList, point.getCurrency(), DoubleArray.copyOf(sensiList));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double price(double expiry, PutCall putCall, double strike, double forward, double volatility) {
+    return BlackFormulaRepository.price(forward, strike, expiry, volatility, putCall.isCall());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double relativeTime(ZonedDateTime dateTime) {
+    ArgChecker.notNull(dateTime, "dateTime");
+    LocalDate valuationDate = valuationDateTime.toLocalDate();
+    LocalDate date = dateTime.toLocalDate();
+    return smile.getDayCount().relativeYearFraction(valuationDate, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code BlackVolatilitySmileFxProvider}.
+   * The meta-bean for {@code BlackFxOptionSmileVolatilities}.
    * @return the meta-bean, not null
    */
-  public static BlackVolatilitySmileFxProvider.Meta meta() {
-    return BlackVolatilitySmileFxProvider.Meta.INSTANCE;
+  public static BlackFxOptionSmileVolatilities.Meta meta() {
+    return BlackFxOptionSmileVolatilities.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(BlackVolatilitySmileFxProvider.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(BlackFxOptionSmileVolatilities.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static BlackVolatilitySmileFxProvider.Builder builder() {
-    return new BlackVolatilitySmileFxProvider.Builder();
+  public static BlackFxOptionSmileVolatilities.Builder builder() {
+    return new BlackFxOptionSmileVolatilities.Builder();
   }
 
-  private BlackVolatilitySmileFxProvider(
-      SmileDeltaTermStructure smile,
+  private BlackFxOptionSmileVolatilities(
+      FxOptionVolatilitiesName name,
       CurrencyPair currencyPair,
-      DayCount dayCount,
-      ZonedDateTime valuationDateTime) {
-    JodaBeanUtils.notNull(smile, "smile");
+      ZonedDateTime valuationDateTime,
+      SmileDeltaTermStructure smile) {
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currencyPair, "currencyPair");
-    JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
-    this.smile = smile;
+    JodaBeanUtils.notNull(smile, "smile");
+    this.name = name;
     this.currencyPair = currencyPair;
-    this.dayCount = dayCount;
     this.valuationDateTime = valuationDateTime;
+    this.smile = smile;
   }
 
   @Override
-  public BlackVolatilitySmileFxProvider.Meta metaBean() {
-    return BlackVolatilitySmileFxProvider.Meta.INSTANCE;
+  public BlackFxOptionSmileVolatilities.Meta metaBean() {
+    return BlackFxOptionSmileVolatilities.Meta.INSTANCE;
   }
 
   @Override
@@ -193,33 +258,22 @@ final class BlackVolatilitySmileFxProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the volatility model.
-   * <p>
-   * This represents expiry dependent smile which consists of ATM, risk reversal
-   * and strangle as used in FX market.
+   * Gets the name of the volatilities.
    * @return the value of the property, not null
    */
-  public SmileDeltaTermStructure getSmile() {
-    return smile;
+  @Override
+  public FxOptionVolatilitiesName getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency pair for which the volatility data are presented.
+   * Gets the currency pair that the volatilities are for.
    * @return the value of the property, not null
    */
   @Override
   public CurrencyPair getCurrencyPair() {
     return currencyPair;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the day count applicable to the model.
-   * @return the value of the property, not null
-   */
-  public DayCount getDayCount() {
-    return dayCount;
   }
 
   //-----------------------------------------------------------------------
@@ -231,6 +285,18 @@ final class BlackVolatilitySmileFxProvider
   @Override
   public ZonedDateTime getValuationDateTime() {
     return valuationDateTime;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the volatility model.
+   * <p>
+   * This represents expiry dependent smile which consists of ATM, risk reversal
+   * and strangle as used in FX market.
+   * @return the value of the property, not null
+   */
+  public SmileDeltaTermStructure getSmile() {
+    return smile;
   }
 
   //-----------------------------------------------------------------------
@@ -248,11 +314,11 @@ final class BlackVolatilitySmileFxProvider
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BlackVolatilitySmileFxProvider other = (BlackVolatilitySmileFxProvider) obj;
-      return JodaBeanUtils.equal(smile, other.smile) &&
+      BlackFxOptionSmileVolatilities other = (BlackFxOptionSmileVolatilities) obj;
+      return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
-          JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
+          JodaBeanUtils.equal(smile, other.smile);
     }
     return false;
   }
@@ -260,28 +326,28 @@ final class BlackVolatilitySmileFxProvider
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(smile);
+    hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
-    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(smile);
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
-    buf.append("BlackVolatilitySmileFxProvider{");
-    buf.append("smile").append('=').append(smile).append(',').append(' ');
+    buf.append("BlackFxOptionSmileVolatilities{");
+    buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
+    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("smile").append('=').append(JodaBeanUtils.toString(smile));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code BlackVolatilitySmileFxProvider}.
+   * The meta-bean for {@code BlackFxOptionSmileVolatilities}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -290,34 +356,34 @@ final class BlackVolatilitySmileFxProvider
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code smile} property.
+     * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<SmileDeltaTermStructure> smile = DirectMetaProperty.ofImmutable(
-        this, "smile", BlackVolatilitySmileFxProvider.class, SmileDeltaTermStructure.class);
+    private final MetaProperty<FxOptionVolatilitiesName> name = DirectMetaProperty.ofImmutable(
+        this, "name", BlackFxOptionSmileVolatilities.class, FxOptionVolatilitiesName.class);
     /**
      * The meta-property for the {@code currencyPair} property.
      */
     private final MetaProperty<CurrencyPair> currencyPair = DirectMetaProperty.ofImmutable(
-        this, "currencyPair", BlackVolatilitySmileFxProvider.class, CurrencyPair.class);
-    /**
-     * The meta-property for the {@code dayCount} property.
-     */
-    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", BlackVolatilitySmileFxProvider.class, DayCount.class);
+        this, "currencyPair", BlackFxOptionSmileVolatilities.class, CurrencyPair.class);
     /**
      * The meta-property for the {@code valuationDateTime} property.
      */
     private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
-        this, "valuationDateTime", BlackVolatilitySmileFxProvider.class, ZonedDateTime.class);
+        this, "valuationDateTime", BlackFxOptionSmileVolatilities.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code smile} property.
+     */
+    private final MetaProperty<SmileDeltaTermStructure> smile = DirectMetaProperty.ofImmutable(
+        this, "smile", BlackFxOptionSmileVolatilities.class, SmileDeltaTermStructure.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "smile",
+        "name",
         "currencyPair",
-        "dayCount",
-        "valuationDateTime");
+        "valuationDateTime",
+        "smile");
 
     /**
      * Restricted constructor.
@@ -328,26 +394,26 @@ final class BlackVolatilitySmileFxProvider
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 109556488:  // smile
-          return smile;
+        case 3373707:  // name
+          return name;
         case 1005147787:  // currencyPair
           return currencyPair;
-        case 1905311443:  // dayCount
-          return dayCount;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
+        case 109556488:  // smile
+          return smile;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BlackVolatilitySmileFxProvider.Builder builder() {
-      return new BlackVolatilitySmileFxProvider.Builder();
+    public BlackFxOptionSmileVolatilities.Builder builder() {
+      return new BlackFxOptionSmileVolatilities.Builder();
     }
 
     @Override
-    public Class<? extends BlackVolatilitySmileFxProvider> beanType() {
-      return BlackVolatilitySmileFxProvider.class;
+    public Class<? extends BlackFxOptionSmileVolatilities> beanType() {
+      return BlackFxOptionSmileVolatilities.class;
     }
 
     @Override
@@ -357,11 +423,11 @@ final class BlackVolatilitySmileFxProvider
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code smile} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SmileDeltaTermStructure> smile() {
-      return smile;
+    public MetaProperty<FxOptionVolatilitiesName> name() {
+      return name;
     }
 
     /**
@@ -373,14 +439,6 @@ final class BlackVolatilitySmileFxProvider
     }
 
     /**
-     * The meta-property for the {@code dayCount} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DayCount> dayCount() {
-      return dayCount;
-    }
-
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
@@ -388,18 +446,26 @@ final class BlackVolatilitySmileFxProvider
       return valuationDateTime;
     }
 
+    /**
+     * The meta-property for the {@code smile} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SmileDeltaTermStructure> smile() {
+      return smile;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 109556488:  // smile
-          return ((BlackVolatilitySmileFxProvider) bean).getSmile();
+        case 3373707:  // name
+          return ((BlackFxOptionSmileVolatilities) bean).getName();
         case 1005147787:  // currencyPair
-          return ((BlackVolatilitySmileFxProvider) bean).getCurrencyPair();
-        case 1905311443:  // dayCount
-          return ((BlackVolatilitySmileFxProvider) bean).getDayCount();
+          return ((BlackFxOptionSmileVolatilities) bean).getCurrencyPair();
         case -949589828:  // valuationDateTime
-          return ((BlackVolatilitySmileFxProvider) bean).getValuationDateTime();
+          return ((BlackFxOptionSmileVolatilities) bean).getValuationDateTime();
+        case 109556488:  // smile
+          return ((BlackFxOptionSmileVolatilities) bean).getSmile();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -417,14 +483,14 @@ final class BlackVolatilitySmileFxProvider
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code BlackVolatilitySmileFxProvider}.
+   * The bean-builder for {@code BlackFxOptionSmileVolatilities}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<BlackVolatilitySmileFxProvider> {
+  public static final class Builder extends DirectFieldsBeanBuilder<BlackFxOptionSmileVolatilities> {
 
-    private SmileDeltaTermStructure smile;
+    private FxOptionVolatilitiesName name;
     private CurrencyPair currencyPair;
-    private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
+    private SmileDeltaTermStructure smile;
 
     /**
      * Restricted constructor.
@@ -436,25 +502,25 @@ final class BlackVolatilitySmileFxProvider
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(BlackVolatilitySmileFxProvider beanToCopy) {
-      this.smile = beanToCopy.getSmile();
+    private Builder(BlackFxOptionSmileVolatilities beanToCopy) {
+      this.name = beanToCopy.getName();
       this.currencyPair = beanToCopy.getCurrencyPair();
-      this.dayCount = beanToCopy.getDayCount();
       this.valuationDateTime = beanToCopy.getValuationDateTime();
+      this.smile = beanToCopy.getSmile();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 109556488:  // smile
-          return smile;
+        case 3373707:  // name
+          return name;
         case 1005147787:  // currencyPair
           return currencyPair;
-        case 1905311443:  // dayCount
-          return dayCount;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
+        case 109556488:  // smile
+          return smile;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -463,17 +529,17 @@ final class BlackVolatilitySmileFxProvider
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 109556488:  // smile
-          this.smile = (SmileDeltaTermStructure) newValue;
+        case 3373707:  // name
+          this.name = (FxOptionVolatilitiesName) newValue;
           break;
         case 1005147787:  // currencyPair
           this.currencyPair = (CurrencyPair) newValue;
           break;
-        case 1905311443:  // dayCount
-          this.dayCount = (DayCount) newValue;
-          break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
+          break;
+        case 109556488:  // smile
+          this.smile = (SmileDeltaTermStructure) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -506,48 +572,34 @@ final class BlackVolatilitySmileFxProvider
     }
 
     @Override
-    public BlackVolatilitySmileFxProvider build() {
-      return new BlackVolatilitySmileFxProvider(
-          smile,
+    public BlackFxOptionSmileVolatilities build() {
+      return new BlackFxOptionSmileVolatilities(
+          name,
           currencyPair,
-          dayCount,
-          valuationDateTime);
+          valuationDateTime,
+          smile);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the volatility model.
-     * <p>
-     * This represents expiry dependent smile which consists of ATM, risk reversal
-     * and strangle as used in FX market.
-     * @param smile  the new value, not null
+     * Sets the name of the volatilities.
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder smile(SmileDeltaTermStructure smile) {
-      JodaBeanUtils.notNull(smile, "smile");
-      this.smile = smile;
+    public Builder name(FxOptionVolatilitiesName name) {
+      JodaBeanUtils.notNull(name, "name");
+      this.name = name;
       return this;
     }
 
     /**
-     * Sets the currency pair for which the volatility data are presented.
+     * Sets the currency pair that the volatilities are for.
      * @param currencyPair  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder currencyPair(CurrencyPair currencyPair) {
       JodaBeanUtils.notNull(currencyPair, "currencyPair");
       this.currencyPair = currencyPair;
-      return this;
-    }
-
-    /**
-     * Sets the day count applicable to the model.
-     * @param dayCount  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder dayCount(DayCount dayCount) {
-      JodaBeanUtils.notNull(dayCount, "dayCount");
-      this.dayCount = dayCount;
       return this;
     }
 
@@ -563,15 +615,29 @@ final class BlackVolatilitySmileFxProvider
       return this;
     }
 
+    /**
+     * Sets the volatility model.
+     * <p>
+     * This represents expiry dependent smile which consists of ATM, risk reversal
+     * and strangle as used in FX market.
+     * @param smile  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder smile(SmileDeltaTermStructure smile) {
+      JodaBeanUtils.notNull(smile, "smile");
+      this.smile = smile;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
-      buf.append("BlackVolatilitySmileFxProvider.Builder{");
-      buf.append("smile").append('=').append(JodaBeanUtils.toString(smile)).append(',').append(' ');
+      buf.append("BlackFxOptionSmileVolatilities.Builder{");
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
+      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
+      buf.append("smile").append('=').append(JodaBeanUtils.toString(smile));
       buf.append('}');
       return buf.toString();
     }

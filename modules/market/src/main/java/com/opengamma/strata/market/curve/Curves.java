@@ -227,4 +227,40 @@ public final class Curves {
         .build();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates curve metadata for a curve providing Black volatility by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata blackVolatilityByExpiry(String name, DayCount dayCount) {
+    return blackVolatilityByExpiry(CurveName.of(name), dayCount);
+  }
+
+  /**
+   * Creates curve metadata for a curve providing Black volatility by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata blackVolatilityByExpiry(CurveName name, DayCount dayCount) {
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
 }

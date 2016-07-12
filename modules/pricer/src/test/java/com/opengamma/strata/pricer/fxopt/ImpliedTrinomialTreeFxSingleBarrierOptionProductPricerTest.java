@@ -46,17 +46,17 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   // providers - flat
   private static final ImmutableRatesProvider RATE_PROVIDER_FLAT =
       RatesProviderFxDataSets.createProviderEurUsdFlat(VAL_DATE);
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_FLAT =
+  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER_FLAT =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5FlatFlat(VAL_DATETIME);
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
       RatesProviderFxDataSets.createProviderEURUSD(VAL_DATE);
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
+  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(VAL_DATETIME);
   // providers - after maturity
   private static final ImmutableRatesProvider RATE_PROVIDER_AFTER =
       RatesProviderFxDataSets.createProviderEURUSD(EXPIRY_DATE.plusDays(1));
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_AFTER =
+  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER_AFTER =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(EXPIRY_DATETIME.plusDays(1));
 
   private static final double NOTIONAL = 100_000_000d;
