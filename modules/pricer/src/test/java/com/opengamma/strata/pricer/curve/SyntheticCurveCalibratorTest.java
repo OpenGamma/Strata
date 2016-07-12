@@ -143,7 +143,7 @@ public class SyntheticCurveCalibratorTest {
     SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
-    multicurveSyn = ((ImmutableRatesProvider) multicurveSyn).toBuilder().timeSeries(TS_LARGE).build(); // To ensure TS are present
+    multicurveSyn = multicurveSyn.toImmutableRatesProvider().toBuilder().timeSeries(TS_LARGE).build(); // To ensure TS are present
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {

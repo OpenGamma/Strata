@@ -241,7 +241,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
-    ImmutableRatesProvider immRatesProvider = (ImmutableRatesProvider) ratesProvider;
+    ImmutableRatesProvider immRatesProvider = ratesProvider.toImmutableRatesProvider();
     ImmutableMap<Currency, Curve> baseCurves = immRatesProvider.getDiscountCurves();
     CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
 

@@ -25,6 +25,7 @@ import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Computes the curve parameter sensitivity by finite difference.
@@ -66,19 +67,20 @@ public class RatesFiniteDifferenceSensitivityCalculator {
    * @return the curve sensitivity
    */
   public CurrencyParameterSensitivities sensitivity(
-      ImmutableRatesProvider provider,
+      RatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn) {
 
-    CurrencyAmount valueInit = valueFn.apply(provider);
+    ImmutableRatesProvider immProv = provider.toImmutableRatesProvider();
+    CurrencyAmount valueInit = valueFn.apply(immProv);
     CurrencyParameterSensitivities discounting = sensitivity(
-        provider,
-        provider.getDiscountCurves(),
+        immProv,
+        immProv.getDiscountCurves(),
         (base, bumped) -> base.toBuilder().discountCurves(bumped).build(),
         valueFn,
         valueInit);
     CurrencyParameterSensitivities forward = sensitivity(
-        provider,
-        provider.getIndexCurves(),
+        immProv,
+        immProv.getIndexCurves(),
         (base, bumped) -> base.toBuilder().indexCurves(bumped).build(),
         valueFn,
         valueInit);
