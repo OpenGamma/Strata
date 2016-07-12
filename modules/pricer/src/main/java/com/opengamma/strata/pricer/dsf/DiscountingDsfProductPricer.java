@@ -19,8 +19,17 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
  * Pricer for for Deliverable Swap Futures (DSFs).
  * <p>
  * This function provides the ability to price a {@link ResolvedDsf}.
+ * 
+ * <h4>Price</h4>
+ * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
+ * For example, a price of 100.182 represents a present value of $100,182.00, if the notional is $100,000.
+ * This price can also be viewed as a percentage present value - {@code (100 + percentPv)}, or 0.182% in this example.
+ * <p>
+ * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+ * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+ * Thus the market price of 100.182 is represented in Strata by 1.00182.
  */
-public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer {
+public final class DiscountingDsfProductPricer {
 
   /**
    * Default implementation.
@@ -50,6 +59,39 @@ public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer 
    */
   DiscountingSwapProductPricer getSwapPricer() {
     return swapPricer;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the number related to deliverable swap futures product on which the daily margin is computed.
+   * <p>
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param price  the price of the product, in decimal form
+   * @return the index
+   */
+  double marginIndex(ResolvedDsf future, double price) {
+    return price * future.getNotional();
+  }
+
+  /**
+   * Calculates the margin index sensitivity of the deliverable swap futures product.
+   * <p>
+   * The margin index sensitivity is the sensitivity of the margin index to the underlying curves.
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param priceSensitivity  the price sensitivity of the product
+   * @return the index sensitivity
+   */
+  PointSensitivities marginIndexSensitivity(
+      ResolvedDsf future,
+      PointSensitivities priceSensitivity) {
+
+    return priceSensitivity.multipliedBy(future.getNotional());
   }
 
   //-------------------------------------------------------------------------

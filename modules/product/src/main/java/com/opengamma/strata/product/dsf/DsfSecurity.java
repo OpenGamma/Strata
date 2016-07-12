@@ -46,6 +46,15 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * The delivered swap is cleared by a central counterparty.
  * The last future price before delivery is quoted in term of the underlying swap present value.
  * The futures product is margined on a daily basis.
+ * 
+ * <h4>Price</h4>
+ * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
+ * For example, a price of 100.182 represents a present value of $100,182.00, if the notional is $100,000.
+ * This price can also be viewed as a percentage present value - {@code (100 + percentPv)}, or 0.182% in this example.
+ * <p>
+ * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+ * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+ * Thus the market price of 100.182 is represented in Strata by 1.00182.
  */
 @BeanDefinition
 public final class DsfSecurity
