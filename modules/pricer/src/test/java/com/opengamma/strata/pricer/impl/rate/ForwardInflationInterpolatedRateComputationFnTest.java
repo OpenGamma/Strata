@@ -17,7 +17,6 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -31,7 +30,6 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.InflationRateSensitivity;
-import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 
 /**
@@ -153,9 +151,9 @@ public class ForwardInflationInterpolatedRateComputationFnTest {
         DoubleArray.of(4, 5, 16, 17),
         DoubleArray.of(rateStart, rateStartInterp, rateEnd, rateEndInterp),
         INTERPOLATOR);
-    SimplePriceIndexValues values = SimplePriceIndexValues.of(GB_RPIX, VAL_DATE, curve, timeSeries);
     return ImmutableRatesProvider.builder(VAL_DATE)
-        .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
+        .priceIndexCurve(GB_RPIX, curve)
+        .timeSeries(GB_RPIX, timeSeries)
         .build();
   }
 

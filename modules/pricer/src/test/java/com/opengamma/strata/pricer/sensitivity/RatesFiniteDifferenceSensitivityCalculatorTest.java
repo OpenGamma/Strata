@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -33,8 +32,6 @@ import com.opengamma.strata.pricer.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 
 /**
  * Tests {@link RatesFiniteDifferenceSensitivityCalculator}.
@@ -101,12 +98,6 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     ImmutableMap<Index, Curve> mapIndex = provider.getIndexCurves();
     for (Entry<Index, Curve> entry : mapIndex.entrySet()) {
       InterpolatedNodalCurve curveInt = checkInterpolated(entry.getValue());
-      result += sumProduct(curveInt);
-    }
-    // Price index
-    ImmutableMap<PriceIndex, PriceIndexValues> mapPriceIndex = provider.getPriceIndexValues();
-    for (Entry<PriceIndex, PriceIndexValues> entry : mapPriceIndex.entrySet()) {
-      NodalCurve curveInt = ((SimplePriceIndexValues) entry.getValue()).getCurve();
       result += sumProduct(curveInt);
     }
     return CurrencyAmount.of(USD, result);

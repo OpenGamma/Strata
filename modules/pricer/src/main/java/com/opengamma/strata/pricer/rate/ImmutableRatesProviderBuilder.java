@@ -46,13 +46,9 @@ public final class ImmutableRatesProviderBuilder {
   /**
    * The forward curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each index.
+   * This is used for Ibor, Overnight and Price indices.
    */
   private final Map<Index, Curve> indexCurves = new HashMap<>();
-  /**
-   * The price index values, defaulted to an empty map.
-   * The curve data, predicting the future, associated with each index.
-   */
-  private final Map<PriceIndex, PriceIndexValues> priceIndexValues = new HashMap<>();
   /**
    * The time-series, defaulted to an empty map.
    * The historic data associated with each index.
@@ -135,7 +131,7 @@ public final class ImmutableRatesProviderBuilder {
   }
 
   /**
-   * Adds an index forward curve to the provider with associated time-series.
+   * Adds an Ibor index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve and time-series to the provider.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
@@ -177,7 +173,7 @@ public final class ImmutableRatesProviderBuilder {
   }
 
   /**
-   * Adds an index forward curve to the provider with associated time-series.
+   * Adds an Overnight index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve and time-series to the provider.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
@@ -202,9 +198,52 @@ public final class ImmutableRatesProviderBuilder {
 
   //-------------------------------------------------------------------------
   /**
+   * Adds a Price index forward curve to the provider.
+   * <p>
+   * This adds the specified forward curve to the provider.
+   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * 
+   * @param index  the index of the curve
+   * @param forwardCurve  the Price index forward curve
+   * @return this, for chaining
+   */
+  public ImmutableRatesProviderBuilder priceIndexCurve(PriceIndex index, Curve forwardCurve) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(forwardCurve, "forwardCurve");
+    this.indexCurves.put(index, forwardCurve);
+    return this;
+  }
+
+  /**
+   * Adds an index forward curve to the provider with associated time-series.
+   * <p>
+   * This adds the specified forward curve and time-series to the provider.
+   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * 
+   * @param index  the index of the curve
+   * @param forwardCurve  the index forward curve
+   * @param timeSeries  the associated time-series
+   * @return this, for chaining
+   */
+  public ImmutableRatesProviderBuilder priceIndexCurve(
+      PriceIndex index,
+      Curve forwardCurve,
+      LocalDateDoubleTimeSeries timeSeries) {
+
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(forwardCurve, "forwardCurve");
+    ArgChecker.notNull(timeSeries, "timeSeries");
+    this.indexCurves.put(index, forwardCurve);
+    this.timeSeries.put(index, timeSeries);
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Adds an index forward curve to the provider.
    * <p>
    * This adds the specified forward curve to the provider.
+   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
    * 
    * @param index  the index of the curve
@@ -214,7 +253,7 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
-    if (index instanceof IborIndex || index instanceof OvernightIndex) {
+    if (index instanceof IborIndex || index instanceof OvernightIndex || index instanceof PriceIndex) {
       this.indexCurves.put(index, forwardCurve);
     } else {
       throw new IllegalArgumentException("Unsupported index: " + index);
@@ -226,6 +265,7 @@ public final class ImmutableRatesProviderBuilder {
    * Adds an index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve to the provider.
+   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
    * 
    * @param index  the index of the curve
@@ -236,11 +276,9 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
-    if (index instanceof IborIndex || index instanceof OvernightIndex) {
+    if (index instanceof IborIndex || index instanceof OvernightIndex || index instanceof PriceIndex) {
       this.indexCurves.put(index, forwardCurve);
       this.timeSeries.put(index, timeSeries);
-    } else if (index instanceof PriceIndex) {
-      priceIndexValues(PriceIndexValues.of((PriceIndex) index, valuationDate, forwardCurve, timeSeries));
     } else {
       throw new IllegalArgumentException("Unsupported index: " + index);
     }
@@ -251,6 +289,7 @@ public final class ImmutableRatesProviderBuilder {
    * Adds index forward curves to the provider with associated time-series.
    * <p>
    * This adds the specified index forward curves to the provider.
+   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
    * 
    * @param indexCurves  the index forward curves
@@ -259,14 +298,7 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurves(Map<? extends Index, ? extends Curve> indexCurves) {
     ArgChecker.noNulls(indexCurves, "indexCurves");
     for (Entry<? extends Index, ? extends Curve> entry : indexCurves.entrySet()) {
-      Index index = entry.getKey();
-      if (index instanceof IborIndex) {
-        iborIndexCurve((IborIndex) index, entry.getValue());
-      } else if (index instanceof OvernightIndex) {
-        overnightIndexCurve((OvernightIndex) index, entry.getValue());
-      } else {
-        throw new IllegalArgumentException("Unknown index type: " + index);
-      }
+      indexCurve(entry.getKey(), entry.getValue());
     }
     return this;
   }
@@ -275,6 +307,7 @@ public final class ImmutableRatesProviderBuilder {
    * Adds index forward curves to the provider with associated time-series.
    * <p>
    * This adds the specified index forward curves to the provider.
+   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
    * 
    * @param indexCurves  the index forward curves
@@ -290,56 +323,7 @@ public final class ImmutableRatesProviderBuilder {
       Index index = entry.getKey();
       LocalDateDoubleTimeSeries ts = timeSeries.get(index);
       ts = (ts != null ? ts : LocalDateDoubleTimeSeries.empty());
-      if (index instanceof IborIndex) {
-        iborIndexCurve((IborIndex) index, entry.getValue(), ts);
-      } else if (index instanceof OvernightIndex) {
-        overnightIndexCurve((OvernightIndex) index, entry.getValue(), ts);
-      } else {
-        throw new IllegalArgumentException("Unknown index type: " + index);
-      }
-    }
-    return this;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Adds price index values to the provider.
-   * <p>
-   * This adds the specified price index values to the provider.
-   * The valuation date of the price index values must match the valuation date of the builder.
-   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
-   * 
-   * @param priceIndexValues  the price index values
-   * @return this, for chaining
-   * @throws IllegalArgumentException if the valuation date does not match
-   */
-  public ImmutableRatesProviderBuilder priceIndexValues(PriceIndexValues... priceIndexValues) {
-    ArgChecker.notNull(priceIndexValues, "priceIndexValues");
-    for (PriceIndexValues piv : priceIndexValues) {
-      checkValuationDate(piv.getValuationDate());
-      this.priceIndexValues.put(piv.getIndex(), piv);
-    }
-    return this;
-  }
-
-  /**
-   * Adds price index values to the provider.
-   * <p>
-   * This adds the specified price index values to the provider.
-   * The valuation date of the price index values must match the valuation date of the builder.
-   * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
-   * 
-   * @param priceIndexValues  the price index values
-   * @return this, for chaining
-   * @throws IllegalArgumentException if the valuation date does not match
-   */
-  public ImmutableRatesProviderBuilder priceIndexValues(
-      Map<? extends PriceIndex, ? extends PriceIndexValues> priceIndexValues) {
-
-    ArgChecker.notNull(priceIndexValues, "priceIndexValues");
-    for (PriceIndexValues piv : priceIndexValues.values()) {
-      checkValuationDate(piv.getValuationDate());
-      this.priceIndexValues.put(piv.getIndex(), piv);
+      indexCurve(entry.getKey(), entry.getValue(), ts);
     }
     return this;
   }
@@ -389,15 +373,7 @@ public final class ImmutableRatesProviderBuilder {
         fxRateProvider,
         discountCurves,
         indexCurves,
-        priceIndexValues,
         timeSeries);
-  }
-
-  //-------------------------------------------------------------------------
-  private void checkValuationDate(LocalDate inputValuationDate) {
-    ArgChecker.isTrue(
-        valuationDate.equals(inputValuationDate),
-        "Valuation date differs, {} and {}", valuationDate, inputValuationDate);
   }
 
 }
