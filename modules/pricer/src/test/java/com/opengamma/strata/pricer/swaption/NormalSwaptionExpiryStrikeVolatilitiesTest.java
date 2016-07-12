@@ -66,7 +66,7 @@ public class NormalSwaptionExpiryStrikeVolatilitiesTest {
           SwaptionSurfaceExpiryStrikeParameterMetadata.of(TIME.get(i), STRIKE.get(i));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.swaptionNormalExpiryStrike("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.normalVolatilityByExpiryStrike("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, STRIKE, VOL, INTERPOLATOR_2D);

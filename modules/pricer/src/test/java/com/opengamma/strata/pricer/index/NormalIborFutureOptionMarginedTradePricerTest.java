@@ -50,7 +50,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final DoubleArray NORMAL_VOL =
       DoubleArray.of(0.01, 0.011, 0.012, 0.010, 0.011, 0.012, 0.013, 0.012, 0.012, 0.013, 0.014, 0.014);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
-      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Test", ACT_365F, MoneynessType.PRICE),
+      Surfaces.normalVolatilityByExpirySimpleMoneyness("Test", ACT_365F, MoneynessType.PRICE),
       TIMES,
       MONEYNESS_PRICES,
       NORMAL_VOL,

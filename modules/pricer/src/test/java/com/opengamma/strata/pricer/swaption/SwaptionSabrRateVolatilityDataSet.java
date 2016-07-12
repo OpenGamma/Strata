@@ -94,7 +94,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3};
   static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test-SABR");
   static final SurfaceMetadata META_ALPHA =
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA);
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA);
   private static final InterpolatedNodalSurface SURFACE_ALPHA_USD = InterpolatedNodalSurface.of(
       META_ALPHA,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
@@ -111,7 +111,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   static final SurfaceMetadata META_BETA_USD =
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, ValueType.SABR_BETA)
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, ValueType.SABR_BETA)
           .withParameterMetadata(PARAMETER_META_LIST_USD);
   private static final InterpolatedNodalSurface SURFACE_BETA_USD = InterpolatedNodalSurface.of(
       META_BETA_USD,
@@ -120,7 +120,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(BETA_NODE_USD),
       INTERPOLATOR_2D);
   static final SurfaceMetadata META_RHO =
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, ValueType.SABR_RHO);
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, ValueType.SABR_RHO);
   private static final InterpolatedNodalSurface SURFACE_RHO_USD = InterpolatedNodalSurface.of(
       META_RHO,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
@@ -128,7 +128,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(RHO_NODE_USD),
       INTERPOLATOR_2D);
   static final SurfaceMetadata META_NU =
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, ValueType.SABR_NU);
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, ValueType.SABR_NU);
   private static final InterpolatedNodalSurface SURFACE_NU_USD = InterpolatedNodalSurface.of(
       META_NU,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
@@ -197,7 +197,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   private static final double[] BETA_TENOR_NODE_EUR = new double[] {
       0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100};
   private static final InterpolatedNodalSurface SURFACE_ALPHA_EUR = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA),
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA),
       DoubleArray.of(0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10),
       DoubleArray.of(0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100, 0, 1, 10, 100),
       DoubleArray.of(
@@ -215,7 +215,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   static final SurfaceMetadata META_BETA_EUR =
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, ValueType.SABR_BETA)
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, ValueType.SABR_BETA)
           .withParameterMetadata(PARAMETER_META_LIST_EUR);
   private static final InterpolatedNodalSurface SURFACE_BETA_EUR = InterpolatedNodalSurface.of(
       META_BETA_EUR,
@@ -225,7 +225,7 @@ public class SwaptionSabrRateVolatilityDataSet {
           0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}),
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE_RHO_EUR = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, ValueType.SABR_RHO),
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, ValueType.SABR_RHO),
       DoubleArray.of(
           0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10, 100, 100, 100, 100),
       DoubleArray.of(
@@ -240,7 +240,7 @@ public class SwaptionSabrRateVolatilityDataSet {
           -0.25, -0.25, 0, 0),
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE_NU_EUR = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, ValueType.SABR_NU),
+      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, ValueType.SABR_NU),
       DoubleArray.of(
           0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10, 100, 100, 100, 100),
       DoubleArray.of(

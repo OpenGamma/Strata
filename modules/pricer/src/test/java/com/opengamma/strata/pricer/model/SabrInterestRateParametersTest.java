@@ -29,16 +29,16 @@ public class SabrInterestRateParametersTest {
 
   private static final GridSurfaceInterpolator GRID = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final InterpolatedNodalSurface ALPHA_SURFACE = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("SabrAlpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA),
+      Surfaces.sabrParameterByExpiryTenor("SabrAlpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA),
       DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0, 10, 0, 10), DoubleArray.of(0.2, 0.2, 0.2, 0.2), GRID);
   private static final InterpolatedNodalSurface BETA_SURFACE = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("SabrBeta", ACT_ACT_ISDA, ValueType.SABR_BETA),
+      Surfaces.sabrParameterByExpiryTenor("SabrBeta", ACT_ACT_ISDA, ValueType.SABR_BETA),
       DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0, 10, 0, 10), DoubleArray.of(1, 1, 1, 1), GRID);
   private static final InterpolatedNodalSurface RHO_SURFACE = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("SabrRho", ACT_ACT_ISDA, ValueType.SABR_RHO),
+      Surfaces.sabrParameterByExpiryTenor("SabrRho", ACT_ACT_ISDA, ValueType.SABR_RHO),
       DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0, 10, 0, 10), DoubleArray.of(-0.5, -0.5, -0.5, -0.5), GRID);
   private static final InterpolatedNodalSurface NU_SURFACE = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("SabrNu", ACT_ACT_ISDA, ValueType.SABR_NU),
+      Surfaces.sabrParameterByExpiryTenor("SabrNu", ACT_ACT_ISDA, ValueType.SABR_NU),
       DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0, 10, 0, 10), DoubleArray.of(0.5, 0.5, 0.5, 0.5), GRID);
   private static final SabrVolatilityFormula FORMULA = SabrVolatilityFormula.hagan();
   private static final SabrInterestRateParameters PARAMETERS =

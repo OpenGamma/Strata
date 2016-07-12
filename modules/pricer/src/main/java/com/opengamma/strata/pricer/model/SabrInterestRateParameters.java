@@ -113,7 +113,7 @@ public final class SabrInterestRateParameters
    *   {@link SurfaceInfoType#DAY_COUNT}, if present on other surfaces it must match that on the Alpha
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, ValueType)}.
+   * {@link Surfaces#sabrParameterByExpiryTenor(String, DayCount, ValueType)}.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface
@@ -151,7 +151,7 @@ public final class SabrInterestRateParameters
    * If it does, the day count and convention must match that on the alpha surface.
    * <p>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionSabrExpiryTenor(String, DayCount, ValueType)}.
+   * {@link Surfaces#sabrParameterByExpiryTenor(String, DayCount, ValueType)}.
    * 
    * @param alphaSurface  the alpha surface
    * @param betaSurface  the beta surface

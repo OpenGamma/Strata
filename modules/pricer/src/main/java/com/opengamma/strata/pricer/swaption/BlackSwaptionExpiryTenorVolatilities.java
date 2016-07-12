@@ -93,7 +93,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionBlackExpiryTenor(String, DayCount)}.
+   * {@link Surfaces#blackVolatilityByExpiryTenor(String, DayCount)}.
    * 
    * @param convention  the swap convention that the volatilities are to be used for
    * @param valuationDateTime  the valuation date-time

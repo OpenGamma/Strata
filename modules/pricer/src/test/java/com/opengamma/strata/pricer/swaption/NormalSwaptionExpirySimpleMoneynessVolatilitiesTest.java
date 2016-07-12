@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.model.MoneynessType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -66,7 +67,8 @@ public class NormalSwaptionExpirySimpleMoneynessVolatilitiesTest {
           SwaptionSurfaceExpirySimpleMoneynessParameterMetadata.of(TIME.get(i), SIMPLE_MONEYNESS.get(i));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.swaptionNormalExpirySimpleMoneyness("GOVT1-SWAPTION-VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.normalVolatilityByExpirySimpleMoneyness(
+        "GOVT1-SWAPTION-VOL", ACT_365F, MoneynessType.RATES).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, SIMPLE_MONEYNESS, VOL, INTERPOLATOR_2D);
