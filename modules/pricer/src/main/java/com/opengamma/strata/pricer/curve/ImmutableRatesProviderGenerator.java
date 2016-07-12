@@ -28,7 +28,6 @@ import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -174,13 +173,9 @@ public class ImmutableRatesProviderGenerator
       }
       Set<PriceIndex> priceIndices = priceIndexCurveNames.get(name);
       for (PriceIndex index : priceIndices) {
-        ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, 
-            "curve associated to price index should be InterpolatedNodalCurve");
         LocalDateDoubleTimeSeries ts = knownProvider.getTimeSeries().get(index);
-        ArgChecker.isTrue(ts != null, 
-            "historical time series requires for price index curves");
-        PriceIndexValues priceValue = 
-            PriceIndexValues.of(index, knownProvider.getValuationDate(), (InterpolatedNodalCurve) curve, ts);
+        ArgChecker.isTrue(ts != null, "Price index curves require a historical time series");
+        PriceIndexValues priceValue = PriceIndexValues.of(index, knownProvider.getValuationDate(), curve, ts);
         priceIndexValues.put(index, priceValue);
       }
     }
