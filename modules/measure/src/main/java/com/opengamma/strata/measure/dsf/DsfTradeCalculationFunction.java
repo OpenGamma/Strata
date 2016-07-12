@@ -44,6 +44,7 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
+ *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  * </ul>
  * <p>
@@ -62,6 +63,7 @@ public class DsfTradeCalculationFunction
           .put(Measures.PV01_CALIBRATED_BUCKETED, DsfMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, DsfMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, DsfMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.UNIT_PRICE, DsfMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.CURRENCY_EXPOSURE, DsfMeasureCalculations.DEFAULT::currencyExposure)
           .build();
 

@@ -15,8 +15,6 @@ final class StandardMeasures {
 
   // present value, with currency conversion
   public static final Measure PRESENT_VALUE = ImmutableMeasure.of("PresentValue");
-  // present value, with no currency conversion
-  public static final Measure PRESENT_VALUE_MULTI_CURRENCY = ImmutableMeasure.of("PresentValueMultiCurrency", false);
   // explain present value, with no currency conversion
   public static final Measure EXPLAIN_PRESENT_VALUE = ImmutableMeasure.of("ExplainPresentValue", false);
 
@@ -48,6 +46,8 @@ final class StandardMeasures {
   public static final Measure PAR_RATE = ImmutableMeasure.of("ParRate", false);
   // par spread, which is a decimal rate that does not need currency conversion
   public static final Measure PAR_SPREAD = ImmutableMeasure.of("ParSpread", false);
+  // unit price, which is treated as a simple decimal number even if it refers to a currency
+  public static final Measure UNIT_PRICE = ImmutableMeasure.of("UnitPrice", false);
 
   //-------------------------------------------------------------------------
   // semi-parallel gamma bucketed PV01

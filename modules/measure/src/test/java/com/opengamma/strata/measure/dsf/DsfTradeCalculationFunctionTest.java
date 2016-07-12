@@ -34,6 +34,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -124,13 +125,17 @@ public class DsfTradeCalculationFunctionTest {
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
+    double expectedPrice = pricer.price(RTRADE, provider);
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, REF_PRICE);
 
     Set<Measure> measures = ImmutableSet.of(
+        Measures.UNIT_PRICE,
         Measures.PRESENT_VALUE,
         Measures.CURRENCY_EXPOSURE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
+        .containsEntry(
+            Measures.UNIT_PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(

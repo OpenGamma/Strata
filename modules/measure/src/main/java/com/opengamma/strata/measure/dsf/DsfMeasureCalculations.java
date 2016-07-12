@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -158,6 +159,26 @@ final class DsfMeasureCalculations {
     PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
     CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
     return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates unit price for all scenarios
+  DoubleScenarioArray unitPrice(
+      ResolvedDsfTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return DoubleScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> unitPrice(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // unit price for one scenario
+  double unitPrice(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    // mark to model
+    return tradePricer.price(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------

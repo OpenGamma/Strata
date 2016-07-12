@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.dsf;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -246,6 +247,49 @@ public class DsfTradeCalculations {
       RatesProvider ratesProvider) {
 
     return calc.pv01MarketQuoteBucketed(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates unit price across one or more scenarios.
+   * <p>
+   * This is the price of a single unit of the security.
+   * <p>
+   * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+   * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+   * Thus the market price of 100.182 is represented in Strata by 1.00182.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the present value, one entry per scenario
+   */
+  public DoubleScenarioArray unitPrice(
+      ResolvedDsfTrade trade,
+      RatesMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.unitPrice(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates unit price for a single set of market data.
+   * <p>
+   * This is the price of a single unit of the security.
+   * <p>
+   * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+   * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+   * Thus the market price of 100.182 is represented in Strata by 1.00182.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the present value
+   */
+  public double unitPrice(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    return calc.unitPrice(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
