@@ -41,17 +41,19 @@ public abstract class AbstractIborFutureTradePricer {
    */
   protected abstract AbstractIborFutureProductPricer getProductPricer();
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the Ibor future trade from the current price.
    * <p>
    * The present value of the product is the value on the valuation date.
    * <p>
-   * The calculation is performed against a reference price. The reference price should
-   * be the settlement price except on the trade date, when it is the trade price.
+   * The calculation is performed against a reference price. The reference price
+   * must be the last settlement price used for margining, except on the trade date,
+   * when it must be the trade price.
    * 
    * @param trade  the trade
-   * @param currentPrice  the price on the valuation date
-   * @param referencePrice  the price with respect to which the margining should be done
+   * @param currentPrice  the current price, in decimal form
+   * @param referencePrice  the reference price to margin against, typically the last settlement price, in decimal form
    * @return the present value
    */
   public CurrencyAmount presentValue(ResolvedIborFutureTrade trade, double currentPrice, double referencePrice) {
@@ -63,19 +65,19 @@ public abstract class AbstractIborFutureTradePricer {
   }
 
   /**
-   * Calculates the reference price for a futures trade.
+   * Calculates the reference price for the trade.
    * <p>
-   * The reference price is the trade price before any margining has taken place,
-   * and the price used for the last margining otherwise.
+   * If the valuation date equals the trade date, then the reference price is the trade price.
+   * Otherwise, the reference price is the last settlement price used for margining.
    * 
    * @param trade  the trade
    * @param valuationDate  the date for which the reference price should be calculated
-   * @param settlementPrice  the last settlement price used for margining
-   * @return the reference price
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
+   * @return the reference price, in decimal form
    */
-  public double referencePrice(ResolvedIborFutureTrade trade, LocalDate valuationDate, double settlementPrice) {
-    ArgChecker.notNull(valuationDate, "valuation date");
-    return (trade.getTradeDate().equals(valuationDate) ? trade.getPrice() : settlementPrice);
+  public double referencePrice(ResolvedIborFutureTrade trade, LocalDate valuationDate, double lastSettlementPrice) {
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    return (trade.getTradeDate().equals(valuationDate) ? trade.getPrice() : lastSettlementPrice);
   }
 
 }

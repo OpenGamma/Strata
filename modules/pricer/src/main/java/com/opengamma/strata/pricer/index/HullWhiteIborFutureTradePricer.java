@@ -68,6 +68,7 @@ public class HullWhiteIborFutureTradePricer
    * Calculates the price of the Ibor future trade.
    * <p>
    * The price of the trade is the price on the valuation date.
+   * The price is calculated using the Hull-White model.
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
@@ -86,23 +87,24 @@ public class HullWhiteIborFutureTradePricer
    * Calculates the present value of the Ibor future trade.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * The current price is calculated using the Hull-White model.
    * <p>
-   * The calculation is performed against a reference price. On the trade date, the reference price
-   * is the trade price, otherwise it is the settlement price.
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @param settlementPrice  the last settlement price used for margining
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
-      double settlementPrice) {
+      double lastSettlementPrice) {
 
-    double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), settlementPrice);
+    double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastSettlementPrice);
     double price = price(trade, ratesProvider, hwProvider);
     return presentValue(trade, price, referencePrice);
   }
@@ -154,23 +156,24 @@ public class HullWhiteIborFutureTradePricer
    * <p>
    * The par spread is defined in the following way. When the reference price (or market quote)
    * is increased by the par spread, the present value of the trade is zero.
+   * The current price is calculated using the Hull-White model.
    * <p>
-   * The calculation is performed against a reference price. On the trade date, the reference price
-   * is the trade price, otherwise it is the settlement price.
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade to price
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @param settlementPrice  the last settlement price used for margining
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the par spread.
    */
   public double parSpread(
       ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
-      double settlementPrice) {
+      double lastSettlementPrice) {
 
-    double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), settlementPrice);
+    double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastSettlementPrice);
     return price(trade, ratesProvider, hwProvider) - referencePrice;
   }
 
@@ -199,22 +202,22 @@ public class HullWhiteIborFutureTradePricer
    * <p>
    * Since the Ibor future is based on a single currency, the trade is exposed to only this currency.
    * <p>
-   * The calculation is performed against a reference price. On the trade date, the reference price
-   * is the trade price, otherwise it is the settlement price.
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @param settlementPrice  the last settlement price used for margining
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the currency exposure of the trade
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedIborFutureTrade trade,
       RatesProvider provider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
-      double settlementPrice) {
+      double lastSettlementPrice) {
 
-    return MultiCurrencyAmount.of(presentValue(trade, provider, hwProvider, settlementPrice));
+    return MultiCurrencyAmount.of(presentValue(trade, provider, hwProvider, lastSettlementPrice));
   }
 
 }

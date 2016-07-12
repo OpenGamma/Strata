@@ -16,6 +16,9 @@ import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Pricer of options on Ibor future with a normal model on the underlying future price.
+ * <p>
+ * This provides the ability to price an Ibor future option.
+ * The option must be based on {@linkplain FutureOptionPremiumStyle#DAILY_MARGIN daily margin}.
  * 
  * <h4>Price</h4>
  * The price of an Ibor future option is based on the price of the underlying future, the volatility
@@ -92,7 +95,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
-   * @param futurePrice  the price of the underlying future
+   * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price of the product, in decimal form
    */
   public double price(
@@ -158,7 +161,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
-   * @param futurePrice  the price of the underlying future
+   * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price curve sensitivity of the product
    */
   public double deltaStickyStrike(
@@ -214,7 +217,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
-   * @param futurePrice  the price of the underlying future
+   * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivityStickyStrike(
@@ -272,7 +275,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
-   * @param futurePrice  the underlying future price
+   * @param futurePrice  the underlying future price, in decimal form
    * @return the sensitivity
    */
   public IborFutureOptionSensitivity priceSensitivityNormalVolatility(

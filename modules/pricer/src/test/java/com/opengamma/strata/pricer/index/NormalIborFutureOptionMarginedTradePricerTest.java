@@ -110,7 +110,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
 
   public void presentValue_from_future_price() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
-    SimpleRatesProvider prov = new SimpleRatesProvider();
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
     prov.setIborRates(mockIbor);
     when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 
@@ -127,7 +127,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
 
   public void presentValue_from_env() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
-    SimpleRatesProvider prov = new SimpleRatesProvider();
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
     prov.setIborRates(mockIbor);
     when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 

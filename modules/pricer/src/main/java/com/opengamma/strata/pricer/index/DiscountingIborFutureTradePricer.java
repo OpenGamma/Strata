@@ -60,31 +60,33 @@ public class DiscountingIborFutureTradePricer
    * Calculates the price of the Ibor future trade.
    * <p>
    * The price of the trade is the price on the valuation date.
+   * The price is calculated using the discounting model.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param ratesProvider  the rates provider
    * @return the price of the trade, in decimal form
    */
-  public double price(ResolvedIborFutureTrade trade, RatesProvider provider) {
-    return productPricer.price(trade.getProduct(), provider);
+  public double price(ResolvedIborFutureTrade trade, RatesProvider ratesProvider) {
+    return productPricer.price(trade.getProduct(), ratesProvider);
   }
 
   /**
    * Calculates the present value of the Ibor future trade.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * The current price is calculated using the discounting model.
    * <p>
-   * The calculation is performed against a reference price. On the trade date, the reference price
-   * is the trade price, otherwise it is the settlement price.
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
-   * @param settlementPrice  the last settlement price used for margining
+   * @param ratesProvider  the rates provider
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the present value
    */
-  public CurrencyAmount presentValue(ResolvedIborFutureTrade trade, RatesProvider provider, double settlementPrice) {
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), settlementPrice);
-    double price = price(trade, provider);
+  public CurrencyAmount presentValue(ResolvedIborFutureTrade trade, RatesProvider ratesProvider, double lastSettlementPrice) {
+    double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastSettlementPrice);
+    double price = price(trade, ratesProvider);
     return presentValue(trade, price, referencePrice);
   }
 
@@ -95,12 +97,12 @@ public class DiscountingIborFutureTradePricer
    * the underlying curves.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param ratesProvider  the rates provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivity(ResolvedIborFutureTrade trade, RatesProvider provider) {
+  public PointSensitivities presentValueSensitivity(ResolvedIborFutureTrade trade, RatesProvider ratesProvider) {
     ResolvedIborFuture product = trade.getProduct();
-    PointSensitivities priceSensi = productPricer.priceSensitivity(product, provider);
+    PointSensitivities priceSensi = productPricer.priceSensitivity(product, ratesProvider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
@@ -111,18 +113,19 @@ public class DiscountingIborFutureTradePricer
    * <p>
    * The par spread is defined in the following way. When the reference price (or market quote)
    * is increased by the par spread, the present value of the trade is zero.
+   * The current price is calculated using the discounting model.
    * <p>
-   * The calculation is performed against a reference price. On the trade date, the reference price
-   * is the trade price, otherwise it is the settlement price.
+   * This method calculates based on the difference between the model price and the
+   * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
-   * @param settlementPrice  the last settlement price used for margining
+   * @param ratesProvider  the rates provider
+   * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the par spread.
    */
-  public double parSpread(ResolvedIborFutureTrade trade, RatesProvider provider, double settlementPrice) {
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), settlementPrice);
-    return price(trade, provider) - referencePrice;
+  public double parSpread(ResolvedIborFutureTrade trade, RatesProvider ratesProvider, double lastSettlementPrice) {
+    double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastSettlementPrice);
+    return price(trade, ratesProvider) - referencePrice;
   }
 
   /**
@@ -132,11 +135,11 @@ public class DiscountingIborFutureTradePricer
    * the underlying curves.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param ratesProvider  the rates provider
    * @return the par spread curve sensitivity of the trade
    */
-  public PointSensitivities parSpreadSensitivity(ResolvedIborFutureTrade trade, RatesProvider provider) {
-    return productPricer.priceSensitivity(trade.getProduct(), provider);
+  public PointSensitivities parSpreadSensitivity(ResolvedIborFutureTrade trade, RatesProvider ratesProvider) {
+    return productPricer.priceSensitivity(trade.getProduct(), ratesProvider);
   }
 
 }

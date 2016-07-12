@@ -78,7 +78,7 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  public double marginIndex(ResolvedIborFutureOption option, double price) {
+  double marginIndex(ResolvedIborFutureOption option, double price) {
     double notional = option.getUnderlyingFuture().getNotional();
     double accrualFactor = option.getUnderlyingFuture().getAccrualFactor();
     return price * notional * accrualFactor;
@@ -95,7 +95,7 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  public PointSensitivities marginIndexSensitivity(
+  PointSensitivities marginIndexSensitivity(
       ResolvedIborFutureOption option,
       PointSensitivities priceSensitivity) {
 

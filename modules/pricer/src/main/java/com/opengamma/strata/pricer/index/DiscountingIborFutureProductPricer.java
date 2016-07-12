@@ -45,11 +45,11 @@ public class DiscountingIborFutureProductPricer
    * The price of the product is the price on the valuation date.
    * 
    * @param future  the future
-   * @param provider  the rates provider
+   * @param ratesProvider  the rates provider
    * @return the price of the product, in decimal form
    */
-  public double price(ResolvedIborFuture future, RatesProvider provider) {
-    IborIndexRates rates = provider.iborIndexRates(future.getIndex());
+  public double price(ResolvedIborFuture future, RatesProvider ratesProvider) {
+    IborIndexRates rates = ratesProvider.iborIndexRates(future.getIndex());
     double forward = rates.rate(future.getIborRate().getObservation());
     return 1.0 - forward;
   }
@@ -60,10 +60,10 @@ public class DiscountingIborFutureProductPricer
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * 
    * @param future  the future
-   * @param provider  the rates provider
+   * @param ratesProvider  the rates provider
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivity(ResolvedIborFuture future, RatesProvider provider) {
+  public PointSensitivities priceSensitivity(ResolvedIborFuture future, RatesProvider ratesProvider) {
     IborRateSensitivity sensi = IborRateSensitivity.of(future.getIborRate().getObservation(), -1d);
     // The sensitivity should be to no currency or currency XXX. To avoid useless conversion, the dimension-less 
     // price sensitivity is reported in the future currency.
