@@ -130,12 +130,12 @@ public class DsfTradeCalculationFunctionTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, REF_PRICE);
 
     Set<Measure> measures = ImmutableSet.of(
-        Measures.PRICE,
+        Measures.UNIT_PRICE,
         Measures.PRESENT_VALUE,
         Measures.CURRENCY_EXPOSURE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
+            Measures.UNIT_PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(

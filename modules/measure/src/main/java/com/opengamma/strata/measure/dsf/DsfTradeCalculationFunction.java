@@ -39,12 +39,12 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * An instance of {@link RatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measures#PRICE Price}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
+ *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  * </ul>
  * <p>
@@ -58,12 +58,12 @@ public class DsfTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRICE, DsfMeasureCalculations.DEFAULT::price)
           .put(Measures.PRESENT_VALUE, DsfMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.PV01_CALIBRATED_SUM, DsfMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, DsfMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, DsfMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, DsfMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.UNIT_PRICE, DsfMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.CURRENCY_EXPOSURE, DsfMeasureCalculations.DEFAULT::currencyExposure)
           .build();
 

@@ -46,8 +46,8 @@ final class StandardMeasures {
   public static final Measure PAR_RATE = ImmutableMeasure.of("ParRate", false);
   // par spread, which is a decimal rate that does not need currency conversion
   public static final Measure PAR_SPREAD = ImmutableMeasure.of("ParSpread", false);
-  // price, which is treated as a simple decimal number even if it refers to a currency
-  public static final Measure PRICE = ImmutableMeasure.of("Price", false);
+  // unit price, which is treated as a simple decimal number even if it refers to a currency
+  public static final Measure UNIT_PRICE = ImmutableMeasure.of("UnitPrice", false);
 
   //-------------------------------------------------------------------------
   // semi-parallel gamma bucketed PV01

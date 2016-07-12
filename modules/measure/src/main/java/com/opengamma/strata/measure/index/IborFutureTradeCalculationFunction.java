@@ -39,12 +39,12 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * An instance of {@link RatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measures#PRICE Price}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
+ *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  * </ul>
  * 
@@ -64,12 +64,12 @@ public class IborFutureTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRICE, IborFutureMeasureCalculations.DEFAULT::price)
           .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.PV01_CALIBRATED_SUM, IborFutureMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, IborFutureMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.UNIT_PRICE, IborFutureMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations.DEFAULT::parSpread)
           .build();
 

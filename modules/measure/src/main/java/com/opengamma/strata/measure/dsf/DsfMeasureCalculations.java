@@ -60,26 +60,6 @@ final class DsfMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates price for all scenarios
-  DoubleScenarioArray price(
-      ResolvedDsfTrade trade,
-      RatesScenarioMarketData marketData) {
-
-    return DoubleScenarioArray.of(
-        marketData.getScenarioCount(),
-        i -> price(trade, marketData.scenario(i).ratesProvider()));
-  }
-
-  // price for one scenario
-  double price(
-      ResolvedDsfTrade trade,
-      RatesProvider ratesProvider) {
-
-    // mark to model
-    return tradePricer.price(trade, ratesProvider);
-  }
-
-  //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   CurrencyScenarioArray presentValue(
       ResolvedDsfTrade trade,
@@ -179,6 +159,26 @@ final class DsfMeasureCalculations {
     PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
     CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
     return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates unit price for all scenarios
+  DoubleScenarioArray unitPrice(
+      ResolvedDsfTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return DoubleScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> unitPrice(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // unit price for one scenario
+  double unitPrice(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    // mark to model
+    return tradePricer.price(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
