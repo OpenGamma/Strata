@@ -162,7 +162,7 @@ public class ResolvedSwapLegTest {
   public void test_findNotionalKnownAmount() {
     Payment payment = Payment.of(GBP, 1000, LocalDate.of(2011, 3, 8));
     SchedulePeriod schedulePeriod = SchedulePeriod.of(LocalDate.of(2010, 3, 8), LocalDate.of(2011, 3, 8));
-    KnownAmountPaymentPeriod paymentPeriod = KnownAmountPaymentPeriod.of(payment, schedulePeriod);
+    KnownAmountSwapPaymentPeriod paymentPeriod = KnownAmountSwapPaymentPeriod.of(payment, schedulePeriod);
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)

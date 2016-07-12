@@ -10,34 +10,34 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
 import com.opengamma.strata.product.swap.FxResetNotionalExchange;
 import com.opengamma.strata.product.swap.NotionalExchange;
-import com.opengamma.strata.product.swap.PaymentEvent;
+import com.opengamma.strata.product.swap.SwapPaymentEvent;
 
 /**
  * Pricer implementation for payment events using multiple dispatch.
  * <p>
  * Dispatches the request to the correct implementation.
  */
-public class DispatchingPaymentEventPricer
-    implements PaymentEventPricer<PaymentEvent> {
+public class DispatchingSwapPaymentEventPricer
+    implements SwapPaymentEventPricer<SwapPaymentEvent> {
 
   /**
    * Default implementation.
    */
-  public static final DispatchingPaymentEventPricer DEFAULT = new DispatchingPaymentEventPricer(
+  public static final DispatchingSwapPaymentEventPricer DEFAULT = new DispatchingSwapPaymentEventPricer(
       DiscountingNotionalExchangePricer.DEFAULT,
       DiscountingFxResetNotionalExchangePricer.DEFAULT);
 
   /**
    * Pricer for {@link NotionalExchange}.
    */
-  private final PaymentEventPricer<NotionalExchange> notionalExchangePricer;
+  private final SwapPaymentEventPricer<NotionalExchange> notionalExchangePricer;
   /**
    * Pricer for {@link FxResetNotionalExchange}.
    */
-  private final PaymentEventPricer<FxResetNotionalExchange> fxResetNotionalExchangePricer;
+  private final SwapPaymentEventPricer<FxResetNotionalExchange> fxResetNotionalExchangePricer;
 
   /**
    * Creates an instance.
@@ -45,9 +45,9 @@ public class DispatchingPaymentEventPricer
    * @param notionalExchangePricer  the pricer for {@link NotionalExchange}
    * @param fxResetNotionalExchangePricer  the pricer for {@link FxResetNotionalExchange}
    */
-  public DispatchingPaymentEventPricer(
-      PaymentEventPricer<NotionalExchange> notionalExchangePricer,
-      PaymentEventPricer<FxResetNotionalExchange> fxResetNotionalExchangePricer) {
+  public DispatchingSwapPaymentEventPricer(
+      SwapPaymentEventPricer<NotionalExchange> notionalExchangePricer,
+      SwapPaymentEventPricer<FxResetNotionalExchange> fxResetNotionalExchangePricer) {
     this.notionalExchangePricer = ArgChecker.notNull(notionalExchangePricer, "notionalExchangePricer");
     this.fxResetNotionalExchangePricer =
         ArgChecker.notNull(fxResetNotionalExchangePricer, "fxResetNotionalExchangePricer");
@@ -55,7 +55,7 @@ public class DispatchingPaymentEventPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PaymentEvent paymentEvent, RatesProvider provider) {
+  public double presentValue(SwapPaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.presentValue((NotionalExchange) paymentEvent, provider);
@@ -67,7 +67,7 @@ public class DispatchingPaymentEventPricer
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(PaymentEvent paymentEvent, RatesProvider provider) {
+  public PointSensitivityBuilder presentValueSensitivity(SwapPaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.presentValueSensitivity((NotionalExchange) paymentEvent, provider);
@@ -80,7 +80,7 @@ public class DispatchingPaymentEventPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double forecastValue(PaymentEvent paymentEvent, RatesProvider provider) {
+  public double forecastValue(SwapPaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.forecastValue((NotionalExchange) paymentEvent, provider);
@@ -92,7 +92,7 @@ public class DispatchingPaymentEventPricer
   }
 
   @Override
-  public PointSensitivityBuilder forecastValueSensitivity(PaymentEvent paymentEvent, RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(SwapPaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.forecastValueSensitivity((NotionalExchange) paymentEvent, provider);
@@ -105,7 +105,7 @@ public class DispatchingPaymentEventPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public void explainPresentValue(PaymentEvent paymentEvent, RatesProvider provider, ExplainMapBuilder builder) {
+  public void explainPresentValue(SwapPaymentEvent paymentEvent, RatesProvider provider, ExplainMapBuilder builder) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       notionalExchangePricer.explainPresentValue((NotionalExchange) paymentEvent, provider, builder);
@@ -118,7 +118,7 @@ public class DispatchingPaymentEventPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount currencyExposure(PaymentEvent paymentEvent, RatesProvider provider) {
+  public MultiCurrencyAmount currencyExposure(SwapPaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.currencyExposure((NotionalExchange) paymentEvent, provider);
@@ -130,7 +130,7 @@ public class DispatchingPaymentEventPricer
   }
 
   @Override
-  public double currentCash(PaymentEvent paymentEvent, RatesProvider provider) {
+  public double currentCash(SwapPaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.currentCash((NotionalExchange) paymentEvent, provider);

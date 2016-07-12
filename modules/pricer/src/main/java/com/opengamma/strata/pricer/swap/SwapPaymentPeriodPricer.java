@@ -8,20 +8,20 @@ package com.opengamma.strata.pricer.swap;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.impl.swap.DispatchingPaymentPeriodPricer;
+import com.opengamma.strata.pricer.impl.swap.DispatchingSwapPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Pricer for payment periods.
  * <p>
- * This function provides the ability to price a {@link PaymentPeriod}.
+ * This function provides the ability to price a {@link SwapPaymentPeriod}.
  * <p>
  * Implementations must be immutable and thread-safe functions.
  * 
  * @param <T>  the type of period
  */
-public interface PaymentPeriodPricer<T extends PaymentPeriod> {
+public interface SwapPaymentPeriodPricer<T extends SwapPaymentPeriod> {
 
   /**
    * Returns the standard instance of the function.
@@ -30,8 +30,8 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * 
    * @return the payment period pricer
    */
-  public static PaymentPeriodPricer<PaymentPeriod> standard() {
-    return DispatchingPaymentPeriodPricer.DEFAULT;
+  public static SwapPaymentPeriodPricer<SwapPaymentPeriod> standard() {
+    return DispatchingSwapPaymentPeriodPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------

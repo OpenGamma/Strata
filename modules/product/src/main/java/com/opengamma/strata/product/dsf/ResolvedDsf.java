@@ -31,8 +31,8 @@ import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentEvent;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentEvent;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -107,13 +107,13 @@ public final class ResolvedDsf
       if (swapLeg.getType().equals(SwapLegType.FIXED)) {
         ArgChecker.isTrue(swapLeg.getPayReceive().isReceive(), "underlying must be receiver swap");
       }
-      for (PaymentEvent event : swapLeg.getPaymentEvents()) {
+      for (SwapPaymentEvent event : swapLeg.getPaymentEvents()) {
         ArgChecker.isTrue(event instanceof NotionalExchange, "PaymentEvent must be NotionalExchange");
         NotionalExchange notioanlEvent = (NotionalExchange) event;
         ArgChecker.isTrue(Math.abs(notioanlEvent.getPaymentAmount().getAmount()) == 1d,
             "notional of underlying swap must be unity");
       }
-      for (PaymentPeriod period : swapLeg.getPaymentPeriods()) {
+      for (SwapPaymentPeriod period : swapLeg.getPaymentPeriods()) {
         ArgChecker.isTrue(period instanceof NotionalPaymentPeriod, "PaymentPeriod must be NotionalPaymentPeriod");
         NotionalPaymentPeriod notioanlPeriod = (NotionalPaymentPeriod) period;
         ArgChecker.isTrue(Math.abs(notioanlPeriod.getNotionalAmount().getAmount()) == 1d,

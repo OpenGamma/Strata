@@ -45,10 +45,10 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
+import com.opengamma.strata.product.bond.KnownAmountBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
 
 /**
  * Test {@link DiscountingCapitalIndexedBondTradePricer}.
@@ -223,7 +223,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   public void test_netAmountfixed() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_ILF_STANDARD, RATES_PROVIDER);
     double expected = PAYMENT_PRICER.forecastValueAmount(
-        ((KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
+        ((KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
@@ -520,7 +520,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
     double expected2 = df * PAYMENT_PRICER.forecastValueAmount(
-        ((KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
+        ((KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 

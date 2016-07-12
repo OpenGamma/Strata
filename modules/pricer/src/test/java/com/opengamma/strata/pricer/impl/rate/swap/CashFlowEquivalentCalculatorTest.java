@@ -39,7 +39,7 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.NotionalExchange;
-import com.opengamma.strata.product.swap.PaymentEvent;
+import com.opengamma.strata.product.swap.SwapPaymentEvent;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -266,7 +266,7 @@ public class CashFlowEquivalentCalculatorTest {
       CurrencyParameterSensitivities expected = calc.sensitivity(PROVIDER,
           p -> ((NotionalExchange) CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, p)
               .getPaymentEvents().get(index)).getPaymentAmount());
-      PaymentEvent event = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER).getPaymentEvents().get(index);
+      SwapPaymentEvent event = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER).getPaymentEvents().get(index);
       PointSensitivityBuilder point = computedFull.get(((NotionalExchange) event).getPayment());
       CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
       assertTrue(computed.equalWithTolerance(expected, eps * NOTIONAL));

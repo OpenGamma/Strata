@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.swap;
+package com.opengamma.strata.product.bond;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjuster;
@@ -25,7 +25,7 @@ import com.opengamma.strata.basics.index.Index;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface PaymentPeriod {
+public interface BondPaymentPeriod {
 
   /**
    * Gets the date that the payment is made.
@@ -87,6 +87,6 @@ public interface PaymentPeriod {
    * @param adjuster  the adjuster to apply to the payment date
    * @return the adjusted payment event
    */
-  PaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster);
+  BondPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster);
 
 }

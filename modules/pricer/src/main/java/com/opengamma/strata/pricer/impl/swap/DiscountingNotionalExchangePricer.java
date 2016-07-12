@@ -17,7 +17,7 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
 import com.opengamma.strata.product.swap.NotionalExchange;
 
 /**
@@ -26,7 +26,7 @@ import com.opengamma.strata.product.swap.NotionalExchange;
  * The notional exchange is priced by discounting the value of the exchange.
  */
 public class DiscountingNotionalExchangePricer
-    implements PaymentEventPricer<NotionalExchange> {
+    implements SwapPaymentEventPricer<NotionalExchange> {
 
   /**
    * Default implementation.

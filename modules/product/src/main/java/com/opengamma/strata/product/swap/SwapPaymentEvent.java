@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface PaymentEvent {
+public interface SwapPaymentEvent {
 
   /**
    * Gets the date that the payment is made.
@@ -54,6 +54,6 @@ public interface PaymentEvent {
    * @param adjuster  the adjuster to apply to the payment date
    * @return the adjusted payment event
    */
-  PaymentEvent adjustPaymentDate(TemporalAdjuster adjuster);
+  SwapPaymentEvent adjustPaymentDate(TemporalAdjuster adjuster);
 
 }

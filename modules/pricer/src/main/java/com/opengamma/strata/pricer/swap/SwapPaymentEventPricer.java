@@ -8,20 +8,20 @@ package com.opengamma.strata.pricer.swap;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.impl.swap.DispatchingPaymentEventPricer;
+import com.opengamma.strata.pricer.impl.swap.DispatchingSwapPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.swap.PaymentEvent;
+import com.opengamma.strata.product.swap.SwapPaymentEvent;
 
 /**
  * Pricer for payment events.
  * <p>
- * This function provides the ability to price a {@link PaymentEvent}.
+ * This function provides the ability to price a {@link SwapPaymentEvent}.
  * <p>
  * Implementations must be immutable and thread-safe functions.
  * 
  * @param <T>  the type of event
  */
-public interface PaymentEventPricer<T extends PaymentEvent> {
+public interface SwapPaymentEventPricer<T extends SwapPaymentEvent> {
 
   /**
    * Returns the standard instance of the function.
@@ -30,8 +30,8 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * 
    * @return the payment event pricer
    */
-  public static PaymentEventPricer<PaymentEvent> standard() {
-    return DispatchingPaymentEventPricer.DEFAULT;
+  public static SwapPaymentEventPricer<SwapPaymentEvent> standard() {
+    return DispatchingSwapPaymentEventPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------
