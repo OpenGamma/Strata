@@ -79,17 +79,17 @@ public final class InterpolatedNodalCurve
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DoubleArray yValues;
   /**
-   * The extrapolator for x-values on the left, defaulted to 'Flat".
-   * This is used for x-values smaller than the smallest known x-value.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final CurveExtrapolator extrapolatorLeft;
-  /**
    * The interpolator.
    * This is used for x-values between the smallest and largest known x-value.
    */
   @PropertyDefinition(validate = "notNull")
   private final CurveInterpolator interpolator;
+  /**
+   * The extrapolator for x-values on the left, defaulted to 'Flat".
+   * This is used for x-values smaller than the smallest known x-value.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final CurveExtrapolator extrapolatorLeft;
   /**
    * The extrapolator for x-values on the right, defaulted to 'Flat".
    * This is used for x-values larger than the largest known x-value.
@@ -165,14 +165,15 @@ public final class InterpolatedNodalCurve
       CurveMetadata metadata,
       DoubleArray xValues,
       DoubleArray yValues,
-      CurveExtrapolator extrapolatorLeft,
       CurveInterpolator interpolator,
+      CurveExtrapolator extrapolatorLeft,
       CurveExtrapolator extrapolatorRight) {
+
     JodaBeanUtils.notNull(metadata, "metadata");
     JodaBeanUtils.notNull(xValues, "times");
     JodaBeanUtils.notNull(yValues, "values");
-    JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
     JodaBeanUtils.notNull(interpolator, "interpolator");
+    JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
     JodaBeanUtils.notNull(extrapolatorRight, "extrapolatorRight");
     if (xValues.size() < 2) {
       throw new IllegalArgumentException("Length of x-values must be at least 2");
@@ -210,7 +211,7 @@ public final class InterpolatedNodalCurve
 
   // ensure standard constructor is invoked
   private Object readResolve() {
-    return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
+    return new InterpolatedNodalCurve(metadata, xValues, yValues, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
@@ -256,17 +257,17 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   @Override
   public InterpolatedNodalCurve withMetadata(CurveMetadata metadata) {
-    return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
+    return new InterpolatedNodalCurve(metadata, xValues, yValues, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   @Override
   public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
-    return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
+    return new InterpolatedNodalCurve(metadata, xValues, yValues, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   @Override
   public InterpolatedNodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
-    return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
+    return new InterpolatedNodalCurve(metadata, xValues, yValues, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
@@ -296,7 +297,7 @@ public final class InterpolatedNodalCurve
           })
           .orElse(metadata);
       DoubleArray yUpdated = yValues.with(index, y);
-      return new InterpolatedNodalCurve(md, xValues, yUpdated, extrapolatorLeft, interpolator, extrapolatorRight);
+      return new InterpolatedNodalCurve(md, xValues, yUpdated, interpolator, extrapolatorLeft, extrapolatorRight);
     }
     int insertion = -(index + 1);
     DoubleArray xExtended = xValues.subArray(0, insertion).concat(x).concat(xValues.subArray(insertion));
@@ -309,7 +310,7 @@ public final class InterpolatedNodalCurve
           return metadata.withParameterMetadata(extended);
         })
         .orElse(metadata);
-    return new InterpolatedNodalCurve(md, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
+    return new InterpolatedNodalCurve(md, xExtended, yExtended, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
@@ -404,22 +405,22 @@ public final class InterpolatedNodalCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the extrapolator for x-values on the left, defaulted to 'Flat".
-   * This is used for x-values smaller than the smallest known x-value.
-   * @return the value of the property, not null
-   */
-  public CurveExtrapolator getExtrapolatorLeft() {
-    return extrapolatorLeft;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the interpolator.
    * This is used for x-values between the smallest and largest known x-value.
    * @return the value of the property, not null
    */
   public CurveInterpolator getInterpolator() {
     return interpolator;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the extrapolator for x-values on the left, defaulted to 'Flat".
+   * This is used for x-values smaller than the smallest known x-value.
+   * @return the value of the property, not null
+   */
+  public CurveExtrapolator getExtrapolatorLeft() {
+    return extrapolatorLeft;
   }
 
   //-----------------------------------------------------------------------
@@ -451,8 +452,8 @@ public final class InterpolatedNodalCurve
       return JodaBeanUtils.equal(metadata, other.metadata) &&
           JodaBeanUtils.equal(xValues, other.xValues) &&
           JodaBeanUtils.equal(yValues, other.yValues) &&
-          JodaBeanUtils.equal(extrapolatorLeft, other.extrapolatorLeft) &&
           JodaBeanUtils.equal(interpolator, other.interpolator) &&
+          JodaBeanUtils.equal(extrapolatorLeft, other.extrapolatorLeft) &&
           JodaBeanUtils.equal(extrapolatorRight, other.extrapolatorRight);
     }
     return false;
@@ -464,8 +465,8 @@ public final class InterpolatedNodalCurve
     hash = hash * 31 + JodaBeanUtils.hashCode(metadata);
     hash = hash * 31 + JodaBeanUtils.hashCode(xValues);
     hash = hash * 31 + JodaBeanUtils.hashCode(yValues);
-    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorLeft);
     hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
+    hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorLeft);
     hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorRight);
     return hash;
   }
@@ -477,8 +478,8 @@ public final class InterpolatedNodalCurve
     buf.append("metadata").append('=').append(metadata).append(',').append(' ');
     buf.append("xValues").append('=').append(xValues).append(',').append(' ');
     buf.append("yValues").append('=').append(yValues).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
     buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
     buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();
@@ -510,15 +511,15 @@ public final class InterpolatedNodalCurve
     private final MetaProperty<DoubleArray> yValues = DirectMetaProperty.ofImmutable(
         this, "yValues", InterpolatedNodalCurve.class, DoubleArray.class);
     /**
-     * The meta-property for the {@code extrapolatorLeft} property.
-     */
-    private final MetaProperty<CurveExtrapolator> extrapolatorLeft = DirectMetaProperty.ofImmutable(
-        this, "extrapolatorLeft", InterpolatedNodalCurve.class, CurveExtrapolator.class);
-    /**
      * The meta-property for the {@code interpolator} property.
      */
     private final MetaProperty<CurveInterpolator> interpolator = DirectMetaProperty.ofImmutable(
         this, "interpolator", InterpolatedNodalCurve.class, CurveInterpolator.class);
+    /**
+     * The meta-property for the {@code extrapolatorLeft} property.
+     */
+    private final MetaProperty<CurveExtrapolator> extrapolatorLeft = DirectMetaProperty.ofImmutable(
+        this, "extrapolatorLeft", InterpolatedNodalCurve.class, CurveExtrapolator.class);
     /**
      * The meta-property for the {@code extrapolatorRight} property.
      */
@@ -532,8 +533,8 @@ public final class InterpolatedNodalCurve
         "metadata",
         "xValues",
         "yValues",
-        "extrapolatorLeft",
         "interpolator",
+        "extrapolatorLeft",
         "extrapolatorRight");
 
     /**
@@ -551,10 +552,10 @@ public final class InterpolatedNodalCurve
           return xValues;
         case -1726182661:  // yValues
           return yValues;
-        case 1271703994:  // extrapolatorLeft
-          return extrapolatorLeft;
         case 2096253127:  // interpolator
           return interpolator;
+        case 1271703994:  // extrapolatorLeft
+          return extrapolatorLeft;
         case 773779145:  // extrapolatorRight
           return extrapolatorRight;
       }
@@ -602,19 +603,19 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * The meta-property for the {@code extrapolatorLeft} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CurveExtrapolator> extrapolatorLeft() {
-      return extrapolatorLeft;
-    }
-
-    /**
      * The meta-property for the {@code interpolator} property.
      * @return the meta-property, not null
      */
     public MetaProperty<CurveInterpolator> interpolator() {
       return interpolator;
+    }
+
+    /**
+     * The meta-property for the {@code extrapolatorLeft} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurveExtrapolator> extrapolatorLeft() {
+      return extrapolatorLeft;
     }
 
     /**
@@ -635,10 +636,10 @@ public final class InterpolatedNodalCurve
           return ((InterpolatedNodalCurve) bean).getXValues();
         case -1726182661:  // yValues
           return ((InterpolatedNodalCurve) bean).getYValues();
-        case 1271703994:  // extrapolatorLeft
-          return ((InterpolatedNodalCurve) bean).getExtrapolatorLeft();
         case 2096253127:  // interpolator
           return ((InterpolatedNodalCurve) bean).getInterpolator();
+        case 1271703994:  // extrapolatorLeft
+          return ((InterpolatedNodalCurve) bean).getExtrapolatorLeft();
         case 773779145:  // extrapolatorRight
           return ((InterpolatedNodalCurve) bean).getExtrapolatorRight();
       }
@@ -665,8 +666,8 @@ public final class InterpolatedNodalCurve
     private CurveMetadata metadata;
     private DoubleArray xValues;
     private DoubleArray yValues;
-    private CurveExtrapolator extrapolatorLeft;
     private CurveInterpolator interpolator;
+    private CurveExtrapolator extrapolatorLeft;
     private CurveExtrapolator extrapolatorRight;
 
     /**
@@ -684,8 +685,8 @@ public final class InterpolatedNodalCurve
       this.metadata = beanToCopy.getMetadata();
       this.xValues = beanToCopy.getXValues();
       this.yValues = beanToCopy.getYValues();
-      this.extrapolatorLeft = beanToCopy.getExtrapolatorLeft();
       this.interpolator = beanToCopy.getInterpolator();
+      this.extrapolatorLeft = beanToCopy.getExtrapolatorLeft();
       this.extrapolatorRight = beanToCopy.getExtrapolatorRight();
     }
 
@@ -699,10 +700,10 @@ public final class InterpolatedNodalCurve
           return xValues;
         case -1726182661:  // yValues
           return yValues;
-        case 1271703994:  // extrapolatorLeft
-          return extrapolatorLeft;
         case 2096253127:  // interpolator
           return interpolator;
+        case 1271703994:  // extrapolatorLeft
+          return extrapolatorLeft;
         case 773779145:  // extrapolatorRight
           return extrapolatorRight;
         default:
@@ -722,11 +723,11 @@ public final class InterpolatedNodalCurve
         case -1726182661:  // yValues
           this.yValues = (DoubleArray) newValue;
           break;
-        case 1271703994:  // extrapolatorLeft
-          this.extrapolatorLeft = (CurveExtrapolator) newValue;
-          break;
         case 2096253127:  // interpolator
           this.interpolator = (CurveInterpolator) newValue;
+          break;
+        case 1271703994:  // extrapolatorLeft
+          this.extrapolatorLeft = (CurveExtrapolator) newValue;
           break;
         case 773779145:  // extrapolatorRight
           this.extrapolatorRight = (CurveExtrapolator) newValue;
@@ -767,8 +768,8 @@ public final class InterpolatedNodalCurve
           metadata,
           xValues,
           yValues,
-          extrapolatorLeft,
           interpolator,
+          extrapolatorLeft,
           extrapolatorRight);
     }
 
@@ -814,18 +815,6 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * Sets the extrapolator for x-values on the left, defaulted to 'Flat".
-     * This is used for x-values smaller than the smallest known x-value.
-     * @param extrapolatorLeft  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder extrapolatorLeft(CurveExtrapolator extrapolatorLeft) {
-      JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
-      this.extrapolatorLeft = extrapolatorLeft;
-      return this;
-    }
-
-    /**
      * Sets the interpolator.
      * This is used for x-values between the smallest and largest known x-value.
      * @param interpolator  the new value, not null
@@ -834,6 +823,18 @@ public final class InterpolatedNodalCurve
     public Builder interpolator(CurveInterpolator interpolator) {
       JodaBeanUtils.notNull(interpolator, "interpolator");
       this.interpolator = interpolator;
+      return this;
+    }
+
+    /**
+     * Sets the extrapolator for x-values on the left, defaulted to 'Flat".
+     * This is used for x-values smaller than the smallest known x-value.
+     * @param extrapolatorLeft  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder extrapolatorLeft(CurveExtrapolator extrapolatorLeft) {
+      JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
+      this.extrapolatorLeft = extrapolatorLeft;
       return this;
     }
 
@@ -857,8 +858,8 @@ public final class InterpolatedNodalCurve
       buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
       buf.append("xValues").append('=').append(JodaBeanUtils.toString(xValues)).append(',').append(' ');
       buf.append("yValues").append('=').append(JodaBeanUtils.toString(yValues)).append(',').append(' ');
-      buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
       buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
+      buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
       buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
       buf.append('}');
       return buf.toString();
