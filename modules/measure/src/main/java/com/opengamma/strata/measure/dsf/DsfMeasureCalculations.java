@@ -186,7 +186,8 @@ final class DsfMeasureCalculations {
     StandardId standardId = trade.getProduct().getSecurityId().getStandardId();
     QuoteId id = QuoteId.of(standardId, FieldName.SETTLEMENT_PRICE);
     double price = ratesProvider.data(id);
-    ArgChecker.isTrue(price < 10, "Price must be in decimal form, such as 1.007 for a 0.7% rate, but was: {}", price);
+    ArgChecker.isTrue(
+        price < 10, "Price must be in decimal form, such as 1.007 for a 0.7% present value, but was: {}", price);
     return price;
   }
 

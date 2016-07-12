@@ -23,7 +23,7 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
  * <h4>Price</h4>
  * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
  * For example, a price of 100.182 represents a present value of $100,182.00, if the notional is $100,000.
- * This price can also be viewed as a percentage rate - {@code (100 + percentRate)}, or 0.00182% in this example.
+ * This price can also be viewed as a percentage rate - {@code (100 + percentRate)}, or 0.182% in this example.
  * <p>
  * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
  * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
@@ -65,7 +65,7 @@ public final class DiscountingDsfProductPricer {
   /**
    * Calculates the number related to deliverable swap futures product on which the daily margin is computed.
    * <p>
-   * For two consecutive closing prices C1 and C2, the daily margin is computed as 
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
    *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
    * 
    * @param future  the future
@@ -80,7 +80,7 @@ public final class DiscountingDsfProductPricer {
    * Calculates the margin index sensitivity of the deliverable swap futures product.
    * <p>
    * The margin index sensitivity is the sensitivity of the margin index to the underlying curves.
-   * For two consecutive closing prices C1 and C2, the daily margin is computed as 
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
    *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
    * 
    * @param future  the future
