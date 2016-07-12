@@ -174,10 +174,10 @@ public final class SimplePriceIndexValues
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(fixings, "fixings");
-    ArgChecker.isFalse(fixings.isEmpty(), "fixings must not be empty");
+    ArgChecker.isFalse(fixings.isEmpty(), "Fixings must not be empty");
     ArgChecker.notNull(curve, "curve");
     ArgChecker.notNull(seasonality, "seasonality");
-    ArgChecker.isTrue(seasonality.size() == 12, "Seasonality list must contail 12 entries");
+    ArgChecker.isTrue(seasonality.size() == 12, "Seasonality list must contain 12 entries");
     curve.getMetadata().getXValueType().checkEquals(ValueType.MONTHS, "Incorrect x-value type for price curve");
     curve.getMetadata().getYValueType().checkEquals(ValueType.PRICE_INDEX, "Incorrect y-value type for price curve");
     this.index = index;

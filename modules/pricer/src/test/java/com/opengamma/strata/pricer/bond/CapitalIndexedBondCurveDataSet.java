@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
@@ -33,8 +32,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 
 /**
  * The data set for testing capital indexed bonds.
@@ -103,11 +100,9 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProvider(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = SimplePriceIndexValues.of(US_CPI_U, valuationDate, CPI_CURVE, timeSeries);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(US_CPI_U, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
-        .priceIndexValues(map)
+        .priceIndexCurve(US_CPI_U, CPI_CURVE)
         .timeSeries(US_CPI_U, timeSeries)
         .build();
   }
@@ -122,11 +117,9 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderGb(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = SimplePriceIndexValues.of(GB_RPI, valuationDate, RPI_CURVE, timeSeries);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
-        .priceIndexValues(map)
+        .priceIndexCurve(GB_RPI, RPI_CURVE)
         .timeSeries(GB_RPI, timeSeries)
         .build();
   }
@@ -141,11 +134,9 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderJp(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = SimplePriceIndexValues.of(JP_CPI_EXF, valuationDate, CPIJ_CURVE, timeSeries);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(JP_CPI_EXF, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
-        .priceIndexValues(map)
+        .priceIndexCurve(JP_CPI_EXF, CPIJ_CURVE)
         .timeSeries(JP_CPI_EXF, timeSeries)
         .build();
   }

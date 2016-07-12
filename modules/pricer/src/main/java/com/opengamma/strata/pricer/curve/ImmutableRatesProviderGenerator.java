@@ -18,10 +18,8 @@ import com.google.common.collect.SetMultimap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
@@ -31,7 +29,6 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexValues;
 
 /**
  * Generates a rates provider based on an existing provider.
@@ -134,10 +131,8 @@ public class ImmutableRatesProviderGenerator
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> indexCurves = new HashMap<>();
-    Map<PriceIndex, PriceIndexValues> priceIndexValues = new HashMap<>();
     discountCurves.putAll(knownProvider.getDiscountCurves());
     indexCurves.putAll(knownProvider.getIndexCurves());
-    priceIndexValues.putAll(knownProvider.getPriceIndexValues());
 
     // generate curves from combined parameter array
     int startIndex = 0;
@@ -159,21 +154,12 @@ public class ImmutableRatesProviderGenerator
       }
       Set<Index> indices = forwardCurveNames.get(name);
       for (Index index : indices) {
-        if (index instanceof PriceIndex) {
-          PriceIndex priceIndex = (PriceIndex) index;
-          LocalDateDoubleTimeSeries ts = knownProvider.getTimeSeries().get(index);
-          ArgChecker.isTrue(ts != null, "Price index curves require a historical time series");
-          PriceIndexValues priceValue = PriceIndexValues.of(priceIndex, knownProvider.getValuationDate(), curve, ts);
-          priceIndexValues.put(priceIndex, priceValue);
-        } else {
-          indexCurves.put(index, curve);
-        }
+        indexCurves.put(index, curve);
       }
     }
     return knownProvider.toBuilder()
         .discountCurves(discountCurves)
         .indexCurves(indexCurves)
-        .priceIndexValues(priceIndexValues)
         .build();
   }
 

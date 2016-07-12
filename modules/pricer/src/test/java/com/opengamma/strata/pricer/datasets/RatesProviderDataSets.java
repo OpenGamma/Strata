@@ -18,11 +18,11 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
@@ -33,7 +33,6 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexValues;
 
 /**
  * RatesProvider data sets for testing.
@@ -175,10 +174,8 @@ public class RatesProviderDataSets {
       InterpolatedNodalCurve.of(USD_L3_METADATA_SIMPLE, TIMES_2, RATES_2_1_SIMPLE, INTERPOLATOR);
   private static final Curve USD_L6_SIMPLE =
       InterpolatedNodalCurve.of(USD_L6_METADATA_SIMPLE, TIMES_3, RATES_3_1_SIMPLE, INTERPOLATOR);
-  private static final InterpolatedNodalCurve PRICE_INDEX_CURVE =
+  private static final InterpolatedNodalCurve US_CPI_U_CURVE =
       InterpolatedNodalCurve.of(PRICE_INDEX_METADATA, TIMES_4, VALUES_4, INTERPOLATOR);
-  private static final PriceIndexValues USD_CPI =
-      PriceIndexValues.of(PriceIndices.US_CPI_U, VAL_DATE_2014_01_22, PRICE_INDEX_CURVE, PRICE_INDEX_TS);
 
   public static final ImmutableRatesProvider MULTI_USD = multiUsd(VAL_DATE_2014_01_22);
 
@@ -198,7 +195,8 @@ public class RatesProviderDataSets {
       .overnightIndexCurve(USD_FED_FUND, USD_DSC)
       .iborIndexCurve(USD_LIBOR_3M, USD_L3)
       .iborIndexCurve(USD_LIBOR_6M, USD_L6)
-      .priceIndexValues(USD_CPI)
+      .priceIndexCurve(US_CPI_U, US_CPI_U_CURVE)
+      .timeSeries(US_CPI_U, PRICE_INDEX_TS)
       .build();
 
   //-------------------------------------------------------------------------

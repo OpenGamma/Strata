@@ -16,19 +16,15 @@ import org.joda.beans.MetaProperty;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 
 /**
  * Computes the curve parameter sensitivity by finite difference.
@@ -86,13 +82,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         (base, bumped) -> base.toBuilder().indexCurves(bumped).build(),
         valueFn,
         valueInit);
-    CurrencyParameterSensitivities priceIndex = sensitivityPriceIndex(
-        provider,
-        provider.getPriceIndexValues(),
-        (base, bumped) -> base.toBuilder().priceIndexValues(bumped).build(),
-        valueFn,
-        valueInit);
-    return discounting.combinedWith(forward).combinedWith(priceIndex);
+    return discounting.combinedWith(forward);
   }
 
   // computes the sensitivity with respect to the curves
@@ -110,30 +100,6 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<T, Curve> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(entry.getKey(), dscBumped);
-        ImmutableRatesProvider providerDscBumped = storeBumpedFn.apply(provider, mapBumped);
-        return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
-      });
-      result = result.combinedWith(curve.createParameterSensitivity(valueInit.getCurrency(), sensitivity));
-    }
-    return result;
-  }
-
-  // computes the sensitivity with respect to the price index curves
-  private <T> CurrencyParameterSensitivities sensitivityPriceIndex(
-      ImmutableRatesProvider provider,
-      Map<PriceIndex, PriceIndexValues> indexValues,
-      BiFunction<ImmutableRatesProvider, Map<PriceIndex, PriceIndexValues>, ImmutableRatesProvider> storeBumpedFn,
-      Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
-      CurrencyAmount valueInit) {
-
-    CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
-    for (Entry<PriceIndex, PriceIndexValues> entry : indexValues.entrySet()) {
-      SimplePriceIndexValues indexValue = ((SimplePriceIndexValues) entry.getValue());
-      Curve curve = indexValue.getCurve();
-      DoubleArray sensitivity = DoubleArray.of(curve.getParameterCount(), i -> {
-        Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
-        Map<PriceIndex, PriceIndexValues> mapBumped = new HashMap<>(indexValues);
-        mapBumped.put(entry.getKey(), indexValue.withCurve((InterpolatedNodalCurve) dscBumped));
         ImmutableRatesProvider providerDscBumped = storeBumpedFn.apply(provider, mapBumped);
         return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       });
