@@ -183,13 +183,13 @@ public class SwaptionSabrRateVolatilityDataSet {
   private static final double[] RATE_DSC_EUR = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final CurveName NAME_DSC_EUR = CurveName.of("EUR Dsc");
   static final CurveMetadata META_DSC_EUR = Curves.zeroRates(NAME_DSC_EUR, ACT_ACT_ISDA);
-  private static final InterpolatedNodalCurve CURVE_DSC_EUR = InterpolatedNodalCurve.of(
+  public static final InterpolatedNodalCurve CURVE_DSC_EUR = InterpolatedNodalCurve.of(
       META_DSC_EUR, DoubleArray.copyOf(TIME_DSC_EUR), DoubleArray.copyOf(RATE_DSC_EUR), INTERPOLATOR);
   private static final double[] TIME_FWD_EUR = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
   private static final double[] RATE_FWD_EUR = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final CurveName NAME_FWD_EUR = CurveName.of("EUR EURIBOR 6M");
   static final CurveMetadata META_FWD_EUR = Curves.zeroRates(NAME_FWD_EUR, ACT_ACT_ISDA);
-  private static final InterpolatedNodalCurve CURVE_FWD_EUR = InterpolatedNodalCurve.of(
+  public static final InterpolatedNodalCurve CURVE_FWD_EUR = InterpolatedNodalCurve.of(
       META_FWD_EUR, DoubleArray.copyOf(TIME_FWD_EUR), DoubleArray.copyOf(RATE_FWD_EUR), INTERPOLATOR);
 
   private static final double[] BETA_EXPIRY_NODE_EUR = new double[] {
