@@ -338,6 +338,44 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month BBSW index.
+   * <p>
+   * The AFMA Australian Bank Bill Short Term Rate.
+   */
+  public static final IborIndex AUD_BBSW_1M = IborIndex.of("AUD-BBSW-1M");
+  /**
+   * The 2 month BBSW index.
+   * <p>
+   * The AFMA Australian Bank Bill Short Term Rate.
+   */
+  public static final IborIndex AUD_BBSW_2M = IborIndex.of("AUD-BBSW-2M");
+  /**
+   * The 3 month BBSW index.
+   * <p>
+   * The AFMA Australian Bank Bill Short Term Rate.
+   */
+  public static final IborIndex AUD_BBSW_3M = IborIndex.of("AUD-BBSW-3M");
+  /**
+   * The 4 month BBSW index.
+   * <p>
+   * The AFMA Australian Bank Bill Short Term Rate.
+   */
+  public static final IborIndex AUD_BBSW_4M = IborIndex.of("AUD-BBSW-4M");
+  /**
+   * The 5 month BBSW index.
+   * <p>
+   * The AFMA Australian Bank Bill Short Term Rate.
+   */
+  public static final IborIndex AUD_BBSW_5M = IborIndex.of("AUD-BBSW-5M");
+  /**
+   * The 6 month BBSW index.
+   * <p>
+   * The AFMA Australian Bank Bill Short Term Rate.
+   */
+  public static final IborIndex AUD_BBSW_6M = IborIndex.of("AUD-BBSW-6M");
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private IborIndices() {

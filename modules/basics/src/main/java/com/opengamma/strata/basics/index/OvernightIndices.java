@@ -51,6 +51,12 @@ public final class OvernightIndices {
    * FED_FUND is an "Overnight" index.
    */
   public static final OvernightIndex USD_FED_FUND = OvernightIndex.of("USD-FED-FUND");
+  /**
+   * The AUD_AONIA index for AUD.
+   * <p>
+   * AUD_AONIA is an "Overnight" index.
+   */
+  public static final OvernightIndex AUD_AONIA = OvernightIndex.of("AUD-AONIA");
 
   //-------------------------------------------------------------------------
   /**
