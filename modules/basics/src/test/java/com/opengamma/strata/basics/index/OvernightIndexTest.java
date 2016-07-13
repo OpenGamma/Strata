@@ -101,16 +101,16 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
   }
 
-  public void test_AudRbaon() {
-    OvernightIndex test = OvernightIndex.of("AUD-RBAON");
-    assertEquals(test.getName(), "AUD-RBAON");
+  public void test_AudAonia() {
+    OvernightIndex test = OvernightIndex.of("AUD-AONIA");
+    assertEquals(test.getName(), "AUD-AONIA");
     assertEquals(test.getCurrency(), AUD);
     assertEquals(test.isActive(), true);
     assertEquals(test.getFixingCalendar(), AUSY);
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-RBAON");
+    assertEquals(test.toString(), "AUD-AONIA");
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public class OvernightIndexTest {
         {OvernightIndices.EUR_EONIA, "EUR-EONIA"},
         {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
         {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},
-        {OvernightIndices.AUD_RBAON, "AUD-RBAON"},
+        {OvernightIndices.AUD_AONIA, "AUD-AONIA"},
     };
   }
 

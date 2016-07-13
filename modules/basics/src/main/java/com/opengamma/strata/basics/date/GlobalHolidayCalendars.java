@@ -691,8 +691,34 @@ final class GlobalHolidayCalendars {
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
   }
 
+  // http://www.rba.gov.au/schedules-events/bank-holidays/bank-holidays-2016.html
+  // http://www.rba.gov.au/schedules-events/bank-holidays/bank-holidays-2017.html
+  // web archive history of those pages
   static ImmutableHolidayCalendar generateSydney() {
-    List<LocalDate> holidays = new ArrayList<>(0); //TODO standard calendar should be implemented
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(bumpToMon(date(year, 1, 1)));
+      // australia day
+      holidays.add(bumpToMon(date(year, 1, 26)));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // anzac day
+      holidays.add(date(year, 4, 25));
+      // queen's birthday
+      holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
+      // bank birthday
+      holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
+      // labour day 
+      holidays.add(first(year, 10).with(dayOfWeekInMonth(1, MONDAY)));
+      // christmas (public)
+      holidays.add(christmas(year));
+      // boxing (public)
+      holidays.add(boxingDay(year));
+    }
+    removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("AUSY"), holidays, SATURDAY, SUNDAY);
   }
 
