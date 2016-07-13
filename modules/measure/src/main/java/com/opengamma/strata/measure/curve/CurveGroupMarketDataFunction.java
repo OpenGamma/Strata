@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
@@ -229,8 +228,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     ImmutableRatesProvider calibratedProvider = calibrator.calibrate(
         groupDefn,
         marketData,
-        refData,
-        ImmutableMap.of());
+        refData);
 
     return CurveGroup.of(
         groupDefn.getName(),

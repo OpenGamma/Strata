@@ -97,7 +97,6 @@ public class CalibrationInflationUsdTest {
   /** Curves associations to currencies and indices. */
   private static final Map<CurveName, Currency> DSC_NAMES = new HashMap<>();
   private static final Map<CurveName, Set<Index>> IDX_NAMES = new HashMap<>();
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
   private static final LocalDateDoubleTimeSeries TS_USD_CPI = 
       LocalDateDoubleTimeSeries.builder().put(LocalDate.of(2015, 6, 30), 123.4).build();
   static {
@@ -108,7 +107,6 @@ public class CalibrationInflationUsdTest {
     Set<Index> usdLibor3Set = new HashSet<>();
     usdLibor3Set.add(USD_LIBOR_3M);
     IDX_NAMES.put(CPI_CURVE_NAME, usdLibor3Set);
-    TS.put(US_CPI_U, TS_USD_CPI);
   }
 
   /** Data for USD-DSCON curve */
@@ -237,8 +235,7 @@ public class CalibrationInflationUsdTest {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
-    RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
     assertPresentValue(result);
   }
 
@@ -287,7 +284,7 @@ public class CalibrationInflationUsdTest {
     for (int i = 0; i < nbRep; i++) {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
-        RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+        RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
         count += result.getValuationDate().getDayOfMonth();
       }
       endTime = System.currentTimeMillis();

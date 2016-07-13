@@ -23,6 +23,7 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
@@ -125,15 +126,12 @@ public final class SyntheticCurveCalibrator {
     for (CurveGroupEntry entry : group.getEntries()) {
       indicesRequired.addAll(entry.getIndices());
     }
-    Map<Index, LocalDateDoubleTimeSeries> ts = new HashMap<>();
-    for (Index i : indicesRequired) {
-      LocalDateDoubleTimeSeries tsi = inputProvider.timeSeries(i);
-      if (tsi != null) {
-        ts.put(i, tsi);
-      }
+    Map<IndexQuoteId, LocalDateDoubleTimeSeries> ts = new HashMap<>();
+    for (Index idx : indicesRequired) {
+      ts.put(IndexQuoteId.of(idx), inputProvider.timeSeries(idx));
     }
     // Calibrate to the synthetic instrument with the synthetic quotes
-    return calibrator.calibrate(group, marketQuotesSy, refData, ts);
+    return calibrator.calibrate(group, marketQuotesSy, refData);
   }
 
   /**

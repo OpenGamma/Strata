@@ -28,6 +28,7 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -69,13 +70,17 @@ public class SyntheticCurveCalibratorTest {
   private static final Map<QuoteId, Double> MQ_INPUT = 
       QuotesCsvLoader.load(VALUATION_DATE, ImmutableList.of(ResourceLocator.of(QUOTES_PATH + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES_INPUT = ImmutableMarketData.of(VALUATION_DATE, MQ_INPUT);
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS_EMPTY = new HashMap<>();
   private static final Map<Index, LocalDateDoubleTimeSeries> TS_LARGE = new HashMap<>();
+  private static final MarketData TS_LARGE_MD;
   static { // Fixing unnaturally high to see the difference in the calibration
     LocalDateDoubleTimeSeries tsEur3 = LocalDateDoubleTimeSeries.builder().put(VALUATION_DATE, 0.0200).build();
     LocalDateDoubleTimeSeries tsEur6 = LocalDateDoubleTimeSeries.builder().put(VALUATION_DATE, 0.0250).build();
     TS_LARGE.put(EUR_EURIBOR_3M, tsEur3);
     TS_LARGE.put(EUR_EURIBOR_6M, tsEur6);
+    TS_LARGE_MD = ImmutableMarketData.builder(VALUATION_DATE)
+        .addTimeSeries(IndexQuoteId.of(EUR_EURIBOR_3M), tsEur3)
+        .addTimeSeries(IndexQuoteId.of(EUR_EURIBOR_6M), tsEur6)
+        .build();
   }
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();
   private static final CalibrationMeasures MQ_MEASURES = CalibrationMeasures.MARKET_QUOTE;
@@ -83,9 +88,9 @@ public class SyntheticCurveCalibratorTest {
       SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
   
   private static final ImmutableRatesProvider MULTICURVE_INPUT_TSEMPTY =
-      CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
+      CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA);
   private static final RatesProvider MULTICURVE_INPUT_TSLARGE =
-      CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
+      CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT.combinedWith(TS_LARGE_MD), REF_DATA);
   
   private static final double TOLERANCE_MQ = 1.0E-8;
 
@@ -143,7 +148,6 @@ public class SyntheticCurveCalibratorTest {
     SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
-    multicurveSyn = multicurveSyn.toImmutableRatesProvider().toBuilder().timeSeries(TS_LARGE).build(); // To ensure TS are present
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
@@ -166,7 +170,7 @@ public class SyntheticCurveCalibratorTest {
       int hs = 0;
       for (int looptest = 0; looptest < nbTests; looptest++) {
         RatesProvider multicurve =
-            CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
+            CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT.combinedWith(TS_LARGE_MD), REF_DATA);
         hs += multicurve.getValuationDate().getDayOfMonth();
       }
       end = System.currentTimeMillis();
@@ -178,7 +182,7 @@ public class SyntheticCurveCalibratorTest {
       int hs = 0;
       for (int looptest = 0; looptest < nbTests; looptest++) {
         RatesProvider multicurve1 =
-            CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
+            CALIBRATOR.calibrate(GROUPS_IN, MARKET_QUOTES_INPUT.combinedWith(TS_LARGE_MD), REF_DATA);
         RatesProvider multicurve2 = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, multicurve1, REF_DATA);
         hs += multicurve2.getValuationDate().getDayOfMonth();
       }

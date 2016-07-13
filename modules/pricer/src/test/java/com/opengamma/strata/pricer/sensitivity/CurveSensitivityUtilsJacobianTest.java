@@ -25,11 +25,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
@@ -72,7 +70,6 @@ public class CurveSensitivityUtilsJacobianTest {
   private static final String QUOTES_PATH = "src/test/resources/quotes/";
 
   // Quotes
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS_EMPTY = new HashMap<>();
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();  
   private static final String QUOTES_FILE = "quotes-20151120-eur.csv";
   private static final Map<QuoteId, Double> MQ_INPUT = 
@@ -90,7 +87,7 @@ public class CurveSensitivityUtilsJacobianTest {
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_1_FILE),
           ResourceLocator.of(CONFIG_PATH + NODES_IN_1_FILE)).get(0);
   private static final RatesProvider MULTICURVE_EUR_SINGLE_CALIBRATED =
-      CALIBRATOR.calibrate(GROUPS_IN_1, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
+      CALIBRATOR.calibrate(GROUPS_IN_1, MARKET_QUOTES_INPUT, REF_DATA);
   
   public static final CalibrationMeasures MARKET_QUOTE = CalibrationMeasures.MARKET_QUOTE;
   
@@ -209,8 +206,7 @@ public class CurveSensitivityUtilsJacobianTest {
       mqCmp.put(QuoteId.of(StandardId.of(OG_TICKER, TICKERS_STD_1[looptenor])), marketQuotes[looptenor]);
     }
     ImmutableMarketData marketQuotesObject = ImmutableMarketData.of(VALUATION_DATE, mqCmp);
-    RatesProvider multicurveCmp =
-        CALIBRATOR.calibrate(GROUPS_IN_1, marketQuotesObject, REF_DATA, TS_EMPTY);
+    RatesProvider multicurveCmp = CALIBRATOR.calibrate(GROUPS_IN_1, marketQuotesObject, REF_DATA);
 
     /* Comparison */
     DoubleMatrix jiComputed =
@@ -240,7 +236,7 @@ public class CurveSensitivityUtilsJacobianTest {
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_2_FILE),
           ResourceLocator.of(CONFIG_PATH + NODES_IN_2_FILE)).get(0);
   private static final RatesProvider MULTICURVE_EUR_2_CALIBRATED =
-      CALIBRATOR.calibrate(GROUPS_IN_2, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
+      CALIBRATOR.calibrate(GROUPS_IN_2, MARKET_QUOTES_INPUT, REF_DATA);
   
 
   private static final Tenor[] TENORS_STD_2_OIS = new Tenor[] {
