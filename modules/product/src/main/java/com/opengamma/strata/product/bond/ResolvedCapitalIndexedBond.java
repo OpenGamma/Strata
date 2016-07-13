@@ -377,8 +377,8 @@ public final class ResolvedCapitalIndexedBond
     double realCoupon = period.getRealCoupon();
     double couponPerYear = getFrequency().eventsPerYear();
     double rate = realCoupon * couponPerYear;
-    double accruedInterest = yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND) ||
-        yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE) ?
+    double accruedInterest = yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_COMPOUND) ||
+        yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_SIMPLE) ?
         yearFraction(previousAccrualDate, referenceDate, DayCounts.ACT_365F) * rate * notional :
         yearFraction(previousAccrualDate, referenceDate) * rate * notional;
     double result = 0d;

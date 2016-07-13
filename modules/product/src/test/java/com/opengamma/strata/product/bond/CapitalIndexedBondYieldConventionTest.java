@@ -20,15 +20,14 @@ import org.testng.annotations.Test;
 @Test
 public class CapitalIndexedBondYieldConventionTest {
 
-  //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {CapitalIndexedBondYieldConvention.US_IL_REAL, "US-I/L-Real" },
-      {CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT, "Index-Linked-Float" },
-      {CapitalIndexedBondYieldConvention.UK_IL_BOND, "UK-I/L-Bond" },
-      {CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE, "Japan-I/L-Simple" },
-      {CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND, "Japan-I/L-Compound" }
+        {CapitalIndexedBondYieldConvention.US_IL_REAL, "US-I/L-Real"},
+        {CapitalIndexedBondYieldConvention.GB_IL_FLOAT, "GB-I/L-Float"},
+        {CapitalIndexedBondYieldConvention.GB_IL_BOND, "GB-I/L-Bond"},
+        {CapitalIndexedBondYieldConvention.JP_IL_SIMPLE, "JP-I/L-Simple"},
+        {CapitalIndexedBondYieldConvention.JP_IL_COMPOUND, "JP-I/L-Compound"}
     };
   }
 
@@ -60,7 +59,7 @@ public class CapitalIndexedBondYieldConventionTest {
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(CapitalIndexedBondYieldConvention.class, CapitalIndexedBondYieldConvention.UK_IL_BOND);
+    assertJodaConvert(CapitalIndexedBondYieldConvention.class, CapitalIndexedBondYieldConvention.GB_IL_BOND);
   }
 
 }

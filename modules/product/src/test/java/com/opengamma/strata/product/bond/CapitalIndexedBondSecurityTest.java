@@ -14,7 +14,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -49,7 +49,7 @@ public class CapitalIndexedBondSecurityTest {
   private static final CapitalIndexedBond PRODUCT2 = CapitalIndexedBondTest.sut2();
   private static final SecurityPriceInfo PRICE_INFO = SecurityPriceInfo.of(0.1, CurrencyAmount.of(GBP, 25));
   private static final SecurityInfo INFO = SecurityInfo.of(PRODUCT.getSecurityId(), PRICE_INFO);
-  private static final CapitalIndexedBondYieldConvention YIELD_CONVENTION = INDEX_LINKED_FLOAT;
+  private static final CapitalIndexedBondYieldConvention YIELD_CONVENTION = GB_IL_FLOAT;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
   private static final InflationRateCalculation RATE =

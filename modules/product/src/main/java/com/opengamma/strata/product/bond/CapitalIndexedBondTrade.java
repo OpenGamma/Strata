@@ -97,7 +97,7 @@ public final class CapitalIndexedBondTrade
       throw new IllegalArgumentException("Settlement date must not be before bond starts");
     }
     BondPaymentPeriod settlement;
-    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
       settlement = KnownAmountBondPaymentPeriod.of(
           Payment.of(product.getCurrency(),
               -product.getNotional() * quantity * (price + accruedInterest), settlementDate),

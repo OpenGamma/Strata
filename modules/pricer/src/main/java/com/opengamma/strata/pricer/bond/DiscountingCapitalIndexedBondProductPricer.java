@@ -618,7 +618,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     double firstYearFraction = bond.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate());
     double v = 1d / (1d + yield / couponPerYear);
     double rs = ratioPeriodToNextCoupon(period, settlementDate);
-    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
       RateComputation obs = period.getRateComputation();
       LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(bond.getRateCalculation().getIndex()).getFixings();
       YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
@@ -647,7 +647,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return pvAtFirstCoupon * Math.pow(u * v, rs);
       }
     }
-    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.UK_IL_BOND)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.GB_IL_BOND)) {
       double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
       double firstCashFlow = realRate * indexRatio * firstYearFraction * couponPerYear;
       if (nbCoupon == 1) {
@@ -661,13 +661,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return pvAtFirstCoupon * Math.pow(v, rs);
       }
     }
-    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_SIMPLE)) {
       LocalDate maturityDate = bond.getEndDate();
       double maturity = bond.yearFraction(settlementDate, maturityDate);
       double cleanPrice = (1d + realRate * couponPerYear * maturity) / (1d + yield * maturity);
       return dirtyRealPriceFromCleanRealPrice(bond, settlementDate, cleanPrice);
     }
-    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_COMPOUND)) {
       double pvAtFirstCoupon = 0d;
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
         CapitalIndexedBondPaymentPeriod paymentPeriod = bond.getPeriodicPayments().get(loopcpn + periodIndex);
@@ -703,7 +703,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double yield) {
 
     double dirtyPrice = dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
-    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
       return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
     }
     return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyPrice);
@@ -760,7 +760,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     double dirtyPrice;
-    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
       dirtyPrice = dirtyNominalPriceFromCurves(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
     } else {
       double dirtyNominalPrice =
@@ -1109,7 +1109,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
             z,
             compoundedRateType,
             periodsPerYear);
-        if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+        if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
           return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice) - cleanPrice;
         }
         double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);

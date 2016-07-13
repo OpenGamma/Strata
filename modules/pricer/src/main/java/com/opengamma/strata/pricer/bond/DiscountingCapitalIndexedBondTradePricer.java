@@ -625,7 +625,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     double notional = product.getNotional();
     double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
-    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT) ? 1d :
+    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT) ? 1d :
         productPricer.indexRatio(product, ratesProvider, standardSettlementDate);
     return CurrencyAmount.of(product.getCurrency(), indexRatio * netAmountReal);
   }
@@ -680,7 +680,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
-    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
       return PointSensitivityBuilder.none();
     }
     double notional = product.getNotional();
