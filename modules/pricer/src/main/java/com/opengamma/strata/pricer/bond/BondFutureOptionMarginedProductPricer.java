@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.bond;
 
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
 import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
@@ -30,6 +31,9 @@ public abstract class BondFutureOptionMarginedProductPricer {
    * Calculates the price of the bond future option product.
    * <p>
    * The price of the option is the price on the valuation date.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bond futures. This is coherent with the pricing of {@link BondFuture}.
+   * For example, a price of 1.32% is represented in Strata by 0.0132.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider

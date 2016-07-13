@@ -58,6 +58,10 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  * The legal entity of this bond is identified by {@code legalEntityId}.
  * The enum, {@code yieldConvention}, specifies the yield computation convention.
  * The accrued interest must be computed with {@code dayCount}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class CapitalIndexedBond

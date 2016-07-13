@@ -34,6 +34,10 @@ import com.opengamma.strata.product.TradeInfo;
  * A trade representing a fixed coupon bond.
  * <p>
  * A trade in an underlying {@link FixedCouponBond}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class FixedCouponBondTrade

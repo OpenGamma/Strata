@@ -12,6 +12,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.BondFutureTrade;
+import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedBondFuture;
 import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
 
@@ -53,6 +54,9 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * Calculates the price of the bond future trade.
    * <p>
    * The price of the trade is the price on the valuation date.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bond futures. This is coherent with the pricing of {@link FixedCouponBond}.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param trade  the trade
    * @param provider  the rates provider

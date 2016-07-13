@@ -37,6 +37,10 @@ import com.opengamma.strata.product.rate.RateComputation;
  * A trade representing a capital indexed bond.
  * <p>
  * A trade in an underlying {@link CapitalIndexedBond}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class CapitalIndexedBondTrade

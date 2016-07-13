@@ -35,6 +35,10 @@ import com.opengamma.strata.product.TradeInfo;
  * A trade in an underlying {@link BondFutureOption}.
  * The option is American, exercised at any point up to the exercise time.
  * Both daily margin and upfront premium styles are handled.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures options in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link BondFuture}.
  */
 @BeanDefinition(constructorScope = "package")
 public final class BondFutureOptionTrade

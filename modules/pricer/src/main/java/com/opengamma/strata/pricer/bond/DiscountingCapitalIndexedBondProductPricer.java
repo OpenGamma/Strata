@@ -374,6 +374,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * Calculates the dirty price of the bond security.
    * <p>
    * The bond is represented as {@link Security} where standard ID of the bond is stored.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -681,6 +683,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The resulting clean price is real price or nominal price depending on the yield convention.
    * <p>
    * The input yield and output are expressed in fraction.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
