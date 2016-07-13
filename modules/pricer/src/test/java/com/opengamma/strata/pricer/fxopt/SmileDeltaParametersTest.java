@@ -57,7 +57,7 @@ public class SmileDeltaParametersTest {
    * Tests the getters.
    */
   public void getter() {
-    assertEquals("Smile by delta: time to expiry", TIME_TO_EXPIRY, SMILE.getTimeToExpiry());
+    assertEquals("Smile by delta: time to expiry", TIME_TO_EXPIRY, SMILE.getExpiry());
     assertEquals("Smile by delta: delta", DELTA, SMILE.getDelta());
     SmileDeltaParameters smile2 = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
     assertEquals("Smile by delta: volatility", SMILE.getVolatility(), smile2.getVolatility());
@@ -86,7 +86,7 @@ public class SmileDeltaParametersTest {
    * Tests the strikes computations.
    */
   public void strike() {
-    double[] strike = SMILE.getStrike(FORWARD).toArrayUnsafe();
+    double[] strike = SMILE.strike(FORWARD).toArrayUnsafe();
     DoubleArray volatility = SMILE.getVolatility();
     int nbDelta = DELTA.size();
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {

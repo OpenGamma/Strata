@@ -6,7 +6,10 @@
 package com.opengamma.strata.pricer.fxopt;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 
 /**
  * A term structure of smile as used in Forex market.
@@ -17,51 +20,16 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * The volatility and its sensitivities to data points are represented as a function of time, strike and forward.
  */
-public interface SmileDeltaTermStructure {
+public interface SmileDeltaTermStructure
+    extends ParameterizedData {
 
   /**
-   * Calculates the volatility at a given time/strike/forward from the term structure.
+   * Gets the day count convention used for the expiry.
    * 
-   * @param expiry  the time to expiry
-   * @param strike  the strike
-   * @param forward  the forward
-   * @return the volatility
+   * @return the day count
    */
-  public abstract double volatility(double expiry, double strike, double forward);
+  public abstract DayCount getDayCount();
 
-  /**
-   * Calculates the volatility and the volatility sensitivity with respect to the volatility data points.
-   * 
-   * @param expiry  the time to expiry
-   * @param strike  the strike
-   * @param forward  the forward
-   * @return the volatility
-   */
-  public abstract VolatilityAndBucketedSensitivities volatilityAndSensitivities(
-      double expiry,
-      double strike,
-      double forward);
-
-  /**
-   * Calculates the smile at a given time.
-   * 
-   * @param expiry  the time to expiry
-   * @return the smile
-   */
-  public abstract SmileDeltaParameters smileForTime(double expiry);
-
-  /**
-   * Calculates the smile at a given time and the sensitivities with respect to the volatility data points.
-   * 
-   * @param expiry  the time to expiry
-   * @param volatilityAtTimeSensitivity  the sensitivity to the volatilities of the smile at the given time
-   * @return the smile and sensitivities
-   */
-  public abstract SmileAndBucketedSensitivities smileAndSensitivitiesForTime(
-      double expiry,
-      DoubleArray volatilityAtTimeSensitivity);
-
-  //-------------------------------------------------------------------------
   /**
    * Gets the number of smiles.
    * 
@@ -97,18 +65,11 @@ public interface SmileDeltaTermStructure {
   public abstract ImmutableList<SmileDeltaParameters> getVolatilityTerm();
 
   /**
-   * Gets a set of expiry for smiles.
+   * Gets the expiries associated with the volatility term.
    * 
    * @return the set of expiry
    */
-  public abstract DoubleArray getTimeToExpiry();
-
-  /**
-   * Gets the name.
-   * 
-   * @return the name
-   */
-  public abstract String getName();
+  public abstract DoubleArray getExpiries();
 
   /**
    * Computes full delta for all strikes including put delta absolute value.
@@ -127,5 +88,55 @@ public interface SmileDeltaTermStructure {
     result[nbDelta] = 0.50;
     return DoubleArray.ofUnsafe(result);
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the volatility at a given time/strike/forward from the term structure.
+   * 
+   * @param expiry  the time to expiry
+   * @param strike  the strike
+   * @param forward  the forward
+   * @return the volatility
+   */
+  public abstract double volatility(double expiry, double strike, double forward);
+
+  /**
+   * Calculates the volatility and the volatility sensitivity with respect to the volatility data points.
+   * 
+   * @param expiry  the time to expiry
+   * @param strike  the strike
+   * @param forward  the forward
+   * @return the volatility
+   */
+  public abstract VolatilityAndBucketedSensitivities volatilityAndSensitivities(
+      double expiry,
+      double strike,
+      double forward);
+
+  /**
+   * Calculates the smile at a given time.
+   * 
+   * @param expiry  the time to expiry
+   * @return the smile
+   */
+  public abstract SmileDeltaParameters smileForExpiry(double expiry);
+
+  /**
+   * Calculates the smile at a given time and the sensitivities with respect to the volatility data points.
+   * 
+   * @param expiry  the time to expiry
+   * @param volatilityAtTimeSensitivity  the sensitivity to the volatilities of the smile at the given time
+   * @return the smile and sensitivities
+   */
+  public abstract SmileAndBucketedSensitivities smileAndSensitivitiesForExpiry(
+      double expiry,
+      DoubleArray volatilityAtTimeSensitivity);
+
+  //-------------------------------------------------------------------------
+  @Override
+  public abstract SmileDeltaTermStructure withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract SmileDeltaTermStructure withPerturbation(ParameterPerturbation perturbation);
 
 }

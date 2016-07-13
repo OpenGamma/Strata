@@ -59,7 +59,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
   public double price(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
-      BlackVolatilitySmileFxProvider volatilityProvider) {
+      BlackFxOptionSmileVolatilities volatilityProvider) {
 
     validate(ratesProvider, volatilityProvider);
     double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
@@ -74,8 +74,8 @@ public class VannaVolgaFxVanillaOptionProductPricer {
     double forwardRate = forward.fxRate(currencyPair);
     double strikeRate = option.getStrike();
     boolean isCall = option.getPutCall().isCall();
-    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForTime(timeToExpiry);
-    double[] strikes = smileAtTime.getStrike(forwardRate).toArray();
+    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForExpiry(timeToExpiry);
+    double[] strikes = smileAtTime.strike(forwardRate).toArray();
     double[] vols = smileAtTime.getVolatility().toArray();
     double volAtm = vols[1];
     double[] x = vannaVolgaWeights(forwardRate, strikeRate, timeToExpiry, volAtm, strikes);
@@ -102,7 +102,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
   public CurrencyAmount presentValue(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
-      BlackVolatilitySmileFxProvider volatilityProvider) {
+      BlackFxOptionSmileVolatilities volatilityProvider) {
 
     double price = price(option, ratesProvider, volatilityProvider);
     return CurrencyAmount.of(option.getCounterCurrency(), signedNotional(option) * price);
@@ -125,7 +125,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
   public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
-      BlackVolatilitySmileFxProvider volatilityProvider) {
+      BlackFxOptionSmileVolatilities volatilityProvider) {
 
     validate(ratesProvider, volatilityProvider);
     double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
@@ -140,8 +140,8 @@ public class VannaVolgaFxVanillaOptionProductPricer {
     double forwardRate = forward.fxRate(currencyPair);
     double strikeRate = option.getStrike();
     boolean isCall = option.getPutCall().isCall();
-    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForTime(timeToExpiry);
-    double[] strikes = smileAtTime.getStrike(forwardRate).toArray();
+    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForExpiry(timeToExpiry);
+    double[] strikes = smileAtTime.strike(forwardRate).toArray();
     double[] vols = smileAtTime.getVolatility().toArray();
     double volAtm = vols[1];
     double[] x = vannaVolgaWeights(forwardRate, strikeRate, timeToExpiry, volAtm, strikes);
@@ -177,7 +177,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
   public PointSensitivityBuilder presentValueSensitivityModelParamsVolatility(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
-      BlackVolatilitySmileFxProvider volatilityProvider) {
+      BlackFxOptionSmileVolatilities volatilityProvider) {
 
     validate(ratesProvider, volatilityProvider);
     double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
@@ -191,8 +191,8 @@ public class VannaVolgaFxVanillaOptionProductPricer {
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     double forwardRate = forward.fxRate(currencyPair);
     double strikeRate = option.getStrike();
-    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForTime(timeToExpiry);
-    double[] strikes = smileAtTime.getStrike(forwardRate).toArray();
+    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForExpiry(timeToExpiry);
+    double[] strikes = smileAtTime.strike(forwardRate).toArray();
     double[] vols = smileAtTime.getVolatility().toArray();
     double volAtm = vols[1];
     double[] x = vannaVolgaWeights(forwardRate, strikeRate, timeToExpiry, volAtm, strikes);
@@ -233,7 +233,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
   public MultiCurrencyAmount currencyExposure(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
-      BlackVolatilitySmileFxProvider volatilityProvider) {
+      BlackFxOptionSmileVolatilities volatilityProvider) {
 
     validate(ratesProvider, volatilityProvider);
     double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
@@ -251,8 +251,8 @@ public class VannaVolgaFxVanillaOptionProductPricer {
         option.getPutCall().isCall() ? underlyingFx : underlyingFx.inverse(), ratesProvider);
     double strikeRate = option.getStrike();
     boolean isCall = option.getPutCall().isCall();
-    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForTime(timeToExpiry);
-    double[] strikes = smileAtTime.getStrike(forwardRate).toArray();
+    SmileDeltaParameters smileAtTime = volatilityProvider.getSmile().smileForExpiry(timeToExpiry);
+    double[] strikes = smileAtTime.strike(forwardRate).toArray();
     double[] vols = smileAtTime.getVolatility().toArray();
     double volAtm = vols[1];
     double[] x = vannaVolgaWeights(forwardRate, strikeRate, timeToExpiry, volAtm, strikes);
@@ -305,7 +305,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
     return x;
   }
 
-  private void validate(RatesProvider ratesProvider, BlackVolatilitySmileFxProvider volatilityProvider) {
+  private void validate(RatesProvider ratesProvider, BlackFxOptionSmileVolatilities volatilityProvider) {
     ArgChecker.isTrue(volatilityProvider.getValuationDateTime().toLocalDate().equals(ratesProvider.getValuationDate()),
         "volatility and rate data must be for the same date");
     ArgChecker.isTrue(volatilityProvider.getSmile().getStrikeCount() == 3, "the number of data points must be 3");

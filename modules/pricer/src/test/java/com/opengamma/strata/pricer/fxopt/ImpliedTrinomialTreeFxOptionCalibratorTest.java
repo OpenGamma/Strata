@@ -42,9 +42,9 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2012, 9, 15);
   private static final ZonedDateTime EXPIRY_DATETIME = EXPIRY_DATE.atStartOfDay(ZONE);
   // providers
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
+  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(VAL_DATETIME);
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_MRKT =
+  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER_MRKT =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5Market(VAL_DATETIME);
   private static final ImmutableRatesProvider RATE_PROVIDER =
       RatesProviderFxDataSets.createProviderEurUsdFlat(VAL_DATE);
