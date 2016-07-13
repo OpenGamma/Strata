@@ -8,12 +8,17 @@ package com.opengamma.strata.pricer.bond;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
+import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.ResolvedBondFuture;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
 import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
- * Pricer of options on bond future with a lognormal model on the underlying future price.
+ * Pricer of options on bond future with a log-normal model on the underlying future price.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures options in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link BondFuture}.
  */
 public final class BlackBondFutureOptionMarginedProductPricer extends BondFutureOptionMarginedProductPricer {
 
@@ -56,6 +61,9 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * The price of the option is the price on the valuation date.
    * <p>
    * This calculates the underlying future price using the future pricer.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bond futures. This is coherent with the pricing of {@link BondFuture}.
+   * For example, a price of 1.32% is represented in Strata by 0.0132.
    * 
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider
@@ -76,6 +84,9 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * based on the price of the underlying future.
    * <p>
    * The price of the option is the price on the valuation date.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bond futures. This is coherent with the pricing of {@link BondFuture}.
+   * For example, a price of 1.32% is represented in Strata by 0.0132.
    * 
    * @param futureOption  the option product
    * @param ratesProvider  the rates provider

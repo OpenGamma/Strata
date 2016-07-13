@@ -35,6 +35,10 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
  * Pricer for for rate fixed coupon bond products.
  * <p>
  * This function provides the ability to price a {@link ResolvedFixedCouponBond}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 public class DiscountingFixedCouponBondProductPricer {
 
@@ -157,6 +161,8 @@ public class DiscountingFixedCouponBondProductPricer {
    * Calculates the dirty price of the fixed coupon bond.
    * <p>
    * The fixed coupon bond is represented as {@link Security} where standard ID of the bond is stored.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param bond  the product
    * @param provider  the rates provider
@@ -272,6 +278,8 @@ public class DiscountingFixedCouponBondProductPricer {
 
   /**
    * Calculates the clean price of the fixed coupon bond from its settlement date and dirty price.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param bond  the product
    * @param settlementDate  the settlement date

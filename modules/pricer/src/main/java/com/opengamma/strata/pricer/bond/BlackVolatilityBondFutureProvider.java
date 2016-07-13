@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 import com.opengamma.strata.product.SecurityId;
 
 /**
- * Data provider of volatility for bond future options in the lognormal or Black model.
+ * Data provider of volatility for bond future options in the log-normal or Black model.
  */
 public interface BlackVolatilityBondFutureProvider extends BondFutureProvider {
 

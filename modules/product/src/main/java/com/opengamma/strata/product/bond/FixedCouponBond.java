@@ -56,6 +56,10 @@ import com.opengamma.strata.product.SecurityId;
  * The accrual factor between two dates is computed {@code dayCount}. 
  * The legal entity of this fixed coupon bond is identified by {@link StandardId}.
  * The enum, {@link FixedCouponBondYieldConvention}, specifies the yield computation convention.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class FixedCouponBond
