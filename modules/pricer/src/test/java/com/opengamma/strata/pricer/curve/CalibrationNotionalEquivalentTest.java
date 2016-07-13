@@ -37,6 +37,7 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -91,7 +92,7 @@ public class CalibrationNotionalEquivalentTest {
       .load(ResourceLocator.of(BASE_DIR + GROUPS_FILE),
           ResourceLocator.of(BASE_DIR + SETTINGS_FILE),
           ResourceLocator.of(BASE_DIR + NODES_FILE))
-      .get(0);
+      .get(CurveGroupName.of("EUR-DSCONOIS-E3BS-E6IRS"));
   private static final CurveGroupDefinition GROUP_DEFINITION_NO_INFO = GROUP_DEFINITION.toBuilder()
       .computeJacobian(false).computePvSensitivityToMarketQuote(false).build();
   private static final CurveGroupDefinition GROUP_DEFINITION_PV_SENSI = GROUP_DEFINITION.toBuilder()

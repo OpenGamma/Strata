@@ -35,6 +35,7 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterSize;
@@ -88,7 +89,7 @@ public class CurveSensitivityUtilsJacobianTest {
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_1_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_1_FILE),
-          ResourceLocator.of(CONFIG_PATH + NODES_IN_1_FILE)).get(0);
+          ResourceLocator.of(CONFIG_PATH + NODES_IN_1_FILE)).get(CurveGroupName.of("EUR-SINGLE"));
   private static final RatesProvider MULTICURVE_EUR_SINGLE_CALIBRATED =
       CALIBRATOR.calibrate(GROUPS_IN_1, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   
@@ -238,7 +239,7 @@ public class CurveSensitivityUtilsJacobianTest {
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_2_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_2_FILE),
-          ResourceLocator.of(CONFIG_PATH + NODES_IN_2_FILE)).get(0);
+          ResourceLocator.of(CONFIG_PATH + NODES_IN_2_FILE)).get(CurveGroupName.of("EUR-DSCONOIS-E6IRS"));
   private static final RatesProvider MULTICURVE_EUR_2_CALIBRATED =
       CALIBRATOR.calibrate(GROUPS_IN_2, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   
