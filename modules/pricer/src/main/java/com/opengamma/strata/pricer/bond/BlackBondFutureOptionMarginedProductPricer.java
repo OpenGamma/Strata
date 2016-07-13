@@ -14,7 +14,11 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
 import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
- * Pricer of options on bond future with a lognormal model on the underlying future price.
+ * Pricer of options on bond future with a log-normal model on the underlying future price.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures options in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link BondFuture}.
  */
 public final class BlackBondFutureOptionMarginedProductPricer extends BondFutureOptionMarginedProductPricer {
 

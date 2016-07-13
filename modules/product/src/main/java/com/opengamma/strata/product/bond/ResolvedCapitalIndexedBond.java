@@ -65,7 +65,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  * 
  * <h4>Price</h4>
- * Strata uses <i>decimal prices</i> for bond in the trade model, pricers and market data.
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
  * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition

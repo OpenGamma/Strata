@@ -42,7 +42,7 @@ import com.opengamma.strata.product.TradeInfo;
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  * 
  * <h4>Price</h4>
- * Strata uses <i>decimal prices</i> for bond in the trade model, pricers and market data.
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
  * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition
@@ -71,9 +71,12 @@ public final class ResolvedCapitalIndexedBondTrade
   @PropertyDefinition
   private final double quantity;
   /**
-   * The price that was traded, which is the <i>clean</i> price.
+   * The <i>clean</i> price at which the bond was traded.
    * <p>
-   * This is the clean price agreed when the trade occurred, without accrued interest.
+   * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double price;
@@ -205,9 +208,12 @@ public final class ResolvedCapitalIndexedBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded, which is the <i>clean</i> price.
+   * Gets the <i>clean</i> price at which the bond was traded.
    * <p>
-   * This is the clean price agreed when the trade occurred, without accrued interest.
+   * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * @return the value of the property
    */
   public double getPrice() {
@@ -578,9 +584,12 @@ public final class ResolvedCapitalIndexedBondTrade
     }
 
     /**
-     * Sets the price that was traded, which is the <i>clean</i> price.
+     * Sets the <i>clean</i> price at which the bond was traded.
      * <p>
-     * This is the clean price agreed when the trade occurred, without accrued interest.
+     * The "clean" price excludes any accrued interest.
+     * <p>
+     * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+     * For example, a price of 99.32% is represented in Strata by 0.9932.
      * @param price  the new value
      * @return this, for chaining, not null
      */

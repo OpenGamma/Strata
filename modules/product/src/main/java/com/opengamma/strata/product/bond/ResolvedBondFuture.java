@@ -47,8 +47,8 @@ import com.opengamma.strata.product.SecurityId;
  * 
  * <h4>Price</h4>
  * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
- * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond for a price
- * computed from bond future price, conversion factor and accrued interest.
+ * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+ * for an amount computed from the bond future price, a conversion factor and the accrued interest.
  */
 @SuppressWarnings("unchecked")
 @BeanDefinition(constructorScope = "package")

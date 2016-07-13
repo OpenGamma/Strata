@@ -38,6 +38,10 @@ import com.opengamma.strata.product.rate.RateComputation;
  * Pricer for capital indexed bond products.
  * <p>
  * This function provides the ability to price a {@link ResolvedCapitalIndexedBond}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 public class DiscountingCapitalIndexedBondProductPricer {
 
