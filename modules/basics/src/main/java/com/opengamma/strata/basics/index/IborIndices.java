@@ -376,6 +376,70 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month CDOR index.
+   * <p>
+   * The "Canadian Dollar Offered Rate".
+   */
+  public static final IborIndex CAD_CDOR_1M = IborIndex.of("CAD-CDOR-1M");
+  /**
+   * The 2 month CDOR index.
+   * <p>
+   * The "Canadian Dollar Offered Rate".
+   */
+  public static final IborIndex CAD_CDOR_2M = IborIndex.of("CAD-CDOR-2M");
+  /**
+   * The 3 month CDOR index.
+   * <p>
+   * The "Canadian Dollar Offered Rate".
+   */
+  public static final IborIndex CAD_CDOR_3M = IborIndex.of("CAD-CDOR-3M");
+  /**
+   * The 6 month CDOR index.
+   * <p>
+   * The "Canadian Dollar Offered Rate".
+   */
+  public static final IborIndex CAD_CDOR_6M = IborIndex.of("CAD-CDOR-6M");
+  /**
+   * The 12 month CDOR index.
+   * <p>
+   * The "Canadian Dollar Offered Rate".
+   */
+  public static final IborIndex CAD_CDOR_12M = IborIndex.of("CAD-CDOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 1 week NIBOR index.
+   * <p>
+   * The "Norwegian Interbank Offered Rate".
+   */
+  public static final IborIndex NOK_NIBOR_1W = IborIndex.of("NOK-NIBOR-1W");
+  /**
+   * The 1 month NIBOR index.
+   * <p>
+   * The "Norwegian Interbank Offered Rate".
+   */
+  public static final IborIndex NOK_NIBOR_1M = IborIndex.of("NOK-NIBOR-1M");
+  /**
+   * The 2 month NIBOR index.
+   * <p>
+   * The "Norwegian Interbank Offered Rate".
+   */
+  public static final IborIndex NOK_NIBOR_2M = IborIndex.of("NOK-NIBOR-2M");
+  /**
+   * The 3 month NIBOR index.
+   * <p>
+   * The "Norwegian Interbank Offered Rate".
+   */
+  public static final IborIndex NOK_NIBOR_3M = IborIndex.of("NOK-NIBOR-3M");
+  /**
+   * The 6 month NIBOR index.
+   * <p>
+   * The "Norwegian Interbank Offered Rate".
+   */
+  public static final IborIndex NOK_NIBOR_6M = IborIndex.of("NOK-NIBOR-6M");
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private IborIndices() {
