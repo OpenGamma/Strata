@@ -26,6 +26,7 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -55,7 +56,7 @@ public class SyntheticCurveCalibratorTest {
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_FILE),
-          ResourceLocator.of(CONFIG_PATH + NODES_IN_FILE)).get(0);
+          ResourceLocator.of(CONFIG_PATH + NODES_IN_FILE)).get(CurveGroupName.of("EUR-DSCONOIS-E3BS-E6IRS"));
   // Group with synthetic curves, all nodes based on deposit or Fixed v Floating swaps
   private static final String GROUPS_SY_FILE = "FRTB-EUR-group.csv";
   private static final String SETTINGS_SY_FILE = "FRTB-EUR-settings.csv";
@@ -64,7 +65,7 @@ public class SyntheticCurveCalibratorTest {
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_SY_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_SY_FILE),
-          ResourceLocator.of(CONFIG_PATH + NODES_SY_FILE)).get(0);
+          ResourceLocator.of(CONFIG_PATH + NODES_SY_FILE)).get(CurveGroupName.of("BIMM-EUR"));
   private static final String QUOTES_FILE = "quotes-20151120-eur.csv";
   private static final Map<QuoteId, Double> MQ_INPUT = 
       QuotesCsvLoader.load(VALUATION_DATE, ImmutableList.of(ResourceLocator.of(QUOTES_PATH + QUOTES_FILE)));

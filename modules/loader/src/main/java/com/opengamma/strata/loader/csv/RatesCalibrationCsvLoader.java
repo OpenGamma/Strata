@@ -6,6 +6,7 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -22,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
@@ -31,6 +33,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeClashAction;
@@ -161,16 +164,16 @@ public final class RatesCalibrationCsvLoader {
    * 
    * @param groupsResource  the curve groups CSV resource
    * @param settingsResource  the curve settings CSV resource
-   * @param curveResources  the CSV resources for curves
-   * @return the loaded curves, mapped by an identifying key
+   * @param curveNodeResources  the CSV resources for curve nodes
+   * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static List<CurveGroupDefinition> load(
+  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> load(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
-      ResourceLocator... curveResources) {
+      ResourceLocator... curveNodeResources) {
 
-    return load(groupsResource, settingsResource, ImmutableList.copyOf(curveResources));
+    return load(groupsResource, settingsResource, ImmutableList.copyOf(curveNodeResources));
   }
 
   /**
@@ -180,28 +183,28 @@ public final class RatesCalibrationCsvLoader {
    * 
    * @param groupsResource  the curve groups CSV resource
    * @param settingsResource  the curve settings CSV resource
-   * @param curveResources  the CSV resources for curves
-   * @return the loaded curves, mapped by an identifying key
+   * @param curveNodeResources  the CSV resources for curve nodes
+   * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static List<CurveGroupDefinition> load(
+  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> load(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
-      Collection<ResourceLocator> curveResources) {
+      Collection<ResourceLocator> curveNodeResources) {
 
     // load curve groups and settings
     List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.loadCurveSettings(settingsResource);
 
     // load curve definitions
-    List<NodalCurveDefinition> curveDefinitions = curveResources.stream()
+    List<NodalCurveDefinition> curveDefinitions = curveNodeResources.stream()
         .flatMap(res -> loadSingle(res, settingsMap).stream())
         .collect(toImmutableList());
 
     // Add the curve definitions to the curve group definitions
     return curveGroups.stream()
         .map(groupDefinition -> groupDefinition.withCurveDefinitions(curveDefinitions))
-        .collect(toImmutableList());
+        .collect(toImmutableMap(groupDefinition -> groupDefinition.getName()));
   }
 
   //-------------------------------------------------------------------------

@@ -61,7 +61,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
  * <li>The 'Interpolator' and extrapolator columns define the interpolator to use.
  * </ul>
  * <p>
- * The third file is the curve nodes file.
+ * The third file is the curve values file.
  * This file has the following header row:<br />
  * {@code Valuation Date, Curve Name, Date, Value, Label}.
  * <ul>
@@ -111,7 +111,7 @@ public final class RatesCurvesCsvLoader {
    * @param marketDataDate  the curve date to load
    * @param groupsResource  the curve groups CSV resource
    * @param settingsResource  the curve settings CSV resource
-   * @param curvesResources  the CSV resources for curves
+   * @param curveValueResources  the CSV resources for curves
    * @return the loaded curves, mapped by an identifying key
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
@@ -119,10 +119,10 @@ public final class RatesCurvesCsvLoader {
       LocalDate marketDataDate,
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
-      Collection<ResourceLocator> curvesResources) {
+      Collection<ResourceLocator> curveValueResources) {
 
     List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
-    Multimap<LocalDate, Curve> allCurves = loadCurves(settingsResource, curvesResources, marketDataDate);
+    Multimap<LocalDate, Curve> allCurves = loadCurves(settingsResource, curveValueResources, marketDataDate);
     Collection<Curve> curves = allCurves.get(marketDataDate);
     Set<CurveName> curveNames = new HashSet<>();
 
@@ -142,17 +142,17 @@ public final class RatesCurvesCsvLoader {
    *
    * @param groupsResource  the curve groups CSV resource
    * @param settingsResource  the curve settings CSV resource
-   * @param curvesResources  the CSV resources for curves
+   * @param curveValueResources  the CSV resources for curves
    * @return the loaded curves, mapped by date and identifier
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ListMultimap<LocalDate, CurveGroup> loadAllDates(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
-      Collection<ResourceLocator> curvesResources) {
+      Collection<ResourceLocator> curveValueResources) {
 
     List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
-    Multimap<LocalDate, Curve> curves = loadCurves(settingsResource, curvesResources, null);
+    Multimap<LocalDate, Curve> curves = loadCurves(settingsResource, curveValueResources, null);
     ImmutableListMultimap.Builder<LocalDate, CurveGroup> builder = ImmutableListMultimap.builder();
 
     for (CurveGroupDefinition groupDefinition : curveGroups) {
