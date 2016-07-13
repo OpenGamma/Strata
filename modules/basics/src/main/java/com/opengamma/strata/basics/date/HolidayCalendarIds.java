@@ -116,6 +116,12 @@ public final class HolidayCalendarIds {
    * This constant references the calendar for Tokyo bank holidays.
    */
   public static final HolidayCalendarId JPTO = HolidayCalendarId.of("JPTO");
+  /**
+   * An identifier for the holiday calendar of Sydney, Australia, with code 'AUSY'.
+   * <p>
+   * This constant references the calendar for Sydney bank holidays.
+   */
+  public static final HolidayCalendarId AUSY = HolidayCalendarId.of("AUSY");
 
   //-------------------------------------------------------------------------
   /**

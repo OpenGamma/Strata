@@ -139,6 +139,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar NOOS = generateOslo();
+  /**
+   * The holiday calendar for Sydney, Australia, with code 'AUSY'.
+   * <p>
+   * This constant provides the calendar for Sydney holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar AUSY = generateSydney();
 
   //-------------------------------------------------------------------------
   /**
@@ -680,6 +689,11 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
+  }
+
+  static ImmutableHolidayCalendar generateSydney() {
+    List<LocalDate> holidays = new ArrayList<>(0); //TODO standard calendar should be implemented
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("AUSY"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------

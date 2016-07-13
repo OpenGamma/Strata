@@ -51,6 +51,12 @@ public final class OvernightIndices {
    * FED_FUND is an "Overnight" index.
    */
   public static final OvernightIndex USD_FED_FUND = OvernightIndex.of("USD-FED-FUND");
+  /**
+   * The AUD_RBAON index for AUD.
+   * <p>
+   * AUD_RBAON is an "Overnight" index.
+   */
+  public static final OvernightIndex AUD_RBAON = OvernightIndex.of("AUD-RBAON");
 
   //-------------------------------------------------------------------------
   /**
