@@ -71,7 +71,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final double HUNDRED = 100d;
   private static final double TOL = 1.0E-14;
   private static final LocalDate VALUATION = LocalDate.of(2016, 2, 10);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION.minusDays(1)).build();
   private static final double NOTIONAL = 100_000_000D;
   private static final long QUANTITY = 1L;
   // Fixed coupon bonds

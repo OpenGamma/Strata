@@ -74,6 +74,31 @@ public class SurfacesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void blackVolatilityByExpiryLogMoneyness_string() {
+    SurfaceMetadata test = Surfaces.blackVolatilityByExpiryLogMoneyness(NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.LOG_MONEYNESS)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void blackVolatilityByExpiryLogMoneyness_surfaceName() {
+    SurfaceMetadata test = Surfaces.blackVolatilityByExpiryLogMoneyness(SURFACE_NAME, ACT_360);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.LOG_MONEYNESS)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void normalVolatilityByExpiryTenor_string() {
     SurfaceMetadata test = Surfaces.normalVolatilityByExpiryTenor(NAME, ACT_360);
     SurfaceMetadata expected = DefaultSurfaceMetadata.builder()

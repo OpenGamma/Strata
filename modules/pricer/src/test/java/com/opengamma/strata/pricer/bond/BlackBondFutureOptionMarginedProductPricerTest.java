@@ -29,7 +29,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -76,11 +75,12 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
       list.add(parameterMetadata);
     }
     METADATA = DefaultSurfaceMetadata.builder()
-        .dayCount(ACT_365F)
-        .parameterMetadata(list)
         .surfaceName(SurfaceName.of("GOVT1-BOND-FUT-VOL"))
         .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.STRIKE)
+        .yValueType(ValueType.LOG_MONEYNESS)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .parameterMetadata(list)
+        .dayCount(ACT_365F)
         .build();
   }
   private static final InterpolatedNodalSurface SURFACE =
@@ -89,8 +89,8 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   private static final LocalTime VAL_TIME = LocalTime.of(0, 0);
   private static final ZoneId ZONE = FUTURE_OPTION_PRODUCT.getExpiry().getZone();
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
-  private static final BlackVolatilityExpLogMoneynessBondFutureProvider VOL_PROVIDER =
-      BlackVolatilityExpLogMoneynessBondFutureProvider.of(SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
+  private static final BlackBondFutureExpiryLogMoneynessVolatilities VOL_PROVIDER =
+      BlackBondFutureExpiryLogMoneynessVolatilities.of(FUTURE_SECURITY_ID, VAL_DATE_TIME, SURFACE);
   private static final double TOL = 1.0E-13;
   private static final double EPS = 1.0e-6;
   // pricer
@@ -127,8 +127,8 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   }
 
   public void test_price_from_generic_provider() {
-    BondFutureProvider volProvider = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-        SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
+    BondFutureVolatilities volProvider = BlackBondFutureExpiryLogMoneynessVolatilities.of(
+        FUTURE_SECURITY_ID, VAL_DATE_TIME, SURFACE);
     double computed = OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, volProvider);
     double expected = OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(computed, expected, TOL);
@@ -240,8 +240,8 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   }
 
   public void test_priceSensitivity_from_generic_provider() {
-    BondFutureProvider volProvider = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
-        SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
+    BondFutureVolatilities volProvider = BlackBondFutureExpiryLogMoneynessVolatilities.of(
+        FUTURE_SECURITY_ID, VAL_DATE_TIME, SURFACE);
     PointSensitivities expected = OPTION_PRICER.priceSensitivityRatesStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivities computed = OPTION_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, volProvider);
@@ -267,9 +267,9 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   }
 
   private void testPriceSensitivityBlackVolatility(
-      CurrencyParameterSensitivity computed,
-      Function<BlackVolatilityBondFutureProvider, Double> valueFn) {
-    List<ParameterMetadata> list = computed.getParameterMetadata();
+      CurrencyParameterSensitivities computed,
+      Function<BlackBondFutureVolatilities, Double> valueFn) {
+    List<ParameterMetadata> list = computed.getSensitivities().get(0).getParameterMetadata();
     int nVol = VOL.size();
     assertEquals(list.size(), nVol);
     for (int i = 0; i < nVol; ++i) {
@@ -281,10 +281,10 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
           METADATA, TIME, MONEYNESS, DoubleArray.copyOf(volUp), INTERPOLATOR_2D);
       InterpolatedNodalSurface sfDw = InterpolatedNodalSurface.of(
           METADATA, TIME, MONEYNESS, DoubleArray.copyOf(volDw), INTERPOLATOR_2D);
-      BlackVolatilityExpLogMoneynessBondFutureProvider provUp =
-          BlackVolatilityExpLogMoneynessBondFutureProvider.of(sfUp, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
-      BlackVolatilityExpLogMoneynessBondFutureProvider provDw =
-          BlackVolatilityExpLogMoneynessBondFutureProvider.of(sfDw, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
+      BlackBondFutureExpiryLogMoneynessVolatilities provUp =
+          BlackBondFutureExpiryLogMoneynessVolatilities.of(FUTURE_SECURITY_ID, VAL_DATE_TIME, sfUp);
+      BlackBondFutureExpiryLogMoneynessVolatilities provDw =
+          BlackBondFutureExpiryLogMoneynessVolatilities.of(FUTURE_SECURITY_ID, VAL_DATE_TIME, sfDw);
       double expected = 0.5 * (valueFn.apply(provUp) - valueFn.apply(provDw)) / EPS;
       int index = -1;
       for (int j = 0; j < nVol; ++j) {
@@ -294,7 +294,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
           continue;
         }
       }
-      assertEquals(computed.getSensitivity().get(index), expected, EPS);
+      assertEquals(computed.getSensitivities().get(0).getSensitivity().get(index), expected, EPS);
     }
   }
 
