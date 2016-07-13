@@ -121,15 +121,6 @@ public final class SyntheticCurveCalibrator {
 
     // Computes the synthetic market quotes
     MarketData marketQuotesSy = marketData(group, inputProvider, refData);
-    // Retrieve the required time series if present in the original provider
-    Set<Index> indicesRequired = new HashSet<Index>();
-    for (CurveGroupEntry entry : group.getEntries()) {
-      indicesRequired.addAll(entry.getIndices());
-    }
-    Map<IndexQuoteId, LocalDateDoubleTimeSeries> ts = new HashMap<>();
-    for (Index idx : indicesRequired) {
-      ts.put(IndexQuoteId.of(idx), inputProvider.timeSeries(idx));
-    }
     // Calibrate to the synthetic instrument with the synthetic quotes
     return calibrator.calibrate(group, marketQuotesSy, refData);
   }
@@ -142,10 +133,20 @@ public final class SyntheticCurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the market data
    */
-  public MarketData marketData(
+  MarketData marketData(
       CurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
+
+    // Retrieve the required time series if present in the original provider
+    Set<Index> indicesRequired = new HashSet<Index>();
+    for (CurveGroupEntry entry : group.getEntries()) {
+      indicesRequired.addAll(entry.getIndices());
+    }
+    Map<IndexQuoteId, LocalDateDoubleTimeSeries> ts = new HashMap<>();
+    for (Index idx : indicesRequired) {
+      ts.put(IndexQuoteId.of(idx), inputProvider.timeSeries(idx));
+    }
 
     LocalDate valuationDate = inputProvider.getValuationDate();
     ImmutableList<NodalCurveDefinition> curveGroups = group.getCurveDefinitions();
@@ -171,7 +172,7 @@ public final class SyntheticCurveCalibrator {
         mapIdSy.put(k, mq);
       }
     }
-    return ImmutableMarketData.of(valuationDate, mapIdSy);
+    return MarketData.of(valuationDate, mapIdSy, ts);
   }
 
   //-------------------------------------------------------------------------
