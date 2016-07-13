@@ -110,6 +110,10 @@ NOK-NIBOR-2M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,2M,LastBusinessDay,12:00,Europe/O
 NOK-NIBOR-3M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,3M,LastBusinessDay,12:00,Europe/Oslo
 NOK-NIBOR-6M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,6M,LastBusinessDay,12:00,Europe/Oslo
 ,,,,,,
+AUD-BBSW-1M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,1M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-2M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,2M,LastBusinessDay,11:00,Australia/Sydney
 AUD-BBSW-3M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,3M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-4M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,4M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-5M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,5M,LastBusinessDay,11:00,Australia/Sydney
 AUD-BBSW-6M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,6M,LastBusinessDay,11:00,Australia/Sydney
 

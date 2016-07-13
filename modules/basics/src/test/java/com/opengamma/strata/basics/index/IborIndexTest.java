@@ -20,7 +20,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_4M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_5M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -254,6 +258,34 @@ public class IborIndexTest {
     assertEquals(IborIndex.of("USD-LIBOR-12M"), IborIndices.USD_LIBOR_12M);
   }
 
+  public void test_bbsw1m() {
+    IborIndex test = IborIndex.of("AUD-BBSW-1M");
+    assertEquals(test.getCurrency(), AUD);
+    assertEquals(test.getName(), "AUD-BBSW-1M");
+    assertEquals(test.getTenor(), TENOR_1M);
+    assertEquals(test.getFixingCalendar(), AUSY);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.ofLastBusinessDay(TENOR_1M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "AUD-BBSW-1M");
+  }
+
+  public void test_bbsw2m() {
+    IborIndex test = IborIndex.of("AUD-BBSW-2M");
+    assertEquals(test.getCurrency(), AUD);
+    assertEquals(test.getName(), "AUD-BBSW-2M");
+    assertEquals(test.getTenor(), TENOR_2M);
+    assertEquals(test.getFixingCalendar(), AUSY);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.ofLastBusinessDay(TENOR_2M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "AUD-BBSW-2M");
+  }
+
   public void test_bbsw3m() {
     IborIndex test = IborIndex.of("AUD-BBSW-3M");
     assertEquals(test.getCurrency(), AUD);
@@ -266,6 +298,34 @@ public class IborIndexTest {
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-3M");
+  }
+
+  public void test_bbsw4m() {
+    IborIndex test = IborIndex.of("AUD-BBSW-4M");
+    assertEquals(test.getCurrency(), AUD);
+    assertEquals(test.getName(), "AUD-BBSW-4M");
+    assertEquals(test.getTenor(), TENOR_4M);
+    assertEquals(test.getFixingCalendar(), AUSY);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.ofLastBusinessDay(TENOR_4M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "AUD-BBSW-4M");
+  }
+
+  public void test_bbsw5m() {
+    IborIndex test = IborIndex.of("AUD-BBSW-5M");
+    assertEquals(test.getCurrency(), AUD);
+    assertEquals(test.getName(), "AUD-BBSW-5M");
+    assertEquals(test.getTenor(), TENOR_5M);
+    assertEquals(test.getFixingCalendar(), AUSY);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.ofLastBusinessDay(TENOR_5M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "AUD-BBSW-5M");
   }
 
   public void test_bbsw6m() {
@@ -294,7 +354,11 @@ public class IborIndexTest {
         {IborIndices.EUR_EURIBOR_1M, "EUR-EURIBOR-1M"},
         {IborIndices.JPY_TIBOR_JAPAN_2M, "JPY-TIBOR-JAPAN-2M"},
         {IborIndices.JPY_TIBOR_EUROYEN_6M, "JPY-TIBOR-EUROYEN-6M"},
+        {IborIndices.AUD_BBSW_1M, "AUD-BBSW-1M"},
+        {IborIndices.AUD_BBSW_2M, "AUD-BBSW-2M"},
         {IborIndices.AUD_BBSW_3M, "AUD-BBSW-3M"},
+        {IborIndices.AUD_BBSW_4M, "AUD-BBSW-4M"},
+        {IborIndices.AUD_BBSW_5M, "AUD-BBSW-5M"},
         {IborIndices.AUD_BBSW_6M, "AUD-BBSW-6M"},
     };
   }

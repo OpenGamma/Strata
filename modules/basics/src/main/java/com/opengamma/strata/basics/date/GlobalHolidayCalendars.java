@@ -709,13 +709,13 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 4, 25));
       // queen's birthday
       holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
-      // bank birthday
+      // bank holiday
       holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
       // labour day 
       holidays.add(first(year, 10).with(dayOfWeekInMonth(1, MONDAY)));
-      // christmas (public)
+      // christmas 
       holidays.add(christmas(year));
-      // boxing (public)
+      // boxing
       holidays.add(boxingDay(year));
     }
     removeSatSun(holidays);
