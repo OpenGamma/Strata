@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
@@ -33,7 +34,6 @@ import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveInputsId;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 
 /**
@@ -45,17 +45,11 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
     CurveGroupDefinition groupConfig = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
     Optional<NodalCurveDefinition> optionalDefinition = groupConfig.findCurveDefinition(id.getCurveName());
-
     if (!optionalDefinition.isPresent()) {
       return MarketDataRequirements.empty();
     }
     NodalCurveDefinition definition = optionalDefinition.get();
-
-    if (!(definition instanceof InterpolatedNodalCurveDefinition)) {
-      return MarketDataRequirements.empty();
-    }
-    InterpolatedNodalCurveDefinition curveDefn = (InterpolatedNodalCurveDefinition) definition;
-    return MarketDataRequirements.builder().addValues(nodeRequirements(curveDefn)).build();
+    return MarketDataRequirements.builder().addValues(nodeRequirements(ImmutableList.of(definition))).build();
   }
 
   @Override
@@ -73,29 +67,47 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     if (!optionalDefinition.isPresent()) {
       throw new IllegalArgumentException(Messages.format("No curve named '{}' found in group '{}'", curveName, groupName));
     }
-    NodalCurveDefinition curveDefn = optionalDefinition.get();
+    NodalCurveDefinition configuredDefn = optionalDefinition.get();
+    // determine market data needs
+    MarketDataBox<LocalDate> valuationDates = marketData.getValuationDate();
+    boolean multipleValuationDates = valuationDates.isScenarioValue();
+    // curve definition can vary for each valuation date
+    if (multipleValuationDates) {
+      List<NodalCurveDefinition> curveDefns = IntStream.range(0, valuationDates.getScenarioCount())
+          .mapToObj(valuationDates::getValue)
+          .map((LocalDate valDate) -> configuredDefn.filtered(valDate, refData))
+          .collect(toImmutableList());
+
+      Set<? extends MarketDataId<?>> requirements = nodeRequirements(curveDefns);
+      ObservableSource obsSource = id.getObservableSource();
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> marketDataValues =
+          getMarketDataValues(marketData, requirements, obsSource);
+      return buildMultipleCurveInputs(MarketDataBox.ofScenarioValues(curveDefns), marketDataValues, valuationDates, refData);
+    }
+    // only one valuation date
+    LocalDate valuationDate = valuationDates.getValue(0);
+    NodalCurveDefinition filteredDefn = configuredDefn.filtered(valuationDate, refData);
+    Set<? extends MarketDataId<?>> requirements = nodeRequirements(ImmutableList.of(filteredDefn));
     ObservableSource obsSource = id.getObservableSource();
-    Set<? extends MarketDataId<?>> requirements = nodeRequirements(curveDefn);
     Map<? extends MarketDataId<?>, MarketDataBox<?>> marketDataValues =
         getMarketDataValues(marketData, requirements, obsSource);
-    MarketDataBox<LocalDate> valuationDate = marketData.getValuationDate();
     // Do any of the inputs contain values for multiple scenarios, or do they contain 1 value each?
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
-    boolean multipleValuationDates = valuationDate.isScenarioValue();
 
     return multipleInputValues || multipleValuationDates ?
-        buildMultipleCurveInputs(curveDefn, marketDataValues, valuationDate, refData) :
-        buildSingleCurveInputs(curveDefn, marketDataValues, valuationDate, refData);
+        buildMultipleCurveInputs(MarketDataBox.ofSingleValue(filteredDefn), marketDataValues, valuationDates, refData) :
+        buildSingleCurveInputs(filteredDefn, marketDataValues, valuationDate, refData);
   }
 
+  // one valuation date, one set of market data
   private MarketDataBox<CurveInputs> buildSingleCurveInputs(
-      NodalCurveDefinition curveDefn,
+      NodalCurveDefinition filteredDefn,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData,
-      MarketDataBox<LocalDate> valuationDate,
+      LocalDate valuationDate,
       ReferenceData refData) {
 
     // There is only a single map of values and single valuation date - create a single CurveInputs instance
-    CurveMetadata curveMetadata = curveDefn.metadata(valuationDate.getSingleValue(), refData);
+    CurveMetadata curveMetadata = filteredDefn.metadata(valuationDate, refData);
     Map<? extends MarketDataId<?>, ?> singleMarketDataValues = MapStream.of(marketData)
         .mapValues(box -> box.getSingleValue())
         .toMap();
@@ -104,20 +116,24 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     return MarketDataBox.ofSingleValue(curveInputs);
   }
 
+  // one valuation date, scenario market data
   private MarketDataBox<CurveInputs> buildMultipleCurveInputs(
-      NodalCurveDefinition curveDefn,
+      MarketDataBox<NodalCurveDefinition> filteredDefns,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData,
-      MarketDataBox<LocalDate> valuationDate,
+      MarketDataBox<LocalDate> valuationDates,
       ReferenceData refData) {
 
     // If there are multiple values for any of the input data values or for the valuation
     // dates then we need to create multiple sets of inputs
-    int scenarioCount = scenarioCount(valuationDate, marketData);
+    int scenarioCount = scenarioCount(valuationDates, marketData);
 
-    List<CurveMetadata> curveMetadata = IntStream.range(0, scenarioCount)
-        .mapToObj(valuationDate::getValue)
-        .map((LocalDate valDate) -> curveDefn.metadata(valDate, refData))
-        .collect(toImmutableList());
+    ImmutableList.Builder<CurveMetadata> curveMetadataBuilder = ImmutableList.builder();
+    for (int i = 0; i < scenarioCount; i++) {
+      LocalDate valDate = valuationDates.getValue(i);
+      NodalCurveDefinition defn = filteredDefns.getValue(i);
+      curveMetadataBuilder.add(defn.metadata(valDate, refData));
+    }
+    List<CurveMetadata> curveMetadata = curveMetadataBuilder.build();
 
     List<Map<? extends MarketDataId<?>, ?>> scenarioValues = IntStream.range(0, scenarioCount)
         .mapToObj(i -> buildScenarioValues(marketData, i))
@@ -193,8 +209,9 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
    * @param curveDefn  the curve definition containing the nodes
    * @return requirements for the market data needed by the nodes to build trades
    */
-  private static Set<? extends MarketDataId<?>> nodeRequirements(NodalCurveDefinition curveDefn) {
-    return curveDefn.getNodes().stream()
+  private static Set<? extends MarketDataId<?>> nodeRequirements(List<NodalCurveDefinition> curveDefns) {
+    return curveDefns.stream()
+        .flatMap(defn -> defn.getNodes().stream())
         .flatMap(node -> node.requirements().stream())
         .collect(toImmutableSet());
   }

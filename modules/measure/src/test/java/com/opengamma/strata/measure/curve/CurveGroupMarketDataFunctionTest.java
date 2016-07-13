@@ -188,7 +188,8 @@ public class CurveGroupMarketDataFunctionTest {
    */
   public void requirements() {
     FraCurveNode node1x4 = CurveTestUtils.fraNode(1, "foo");
-    List<CurveNode> nodes = ImmutableList.of(node1x4);
+    FraCurveNode node2x5 = CurveTestUtils.fraNode(2, "foo");
+    List<CurveNode> nodes = ImmutableList.of(node1x4, node2x5);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA Curve");
     ObservableSource obsSource = ObservableSource.of("Vendor");

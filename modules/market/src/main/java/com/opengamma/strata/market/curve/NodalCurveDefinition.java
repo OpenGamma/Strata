@@ -61,6 +61,29 @@ public interface NodalCurveDefinition {
   public abstract ImmutableList<CurveNode> getNodes();
 
   /**
+   * Returns a filtered version of this definition with no invalid nodes.
+   * <p>
+   * A curve is formed of a number of nodes, each of which has an associated date.
+   * To be valid, the curve node dates must be in order from earliest to latest.
+   * Each node has certain rules, {@link CurveNodeDateOrder}, that are used to determine
+   * what happens if the date of one curve node is equal or earlier than the date of the previous node.
+   * <p>
+   * Filtering occurs in two stages. The first stage looks at each node in turn. The previous and next
+   * nodes are checked for clash. If clash occurs, then one of the two nodes is dropped according to
+   * the {@linkplain CurveNodeClashAction clash action} "drop" values. The second stage then looks
+   * again at the nodes, and if there are still any invalid nodes, an exception is thrown.
+   * <p>
+   * This approach means that in most cases, only those nodes that have fixed dates,
+   * such as futures, need to be annotated with {@code CurveNodeDateOrder}.
+   * 
+   * @param valuationDate  the valuation date
+   * @param refData  the reference data
+   * @return the resolved definition, that should be used in preference to this one
+   * @throws IllegalArgumentException if the curve nodes are invalid
+   */
+  public abstract NodalCurveDefinition filtered(LocalDate valuationDate, ReferenceData refData);
+
+  /**
    * Creates the curve metadata.
    * <p>
    * This method returns metadata about the curve and the curve parameters.

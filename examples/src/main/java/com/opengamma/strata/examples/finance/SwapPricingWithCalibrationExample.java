@@ -131,11 +131,14 @@ public class SwapPricingWithCalibrationExample {
     // create the market data
     MarketData marketData = MarketData.of(VAL_DATE, quotes, fixings);
 
+    // the reference data, such as holidays and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // load the curve definition
     List<CurveGroupDefinition> defns =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
     Map<CurveGroupName, CurveGroupDefinition> defnMap = defns.stream().collect(toMap(def -> def.getName(), def -> def));
-    CurveGroupDefinition curveGroupDefinition = defnMap.get(CURVE_GROUP_NAME);
+    CurveGroupDefinition curveGroupDefinition = defnMap.get(CURVE_GROUP_NAME).filtered(VAL_DATE, refData);
 
     // the configuration that defines how to create the curves when a curve group is requested
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
@@ -146,9 +149,6 @@ public class SwapPricingWithCalibrationExample {
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
     CalculationRules rules = CalculationRules.of(functions, ratesLookup);
-
-    // the reference data, such as holidays and securities
-    ReferenceData refData = ReferenceData.standard();
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
