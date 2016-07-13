@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
@@ -73,7 +72,6 @@ public class CalibrationDiscountingSimple1Test {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
-  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   // reference data
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -90,11 +88,9 @@ public class CalibrationDiscountingSimple1Test {
   static {
     IBOR_INDICES.add(USD_LIBOR_3M);
   }
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
   static {
     DSC_NAMES.put(ALL_CURVE_NAME, USD);
     IDX_NAMES.put(ALL_CURVE_NAME, IBOR_INDICES);
-    TS.put(USD_LIBOR_3M, TS_EMTPY);
   }
 
   /** Market values for the Fwd 3M USD curve */
@@ -188,7 +184,7 @@ public class CalibrationDiscountingSimple1Test {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     RatesProvider result2 =
-        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
@@ -225,7 +221,7 @@ public class CalibrationDiscountingSimple1Test {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         RatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA, TS);
+            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA);
         count += result.getValuationDate().getDayOfMonth();
       }
       endTime = System.currentTimeMillis();

@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -186,17 +188,19 @@ public final class CurveCalibrator {
    * The Jacobian matrices are computed and stored in curve metadata.
    *
    * @param curveGroupDefn  the curve group definition
-   * @param marketData  the market data required to build a trade for the instrument
+   * @param marketData  the market data required to build a trade for the instrument, including time-series
    * @param refData  the reference data, used to resolve the trades
-   * @param timeSeries  the time-series
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
       CurveGroupDefinition curveGroupDefn,
       MarketData marketData,
-      ReferenceData refData,
-      Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
+      ReferenceData refData) {
 
+    Map<Index, LocalDateDoubleTimeSeries> timeSeries = marketData.getTimeSeriesIds().stream()
+        .filter(IndexQuoteId.class::isInstance)
+        .map(IndexQuoteId.class::cast)
+        .collect(toImmutableMap(id -> id.getIndex(), id -> marketData.getTimeSeries(id)));
     ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(marketData.getValuationDate())
         .fxRateProvider(MarketDataFxRateProvider.of(marketData))
         .timeSeries(timeSeries)

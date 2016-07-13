@@ -36,7 +36,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
@@ -98,7 +97,6 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   /** Curves associations to currencies and indices. */
   private static final Map<CurveName, Currency> DSC_NAMES = new HashMap<>();
   private static final Map<CurveName, Set<Index>> IDX_NAMES = new HashMap<>();
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
   static {
     DSC_NAMES.put(USD_DSCON_CURVE_NAME, USD);
     Set<Index> usdFedFundSet = new HashSet<>();
@@ -221,7 +219,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
     assertPresentValue(result);
   }
   
@@ -259,7 +257,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
-        ov -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ov, REF_DATA, TS);
+        ov -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ov, REF_DATA);
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
@@ -274,7 +272,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
         .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts, REF_DATA)
         .resolve(REF_DATA);
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurrencyParameterSensitivities ps = result.parameterSensitivity(pts);
     CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);

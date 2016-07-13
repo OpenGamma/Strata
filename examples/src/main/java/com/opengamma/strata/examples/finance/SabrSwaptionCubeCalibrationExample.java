@@ -20,17 +20,14 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
@@ -71,7 +68,6 @@ public class SabrSwaptionCubeCalibrationExample {
   private static final String SETTINGS_FILE = "example-calibration/curves/EUR-DSCONOIS-E3BS-E6IRS-settings.csv";
   private static final String NODES_FILE = "example-calibration/curves/EUR-DSCONOIS-E3BS-E6IRS-nodes.csv";
   private static final String QUOTES_FILE = "example-calibration/quotes/quotes-20160229-eur.csv";
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
   private static final CurveGroupDefinition CONFIGS =
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(BASE_DIR + GROUPS_FILE),
@@ -84,7 +80,7 @@ public class SabrSwaptionCubeCalibrationExample {
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
   private static final RatesProvider MULTICURVE =
-      CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA, TS);
+      CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA);
 
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
 
