@@ -131,10 +131,10 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
     MoneynessType moneynessType = surface.getMetadata().findInfo(SurfaceInfoType.MONEYNESS_TYPE)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing MoneynessType"));
 
-    this.surface = surface;
-    this.valuationDateTime = valuationDateTime;
-    this.moneynessOnPrice = moneynessType == MoneynessType.PRICE;
     this.index = index;
+    this.valuationDateTime = valuationDateTime;
+    this.surface = surface;
+    this.moneynessOnPrice = moneynessType == MoneynessType.PRICE;
     this.dayCount = dayCount;
   }
 

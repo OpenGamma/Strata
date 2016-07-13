@@ -113,6 +113,7 @@ public final class BlackFxOptionSurfaceVolatilities
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
+    ArgChecker.notNull(currencyPair, "currencyPair");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.notNull(surface, "surface");
     surface.getMetadata().getXValueType().checkEquals(

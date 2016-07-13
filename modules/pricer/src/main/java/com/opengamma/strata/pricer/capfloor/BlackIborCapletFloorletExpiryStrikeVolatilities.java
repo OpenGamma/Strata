@@ -116,6 +116,7 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
+    ArgChecker.notNull(index, "index");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.notNull(surface, "surface");
     surface.getMetadata().getXValueType().checkEquals(

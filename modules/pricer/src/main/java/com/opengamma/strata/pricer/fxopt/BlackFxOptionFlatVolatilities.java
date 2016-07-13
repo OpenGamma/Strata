@@ -112,6 +112,7 @@ public final class BlackFxOptionFlatVolatilities
       ZonedDateTime valuationDateTime,
       Curve curve) {
 
+    ArgChecker.notNull(currencyPair, "currencyPair");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.notNull(curve, "curve");
     curve.getMetadata().getXValueType().checkEquals(
