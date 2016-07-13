@@ -123,7 +123,7 @@ public final class ImmutableScenarioMarketData
       throw new IllegalArgumentException(Messages.format(
           "Value for identifier '{}' must not be null", id));
     }
-    if (box.getScenarioCount() != scenarioCount) {
+    if (box.isScenarioValue() && box.getScenarioCount() != scenarioCount) {
       throw new IllegalArgumentException(Messages.format(
           "Value for identifier '{}' should have had {} scenarios but had {}", id, scenarioCount, box.getScenarioCount()));
     }

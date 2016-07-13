@@ -102,6 +102,7 @@ public final class FxRateScenarioArray implements ScenarioArray<FxRate>, Immutab
    *
    * @param scenarioIndex  the index of the scenario
    * @return the FX rate for the specified scenario
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
   @Override
   public FxRate get(int scenarioIndex) {
