@@ -60,7 +60,8 @@ public interface RatesMarketDataLookup extends CalculationParameter {
       Map<Currency, CurveId> discountCurveIds,
       Map<Index, CurveId> forwardCurveIds) {
 
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, ObservableSource.NONE);
+    return DefaultRatesMarketDataLookup.of(
+        discountCurveIds, forwardCurveIds, ObservableSource.NONE, FxRateLookup.ofRates());
   }
 
   /**
@@ -75,15 +76,17 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
    * @param forwardCurveIds  the forward curves identifiers, keyed by index
-   * @param obsSource  the source of market data for FX, quotes and other observable market data
+   * @param obsSource  the source of market data for quotes and other observable market data
+   * @param fxLookup  the lookup used to obtain FX rates
    * @return the rates lookup containing the specified curves
    */
   public static RatesMarketDataLookup of(
       Map<Currency, CurveId> discountCurveIds,
       Map<Index, CurveId> forwardCurveIds,
-      ObservableSource obsSource) {
+      ObservableSource obsSource,
+      FxRateLookup fxLookup) {
 
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, obsSource);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, obsSource, fxLookup);
   }
 
   /**
@@ -109,7 +112,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
     Map<? extends Index, CurveId> forwardCurveIds = MapStream.of(forwardCurves)
         .mapValues(c -> CurveId.of(groupName, c))
         .toMap();
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, ObservableSource.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, ObservableSource.NONE, FxRateLookup.ofRates());
   }
 
   /**
@@ -128,7 +131,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
     Map<Index, CurveId> forwardCurves = MapStream.of(curveGroup.getForwardCurves())
         .mapValues(c -> CurveId.of(groupName, c.getName()))
         .toMap();
-    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE, FxRateLookup.ofRates());
   }
 
   /**
@@ -148,7 +151,32 @@ public interface RatesMarketDataLookup extends CalculationParameter {
       entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
       entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
     }
-    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE, FxRateLookup.ofRates());
+  }
+
+  /**
+   * Obtains an instance based on a curve group definition.
+   * <p>
+   * The discount curves and forward curves from the group are extracted and used to build the lookup.
+   *
+   * @param curveGroupDefinition  the curve group to base the lookup on
+   * @param observableSource  the source of market data for quotes and other observable market data
+   * @param fxLookup  the lookup used to obtain FX rates
+   * @return the rates lookup based on the specified group
+   */
+  public static RatesMarketDataLookup of(CurveGroupDefinition curveGroupDefinition,
+      ObservableSource observableSource,
+      FxRateLookup fxLookup) {
+
+    CurveGroupName groupName = curveGroupDefinition.getName();
+    Map<Currency, CurveId> discountCurves = new HashMap<>();
+    Map<Index, CurveId> forwardCurves = new HashMap<>();
+    for (CurveGroupEntry entry : curveGroupDefinition.getEntries()) {
+      CurveId curveId = CurveId.of(groupName, entry.getCurveName());
+      entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
+      entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
+    }
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, observableSource, fxLookup);
   }
 
   //-------------------------------------------------------------------------
