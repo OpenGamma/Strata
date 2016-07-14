@@ -15,7 +15,6 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
-import com.opengamma.strata.product.SecurityId;
 
 /**
  * Volatilities for pricing bond futures and their options.
@@ -31,13 +30,6 @@ public interface BondFutureVolatilities
    * @return the name
    */
   public abstract BondFutureVolatilitiesName getName();
-
-  /**
-   * Gets the security identifier of the future for which the data is valid.
-   * 
-   * @return the future security
-   */
-  public abstract SecurityId getFutureSecurityId();
 
   /**
    * Gets the type of volatility returned by the {@link BondFutureVolatilities#volatility} method.

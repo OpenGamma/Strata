@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.bond;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -32,7 +31,6 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.product.SecurityId;
 
 /**
  * Point sensitivity to an implied volatility for a bond future option model.
@@ -44,15 +42,15 @@ public final class BondFutureOptionSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-   * The index on which the underlying future fixes.
+   * The name of the volatilities.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SecurityId futureSecurityId;
+  private final BondFutureVolatilitiesName volatilitiesName;
   /**
    * The expiry date-time of the option.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ZonedDateTime expiry;
+  private final double expiry;
   /**
    * The expiry date of the underlying future.
    */
@@ -83,8 +81,8 @@ public final class BondFutureOptionSensitivity
   /**
    * Obtains an instance based on the security ID.
    * 
-   * @param futureSecurityId  the underlying future ID of the curve
-   * @param expiryDate  the expiry date of the option
+   * @param volatilitiesName  the name of the volatilities
+   * @param expiry  the time to expiry of the option as a year fraction
    * @param futureExpiryDate  the expiry date of the underlying future
    * @param strikePrice  the strike price of the option
    * @param futurePrice  the price of the underlying future
@@ -93,8 +91,8 @@ public final class BondFutureOptionSensitivity
    * @return the point sensitivity object
    */
   public static BondFutureOptionSensitivity of(
-      SecurityId futureSecurityId,
-      ZonedDateTime expiryDate,
+      BondFutureVolatilitiesName volatilitiesName,
+      double expiry,
       LocalDate futureExpiryDate,
       double strikePrice,
       double futurePrice,
@@ -102,7 +100,7 @@ public final class BondFutureOptionSensitivity
       double sensitivity) {
 
     return new BondFutureOptionSensitivity(
-        futureSecurityId, expiryDate, futureExpiryDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
+        volatilitiesName, expiry, futureExpiryDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -112,13 +110,13 @@ public final class BondFutureOptionSensitivity
       return this;
     }
     return new BondFutureOptionSensitivity(
-        futureSecurityId, expiry, futureExpiryDate, strikePrice, futurePrice, currency, sensitivity);
+        volatilitiesName, expiry, futureExpiryDate, strikePrice, futurePrice, currency, sensitivity);
   }
 
   @Override
   public BondFutureOptionSensitivity withSensitivity(double sensitivity) {
     return new BondFutureOptionSensitivity(
-        futureSecurityId, expiry, futureExpiryDate, strikePrice, futurePrice, currency, sensitivity);
+        volatilitiesName, expiry, futureExpiryDate, strikePrice, futurePrice, currency, sensitivity);
   }
 
   @Override
@@ -126,7 +124,7 @@ public final class BondFutureOptionSensitivity
     if (other instanceof BondFutureOptionSensitivity) {
       BondFutureOptionSensitivity otherOption = (BondFutureOptionSensitivity) other;
       return ComparisonChain.start()
-          .compare(futureSecurityId.toString(), otherOption.futureSecurityId.toString())
+          .compare(volatilitiesName.toString(), otherOption.volatilitiesName.toString())
           .compare(expiry, otherOption.expiry)
           .compare(futureExpiryDate, otherOption.futureExpiryDate)
           .compare(strikePrice, otherOption.strikePrice)
@@ -146,13 +144,13 @@ public final class BondFutureOptionSensitivity
   @Override
   public BondFutureOptionSensitivity multipliedBy(double factor) {
     return new BondFutureOptionSensitivity(
-        futureSecurityId, expiry, futureExpiryDate, strikePrice, futurePrice, currency, sensitivity * factor);
+        volatilitiesName, expiry, futureExpiryDate, strikePrice, futurePrice, currency, sensitivity * factor);
   }
 
   @Override
   public BondFutureOptionSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new BondFutureOptionSensitivity(
-        futureSecurityId, expiry, futureExpiryDate, strikePrice, futurePrice, currency, operator.applyAsDouble(sensitivity));
+        volatilitiesName, expiry, futureExpiryDate, strikePrice, futurePrice, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -190,18 +188,18 @@ public final class BondFutureOptionSensitivity
   private static final long serialVersionUID = 1L;
 
   private BondFutureOptionSensitivity(
-      SecurityId futureSecurityId,
-      ZonedDateTime expiry,
+      BondFutureVolatilitiesName volatilitiesName,
+      double expiry,
       LocalDate futureExpiryDate,
       double strikePrice,
       double futurePrice,
       Currency currency,
       double sensitivity) {
-    JodaBeanUtils.notNull(futureSecurityId, "futureSecurityId");
+    JodaBeanUtils.notNull(volatilitiesName, "volatilitiesName");
     JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(futureExpiryDate, "futureExpiryDate");
     JodaBeanUtils.notNull(currency, "currency");
-    this.futureSecurityId = futureSecurityId;
+    this.volatilitiesName = volatilitiesName;
     this.expiry = expiry;
     this.futureExpiryDate = futureExpiryDate;
     this.strikePrice = strikePrice;
@@ -227,11 +225,11 @@ public final class BondFutureOptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index on which the underlying future fixes.
+   * Gets the name of the volatilities.
    * @return the value of the property, not null
    */
-  public SecurityId getFutureSecurityId() {
-    return futureSecurityId;
+  public BondFutureVolatilitiesName getVolatilitiesName() {
+    return volatilitiesName;
   }
 
   //-----------------------------------------------------------------------
@@ -239,7 +237,7 @@ public final class BondFutureOptionSensitivity
    * Gets the expiry date-time of the option.
    * @return the value of the property, not null
    */
-  public ZonedDateTime getExpiry() {
+  public double getExpiry() {
     return expiry;
   }
 
@@ -298,7 +296,7 @@ public final class BondFutureOptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureOptionSensitivity other = (BondFutureOptionSensitivity) obj;
-      return JodaBeanUtils.equal(futureSecurityId, other.futureSecurityId) &&
+      return JodaBeanUtils.equal(volatilitiesName, other.volatilitiesName) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(futureExpiryDate, other.futureExpiryDate) &&
           JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
@@ -312,7 +310,7 @@ public final class BondFutureOptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(futureSecurityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatilitiesName);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(futureExpiryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
@@ -326,7 +324,7 @@ public final class BondFutureOptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("BondFutureOptionSensitivity{");
-    buf.append("futureSecurityId").append('=').append(futureSecurityId).append(',').append(' ');
+    buf.append("volatilitiesName").append('=').append(volatilitiesName).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("futureExpiryDate").append('=').append(futureExpiryDate).append(',').append(' ');
     buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
@@ -348,15 +346,15 @@ public final class BondFutureOptionSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code futureSecurityId} property.
+     * The meta-property for the {@code volatilitiesName} property.
      */
-    private final MetaProperty<SecurityId> futureSecurityId = DirectMetaProperty.ofImmutable(
-        this, "futureSecurityId", BondFutureOptionSensitivity.class, SecurityId.class);
+    private final MetaProperty<BondFutureVolatilitiesName> volatilitiesName = DirectMetaProperty.ofImmutable(
+        this, "volatilitiesName", BondFutureOptionSensitivity.class, BondFutureVolatilitiesName.class);
     /**
      * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<ZonedDateTime> expiry = DirectMetaProperty.ofImmutable(
-        this, "expiry", BondFutureOptionSensitivity.class, ZonedDateTime.class);
+    private final MetaProperty<Double> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", BondFutureOptionSensitivity.class, Double.TYPE);
     /**
      * The meta-property for the {@code futureExpiryDate} property.
      */
@@ -387,7 +385,7 @@ public final class BondFutureOptionSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "futureSecurityId",
+        "volatilitiesName",
         "expiry",
         "futureExpiryDate",
         "strikePrice",
@@ -404,8 +402,8 @@ public final class BondFutureOptionSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          return futureSecurityId;
+        case 2100884654:  // volatilitiesName
+          return volatilitiesName;
         case -1289159373:  // expiry
           return expiry;
         case -1119821404:  // futureExpiryDate
@@ -439,18 +437,18 @@ public final class BondFutureOptionSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code futureSecurityId} property.
+     * The meta-property for the {@code volatilitiesName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityId> futureSecurityId() {
-      return futureSecurityId;
+    public MetaProperty<BondFutureVolatilitiesName> volatilitiesName() {
+      return volatilitiesName;
     }
 
     /**
      * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ZonedDateTime> expiry() {
+    public MetaProperty<Double> expiry() {
       return expiry;
     }
 
@@ -498,8 +496,8 @@ public final class BondFutureOptionSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          return ((BondFutureOptionSensitivity) bean).getFutureSecurityId();
+        case 2100884654:  // volatilitiesName
+          return ((BondFutureOptionSensitivity) bean).getVolatilitiesName();
         case -1289159373:  // expiry
           return ((BondFutureOptionSensitivity) bean).getExpiry();
         case -1119821404:  // futureExpiryDate
@@ -533,8 +531,8 @@ public final class BondFutureOptionSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<BondFutureOptionSensitivity> {
 
-    private SecurityId futureSecurityId;
-    private ZonedDateTime expiry;
+    private BondFutureVolatilitiesName volatilitiesName;
+    private double expiry;
     private LocalDate futureExpiryDate;
     private double strikePrice;
     private double futurePrice;
@@ -551,8 +549,8 @@ public final class BondFutureOptionSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          return futureSecurityId;
+        case 2100884654:  // volatilitiesName
+          return volatilitiesName;
         case -1289159373:  // expiry
           return expiry;
         case -1119821404:  // futureExpiryDate
@@ -573,11 +571,11 @@ public final class BondFutureOptionSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          this.futureSecurityId = (SecurityId) newValue;
+        case 2100884654:  // volatilitiesName
+          this.volatilitiesName = (BondFutureVolatilitiesName) newValue;
           break;
         case -1289159373:  // expiry
-          this.expiry = (ZonedDateTime) newValue;
+          this.expiry = (Double) newValue;
           break;
         case -1119821404:  // futureExpiryDate
           this.futureExpiryDate = (LocalDate) newValue;
@@ -627,7 +625,7 @@ public final class BondFutureOptionSensitivity
     @Override
     public BondFutureOptionSensitivity build() {
       return new BondFutureOptionSensitivity(
-          futureSecurityId,
+          volatilitiesName,
           expiry,
           futureExpiryDate,
           strikePrice,
@@ -641,7 +639,7 @@ public final class BondFutureOptionSensitivity
     public String toString() {
       StringBuilder buf = new StringBuilder(256);
       buf.append("BondFutureOptionSensitivity.Builder{");
-      buf.append("futureSecurityId").append('=').append(JodaBeanUtils.toString(futureSecurityId)).append(',').append(' ');
+      buf.append("volatilitiesName").append('=').append(JodaBeanUtils.toString(volatilitiesName)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("futureExpiryDate").append('=').append(JodaBeanUtils.toString(futureExpiryDate)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');

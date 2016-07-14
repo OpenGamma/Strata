@@ -41,7 +41,6 @@ import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionPa
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 
@@ -58,7 +57,6 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
       BondDataSets.FUTURE_OPTION_PRODUCT_EUR_115.resolve(REF_DATA);
   private static final ResolvedBondFutureOptionTrade OPTION_TRADE =
       BondDataSets.FUTURE_OPTION_TRADE_EUR.resolve(REF_DATA);
-  private static final SecurityId FUTURE_SECURITY_ID = BondDataSets.FUTURE_SECURITY_ID_EUR;
   private static final double NOTIONAL = BondDataSets.NOTIONAL_EUR;
   private static final long QUANTITY = BondDataSets.QUANTITY_EUR;
   // curves
@@ -94,8 +92,8 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   private static final LocalTime VAL_TIME = LocalTime.of(0, 0);
   private static final ZoneId ZONE = OPTION_PRODUCT.getExpiry().getZone();
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
-  private static final BlackBondFutureExpiryLogMoneynessVolatilities VOL_PROVIDER =
-      BlackBondFutureExpiryLogMoneynessVolatilities.of(FUTURE_SECURITY_ID, VAL_DATE_TIME, SURFACE);
+  private static final BlackBondFutureExpiryLogMoneynessVolatilities VOLS =
+      BlackBondFutureExpiryLogMoneynessVolatilities.of(VAL_DATE_TIME, SURFACE);
   private static final double REFERENCE_PRICE = 0.01;
 
   private static final double TOL = 1.0E-13;
@@ -111,8 +109,8 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
 
   public void test_presentValue() {
     CurrencyAmount computed =
-        OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, REFERENCE_PRICE);
-    double expected = (OPTION_PRODUCT_PRICER.price(OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER) - REFERENCE_PRICE)
+        OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
+    double expected = (OPTION_PRODUCT_PRICER.price(OPTION_PRODUCT, RATE_PROVIDER, VOLS) - REFERENCE_PRICE)
         * NOTIONAL * QUANTITY;
     assertEquals(computed.getCurrency(), Currency.EUR);
     assertEquals(computed.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
@@ -121,9 +119,9 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   public void test_presentValue_from_future_price() {
     double futurePrice = 0.975d;
     CurrencyAmount computed =
-        OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, futurePrice, REFERENCE_PRICE);
+        OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, futurePrice, REFERENCE_PRICE);
     double expected = NOTIONAL * QUANTITY *
-        (OPTION_PRODUCT_PRICER.price(OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice) - REFERENCE_PRICE);
+        (OPTION_PRODUCT_PRICER.price(OPTION_PRODUCT, RATE_PROVIDER, VOLS, futurePrice) - REFERENCE_PRICE);
     assertEquals(computed.getCurrency(), Currency.EUR);
     assertEquals(computed.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
   }
@@ -148,16 +146,16 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityBlackVolatility() {
     BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityModelParamsVolatility(
-        OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
-    testPriceSensitivityBlackVolatility(VOL_PROVIDER.parameterSensitivity(sensi),
+        OPTION_TRADE, RATE_PROVIDER, VOLS);
+    testPriceSensitivityBlackVolatility(VOLS.parameterSensitivity(sensi),
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), REFERENCE_PRICE).getAmount());
   }
 
   public void test_presentValueSensitivityBlackVolatility_from_future_price() {
     double futurePrice = 0.975d;
     BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityModelParamsVolatility(
-        OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
-    testPriceSensitivityBlackVolatility(VOL_PROVIDER.parameterSensitivity(sensi), (p) ->
+        OPTION_TRADE, RATE_PROVIDER, VOLS, futurePrice);
+    testPriceSensitivityBlackVolatility(VOLS.parameterSensitivity(sensi), (p) ->
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), futurePrice, REFERENCE_PRICE).getAmount());
   }
 
@@ -177,9 +175,9 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
       InterpolatedNodalSurface sfDw = InterpolatedNodalSurface.of(
           METADATA, TIME, MONEYNESS, DoubleArray.copyOf(volDw), INTERPOLATOR_2D);
       BlackBondFutureExpiryLogMoneynessVolatilities provUp =
-          BlackBondFutureExpiryLogMoneynessVolatilities.of(FUTURE_SECURITY_ID, VAL_DATE_TIME, sfUp);
+          BlackBondFutureExpiryLogMoneynessVolatilities.of(VAL_DATE_TIME, sfUp);
       BlackBondFutureExpiryLogMoneynessVolatilities provDw =
-          BlackBondFutureExpiryLogMoneynessVolatilities.of(FUTURE_SECURITY_ID, VAL_DATE_TIME, sfDw);
+          BlackBondFutureExpiryLogMoneynessVolatilities.of(VAL_DATE_TIME, sfDw);
       double expected = 0.5 * (valueFn.apply(provUp) - valueFn.apply(provDw)) / EPS;
       int index = -1;
       for (int j = 0; j < nVol; ++j) {
@@ -195,7 +193,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOLS);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double futurePrice = FUTURE_PRICER.price(OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER);
     double strike = OPTION_PRODUCT.getStrikePrice();
@@ -212,15 +210,15 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
         FUTURE_PRICER.priceSensitivity(OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER))
         .multipliedBy(-vega * volSensi * NOTIONAL * QUANTITY);
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
-        (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, (p), VOL_PROVIDER, REFERENCE_PRICE));
+        (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, (p), VOLS, REFERENCE_PRICE));
     assertTrue(computed.equalWithTolerance(expected.combinedWith(sensiVol), 30d * EPS * NOTIONAL * QUANTITY));
   }
 
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     MultiCurrencyAmount ceComputed = OPTION_TRADE_PRICER.currencyExposure(
-        OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, REFERENCE_PRICE);
-    CurrencyAmount pv = OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, REFERENCE_PRICE);
+        OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
+    CurrencyAmount pv = OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
     assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
   }
 
@@ -228,12 +226,12 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   // regression to 2.x
   public void regression() {
     CurrencyAmount pv =
-        OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, REFERENCE_PRICE);
+        OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
     assertEquals(pv.getAmount(), 1.0044656145806769E7, TOL * NOTIONAL * QUANTITY);
     double[] sensiRepoExpected = new double[] {9266400.007519504, 6037835.299017232, 0.0, 0.0, 0.0, 0.0 };
     double[] sensiIssuerExpected = new double[]
     {0.0, -961498.734103331, -2189527.424010516, -3.7783587809228E7, -3.025330833183195E8, 0.0 };
-    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOLS);
     CurrencyParameterSensitivities pvSensi = RATE_PROVIDER.parameterSensitivity(point);
     double[] sensiIssuerComputed = pvSensi.getSensitivities().get(0).getSensitivity().toArray();
     double[] sensiRepoComputed = pvSensi.getSensitivities().get(1).getSensitivity().toArray();

@@ -41,7 +41,6 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.product.SecurityId;
 
 /**
  * Data provider of volatility for bond future options in the log-normal or Black model.
@@ -53,11 +52,6 @@ import com.opengamma.strata.product.SecurityId;
 public final class BlackBondFutureExpiryLogMoneynessVolatilities
     implements BlackBondFutureVolatilities, ImmutableBean, Serializable {
 
-  /**
-   * The identifier of the underlying future.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityId futureSecurityId;
   /**
    * The valuation date-time.
    * <p>
@@ -93,26 +87,22 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
    * Suitable surface metadata can be created using
    * {@link Surfaces#blackVolatilityByExpiryLogMoneyness(String, DayCount)}.
    * 
-   * @param futureSecurityId  the identifier of the future for which the data is valid
    * @param valuationDateTime  the valuation date-time
    * @param surface  the implied volatility surface
    * @return the volatilities
    */
   public static BlackBondFutureExpiryLogMoneynessVolatilities of(
-      SecurityId futureSecurityId,
       ZonedDateTime valuationDateTime,
       InterpolatedNodalSurface surface) {
 
-    return new BlackBondFutureExpiryLogMoneynessVolatilities(futureSecurityId, valuationDateTime, surface);
+    return new BlackBondFutureExpiryLogMoneynessVolatilities(valuationDateTime, surface);
   }
 
   @ImmutableConstructor
   private BlackBondFutureExpiryLogMoneynessVolatilities(
-      SecurityId futureSecurityId,
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
-    ArgChecker.notNull(futureSecurityId, "futureSecurityId");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.notNull(surface, "surface");
     surface.getMetadata().getXValueType().checkEquals(
@@ -124,7 +114,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     DayCount dayCount = surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing DayCount"));
 
-    this.futureSecurityId = futureSecurityId;
     this.valuationDateTime = valuationDateTime;
     this.surface = surface;
     this.dayCount = dayCount;
@@ -162,13 +151,13 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
   @Override
   public BlackBondFutureExpiryLogMoneynessVolatilities withParameter(int parameterIndex, double newValue) {
     return new BlackBondFutureExpiryLogMoneynessVolatilities(
-        futureSecurityId, valuationDateTime, surface.withParameter(parameterIndex, newValue));
+        valuationDateTime, surface.withParameter(parameterIndex, newValue));
   }
 
   @Override
   public BlackBondFutureExpiryLogMoneynessVolatilities withPerturbation(ParameterPerturbation perturbation) {
     return new BlackBondFutureExpiryLogMoneynessVolatilities(
-        futureSecurityId, valuationDateTime, surface.withPerturbation(perturbation));
+        valuationDateTime, surface.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +175,9 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof BondFutureOptionSensitivity) {
         BondFutureOptionSensitivity pt = (BondFutureOptionSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
@@ -194,7 +185,7 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
 
   private CurrencyParameterSensitivity parameterSensitivity(BondFutureOptionSensitivity pointSensitivity) {
     double logMoneyness = Math.log(pointSensitivity.getStrikePrice() / pointSensitivity.getFuturePrice());
-    double expiryTime = relativeTime(pointSensitivity.getExpiry());
+    double expiryTime = pointSensitivity.getExpiry();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiryTime, logMoneyness);
     return unitSens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
   }
@@ -252,16 +243,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the underlying future.
-   * @return the value of the property, not null
-   */
-  @Override
-  public SecurityId getFutureSecurityId() {
-    return futureSecurityId;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the valuation date-time.
    * <p>
    * The volatilities are calibrated for this date-time.
@@ -300,8 +281,7 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BlackBondFutureExpiryLogMoneynessVolatilities other = (BlackBondFutureExpiryLogMoneynessVolatilities) obj;
-      return JodaBeanUtils.equal(futureSecurityId, other.futureSecurityId) &&
-          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
+      return JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
           JodaBeanUtils.equal(surface, other.surface);
     }
     return false;
@@ -310,7 +290,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(futureSecurityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(surface);
     return hash;
@@ -318,9 +297,8 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("BlackBondFutureExpiryLogMoneynessVolatilities{");
-    buf.append("futureSecurityId").append('=').append(futureSecurityId).append(',').append(' ');
     buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
     buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
     buf.append('}');
@@ -338,11 +316,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code futureSecurityId} property.
-     */
-    private final MetaProperty<SecurityId> futureSecurityId = DirectMetaProperty.ofImmutable(
-        this, "futureSecurityId", BlackBondFutureExpiryLogMoneynessVolatilities.class, SecurityId.class);
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      */
     private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
@@ -357,7 +330,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "futureSecurityId",
         "valuationDateTime",
         "surface");
 
@@ -370,8 +342,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          return futureSecurityId;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
         case -1853231955:  // surface
@@ -397,14 +367,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code futureSecurityId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<SecurityId> futureSecurityId() {
-      return futureSecurityId;
-    }
-
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
@@ -424,8 +386,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          return ((BlackBondFutureExpiryLogMoneynessVolatilities) bean).getFutureSecurityId();
         case -949589828:  // valuationDateTime
           return ((BlackBondFutureExpiryLogMoneynessVolatilities) bean).getValuationDateTime();
         case -1853231955:  // surface
@@ -451,7 +411,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
    */
   public static final class Builder extends DirectFieldsBeanBuilder<BlackBondFutureExpiryLogMoneynessVolatilities> {
 
-    private SecurityId futureSecurityId;
     private ZonedDateTime valuationDateTime;
     private Surface surface;
 
@@ -466,7 +425,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(BlackBondFutureExpiryLogMoneynessVolatilities beanToCopy) {
-      this.futureSecurityId = beanToCopy.getFutureSecurityId();
       this.valuationDateTime = beanToCopy.getValuationDateTime();
       this.surface = beanToCopy.getSurface();
     }
@@ -475,8 +433,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          return futureSecurityId;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
         case -1853231955:  // surface
@@ -489,9 +445,6 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1270940318:  // futureSecurityId
-          this.futureSecurityId = (SecurityId) newValue;
-          break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
           break;
@@ -531,23 +484,11 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     @Override
     public BlackBondFutureExpiryLogMoneynessVolatilities build() {
       return new BlackBondFutureExpiryLogMoneynessVolatilities(
-          futureSecurityId,
           valuationDateTime,
           surface);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the identifier of the underlying future.
-     * @param futureSecurityId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder futureSecurityId(SecurityId futureSecurityId) {
-      JodaBeanUtils.notNull(futureSecurityId, "futureSecurityId");
-      this.futureSecurityId = futureSecurityId;
-      return this;
-    }
-
     /**
      * Sets the valuation date-time.
      * <p>
@@ -578,9 +519,8 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("BlackBondFutureExpiryLogMoneynessVolatilities.Builder{");
-      buf.append("futureSecurityId").append('=').append(JodaBeanUtils.toString(futureSecurityId)).append(',').append(' ');
       buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
       buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
       buf.append('}');
