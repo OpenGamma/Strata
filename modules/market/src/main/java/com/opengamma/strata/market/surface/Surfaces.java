@@ -96,6 +96,43 @@ public final class Surfaces {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates metadata for a surface providing Black expiry-log moneyness volatility.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent log-moneyness
+   * The z-values represent Black volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata blackVolatilityByExpiryLogMoneyness(String name, DayCount dayCount) {
+    return blackVolatilityByExpiryLogMoneyness(SurfaceName.of(name), dayCount);
+  }
+
+  /**
+   * Creates metadata for a surface providing Black expiry-log moneyness volatility.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * The y-values represent log-moneyness
+   * The z-values represent Black volatility.
+   * 
+   * @param name  the surface name
+   * @param dayCount  the day count
+   * @return the surface metadata
+   */
+  public static SurfaceMetadata blackVolatilityByExpiryLogMoneyness(SurfaceName name, DayCount dayCount) {
+    return DefaultSurfaceMetadata.builder()
+        .surfaceName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.LOG_MONEYNESS)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates metadata for a surface providing Normal expiry-tenor volatility.
    * <p>
    * The x-values represent time to expiry year fractions as defined by the specified day count.

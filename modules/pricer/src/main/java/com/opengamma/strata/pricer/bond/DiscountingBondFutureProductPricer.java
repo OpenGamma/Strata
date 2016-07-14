@@ -25,7 +25,7 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
  * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
  * for an amount computed from the bond future price, a conversion factor and the accrued interest.
  */
-public final class DiscountingBondFutureProductPricer extends AbstractBondFutureProductPricer {
+public final class DiscountingBondFutureProductPricer {
 
   /**
    * Default implementation.
@@ -45,6 +45,36 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
    */
   public DiscountingBondFutureProductPricer(DiscountingFixedCouponBondProductPricer bondPricer) {
     this.bondPricer = ArgChecker.notNull(bondPricer, "bondPricer");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the number related to bond futures product on which the daily margin is computed.
+   * <p>
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param price  the price of the product, in decimal form
+   * @return the index
+   */
+  double marginIndex(ResolvedBondFuture future, double price) {
+    return price * future.getNotional();
+  }
+
+  /**
+   * Calculates the margin index sensitivity of the bond future product.
+   * <p>
+   * The margin index sensitivity is the sensitivity of the margin index to the underlying curves.
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param priceSensitivity  the price sensitivity of the product
+   * @return the index sensitivity
+   */
+  PointSensitivities marginIndexSensitivity(ResolvedBondFuture future, PointSensitivities priceSensitivity) {
+    return priceSensitivity.multipliedBy(future.getNotional());
   }
 
   //-------------------------------------------------------------------------

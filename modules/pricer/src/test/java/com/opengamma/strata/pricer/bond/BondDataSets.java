@@ -103,7 +103,7 @@ public final class BondDataSets {
       .lastTradeDate(LAST_TRADING_DATE_USD)
       .build();
   /** trade date */
-  public static final LocalDate TRADE_DATE_USD = LocalDate.of(2011, 6, 20);
+  public static final LocalDate TRADE_DATE_USD = LocalDate.of(2011, 6, 19);
   private static final TradeInfo TRADE_INFO_USD = TradeInfo.builder().tradeDate(TRADE_DATE_USD).build();
   /** Quantity of bond future trade */
   public static final long QUANTITY_USD = 1234l;
@@ -115,7 +115,7 @@ public final class BondDataSets {
       .price(1.1d)
       .build();
   /** Reference price */
-  public static final double REFERENCE_PRICE_USD = 1.2345d;
+  public static final double SETTLE_PRICE_USD = 1.2345d;
 
   //      =====     Fixed coupon bonds, bond future, EUR   =====      
   // bond basket
