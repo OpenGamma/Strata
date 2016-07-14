@@ -5,7 +5,7 @@ jdk:
 addons:
   apt:
     packages:
-    - oracle-java8-installer
+      - oracle-java8-installer
 cache:
   directories:
     - '$HOME/.m2/repository'
@@ -14,4 +14,22 @@ install:
 script:
   - export MAVEN_OPTS="-Xms512m -Xmx1024m"
   - mvn install -e -B -Dstrict
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -Doss.jars -Dog-public-release.url="https://api.bintray.com/maven/opengamma/releases/Strata/;publish=1" --settings .github/deploy-settings.xml; fi
   - rm -rf $HOME/.m2/repository/com/opengamma/strata
+before_deploy:
+  - export REPORT_TOOL_FILE=$(ls examples/target/strata-report-tool-*.zip)
+  - export DIST_FILE=$(ls target/strata-dist-*.zip)
+deploy:
+  provider: releases
+  api_key:
+    secure: ApqYt6DUnXj7dw7inAG0VKFp+uL44XN8cPWAetCUeKEAN5RVGq4FcrLHCY8eGOqqgcF8OvKivYJzl2duWXkONTwUBXsQP2m549hdwfOzTyuY0IpaCUaVk5vQTlh5dAXFH13vhV+mDEsQf3cvIs1hd68zcxuqv1lETTHiRdOyFrtK1F/wM0f7uG0jSptwpl1KYugMN8pQ8JMQb+6VYc46xjx/Huu5ypzp4ykadcdWQGkxIlW34k6WgqHzIZqSXuVIDwUHfRgjj/5F09qNmbM+xN2evIK/B4b7+GWMrGNWwPHOdjaiCtA5ikm6y9DU5ocZlbtDpPIWQksPrgzMnIcG3tyu6wZoC26ZnVapuPumwML4+zLdEEdSJ4+TpdODYbCbJAo6KMFWHengMI2ChPdZt0Ge0FwFFq2xIrxVntRKZak3yrLxLTJuSvxiX4Yj9WlrXh9pF6s9bGjN3ekjjOWYbE6ux2kZwl/d9t7ZCJ5hVGx/LvROWkn3Z0OY6L9IdHsMmsykZBv38J262uIz/LOE6QFR5T/RFziwAGGkDBv+wj++6cZiihcQ1/mIdpxaW8cR6ki82QnHT7ABKKErUcq7Q0eU8ZCwbcy3a7PVmz53SF9qK+zsqu9RopxfnN3udwlVy0XqV+EABqO8fRAQSFeTdt+6fG8C62dzYXd+gw0Mv7Q=
+  file:
+    - "${REPORT_TOOL_FILE}"
+    - "${DIST_FILE}"
+  on:
+    tags: true
+    condition: "$TRAVIS_TAG =~ ^v.*$"
+env:
+  global:
+    - secure: DjkJT7CjsXfhhqMFuPvBgTq2jvRrFlgNeNeUe2PH4laIW7b/5T5XPSb8UhL75uzb1htSsB8dWpCwMDggrltLfk8WHOJ+Lr+eEJ+cNp1NpjgOUbPn1G6r2uAx3C9G8yGaKYx25UhKkZR10Nl2SQQR05YqYQdIY+Og1olgiFbmho8sxJX216J/v760iDYXCMSxzLbwib/+AJ/q1EHg1mMVx/POlh/QCSk+pq2c7ZhaLBM4rmke6vBm1dJvSrhCkH1cc9AhJeQvFT9aD9f6tcIZfYpfrZZnJXUXi6gN3aTMIB67dcHHeDGvhwCZydvKmHMoIf7d3IHmef+524haTxO1MOaaw8kBLD4w7tfjRRV9NaTsGA69oi34Zwp5u3+tp7DIypOIwlVIF6LleZtDrbHAW7zb7rZjM4PhNljTO9zueJVlKSxgRpaaWU9ed/jmBb2xOnSSCnWXzZWk7r+whbfdUomd56rd4oqhW3qdo+DBWBCB6KE611aGU/S1REY8aTpXWRaYJ71gxJ84jBI7GSjwtcZG3r/LOQPX5b5ApidGDrpzX0vv885jQl0A/1S6umZCjJEnVDZMwI4y2xHYlyEgmLxTOrete9A9bXx9W/R8m5Xo8SjOPC5PgDuJ+u8W+KKnIjd8s+oZOqQ2ookBdIhHxmwjKCHz6W1bUgrnzgFqkHQ=
+    - secure: KicbHjCoKzY19TqLBBRIkdogbed7g5y19PJlwJNACJm6X05hqe2upAPpvKUoZ+r9bq2ICVH78/o0BD8B3r92qOxrFM+8tT1jdHaI8LMtIEFWe0EIOaYjI6k8nwfKW5nV2BlZsG9ASVhw0T8WprJC2Vb17s9Q0j1DlZxH3F1LgoB/cwatiiKFqnDX4bWJddxNrFYKr+0IWe4nXA3g2d1yNVeTiL1h6fHO+pmIZLHzkNDGk1G1/n2Lo++7PK8prBmfQIx9oOJ2bvHsEhSNcTh3HRzDnsXNEQtNQc4klzHcbGJ6LqWj5t0yDCtbhZCTM1IbZBiV+0a0pU8FSM93DGjisuuyOlNmbSzL1IddnzFbV5yOS1xOYU6w15FoAt0iChMQlcjqxhsnd9SwyDYhTROgjKf2Vms39qBQ/UHGAVlw7+oyihBuMn6LPF5y4QDTj5AAZPFW139hOlEMj6z6w8e4s0nqgF1LxdG77Bukbcj1ajU0TB8S8vLSSA1vvtHaNWADud8Ug7D/XJVH0LVCTYocPiGhV9fsCR4dGTbGxzHCVn8Ap1wJKKp4Nnm4uO/GvKcQGCsQreedUENs7jHVzoaalkKx70CQUZesLzzm4iPw7XJbiEB8dOxkwxbkk7oRyi/XDWbYfzPVDf/n3pxu/HIjCiQaplC9HGmM7q8wMIHI8EU=
