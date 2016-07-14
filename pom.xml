@@ -142,6 +142,28 @@
                   <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://opengamma.github.io/StrataDocs">opengamma.github.io/StrataDocs</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
                   <additionalparam>-Xdoclint:missing -Xdoclint:reference</additionalparam>
                   <excludePackageNames>com.opengamma.strata.loader.impl:com.opengamma.strata.math.impl:com.opengamma.strata.pricer.impl:com.opengamma.strata.examples</excludePackageNames>
+                  <groups>
+                    <group>
+                      <title>Measure-level API</title>
+                      <packages>com.opengamma.strata.measure:com.opengamma.strata.measure.*</packages>
+                    </group>
+                    <group>
+                      <title>Pricer-level API</title>
+                      <packages>com.opengamma.strata.pricer:com.opengamma.strata.pricer.*</packages>
+                    </group>
+                    <group>
+                      <title>Market data structures</title>
+                      <packages>com.opengamma.strata.market:com.opengamma.strata.market.*</packages>
+                    </group>
+                    <group>
+                      <title>Product domain model</title>
+                      <packages>com.opengamma.strata.product:com.opengamma.strata.product.*</packages>
+                    </group>
+                    <group>
+                      <title>Supporting toolkit</title>
+                      <packages>com.opengamma.strata.*</packages>
+                    </group>
+                  </groups>
                   <links>
                     <link>http://www.joda.org/joda-beans/apidocs</link>
                     <link>http://www.joda.org/joda-collect/apidocs</link>

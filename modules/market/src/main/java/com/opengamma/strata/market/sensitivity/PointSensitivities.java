@@ -178,7 +178,7 @@ public final class PointSensitivities
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
-   * @return a {@code PointSensitivities} based on this one, with the the sensitivities normalized
+   * @return a {@code PointSensitivities} based on this one, with the sensitivities normalized
    */
   public PointSensitivities normalized() {
     if (sensitivities.isEmpty()) {

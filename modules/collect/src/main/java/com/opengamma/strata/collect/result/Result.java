@@ -600,7 +600,7 @@ public final class Result<T>
    * Returns the actual result value if calculated successfully, throwing an
    * exception if a failure occurred.
    * <p>
-   * If this result is a failure then an an IllegalStateException will be thrown.
+   * If this result is a failure then an {@code IllegalStateException} will be thrown.
    * To avoid this, call {@link #isSuccess()} or {@link #isFailure()} first.
    * <p>
    * Application code is recommended to use {@link #map(Function)} and

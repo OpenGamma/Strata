@@ -881,7 +881,7 @@ public final class BlackFormulaRepository {
    * Computes the forward vega.
    * <p>
    * This is the sensitivity of the option's forward price wrt the implied volatility (which
-   * is just the the spot vega divided by the the numeraire).
+   * is just the spot vega divided by the numeraire).
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike

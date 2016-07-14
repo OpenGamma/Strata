@@ -36,7 +36,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
  * <p>
  * The future is selected based on a minimum period and a sequence number.
  * Given a date, the minimum period is added, and then a futures contract is selected
- * according the the sequence number.
+ * according the sequence number.
  */
 @BeanDefinition(builderScope = "private")
 final class RelativeIborFutureTemplate

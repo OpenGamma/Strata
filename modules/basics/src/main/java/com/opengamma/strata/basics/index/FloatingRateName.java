@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.named.Named;
  * The FpML concept provides a single key for floating rates of a variety of
  * types, mixing  Ibor, Overnight, Price and Swap indices.
  * It also sometimes includes a source, such as 'Bloomberg' or 'Reuters'.
- * This class matches the single concept and provided a bridge the the more
+ * This class matches the single concept and provided a bridge the more
  * specific index implementations used for pricing.
  * <p>
  * The most common implementations are provided in {@link FloatingRateNames}.

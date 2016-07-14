@@ -54,7 +54,7 @@ public final class CreditMeasures {
    */
   public static final Measure RECOVERY01 = Measure.of(StandardCreditMeasures.RECOVERY01.getName());
   /**
-   * Measure representing the the risk of default as opposed to the the risk of change in credit spreads.
+   * Measure representing the risk of default as opposed to the risk of change in credit spreads.
    */
   public static final Measure JUMP_TO_DEFAULT = Measure.of(StandardCreditMeasures.JUMP_TO_DEFAULT.getName());
 

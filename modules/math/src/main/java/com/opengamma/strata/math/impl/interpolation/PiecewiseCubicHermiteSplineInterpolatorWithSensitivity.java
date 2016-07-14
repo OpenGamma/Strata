@@ -171,7 +171,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
   }
 
   /**
-   * Finds the the first derivatives at knots and their sensitivity to delta
+   * Finds the first derivatives at knots and their sensitivity to delta
    * @param h 
    * @param delta 
    * @return slope finder results 
