@@ -34,7 +34,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A coupon or nominal payment of capital indexed bonds.
@@ -45,7 +44,7 @@ import com.opengamma.strata.product.swap.PaymentPeriod;
  */
 @BeanDefinition
 public final class CapitalIndexedBondPaymentPeriod
-    implements PaymentPeriod, ImmutableBean, Serializable {
+    implements BondPaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the payment period.

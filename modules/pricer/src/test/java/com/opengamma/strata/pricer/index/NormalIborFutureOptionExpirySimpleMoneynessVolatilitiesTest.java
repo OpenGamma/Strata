@@ -49,13 +49,13 @@ public class NormalIborFutureOptionExpirySimpleMoneynessVolatilitiesTest {
   private static final DoubleArray NORMAL_VOL_RATES =
       DoubleArray.of(0.010, 0.012, 0.011, 0.01, 0.012, 0.013, 0.012, 0.011, 0.014, 0.014, 0.013, 0.012);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
-      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Price", ACT_365F, MoneynessType.PRICE),
+      Surfaces.normalVolatilityByExpirySimpleMoneyness("Price", ACT_365F, MoneynessType.PRICE),
       TIMES,
       MONEYNESS_PRICES,
       NORMAL_VOL_PRICES,
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface PARAMETERS_RATE = InterpolatedNodalSurface.of(
-      Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
+      Surfaces.normalVolatilityByExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
       TIMES,
       MONEYNESS_RATES,
       NORMAL_VOL_RATES,
@@ -118,15 +118,15 @@ public class NormalIborFutureOptionExpirySimpleMoneynessVolatilitiesTest {
     double strikePrice = 1.0025;
     double futurePrice = 0.9975;
     double sensitivity = 123456;
-    IborFutureOptionSensitivity point =
-        IborFutureOptionSensitivity.of(EUR_EURIBOR_3M, expiry, fixing, strikePrice, futurePrice, sensitivity);
+    IborFutureOptionSensitivity point = IborFutureOptionSensitivity.of(
+        VOL_SIMPLE_MONEY_RATE.getName(), expiry, fixing, strikePrice, futurePrice, EUR, sensitivity);
     CurrencyParameterSensitivities ps = VOL_SIMPLE_MONEY_RATE.parameterSensitivity(point);
     double shift = 1.0E-6;
     double v0 = VOL_SIMPLE_MONEY_RATE.volatility(expiry, fixing, strikePrice, futurePrice);
     for (int i = 0; i < NORMAL_VOL_RATES.size(); i++) {
       DoubleArray v = NORMAL_VOL_RATES.with(i, NORMAL_VOL_RATES.get(i) + shift);
       InterpolatedNodalSurface param = InterpolatedNodalSurface.of(
-          Surfaces.iborFutureOptionNormalExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
+          Surfaces.normalVolatilityByExpirySimpleMoneyness("Rate", ACT_365F, MoneynessType.RATES),
           TIMES,
           MONEYNESS_RATES,
           v,

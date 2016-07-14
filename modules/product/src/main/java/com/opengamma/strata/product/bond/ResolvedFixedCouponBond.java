@@ -58,6 +58,10 @@ import com.opengamma.strata.product.SecurityId;
  * A {@code ResolvedFixedCouponBond} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedFixedCouponBond

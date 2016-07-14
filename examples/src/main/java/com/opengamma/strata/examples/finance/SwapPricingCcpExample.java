@@ -6,7 +6,6 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
-import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -151,15 +150,16 @@ public class SwapPricingCcpExample {
         .addTimeSeriesMap(fixings)
         .build();
 
+    // the reference data, such as holidays and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // load the curve definition
-    List<CurveGroupDefinition> defnsCcp1 =
+    Map<CurveGroupName, CurveGroupDefinition> defnsCcp1 =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE_CCP1, SETTINGS_RESOURCE_CCP1, CALIBRATION_RESOURCE_CCP1);
-    List<CurveGroupDefinition> defnsCcp2 =
+    Map<CurveGroupName, CurveGroupDefinition> defnsCcp2 =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE_CCP2, SETTINGS_RESOURCE_CCP2, CALIBRATION_RESOURCE_CCP2);
-    Map<CurveGroupName, CurveGroupDefinition> defnMap = defnsCcp1.stream().collect(toMap(def -> def.getName(), def -> def));
-    defnMap.putAll(defnsCcp2.stream().collect(toMap(def -> def.getName(), def -> def)));
-    CurveGroupDefinition curveGroupDefinitionCcp1 = defnMap.get(CURVE_GROUP_NAME_CCP1);
-    CurveGroupDefinition curveGroupDefinitionCcp2 = defnMap.get(CURVE_GROUP_NAME_CCP2);
+    CurveGroupDefinition curveGroupDefinitionCcp1 = defnsCcp1.get(CURVE_GROUP_NAME_CCP1).filtered(VAL_DATE, refData);
+    CurveGroupDefinition curveGroupDefinitionCcp2 = defnsCcp2.get(CURVE_GROUP_NAME_CCP2).filtered(VAL_DATE, refData);
 
     // the configuration that defines how to create the curves when a curve group is requested
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
@@ -175,9 +175,6 @@ public class SwapPricingCcpExample {
     TradeCounterpartyCalculationParameter perCounterparty = TradeCounterpartyCalculationParameter.of(
         ImmutableMap.of(CCP1_ID, ratesLookupCcp1, CCP2_ID, ratesLookupCcp2), ratesLookupCcp1);
     CalculationRules rules = CalculationRules.of(functions, perCounterparty);
-
-    // the reference data, such as holidays and securities
-    ReferenceData refData = ReferenceData.standard();
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);

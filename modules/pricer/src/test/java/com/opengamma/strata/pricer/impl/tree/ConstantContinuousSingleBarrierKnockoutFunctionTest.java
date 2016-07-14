@@ -15,9 +15,9 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.impl.option.BlackBarrierPriceFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackOneTouchCashPriceFormulaRepository;
 import com.opengamma.strata.product.common.PutCall;
-import com.opengamma.strata.product.fxopt.BarrierType;
-import com.opengamma.strata.product.fxopt.KnockType;
-import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * Test {@link ConstantContinuousSingleBarrierKnockoutFunction}.

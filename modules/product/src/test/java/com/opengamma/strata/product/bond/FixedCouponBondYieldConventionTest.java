@@ -20,14 +20,13 @@ import org.testng.annotations.Test;
 @Test
 public class FixedCouponBondYieldConventionTest {
 
-  //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {FixedCouponBondYieldConvention.UK_BUMP_DMO, "UK-Bump-DMO"},
+        {FixedCouponBondYieldConvention.GB_BUMP_DMO, "GB-Bump-DMO"},
         {FixedCouponBondYieldConvention.US_STREET, "US-Street"},
-        {FixedCouponBondYieldConvention.GERMAN_BONDS, "German-Bonds"},
-        {FixedCouponBondYieldConvention.JAPAN_SIMPLE, "Japan-Simple"},
+        {FixedCouponBondYieldConvention.DE_BONDS, "DE-Bonds"},
+        {FixedCouponBondYieldConvention.JP_SIMPLE, "JP-Simple"},
     };
   }
 
@@ -55,11 +54,11 @@ public class FixedCouponBondYieldConventionTest {
   }
 
   public void test_serialization() {
-    assertSerialization(FixedCouponBondYieldConvention.UK_BUMP_DMO);
+    assertSerialization(FixedCouponBondYieldConvention.GB_BUMP_DMO);
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(FixedCouponBondYieldConvention.class, FixedCouponBondYieldConvention.UK_BUMP_DMO);
+    assertJodaConvert(FixedCouponBondYieldConvention.class, FixedCouponBondYieldConvention.GB_BUMP_DMO);
   }
 
 }

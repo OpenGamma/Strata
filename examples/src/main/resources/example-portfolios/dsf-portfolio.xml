@@ -115,7 +115,7 @@
     </underlyingSwap>
    </product>
    <quantity>20</quantity>
-   <price>100.75</price>
+   <price>1.0075</price>
   </item>
   <item type="DsfTrade">
    <info>
@@ -231,7 +231,7 @@
     </underlyingSwap>
    </product>
    <quantity>20</quantity>
-   <price>100.85</price>
+   <price>1.0085</price>
   </item>
  </trades>
 </bean>

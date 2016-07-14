@@ -20,6 +20,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.product.common.SettlementType;
+
 /**
  * Defines the settlement type and settlement method of swaptions.
  * <p>

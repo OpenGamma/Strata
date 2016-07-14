@@ -98,6 +98,13 @@ JPY-TIBOR-EUROYEN-3M,JPY,true,Act/360,JPTO,2,JPTO,JPTO,3M,LastBusinessDay,11:50,
 JPY-TIBOR-EUROYEN-6M,JPY,true,Act/360,JPTO,2,JPTO,JPTO,6M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-EUROYEN-12M,JPY,true,Act/360,JPTO,2,JPTO,JPTO,12M,LastBusinessDay,11:50,Asia/Tokyo
 ,,,,,,
+AUD-BBSW-1M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,1M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-2M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,2M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-3M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,3M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-4M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,4M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-5M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,5M,LastBusinessDay,11:00,Australia/Sydney
+AUD-BBSW-6M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,6M,LastBusinessDay,11:00,Australia/Sydney
+,,,,,,
 CAD-CDOR-1M,CAD,true,Act/365F,CATO,0,CATO,CATO,1M,LastBusinessDay,10:15,America/Toronto
 CAD-CDOR-2M,CAD,true,Act/365F,CATO,0,CATO,CATO,2M,LastBusinessDay,10:15,America/Toronto
 CAD-CDOR-3M,CAD,true,Act/365F,CATO,0,CATO,CATO,3M,LastBusinessDay,10:15,America/Toronto

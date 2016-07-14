@@ -34,6 +34,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -86,8 +87,8 @@ public class DsfTradeCalculationFunctionTest {
       .notional(NOTIONAL)
       .underlyingSwap(SWAP)
       .build();
-  private static final double TRADE_PRICE = 98 + 31d / 32d; // price quoted in 32nd of 1%
-  public static final double REF_PRICE = 98 + 30d / 32d; // price quoted in 32nd of 1%
+  private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
+  public static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final long QUANTITY = 1234L;
   public static final DsfTrade TRADE = DsfTrade.builder()
       .product(FUTURE)
@@ -123,13 +124,17 @@ public class DsfTradeCalculationFunctionTest {
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
+    double expectedPrice = pricer.price(RTRADE, provider);
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, REF_PRICE);
 
     Set<Measure> measures = ImmutableSet.of(
+        Measures.UNIT_PRICE,
         Measures.PRESENT_VALUE,
         Measures.CURRENCY_EXPOSURE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
+        .containsEntry(
+            Measures.UNIT_PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(

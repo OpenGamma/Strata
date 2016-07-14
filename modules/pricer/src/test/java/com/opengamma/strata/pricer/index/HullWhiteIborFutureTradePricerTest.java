@@ -72,7 +72,7 @@ public class HullWhiteIborFutureTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivities point = PRICER.presentValueSensitivity(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
+    PointSensitivities point = PRICER.presentValueSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATE_PROVIDER, p -> PRICER.presentValue(FUTURE_TRADE, p, HW_PROVIDER, LAST_PRICE));
@@ -80,7 +80,7 @@ public class HullWhiteIborFutureTradePricerTest {
   }
 
   public void test_presentValueSensitivityHullWhiteParameter() {
-    DoubleArray computed = PRICER.presentValueSensitivityHullWhiteParameter(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
+    DoubleArray computed = PRICER.presentValueSensitivityModelParamsHullWhite(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     DoubleArray vols = HW_PROVIDER.getParameters().getVolatility();
     int size = vols.size();
     double[] expected = new double[size];
@@ -107,7 +107,7 @@ public class HullWhiteIborFutureTradePricerTest {
   }
 
   public void test_parSpreadSensitivity() {
-    PointSensitivities point = PRICER.parSpreadSensitivity(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
+    PointSensitivities point = PRICER.parSpreadSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         p -> CurrencyAmount.of(EUR, PRICER.parSpread(FUTURE_TRADE, p, HW_PROVIDER, LAST_PRICE)));
@@ -115,7 +115,7 @@ public class HullWhiteIborFutureTradePricerTest {
   }
 
   public void test_currencyExposure() {
-    PointSensitivities point = PRICER.presentValueSensitivity(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
+    PointSensitivities point = PRICER.presentValueSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     MultiCurrencyAmount expected = RATE_PROVIDER.currencyExposure(point)
         .plus(PRICER.presentValue(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE));
     MultiCurrencyAmount computed = PRICER.currencyExposure(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE);
@@ -130,7 +130,7 @@ public class HullWhiteIborFutureTradePricerTest {
   }
 
   public void regression_pvSensi() {
-    PointSensitivities point = PRICER.presentValueSensitivity(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
+    PointSensitivities point = PRICER.presentValueSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double[] expected = new double[] {0.0, 0.0, 9.514709785770103E7, -1.939992074119211E8, 0.0, 0.0, 0.0, 0.0 };
     assertEquals(computed.size(), 1);

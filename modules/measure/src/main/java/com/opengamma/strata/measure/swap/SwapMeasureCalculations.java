@@ -46,7 +46,7 @@ import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
@@ -381,7 +381,7 @@ final class SwapMeasureCalculations {
   // find the notional
   private CurrencyAmount buildLegNotional(ResolvedSwapLeg leg) {
     // check for NotionalPaymentPeriod
-    PaymentPeriod firstPaymentPeriod = leg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod firstPaymentPeriod = leg.getPaymentPeriods().get(0);
     if (firstPaymentPeriod instanceof NotionalPaymentPeriod) {
       NotionalPaymentPeriod pp = (NotionalPaymentPeriod) firstPaymentPeriod;
       return pp.getNotionalAmount().positive();

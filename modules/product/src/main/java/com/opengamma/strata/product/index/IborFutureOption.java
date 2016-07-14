@@ -31,12 +31,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * A futures option contract, based on an Ibor index.
@@ -162,6 +163,15 @@ public final class IborFutureOption
    */
   public ZonedDateTime getExpiry() {
     return expiryDate.atTime(expiryTime).atZone(expiryZone);
+  }
+
+  /**
+   * Gets the Ibor index that the option is based on.
+   * 
+   * @return the Ibor index
+   */
+  public IborIndex getIndex() {
+    return underlyingFuture.getIndex();
   }
 
   //-------------------------------------------------------------------------

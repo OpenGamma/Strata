@@ -55,17 +55,17 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
    * 
    * @param option  the vanilla option
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the trinomial tree data
    */
   public RecombiningTrinomialTreeData calibrateTrinomialTree(
       ResolvedFxVanillaOption option,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    double timeToExpiry = volatilityProvider.relativeTime(option.getExpiry());
+    double timeToExpiry = volatilities.relativeTime(option.getExpiry());
     CurrencyPair currencyPair = option.getUnderlying().getCurrencyPair();
-    return calibrateTrinomialTree(timeToExpiry, currencyPair, ratesProvider, volatilityProvider);
+    return calibrateTrinomialTree(timeToExpiry, currencyPair, ratesProvider, volatilities);
   }
 
   /**
@@ -77,16 +77,16 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
    * @param timeToExpiry  the time to expiry
    * @param currencyPair  the currency pair
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the trinomial tree data
    */
   public RecombiningTrinomialTreeData calibrateTrinomialTree(
       double timeToExpiry,
       CurrencyPair currencyPair,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
-    validate(ratesProvider, volatilityProvider);
+    validate(ratesProvider, volatilities);
     if (timeToExpiry <= 0d) {
       throw new IllegalArgumentException("option expired");
     }
@@ -113,7 +113,7 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
         double dfBase = baseDiscountFactors.discountFactor(tk.getFirst());
         double dfCounter = counterDiscountFactors.discountFactor(tk.getFirst());
         double forward = todayFx * dfBase / dfCounter;
-        return volatilityProvider.volatility(currencyPair, tk.getFirst(), tk.getSecond(), forward);
+        return volatilities.volatility(currencyPair, tk.getFirst(), tk.getSecond(), forward);
       }
     };
     ImpliedTrinomialTreeLocalVolatilityCalculator localVol =
@@ -124,10 +124,10 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
   //-------------------------------------------------------------------------
   private void validate(
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ArgChecker.isTrue(
-        ratesProvider.getValuationDate().isEqual(volatilityProvider.getValuationDateTime().toLocalDate()),
+        ratesProvider.getValuationDate().isEqual(volatilities.getValuationDateTime().toLocalDate()),
         "Volatility and rate data must be for the same date");
   }
 

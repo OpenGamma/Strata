@@ -183,6 +183,26 @@ final class IborFutureMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
+  // calculates unit price for all scenarios
+  DoubleScenarioArray unitPrice(
+      ResolvedIborFutureTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return DoubleScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> unitPrice(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // unit price for one scenario
+  double unitPrice(
+      ResolvedIborFutureTrade trade,
+      RatesProvider ratesProvider) {
+
+    // mark to model
+    return tradePricer.price(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
   // gets the settlement price
   private double settlementPrice(ResolvedIborFutureTrade trade, RatesProvider ratesProvider) {
     StandardId standardId = trade.getProduct().getSecurityId().getStandardId();

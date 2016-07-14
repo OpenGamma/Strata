@@ -18,10 +18,10 @@ import static com.opengamma.strata.basics.index.PriceIndices.JP_CPI_EXF;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.UK_IL_BOND;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JP_IL_COMPOUND;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JP_IL_SIMPLE;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_BOND;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
@@ -676,7 +676,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC_GOV)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(INDEX_LINKED_FLOAT)
+      .yieldConvention(GB_IL_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV)
       .exCouponPeriod(EX_COUPON_GOV)
@@ -696,7 +696,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC_GOV.toBuilder().firstIndexValue(START_INDEX_GOV_OP).build())
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(INDEX_LINKED_FLOAT)
+      .yieldConvention(GB_IL_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV_OP)
       .exCouponPeriod(EX_COUPON_GOV)
@@ -790,7 +790,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC_CORP)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(UK_IL_BOND)
+      .yieldConvention(GB_IL_BOND)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_CORP)
       .exCouponPeriod(EX_COUPON_CORP)
@@ -888,7 +888,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(NL_365)
       .rateCalculation(RATE_CALC_JPI)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(JAPAN_IL_SIMPLE)
+      .yieldConvention(JP_IL_SIMPLE)
       .settlementDateOffset(SETTLE_OFFSET_JPI)
       .accrualSchedule(SCHEDULE_JPI)
       .build()
@@ -978,7 +978,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(NL_365)
       .rateCalculation(RATE_CALC_JPW)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(JAPAN_IL_COMPOUND)
+      .yieldConvention(JP_IL_COMPOUND)
       .settlementDateOffset(SETTLE_OFFSET_JPW)
       .accrualSchedule(SCHEDULE_JPW)
       .build()

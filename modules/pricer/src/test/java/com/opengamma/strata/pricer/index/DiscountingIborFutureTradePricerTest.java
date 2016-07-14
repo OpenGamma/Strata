@@ -5,10 +5,13 @@
  */
 package com.opengamma.strata.pricer.index;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+
+import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
@@ -47,6 +50,39 @@ public class DiscountingIborFutureTradePricerTest {
     when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     assertEquals(PRICER_TRADE.price(FUTURE_TRADE, prov), 1.0 - RATE, TOLERANCE_PRICE);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValue() {
+    double currentPrice = 0.995;
+    double referencePrice = 0.9925;
+    double currentPriceIndex = PRICER_PRODUCT.marginIndex(FUTURE_TRADE.getProduct(), currentPrice);
+    double referencePriceIndex = PRICER_PRODUCT.marginIndex(FUTURE_TRADE.getProduct(), referencePrice);
+    double presentValueExpected = (currentPriceIndex - referencePriceIndex) * FUTURE_TRADE.getQuantity();
+    CurrencyAmount presentValueComputed = PRICER_TRADE.presentValue(FUTURE_TRADE, currentPrice, referencePrice);
+    assertEquals(presentValueComputed.getAmount(), presentValueExpected, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_reference_price_after_trade_date() {
+    LocalDate tradeDate = FUTURE_TRADE.getInfo().getTradeDate().get();
+    LocalDate valuationDate = tradeDate.plusDays(1);
+    double settlementPrice = 0.995;
+    double referencePrice = PRICER_TRADE.referencePrice(FUTURE_TRADE, valuationDate, settlementPrice);
+    assertEquals(referencePrice, settlementPrice);
+  }
+
+  public void test_reference_price_on_trade_date() {
+    LocalDate tradeDate = FUTURE_TRADE.getInfo().getTradeDate().get();
+    LocalDate valuationDate = tradeDate;
+    double settlementPrice = 0.995;
+    double referencePrice = PRICER_TRADE.referencePrice(FUTURE_TRADE, valuationDate, settlementPrice);
+    assertEquals(referencePrice, FUTURE_TRADE.getPrice());
+  }
+
+  public void test_reference_price_val_date_not_null() {
+    double settlementPrice = 0.995;
+    assertThrowsIllegalArg(() -> PRICER_TRADE.referencePrice(FUTURE_TRADE, null, settlementPrice));
   }
 
   //-------------------------------------------------------------------------

@@ -41,6 +41,10 @@ import com.opengamma.strata.product.TradeInfo;
  * A security representing a fixed coupon bond.
  * <p>
  * A fixed coupon bond is a financial instrument that represents a stream of fixed payments.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition
 public final class FixedCouponBondSecurity

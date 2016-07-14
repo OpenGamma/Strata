@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fx.ResolvedFxNdf;
@@ -121,8 +120,7 @@ public class DiscountingFxNdfProductPricerTest {
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(NDF, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
-    CurrencyParameterSensitivities expected = CAL_FD.sensitivity(
-        (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(NDF, (p)));
+    CurrencyParameterSensitivities expected = CAL_FD.sensitivity(PROVIDER, (p) -> PRICER.presentValue(NDF, (p)));
     assertTrue(computed.equalWithTolerance(expected, NOMINAL_USD * EPS_FD));
   }
 

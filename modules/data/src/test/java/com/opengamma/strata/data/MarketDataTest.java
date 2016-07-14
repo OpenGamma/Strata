@@ -152,6 +152,11 @@ public class MarketDataTest {
       public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
         return ImmutableSet.of();
       }
+
+      @Override
+      public Set<ObservableId> getTimeSeriesIds() {
+        return ImmutableSet.of();
+      }
     };
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.containsValue(ID1), true);

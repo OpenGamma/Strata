@@ -60,7 +60,7 @@ public class ImmutableRatesProviderGenerator
    */
   private final ImmutableSetMultimap<CurveName, Currency> discountCurveNames;
   /**
-   * The map between curve name and indices for forward.
+   * The map between curve name and indices for forward rates and prices.
    * The map should contains all the curve in the definition list but may have more names
    * than the curve definition list. Only the curves in the definitions list are created
    */
@@ -94,7 +94,8 @@ public class ImmutableRatesProviderGenerator
       discountNames.putAll(curveName, ccy);
       indexNames.putAll(curveName, entry.getIndices());
     }
-    return new ImmutableRatesProviderGenerator(knownProvider, curveDefns, curveMetadata, discountNames, indexNames);
+    return new ImmutableRatesProviderGenerator(
+        knownProvider, curveDefns, curveMetadata, discountNames, indexNames);
   }
 
   /**
@@ -156,8 +157,6 @@ public class ImmutableRatesProviderGenerator
         indexCurves.put(index, curve);
       }
     }
-
-    // create child provider
     return knownProvider.toBuilder()
         .discountCurves(discountCurves)
         .indexCurves(indexCurves)

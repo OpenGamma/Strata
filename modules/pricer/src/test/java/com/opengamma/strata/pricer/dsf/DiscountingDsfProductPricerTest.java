@@ -154,7 +154,7 @@ public class DiscountingDsfProductPricerTest {
     double pvSwap = PRICER.getSwapPricer().presentValue(RSWAP, PROVIDER).getAmount(USD).getAmount();
     double yc = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, DELIVERY);
     double df = Math.exp(-USD_DSC.yValue(yc) * yc);
-    double expected = (1d + pvSwap / df) * 100;
+    double expected = 1d + pvSwap / df;
     assertEquals(computed, expected, TOL);
   }
 
@@ -163,13 +163,13 @@ public class DiscountingDsfProductPricerTest {
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD, PRICER.price(FUTURE, (p))));
-    assertTrue(computed.equalWithTolerance(expected, 1000d * EPS));
+    assertTrue(computed.equalWithTolerance(expected, 10d * EPS));
   }
 
   //-------------------------------------------------------------------------
   public void regression() {
     double price = PRICER.price(FUTURE, PROVIDER);
-    assertEquals(price, 102.2245377054993, TOL); // 2.x
+    assertEquals(price, 1.022245377054993, TOL); // 2.x
   }
 
 }

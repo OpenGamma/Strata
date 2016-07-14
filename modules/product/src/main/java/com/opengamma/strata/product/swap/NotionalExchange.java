@@ -40,7 +40,7 @@ import com.opengamma.strata.basics.currency.Payment;
  */
 @BeanDefinition(builderScope = "private")
 public final class NotionalExchange
-    implements PaymentEvent, ImmutableBean, Serializable {
+    implements SwapPaymentEvent, ImmutableBean, Serializable {
 
   /**
    * The notional exchange payment.

@@ -139,6 +139,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar NOOS = generateOslo();
+  /**
+   * The holiday calendar for Sydney, Australia, with code 'AUSY'.
+   * <p>
+   * This constant provides the calendar for Sydney holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar AUSY = generateSydney();
 
   //-------------------------------------------------------------------------
   /**
@@ -680,6 +689,37 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // http://www.rba.gov.au/schedules-events/bank-holidays/bank-holidays-2016.html
+  // http://www.rba.gov.au/schedules-events/bank-holidays/bank-holidays-2017.html
+  // web archive history of those pages
+  static ImmutableHolidayCalendar generateSydney() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(bumpToMon(date(year, 1, 1)));
+      // australia day
+      holidays.add(bumpToMon(date(year, 1, 26)));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // anzac day
+      holidays.add(date(year, 4, 25));
+      // queen's birthday
+      holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
+      // bank holiday
+      holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
+      // labour day 
+      holidays.add(first(year, 10).with(dayOfWeekInMonth(1, MONDAY)));
+      // christmas 
+      holidays.add(christmas(year));
+      // boxing
+      holidays.add(boxingDay(year));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("AUSY"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------

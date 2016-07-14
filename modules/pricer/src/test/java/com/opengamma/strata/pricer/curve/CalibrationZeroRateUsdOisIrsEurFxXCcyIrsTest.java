@@ -38,8 +38,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
@@ -115,7 +113,6 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   private static final CurveName EUR_DSC_CURVE_NAME = CurveName.of(EUR_DSC_STR);
   private static final String EUR_FWD3_NAME = "EUR-EURIBOR3M-FRAIRS";
   public static final CurveName EUR_FWD3_CURVE_NAME = CurveName.of(EUR_FWD3_NAME);
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
 
   /** Data FX **/
   private static final double FX_RATE_EUR_USD = 1.10;
@@ -376,7 +373,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
-    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
     assertPresentValue(result);
   }
 
@@ -468,7 +465,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<ImmutableMarketData, RatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, marketData, REF_DATA, TS);
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, marketData, REF_DATA);
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
@@ -481,7 +478,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     ResolvedFxSwapTrade trade = EUR_USD
         .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts, REF_DATA)
         .resolve(REF_DATA);
-    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurrencyParameterSensitivities ps = result.parameterSensitivity(pts);
     CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);

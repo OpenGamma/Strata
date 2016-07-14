@@ -29,7 +29,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A trade in a capital indexed bond, resolved for pricing.
@@ -41,6 +40,10 @@ import com.opengamma.strata.product.swap.PaymentPeriod;
  * A {@code ResolvedCapitalIndexedBondTrade} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition
 public final class ResolvedCapitalIndexedBondTrade
@@ -68,9 +71,12 @@ public final class ResolvedCapitalIndexedBondTrade
   @PropertyDefinition
   private final double quantity;
   /**
-   * The price that was traded, which is the <i>clean</i> price.
+   * The <i>clean</i> price at which the bond was traded.
    * <p>
-   * This is the clean price agreed when the trade occurred, without accrued interest.
+   * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double price;
@@ -83,7 +89,7 @@ public final class ResolvedCapitalIndexedBondTrade
    * This is effectively a fixed amount payment once the inflation rate is fixed.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PaymentPeriod settlement;
+  private final BondPaymentPeriod settlement;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -138,7 +144,7 @@ public final class ResolvedCapitalIndexedBondTrade
       ResolvedCapitalIndexedBond product,
       double quantity,
       double price,
-      PaymentPeriod settlement) {
+      BondPaymentPeriod settlement) {
     JodaBeanUtils.notNull(product, "product");
     ArgChecker.notNegative(price, "price");
     JodaBeanUtils.notNull(settlement, "settlement");
@@ -202,9 +208,12 @@ public final class ResolvedCapitalIndexedBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded, which is the <i>clean</i> price.
+   * Gets the <i>clean</i> price at which the bond was traded.
    * <p>
-   * This is the clean price agreed when the trade occurred, without accrued interest.
+   * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * @return the value of the property
    */
   public double getPrice() {
@@ -221,7 +230,7 @@ public final class ResolvedCapitalIndexedBondTrade
    * This is effectively a fixed amount payment once the inflation rate is fixed.
    * @return the value of the property, not null
    */
-  public PaymentPeriod getSettlement() {
+  public BondPaymentPeriod getSettlement() {
     return settlement;
   }
 
@@ -307,8 +316,8 @@ public final class ResolvedCapitalIndexedBondTrade
     /**
      * The meta-property for the {@code settlement} property.
      */
-    private final MetaProperty<PaymentPeriod> settlement = DirectMetaProperty.ofImmutable(
-        this, "settlement", ResolvedCapitalIndexedBondTrade.class, PaymentPeriod.class);
+    private final MetaProperty<BondPaymentPeriod> settlement = DirectMetaProperty.ofImmutable(
+        this, "settlement", ResolvedCapitalIndexedBondTrade.class, BondPaymentPeriod.class);
     /**
      * The meta-properties.
      */
@@ -395,7 +404,7 @@ public final class ResolvedCapitalIndexedBondTrade
      * The meta-property for the {@code settlement} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PaymentPeriod> settlement() {
+    public MetaProperty<BondPaymentPeriod> settlement() {
       return settlement;
     }
 
@@ -438,7 +447,7 @@ public final class ResolvedCapitalIndexedBondTrade
     private ResolvedCapitalIndexedBond product;
     private double quantity;
     private double price;
-    private PaymentPeriod settlement;
+    private BondPaymentPeriod settlement;
 
     /**
      * Restricted constructor.
@@ -494,7 +503,7 @@ public final class ResolvedCapitalIndexedBondTrade
           this.price = (Double) newValue;
           break;
         case 73828649:  // settlement
-          this.settlement = (PaymentPeriod) newValue;
+          this.settlement = (BondPaymentPeriod) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -575,9 +584,12 @@ public final class ResolvedCapitalIndexedBondTrade
     }
 
     /**
-     * Sets the price that was traded, which is the <i>clean</i> price.
+     * Sets the <i>clean</i> price at which the bond was traded.
      * <p>
-     * This is the clean price agreed when the trade occurred, without accrued interest.
+     * The "clean" price excludes any accrued interest.
+     * <p>
+     * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+     * For example, a price of 99.32% is represented in Strata by 0.9932.
      * @param price  the new value
      * @return this, for chaining, not null
      */
@@ -597,7 +609,7 @@ public final class ResolvedCapitalIndexedBondTrade
      * @param settlement  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder settlement(PaymentPeriod settlement) {
+    public Builder settlement(BondPaymentPeriod settlement) {
       JodaBeanUtils.notNull(settlement, "settlement");
       this.settlement = settlement;
       return this;

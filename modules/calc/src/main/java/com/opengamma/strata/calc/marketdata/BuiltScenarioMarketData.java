@@ -162,6 +162,11 @@ public final class BuiltScenarioMarketData
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return underlying.getTimeSeriesIds();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     return underlying.getTimeSeries(id);
   }

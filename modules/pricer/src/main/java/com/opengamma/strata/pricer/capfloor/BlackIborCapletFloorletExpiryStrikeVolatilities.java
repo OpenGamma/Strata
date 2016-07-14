@@ -95,7 +95,7 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
    * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#iborCapletFloorletBlackExpiryStrike(String, DayCount)}.
+   * {@link Surfaces#blackVolatilityByExpiryStrike(String, DayCount)}.
    * 
    * @param index  the Ibor index for which the data is valid
    * @param valuationDateTime  the valuation date-time
@@ -116,6 +116,7 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
+    ArgChecker.notNull(index, "index");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.notNull(surface, "surface");
     surface.getMetadata().getXValueType().checkEquals(
@@ -186,15 +187,15 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof IborCapletFloorletSensitivity) {
         IborCapletFloorletSensitivity pt = (IborCapletFloorletSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity point) {
-    ArgChecker.isTrue(point.getIndex().equals(index),
-        "Ibor index of provider must be the same as Ibor index of point sensitivity");
     double expiry = point.getExpiry();
     double strike = point.getStrike();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);

@@ -11,6 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
+import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedBondFuture;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 
@@ -18,8 +19,13 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
  * Pricer for for bond future products.
  * <p>
  * This function provides the ability to price a {@link ResolvedBondFuture}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+ * for an amount computed from the bond future price, a conversion factor and the accrued interest.
  */
-public final class DiscountingBondFutureProductPricer extends AbstractBondFutureProductPricer {
+public final class DiscountingBondFutureProductPricer {
 
   /**
    * Default implementation.
@@ -43,9 +49,42 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the number related to bond futures product on which the daily margin is computed.
+   * <p>
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param price  the price of the product, in decimal form
+   * @return the index
+   */
+  double marginIndex(ResolvedBondFuture future, double price) {
+    return price * future.getNotional();
+  }
+
+  /**
+   * Calculates the margin index sensitivity of the bond future product.
+   * <p>
+   * The margin index sensitivity is the sensitivity of the margin index to the underlying curves.
+   * For two consecutive settlement prices C1 and C2, the daily margin is computed as 
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
+   * @param future  the future
+   * @param priceSensitivity  the price sensitivity of the product
+   * @return the index sensitivity
+   */
+  PointSensitivities marginIndexSensitivity(ResolvedBondFuture future, PointSensitivities priceSensitivity) {
+    return priceSensitivity.multipliedBy(future.getNotional());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the price of the bond future product.
    * <p>
    * The price of the product is the price on the valuation date.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bond futures. This is coherent with the pricing of {@link FixedCouponBond}.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param future  the future
    * @param provider  the rates provider
@@ -71,6 +110,9 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
    * of the issuer discounting curve.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bond futures. This is coherent with the pricing of {@link FixedCouponBond}.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param future  the future
    * @param provider  the rates provider

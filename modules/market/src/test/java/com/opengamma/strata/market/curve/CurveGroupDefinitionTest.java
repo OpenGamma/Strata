@@ -16,6 +16,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -48,6 +49,7 @@ public class CurveGroupDefinitionTest {
   private static final ObservableId GBP_LIBOR_3M_ID = QuoteId.of(StandardId.of("OG", "Ticker3"));
   private static final DummyFraCurveNode NODE1 = DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
   private static final DummyFraCurveNode NODE2 = DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_3M, GBP_LIBOR_3M_ID);
+  private static final CurveNodeDateOrder DROP_THIS_2D = CurveNodeDateOrder.of(2, DROP_THIS);
   private static final CurveName CURVE_NAME1 = CurveName.of("Test");
   private static final CurveName CURVE_NAME2 = CurveName.of("Test2");
   private static final InterpolatedNodalCurveDefinition CURVE_DEFN1 = InterpolatedNodalCurveDefinition.builder()
@@ -144,6 +146,36 @@ public class CurveGroupDefinitionTest {
         ImmutableList.of(ENTRY1),
         ImmutableList.of(CURVE_DEFN1, CURVE_DEFN2)),
         "An entry must be provided .* \\[Test2\\]");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_filtered() {
+    DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
+    DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
+    DummyFraCurveNode node3 = DummyFraCurveNode.of(Period.ofDays(11), GBP_LIBOR_1M, GBP_LIBOR_1M_ID, DROP_THIS_2D);
+    ImmutableList<DummyFraCurveNode> nodes = ImmutableList.of(node1, node2, node3);
+    LocalDate valuationDate = date(2015, 6, 30);
+
+    InterpolatedNodalCurveDefinition curveDefn = InterpolatedNodalCurveDefinition.builder()
+        .name(CURVE_NAME1)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(ACT_365F)
+        .nodes(nodes)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
+        .build();
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(curveDefn, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .build();
+    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(curveDefn.filtered(valuationDate, REF_DATA), GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .build();
+
+    assertEquals(test.filtered(valuationDate, REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------

@@ -61,7 +61,7 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
           GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME.get(i), SimpleStrike.of(STRIKE.get(i)));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.iborCapletFloorletBlackExpiryStrike("CAP_VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.blackVolatilityByExpiryStrike("CAP_VOL", ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, STRIKE, VOL, INTERPOLATOR_2D);
@@ -139,7 +139,7 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
       for (int k = 0; k < NB_TEST; k++) {
         double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
         IborCapletFloorletSensitivity point = IborCapletFloorletSensitivity.of(
-            GBP_LIBOR_3M, expiryTime, TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+            VOLS.getName(), expiryTime, TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
         double[] sensFd = new double[nData];
         for (int j = 0; j < nData; j++) {
           DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);

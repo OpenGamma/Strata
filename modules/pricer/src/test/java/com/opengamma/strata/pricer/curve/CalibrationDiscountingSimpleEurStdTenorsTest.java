@@ -18,9 +18,7 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -30,8 +28,6 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
@@ -67,7 +63,6 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
-  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
   // reference data
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -81,13 +76,6 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
   private static final CurveName FWD3_CURVE_NAME = CurveName.of(FWD3_NAME);
   private static final String FWD6_NAME = "EUR_EURIBOR_6M";
   private static final CurveName FWD6_CURVE_NAME = CurveName.of(FWD6_NAME);
-  /** Curves associations to currencies and indices. */
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
-  static {
-    TS.put(EUR_EURIBOR_3M, TS_EMTPY);
-    TS.put(EUR_EURIBOR_6M, TS_EMTPY);
-    TS.put(EUR_EONIA, TS_EMTPY);
-  }
 
   /** Data for EUR-DSCON curve */
   /* Market values */
@@ -219,7 +207,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
 
     ImmutableList<NodalCurveDefinition> definitions = CURVE_GROUP_CONFIG.getCurveDefinitions();
     // Test PV Dsc

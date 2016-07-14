@@ -22,8 +22,6 @@ import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link SwaptionSabrSensitivity}.
@@ -31,15 +29,16 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 @Test
 public class SwaptionSabrSensitivityTest {
 
-  private static final FixedIborSwapConvention SWAP_CONV = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
   private static final double EXPIRY = 1d;
   private static final double TENOR = 3d;
+  private static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test");
+  private static final SwaptionVolatilitiesName NAME2 = SwaptionVolatilitiesName.of("Test2");
 
   //-------------------------------------------------------------------------
   public void test_of() {
     SwaptionSabrSensitivity test = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
-    assertEquals(test.getConvention(), SWAP_CONV);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+    assertEquals(test.getVolatilitiesName(), NAME);
     assertEquals(test.getExpiry(), EXPIRY);
     assertEquals(test.getTenor(), TENOR);
     assertEquals(test.getSensitivityType(), SabrParameterType.ALPHA);
@@ -50,11 +49,11 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_withCurrency() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     assertSame(base.withCurrency(GBP), base);
 
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d);
     SwaptionSabrSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);
   }
@@ -62,9 +61,9 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_withSensitivity() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 20d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 20d);
     SwaptionSabrSensitivity test = base.withSensitivity(20d);
     assertEquals(test, expected);
   }
@@ -72,15 +71,15 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_compareKey() {
     SwaptionSabrSensitivity a1 = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity a2 = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity b = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d);
     SwaptionSabrSensitivity c = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY + 1, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY + 1, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity d = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR + 1, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR + 1, SabrParameterType.ALPHA, GBP, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
@@ -95,9 +94,9 @@ public class SwaptionSabrSensitivityTest {
   public void test_convertedTo() {
     FxRate rate = FxRate.of(GBP, USD, 1.5d);
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d * 1.5d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, USD, 32d * 1.5d);
     assertEquals(base.convertedTo(USD, rate), expected);
     assertEquals(base.convertedTo(GBP, rate), base);
   }
@@ -105,9 +104,9 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d * 3.5d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d * 3.5d);
     SwaptionSabrSensitivity test = base.multipliedBy(3.5d);
     assertEquals(test, expected);
   }
@@ -115,9 +114,9 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_mapSensitivity() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 1 / 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 1 / 32d);
     SwaptionSabrSensitivity test = base.mapSensitivity(s -> 1 / s);
     assertEquals(test, expected);
   }
@@ -125,7 +124,7 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_normalize() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity test = base.normalize();
     assertSame(test, base);
   }
@@ -133,9 +132,9 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
     SwaptionSabrSensitivity base1 = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity base2 = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 22d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 22d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base1).add(base2);
     PointSensitivityBuilder test = base1.combinedWith(base2);
@@ -144,7 +143,7 @@ public class SwaptionSabrSensitivityTest {
 
   public void test_combinedWith_mutable() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base);
     PointSensitivityBuilder test = base.combinedWith(new MutablePointSensitivities());
@@ -154,7 +153,7 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_buildInto() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
     assertSame(test, combo);
@@ -164,7 +163,7 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_build() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
   }
@@ -172,7 +171,7 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_cloned() {
     SwaptionSabrSensitivity base = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     SwaptionSabrSensitivity test = base.cloned();
     assertSame(test, base);
   }
@@ -180,10 +179,10 @@ public class SwaptionSabrSensitivityTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     SwaptionSabrSensitivity test = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     coverImmutableBean(test);
     SwaptionSabrSensitivity test2 = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY + 1, TENOR + 1, SabrParameterType.BETA, GBP, 2d);
+        NAME2, EXPIRY + 1, TENOR + 1, SabrParameterType.BETA, GBP, 2d);
     coverBeanEquals(test, test2);
     ZeroRateSensitivity test3 = ZeroRateSensitivity.of(USD, 0.5d, 2d);
     coverBeanEquals(test, test3);
@@ -191,7 +190,7 @@ public class SwaptionSabrSensitivityTest {
 
   public void test_serialization() {
     SwaptionSabrSensitivity test = SwaptionSabrSensitivity.of(
-        SWAP_CONV, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
+        NAME, EXPIRY, TENOR, SabrParameterType.ALPHA, GBP, 32d);
     assertSerialization(test);
   }
 

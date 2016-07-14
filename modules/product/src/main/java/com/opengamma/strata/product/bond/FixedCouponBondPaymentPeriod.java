@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A period over which a fixed coupon is paid.
@@ -43,7 +42,7 @@ import com.opengamma.strata.product.swap.PaymentPeriod;
  */
 @BeanDefinition
 public final class FixedCouponBondPaymentPeriod
-    implements PaymentPeriod, ImmutableBean, Serializable {
+    implements BondPaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the payment period.

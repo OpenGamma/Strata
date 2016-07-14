@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static org.testng.Assert.assertEquals;
@@ -45,10 +45,10 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
+import com.opengamma.strata.product.bond.KnownAmountBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
 
 /**
  * Test {@link DiscountingCapitalIndexedBondTradePricer}.
@@ -128,7 +128,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(INDEX_LINKED_FLOAT)
+      .yieldConvention(GB_IL_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET)
       .accrualSchedule(SCHEDULE)
       .build();
@@ -223,7 +223,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   public void test_netAmountfixed() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_ILF_STANDARD, RATES_PROVIDER);
     double expected = PAYMENT_PRICER.forecastValueAmount(
-        ((KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
+        ((KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
@@ -520,7 +520,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
     double expected2 = df * PAYMENT_PRICER.forecastValueAmount(
-        ((KnownAmountPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
+        ((KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 

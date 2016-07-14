@@ -18,11 +18,11 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
  * It is typically based on a rate of interest.
  * <p>
  * This interface imposes few restrictions on the payment periods.
- * It extends {@link PaymentPeriod} to require that the period is based on a notional amount.
+ * It extends {@link SwapPaymentPeriod} to require that the period is based on a notional amount.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface NotionalPaymentPeriod extends PaymentPeriod {
+public interface NotionalPaymentPeriod extends SwapPaymentPeriod {
 
   /**
    * The notional amount, positive if receiving, negative if paying.

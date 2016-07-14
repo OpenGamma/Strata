@@ -46,11 +46,29 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex JPY_TONAR = OvernightIndex.of("JPY-TONAR");
   /**
-   * The FED_FUND index for USD.
+   * The Fed Fund index for USD.
    * <p>
-   * FED_FUND is an "Overnight" index.
+   * Fed Fund is an "Overnight" index.
    */
   public static final OvernightIndex USD_FED_FUND = OvernightIndex.of("USD-FED-FUND");
+  /**
+   * The AONIA index for AUD.
+   * <p>
+   * AONIA is an "Overnight" index.
+   */
+  public static final OvernightIndex AUD_AONIA = OvernightIndex.of("AUD-AONIA");
+  /**
+   * The CORRA index for CAD.
+   * <p>
+   * CORRA is an "Overnight" index.
+   */
+  public static final OvernightIndex CAD_CORRA = OvernightIndex.of("CAD-CORRA");
+  /**
+   * The NOWA index for NOK.
+   * <p>
+   * NOWA is an "Overnight" index.
+   */
+  public static final OvernightIndex NOK_NOWA = OvernightIndex.of("NOK-NOWA");
 
   //-------------------------------------------------------------------------
   /**

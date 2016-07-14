@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Test {@link BondFutureOption}.

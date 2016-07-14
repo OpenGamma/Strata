@@ -17,18 +17,18 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.common.SettlementType;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
-import com.opengamma.strata.product.swaption.SettlementType;
 
 /**
  * Pricer for swaption with par yield curve method of cash settlement based on volatilities.
@@ -329,7 +329,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double strike = calculateStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
       return SwaptionSensitivity.of(
-          swaptionVolatilities.getConvention(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
+          swaptionVolatilities.getName(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
@@ -337,7 +337,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
     return SwaptionSensitivity.of(
-        swaptionVolatilities.getConvention(),
+        swaptionVolatilities.getName(),
         expiry,
         tenor,
         strike,
@@ -375,7 +375,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the strike
    */
   protected double calculateStrike(ResolvedSwapLeg fixedLeg) {
-    PaymentPeriod paymentPeriod = fixedLeg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod paymentPeriod = fixedLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "Payment period must be RatePaymentPeriod");
     RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
     // compounding is caught when par rate is computed

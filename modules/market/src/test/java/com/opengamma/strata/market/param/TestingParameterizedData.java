@@ -40,4 +40,24 @@ public class TestingParameterizedData implements ParameterizedData {
     return new TestingParameterizedData(newValue);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof TestingParameterizedData) {
+      TestingParameterizedData other = (TestingParameterizedData) obj;
+      return Double.doubleToRawLongBits(value) == Double.doubleToRawLongBits(other.value);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Double.valueOf(value).hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return Double.toString(value);
+  }
+
 }

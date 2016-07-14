@@ -52,6 +52,12 @@ public interface MarketDataBox<T> {
 
   /**
    * Obtains an instance containing a scenario market data value with data for multiple scenarios.
+   * <p>
+   * The market data is made up of multiple values, one for each scenario.
+   * The {@link ScenarioArray} instance may provide optimized internal storage of these values.
+   * <p>
+   * A box may be created that contains a value for one scenario. Such a box is distinct from
+   * a box created using {@link #ofSingleValue(Object)}, which is valid for any number of scenarios.
    *
    * @param <T> the type of the market data value used in each scenario
    * @param scenarioValue  the market data value containing data for multiple scenarios
@@ -64,7 +70,10 @@ public interface MarketDataBox<T> {
   /**
    * Obtains an instance containing a scenario market data value with data for multiple scenarios.
    * <p>
-   * The market data is made up of multiple single values, one for each scenario.
+   * The market data is made up of multiple values, one for each scenario.
+   * <p>
+   * A box may be created that contains a value for one scenario. Such a box is distinct from
+   * a box created using {@link #ofSingleValue(Object)}, which is valid for any number of scenarios.
    *
    * @param <T> the type of the market data value used in each scenario
    * @param scenarioValues  the market data values for each scenario
@@ -77,6 +86,11 @@ public interface MarketDataBox<T> {
 
   /**
    * Obtains an instance containing a scenario market data value with data for multiple scenarios.
+   * <p>
+   * The market data is made up of multiple values, one for each scenario.
+   * <p>
+   * A box may be created that contains a value for one scenario. Such a box is distinct from
+   * a box created using {@link #ofSingleValue(Object)}, which is valid for any number of scenarios.
    *
    * @param <T> the type of the market data value used in each scenario
    * @param scenarioValues  the market data values for each scenario
@@ -128,6 +142,7 @@ public interface MarketDataBox<T> {
    *
    * @param scenarioIndex  the index of the scenario
    * @return the market data value associated with the scenario
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
   public abstract T getValue(int scenarioIndex);
 
@@ -152,10 +167,10 @@ public interface MarketDataBox<T> {
   /**
    * Gets the number of scenarios for which this box contains data.
    * <p>
-   * If a box contains data for a single scenario it is treated as a special case and can be used in any number
-   * of scenarios, returning the same value for every scenario.
+   * A "single value" box can be used with any number of scenarios.
+   * To indicate this, the method will return -1.
    *
-   * @return the number of scenarios for which this box contains data
+   * @return the number of scenarios for which this box contains data, -1 if the number is not specified
    */
   public abstract int getScenarioCount();
 

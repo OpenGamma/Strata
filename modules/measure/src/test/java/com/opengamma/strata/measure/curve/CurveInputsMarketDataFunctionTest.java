@@ -9,8 +9,6 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -19,6 +17,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
@@ -38,7 +37,6 @@ import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveInputsId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
@@ -108,24 +106,6 @@ public class CurveInputsMarketDataFunctionTest {
     CurveInputsId curveInputsId =
         CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder().name(CurveGroupName.of("curve group")).build();
-    MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
-    MarketDataRequirements requirements = marketDataFunction.requirements(curveInputsId, marketDataConfig);
-    assertThat(requirements.getObservables()).isEmpty();
-  }
-
-  /**
-   * Test that requirements are empty if the curve config is found but is not of the expected type
-   */
-  public void requirementsNotInterpolatedCurve() {
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId =
-        CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
-    NodalCurveDefinition curveDefn = mock(NodalCurveDefinition.class);
-    when(curveDefn.getName()).thenReturn(CurveName.of("curve"));
-    CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
-        .name(CurveGroupName.of("curve group"))
-        .addDiscountCurve(curveDefn, Currency.USD)
-        .build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
     MarketDataRequirements requirements = marketDataFunction.requirements(curveInputsId, marketDataConfig);
     assertThat(requirements.getObservables()).isEmpty();
@@ -240,7 +220,7 @@ public class CurveInputsMarketDataFunctionTest {
         .add(groupDefn.getName(), groupDefn)
         .build();
 
-    ScenarioMarketData emptyData = ScenarioMarketData.empty();
+    ScenarioMarketData emptyData = ScenarioMarketData.of(1, date(2016, 6, 30), ImmutableMap.of(), ImmutableMap.of());
 
     CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
     CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curve.getName(), ObservableSource.NONE);

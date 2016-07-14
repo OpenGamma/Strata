@@ -237,4 +237,12 @@ public interface RatesProvider
    */
   public abstract LocalDateDoubleTimeSeries timeSeries(Index index);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this provider to an equivalent {@code ImmutableRatesProvider}.
+   * 
+   * @return the equivalent immutable rates provider
+   */
+  public abstract ImmutableRatesProvider toImmutableRatesProvider();
+
 }

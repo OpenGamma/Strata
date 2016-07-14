@@ -246,10 +246,10 @@ public final class PaymentSchedule
       Payment payment = Payment.of(amount, paymentDate);
       if (fxReset != null) {
         CurrencyAmount notionalAmount = CurrencyAmount.of(fxReset.getReferenceCurrency(), notional);
-        return KnownAmountNotionalPaymentPeriod.of(payment, paymentPeriod, notionalAmount, fxReset.getObservation());
+        return KnownAmountNotionalSwapPaymentPeriod.of(payment, paymentPeriod, notionalAmount, fxReset.getObservation());
       } else {
         CurrencyAmount notionalAmount = CurrencyAmount.of(currency, notional);
-        return KnownAmountNotionalPaymentPeriod.of(payment, paymentPeriod, notionalAmount);
+        return KnownAmountNotionalSwapPaymentPeriod.of(payment, paymentPeriod, notionalAmount);
       }
     }
     // rate based computation

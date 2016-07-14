@@ -15,9 +15,9 @@ import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
@@ -61,12 +61,8 @@ public class ImmutableRatesProviderTest {
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.96d);
   private static final Curve FED_FUND_CURVE = ConstantCurve.of(
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.97d);
-  private static final PriceIndexValues GBPRI_CURVE = SimplePriceIndexValues.of(
-      GB_RPI,
-      VAL_DATE,
-      InterpolatedNodalCurve.of(
-          Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR),
-      LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252));
+  private static final Curve GBPRI_CURVE = InterpolatedNodalCurve.of(
+      Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR);
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -76,6 +72,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(GBP_USD_WM, ts));
+    assertSame(test.toImmutableRatesProvider(), test);
   }
 
   //-------------------------------------------------------------------------
@@ -162,10 +159,13 @@ public class ImmutableRatesProviderTest {
 
   //-------------------------------------------------------------------------
   public void test_priceIndexValues() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
-        .priceIndexValues(GBPRI_CURVE)
+        .priceIndexCurve(GB_RPI, GBPRI_CURVE)
+        .timeSeries(GB_RPI, ts)
         .build();
     assertEquals(test.priceIndexValues(GB_RPI).getIndex(), GB_RPI);
+    assertEquals(test.priceIndexValues(GB_RPI).getFixings(), ts);
   }
 
   public void test_priceIndexValues_notKnown() {

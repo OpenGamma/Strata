@@ -92,6 +92,11 @@ public final class TestMarketDataMap implements ScenarioMarketData {
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return timeSeriesMap.keySet();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = timeSeriesMap.get(id);
     return timeSeries == null ? LocalDateDoubleTimeSeries.empty() : timeSeries;

@@ -46,6 +46,11 @@ import com.opengamma.strata.product.TradeInfo;
  * <p>
  * A bond future is a financial instrument that is based on the future value of
  * a basket of fixed coupon bonds. The profit or loss of a bond future is settled daily.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+ * for an amount computed from the bond future price, a conversion factor and the accrued interest.
  */
 @BeanDefinition
 public final class BondFutureSecurity

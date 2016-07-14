@@ -67,7 +67,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final LocalDate VAL_DATE = date(2016, 4, 25);
-  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.DE_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;
@@ -514,7 +514,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .accrualSchedule(SCHEDULE_UK)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(1, SAT_SUN))
-      .yieldConvention(FixedCouponBondYieldConvention.UK_BUMP_DMO)
+      .yieldConvention(FixedCouponBondYieldConvention.GB_BUMP_DMO)
       .exCouponPeriod(DaysAdjustment.ofCalendarDays(-7,
           BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, SAT_SUN)))
       .build()
@@ -600,7 +600,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .accrualSchedule(SCHEDULE_GER)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
-      .yieldConvention(FixedCouponBondYieldConvention.GERMAN_BONDS)
+      .yieldConvention(FixedCouponBondYieldConvention.DE_BONDS)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
@@ -686,7 +686,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .accrualSchedule(SCHEDULE_JP)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, JPTO))
-      .yieldConvention(FixedCouponBondYieldConvention.JAPAN_SIMPLE)
+      .yieldConvention(FixedCouponBondYieldConvention.JP_SIMPLE)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
@@ -771,7 +771,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
   public void macaulayDurationFromYieldYieldJP() {
     assertThrows(() -> PRICER.macaulayDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP),
-        UnsupportedOperationException.class, "The convention JAPAN_SIMPLE is not supported.");
+        UnsupportedOperationException.class, "The convention JP_SIMPLE is not supported.");
   }
 
 }

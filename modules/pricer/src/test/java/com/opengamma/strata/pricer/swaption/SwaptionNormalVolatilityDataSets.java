@@ -62,7 +62,7 @@ public class SwaptionNormalVolatilityDataSets {
   public static final FixedIborSwapConvention USD_1Y_LIBOR3M =
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   private static final SurfaceMetadata METADATA =
-      Surfaces.swaptionNormalExpiryTenor("Normal Vol", ACT_365F);
+      Surfaces.normalVolatilityByExpiryTenor("Normal Vol", ACT_365F);
   private static final InterpolatedNodalSurface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA, TIMES, TENORS, NORMAL_VOL, INTERPOLATOR_2D);
 
@@ -70,7 +70,7 @@ public class SwaptionNormalVolatilityDataSets {
   private static final LocalTime VAL_TIME_STD = LocalTime.of(13, 45);
   private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME_STD = VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD);
-  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_STD =
+  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_SWAPTION_VOLS_USD_STD =
       NormalSwaptionExpiryTenorVolatilities.of(USD_1Y_LIBOR3M, VAL_DATE_TIME_STD, SURFACE_STD);
 
   /**
@@ -97,7 +97,7 @@ public class SwaptionNormalVolatilityDataSets {
   private static final InterpolatedNodalSurface SURFACE_FLAT =
       InterpolatedNodalSurface.of(METADATA, TIMES_FLAT, TENOR_FLAT, NORMAL_VOL_FLAT, INTERPOLATOR_2D);
 
-  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
+  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_SWAPTION_VOLS_USD_FLAT =
       NormalSwaptionExpiryTenorVolatilities.of(USD_1Y_LIBOR3M, VAL_DATE_TIME_STD, SURFACE_FLAT);
 
   //     =====     Market data as of 2014-03-20     =====
@@ -131,7 +131,7 @@ public class SwaptionNormalVolatilityDataSets {
   private static final LocalTime VAL_TIME_20150320 = LocalTime.of(18, 00);
   private static final ZoneId VAL_ZONE_20150320 = ZoneId.of("Europe/London");
 
-  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD_20150320 =
+  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_SWAPTION_VOLS_USD_20150320 =
       NormalSwaptionExpiryTenorVolatilities.of(
           USD_1Y_LIBOR3M, VAL_DATE_20150320.atTime(VAL_TIME_20150320).atZone(VAL_ZONE_20150320), SURFACE_20150320);
 

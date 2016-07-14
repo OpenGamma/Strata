@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
 
 /**
  * Test {@link CapitalIndexedBondTrade}.
@@ -72,7 +71,7 @@ public class CapitalIndexedBondTradeTest {
       .realCoupon(1d)
       .build();
 
-  private static final KnownAmountPaymentPeriod SETTLEMENT1 = KnownAmountPaymentPeriod
+  private static final KnownAmountBondPaymentPeriod SETTLEMENT1 = KnownAmountBondPaymentPeriod
       .builder()
       .startDate(SCHEDULE_ADJ.adjust(START, REF_DATA))
       .unadjustedStartDate(START)

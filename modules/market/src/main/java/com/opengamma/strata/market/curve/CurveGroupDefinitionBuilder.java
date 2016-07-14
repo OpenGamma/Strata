@@ -149,6 +149,7 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds the definition of a forward curve to the curve group definition.
    *
@@ -159,8 +160,8 @@ public final class CurveGroupDefinitionBuilder {
    */
   public CurveGroupDefinitionBuilder addForwardCurve(
       NodalCurveDefinition curveDefinition,
-      RateIndex index,
-      RateIndex... otherIndices) {
+      Index index,
+      Index... otherIndices) {
 
     ArgChecker.notNull(curveDefinition, "curveDefinition");
     ArgChecker.notNull(index, "index");
@@ -182,7 +183,11 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addForwardCurve(CurveName curveName, RateIndex index, RateIndex... otherIndices) {
+  public CurveGroupDefinitionBuilder addForwardCurve(
+      CurveName curveName,
+      Index index,
+      Index... otherIndices) {
+
     ArgChecker.notNull(curveName, "curveName");
     ArgChecker.notNull(index, "index");
 
@@ -193,6 +198,7 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds the definition of a curve to the curve group definition which is used to provide
    * discount rates and forward rates.

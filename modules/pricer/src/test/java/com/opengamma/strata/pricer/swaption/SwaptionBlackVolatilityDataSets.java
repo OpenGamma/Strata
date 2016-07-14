@@ -60,7 +60,7 @@ public class SwaptionBlackVolatilityDataSets {
   public static final FixedIborSwapConvention USD_1Y_LIBOR3M =
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   private static final SurfaceMetadata METADATA_STD =
-      Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_365F);
+      Surfaces.blackVolatilityByExpiryTenor("Black Vol", ACT_365F);
   private static final Surface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA_STD, TIMES, TENOR, BLACK_VOL, INTERPOLATOR_2D);
 
@@ -68,7 +68,7 @@ public class SwaptionBlackVolatilityDataSets {
   private static final LocalTime VAL_TIME_STD = LocalTime.of(13, 45);
   private static final ZoneId VAL_ZONE_STD = ZoneId.of("Europe/London");
   /** Black volatility provider */
-  public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_SWAPTION_PROVIDER_USD_STD =
+  public static final BlackSwaptionExpiryTenorVolatilities BLACK_SWAPTION_VOLS_USD_STD =
       BlackSwaptionExpiryTenorVolatilities.of(
           USD_1Y_LIBOR3M, VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD), SURFACE_STD);
 
@@ -76,10 +76,10 @@ public class SwaptionBlackVolatilityDataSets {
   public static final double VOLATILITY = 0.20;
   /** metadata for constant surface */
   public static final SurfaceMetadata META_DATA =
-      Surfaces.swaptionBlackExpiryTenor("Constant Surface", ACT_365F);
+      Surfaces.blackVolatilityByExpiryTenor("Constant Surface", ACT_365F);
   private static final Surface CST_SURFACE = ConstantSurface.of(META_DATA, VOLATILITY);
   /** flat Black volatility provider */
-  public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
+  public static final BlackSwaptionExpiryTenorVolatilities BLACK_SWAPTION_VOLS_CST_USD =
       BlackSwaptionExpiryTenorVolatilities.of(
           USD_FIXED_6M_LIBOR_3M, VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD), CST_SURFACE);
 

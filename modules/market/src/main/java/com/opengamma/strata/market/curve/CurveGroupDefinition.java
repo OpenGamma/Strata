@@ -164,6 +164,26 @@ public final class CurveGroupDefinition
 
   //-------------------------------------------------------------------------
   /**
+   * Returns a filtered version of this definition with no invalid nodes.
+   * <p>
+   * A curve is formed of a number of nodes, each of which has an associated date.
+   * To be valid, the curve node dates must be in order from earliest to latest.
+   * This method applies rules to remove invalid nodes.
+   * 
+   * @param valuationDate  the valuation date
+   * @param refData  the reference data
+   * @return the resolved definition, that should be used in preference to this one
+   * @throws IllegalArgumentException if the curve nodes are invalid
+   */
+  public CurveGroupDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
+    List<NodalCurveDefinition> filtered = curveDefinitions.stream()
+        .map(ncd -> ncd.filtered(valuationDate, refData))
+        .collect(toImmutableList());
+    return new CurveGroupDefinition(name, entries, filtered, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Finds the entry for the curve with the specified name.
    * <p>
    * If the curve is not found, optional empty is returned.

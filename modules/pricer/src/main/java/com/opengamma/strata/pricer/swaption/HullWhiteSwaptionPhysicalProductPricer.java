@@ -23,12 +23,12 @@ import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.impl.rate.swap.CashFlowEquivalentCalculator;
 import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.common.SettlementType;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
-import com.opengamma.strata.product.swaption.SettlementType;
 
 /**
  * Pricer for swaption with physical settlement in Hull-White one factor model with piecewise constant volatility.

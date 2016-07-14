@@ -53,7 +53,7 @@ class EmptyMarketDataBox
 
   @Override
   public boolean isSingleValue() {
-    throw new UnsupportedOperationException("Box is empty");
+    return true;
   }
 
   @Override

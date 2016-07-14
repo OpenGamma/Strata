@@ -161,6 +161,11 @@ public final class ImmutableMarketData
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return timeSeries.keySet();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries found = timeSeries.get(id);
     return found == null ? LocalDateDoubleTimeSeries.empty() : found;

@@ -283,7 +283,7 @@ public class RateCalculationSwapLegTest {
             .build())
         .build();
     // expected
-    KnownAmountNotionalPaymentPeriod pp1 = KnownAmountNotionalPaymentPeriod.builder()
+    KnownAmountNotionalSwapPaymentPeriod pp1 = KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(Payment.of(knownAmount, DATE_02_07))
         .startDate(DATE_02_03)
         .endDate(DATE_02_05)

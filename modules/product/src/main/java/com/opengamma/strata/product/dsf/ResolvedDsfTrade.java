@@ -38,9 +38,15 @@ import com.opengamma.strata.product.TradeInfo;
  * A {@code ResolvedDsfTrade} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
- * <p>
+ * 
+ * <h4>Price</h4>
  * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
- * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
+ * For example, a price of 100.182 represents a present value of $100,182.00, if the notional is $100,000.
+ * This price can also be viewed as a percentage present value - {@code (100 + percentPv)}, or 0.182% in this example.
+ * <p>
+ * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+ * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+ * Thus the market price of 100.182 is represented in Strata by 1.00182.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedDsfTrade
@@ -69,9 +75,13 @@ public final class ResolvedDsfTrade
   @PropertyDefinition
   private final double quantity;
   /**
-   * The price that was traded.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
+   * <p>
+   * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+   * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+   * Thus the market price of 100.182 is represented in Strata by 1.00182.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double price;
@@ -182,9 +192,13 @@ public final class ResolvedDsfTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
+   * <p>
+   * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+   * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+   * Thus the market price of 100.182 is represented in Strata by 1.00182.
    * @return the value of the property
    */
   public double getPrice() {
@@ -513,9 +527,13 @@ public final class ResolvedDsfTrade
     }
 
     /**
-     * Sets the price that was traded.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
+     * <p>
+     * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+     * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+     * Thus the market price of 100.182 is represented in Strata by 1.00182.
      * @param price  the new value
      * @return this, for chaining, not null
      */

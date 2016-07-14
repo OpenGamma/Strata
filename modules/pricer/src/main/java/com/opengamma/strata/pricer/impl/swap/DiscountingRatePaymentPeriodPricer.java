@@ -21,7 +21,7 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.PaymentPeriodPricer;
+import com.opengamma.strata.pricer.swap.SwapPaymentPeriodPricer;
 import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FxReset;
@@ -35,7 +35,7 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
  * Where necessary, the accrual periods are compounded.
  */
 public class DiscountingRatePaymentPeriodPricer
-    implements PaymentPeriodPricer<RatePaymentPeriod> {
+    implements SwapPaymentPeriodPricer<RatePaymentPeriod> {
 
   /**
    * Default implementation.

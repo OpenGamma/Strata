@@ -10,11 +10,12 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
+import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 
@@ -28,17 +29,33 @@ public class BlackFxVanillaOptionTradePricer {
   /**
    * Default implementation.
    */
-  public static final BlackFxVanillaOptionTradePricer DEFAULT = new BlackFxVanillaOptionTradePricer();
+  public static final BlackFxVanillaOptionTradePricer DEFAULT = new BlackFxVanillaOptionTradePricer(
+      BlackFxVanillaOptionProductPricer.DEFAULT,
+      DiscountingPaymentPricer.DEFAULT);
 
   /**
-   * Pricer for {@link FxVanillaOption}.
+   * Pricer for {@link ResolvedFxSingleBarrierOption}.
    */
-  private static final BlackFxVanillaOptionProductPricer PRICER_PRODUCT = BlackFxVanillaOptionProductPricer.DEFAULT;
+  private final BlackFxVanillaOptionProductPricer productPricer;
   /**
-   * Pricer for {@link Payment} which is used to described the premium.
+   * Pricer for {@link Payment}.
    */
-  private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
+  private final DiscountingPaymentPricer paymentPricer;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param productPricer  the pricer for {@link ResolvedFxVanillaOption}
+   * @param paymentPricer  the pricer for {@link Payment}
+   */
+  public BlackFxVanillaOptionTradePricer(
+      BlackFxVanillaOptionProductPricer productPricer,
+      DiscountingPaymentPricer paymentPricer) {
+    this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
+    this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the foreign exchange vanilla option trade.
    * <p>
@@ -46,18 +63,18 @@ public class BlackFxVanillaOptionTradePricer {
    * 
    * @param trade  the option trade
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value of the trade
    */
   public MultiCurrencyAmount presentValue(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
-    CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(product, ratesProvider, volatilityProvider);
+    CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, volatilities);
     Payment premium = trade.getPremium();
-    CurrencyAmount pvPremium = PRICER_PREMIUM.presentValue(premium, ratesProvider);
+    CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
     return MultiCurrencyAmount.of(pvProduct, pvPremium);
   }
 
@@ -72,19 +89,19 @@ public class BlackFxVanillaOptionTradePricer {
    * 
    * @param trade  the option trade
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivity(
+  public PointSensitivities presentValueSensitivityRates(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
     PointSensitivities pvcsProduct =
-        PRICER_PRODUCT.presentValueSensitivity(product, ratesProvider, volatilityProvider);
+        productPricer.presentValueSensitivityRates(product, ratesProvider, volatilities);
     Payment premium = trade.getPremium();
-    PointSensitivities pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, ratesProvider).build();
+    PointSensitivities pvcsPremium = paymentPricer.presentValueSensitivity(premium, ratesProvider).build();
     return pvcsProduct.combinedWith(pvcsPremium);
   }
 
@@ -96,16 +113,16 @@ public class BlackFxVanillaOptionTradePricer {
    * 
    * @param trade  the option trade
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivityBlackVolatility(
+  public PointSensitivities presentValueSensitivityModelParamsVolatility(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
-    return PRICER_PRODUCT.presentValueSensitivityBlackVolatility(product, ratesProvider, volatilityProvider).build();
+    return productPricer.presentValueSensitivityModelParamsVolatility(product, ratesProvider, volatilities).build();
   }
 
   //-------------------------------------------------------------------------
@@ -114,18 +131,18 @@ public class BlackFxVanillaOptionTradePricer {
    * 
    * @param trade  the option trade
    * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
+   * @param volatilities  the Black volatility provider
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
+      BlackFxOptionVolatilities volatilities) {
 
     Payment premium = trade.getPremium();
-    CurrencyAmount pvPremium = PRICER_PREMIUM.presentValue(premium, ratesProvider);
+    CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
     ResolvedFxVanillaOption product = trade.getProduct();
-    return PRICER_PRODUCT.currencyExposure(product, ratesProvider, volatilityProvider).plus(pvPremium);
+    return productPricer.currencyExposure(product, ratesProvider, volatilities).plus(pvPremium);
   }
 
   /**
@@ -142,4 +159,5 @@ public class BlackFxVanillaOptionTradePricer {
     }
     return CurrencyAmount.of(premium.getCurrency(), 0d);
   }
+
 }

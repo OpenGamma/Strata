@@ -34,6 +34,10 @@ import com.opengamma.strata.product.TradeInfo;
  * A trade representing a fixed coupon bond.
  * <p>
  * A trade in an underlying {@link FixedCouponBond}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class FixedCouponBondTrade
@@ -62,9 +66,12 @@ public final class FixedCouponBondTrade
   @PropertyDefinition(overrideGet = true)
   private final double quantity;
   /**
-   * The <i>clean</i> price at which the bond was traded.
+   * The <i>clean</i> price at which the bond was traded, in decimal form.
    * <p>
    * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final double price;
@@ -197,9 +204,12 @@ public final class FixedCouponBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the <i>clean</i> price at which the bond was traded.
+   * Gets the <i>clean</i> price at which the bond was traded, in decimal form.
    * <p>
    * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * @return the value of the property
    */
   @Override
@@ -529,9 +539,12 @@ public final class FixedCouponBondTrade
     }
 
     /**
-     * Sets the <i>clean</i> price at which the bond was traded.
+     * Sets the <i>clean</i> price at which the bond was traded, in decimal form.
      * <p>
      * The "clean" price excludes any accrued interest.
+     * <p>
+     * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+     * For example, a price of 99.32% is represented in Strata by 0.9932.
      * @param price  the new value
      * @return this, for chaining, not null
      */

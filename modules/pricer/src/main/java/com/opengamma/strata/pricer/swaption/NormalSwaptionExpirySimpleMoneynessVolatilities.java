@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.model.MoneynessType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -93,7 +94,7 @@ public final class NormalSwaptionExpirySimpleMoneynessVolatilities
    * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
    * </ul>
    * Suitable surface metadata can be created using
-   * {@link Surfaces#swaptionNormalExpirySimpleMoneyness(String, DayCount)}.
+   * {@link Surfaces#normalVolatilityByExpirySimpleMoneyness(String, DayCount, MoneynessType)}.
    * 
    * @param convention  the swap convention that the volatilities are to be used for
    * @param valuationDateTime  the valuation date-time
@@ -186,15 +187,15 @@ public final class NormalSwaptionExpirySimpleMoneynessVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof SwaptionSensitivity) {
         SwaptionSensitivity pt = (SwaptionSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
-    ArgChecker.isTrue(point.getConvention().equals(convention),
-        "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = point.getExpiry();
     double moneyness = point.getStrike() - point.getForward();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, moneyness);

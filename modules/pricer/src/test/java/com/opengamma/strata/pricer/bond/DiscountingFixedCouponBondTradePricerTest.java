@@ -123,7 +123,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
       .settlementDate(SETTLE_ON_DETACHMENT)
       .build();
   private static final long QUANTITY = 15L;
-  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.DE_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;

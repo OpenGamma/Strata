@@ -223,7 +223,7 @@ public class ImmutableScenarioMarketDataBuilderTest {
 
   public void test_combinedWithReceiverHasOneScenario() {
     ImmutableScenarioMarketData marketData1 = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .build();
 
     ImmutableScenarioMarketData marketData2 = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
@@ -231,7 +231,7 @@ public class ImmutableScenarioMarketDataBuilderTest {
         .build();
 
     ImmutableScenarioMarketData expected = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
@@ -244,11 +244,11 @@ public class ImmutableScenarioMarketDataBuilderTest {
         .build();
 
     ImmutableScenarioMarketData marketData2 = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .build();
 
     ImmutableScenarioMarketData expected = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 

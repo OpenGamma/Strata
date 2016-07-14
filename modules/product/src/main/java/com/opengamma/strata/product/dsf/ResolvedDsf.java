@@ -31,8 +31,8 @@ import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentEvent;
-import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentEvent;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -47,9 +47,15 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * A {@code ResolvedDsf} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
- * <p>
+ * 
+ * <h4>Price</h4>
  * The price of a DSF is based on the present value (NPV) of the underlying swap on the delivery date.
- * For example, a price of 100.1822 represents a present value of $100,182.20, if the notional is $100,000.
+ * For example, a price of 100.182 represents a present value of $100,182.00, if the notional is $100,000.
+ * This price can also be viewed as a percentage present value - {@code (100 + percentPv)}, or 0.182% in this example.
+ * <p>
+ * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
+ * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
+ * Thus the market price of 100.182 is represented in Strata by 1.00182.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedDsf
@@ -101,13 +107,13 @@ public final class ResolvedDsf
       if (swapLeg.getType().equals(SwapLegType.FIXED)) {
         ArgChecker.isTrue(swapLeg.getPayReceive().isReceive(), "underlying must be receiver swap");
       }
-      for (PaymentEvent event : swapLeg.getPaymentEvents()) {
+      for (SwapPaymentEvent event : swapLeg.getPaymentEvents()) {
         ArgChecker.isTrue(event instanceof NotionalExchange, "PaymentEvent must be NotionalExchange");
         NotionalExchange notioanlEvent = (NotionalExchange) event;
         ArgChecker.isTrue(Math.abs(notioanlEvent.getPaymentAmount().getAmount()) == 1d,
             "notional of underlying swap must be unity");
       }
-      for (PaymentPeriod period : swapLeg.getPaymentPeriods()) {
+      for (SwapPaymentPeriod period : swapLeg.getPaymentPeriods()) {
         ArgChecker.isTrue(period instanceof NotionalPaymentPeriod, "PaymentPeriod must be NotionalPaymentPeriod");
         NotionalPaymentPeriod notioanlPeriod = (NotionalPaymentPeriod) period;
         ArgChecker.isTrue(Math.abs(notioanlPeriod.getNotionalAmount().getAmount()) == 1d,

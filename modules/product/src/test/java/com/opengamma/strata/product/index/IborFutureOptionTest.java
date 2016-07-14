@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Test {@link IborFutureOption}. 
@@ -56,6 +56,7 @@ public class IborFutureOptionTest {
     assertEquals(test.getRounding(), Rounding.none());
     assertEquals(test.getUnderlyingFuture(), FUTURE);
     assertEquals(test.getCurrency(), FUTURE.getCurrency());
+    assertEquals(test.getIndex(), FUTURE.getIndex());
   }
 
   public void test_builder_expiryNotAfterTradeDate() {

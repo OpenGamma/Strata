@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.swaption;
 
+import com.opengamma.strata.product.common.SettlementType;
+
 /**
  * Defines how the swaption will be settled.
  * <p>

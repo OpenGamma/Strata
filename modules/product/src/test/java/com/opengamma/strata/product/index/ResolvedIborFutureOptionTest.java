@@ -39,6 +39,7 @@ public class ResolvedIborFutureOptionTest {
     assertEquals(test.getExpiryDate(), PRODUCT.getExpiryDate());
     assertEquals(test.getRounding(), PRODUCT.getRounding());
     assertEquals(test.getUnderlyingFuture(), PRODUCT.getUnderlyingFuture().resolve(REF_DATA));
+    assertEquals(test.getIndex(), PRODUCT.getUnderlyingFuture().getIndex());
   }
 
   public void test_builder_expiryNotAfterTradeDate() {

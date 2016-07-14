@@ -52,12 +52,12 @@ import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantPara
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
-import com.opengamma.strata.product.swap.PaymentEvent;
+import com.opengamma.strata.product.swap.SwapPaymentEvent;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -232,14 +232,14 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
   public void test_presentValue() {
     CurrencyAmount computedRec = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     CurrencyAmount computedPay = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
-    PaymentEventPricer<PaymentEvent> paymentEventPricer = PaymentEventPricer.standard();
+    SwapPaymentEventPricer<SwapPaymentEvent> paymentEventPricer = SwapPaymentEventPricer.standard();
     ResolvedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(RSWAP_REC, RATE_PROVIDER);
     LocalDate expiryDate = MATURITY.toLocalDate();
     int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[] discountedCashFlow = new double[nPayments];
     for (int loopcf = 0; loopcf < nPayments; loopcf++) {
-      PaymentEvent payment = cashFlowEquiv.getPaymentEvents().get(loopcf);
+      SwapPaymentEvent payment = cashFlowEquiv.getPaymentEvents().get(loopcf);
       alpha[loopcf] = HW_PROVIDER.alpha(RATE_PROVIDER.getValuationDate(), expiryDate, expiryDate, payment.getPaymentDate());
       discountedCashFlow[loopcf] = paymentEventPricer.presentValue(payment, RATE_PROVIDER);
     }

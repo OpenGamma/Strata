@@ -18,17 +18,21 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.bond.BondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention;
+import com.opengamma.strata.product.bond.KnownAmountBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * Pricer for for capital index bond trades.
  * <p>
  * This function provides the ability to price a {@link ResolvedCapitalIndexedBondTrade}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 public class DiscountingCapitalIndexedBondTradePricer {
 
@@ -555,7 +559,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     LocalDate valuationDate = ratesProvider.getValuationDate();
     LocalDate settlementDate = trade.getSettlementDate();
-    PaymentPeriod settle = trade.getSettlement();
+    BondPaymentPeriod settle = trade.getSettlement();
     CurrencyAmount cashProduct = productPricer.currentCash(trade.getProduct(), ratesProvider, settlementDate);
     double cashSettle =
         settle.getPaymentDate().isEqual(valuationDate) ? netAmount(trade, ratesProvider).getAmount() : 0d;
@@ -577,9 +581,9 @@ public class DiscountingCapitalIndexedBondTradePricer {
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider) {
 
-    PaymentPeriod settlement = trade.getSettlement();
-    if (settlement instanceof KnownAmountPaymentPeriod) {
-      Payment payment = ((KnownAmountPaymentPeriod) settlement).getPayment();
+    BondPaymentPeriod settlement = trade.getSettlement();
+    if (settlement instanceof KnownAmountBondPaymentPeriod) {
+      Payment payment = ((KnownAmountBondPaymentPeriod) settlement).getPayment();
       return payment.getValue();
     } else if (settlement instanceof CapitalIndexedBondPaymentPeriod) {
       CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlement;
@@ -595,7 +599,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
-    PaymentPeriod settlement = trade.getSettlement();
+    BondPaymentPeriod settlement = trade.getSettlement();
     ResolvedCapitalIndexedBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
         product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
@@ -621,7 +625,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     double notional = product.getNotional();
     double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
-    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT) ? 1d :
+    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT) ? 1d :
         productPricer.indexRatio(product, ratesProvider, standardSettlementDate);
     return CurrencyAmount.of(product.getCurrency(), indexRatio * netAmountReal);
   }
@@ -631,8 +635,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider) {
 
-    PaymentPeriod settlement = trade.getSettlement();
-    if (settlement instanceof KnownAmountPaymentPeriod) {
+    BondPaymentPeriod settlement = trade.getSettlement();
+    if (settlement instanceof KnownAmountBondPaymentPeriod) {
       return PointSensitivityBuilder.none();
     } else if (settlement instanceof CapitalIndexedBondPaymentPeriod) {
       CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlement;
@@ -646,7 +650,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
-    PaymentPeriod settlement = trade.getSettlement();
+    BondPaymentPeriod settlement = trade.getSettlement();
     ResolvedCapitalIndexedBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
         product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
@@ -676,7 +680,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
-    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
       return PointSensitivityBuilder.none();
     }
     double notional = product.getNotional();

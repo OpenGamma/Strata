@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,16 +34,15 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.ConstantSurface;
@@ -82,20 +80,18 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
   private static final String SETTINGS_FILE = "curve-config/EUR-DSCONOIS-E3BS-E6IRS-settings.csv";
   private static final String NODES_FILE = "curve-config/EUR-DSCONOIS-E3BS-E6IRS-nodes.csv";
   private static final String QUOTES_FILE = "quotes/quotes-20160229-eur.csv";
-  private static final Map<Index, LocalDateDoubleTimeSeries> TS = new HashMap<>();
   private static final CurveGroupDefinition CONFIGS =
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(BASE_DIR + GROUPS_FILE),
           ResourceLocator.of(BASE_DIR + SETTINGS_FILE),
-          ResourceLocator.of(BASE_DIR + NODES_FILE)).get(0);
+          ResourceLocator.of(BASE_DIR + NODES_FILE)).get(CurveGroupName.of("EUR-DSCONOIS-E3BS-E6IRS"));
   private static final Map<QuoteId, Double> MAP_MQ =
       QuotesCsvLoader.load(CALIBRATION_DATE, ImmutableList.of(ResourceLocator.of(BASE_DIR + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.of(CALIBRATION_DATE, MAP_MQ);
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
-  private static final RatesProvider MULTICURVE =
-      CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA, TS);
+  private static final RatesProvider MULTICURVE = CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA);
 
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
 

@@ -64,7 +64,7 @@
     <profile>
       <id>build-report-tool</id>
       <activation>
-        <property><name>!env.CI</name></property>
+        <property><name>dist</name></property>
       </activation>
       <build>
         <plugins>
@@ -96,6 +96,8 @@
                   <goal>single</goal>
                 </goals>
                 <configuration>
+                  <finalName>strata-report-tool-${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
                   <descriptors>
                     <descriptor>src/assembly/report-tool-dist.xml</descriptor>
                   </descriptors>

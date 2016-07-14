@@ -15,12 +15,12 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.common.SettlementType;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
-import com.opengamma.strata.product.swaption.SettlementType;
 
 /**
  * Pricer for swaption with physical settlement based on volatilities.
@@ -327,7 +327,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     if (expiry < 0d) { // Option has expired already
       return SwaptionSensitivity.of(
-          swaptionVolatilities.getConvention(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
+          swaptionVolatilities.getName(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double numeraire = Math.abs(pvbp);
@@ -335,7 +335,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
     return SwaptionSensitivity.of(
-        swaptionVolatilities.getConvention(),
+        swaptionVolatilities.getName(),
         expiry,
         tenor,
         strike,

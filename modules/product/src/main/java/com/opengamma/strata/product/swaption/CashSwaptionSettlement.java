@@ -22,6 +22,9 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.strata.product.common.SettlementType;
+
 import org.joda.beans.BeanBuilder;
 
 /**

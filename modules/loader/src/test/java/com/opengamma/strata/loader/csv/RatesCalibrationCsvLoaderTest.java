@@ -8,7 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -40,13 +40,13 @@ public class RatesCalibrationCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_parsing() {
-    List<CurveGroupDefinition> test = RatesCalibrationCsvLoader.load(
+    Map<CurveGroupName, CurveGroupDefinition> test = RatesCalibrationCsvLoader.load(
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ResourceLocator.of(CALIBRATION_1));
     assertEquals(test.size(), 1);
 
-    assertDefinition(test.get(0));
+    assertDefinition(test.get(CurveGroupName.of("Default")));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,

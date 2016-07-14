@@ -25,12 +25,12 @@ import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
-import com.opengamma.strata.product.fxopt.BarrierType;
-import com.opengamma.strata.product.fxopt.KnockType;
 import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
-import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * Test {@link BlackFxSingleBarrierOptionTradePricer}.
@@ -44,7 +44,7 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   private static final LocalDate PAY_DATE = LocalDate.of(2014, 9, 15);
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 9, 15);
   private static final ZonedDateTime EXPIRY_DATETIME = EXPIRY_DATE.atStartOfDay(ZONE);
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
+  private static final BlackFxOptionSmileVolatilities VOLS =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(VAL_DATETIME);
   private static final ImmutableRatesProvider RATES_PROVIDER =
       RatesProviderFxDataSets.createProviderEurUsdActActIsda(VAL_DATE);
@@ -81,32 +81,32 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   private static final double TOL = 1.0e-13;
 
   public void test_presentValue() {
-    MultiCurrencyAmount pvSensiTrade = PRICER_TRADE.presentValue(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvSensiProduct = PRICER_PRODUCT.presentValue(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount pvSensiTrade = PRICER_TRADE.presentValue(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    CurrencyAmount pvSensiProduct = PRICER_PRODUCT.presentValue(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
     CurrencyAmount pvSensiPremium = PRICER_PAYMENT.presentValue(PREMIUM, RATES_PROVIDER);
     assertEquals(pvSensiTrade, MultiCurrencyAmount.of(pvSensiProduct, pvSensiPremium));
   }
 
   public void test_presentValueSensitivity() {
     PointSensitivities pvSensiTrade =
-        PRICER_TRADE.presentValueSensitivityStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER_TRADE.presentValueSensitivityRatesStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOLS);
     PointSensitivities pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityStickyStrike(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
+        PRICER_PRODUCT.presentValueSensitivityRatesStickyStrike(OPTION_PRODUCT, RATES_PROVIDER, VOLS).build();
     PointSensitivities pvSensiPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM, RATES_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct.combinedWith(pvSensiPremium));
   }
 
   public void test_presentValueSensitivityBlackVolatility() {
     PointSensitivities pvSensiTrade =
-        PRICER_TRADE.presentValueSensitivityBlackVolatility(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
+        PRICER_TRADE.presentValueSensitivityModelParamsVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
     PointSensitivities pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
+        PRICER_PRODUCT.presentValueSensitivityModelParamsVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS).build();
     assertEquals(pvSensiTrade, pvSensiProduct);
   }
 
   public void test_currencyExposure() {
-    MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
-    MultiCurrencyAmount ceExpected = PRICER_PRODUCT.currencyExposure(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER)
+    MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    MultiCurrencyAmount ceExpected = PRICER_PRODUCT.currencyExposure(OPTION_PRODUCT, RATES_PROVIDER, VOLS)
         .plus(PRICER_PAYMENT.presentValue(PREMIUM, RATES_PROVIDER));
     assertEquals(ceComputed.size(), 2);
     assertEquals(ceComputed.getAmount(EUR).getAmount(), ceExpected.getAmount(EUR).getAmount(), TOL * NOTIONAL);

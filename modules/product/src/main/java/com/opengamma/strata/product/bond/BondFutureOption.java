@@ -35,8 +35,8 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * A futures option contract, based on bonds.
@@ -46,6 +46,10 @@ import com.opengamma.strata.product.common.PutCall;
  * It handles options with either daily margining or upfront premium.
  * <p>
  * This class represents the structure of a single option contract.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures options in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link BondFuture}.
  */
 @BeanDefinition(constructorScope = "package")
 public final class BondFutureOption

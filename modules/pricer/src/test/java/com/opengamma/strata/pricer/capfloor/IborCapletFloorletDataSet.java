@@ -103,7 +103,7 @@ public class IborCapletFloorletDataSet {
   private static final DoubleArray STRIKES = DoubleArray.of(0.01, 0.02, 0.03, 0.01, 0.02, 0.03, 0.01, 0.02, 0.03);
   private static final DoubleArray BLACK_VOLS = DoubleArray.of(0.35, 0.30, 0.28, 0.34, 0.25, 0.23, 0.25, 0.20, 0.18);
   private static final SurfaceMetadata BLACK_METADATA = 
-      Surfaces.iborCapletFloorletBlackExpiryStrike("Black Vol", ACT_ACT_ISDA);
+      Surfaces.blackVolatilityByExpiryStrike("Black Vol", ACT_ACT_ISDA);
   private static final Surface BLACK_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(BLACK_METADATA, EXPIRIES, STRIKES, BLACK_VOLS, INTERPOLATOR_2D);
 
@@ -123,7 +123,7 @@ public class IborCapletFloorletDataSet {
   // Normal volatilities provider
   private static final DoubleArray NORMAL_VOLS = DoubleArray.of(0.09, 0.08, 0.05, 0.07, 0.05, 0.04, 0.06, 0.05, 0.03);
   private static final SurfaceMetadata NORMAL_METADATA =
-      Surfaces.iborCapletFloorletNormalExpiryStrike("Normal Vol", ACT_ACT_ISDA);
+      Surfaces.normalVolatilityByExpiryStrike("Normal Vol", ACT_ACT_ISDA);
   private static final Surface NORMAL_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(NORMAL_METADATA, EXPIRIES, STRIKES, NORMAL_VOLS, INTERPOLATOR_2D);
 

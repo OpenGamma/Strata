@@ -31,8 +31,8 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * A futures option contract based on a basket of fixed coupon bonds, resolved for pricing.
@@ -44,6 +44,10 @@ import com.opengamma.strata.product.common.PutCall;
  * A {@code ResolvedBondFutureOption} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures options in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link BondFuture}.
  */
 @BeanDefinition(constructorScope = "package")
 public final class ResolvedBondFutureOption

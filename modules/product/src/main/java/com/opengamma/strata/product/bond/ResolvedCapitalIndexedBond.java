@@ -63,6 +63,10 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  * A {@code ResolvedCapitalIndexedBond} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition
 public final class ResolvedCapitalIndexedBond
@@ -373,8 +377,8 @@ public final class ResolvedCapitalIndexedBond
     double realCoupon = period.getRealCoupon();
     double couponPerYear = getFrequency().eventsPerYear();
     double rate = realCoupon * couponPerYear;
-    double accruedInterest = yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND) ||
-        yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE) ?
+    double accruedInterest = yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_COMPOUND) ||
+        yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_SIMPLE) ?
         yearFraction(previousAccrualDate, referenceDate, DayCounts.ACT_365F) * rate * notional :
         yearFraction(previousAccrualDate, referenceDate) * rate * notional;
     double result = 0d;
