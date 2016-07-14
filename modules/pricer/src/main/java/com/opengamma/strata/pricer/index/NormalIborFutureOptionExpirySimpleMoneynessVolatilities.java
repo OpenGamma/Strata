@@ -192,15 +192,15 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof IborFutureOptionSensitivity) {
         IborFutureOptionSensitivity pt = (IborFutureOptionSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(IborFutureOptionSensitivity point) {
-    ArgChecker.isTrue(point.getIndex().equals(index),
-        "Index of volatilities must be the same as index of sensitivity");
     double simpleMoneyness = moneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(point.getExpiry(), simpleMoneyness);

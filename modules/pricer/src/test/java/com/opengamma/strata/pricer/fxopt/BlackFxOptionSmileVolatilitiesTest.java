@@ -53,7 +53,7 @@ public class BlackFxOptionSmileVolatilitiesTest {
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
 
-  private static final BlackFxOptionSmileVolatilities PROVIDER =
+  private static final BlackFxOptionSmileVolatilities VOLS =
       BlackFxOptionSmileVolatilities.of(NAME, CURRENCY_PAIR, VAL_DATE_TIME, SMILE_TERM);
   private static final LocalTime TIME = LocalTime.of(11, 45);
   private static final ZonedDateTime[] TEST_EXPIRY = new ZonedDateTime[] {
@@ -81,16 +81,16 @@ public class BlackFxOptionSmileVolatilitiesTest {
     assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getSmile(), SMILE_TERM);
-    assertEquals(PROVIDER, test);
+    assertEquals(VOLS, test);
   }
 
   //-------------------------------------------------------------------------
   public void test_volatility() {
     for (int i = 0; i < NB_EXPIRY; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = SMILE_TERM.volatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
-        double volComputed = PROVIDER.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
+        double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
     }
@@ -98,10 +98,10 @@ public class BlackFxOptionSmileVolatilitiesTest {
 
   public void test_volatility_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = SMILE_TERM.volatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
-        double volComputed = PROVIDER.volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j],
+        double volComputed = VOLS.volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j],
             1d / FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
@@ -112,17 +112,17 @@ public class BlackFxOptionSmileVolatilitiesTest {
   public void test_surfaceParameterSensitivity() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+        double timeToExpiry = VOLS.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivity computed = PROVIDER.parameterSensitivity(sensi).getSensitivities().get(0);
+            VOLS.getName(), CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
+        CurrencyParameterSensitivity computed = VOLS.parameterSensitivity(sensi).getSensitivities().get(0);
         Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
           FxVolatilitySurfaceYearFractionParameterMetadata meta = ((FxVolatilitySurfaceYearFractionParameterMetadata) itr.next());
           double nodeExpiry = meta.getYearFraction();
           double nodeDelta = meta.getStrike().getValue();
           double expected = nodeSensitivity(
-              PROVIDER, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry, nodeDelta);
+              VOLS, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry, nodeDelta);
           assertEquals(value, expected, EPS);
         }
 
@@ -133,16 +133,16 @@ public class BlackFxOptionSmileVolatilitiesTest {
   public void test_surfaceParameterSensitivity_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+        double timeToExpiry = VOLS.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivity computed = PROVIDER.parameterSensitivity(sensi).getSensitivities().get(0);
+            VOLS.getName(), CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
+        CurrencyParameterSensitivity computed = VOLS.parameterSensitivity(sensi).getSensitivities().get(0);
         Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
           FxVolatilitySurfaceYearFractionParameterMetadata meta = ((FxVolatilitySurfaceYearFractionParameterMetadata) itr.next());
           double nodeExpiry = meta.getYearFraction();
           double nodeDelta = meta.getStrike().getValue();
-          double expected = nodeSensitivity(PROVIDER, CURRENCY_PAIR.inverse(),
+          double expected = nodeSensitivity(VOLS, CURRENCY_PAIR.inverse(),
               TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], nodeExpiry, nodeDelta);
           assertEquals(value, expected, EPS);
         }

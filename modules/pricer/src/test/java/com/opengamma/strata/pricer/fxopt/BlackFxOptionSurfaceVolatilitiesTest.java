@@ -42,7 +42,7 @@ public class BlackFxOptionSurfaceVolatilitiesTest {
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final DoubleArray TIMES = DoubleArray.of(0.25, 0.25, 0.25, 0.50, 0.50, 0.50, 1.00, 1.00, 1.00);
   private static final DoubleArray STRIKES = DoubleArray.of(0.7, 0.8, 0.9, 0.7, 0.8, 0.9, 0.7, 0.8, 0.9);
-  private static final DoubleArray VOLS = DoubleArray.of(0.011, 0.012, 0.010, 0.012, 0.013, 0.011, 0.013, 0.014, 0.014);
+  private static final DoubleArray VOL_ARRAY = DoubleArray.of(0.011, 0.012, 0.010, 0.012, 0.013, 0.011, 0.013, 0.014, 0.014);
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .surfaceName("Test")
       .xValueType(ValueType.YEAR_FRACTION)
@@ -51,14 +51,14 @@ public class BlackFxOptionSurfaceVolatilitiesTest {
       .dayCount(ACT_365F)
       .build();
   private static final InterpolatedNodalSurface SURFACE =
-      InterpolatedNodalSurface.of(METADATA, TIMES, STRIKES, VOLS, INTERPOLATOR_2D);
+      InterpolatedNodalSurface.of(METADATA, TIMES, STRIKES, VOL_ARRAY, INTERPOLATOR_2D);
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, GBP);
 
-  private static final BlackFxOptionSurfaceVolatilities PROVIDER =
+  private static final BlackFxOptionSurfaceVolatilities VOLS =
       BlackFxOptionSurfaceVolatilities.of(CURRENCY_PAIR, VAL_DATE_TIME, SURFACE);
 
   private static final LocalTime TIME = LocalTime.of(11, 45);
@@ -85,16 +85,16 @@ public class BlackFxOptionSurfaceVolatilitiesTest {
     assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getSurface(), SURFACE);
-    assertEquals(PROVIDER, test);
+    assertEquals(VOLS, test);
   }
 
   //-------------------------------------------------------------------------
   public void test_volatility() {
     for (int i = 0; i < NB_EXPIRY; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = SURFACE.zValue(expiryTime, TEST_STRIKE[j]);
-        double volComputed = PROVIDER.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
+        double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
     }
@@ -102,10 +102,10 @@ public class BlackFxOptionSurfaceVolatilitiesTest {
 
   public void test_volatility_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = SURFACE.zValue(expiryTime, TEST_STRIKE[j]);
-        double volComputed = PROVIDER
+        double volComputed = VOLS
             .volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
@@ -116,16 +116,16 @@ public class BlackFxOptionSurfaceVolatilitiesTest {
   public void test_nodeSensitivity() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+        double timeToExpiry = VOLS.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(sensi);
+            VOLS.getName(), CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
+        CurrencyParameterSensitivities computed = VOLS.parameterSensitivity(sensi);
         for (int k = 0; k < SURFACE.getParameterCount(); k++) {
           double value = computed.getSensitivities().get(0).getSensitivity().get(k);
           double nodeExpiry = SURFACE.getXValues().get(k);
           double nodeStrike = SURFACE.getYValues().get(k);
           double expected = nodeSensitivity(
-              PROVIDER, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry, nodeStrike);
+              VOLS, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry, nodeStrike);
           assertEquals(value, expected, EPS);
         }
       }
@@ -135,15 +135,15 @@ public class BlackFxOptionSurfaceVolatilitiesTest {
   public void test_nodeSensitivity_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+        double timeToExpiry = VOLS.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(sensi);
+            VOLS.getName(), CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
+        CurrencyParameterSensitivities computed = VOLS.parameterSensitivity(sensi);
         for (int k = 0; k < SURFACE.getParameterCount(); k++) {
           double value = computed.getSensitivities().get(0).getSensitivity().get(k);
           double nodeExpiry = SURFACE.getXValues().get(k);
           double nodeStrike = SURFACE.getYValues().get(k);
-          double expected = nodeSensitivity(PROVIDER, CURRENCY_PAIR.inverse(),
+          double expected = nodeSensitivity(VOLS, CURRENCY_PAIR.inverse(),
               TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], nodeExpiry, nodeStrike);
           assertEquals(value, expected, EPS);
         }

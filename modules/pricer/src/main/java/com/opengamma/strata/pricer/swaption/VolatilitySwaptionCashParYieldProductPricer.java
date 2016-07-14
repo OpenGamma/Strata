@@ -20,12 +20,12 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.common.SettlementType;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
@@ -329,7 +329,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     double strike = calculateStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
       return SwaptionSensitivity.of(
-          swaptionVolatilities.getConvention(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
+          swaptionVolatilities.getName(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
@@ -337,7 +337,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
     return SwaptionSensitivity.of(
-        swaptionVolatilities.getConvention(),
+        swaptionVolatilities.getName(),
         expiry,
         tenor,
         strike,

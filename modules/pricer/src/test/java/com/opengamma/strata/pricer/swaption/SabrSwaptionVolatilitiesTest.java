@@ -126,10 +126,10 @@ public class SabrSwaptionVolatilitiesTest {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
       PointSensitivities point = PointSensitivities.of(
-          SwaptionSabrSensitivity.of(CONV, expiryTime, TEST_TENOR[i], ALPHA, USD, alphaSensi),
-          SwaptionSabrSensitivity.of(CONV, expiryTime, TEST_TENOR[i], BETA, USD, betaSensi),
-          SwaptionSabrSensitivity.of(CONV, expiryTime, TEST_TENOR[i], RHO, USD, rhoSensi),
-          SwaptionSabrSensitivity.of(CONV, expiryTime, TEST_TENOR[i], NU, USD, nuSensi));
+          SwaptionSabrSensitivity.of(NAME, expiryTime, TEST_TENOR[i], ALPHA, USD, alphaSensi),
+          SwaptionSabrSensitivity.of(NAME, expiryTime, TEST_TENOR[i], BETA, USD, betaSensi),
+          SwaptionSabrSensitivity.of(NAME, expiryTime, TEST_TENOR[i], RHO, USD, rhoSensi),
+          SwaptionSabrSensitivity.of(NAME, expiryTime, TEST_TENOR[i], NU, USD, nuSensi));
       CurrencyParameterSensitivities sensiComputed = prov.parameterSensitivity(point);
       UnitParameterSensitivity alphaSensitivities = prov.getParameters().getAlphaSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
@@ -179,20 +179,20 @@ public class SabrSwaptionVolatilitiesTest {
     double expiryTime3 = prov.relativeTime(TEST_OPTION_EXPIRY[3]);
     for (int i = 0; i < NB_TEST; i++) {
       PointSensitivities sensi1 = PointSensitivities.of(
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], ALPHA, USD, points1[0]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], BETA, USD, points1[1]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], RHO, USD, points1[2]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], NU, USD, points1[3]));
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], ALPHA, USD, points1[0]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], BETA, USD, points1[1]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], RHO, USD, points1[2]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], NU, USD, points1[3]));
       PointSensitivities sensi2 = PointSensitivities.of(
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], ALPHA, USD, points2[0]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], BETA, USD, points2[1]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], RHO, USD, points2[2]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime0, TEST_TENOR[i], NU, USD, points2[3]));
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], ALPHA, USD, points2[0]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], BETA, USD, points2[1]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], RHO, USD, points2[2]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime0, TEST_TENOR[i], NU, USD, points2[3]));
       PointSensitivities sensi3 = PointSensitivities.of(
-          SwaptionSabrSensitivity.of(CONV, expiryTime3, TEST_TENOR[i], ALPHA, USD, points3[0]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime3, TEST_TENOR[i], BETA, USD, points3[1]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime3, TEST_TENOR[i], RHO, USD, points3[2]),
-          SwaptionSabrSensitivity.of(CONV, expiryTime3, TEST_TENOR[i], NU, USD, points3[3]));
+          SwaptionSabrSensitivity.of(NAME, expiryTime3, TEST_TENOR[i], ALPHA, USD, points3[0]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime3, TEST_TENOR[i], BETA, USD, points3[1]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime3, TEST_TENOR[i], RHO, USD, points3[2]),
+          SwaptionSabrSensitivity.of(NAME, expiryTime3, TEST_TENOR[i], NU, USD, points3[3]));
       PointSensitivities sensis = sensi1.combinedWith(sensi2).combinedWith(sensi3).normalized();
       CurrencyParameterSensitivities computed = prov.parameterSensitivity(sensis);
       CurrencyParameterSensitivities expected = prov.parameterSensitivity(sensi1)

@@ -308,7 +308,7 @@ public class NormalIborFutureOptionMarginedProductPricer {
 
     double vega = NormalFormulaRepository.vega(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
     return IborFutureOptionSensitivity.of(
-        future.getIndex(), timeToExpiry, future.getLastTradeDate(), strike, futurePrice, vega);
+        volatilities.getName(), timeToExpiry, future.getLastTradeDate(), strike, futurePrice, future.getCurrency(), vega);
   }
 
   //-------------------------------------------------------------------------

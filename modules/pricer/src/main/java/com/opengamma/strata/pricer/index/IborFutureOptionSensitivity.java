@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -43,10 +42,10 @@ public final class IborFutureOptionSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-   * The index on which the underlying future fixes.
+   * The name of the volatilities.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIndex index;
+  private final IborFutureOptionVolatilitiesName volatilitiesName;
   /**
    * The time to expiry of the option as a year fraction.
    */
@@ -80,34 +79,9 @@ public final class IborFutureOptionSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on the index.
-   * <p>
-   * The currency is defaulted from the index.
+   * Obtains an instance.
    * 
-   * @param index  the index of the curve
-   * @param expiry  the time to expiry of the option as a year fraction
-   * @param fixingDate  the fixing date of the underlying future
-   * @param strikePrice  the strike price of the option
-   * @param futurePrice  the price of the underlying future
-   * @param sensitivity  the value of the sensitivity
-   * @return the point sensitivity object
-   */
-  public static IborFutureOptionSensitivity of(
-      IborIndex index,
-      double expiry,
-      LocalDate fixingDate,
-      double strikePrice,
-      double futurePrice,
-      double sensitivity) {
-
-    return new IborFutureOptionSensitivity(
-        index, expiry, fixingDate, strikePrice, futurePrice, index.getCurrency(), sensitivity);
-  }
-
-  /**
-   * Obtains an instance based on the index, specifying the sensitivity currency.
-   * 
-   * @param index  the index of the curve
+   * @param volatilitiesName  the name of the volatilities
    * @param expiry  the expiry date-time of the option as a year fraction
    * @param fixingDate  the fixing date of the underlying future
    * @param strikePrice  the strike price of the option
@@ -117,7 +91,7 @@ public final class IborFutureOptionSensitivity
    * @return the point sensitivity object
    */
   public static IborFutureOptionSensitivity of(
-      IborIndex index,
+      IborFutureOptionVolatilitiesName volatilitiesName,
       double expiry,
       LocalDate fixingDate,
       double strikePrice,
@@ -126,7 +100,7 @@ public final class IborFutureOptionSensitivity
       double sensitivity) {
 
     return new IborFutureOptionSensitivity(
-        index, expiry, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
+        volatilitiesName, expiry, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -136,13 +110,13 @@ public final class IborFutureOptionSensitivity
       return this;
     }
     return new IborFutureOptionSensitivity(
-        index, expiry, fixingDate, strikePrice, futurePrice, currency, sensitivity);
+        volatilitiesName, expiry, fixingDate, strikePrice, futurePrice, currency, sensitivity);
   }
 
   @Override
   public IborFutureOptionSensitivity withSensitivity(double sensitivity) {
     return new IborFutureOptionSensitivity(
-        index, expiry, fixingDate, strikePrice, futurePrice, currency, sensitivity);
+        volatilitiesName, expiry, fixingDate, strikePrice, futurePrice, currency, sensitivity);
   }
 
   @Override
@@ -150,12 +124,12 @@ public final class IborFutureOptionSensitivity
     if (other instanceof IborFutureOptionSensitivity) {
       IborFutureOptionSensitivity otherOption = (IborFutureOptionSensitivity) other;
       return ComparisonChain.start()
-          .compare(index.toString(), otherOption.index.toString())
+          .compare(volatilitiesName, otherOption.volatilitiesName)
+          .compare(currency, otherOption.currency)
           .compare(expiry, otherOption.expiry)
           .compare(fixingDate, otherOption.fixingDate)
           .compare(strikePrice, otherOption.strikePrice)
           .compare(futurePrice, otherOption.futurePrice)
-          .compare(currency, otherOption.currency)
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
@@ -170,13 +144,13 @@ public final class IborFutureOptionSensitivity
   @Override
   public IborFutureOptionSensitivity multipliedBy(double factor) {
     return new IborFutureOptionSensitivity(
-        index, expiry, fixingDate, strikePrice, futurePrice, currency, sensitivity * factor);
+        volatilitiesName, expiry, fixingDate, strikePrice, futurePrice, currency, sensitivity * factor);
   }
 
   @Override
   public IborFutureOptionSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new IborFutureOptionSensitivity(
-        index, expiry, fixingDate, strikePrice, futurePrice, currency, operator.applyAsDouble(sensitivity));
+        volatilitiesName, expiry, fixingDate, strikePrice, futurePrice, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -214,18 +188,18 @@ public final class IborFutureOptionSensitivity
   private static final long serialVersionUID = 1L;
 
   private IborFutureOptionSensitivity(
-      IborIndex index,
+      IborFutureOptionVolatilitiesName volatilitiesName,
       double expiry,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
       Currency currency,
       double sensitivity) {
-    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(volatilitiesName, "volatilitiesName");
     JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(fixingDate, "fixingDate");
     JodaBeanUtils.notNull(currency, "currency");
-    this.index = index;
+    this.volatilitiesName = volatilitiesName;
     this.expiry = expiry;
     this.fixingDate = fixingDate;
     this.strikePrice = strikePrice;
@@ -251,11 +225,11 @@ public final class IborFutureOptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index on which the underlying future fixes.
+   * Gets the name of the volatilities.
    * @return the value of the property, not null
    */
-  public IborIndex getIndex() {
-    return index;
+  public IborFutureOptionVolatilitiesName getVolatilitiesName() {
+    return volatilitiesName;
   }
 
   //-----------------------------------------------------------------------
@@ -322,7 +296,7 @@ public final class IborFutureOptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFutureOptionSensitivity other = (IborFutureOptionSensitivity) obj;
-      return JodaBeanUtils.equal(index, other.index) &&
+      return JodaBeanUtils.equal(volatilitiesName, other.volatilitiesName) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
           JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
@@ -336,7 +310,7 @@ public final class IborFutureOptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatilitiesName);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
@@ -350,7 +324,7 @@ public final class IborFutureOptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("IborFutureOptionSensitivity{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("volatilitiesName").append('=').append(volatilitiesName).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
     buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
@@ -372,10 +346,10 @@ public final class IborFutureOptionSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code volatilitiesName} property.
      */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IborFutureOptionSensitivity.class, IborIndex.class);
+    private final MetaProperty<IborFutureOptionVolatilitiesName> volatilitiesName = DirectMetaProperty.ofImmutable(
+        this, "volatilitiesName", IborFutureOptionSensitivity.class, IborFutureOptionVolatilitiesName.class);
     /**
      * The meta-property for the {@code expiry} property.
      */
@@ -411,7 +385,7 @@ public final class IborFutureOptionSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "index",
+        "volatilitiesName",
         "expiry",
         "fixingDate",
         "strikePrice",
@@ -428,8 +402,8 @@ public final class IborFutureOptionSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
+        case 2100884654:  // volatilitiesName
+          return volatilitiesName;
         case -1289159373:  // expiry
           return expiry;
         case 1255202043:  // fixingDate
@@ -463,11 +437,11 @@ public final class IborFutureOptionSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code volatilitiesName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> index() {
-      return index;
+    public MetaProperty<IborFutureOptionVolatilitiesName> volatilitiesName() {
+      return volatilitiesName;
     }
 
     /**
@@ -522,8 +496,8 @@ public final class IborFutureOptionSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return ((IborFutureOptionSensitivity) bean).getIndex();
+        case 2100884654:  // volatilitiesName
+          return ((IborFutureOptionSensitivity) bean).getVolatilitiesName();
         case -1289159373:  // expiry
           return ((IborFutureOptionSensitivity) bean).getExpiry();
         case 1255202043:  // fixingDate
@@ -557,7 +531,7 @@ public final class IborFutureOptionSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IborFutureOptionSensitivity> {
 
-    private IborIndex index;
+    private IborFutureOptionVolatilitiesName volatilitiesName;
     private double expiry;
     private LocalDate fixingDate;
     private double strikePrice;
@@ -575,8 +549,8 @@ public final class IborFutureOptionSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
+        case 2100884654:  // volatilitiesName
+          return volatilitiesName;
         case -1289159373:  // expiry
           return expiry;
         case 1255202043:  // fixingDate
@@ -597,8 +571,8 @@ public final class IborFutureOptionSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          this.index = (IborIndex) newValue;
+        case 2100884654:  // volatilitiesName
+          this.volatilitiesName = (IborFutureOptionVolatilitiesName) newValue;
           break;
         case -1289159373:  // expiry
           this.expiry = (Double) newValue;
@@ -651,7 +625,7 @@ public final class IborFutureOptionSensitivity
     @Override
     public IborFutureOptionSensitivity build() {
       return new IborFutureOptionSensitivity(
-          index,
+          volatilitiesName,
           expiry,
           fixingDate,
           strikePrice,
@@ -665,7 +639,7 @@ public final class IborFutureOptionSensitivity
     public String toString() {
       StringBuilder buf = new StringBuilder(256);
       buf.append("IborFutureOptionSensitivity.Builder{");
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("volatilitiesName").append('=').append(JodaBeanUtils.toString(volatilitiesName)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');

@@ -261,7 +261,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     double vega = df * period.getYearFraction() * volatilities.priceVega(expiry, putCall, strike, forward, volatility);
     return IborCapletFloorletSensitivity.of(
-        period.getIndex(),
+        volatilities.getName(),
         expiry,
         strike,
         forward,

@@ -42,6 +42,11 @@ public final class FxOptionSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
+   * The name of the volatilities.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final FxOptionVolatilitiesName volatilitiesName;
+  /**
    * The currency pair for which the sensitivity is presented.
    */
   @PropertyDefinition(validate = "notNull")
@@ -76,6 +81,7 @@ public final class FxOptionSensitivity
   /**
    * Obtains an instance, specifying sensitivity currency.
    * 
+   * @param volatilitiesName  the name of the volatilities
    * @param currencyPair  the currency pair
    * @param expiry  the time to expiry of the option as a year fraction
    * @param strike  the strike rate
@@ -85,6 +91,7 @@ public final class FxOptionSensitivity
    * @return the point sensitivity object
    */
   public static FxOptionSensitivity of(
+      FxOptionVolatilitiesName volatilitiesName,
       CurrencyPair currencyPair,
       double expiry,
       double strike,
@@ -92,7 +99,8 @@ public final class FxOptionSensitivity
       Currency sensitivityCurrency,
       double sensitivity) {
 
-    return new FxOptionSensitivity(currencyPair, expiry, strike, forward, sensitivityCurrency, sensitivity);
+    return new FxOptionSensitivity(
+        volatilitiesName, currencyPair, expiry, strike, forward, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -101,12 +109,12 @@ public final class FxOptionSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new FxOptionSensitivity(currencyPair, expiry, strike, forward, currency, sensitivity);
+    return new FxOptionSensitivity(volatilitiesName, currencyPair, expiry, strike, forward, currency, sensitivity);
   }
 
   @Override
   public FxOptionSensitivity withSensitivity(double sensitivity) {
-    return new FxOptionSensitivity(currencyPair, expiry, strike, forward, currency, sensitivity);
+    return new FxOptionSensitivity(volatilitiesName, currencyPair, expiry, strike, forward, currency, sensitivity);
   }
 
   @Override
@@ -114,6 +122,7 @@ public final class FxOptionSensitivity
     if (other instanceof FxOptionSensitivity) {
       FxOptionSensitivity otherOption = (FxOptionSensitivity) other;
       return ComparisonChain.start()
+          .compare(volatilitiesName, otherOption.volatilitiesName)
           .compare(currencyPair.toString(), otherOption.currencyPair.toString())
           .compare(expiry, otherOption.expiry)
           .compare(strike, otherOption.strike)
@@ -133,13 +142,13 @@ public final class FxOptionSensitivity
   @Override
   public FxOptionSensitivity multipliedBy(double factor) {
     return new FxOptionSensitivity(
-        currencyPair, expiry, strike, forward, currency, sensitivity * factor);
+        volatilitiesName, currencyPair, expiry, strike, forward, currency, sensitivity * factor);
   }
 
   @Override
   public FxOptionSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new FxOptionSensitivity(
-        currencyPair, expiry, strike, forward, currency, operator.applyAsDouble(sensitivity));
+        volatilitiesName, currencyPair, expiry, strike, forward, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -177,15 +186,18 @@ public final class FxOptionSensitivity
   private static final long serialVersionUID = 1L;
 
   private FxOptionSensitivity(
+      FxOptionVolatilitiesName volatilitiesName,
       CurrencyPair currencyPair,
       double expiry,
       double strike,
       double forward,
       Currency currency,
       double sensitivity) {
+    JodaBeanUtils.notNull(volatilitiesName, "volatilitiesName");
     JodaBeanUtils.notNull(currencyPair, "currencyPair");
     JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(currency, "currency");
+    this.volatilitiesName = volatilitiesName;
     this.currencyPair = currencyPair;
     this.expiry = expiry;
     this.strike = strike;
@@ -207,6 +219,15 @@ public final class FxOptionSensitivity
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the volatilities.
+   * @return the value of the property, not null
+   */
+  public FxOptionVolatilitiesName getVolatilitiesName() {
+    return volatilitiesName;
   }
 
   //-----------------------------------------------------------------------
@@ -273,7 +294,8 @@ public final class FxOptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxOptionSensitivity other = (FxOptionSensitivity) obj;
-      return JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
+      return JodaBeanUtils.equal(volatilitiesName, other.volatilitiesName) &&
+          JodaBeanUtils.equal(currencyPair, other.currencyPair) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(strike, other.strike) &&
           JodaBeanUtils.equal(forward, other.forward) &&
@@ -286,6 +308,7 @@ public final class FxOptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(volatilitiesName);
     hash = hash * 31 + JodaBeanUtils.hashCode(currencyPair);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(strike);
@@ -297,8 +320,9 @@ public final class FxOptionSensitivity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("FxOptionSensitivity{");
+    buf.append("volatilitiesName").append('=').append(volatilitiesName).append(',').append(' ');
     buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("strike").append('=').append(strike).append(',').append(' ');
@@ -319,6 +343,11 @@ public final class FxOptionSensitivity
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code volatilitiesName} property.
+     */
+    private final MetaProperty<FxOptionVolatilitiesName> volatilitiesName = DirectMetaProperty.ofImmutable(
+        this, "volatilitiesName", FxOptionSensitivity.class, FxOptionVolatilitiesName.class);
     /**
      * The meta-property for the {@code currencyPair} property.
      */
@@ -354,6 +383,7 @@ public final class FxOptionSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "volatilitiesName",
         "currencyPair",
         "expiry",
         "strike",
@@ -370,6 +400,8 @@ public final class FxOptionSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 2100884654:  // volatilitiesName
+          return volatilitiesName;
         case 1005147787:  // currencyPair
           return currencyPair;
         case -1289159373:  // expiry
@@ -402,6 +434,14 @@ public final class FxOptionSensitivity
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code volatilitiesName} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FxOptionVolatilitiesName> volatilitiesName() {
+      return volatilitiesName;
+    }
+
     /**
      * The meta-property for the {@code currencyPair} property.
      * @return the meta-property, not null
@@ -454,6 +494,8 @@ public final class FxOptionSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 2100884654:  // volatilitiesName
+          return ((FxOptionSensitivity) bean).getVolatilitiesName();
         case 1005147787:  // currencyPair
           return ((FxOptionSensitivity) bean).getCurrencyPair();
         case -1289159373:  // expiry
@@ -487,6 +529,7 @@ public final class FxOptionSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<FxOptionSensitivity> {
 
+    private FxOptionVolatilitiesName volatilitiesName;
     private CurrencyPair currencyPair;
     private double expiry;
     private double strike;
@@ -504,6 +547,8 @@ public final class FxOptionSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 2100884654:  // volatilitiesName
+          return volatilitiesName;
         case 1005147787:  // currencyPair
           return currencyPair;
         case -1289159373:  // expiry
@@ -524,6 +569,9 @@ public final class FxOptionSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 2100884654:  // volatilitiesName
+          this.volatilitiesName = (FxOptionVolatilitiesName) newValue;
+          break;
         case 1005147787:  // currencyPair
           this.currencyPair = (CurrencyPair) newValue;
           break;
@@ -575,6 +623,7 @@ public final class FxOptionSensitivity
     @Override
     public FxOptionSensitivity build() {
       return new FxOptionSensitivity(
+          volatilitiesName,
           currencyPair,
           expiry,
           strike,
@@ -586,8 +635,9 @@ public final class FxOptionSensitivity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("FxOptionSensitivity.Builder{");
+      buf.append("volatilitiesName").append('=').append(JodaBeanUtils.toString(volatilitiesName)).append(',').append(' ');
       buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');

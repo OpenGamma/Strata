@@ -93,7 +93,7 @@ public class SwaptionTradeCalculationFunctionTest {
   private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
 
   public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
-      SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
+      SwaptionNormalVolatilityDataSets.NORMAL_SWAPTION_VOLS_USD_STD;
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
   private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.USD");
