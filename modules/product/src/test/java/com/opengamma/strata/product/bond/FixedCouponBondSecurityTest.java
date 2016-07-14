@@ -45,7 +45,7 @@ public class FixedCouponBondSecurityTest {
   private static final FixedCouponBond PRODUCT2 = FixedCouponBondTest.sut2();
   private static final SecurityPriceInfo PRICE_INFO = SecurityPriceInfo.of(0.1, CurrencyAmount.of(GBP, 25));
   private static final SecurityInfo INFO = SecurityInfo.of(PRODUCT.getSecurityId(), PRICE_INFO);
-  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.DE_BONDS;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;

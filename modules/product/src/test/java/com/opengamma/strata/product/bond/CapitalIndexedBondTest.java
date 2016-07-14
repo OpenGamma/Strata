@@ -17,7 +17,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static org.testng.Assert.assertEquals;
@@ -228,7 +228,7 @@ public class CapitalIndexedBondTest {
         .rateCalculation(RATE_CALC)
         .exCouponPeriod(EX_COUPON)
         .legalEntityId(LEGAL_ENTITY)
-        .yieldConvention(INDEX_LINKED_FLOAT)
+        .yieldConvention(GB_IL_FLOAT)
         .settlementDateOffset(SETTLE_OFFSET)
         .accrualSchedule(SCHEDULE)
         .build();
@@ -249,7 +249,7 @@ public class CapitalIndexedBondTest {
                 .build())
         .exCouponPeriod(EX_COUPON)
         .legalEntityId(StandardId.of("OG-Ticker", "US-Govt-1"))
-        .yieldConvention(INDEX_LINKED_FLOAT)
+        .yieldConvention(GB_IL_FLOAT)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .accrualSchedule(
             PeriodicSchedule.of(

@@ -78,7 +78,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
   private static final BondGroup GROUP_REPO = BondGroup.of("GOVT BONDS");
-  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.JAPAN_SIMPLE;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.JP_SIMPLE;
   /** Notional of underlying bond */
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.JPTO;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(3, CALENDAR);

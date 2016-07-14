@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.bond;
 
-import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.GERMAN_BONDS;
-import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.JAPAN_SIMPLE;
-import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.UK_BUMP_DMO;
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.DE_BONDS;
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.JP_SIMPLE;
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.GB_BUMP_DMO;
 import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.US_STREET;
 
 import java.time.LocalDate;
@@ -547,17 +547,17 @@ public class DiscountingFixedCouponBondProductPricer {
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
     FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConv.equals(US_STREET) || yieldConv.equals(GERMAN_BONDS)) {
+      if (yieldConv.equals(US_STREET) || yieldConv.equals(DE_BONDS)) {
         FixedCouponBondPaymentPeriod payment = payments.get(payments.size() - 1);
         return (1d + payment.getFixedRate() * payment.getYearFraction()) /
             (1d + factorToNextCoupon(bond, settlementDate) * yield /
                 ((double) bond.getFrequency().eventsPerYear()));
       }
     }
-    if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(UK_BUMP_DMO)) || (yieldConv.equals(GERMAN_BONDS))) {
+    if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(GB_BUMP_DMO)) || (yieldConv.equals(DE_BONDS))) {
       return dirtyPriceFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConv.equals(JAPAN_SIMPLE)) {
+    if (yieldConv.equals(JP_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -605,7 +605,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @return the yield of the product 
    */
   public double yieldFromDirtyPrice(ResolvedFixedCouponBond bond, LocalDate settlementDate, double dirtyPrice) {
-    if (bond.getYieldConvention().equals(JAPAN_SIMPLE)) {
+    if (bond.getYieldConvention().equals(JP_SIMPLE)) {
       double cleanPrice = cleanPriceFromDirtyPrice(bond, settlementDate, dirtyPrice);
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       double maturity = bond.getDayCount().relativeYearFraction(settlementDate, maturityDate);
@@ -643,16 +643,16 @@ public class DiscountingFixedCouponBondProductPricer {
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
     FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConv.equals(US_STREET) || yieldConv.equals(GERMAN_BONDS)) {
+      if (yieldConv.equals(US_STREET) || yieldConv.equals(DE_BONDS)) {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factor = factorToNextCoupon(bond, settlementDate);
         return factor / couponPerYear / (1d + factor * yield / couponPerYear);
       }
     }
-    if (yieldConv.equals(US_STREET) || yieldConv.equals(UK_BUMP_DMO) || yieldConv.equals(GERMAN_BONDS)) {
+    if (yieldConv.equals(US_STREET) || yieldConv.equals(GB_BUMP_DMO) || yieldConv.equals(DE_BONDS)) {
       return modifiedDurationFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConv.equals(JAPAN_SIMPLE)) {
+    if (yieldConv.equals(JP_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -720,7 +720,7 @@ public class DiscountingFixedCouponBondProductPricer {
       return factorToNextCoupon(bond, settlementDate) /
           bond.getFrequency().eventsPerYear();
     }
-    if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(UK_BUMP_DMO)) || (yieldConv.equals(GERMAN_BONDS))) {
+    if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(GB_BUMP_DMO)) || (yieldConv.equals(DE_BONDS))) {
       return modifiedDurationFromYield(bond, settlementDate, yield) *
           (1d + yield / bond.getFrequency().eventsPerYear());
     }
@@ -746,7 +746,7 @@ public class DiscountingFixedCouponBondProductPricer {
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
     FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConv.equals(US_STREET) || yieldConv.equals(GERMAN_BONDS)) {
+      if (yieldConv.equals(US_STREET) || yieldConv.equals(DE_BONDS)) {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factorToNextCoupon = factorToNextCoupon(bond, settlementDate);
         double timeToPay = factorToNextCoupon / couponPerYear;
@@ -754,10 +754,10 @@ public class DiscountingFixedCouponBondProductPricer {
         return 2d * timeToPay * timeToPay / (disc * disc);
       }
     }
-    if (yieldConv.equals(US_STREET) || yieldConv.equals(UK_BUMP_DMO) || yieldConv.equals(GERMAN_BONDS)) {
+    if (yieldConv.equals(US_STREET) || yieldConv.equals(GB_BUMP_DMO) || yieldConv.equals(DE_BONDS)) {
       return convexityFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConv.equals(JAPAN_SIMPLE)) {
+    if (yieldConv.equals(JP_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
