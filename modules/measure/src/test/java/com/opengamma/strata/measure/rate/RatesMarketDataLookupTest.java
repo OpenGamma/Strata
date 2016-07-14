@@ -207,12 +207,14 @@ public class RatesMarketDataLookupTest {
   public void coverage() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE);
+    DefaultRatesMarketDataLookup test =
+        DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     coverImmutableBean(test);
 
     ImmutableMap<Currency, CurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test2 = DefaultRatesMarketDataLookup.of(discounts2, forwards2, OBS_SOURCE);
+    DefaultRatesMarketDataLookup test2 =
+        DefaultRatesMarketDataLookup.of(discounts2, forwards2, OBS_SOURCE, FxRateLookup.ofRates(EUR));
     coverBeanEquals(test, test2);
 
     // related coverage
@@ -229,7 +231,8 @@ public class RatesMarketDataLookupTest {
   public void test_serialization() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE);
+    DefaultRatesMarketDataLookup test =
+        DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     assertSerialization(test);
   }
 
