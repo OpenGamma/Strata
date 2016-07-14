@@ -12,7 +12,7 @@ The release process for Strata is as follows:
 
 1. Create Git commit, with message such as "Release v1.0.0", and push
 
-1. Add git tag (beginning with `v`): `git tag -a v1.0.0 -m "Release v1.0.0"`
+1. Add Git tag (beginning with `v`): `git tag -a v1.0.0 -m "Release v1.0.0"`
 
 1. Push the tag: `git push --tags`
 
