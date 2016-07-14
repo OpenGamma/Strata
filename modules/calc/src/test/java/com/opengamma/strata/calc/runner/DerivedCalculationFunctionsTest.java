@@ -9,7 +9,7 @@ import static com.opengamma.strata.calc.TestingMeasures.BUCKETED_PV01;
 import static com.opengamma.strata.calc.TestingMeasures.CASH_FLOWS;
 import static com.opengamma.strata.calc.TestingMeasures.PAR_RATE;
 import static com.opengamma.strata.calc.TestingMeasures.PRESENT_VALUE_MULTI_CCY;
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
@@ -69,7 +69,7 @@ public class DerivedCalculationFunctionsTest {
         PAR_RATE, Result.success(5));
     DelegateFn delegateFn = new DelegateFn(delegateResults);
     DerivedFn derivedFn1 = new DerivedFn();
-    // This depends on the the measure calculated by derivedFn1
+    // This depends on the measure calculated by derivedFn1
     DerivedFn derivedFn2 = new DerivedFn(PRESENT_VALUE_MULTI_CCY, ImmutableSet.of(BUCKETED_PV01));
 
     CalculationFunctions calculationFunctions = CalculationFunctions.of(delegateFn);

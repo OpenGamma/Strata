@@ -31,7 +31,7 @@ public class PSplineFitter {
    * @param degree The degree of the basis function - 0 is piecewise constant, 1 is a sawtooth function (i.e. two straight lines joined in the middle), 2 gives three 
    * quadratic sections joined together, etc. For a large value of degree, the basis function tends to a gaussian 
    * @param lambda The weight given to the penalty function 
-   * @param differenceOrder applies the penalty the the nth order difference in the weights, so a differenceOrder of 2 will penalise large 2nd derivatives etc
+   * @param differenceOrder applies the penalty the nth order difference in the weights, so a differenceOrder of 2 will penalise large 2nd derivatives etc
    * @return The results of the fit
    */
   public GeneralizedLeastSquareResults<Double> solve(List<Double> x, List<Double> y, List<Double> sigma, double xa, double xb, int nKnots, int degree, double lambda, int differenceOrder) {
@@ -53,7 +53,7 @@ public class PSplineFitter {
    * (i.e. two straight lines joined in the middle), 2 gives three quadratic sections joined together, etc. For a large
    *  value of degree, the basis function tends to a gaussian 
    * @param lambda The weight given to the penalty function in each dimension 
-   * @param differenceOrder applies the penalty the the nth order difference in the weights, so a differenceOrder of 2
+   * @param differenceOrder applies the penalty the nth order difference in the weights, so a differenceOrder of 2
    *  will penalise large 2nd derivatives etc. A difference differenceOrder can be used in each dimension 
    * @return The results of the fit
    */
