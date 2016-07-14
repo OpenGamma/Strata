@@ -158,6 +158,9 @@
             <artifactId>maven-assembly-plugin</artifactId>
             <configuration>
               <attach>false</attach>
+              <finalName>strata-dist-${project.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <baseDirectory>strata-dist-${project.version}</baseDirectory>
               <descriptors>
                 <descriptor>src/assembly/dist.xml</descriptor>
               </descriptors>
