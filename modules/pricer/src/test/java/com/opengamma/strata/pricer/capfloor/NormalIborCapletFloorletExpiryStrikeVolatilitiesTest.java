@@ -42,6 +42,7 @@ import com.opengamma.strata.product.common.PutCall;
 @Test
 public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
 
+  private static final String NAME = "CAP_VOL";
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
   private static final DoubleArray TIME =
       DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0);
@@ -59,7 +60,7 @@ public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
           GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME.get(i), SimpleStrike.of(STRIKE.get(i)));
       list.add(parameterMetadata);
     }
-    METADATA = Surfaces.normalVolatilityByExpiryStrike("CAP_VOL", ACT_365F).withParameterMetadata(list);
+    METADATA = Surfaces.normalVolatilityByExpiryStrike(NAME, ACT_365F).withParameterMetadata(list);
   }
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, STRIKE, VOL, INTERPOLATOR_2D);
@@ -137,7 +138,7 @@ public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
       for (int k = 0; k < NB_TEST; k++) {
         double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
         IborCapletFloorletSensitivity point = IborCapletFloorletSensitivity.of(
-            GBP_LIBOR_3M, expiryTime, TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+            IborCapletFloorletVolatilitiesName.of(NAME), expiryTime, TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
         CurrencyParameterSensitivity sensActual = VOLS.parameterSensitivity(point).getSensitivities().get(0);
         DoubleArray computed = sensActual.getSensitivity();
         for (int j = 0; j < nData; ++j) {

@@ -187,15 +187,15 @@ public final class NormalSwaptionExpirySimpleMoneynessVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof SwaptionSensitivity) {
         SwaptionSensitivity pt = (SwaptionSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
-    ArgChecker.isTrue(point.getConvention().equals(convention),
-        "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = point.getExpiry();
     double moneyness = point.getStrike() - point.getForward();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, moneyness);

@@ -118,8 +118,8 @@ public class NormalIborFutureOptionExpirySimpleMoneynessVolatilitiesTest {
     double strikePrice = 1.0025;
     double futurePrice = 0.9975;
     double sensitivity = 123456;
-    IborFutureOptionSensitivity point =
-        IborFutureOptionSensitivity.of(EUR_EURIBOR_3M, expiry, fixing, strikePrice, futurePrice, sensitivity);
+    IborFutureOptionSensitivity point = IborFutureOptionSensitivity.of(
+        VOL_SIMPLE_MONEY_RATE.getName(), expiry, fixing, strikePrice, futurePrice, EUR, sensitivity);
     CurrencyParameterSensitivities ps = VOL_SIMPLE_MONEY_RATE.parameterSensitivity(point);
     double shift = 1.0E-6;
     double v0 = VOL_SIMPLE_MONEY_RATE.volatility(expiry, fixing, strikePrice, futurePrice);

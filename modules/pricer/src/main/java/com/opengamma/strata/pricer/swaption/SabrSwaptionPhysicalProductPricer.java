@@ -22,7 +22,6 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 
 /**
@@ -137,13 +136,13 @@ public class SabrSwaptionPhysicalProductPricer
     double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility)
         * swaption.getLongShort().sign();
     // sensitivities
-    FixedIborSwapConvention conv = swaptionVolatilities.getConvention();
     Currency ccy = fixedLeg.getCurrency();
+    SwaptionVolatilitiesName name = swaptionVolatilities.getName();
     return PointSensitivityBuilder.of(
-        SwaptionSabrSensitivity.of(conv, expiry, tenor, ALPHA, ccy, vega * derivative.get(2)),
-        SwaptionSabrSensitivity.of(conv, expiry, tenor, BETA, ccy, vega * derivative.get(3)),
-        SwaptionSabrSensitivity.of(conv, expiry, tenor, RHO, ccy, vega * derivative.get(4)),
-        SwaptionSabrSensitivity.of(conv, expiry, tenor, NU, ccy, vega * derivative.get(5)));
+        SwaptionSabrSensitivity.of(name, expiry, tenor, ALPHA, ccy, vega * derivative.get(2)),
+        SwaptionSabrSensitivity.of(name, expiry, tenor, BETA, ccy, vega * derivative.get(3)),
+        SwaptionSabrSensitivity.of(name, expiry, tenor, RHO, ccy, vega * derivative.get(4)),
+        SwaptionSabrSensitivity.of(name, expiry, tenor, NU, ccy, vega * derivative.get(5)));
   }
 
 }

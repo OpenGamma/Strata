@@ -42,9 +42,9 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2012, 9, 15);
   private static final ZonedDateTime EXPIRY_DATETIME = EXPIRY_DATE.atStartOfDay(ZONE);
   // providers
-  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER =
+  private static final BlackFxOptionSmileVolatilities VOLS =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(VAL_DATETIME);
-  private static final BlackFxOptionSmileVolatilities VOL_PROVIDER_MRKT =
+  private static final BlackFxOptionSmileVolatilities VOLS_MRKT =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5Market(VAL_DATETIME);
   private static final ImmutableRatesProvider RATE_PROVIDER =
       RatesProviderFxDataSets.createProviderEurUsdFlat(VAL_DATE);
@@ -61,9 +61,9 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
       .build();
   private static final ImpliedTrinomialTreeFxOptionCalibrator CALIB = new ImpliedTrinomialTreeFxOptionCalibrator(39);
   private static final RecombiningTrinomialTreeData TREE_DATA =
-      CALIB.calibrateTrinomialTree(CALL, RATE_PROVIDER, VOL_PROVIDER);
+      CALIB.calibrateTrinomialTree(CALL, RATE_PROVIDER, VOLS);
   private static final RecombiningTrinomialTreeData TREE_DATA_MRKT =
-      CALIB.calibrateTrinomialTree(CALL, RATE_PROVIDER, VOL_PROVIDER_MRKT);
+      CALIB.calibrateTrinomialTree(CALL, RATE_PROVIDER, VOLS_MRKT);
   private static final TrinomialTree TREE = new TrinomialTree();
 
   public void test_recoverVolatility() {
@@ -78,12 +78,12 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
       OptionFunction func = EuropeanVanillaOptionFunction.of(strike, timeToExpiry, PutCall.CALL, nSteps);
       double price = TREE.optionPrice(func, TREE_DATA);
       double impliedVol = BlackFormulaRepository.impliedVolatility(price / dfDom, forward, strike, timeToExpiry, true);
-      double orgVol = VOL_PROVIDER.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
+      double orgVol = VOLS.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
       assertEquals(impliedVol, orgVol, orgVol * 0.1); // large tol
       double priceMrkt = TREE.optionPrice(func, TREE_DATA_MRKT);
       double impliedVolMrkt =
           BlackFormulaRepository.impliedVolatility(priceMrkt / dfDom, forward, strike, timeToExpiry, true);
-      double orgVolMrkt = VOL_PROVIDER_MRKT.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
+      double orgVolMrkt = VOLS_MRKT.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
       assertEquals(impliedVolMrkt, orgVolMrkt, orgVolMrkt * 0.1); // large tol
     }
   }

@@ -39,20 +39,20 @@ public class BlackFxOptionFlatVolatilitiesTest {
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final DoubleArray TIMES = DoubleArray.of(0.5, 1.0, 3.0);
-  private static final DoubleArray VOLS = DoubleArray.of(0.05, 0.09, 0.16);
+  private static final DoubleArray VOL_ARRAY = DoubleArray.of(0.05, 0.09, 0.16);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.builder()
       .curveName("Test")
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.BLACK_VOLATILITY)
       .dayCount(ACT_365F)
       .build();
-  private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VOLS, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VOL_ARRAY, INTERPOLATOR);
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, GBP);
-  private static final BlackFxOptionFlatVolatilities PROVIDER =
+  private static final BlackFxOptionFlatVolatilities VOLS =
       BlackFxOptionFlatVolatilities.of(CURRENCY_PAIR, VAL_DATE_TIME, CURVE);
 
   private static final LocalTime TIME = LocalTime.of(11, 45);
@@ -80,16 +80,16 @@ public class BlackFxOptionFlatVolatilitiesTest {
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getName(), FxOptionVolatilitiesName.of(CURVE.getName().getName()));
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(PROVIDER, test);
+    assertEquals(VOLS, test);
   }
 
   //-------------------------------------------------------------------------
   public void test_volatility() {
     for (int i = 0; i < NB_EXPIRY; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = CURVE.yValue(expiryTime);
-        double volComputed = PROVIDER.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
+        double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
     }
@@ -97,10 +97,10 @@ public class BlackFxOptionFlatVolatilitiesTest {
 
   public void test_volatility_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = CURVE.yValue(expiryTime);
-        double volComputed = PROVIDER
+        double volComputed = VOLS
             .volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
@@ -111,15 +111,15 @@ public class BlackFxOptionFlatVolatilitiesTest {
   public void test_parameterSensitivity() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+        double timeToExpiry = VOLS.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(sensi);
+            VOLS.getName(), CURRENCY_PAIR, timeToExpiry, TEST_STRIKE[j], FORWARD[i], GBP, 1d);
+        CurrencyParameterSensitivities computed = VOLS.parameterSensitivity(sensi);
         for (int k = 0; k < TIMES.size(); k++) {
           double value = computed.getSensitivities().get(0).getSensitivity().get(k);
           double nodeExpiry = TIMES.get(k);
           double expected = nodeSensitivity(
-              PROVIDER, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry);
+              VOLS, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry);
           assertEquals(value, expected, EPS);
         }
       }
@@ -129,15 +129,15 @@ public class BlackFxOptionFlatVolatilitiesTest {
   public void test_parameterSensitivity_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double timeToExpiry = PROVIDER.relativeTime(TEST_EXPIRY[i]);
+        double timeToExpiry = VOLS.relativeTime(TEST_EXPIRY[i]);
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
-            CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
-        CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(sensi);
+            VOLS.getName(), CURRENCY_PAIR.inverse(), timeToExpiry, 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
+        CurrencyParameterSensitivities computed = VOLS.parameterSensitivity(sensi);
         for (int k = 0; k < TIMES.size(); k++) {
           double value = computed.getSensitivities().get(0).getSensitivity().get(k);
           double nodeExpiry = TIMES.get(k);
           double expected = nodeSensitivity(
-              PROVIDER, CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], nodeExpiry);
+              VOLS, CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], nodeExpiry);
           assertEquals(value, expected, EPS);
         }
       }

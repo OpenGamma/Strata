@@ -294,6 +294,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double todayFx = ratesProvider.fxRate(currencyPair);
     double forward = todayFx * dfBase / dfCounter;
     return FxOptionSensitivity.of(
+        volatilities.getName(),
         currencyPair,
         volatilities.relativeTime(underlyingOption.getExpiry()),
         underlyingOption.getStrike(),

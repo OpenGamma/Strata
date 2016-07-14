@@ -34,6 +34,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrSensitivity;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.cms.CmsPeriodType;
 import com.opengamma.strata.product.common.PutCall;
@@ -42,7 +43,6 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  *  Computes the price of a CMS coupon/caplet/floorlet by swaption replication on a shifted SABR formula with extrapolation.
@@ -422,12 +422,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       totalSensi[loopparameter] =
           (strikePartPrice[loopparameter] + integralPart) * cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
     }
-    FixedIborSwapConvention conv = cmsPeriod.getIndex().getTemplate().getConvention();
+    SwaptionVolatilitiesName name = swaptionVolatilities.getName();
     return PointSensitivityBuilder.of(
-        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, ALPHA, ccy, totalSensi[0]),
-        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, BETA, ccy, totalSensi[1]),
-        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, RHO, ccy, totalSensi[2]),
-        SwaptionSabrSensitivity.of(conv, expiryTime, tenor, NU, ccy, totalSensi[3]));
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, ALPHA, ccy, totalSensi[0]),
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, BETA, ccy, totalSensi[1]),
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, RHO, ccy, totalSensi[2]),
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, NU, ccy, totalSensi[3]));
   }
 
   /**

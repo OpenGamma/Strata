@@ -187,15 +187,15 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof IborCapletFloorletSensitivity) {
         IborCapletFloorletSensitivity pt = (IborCapletFloorletSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity point) {
-    ArgChecker.isTrue(point.getIndex().equals(index),
-        "Ibor index of provider must be the same as Ibor index of point sensitivity");
     double expiry = point.getExpiry();
     double strike = point.getStrike();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);

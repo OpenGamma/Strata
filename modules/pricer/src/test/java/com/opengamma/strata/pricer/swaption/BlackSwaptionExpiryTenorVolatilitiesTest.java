@@ -68,7 +68,7 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
-  private static final BlackSwaptionExpiryTenorVolatilities PROVIDER =
+  private static final BlackSwaptionExpiryTenorVolatilities VOLS =
       BlackSwaptionExpiryTenorVolatilities.of(CONVENTION, VAL_DATE_TIME, SURFACE);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
@@ -83,40 +83,40 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
 
   //-------------------------------------------------------------------------
   public void test_valuationDate() {
-    assertEquals(PROVIDER.getValuationDateTime(), VAL_DATE_TIME);
+    assertEquals(VOLS.getValuationDateTime(), VAL_DATE_TIME);
   }
 
   public void test_swapConvention() {
-    assertEquals(PROVIDER.getConvention(), CONVENTION);
+    assertEquals(VOLS.getConvention(), CONVENTION);
   }
 
   public void test_findData() {
-    assertEquals(PROVIDER.findData(SURFACE.getName()), Optional.of(SURFACE));
-    assertEquals(PROVIDER.findData(SurfaceName.of("Rubbish")), Optional.empty());
+    assertEquals(VOLS.findData(SURFACE.getName()), Optional.of(SURFACE));
+    assertEquals(VOLS.findData(SurfaceName.of("Rubbish")), Optional.empty());
   }
 
   public void test_tenor() {
-    double test1 = PROVIDER.tenor(VAL_DATE, VAL_DATE);
+    double test1 = VOLS.tenor(VAL_DATE, VAL_DATE);
     assertEquals(test1, 0d);
-    double test2 = PROVIDER.tenor(VAL_DATE, date(2018, 2, 28));
+    double test2 = VOLS.tenor(VAL_DATE, date(2018, 2, 28));
     assertEquals(test2, 3d);
-    double test3 = PROVIDER.tenor(VAL_DATE, date(2018, 2, 10));
+    double test3 = VOLS.tenor(VAL_DATE, date(2018, 2, 10));
     assertEquals(test3, 3d);
   }
 
   public void test_relativeTime() {
-    double test1 = PROVIDER.relativeTime(VAL_DATE_TIME);
+    double test1 = VOLS.relativeTime(VAL_DATE_TIME);
     assertEquals(test1, 0d);
-    double test2 = PROVIDER.relativeTime(date(2018, 2, 17).atStartOfDay(LONDON_ZONE));
-    double test3 = PROVIDER.relativeTime(date(2012, 2, 17).atStartOfDay(LONDON_ZONE));
+    double test2 = VOLS.relativeTime(date(2018, 2, 17).atStartOfDay(LONDON_ZONE));
+    double test3 = VOLS.relativeTime(date(2012, 2, 17).atStartOfDay(LONDON_ZONE));
     assertEquals(test2, -test3); // consistency checked
   }
 
   public void test_volatility() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_OPTION_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
       double volExpected = SURFACE.zValue(expiryTime, TEST_TENOR[i]);
-      double volComputed = PROVIDER.volatility(
+      double volComputed = VOLS.volatility(
           TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
     }
@@ -126,10 +126,10 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
     double eps = 1.0e-6;
     int nData = TIME.size();
     for (int i = 0; i < NB_TEST; i++) {
-      double expiryTime = PROVIDER.relativeTime(TEST_OPTION_EXPIRY[i]);
+      double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
       SwaptionSensitivity point = SwaptionSensitivity.of(
-          CONVENTION, expiryTime, TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
-      CurrencyParameterSensitivities sensActual = PROVIDER.parameterSensitivity(point);
+          VOLS.getName(), expiryTime, TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+      CurrencyParameterSensitivities sensActual = VOLS.parameterSensitivity(point);
       DoubleArray computed = sensActual.getSensitivity(SURFACE.getName(), GBP).getSensitivity();
       for (int j = 0; j < nData; j++) {
         DoubleArray volDataUp = VOL.with(j, VOL.get(j) + eps);

@@ -247,7 +247,9 @@ public final class SabrParametersSwaptionVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof SwaptionSabrSensitivity) {
         SwaptionSabrSensitivity pt = (SwaptionSabrSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;
@@ -255,8 +257,6 @@ public final class SabrParametersSwaptionVolatilities
 
   // convert a single point sensitivity
   private CurrencyParameterSensitivity parameterSensitivity(SwaptionSabrSensitivity point) {
-    ArgChecker.isTrue(point.getConvention().equals(getConvention()),
-        "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     Surface surface = getSurface(point.getSensitivityType());
     double expiry = point.getExpiry();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, point.getTenor());

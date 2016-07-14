@@ -148,7 +148,9 @@ public final class BlackFxOptionSmileVolatilities
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof FxOptionSensitivity) {
         FxOptionSensitivity pt = (FxOptionSensitivity) point;
-        sens = sens.combinedWith(parameterSensitivity(pt));
+        if (pt.getVolatilitiesName().equals(getName())) {
+          sens = sens.combinedWith(parameterSensitivity(pt));
+        }
       }
     }
     return sens;

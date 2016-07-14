@@ -21,8 +21,6 @@ import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link SwaptionSensitivity}.
@@ -30,16 +28,17 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 @Test
 public class SwaptionSensitivityTest {
 
-  private static final FixedIborSwapConvention SWAP_CONV = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
   private static final double EXPIRY = 1d;
   private static final double TENOR = 3d;
   private static final double STRIKE = 7d;
   private static final double FORWARD = 9d;
+  private static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test");
+  private static final SwaptionVolatilitiesName NAME2 = SwaptionVolatilitiesName.of("Test2");
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SwaptionSensitivity test = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    assertEquals(test.getConvention(), SWAP_CONV);
+    SwaptionSensitivity test = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    assertEquals(test.getVolatilitiesName(), NAME);
     assertEquals(test.getExpiry(), EXPIRY);
     assertEquals(test.getTenor(), TENOR);
     assertEquals(test.getStrike(), STRIKE);
@@ -50,31 +49,31 @@ public class SwaptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_withCurrency() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     assertSame(base.withCurrency(GBP), base);
 
-    SwaptionSensitivity expected = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d);
+    SwaptionSensitivity expected = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d);
     SwaptionSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_withSensitivity() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity expected = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 20d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity expected = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 20d);
     SwaptionSensitivity test = base.withSensitivity(20d);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_compareKey() {
-    SwaptionSensitivity a1 = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity a2 = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity b = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d);
-    SwaptionSensitivity c = SwaptionSensitivity.of(SWAP_CONV, EXPIRY + 1, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity d = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR + 1, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity e = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE + 1, FORWARD, GBP, 32d);
-    SwaptionSensitivity f = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD + 1, GBP, 32d);
+    SwaptionSensitivity a1 = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity a2 = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity b = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d);
+    SwaptionSensitivity c = SwaptionSensitivity.of(NAME, EXPIRY + 1, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity d = SwaptionSensitivity.of(NAME, EXPIRY, TENOR + 1, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity e = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE + 1, FORWARD, GBP, 32d);
+    SwaptionSensitivity f = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD + 1, GBP, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
@@ -90,39 +89,39 @@ public class SwaptionSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_convertedTo() {
     FxRate rate = FxRate.of(GBP, USD, 1.5d);
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity expected = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d * 1.5d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity expected = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, USD, 32d * 1.5d);
     assertEquals(base.convertedTo(USD, rate), expected);
     assertEquals(base.convertedTo(GBP, rate), base);
   }
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity expected = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d * 3.5d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity expected = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d * 3.5d);
     SwaptionSensitivity test = base.multipliedBy(3.5d);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_mapSensitivity() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity expected = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 1 / 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity expected = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 1 / 32d);
     SwaptionSensitivity test = base.mapSensitivity(s -> 1 / s);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_normalize() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     SwaptionSensitivity test = base.normalize();
     assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
-    SwaptionSensitivity base1 = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
-    SwaptionSensitivity base2 = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 22d);
+    SwaptionSensitivity base1 = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base2 = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 22d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base1).add(base2);
     PointSensitivityBuilder test = base1.combinedWith(base2);
@@ -130,7 +129,7 @@ public class SwaptionSensitivityTest {
   }
 
   public void test_combinedWith_mutable() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base);
     PointSensitivityBuilder test = base.combinedWith(new MutablePointSensitivities());
@@ -139,7 +138,7 @@ public class SwaptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_buildInto() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
     assertSame(test, combo);
@@ -148,31 +147,31 @@ public class SwaptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_build() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
   }
 
   //-------------------------------------------------------------------------
   public void test_cloned() {
-    SwaptionSensitivity base = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity base = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     SwaptionSensitivity test = base.cloned();
     assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    SwaptionSensitivity test = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity test = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     coverImmutableBean(test);
     SwaptionSensitivity test2 = SwaptionSensitivity.of(
-        SWAP_CONV, EXPIRY + 1, TENOR + 1, STRIKE + 1, FORWARD + 1, USD, 32d);
+        NAME2, EXPIRY + 1, TENOR + 1, STRIKE + 1, FORWARD + 1, USD, 32d);
     coverBeanEquals(test, test2);
     ZeroRateSensitivity test3 = ZeroRateSensitivity.of(USD, 0.5d, 2d);
     coverBeanEquals(test, test3);
   }
 
   public void test_serialization() {
-    SwaptionSensitivity test = SwaptionSensitivity.of(SWAP_CONV, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
+    SwaptionSensitivity test = SwaptionSensitivity.of(NAME, EXPIRY, TENOR, STRIKE, FORWARD, GBP, 32d);
     assertSerialization(test);
   }
 

@@ -113,7 +113,7 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final FixedIborSwapConvention SWAP_CONVENTION = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
   private static final SurfaceMetadata METADATA = Surfaces.blackVolatilityByExpiryTenor("Black Vol", ACT_ACT_ISDA);
   private static final Surface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
-  private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
+  private static final BlackSwaptionExpiryTenorVolatilities VOLS =
       BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, VAL_DATE.atStartOfDay(ZoneOffset.UTC), SURFACE);
   // underlying swap and swaption
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -237,9 +237,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
           .discountCurve(EUR, DSC_CURVE)
           .iborIndexCurve(EUR_EURIBOR_6M, FWD6_CURVE)
           .build();
-  private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER_AT_MATURITY =
+  private static final BlackSwaptionExpiryTenorVolatilities VOLS_AT_MATURITY =
       BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, MATURITY.atStartOfDay(ZoneOffset.UTC), SURFACE);
-  private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER_AFTER_MATURITY =
+  private static final BlackSwaptionExpiryTenorVolatilities VOLS_AFTER_MATURITY =
       BlackSwaptionExpiryTenorVolatilities.of(SWAP_CONVENTION, MATURITY.plusDays(1).atStartOfDay(ZoneOffset.UTC), SURFACE);
   // test parameters
   private static final double TOL = 1.0e-12;
@@ -251,12 +251,12 @@ public class BlackSwaptionCashParYieldProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(FD_EPS);
 
   public void test_presentValue() {
-    CurrencyAmount computedRec = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount computedPay = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount computedRec = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount computedPay = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
-    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double expiry = VOLS.relativeTime(SWAPTION_REC_LONG.getExpiry());
+    double tenor = VOLS.tenor(SETTLE, END);
     double volatility = SURFACE.zValue(expiry, tenor);
     double settle = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, SETTLE);
     double df = Math.exp(-DSC_CURVE.yValue(settle) * settle);
@@ -270,9 +270,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValue_atMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATES_PROVIDER_AT_MATURITY);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
     double settle = ACT_ACT_ISDA.relativeYearFraction(MATURITY, SETTLE);
@@ -283,18 +283,18 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValue_afterMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValue_parity() {
-    CurrencyAmount pvRecLong = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvRecShort = PRICER.presentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvPayLong = PRICER.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvPayShort = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvRecLong = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvRecShort = PRICER.presentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvPayLong = PRICER.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvPayShort = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     assertEquals(pvRecLong.getAmount(), -pvRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvPayLong.getAmount(), -pvPayShort.getAmount(), NOTIONAL * TOL);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
@@ -315,17 +315,17 @@ public class BlackSwaptionCashParYieldProductPricerTest {
         .longShort(LONG)
         .underlying(SWAP_PAY)
         .build();
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(swaption.resolve(REF_DATA), RATE_PROVIDER, VOL_PROVIDER));
+    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(swaption.resolve(REF_DATA), RATE_PROVIDER, VOLS));
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueDelta() {
-    CurrencyAmount computedRec = PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount computedPay = PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount computedRec = PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount computedPay = PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
-    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double expiry = VOLS.relativeTime(SWAPTION_REC_LONG.getExpiry());
+    double tenor = VOLS.tenor(SETTLE, END);
     double volatility = SURFACE.zValue(expiry, tenor);
     double settle = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, SETTLE);
     double df = Math.exp(-DSC_CURVE.yValue(settle) * settle);
@@ -339,9 +339,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueDelta_atMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValueDelta(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueDelta(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATES_PROVIDER_AT_MATURITY);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
     double settle = ACT_ACT_ISDA.relativeYearFraction(MATURITY, SETTLE);
@@ -352,18 +352,18 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueDelta_afterMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValueDelta(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValueDelta(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueDelta_parity() {
-    CurrencyAmount pvDeltaRecLong = PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvDeltaRecShort = PRICER.presentValueDelta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvDeltaPayLong = PRICER.presentValueDelta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvDeltaPayShort = PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDeltaRecLong = PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvDeltaRecShort = PRICER.presentValueDelta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvDeltaPayLong = PRICER.presentValueDelta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvDeltaPayShort = PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     assertEquals(pvDeltaRecLong.getAmount(), -pvDeltaRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvDeltaPayLong.getAmount(), -pvDeltaPayShort.getAmount(), NOTIONAL * TOL);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
@@ -376,12 +376,12 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueGamma() {
-    CurrencyAmount computedRec = PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount computedPay = PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount computedRec = PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount computedPay = PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
-    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double expiry = VOLS.relativeTime(SWAPTION_REC_LONG.getExpiry());
+    double tenor = VOLS.tenor(SETTLE, END);
     double volatility = SURFACE.zValue(expiry, tenor);
     double settle = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, SETTLE);
     double df = Math.exp(-DSC_CURVE.yValue(settle) * settle);
@@ -395,27 +395,27 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueGamma_atMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValueGamma(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueGamma(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueGamma_afterMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValueGamma(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValueGamma(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueGamma_parity() {
-    CurrencyAmount pvGammaRecLong = PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvGammaRecShort = PRICER.presentValueGamma(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvGammaPayLong = PRICER.presentValueGamma(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvGammaPayShort = PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGammaRecLong = PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvGammaRecShort = PRICER.presentValueGamma(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvGammaPayLong = PRICER.presentValueGamma(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvGammaPayShort = PRICER.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     assertEquals(pvGammaRecLong.getAmount(), -pvGammaRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvGammaPayLong.getAmount(), -pvGammaPayShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvGammaPayLong.getAmount(), pvGammaRecLong.getAmount(), NOTIONAL * TOL);
@@ -424,12 +424,12 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueTheta() {
-    CurrencyAmount computedRec = PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount computedPay = PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount computedRec = PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount computedPay = PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
-    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double expiry = VOLS.relativeTime(SWAPTION_REC_LONG.getExpiry());
+    double tenor = VOLS.tenor(SETTLE, END);
     double volatility = SURFACE.zValue(expiry, tenor);
     double settle = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, SETTLE);
     double df = Math.exp(-DSC_CURVE.yValue(settle) * settle);
@@ -443,27 +443,27 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueTheta_atMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValueTheta(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueTheta(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueTheta_afterMaturity() {
     CurrencyAmount computedRec =
-        PRICER.presentValueTheta(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValueTheta(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     CurrencyAmount computedPay =
-        PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueTheta_parity() {
-    CurrencyAmount pvThetaRecLong = PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvThetaRecShort = PRICER.presentValueTheta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvThetaPayLong = PRICER.presentValueTheta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyAmount pvThetaPayShort = PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvThetaRecLong = PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvThetaRecShort = PRICER.presentValueTheta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvThetaPayLong = PRICER.presentValueTheta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
+    CurrencyAmount pvThetaPayShort = PRICER.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     assertEquals(pvThetaRecLong.getAmount(), -pvThetaRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvThetaPayLong.getAmount(), -pvThetaPayShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvThetaPayLong.getAmount(), pvThetaRecLong.getAmount(), NOTIONAL * TOL);
@@ -472,46 +472,46 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
-    MultiCurrencyAmount computedRec = PRICER.currencyExposure(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    MultiCurrencyAmount computedPay = PRICER.currencyExposure(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount computedRec = PRICER.currencyExposure(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    MultiCurrencyAmount computedPay = PRICER.currencyExposure(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     PointSensitivityBuilder pointRec =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     MultiCurrencyAmount expectedRec = RATE_PROVIDER.currencyExposure(pointRec.build())
-        .plus(PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER));
+        .plus(PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS));
     assertEquals(computedRec.size(), 1);
     assertEquals(computedRec.getAmount(EUR).getAmount(), expectedRec.getAmount(EUR).getAmount(), NOTIONAL * TOL);
     PointSensitivityBuilder pointPay =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     MultiCurrencyAmount expectedPay = RATE_PROVIDER.currencyExposure(pointPay.build())
-        .plus(PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER));
+        .plus(PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS));
     assertEquals(computedPay.size(), 1);
     assertEquals(computedPay.getAmount(EUR).getAmount(), expectedPay.getAmount(EUR).getAmount(), NOTIONAL * TOL);
   }
 
   public void test_currencyExposure_atMaturity() {
     MultiCurrencyAmount computedRec = PRICER.currencyExposure(
-        SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     MultiCurrencyAmount computedPay = PRICER.currencyExposure(
-        SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     PointSensitivityBuilder pointRec =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     MultiCurrencyAmount expectedRec = RATE_PROVIDER.currencyExposure(pointRec.build())
-        .plus(PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY));
+        .plus(PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY));
     assertEquals(computedRec.size(), 1);
     assertEquals(computedRec.getAmount(EUR).getAmount(), expectedRec.getAmount(EUR).getAmount(), NOTIONAL * TOL);
     PointSensitivityBuilder pointPay =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     MultiCurrencyAmount expectedPay = RATE_PROVIDER.currencyExposure(pointPay.build())
-        .plus(PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY));
+        .plus(PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY));
     assertEquals(computedPay.size(), 1);
     assertEquals(computedPay.getAmount(EUR).getAmount(), expectedPay.getAmount(EUR).getAmount(), NOTIONAL * TOL);
   }
 
   public void test_currencyExposure_afterMaturity() {
     MultiCurrencyAmount computedRec = PRICER.currencyExposure(
-        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     MultiCurrencyAmount computedPay = PRICER.currencyExposure(
-        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(computedRec.size(), 1);
     assertEquals(computedRec.getAmount(EUR).getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(computedPay.size(), 1);
@@ -520,10 +520,10 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_impliedVolatility() {
-    double computedRec = PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    double computedPay = PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double computedRec = PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
+    double computedPay = PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
+    double expiry = VOLS.relativeTime(SWAPTION_REC_LONG.getExpiry());
+    double tenor = VOLS.tenor(SETTLE, END);
     double expected = SURFACE.zValue(expiry, tenor);
     assertEquals(computedRec, expected);
     assertEquals(computedPay, expected);
@@ -531,11 +531,11 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_impliedVolatility_atMaturity() {
     double computedRec =
-        PRICER.impliedVolatility(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.impliedVolatility(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     double computedPay =
-        PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.impliedVolatility(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     double expiry = 0d;
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double tenor = VOLS.tenor(SETTLE, END);
     double expected = SURFACE.zValue(expiry, tenor);
     assertEquals(computedRec, expected);
     assertEquals(computedPay, expected);
@@ -543,37 +543,37 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_impliedVolatility_afterMaturity() {
     assertThrowsIllegalArg(() -> PRICER.impliedVolatility(
-        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY));
+        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY));
     assertThrowsIllegalArg(() -> PRICER.impliedVolatility(
-        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY));
+        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY));
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityRatesStickyStrike() {
     PointSensitivityBuilder pointRec =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyParameterSensitivities computedRec = RATE_PROVIDER.parameterSensitivity(pointRec.build());
     CurrencyParameterSensitivities expectedRec =
-        FD_CAL.sensitivity(RATE_PROVIDER, (p) -> PRICER.presentValue(SWAPTION_REC_LONG, (p), VOL_PROVIDER));
+        FD_CAL.sensitivity(RATE_PROVIDER, (p) -> PRICER.presentValue(SWAPTION_REC_LONG, (p), VOLS));
     assertTrue(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_EPS * 100d));
     PointSensitivityBuilder pointPay =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     CurrencyParameterSensitivities computedPay = RATE_PROVIDER.parameterSensitivity(pointPay.build());
     CurrencyParameterSensitivities expectedPay =
-        FD_CAL.sensitivity(RATE_PROVIDER, (p) -> PRICER.presentValue(SWAPTION_PAY_SHORT, (p), VOL_PROVIDER));
+        FD_CAL.sensitivity(RATE_PROVIDER, (p) -> PRICER.presentValue(SWAPTION_PAY_SHORT, (p), VOLS));
     assertTrue(computedPay.equalWithTolerance(expectedPay, NOTIONAL * FD_EPS * 100d));
   }
 
   public void test_presentValueSensitivityRatesStickyStrike_atMaturity() {
     PointSensitivityBuilder pointRec =
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     CurrencyParameterSensitivities computedRec =
         RATES_PROVIDER_AT_MATURITY.parameterSensitivity(pointRec.build());
     CurrencyParameterSensitivities expectedRec = FD_CAL.sensitivity(
-        RATES_PROVIDER_AT_MATURITY, (p) -> PRICER.presentValue(SWAPTION_REC_LONG, (p), VOL_PROVIDER_AT_MATURITY));
+        RATES_PROVIDER_AT_MATURITY, (p) -> PRICER.presentValue(SWAPTION_REC_LONG, (p), VOLS_AT_MATURITY));
     assertTrue(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_EPS * 100d));
     PointSensitivities pointPay = PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT,
-        RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY).build();
+        RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY).build();
     for (PointSensitivity sensi : pointPay.getSensitivities()) {
       assertEquals(Math.abs(sensi.getSensitivity()), 0d);
     }
@@ -581,12 +581,12 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueSensitivityRatesStickyStrike_afterMaturity() {
     PointSensitivities pointRec = PRICER.presentValueSensitivityRatesStickyStrike(
-        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY).build();
+        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY).build();
     for (PointSensitivity sensi : pointRec.getSensitivities()) {
       assertEquals(Math.abs(sensi.getSensitivity()), 0d);
     }
     PointSensitivities pointPay = PRICER.presentValueSensitivityRatesStickyStrike(
-        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY).build();
+        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY).build();
     for (PointSensitivity sensi : pointPay.getSensitivities()) {
       assertEquals(Math.abs(sensi.getSensitivity()), 0d);
     }
@@ -594,13 +594,13 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueSensitivityRatesStickyStrike_parity() {
     CurrencyParameterSensitivities pvSensiRecLong = RATE_PROVIDER.parameterSensitivity(
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER).build());
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS).build());
     CurrencyParameterSensitivities pvSensiRecShort = RATE_PROVIDER.parameterSensitivity(
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER).build());
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS).build());
     CurrencyParameterSensitivities pvSensiPayLong = RATE_PROVIDER.parameterSensitivity(
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER).build());
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS).build());
     CurrencyParameterSensitivities pvSensiPayShort = RATE_PROVIDER.parameterSensitivity(
-        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER).build());
+        PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS).build());
     assertTrue(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL));
     assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL));
 
@@ -623,13 +623,13 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityBlackVolatility() {
     SwaptionSensitivity sensiRec =
-        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     SwaptionSensitivity sensiPay =
-        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER);
     double annuityCash = SWAP_PRICER.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
-    double expiry = VOL_PROVIDER.relativeTime(SWAPTION_REC_LONG.getExpiry());
-    double tenor = VOL_PROVIDER.tenor(SETTLE, END);
+    double expiry = VOLS.relativeTime(SWAPTION_REC_LONG.getExpiry());
+    double tenor = VOLS.tenor(SETTLE, END);
     double volatility = SURFACE.zValue(expiry, tenor);
     double settle = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, SETTLE);
     double df = Math.exp(-DSC_CURVE.yValue(settle) * settle);
@@ -637,14 +637,14 @@ public class BlackSwaptionCashParYieldProductPricerTest {
     double expectedPay = -df * annuityCash * BlackFormulaRepository.vega(forward, RATE, expiry, volatility);
     assertEquals(sensiRec.getCurrency(), EUR);
     assertEquals(sensiRec.getSensitivity(), expectedRec, NOTIONAL * TOL);
-    assertEquals(sensiRec.getConvention(), SWAP_CONVENTION);
+    assertEquals(sensiRec.getVolatilitiesName(), VOLS.getName());
     assertEquals(sensiRec.getExpiry(), expiry);
     assertEquals(sensiRec.getTenor(), 5.0);
     assertEquals(sensiRec.getStrike(), RATE);
     assertEquals(sensiRec.getForward(), forward, TOL);
     assertEquals(sensiPay.getCurrency(), EUR);
     assertEquals(sensiPay.getSensitivity(), expectedPay, NOTIONAL * TOL);
-    assertEquals(sensiRec.getConvention(), SWAP_CONVENTION);
+    assertEquals(sensiRec.getVolatilitiesName(), VOLS.getName());
     assertEquals(sensiPay.getExpiry(), expiry);
     assertEquals(sensiPay.getTenor(), 5.0);
     assertEquals(sensiPay.getStrike(), RATE);
@@ -653,31 +653,31 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueSensitivityBlackVolatility_atMaturity() {
     SwaptionSensitivity sensiRec = PRICER.presentValueSensitivityModelParamsVolatility(
-        SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     assertEquals(sensiRec.getSensitivity(), 0d, NOTIONAL * TOL);
     SwaptionSensitivity sensiPay = PRICER.presentValueSensitivityModelParamsVolatility(
-        SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
+        SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, VOLS_AT_MATURITY);
     assertEquals(sensiPay.getSensitivity(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueSensitivityBlackVolatility_afterMaturity() {
     SwaptionSensitivity sensiRec = PRICER.presentValueSensitivityModelParamsVolatility(
-        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(sensiRec.getSensitivity(), 0d, NOTIONAL * TOL);
     SwaptionSensitivity sensiPay = PRICER.presentValueSensitivityModelParamsVolatility(
-        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOL_PROVIDER_AFTER_MATURITY);
+        SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY);
     assertEquals(sensiPay.getSensitivity(), 0d, NOTIONAL * TOL);
   }
 
   public void test_presentValueSensitivityBlackVolatility_parity() {
     SwaptionSensitivity pvSensiRecLong =
-        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     SwaptionSensitivity pvSensiRecShort =
-        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
     SwaptionSensitivity pvSensiPayLong =
-        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
     SwaptionSensitivity pvSensiPayShort =
-        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
+        PRICER.presentValueSensitivityModelParamsVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     assertEquals(pvSensiRecLong.getSensitivity(), -pvSensiRecShort.getSensitivity(), NOTIONAL * TOL);
     assertEquals(pvSensiPayLong.getSensitivity(), -pvSensiPayShort.getSensitivity(), NOTIONAL * TOL);
     assertEquals(pvSensiRecLong.getSensitivity(), pvSensiPayLong.getSensitivity(), NOTIONAL * TOL);
@@ -686,12 +686,12 @@ public class BlackSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void pvRegression() {
-    CurrencyAmount pv = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pv = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     assertEquals(pv.getAmount(), 3823688.253812721, NOTIONAL * TOL); // 2.x
   }
 
   public void pvCurveSensiRegression() {
-    PointSensitivityBuilder point = PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder point = PRICER.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point.build());
     computed.getSensitivity(DSC_NAME, EUR).getSensitivity();
     DoubleArray dscSensi = DoubleArray.of(
