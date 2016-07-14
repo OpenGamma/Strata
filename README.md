@@ -12,16 +12,31 @@ Commercial support is [available](http://www.opengamma.com/) from the authors.
 [![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
 
 
-Documentation
--------------
+Using Strata
+------------
 
 Documentation for Strata can be found at http://opengamma.github.io/StrataDocs.
+
+To use Strata Java SE 8u40 or later is required.
+The JAR files are available in [Maven Central](http://search.maven.org/#search|ga|1|opengamma):
+
+```
+<dependency>
+  <groupId>com.opengamma.strata</groupId>
+  <artifactId>strata-measure</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+The JAR files, along with the command line tool and examples, can also be obtained from
+the [Strata Releases](https://github.com/OpenGamma/Strata/releases) page on GitHub.
 
 
 Building Strata
 ---------------
 
 The source code can be cloned using [git](http://git-scm.com/) from GitHub:
+
 ```
   git clone https://github.com/OpenGamma/Strata.git
 ```
