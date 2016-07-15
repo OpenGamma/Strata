@@ -6,6 +6,8 @@
 
 /**
  * Calculation functions for credit products.
+ * <p>
+ * <b>This package is currently being reviewed and refactored. Incompatible changes are expected.</b>
  */
 package com.opengamma.strata.measure.credit;
 
