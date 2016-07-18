@@ -40,12 +40,19 @@ public class IsdaCdsProductPricer {
     IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors = (IsdaCompliantZeroRateDiscountFactors) discountFactors;
     IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities = (IsdaCompliantZeroRateDiscountFactors) survivalProbabilities;
 
+    LocalDate effectiveStartDate =
+        cds.getStartDate().isBefore(ratesProvider.getValuationDate()) ? ratesProvider.getValuationDate() : cds.getStartDate();
+    if (cds.isProtectStart()) {
+      effectiveStartDate = effectiveStartDate.minusDays(1);
+    }
+
     double[] integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
-        isdaDiscountFactors.relativeYearFraction(cds.getStartDate()),
+        isdaDiscountFactors.relativeYearFraction(effectiveStartDate),
         isdaDiscountFactors.relativeYearFraction(cds.getEndDate()),
         isdaDiscountFactors.getParameterKeys(),
         isdaSurvivalProbabilities.getParameterKeys()); // TODO two curve should be based on the same dayCount
 
+    // 6.7972602739726025
     double ht0 = isdaSurvivalProbabilities.zeroRateYearFraction(integrationSchedule[0]);
     double rt0 = isdaDiscountFactors.zeroRateYearFraction(integrationSchedule[0]);
     double b0 = Math.exp(-ht0 - rt0); // risky discount factor

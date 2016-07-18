@@ -1,6 +1,7 @@
 package com.opengamma.strata.pricer.credit.cds;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
@@ -34,17 +35,10 @@ public class IsdaCdsProductPricerTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 4);
-  private static final LocalDate START_DATE = LocalDate.of(2014, 1, 5);
-  private static final LocalDate END_DATE = LocalDate.of(2020, 12, 20);
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final DaysAdjustment DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
   private static final LocalDate REF_DATE = DAY_ADJ.adjust(VALUATION_DATE, REF_DATA);
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
-
-  private static final Cds PRODUCT = Cds.of(
-      START_DATE, END_DATE, Frequency.P3M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR),
-      StubConvention.SHORT_INITIAL, USD, 1d, DayCounts.ACT_360, 0.05, true, true,
-      DaysAdjustment.ofBusinessDays(3, CALENDAR), LEGAL_ENTITY, BuySell.BUY);
 
   private static final DoubleArray TIME_YC = DoubleArray.ofUnsafe(new double[] {0.09041095890410959, 0.16712328767123288,
       0.2547945205479452, 0.5041095890410959, 0.7534246575342466, 1.0054794520547945, 2.0054794520547947, 3.008219178082192,
@@ -74,9 +68,13 @@ public class IsdaCdsProductPricerTest {
 
   private static final DoubleArray TIME_CC = DoubleArray.ofUnsafe(new double[] {1.2054794520547945, 1.7095890410958905,
       2.712328767123288, 3.712328767123288, 4.712328767123288, 5.712328767123288, 7.715068493150685, 10.717808219178082});
-  private static final DoubleArray RATE_CC = DoubleArray.ofUnsafe(new double[] {0.009950757755865505, 0.011452393348242077,
-      0.013437059827272778, 0.015946259262917734, 0.018726979366476607, 0.02193600460205013, 0.02583462020717916,
-      0.02862842089201528});
+  private static final DoubleArray RATE_CC = DoubleArray.ofUnsafe(new double[] {0.009950492020354761, 0.01203385973637765,
+      0.01418821591480718,
+      0.01684815168721049,
+      0.01974873350586718,
+      0.023084203422383043,
+      0.02696911931489543,
+      0.029605642651816415});
   private static final LegalEntitySurvivalProbabilities CREDIT_CRVE = LegalEntitySurvivalProbabilities.builder()
       .valuationDate(VALUATION_DATE)
       .currency(USD)
@@ -108,7 +106,7 @@ public class IsdaCdsProductPricerTest {
               .curveName("recovery")
               .dayCount(DayCounts.ACT_365F)
               .build(),
-          0.3)); // TODO
+          0.25));
   private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), CREDIT_CRVE))
@@ -116,11 +114,26 @@ public class IsdaCdsProductPricerTest {
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
       .build();
 
+  private static final Cds PRODUCT_NEXTDAY = Cds.of(
+      LocalDate.of(2014, 1, 5), LocalDate.of(2020, 10, 20), Frequency.P3M,
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR),
+      StubConvention.SHORT_INITIAL, USD, 1d, DayCounts.ACT_360, 0.05, true, true,
+      DaysAdjustment.ofBusinessDays(3, CALENDAR), LEGAL_ENTITY, BuySell.BUY);
+
+  private static final Cds PRODUCT_BEFORE = Cds.of(
+      LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR),
+      StubConvention.SHORT_INITIAL, USD, 1d, DayCounts.ACT_360, 0.05, true, true,
+      DaysAdjustment.ofBusinessDays(3, CALENDAR), LEGAL_ENTITY, BuySell.BUY);
+
   private static final IsdaCdsProductPricer PRICER = new IsdaCdsProductPricer();
 
   public void test(){
-    double res = PRICER.protectionLeg(PRODUCT.resolve(REF_DATA), RATES_PROVIDER, REF_DATE);
-    System.out.println(res); // 0.1176383576255324
+    double resNext = PRICER.protectionLeg(PRODUCT_NEXTDAY.resolve(REF_DATA), RATES_PROVIDER, REF_DATE);
+    assertEquals(resNext, 0.1176383576255324, 1.0e-16);
+    double resBefore = PRICER.protectionLeg(PRODUCT_BEFORE.resolve(REF_DATA), RATES_PROVIDER, REF_DATE);
+    System.out.println(resBefore);
+    // 0.19617109958903098
   }
 
 }

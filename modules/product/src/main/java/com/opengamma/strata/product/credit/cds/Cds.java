@@ -139,6 +139,8 @@ public final class Cds
       accrualPeriods.add(CreditCouponPaymentPeriod.builder()
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
+          .unadjustedStartDate(period.getUnadjustedStartDate())
+          .unadjustedEndDate(period.getUnadjustedEndDate())
           .paymentDate(period.getEndDate())
           .notional(notional)
           .currency(currency)
@@ -149,8 +151,10 @@ public final class Cds
     SchedulePeriod lastPeriod = adjustedSchedule.getPeriod(nPeriods - 1);
     accrualPeriods.add(CreditCouponPaymentPeriod.builder()
         .startDate(lastPeriod.getStartDate())
-        .endDate(lastPeriod.getEndDate())
-        .paymentDate(accrualSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
+        .endDate(lastPeriod.getUnadjustedEndDate())  // TODO flexibility for adjusting??
+        .unadjustedStartDate(lastPeriod.getUnadjustedStartDate())
+        .unadjustedEndDate(lastPeriod.getUnadjustedEndDate())
+        .paymentDate(lastPeriod.getEndDate())
         .notional(notional)
         .currency(currency)
         .coupon(coupon)

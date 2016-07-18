@@ -84,6 +84,11 @@ public final class ResolvedCds
   private final BuySell buySell;
 
   //-------------------------------------------------------------------------
+  public LocalDate getEffectiveStartDate(LocalDate valuationDate) {
+//    LocalDate effectiveStartDate = 
+    return null;
+  }
+
   public LocalDate getStartDate() {
     return periodicPayments.get(0).getStartDate();
   }
