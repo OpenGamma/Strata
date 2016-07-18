@@ -18,7 +18,7 @@ Using Strata
 Documentation for Strata can be found at http://opengamma.github.io/StrataDocs.
 
 To use Strata Java SE 8u40 or later is required.
-The JAR files are available in [Maven Central](http://search.maven.org/#search|ga|1|opengamma):
+The JAR files are available in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.opengamma.strata%22):
 
 ```
 <dependency>
