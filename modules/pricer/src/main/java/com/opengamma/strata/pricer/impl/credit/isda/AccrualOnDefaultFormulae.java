@@ -21,6 +21,10 @@ public enum AccrualOnDefaultFormulae {
   /**
    * The mathematically correct formula .
    */
-  CORRECT;
+  CORRECT,
+  /**
+   * The default occurs only mid-way through each coupon period.
+   */
+  MID_WAY;
 
 }

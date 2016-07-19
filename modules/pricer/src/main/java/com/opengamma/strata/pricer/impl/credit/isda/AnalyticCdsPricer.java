@@ -376,49 +376,56 @@ public class AnalyticCdsPricer {
       return 0.0; //this coupon has already expired 
     }
 
-    double[] knots = DoublesScheduleGenerator.truncateSetInclusive(start, coupon.getEffEnd(), integrationPoints);
-
-    double t = knots[0];
-    double ht0 = creditCurve.getRT(t);
-    double rt0 = yieldCurve.getRT(t);
-    double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
-
-    double t0 = t - coupon.getEffStart() + _omega;
     double pv = 0.0;
-    int nItems = knots.length;
-    for (int j = 1; j < nItems; ++j) {
-      t = knots[j];
-      double ht1 = creditCurve.getRT(t);
-      double rt1 = yieldCurve.getRT(t);
-      double b1 = Math.exp(-rt1 - ht1);
+    if (_formula == AccrualOnDefaultFormulae.MID_WAY) {
+      double q1 = creditCurve.getDiscountFactor(coupon.getEffStart());
+      double q2 = creditCurve.getDiscountFactor(coupon.getEffEnd());
+      double p = yieldCurve.getDiscountFactor(coupon.getPaymentTime());
+      pv += 0.5 * coupon.getYearFrac() * p * (q1 - q2);
+    } else {
+      double[] knots = DoublesScheduleGenerator.truncateSetInclusive(start, coupon.getEffEnd(), integrationPoints);
 
-      double dt = knots[j] - knots[j - 1];
+      double t = knots[0];
+      double ht0 = creditCurve.getRT(t);
+      double rt0 = yieldCurve.getRT(t);
+      double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
 
-      double dht = ht1 - ht0;
-      double drt = rt1 - rt0;
-      double dhrt = dht + drt;
+      double t0 = t - coupon.getEffStart() + _omega;
+      int nItems = knots.length;
+      for (int j = 1; j < nItems; ++j) {
+        t = knots[j];
+        double ht1 = creditCurve.getRT(t);
+        double rt1 = yieldCurve.getRT(t);
+        double b1 = Math.exp(-rt1 - ht1);
 
-      double tPV;
-      if (_formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
-        if (Math.abs(dhrt) < 1e-5) {
-          tPV = dht * dt * b0 * epsilonP(-dhrt);
+        double dt = knots[j] - knots[j - 1];
+
+        double dht = ht1 - ht0;
+        double drt = rt1 - rt0;
+        double dhrt = dht + drt;
+
+        double tPV;
+        if (_formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
+          if (Math.abs(dhrt) < 1e-5) {
+            tPV = dht * dt * b0 * epsilonP(-dhrt);
+          } else {
+            tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
+          }
         } else {
-          tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
+          double t1 = t - coupon.getEffStart() + _omega;
+          if (Math.abs(dhrt) < 1e-5) {
+            tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
+          } else {
+            tPV = dht / dhrt * (t0 * b0 - t1 * b1 + dt / dhrt * (b0 - b1));
+          }
+          t0 = t1;
         }
-      } else {
-        double t1 = t - coupon.getEffStart() + _omega;
-        if (Math.abs(dhrt) < 1e-5) {
-          tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
-        } else {
-          tPV = dht / dhrt * (t0 * b0 - t1 * b1 + dt / dhrt * (b0 - b1));
-        }
-        t0 = t1;
+
+        pv += tPV;
+        ht0 = ht1;
+        rt0 = rt1;
+        b0 = b1;
       }
-
-      pv += tPV;
-      ht0 = ht1;
-      rt0 = rt1;
-      b0 = b1;
     }
     return coupon.getYFRatio() * pv;
   }
