@@ -601,7 +601,7 @@ public final class PeriodicSchedule
   // roughly estimate the number of periods (overestimating)
   private int estimateNumberPeriods(LocalDate start, LocalDate end) {
     int termInYearsEstimate = end.getYear() - start.getYear() + 2;
-    return (int) (frequency.eventsPerYearEstimate() * termInYearsEstimate);
+    return (int) (Math.max(frequency.eventsPerYearEstimate(), 1) * termInYearsEstimate);
   }
 
   //-------------------------------------------------------------------------

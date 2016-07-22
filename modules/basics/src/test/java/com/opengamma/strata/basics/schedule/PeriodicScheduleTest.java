@@ -352,6 +352,9 @@ public class PeriodicScheduleTest {
         {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, null, JUN_04,
             ImmutableList.of(JUN_04, SEP_17),
             ImmutableList.of(JUN_04, SEP_17)},
+        {date(2014, 9, 24), date(2016, 11, 24), Frequency.ofYears(2), SHORT_INITIAL, null, null, null,
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24)),
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24))},
 
         // IMM
         {date(2014, 9, 17), date(2014, 10, 15), P1M, STUB_NONE, IMM, null, null,
