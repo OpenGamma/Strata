@@ -185,7 +185,7 @@ public final class CsvRow {
    * <p>
    * All fields after the specified index are included.
    * 
-   * @param startInclusive  the start index, inclusive
+   * @param startInclusive  the start index, zero-based, inclusive
    * @return the sub row
    */
   public CsvRow subRow(int startInclusive) {
@@ -195,8 +195,8 @@ public final class CsvRow {
   /**
    * Obtains a sub-row, containing a selection of fields by index.
    * 
-   * @param startInclusive  the start index, inclusive
-   * @param endExclusive  the end index, exclusive
+   * @param startInclusive  the start index, zero-based, inclusive
+   * @param endExclusive  the end index, zero-based, exclusive
    * @return the sub row
    */
   public CsvRow subRow(int startInclusive, int endExclusive) {

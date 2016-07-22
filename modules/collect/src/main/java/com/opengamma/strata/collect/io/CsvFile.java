@@ -233,7 +233,7 @@ public final class CsvFile {
   /**
    * Gets a single row.
    * 
-   * @param index  the row index
+   * @param index  the row index, zero-based
    * @return the row
    */
   public CsvRow row(int index) {
