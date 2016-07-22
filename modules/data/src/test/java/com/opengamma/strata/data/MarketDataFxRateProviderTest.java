@@ -8,6 +8,7 @@ package com.opengamma.strata.data;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -53,7 +54,14 @@ public class MarketDataFxRateProviderTest {
   }
 
   public void missingCurrencies() {
-    assertThrows(() -> provider().fxRate(EUR, GBP), MarketDataNotFoundException.class);
+    assertThrows(
+        () -> provider().fxRate(EUR, GBP),
+        MarketDataNotFoundException.class,
+        "No FX rate market data for EUR/GBP using source 'Vendor'");
+    assertThrows(
+        () -> provider2().fxRate(JPY, GBP),
+        MarketDataNotFoundException.class,
+        "No FX rate market data for JPY/GBP");
   }
 
   public void cross_specified() {
@@ -102,12 +110,7 @@ public class MarketDataFxRateProviderTest {
   public void coverage() {
     MarketDataFxRateProvider test = provider();
     coverImmutableBean(test);
-    Map<FxRateId, FxRate> marketDataMap =
-        ImmutableMap.of(FxRateId.of(EUR, USD), FxRate.of(EUR, USD, EUR_USD),
-            FxRateId.of(EUR, BEF), FxRate.of(EUR, BEF, EUR_BEF),
-            FxRateId.of(GBP, USD), FxRate.of(GBP, USD, GBP_USD));
-    MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
-    MarketDataFxRateProvider test2 = MarketDataFxRateProvider.of(marketData);
+    MarketDataFxRateProvider test2 = provider2();
     coverBeanEquals(test, test2);
   }
 
@@ -117,6 +120,15 @@ public class MarketDataFxRateProviderTest {
         ImmutableMap.of(FxRateId.of(EUR, USD, OBS_SOURCE), FxRate.of(EUR, USD, EUR_USD));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
     return MarketDataFxRateProvider.of(marketData, OBS_SOURCE, GBP);
+  }
+
+  private static MarketDataFxRateProvider provider2() {
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(EUR, USD), FxRate.of(EUR, USD, EUR_USD),
+            FxRateId.of(EUR, BEF), FxRate.of(EUR, BEF, EUR_BEF),
+            FxRateId.of(GBP, USD), FxRate.of(GBP, USD, GBP_USD));
+    MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
+    return MarketDataFxRateProvider.of(marketData, ObservableSource.NONE, GBP);
   }
 
 }
