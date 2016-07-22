@@ -186,8 +186,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(Exception exception, String message, Object... messageArgs) {
-    String msg = Messages.format(message, messageArgs);
-    return new Result<>(Failure.of(FailureReason.ERROR, msg, exception));
+    return new Result<>(Failure.of(FailureReason.ERROR, exception, message, messageArgs));
   }
 
   /**
@@ -220,7 +219,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, Exception exception, String message, Object... messageArgs) {
-    return new Result<>(Failure.of(reason, Messages.format(message, messageArgs), exception));
+    return new Result<>(Failure.of(reason, exception, message, messageArgs));
   }
 
   /**

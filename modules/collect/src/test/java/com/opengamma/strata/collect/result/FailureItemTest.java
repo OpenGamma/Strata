@@ -17,13 +17,13 @@ public class FailureItemTest {
 
   //-------------------------------------------------------------------------
   public void test_of_reasonMessage() {
-    FailureItem test = FailureItem.of(FailureReason.INVALID, "my failure");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, "my {} {} failure", "big", "bad");
     assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my failure");
+    assertEquals(test.getMessage(), "my big bad failure");
     assertEquals(test.getCauseType().isPresent(), false);
     assertEquals(test.getStackTrace().contains(".FailureItem.of("), false);
     assertEquals(test.getStackTrace().contains(".Failure.of("), false);
-    assertEquals(test.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my failure"), true);
+    assertEquals(test.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"), true);
     assertEquals(test.getStackTrace().contains(".test_of_reasonMessage("), true);
   }
 
@@ -41,7 +41,7 @@ public class FailureItemTest {
   //-------------------------------------------------------------------------
   public void test_of_reasonMessageException() {
     IllegalArgumentException ex = new IllegalArgumentException("message");
-    FailureItem test = FailureItem.of(FailureReason.INVALID, "my failure", ex);
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "my failure");
     assertEquals(test.getReason(), FailureReason.INVALID);
     assertEquals(test.getMessage(), "my failure");
     assertEquals(test.getCauseType().isPresent(), true);
@@ -52,9 +52,9 @@ public class FailureItemTest {
   public void test_of_reasonMessageExceptionNestedException() {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("message", innerEx);
-    FailureItem test = FailureItem.of(FailureReason.INVALID, "my failure", ex);
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "my {} {} failure", "big", "bad");
     assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my failure");
+    assertEquals(test.getMessage(), "my big bad failure");
     assertEquals(test.getCauseType().isPresent(), true);
     assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
     assertEquals(test.getStackTrace().contains(".test_of_reasonMessageExceptionNestedException("), true);

@@ -33,6 +33,10 @@ import com.google.common.collect.ImmutableList;
  * The classic example is loading rows from a file, when some rows are valid and some are invalid.
  * The partial result would contain both the successful rows and failures for each failed row.
  * Note that the list of failures may be empty.
+ * <p>
+ * The success result must be able to handle the case where everything fails.
+ * In most cases, the success result will be a collection type, such as {@link List}
+ * or {@link Map}, which can be empty if operation failed completely.
  *
  * @param <T> the type of the underlying success result, typically a collection type
  */

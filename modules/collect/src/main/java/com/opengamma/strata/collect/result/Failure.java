@@ -66,8 +66,8 @@ public final class Failure
    * @param cause  the cause
    * @return the failure
    */
-  static Failure of(FailureReason reason, String message, Exception cause) {
-    return Failure.of(FailureItem.of(reason, message, cause));
+  static Failure of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
+    return Failure.of(FailureItem.of(reason, cause, message, messageArgs));
   }
 
   /**

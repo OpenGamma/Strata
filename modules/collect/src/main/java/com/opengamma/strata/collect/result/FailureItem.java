@@ -30,6 +30,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Details of a single failed item in a failure.
@@ -76,15 +77,24 @@ public final class FailureItem
   /**
    * Obtains a failure from a reason and message.
    * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   * <p>
    * An exception will be created internally to obtain a stack trace.
    * The cause type will not be present in the resulting failure.
    * 
    * @param reason  the reason
-   * @param message  the failure message, not empty
+   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
    * @return the failure
    */
-  public static FailureItem of(FailureReason reason, String message) {
-    return of(reason, message, 1);
+  public static FailureItem of(FailureReason reason, String message, Object... messageArgs) {
+    String msg = Messages.format(message, messageArgs);
+    return of(reason, msg, 1);
   }
 
   /**
@@ -128,23 +138,31 @@ public final class FailureItem
     ArgChecker.notNull(cause, "cause");
     String causeMessage = cause.getMessage();
     String message = Strings.isNullOrEmpty(causeMessage) ? cause.getClass().getSimpleName() : causeMessage;
-    return FailureItem.of(reason, message, cause);
+    return FailureItem.of(reason, cause, message);
   }
 
   /**
-   * Obtains a failure from a reason, message and exception.
+   * Obtains a failure from a reason, exception and message.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
    * 
    * @param reason  the reason
-   * @param message  the failure message
    * @param cause  the cause
+   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
    * @return the failure
    */
-  public static FailureItem of(FailureReason reason, String message, Exception cause) {
+  public static FailureItem of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
     ArgChecker.notNull(reason, "reason");
-    ArgChecker.notEmpty(message, "message");
     ArgChecker.notNull(cause, "cause");
+    String msg = Messages.format(message, messageArgs);
     String stackTrace = Throwables.getStackTraceAsString(cause);
-    return new FailureItem(reason, message, stackTrace, cause.getClass());
+    return new FailureItem(reason, msg, stackTrace, cause.getClass());
   }
 
   //-------------------------------------------------------------------------
