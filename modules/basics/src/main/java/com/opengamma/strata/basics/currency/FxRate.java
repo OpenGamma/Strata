@@ -168,7 +168,8 @@ public final class FxRate
     if (counterCurrency.equals(pair.getBase()) && baseCurrency.equals(pair.getCounter())) {
       return 1d / rate;
     }
-    throw new IllegalArgumentException("Unknown rate: " + baseCurrency + "/" + counterCurrency);
+    throw new IllegalArgumentException(Messages.format(
+        "No FX rate found for {}/{}", baseCurrency, counterCurrency));
   }
 
   /**

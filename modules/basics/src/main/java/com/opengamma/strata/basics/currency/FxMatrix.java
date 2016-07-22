@@ -31,6 +31,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -203,9 +204,8 @@ public final class FxMatrix
     if (index1 != null && index2 != null) {
       return rates.get(index1, index2);
     } else {
-      throw new IllegalArgumentException(
-          "No rate found for " + baseCurrency + "/" + counterCurrency +
-              " - FX matrix only contains rates for: " + currencies.keySet());
+      throw new IllegalArgumentException(Messages.format(
+          "No FX rate found for {}/{}, matrix only contains rates for {}", baseCurrency, counterCurrency, currencies.keySet()));
     }
   }
 
