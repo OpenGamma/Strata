@@ -658,23 +658,17 @@ public final class PeriodicSchedule
    * @return the non-null roll convention
    */
   public RollConvention calculatedRollConvention() {
-    // determine roll convention from stub convention, using EOM as a flag
-    if (stubConvention != null) {
-      // special handling for EOM as it is advisory rather than mandatory
-      if (rollConvention == RollConventions.EOM) {
-        RollConvention derived = stubConvention.toRollConvention(
-            calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, true);
-        return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
-      }
-      // avoid RollConventions.NONE if possible
-      if (rollConvention == null || rollConvention == RollConventions.NONE) {
-        return stubConvention.toRollConvention(
-            calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, false);
-      }
+    // determine roll convention from stub convention
+    StubConvention stubConv = MoreObjects.firstNonNull(stubConvention, StubConvention.NONE);
+    // special handling for EOM as it is advisory rather than mandatory
+    if (rollConvention == RollConventions.EOM) {
+      RollConvention derived = stubConv.toRollConvention(
+          calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, true);
+      return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
     }
     // avoid RollConventions.NONE if possible
     if (rollConvention == null || rollConvention == RollConventions.NONE) {
-      return StubConvention.NONE.toRollConvention(
+      return stubConv.toRollConvention(
           calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, false);
     }
     // use RollConventions.NONE if nothing else applies
