@@ -74,7 +74,7 @@ public enum FailureReason {
   CALCULATION_FAILED,
   /**
    * Failure occurred for some other reason.
-   * ,p>
+   * <p>
    * This reason should only be used when no other type is applicable.
    * If using this reason, please consider raising an issue to get another
    * more descriptive reason added.
