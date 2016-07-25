@@ -40,7 +40,6 @@ public final class ColumnName
    * @param measure  the measure to extract the name from
    * @return a column with the same name as the measure
    */
-  @FromString
   public static ColumnName of(Measure measure) {
     return new ColumnName(measure.getName());
   }
