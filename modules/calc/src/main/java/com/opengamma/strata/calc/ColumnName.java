@@ -33,6 +33,18 @@ public final class ColumnName
   }
 
   /**
+   * Obtains an instance from the specified measure.
+   * <p>
+   * The column name will be the same as the name of the measure.
+   *
+   * @param measure  the measure to extract the name from
+   * @return a column with the same name as the measure
+   */
+  public static ColumnName of(Measure measure) {
+    return new ColumnName(measure.getName());
+  }
+
+  /**
    * Creates an instance.
    * 
    * @param name  the name of the column
