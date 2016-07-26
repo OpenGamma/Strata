@@ -8,8 +8,13 @@ package com.opengamma.strata.loader.csv;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -63,8 +68,8 @@ public final class QuotesCsvLoader {
    * If the files contain a duplicate entry an exception will be thrown.
    * 
    * @param marketDataDate  the date to load
-   * @param resources  the fixing series CSV resources
-   * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@linkplain QuoteId quote ID}
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<QuoteId, Double> load(LocalDate marketDataDate, ResourceLocator... resources) {
@@ -79,7 +84,7 @@ public final class QuotesCsvLoader {
    * If the files contain a duplicate entry an exception will be thrown.
    * 
    * @param marketDataDate  the date to load
-   * @param resources  the fixing series CSV resources
+   * @param resources  the quotes CSV resources
    * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
@@ -92,8 +97,53 @@ public final class QuotesCsvLoader {
     return builder.build();
   }
 
+  /**
+   * Loads one or more CSV format quote files for a set of dates.
+   * <p>
+   * Only those quotes that match one of the specified dates will be loaded.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param marketDataDates  the set of dates to load
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@link LocalDate} and {@linkplain QuoteId quote ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<LocalDate, ImmutableMap<QuoteId, Double>> load(
+      Set<LocalDate> marketDataDates, 
+      ResourceLocator... resources) {
+    return load(marketDataDates, Arrays.asList(resources));
+  }
+
+  /**
+   * Loads one or more CSV format quote files for a set of dates.
+   * <p>
+   * Only those quotes that match one of the specified dates will be loaded.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param marketDataDate  the date to load
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@link LocalDate} and {@linkplain QuoteId quote ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<LocalDate, ImmutableMap<QuoteId, Double>> load(
+      Set<LocalDate> marketDataDates, 
+      Collection<ResourceLocator> resources) {
+    // builder ensures keys can only be seen once
+    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> map = new HashMap<>();
+    for (ResourceLocator timeSeriesResource : resources) {
+      loadSingle(marketDataDates, timeSeriesResource, map);
+    }
+    ImmutableMap.Builder<LocalDate, ImmutableMap<QuoteId, Double>> builder = ImmutableMap.builder();
+    for (Entry<LocalDate, Builder<QuoteId, Double>> entry : map.entrySet()) {
+      builder.put(entry.getKey(), entry.getValue().build());
+    }
+    return builder.build();
+  }
+
   //-------------------------------------------------------------------------
-  // loads a single CSV file
+  // loads a single CSV file for a single date
   private static void loadSingle(
       LocalDate marketDataDate,
       ResourceLocator resource,
@@ -115,6 +165,41 @@ public final class QuotesCsvLoader {
           FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
 
           builder.put(QuoteId.of(id, fieldName), value);
+        }
+      }
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException(
+          Messages.format("Error processing resource as CSV file: {}", resource), ex);
+    }
+  }
+
+  // loads a single CSV file for a set of dates
+  private static void loadSingle(
+      Set<LocalDate> marketDataDates,
+      ResourceLocator resource,
+      Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> map) {
+
+    try {
+      CsvFile csv = CsvFile.of(resource.getCharSource(), true);
+      for (CsvRow row : csv.rows()) {
+        String dateText = row.getField(DATE_FIELD);
+        LocalDate date = LocalDate.parse(dateText);
+        if (marketDataDates.contains(date)) {
+          String symbologyStr = row.getField(SYMBOLOGY_FIELD);
+          String tickerStr = row.getField(TICKER_FIELD);
+          String fieldNameStr = row.getField(FIELD_NAME_FIELD);
+          String valueStr = row.getField(VALUE_FIELD);
+
+          double value = Double.valueOf(valueStr);
+          StandardId id = StandardId.of(symbologyStr, tickerStr);
+          FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
+          
+          ImmutableMap.Builder<QuoteId, Double> builderForDate = map.get(date);
+          if(builderForDate == null){
+            builderForDate = ImmutableMap.builder();
+            map.put(date, builderForDate);
+          }
+          builderForDate.put(QuoteId.of(id, fieldName), value);
         }
       }
     } catch (RuntimeException ex) {
