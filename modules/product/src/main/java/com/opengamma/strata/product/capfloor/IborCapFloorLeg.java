@@ -7,7 +7,6 @@ package com.opengamma.strata.product.capfloor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -42,6 +41,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
@@ -192,9 +192,9 @@ public final class IborCapFloorLeg
   @Override
   public ResolvedIborCapFloorLeg resolve(ReferenceData refData) {
     Schedule adjustedSchedule = paymentSchedule.createSchedule(refData);
-    List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
-    List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
-    List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
+    DoubleArray cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule) : null;
+    DoubleArray floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule) : null;
+    DoubleArray notionals = notional.resolveValues(adjustedSchedule);
     DateAdjuster fixingDateAdjuster = calculation.getFixingDateOffset().resolve(refData);
     DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
     Function<LocalDate, IborIndexObservation> obsFn = calculation.getIndex().resolve(refData);
