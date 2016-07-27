@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -169,10 +170,10 @@ public final class ValueSchedule
   // resolve the values
   private DoubleArray resolveValues(List<SchedulePeriod> periods, RollConvention rollConv) {
     // handle simple case where there are no steps
-    if (steps.size() > 0 || stepSequence != null) {
-      return resolveSteps(periods, rollConv);
+    if (steps.size() == 0 && stepSequence == null) {
+      return DoubleArray.filled(periods.size(), initialValue);
     }
-    return DoubleArray.filled(periods.size(), initialValue);
+    return resolveSteps(periods, rollConv);
   }
 
   // resolve the steps, broken into a separate method to aid inlining
@@ -186,7 +187,9 @@ public final class ValueSchedule
     for (ValueStep step : resolvedSteps) {
       int index = step.findIndex(periods);
       if (expandedSteps[index] != null && !expandedSteps[index].equals(step.getValue())) {
-        throw new IllegalArgumentException("Two ValueStep instances resolve to the same schedule period");
+        throw new IllegalArgumentException(Messages.format(
+            "Invalid ValueSchedule, two steps resolved to the same schedule period starting on {}, schedule defined as {}",
+            periods.get(index).getUnadjustedStartDate(), this));
       }
       expandedSteps[index] = step.getValue();
     }
