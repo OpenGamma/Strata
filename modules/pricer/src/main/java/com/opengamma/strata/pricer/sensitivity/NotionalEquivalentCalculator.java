@@ -61,7 +61,7 @@ public class NotionalEquivalentCalculator {
         notionalArray[i] = s.getSensitivity().get(i) / pvSensi.get(i);
       }
       DoubleArray notional = DoubleArray.ofUnsafe(notionalArray);
-      equivalentList.add(CurrencyParameterSensitivity.of(name, s.getCurrency(), notional));
+      equivalentList.add(CurrencyParameterSensitivity.of(name, s.getParameterMetadata(), s.getCurrency(), notional));
     }
     return CurrencyParameterSensitivities.of(equivalentList);
   }

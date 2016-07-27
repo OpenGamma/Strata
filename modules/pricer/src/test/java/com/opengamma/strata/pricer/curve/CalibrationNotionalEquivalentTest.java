@@ -5,10 +5,6 @@
  */
 package com.opengamma.strata.pricer.curve;
 
-/**
- * Test the notional equivalent computation based on present value sensitivity to quote in 
- * the calibrated curves by {@link CurveCalibrator}.
- */
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -43,6 +39,7 @@ import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
@@ -54,9 +51,12 @@ import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 
+
 /**
- * Test.
- */
+ * Test the notional equivalent computation based on present value sensitivity to quote in 
+ * the calibrated curves by {@link CurveCalibrator}.
+ */  
+@Test
 public class CalibrationNotionalEquivalentTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -98,7 +98,6 @@ public class CalibrationNotionalEquivalentTest {
   private static final double TOLERANCE_PV = 1.0E-8;
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
 
-  @Test
   public void check_pv_with_measures() {
     ImmutableRatesProvider multicurve =
         CALIBRATOR.calibrate(GROUP_DEFINITION, MARKET_QUOTES, REF_DATA);
@@ -118,7 +117,6 @@ public class CalibrationNotionalEquivalentTest {
     }
   }
 
-  @Test
   public void check_pv_sensitivity() {
     ImmutableRatesProvider multicurve =
         CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA);
@@ -162,7 +160,6 @@ public class CalibrationNotionalEquivalentTest {
     }
   }
 
-  @Test
   public void check_equivalent_notional() {
     ImmutableRatesProvider multicurve =
         CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA);
@@ -174,6 +171,11 @@ public class CalibrationNotionalEquivalentTest {
     CurrencyParameterSensitivities ps = multicurve.parameterSensitivity(pts);
     CurrencyParameterSensitivities mqs = MQSC.sensitivity(ps, multicurve);
     CurrencyParameterSensitivities notionalEquivalent = NEC.notionalEquivalent(mqs, multicurve);
+    // Check metadata are same as market quote sensitivities.
+    for(CurrencyParameterSensitivity sensi: mqs.getSensitivities()){
+      assertEquals(notionalEquivalent.getSensitivity(sensi.getMarketDataName(), sensi.getCurrency()).getParameterMetadata(), 
+          sensi.getParameterMetadata());
+    }
     // Check sensitivity: trade sensitivity = sum(notional equivalent sensitivities)
     int totalNbParameters = 0;
     Map<CurveName, List<ResolvedTrade>> equivalentTrades = new HashMap<>();
