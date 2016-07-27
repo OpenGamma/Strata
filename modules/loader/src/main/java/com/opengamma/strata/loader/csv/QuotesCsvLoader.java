@@ -15,13 +15,13 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.FieldName;
-import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.observable.QuoteId;
 
 /**
@@ -85,18 +85,19 @@ public final class QuotesCsvLoader {
    * 
    * @param marketDataDate  the date to load
    * @param resources  the quotes CSV resources
-   * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @return the loaded quotes, mapped by {@linkplain QuoteId quote ID}
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<QuoteId, Double> load(LocalDate marketDataDate, Collection<ResourceLocator> resources) {
     // builder ensures keys can only be seen once
-    ImmutableMap.Builder<QuoteId, Double> builder = ImmutableMap.builder();
-    for (ResourceLocator timeSeriesResource : resources) {
-      loadSingle(marketDataDate, timeSeriesResource, builder);
+    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap = new HashMap<>();
+    for (ResourceLocator resource : resources) {
+      loadSingle(ImmutableSet.of(marketDataDate), resource, mutableMap);
     }
-    return builder.build();
+    return mutableMap.getOrDefault(marketDataDate, ImmutableMap.builder()).build();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Loads one or more CSV format quote files for a set of dates.
    * <p>
@@ -110,8 +111,9 @@ public final class QuotesCsvLoader {
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<LocalDate, ImmutableMap<QuoteId, Double>> load(
-      Set<LocalDate> marketDataDates, 
+      Set<LocalDate> marketDataDates,
       ResourceLocator... resources) {
+
     return load(marketDataDates, Arrays.asList(resources));
   }
 
@@ -122,62 +124,33 @@ public final class QuotesCsvLoader {
    * <p>
    * If the files contain a duplicate entry an exception will be thrown.
    * 
-   * @param marketDataDate  the date to load
+   * @param marketDataDates  the dates to load
    * @param resources  the quotes CSV resources
    * @return the loaded quotes, mapped by {@link LocalDate} and {@linkplain QuoteId quote ID}
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<LocalDate, ImmutableMap<QuoteId, Double>> load(
-      Set<LocalDate> marketDataDates, 
+      Set<LocalDate> marketDataDates,
       Collection<ResourceLocator> resources) {
+
     // builder ensures keys can only be seen once
-    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> map = new HashMap<>();
+    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap = new HashMap<>();
     for (ResourceLocator timeSeriesResource : resources) {
-      loadSingle(marketDataDates, timeSeriesResource, map);
+      loadSingle(marketDataDates, timeSeriesResource, mutableMap);
     }
     ImmutableMap.Builder<LocalDate, ImmutableMap<QuoteId, Double>> builder = ImmutableMap.builder();
-    for (Entry<LocalDate, Builder<QuoteId, Double>> entry : map.entrySet()) {
+    for (Entry<LocalDate, Builder<QuoteId, Double>> entry : mutableMap.entrySet()) {
       builder.put(entry.getKey(), entry.getValue().build());
     }
     return builder.build();
   }
 
   //-------------------------------------------------------------------------
-  // loads a single CSV file for a single date
-  private static void loadSingle(
-      LocalDate marketDataDate,
-      ResourceLocator resource,
-      ImmutableMap.Builder<QuoteId, Double> builder) {
-
-    try {
-      CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-      for (CsvRow row : csv.rows()) {
-        String dateText = row.getField(DATE_FIELD);
-        LocalDate date = LocalDate.parse(dateText);
-        if (date.equals(marketDataDate)) {
-          String symbologyStr = row.getField(SYMBOLOGY_FIELD);
-          String tickerStr = row.getField(TICKER_FIELD);
-          String fieldNameStr = row.getField(FIELD_NAME_FIELD);
-          String valueStr = row.getField(VALUE_FIELD);
-
-          double value = Double.valueOf(valueStr);
-          StandardId id = StandardId.of(symbologyStr, tickerStr);
-          FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
-
-          builder.put(QuoteId.of(id, fieldName), value);
-        }
-      }
-    } catch (RuntimeException ex) {
-      throw new IllegalArgumentException(
-          Messages.format("Error processing resource as CSV file: {}", resource), ex);
-    }
-  }
-
   // loads a single CSV file for a set of dates
   private static void loadSingle(
       Set<LocalDate> marketDataDates,
       ResourceLocator resource,
-      Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> map) {
+      Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap) {
 
     try {
       CsvFile csv = CsvFile.of(resource.getCharSource(), true);
@@ -193,12 +166,8 @@ public final class QuotesCsvLoader {
           double value = Double.valueOf(valueStr);
           StandardId id = StandardId.of(symbologyStr, tickerStr);
           FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
-          
-          ImmutableMap.Builder<QuoteId, Double> builderForDate = map.get(date);
-          if(builderForDate == null){
-            builderForDate = ImmutableMap.builder();
-            map.put(date, builderForDate);
-          }
+
+          ImmutableMap.Builder<QuoteId, Double> builderForDate = mutableMap.computeIfAbsent(date, k -> ImmutableMap.builder());
           builderForDate.put(QuoteId.of(id, fieldName), value);
         }
       }

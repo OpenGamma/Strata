@@ -47,12 +47,17 @@ public class QuotesCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/quotes-invalid-duplicate.csv");
 
   //-------------------------------------------------------------------------
+  public void test_noFiles() {
+    Map<QuoteId, Double> map = QuotesCsvLoader.load(DATE1);
+    assertEquals(map.size(), 0);
+  }
+
   public void test_file1_date1() {
     Map<QuoteId, Double> map = QuotesCsvLoader.load(DATE1, QUOTES_1);
     assertEquals(map.size(), 2);
     assertFile1Date1(map);
   }
-  
+
   public void test_file1_date1date2() {
     Map<LocalDate, ImmutableMap<QuoteId, Double>> map = QuotesCsvLoader.load(ImmutableSet.of(DATE1, DATE2), QUOTES_1);
     assertEquals(map.size(), 2);
@@ -90,7 +95,7 @@ public class QuotesCsvLoaderTest {
     assertEquals(map.get(FGBL_MAR14), 150.43, 1e-6);
     assertEquals(map.get(ED_MAR14), 99.62, 1e-6);
   }
-  
+
   private void assertFile1Date1Date2(Map<LocalDate, ImmutableMap<QuoteId, Double>> map) {
     assertTrue(map.containsKey(DATE1));
     assertTrue(map.containsKey(DATE2));
