@@ -364,7 +364,7 @@ public class AnalyticCdsPricer {
     return pv;
   }
 
-  private double calculateSinglePeriodAccrualOnDefault(
+  public double calculateSinglePeriodAccrualOnDefault(
       CdsCoupon coupon,
       double effectiveStart,
       double[] integrationPoints,
