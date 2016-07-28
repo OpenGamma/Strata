@@ -8,11 +8,20 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static java.util.stream.Collectors.groupingBy;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -23,9 +32,12 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -158,6 +170,60 @@ public final class CurveGroupDefinitionCsvLoader {
         .indices(indices)
         .build();
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Writes the curve groups definition in a CSV format to a file.
+   * 
+   * @param group  the curve group
+   * @param file  the file
+   */
+  public static void writeCurveGroupDefinition(CurveGroup group, File file) {
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+      writeCurveGroupDefinition(group, writer);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  /**
+   * Writes the curve groups definition in a CSV format to an appendable.
+   * 
+   * @param group  the curve group
+   * @param underlying  the underlying writer
+   */
+  public static void writeCurveGroupDefinition(CurveGroup group, Appendable underlying) {
+    List<String> headers = new ArrayList<>();
+    headers.add(GROUPS_NAME);
+    headers.add(GROUPS_CURVE_TYPE);
+    headers.add(GROUPS_REFERENCE);
+    headers.add(GROUPS_CURVE_NAME);
+    List<List<String>> lines = new ArrayList<>();
+    lines.add(headers);
+    String name = group.getName().getName();
+    Map<Currency, Curve> discountingCurves = group.getDiscountCurves();
+    for (Entry<Currency, Curve> entry : discountingCurves.entrySet()) {
+      List<String> line = new ArrayList<>();
+      line.add(name);
+      line.add(DISCOUNT);
+      line.add(entry.getKey().toString());
+      line.add(entry.getValue().getName().getName());
+      lines.add(line);
+    }
+    Map<Index, Curve> forwardCurves = group.getForwardCurves();
+    for (Entry<Index, Curve> entry : forwardCurves.entrySet()) {
+      List<String> line = new ArrayList<>();
+      line.add(name);
+      line.add(FORWARD);
+      line.add(entry.getKey().toString());
+      line.add(entry.getValue().getName().getName());
+      lines.add(line);
+    }
+    CsvOutput csv = new CsvOutput(underlying);
+    csv.writeLines(lines, false);
+  }
+
+  //-------------------------------------------------------------------------
 
   // This class only has static methods
   private CurveGroupDefinitionCsvLoader() {
