@@ -33,12 +33,10 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * Details of a single failed item in a failure.
+ * Details of a single failed item.
  * <p>
- * When a {@link Failure} occurs, details are captured and stored in an instance of this class.
+ * This is used in {@link Failure} and {@link TolerantResult} to capture details of a single failure.
  * Details include the reason, message and stack trace.
- * <p>
- * Instances of {@code FailureItem} are public classes created via {@link Result}.
  */
 @BeanDefinition(builderScope = "private")
 public final class FailureItem
