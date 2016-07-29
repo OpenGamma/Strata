@@ -337,22 +337,7 @@ public class RatesCurvesCsvLoaderTest {
     return DayCounts.ACT_ACT_ISDA.yearFraction(fromDate, toDate);
   }
 
-  public void test_writer_curve_group_definition() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
-        CURVE_DATE,
-        ResourceLocator.of(GROUPS_1),
-        ResourceLocator.of(SETTINGS_1),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
-    Appendable underlying = new StringBuilder();
-    CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(curveGroups.get(0), underlying);
-    String created = underlying.toString();
-    String expected =
-        "Group Name,Curve Type,Reference,Curve Name" + System.lineSeparator() +
-            "Default,discount,USD,USD-Disc" + System.lineSeparator() +
-            "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator();
-    assertTrue(created.equals(expected));
-  }
-
+  //-------------------------------------------------------------------------
   public void test_writer_curve_settings() {
     List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
@@ -360,13 +345,13 @@ public class RatesCurvesCsvLoaderTest {
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
     Appendable underlying = new StringBuilder();
-    RatesCurvesCsvLoader.writeCurveSettings(curveGroups.get(0), underlying);
+    RatesCurvesCsvLoader.writeCurveSettings(underlying, curveGroups.get(0));
     String created = underlying.toString();
     String expected =
         "Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator" + System.lineSeparator() +
-            "USD-Disc,ZeroRate,Act/Act ISDA,Linear,Flat,Flat" + System.lineSeparator() +
-            "USD-3ML,ZeroRate,Act/Act ISDA,Linear,Flat,Flat" + System.lineSeparator();
-    assertTrue(created.equals(expected));
+            "USD-Disc,zero,Act/Act ISDA,Linear,Flat,Flat" + System.lineSeparator() +
+            "USD-3ML,zero,Act/Act ISDA,Linear,Flat,Flat" + System.lineSeparator();
+    assertEquals(created, expected);
   }
 
   public void test_writer_curve_nodes() {
@@ -376,7 +361,7 @@ public class RatesCurvesCsvLoaderTest {
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
     Appendable underlying = new StringBuilder();
-    RatesCurvesCsvLoader.writeCurveNodes(CURVE_DATE, curveGroups.get(0), underlying);
+    RatesCurvesCsvLoader.writeCurveNodes(underlying, CURVE_DATE, curveGroups.get(0));
     String created = underlying.toString();
     String expected =
         "Valuation Date,Curve Name,Date,Value,Label" + System.lineSeparator() +
@@ -393,7 +378,7 @@ public class RatesCurvesCsvLoaderTest {
             "2009-07-31,USD-3ML,2012-08-06,0.021598026,3Y" + System.lineSeparator() +
             "2009-07-31,USD-3ML,2014-08-05,0.029984216,5Y" + System.lineSeparator() +
             "2009-07-31,USD-3ML,2019-08-06,0.039245812,10Y" + System.lineSeparator();
-    assertTrue(created.equals(expected));
+    assertEquals(created, expected);
   }
 
   //-------------------------------------------------------------------------
