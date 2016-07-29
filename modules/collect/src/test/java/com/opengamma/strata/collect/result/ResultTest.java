@@ -260,7 +260,9 @@ public class ResultTest {
     assertEquals(item.getReason(), ERROR);
     assertEquals(item.getMessage(), "my failure");
     assertEquals(item.getCauseType().isPresent(), false);
-    assertTrue(item.getStackTrace() != null);
+    assertEquals(item.getStackTrace().contains(".FailureItem.of("), false);
+    assertEquals(item.getStackTrace().contains(".Failure.of("), false);
+    assertEquals(item.getStackTrace().contains(".Result.failure("), false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
