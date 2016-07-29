@@ -7,6 +7,14 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,25 +24,36 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
 
 /**
  * Loads a set of rates curves into memory by reading from CSV resources.
@@ -85,17 +104,26 @@ public final class RatesCurvesCsvLoader {
   private static final String SETTINGS_INTERPOLATOR = "Interpolator";
   private static final String SETTINGS_LEFT_EXTRAPOLATOR = "Left Extrapolator";
   private static final String SETTINGS_RIGHT_EXTRAPOLATOR = "Right Extrapolator";
+  private static final ImmutableList<String> HEADERS_SETTINGS = ImmutableList.of(
+      SETTINGS_CURVE_NAME,
+      SETTINGS_VALUE_TYPE,
+      SETTINGS_DAY_COUNT,
+      SETTINGS_INTERPOLATOR,
+      SETTINGS_LEFT_EXTRAPOLATOR,
+      SETTINGS_RIGHT_EXTRAPOLATOR);
 
   private static final String CURVE_DATE = "Valuation Date";
   private static final String CURVE_NAME = "Curve Name";
   private static final String CURVE_POINT_DATE = "Date";
   private static final String CURVE_POINT_VALUE = "Value";
   private static final String CURVE_POINT_LABEL = "Label";
+  private static final ImmutableList<String> HEADERS_NODES = ImmutableList.of(
+      CURVE_DATE, CURVE_NAME, CURVE_POINT_DATE, CURVE_POINT_VALUE, CURVE_POINT_LABEL);
 
   /**
    * Names used in CSV file for value types.
    */
-  private static final Map<String, ValueType> VALUE_TYPE_MAP = ImmutableMap.of(
+  private static final BiMap<String, ValueType> VALUE_TYPE_MAP = ImmutableBiMap.of(
       "zero", ValueType.ZERO_RATE,
       "df", ValueType.DISCOUNT_FACTOR,
       "forward", ValueType.FORWARD_RATE);
@@ -264,6 +292,132 @@ public final class RatesCurvesCsvLoader {
       results.put(key.getCurveDate(), settings.createCurve(key.getCurveDate(), entry.getValue()));
     }
     return results.build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Writes the curve settings in a CSV format to a file.
+   * 
+   * @param file  the file
+   * @param group  the curve group
+   */
+  public static void writeCurveSettings(File file, CurveGroup group) {
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+      writeCurveSettings(writer, group);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  /**
+   * Writes the curve settings in a CSV format to an appendable.
+   * 
+   * @param underlying  the underlying appendable destination
+   * @param group  the curve group
+   */
+  public static void writeCurveSettings(Appendable underlying, CurveGroup group) {
+    CsvOutput csv = new CsvOutput(underlying);
+    // header
+    csv.writeLine(HEADERS_SETTINGS);
+    // rows
+    Map<Currency, Curve> discountingCurves = group.getDiscountCurves();
+    Set<CurveName> names = new HashSet<>();
+    for (Entry<Currency, Curve> entry : discountingCurves.entrySet()) {
+      Curve curve = entry.getValue();
+      csv.writeLine(curveSettings(curve));
+      names.add(curve.getName());
+    }
+    Map<Index, Curve> forwardCurves = group.getForwardCurves();
+    for (Entry<Index, Curve> entry : forwardCurves.entrySet()) {
+      Curve curve = entry.getValue();
+      if (!names.contains(curve.getName())) {
+        csv.writeLine(curveSettings(curve));
+        names.add(curve.getName());
+      }
+    }
+  }
+
+  private static List<String> curveSettings(Curve curve) {
+    ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "Curve must be an InterpolatedNodalCurve");
+    if (!VALUE_TYPE_MAP.inverse().containsKey(curve.getMetadata().getYValueType())) {
+      throw new IllegalArgumentException(
+          Messages.format("Unsupported ValueType in curve settings: {}", curve.getMetadata().getYValueType()));
+    }
+    InterpolatedNodalCurve interpolatedCurve = (InterpolatedNodalCurve) curve;
+    List<String> line = new ArrayList<>();
+    line.add(curve.getName().getName());
+    line.add(VALUE_TYPE_MAP.inverse().get(curve.getMetadata().getYValueType()));
+    line.add(curve.getMetadata().getInfo(CurveInfoType.DAY_COUNT).toString());
+    line.add(interpolatedCurve.getInterpolator().toString());
+    line.add(interpolatedCurve.getExtrapolatorLeft().toString());
+    line.add(interpolatedCurve.getExtrapolatorRight().toString());
+    return line;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Writes the curve groups definition in a CSV format to a file.
+   * 
+   * @param file  the file
+   * @param valuationDate  the valuation date
+   * @param group  the curve group
+   */
+  public static void writeCurveNodes(File file, LocalDate valuationDate, CurveGroup group) {
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+      writeCurveNodes(writer, valuationDate, group);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  /**
+   * Writes the curve nodes in a CSV format to an appendable.
+   * 
+   * @param underlying  the underlying appendable destination
+   * @param valuationDate  the valuation date
+   * @param group  the curve group
+   */
+  public static void writeCurveNodes(Appendable underlying, LocalDate valuationDate, CurveGroup group) {
+    CsvOutput csv = new CsvOutput(underlying);
+    // header
+    csv.writeLine(HEADERS_NODES);
+    // rows
+    String valuationDateStr = valuationDate.toString();
+    Map<Currency, Curve> discountingCurves = group.getDiscountCurves();
+    Set<CurveName> names = new HashSet<>();
+    for (Entry<Currency, Curve> entry : discountingCurves.entrySet()) {
+      Curve curve = entry.getValue();
+      nodeLines(valuationDateStr, curve, csv);
+      names.add(curve.getName());
+    }
+    Map<Index, Curve> forwardCurves = group.getForwardCurves();
+    for (Entry<Index, Curve> entry : forwardCurves.entrySet()) {
+      Curve curve = entry.getValue();
+      if (!names.contains(curve.getName())) {
+        nodeLines(valuationDateStr, curve, csv);
+        names.add(curve.getName());
+      }
+    }
+  }
+
+  // add each node to the csv file
+  private static void nodeLines(String valuationDateStr, Curve curve, CsvOutput csv) {
+    ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "interpolated");
+    InterpolatedNodalCurve interpolatedCurve = (InterpolatedNodalCurve) curve;
+    int nbPoints = interpolatedCurve.getXValues().size();
+    for (int i = 0; i < nbPoints; i++) {
+      ArgChecker.isTrue(
+          interpolatedCurve.getParameterMetadata(i) instanceof DatedParameterMetadata,
+          "Curve metadata must contain a date, but was " + interpolatedCurve.getParameterMetadata(i).getClass().getSimpleName());
+      DatedParameterMetadata metadata = (DatedParameterMetadata) interpolatedCurve.getParameterMetadata(i);
+      List<String> line = new ArrayList<>();
+      line.add(valuationDateStr);
+      line.add(curve.getName().getName().toString());
+      line.add(metadata.getDate().toString());
+      line.add(BigDecimal.valueOf(interpolatedCurve.getYValues().get(i)).toPlainString());
+      line.add(metadata.getLabel());
+      csv.writeLine(line);
+    }
   }
 
   //-------------------------------------------------------------------------
