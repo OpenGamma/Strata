@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -250,10 +251,11 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Gets the {@code CurrencyAmount} for the specified currency.
+   * Gets the {@code CurrencyAmount} for the specified currency, throwing an exception if not found.
    * 
    * @param currency  the currency to find an amount for
    * @return the amount
+   * @throws IllegalArgumentException if the currency is not found
    */
   public CurrencyAmount getAmount(Currency currency) {
     ArgChecker.notNull(currency, "currency");
@@ -261,6 +263,20 @@ public final class MultiCurrencyAmount
         .filter(ca -> ca.getCurrency().equals(currency))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Unknown currency " + currency));
+  }
+
+  /**
+   * Gets the {@code CurrencyAmount} for the specified currency, returning zero if not found.
+   * 
+   * @param currency  the currency to find an amount for
+   * @return the amount
+   */
+  public CurrencyAmount getAmountOrZero(Currency currency) {
+    ArgChecker.notNull(currency, "currency");
+    return amounts.stream()
+        .filter(ca -> ca.getCurrency().equals(currency))
+        .findFirst()
+        .orElseGet(() -> CurrencyAmount.zero(currency));
   }
 
   //-------------------------------------------------------------------------
@@ -428,6 +444,23 @@ public final class MultiCurrencyAmount
     return amounts.stream()
         .map(ca -> ca.mapAmount(mapper))
         .collect(MultiCurrencyAmount.collectorInternal());
+  }
+
+  /**
+   * Applies an operation to the currency amounts.
+   * <p>
+   * The operator is called once for each currency in this amount.
+   * The operator may return an amount with a different currency.
+   * The result will be the total of the altered amounts.
+   *
+   * @param operator  the operator to be applied to the amounts
+   * @return a copy of this amount with the mapping applied to the original amounts
+   */
+  public MultiCurrencyAmount mapCurrencyAmounts(UnaryOperator<CurrencyAmount> operator) {
+    ArgChecker.notNull(operator, "operator");
+    return amounts.stream()
+        .map(ca -> operator.apply(ca))
+        .collect(MultiCurrencyAmount.toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
