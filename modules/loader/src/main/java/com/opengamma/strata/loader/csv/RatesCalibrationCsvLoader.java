@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CharSource;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
@@ -192,13 +194,34 @@ public final class RatesCalibrationCsvLoader {
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveNodeResources) {
 
+    Collection<CharSource> curveNodeCharSources = curveNodeResources.stream().map(r -> r.getCharSource()).collect(toList());
+    return parse(groupsResource.getCharSource(), settingsResource.getCharSource(), curveNodeCharSources);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses one or more CSV format curve calibration files.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param groupsCharSource  the curve groups CSV character source
+   * @param settingsCharSource  the curve settings CSV character source
+   * @param curveNodeCharSources  the CSV character sources for curve nodes
+   * @return the group definitions, mapped by name
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> parse(
+      CharSource groupsCharSource,
+      CharSource settingsCharSource,
+      Collection<CharSource> curveNodeCharSources) {
+
     // load curve groups and settings
-    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
-    Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.loadCurveSettings(settingsResource);
+    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.parseCurveSettings(settingsCharSource);
 
     // load curve definitions
-    List<NodalCurveDefinition> curveDefinitions = curveNodeResources.stream()
-        .flatMap(res -> loadSingle(res, settingsMap).stream())
+    List<NodalCurveDefinition> curveDefinitions = curveNodeCharSources.stream()
+        .flatMap(res -> parseSingle(res, settingsMap).stream())
         .collect(toImmutableList());
 
     // Add the curve definitions to the curve group definitions
@@ -210,11 +233,11 @@ public final class RatesCalibrationCsvLoader {
   //-------------------------------------------------------------------------
   // loads a single curves CSV file
   // requestedDate can be null, meaning load all dates
-  private static List<NodalCurveDefinition> loadSingle(
-      ResourceLocator resource,
+  private static List<NodalCurveDefinition> parseSingle(
+      CharSource resource,
       Map<CurveName, LoadedCurveSettings> settingsMap) {
 
-    CsvFile csv = CsvFile.of(resource.getCharSource(), true);
+    CsvFile csv = CsvFile.of(resource, true);
     Map<CurveName, List<CurveNode>> allNodes = new HashMap<>();
     for (CsvRow row : csv.rows()) {
       String curveNameStr = row.getField(CURVE_NAME);

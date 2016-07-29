@@ -18,6 +18,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -45,26 +47,26 @@ public class FxRatesCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fx-rates-invalid-duplicate.csv");
 
   //-------------------------------------------------------------------------
-  public void test_file1_date1() {
+  public void test_load_oneDate_file1_date1() {
     Map<FxRateId, FxRate> map = FxRatesCsvLoader.load(DATE1, RATES_1);
     assertEquals(map.size(), 2);
     assertFile1Date1(map);
   }
 
-  public void test_file1_date2() {
+  public void test_load_oneDate_file1_date2() {
     Map<FxRateId, FxRate> map = FxRatesCsvLoader.load(DATE2, ImmutableList.of(RATES_1));
     assertEquals(map.size(), 2);
     assertFile1Date2(map);
   }
 
-  public void test_file1file2_date1() {
+  public void test_load_oneDate_file1file2_date1() {
     Map<FxRateId, FxRate> map = FxRatesCsvLoader.load(DATE1, ImmutableList.of(RATES_1, RATES_2));
     assertEquals(map.size(), 3);
     assertFile1Date1(map);
     assertFile2Date1(map);
   }
 
-  public void test_invalidDate() {
+  public void test_load_oneDate_invalidDate() {
     assertThrows(
         () -> FxRatesCsvLoader.load(date(2015, 10, 2), RATES_INVALID_DATE),
         IllegalArgumentException.class,
@@ -73,6 +75,20 @@ public class FxRatesCsvLoaderTest {
 
   public void test_invalidDuplicate() {
     assertThrowsIllegalArg(() -> FxRatesCsvLoader.load(DATE1, RATES_INVALID_DUPLICATE));
+  }
+
+  public void test_load_dateSet_file1_date1() {
+    Map<LocalDate, ImmutableMap<FxRateId, FxRate>> map = FxRatesCsvLoader.load(ImmutableSet.of(DATE1, DATE2), RATES_1);
+    assertEquals(map.size(), 2);
+    assertFile1Date1(map.get(DATE1));
+    assertFile1Date2(map.get(DATE2));
+  }
+
+  public void test_load_alLDates_file1_date1() {
+    Map<LocalDate, ImmutableMap<FxRateId, FxRate>> map = FxRatesCsvLoader.loadAllDates(RATES_1);
+    assertEquals(map.size(), 2);
+    assertFile1Date1(map.get(DATE1));
+    assertFile1Date2(map.get(DATE2));
   }
 
   //-------------------------------------------------------------------------

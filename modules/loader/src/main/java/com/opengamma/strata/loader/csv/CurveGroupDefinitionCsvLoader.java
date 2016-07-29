@@ -27,6 +27,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.MapStream;
@@ -42,6 +43,7 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.NodalCurveDefinition;
 
 /**
  * Loads a set of curve group definitions into memory by reading from CSV resources.
@@ -77,29 +79,58 @@ public final class CurveGroupDefinitionCsvLoader {
   //-------------------------------------------------------------------------
   /**
    * Loads the curve groups definition CSV file.
+   * <p>
+   * The list of {@link NodalCurveDefinition} will be empty in the resulting definition.
    *
    * @param groupsResource  the curve groups CSV resource
-   * @return the set of IDs specifying how each curve is used, keyed by the name of the curve
+   * @return the list of definitions
+   * @deprecated Use better named {@link #loadCurveGroupDefinitions(ResourceLocator)}
    */
+  @Deprecated
   public static List<CurveGroupDefinition> loadCurveGroups(ResourceLocator groupsResource) {
+    return loadCurveGroupDefinitions(groupsResource);
+  }
+
+  /**
+   * Loads the curve groups definition CSV file.
+   * <p>
+   * The list of {@link NodalCurveDefinition} will be empty in the resulting definition.
+   *
+   * @param groupsResource  the curve groups CSV resource
+   * @return the list of definitions
+   */
+  public static List<CurveGroupDefinition> loadCurveGroupDefinitions(ResourceLocator groupsResource) {
+    return parseCurveGroupDefinitions(groupsResource.getCharSource());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses the curve groups definition CSV file.
+   * <p>
+   * The list of {@link NodalCurveDefinition} will be empty in the resulting definition.
+   *
+   * @param groupsCharSource  the curve groups CSV character source
+   * @return the list of definitions
+   */
+  public static List<CurveGroupDefinition> parseCurveGroupDefinitions(CharSource groupsCharSource) {
     Map<CurveName, Set<GroupAndReference>> curveGroups = new LinkedHashMap<>();
-    CsvFile csv = CsvFile.of(groupsResource.getCharSource(), true);
+    CsvFile csv = CsvFile.of(groupsCharSource, true);
     for (CsvRow row : csv.rows()) {
       String curveGroupStr = row.getField(GROUPS_NAME);
       String curveTypeStr = row.getField(GROUPS_CURVE_TYPE);
       String referenceStr = row.getField(GROUPS_REFERENCE);
       String curveNameStr = row.getField(GROUPS_CURVE_NAME);
 
-      GroupAndReference gar = createCurveId(CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr);
+      GroupAndReference gar = createKey(CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr);
       CurveName curveName = CurveName.of(curveNameStr);
-      Set<GroupAndReference> curveUses = curveGroups.computeIfAbsent(curveName, k -> new LinkedHashSet<>());
-      curveUses.add(gar);
+      curveGroups.computeIfAbsent(curveName, k -> new LinkedHashSet<>()).add(gar);
     }
     return buildCurveGroups(curveGroups);
   }
 
+  //-------------------------------------------------------------------------
   // parses the identifier
-  private static GroupAndReference createCurveId(
+  private static GroupAndReference createKey(
       CurveGroupName curveGroup,
       String curveTypeStr,
       String referenceStr) {
@@ -119,12 +150,12 @@ public final class CurveGroupDefinitionCsvLoader {
   }
 
   /**
-   * Builds a list of curve group definitions from the map of curves and their IDs.
+   * Builds a list of curve group definitions from the map of curves and their keys.
    * <p>
-   * The curve IDs specify which curve groups each curve belongs to and how it is used in the group, for example
+   * The keys specify which curve groups each curve belongs to and how it is used in the group, for example
    * as a discount curve for a particular currency or as a forward curve for an index.
    *
-   * @param garMap  the map of group-reference pairs
+   * @param garMap  the map of name to keyss
    * @return a map of curve group name to curve group definition built from the curves
    */
   private static ImmutableList<CurveGroupDefinition> buildCurveGroups(
@@ -150,7 +181,7 @@ public final class CurveGroupDefinitionCsvLoader {
   }
 
   /**
-   * Creates a curve group entry for a curve from a list of the curve's IDs from the same curve group.
+   * Creates a curve group entry for a curve from a list of keys from the same curve group.
    *
    * @param curveName  the name of the curve
    * @param gars  the group-reference pairs
