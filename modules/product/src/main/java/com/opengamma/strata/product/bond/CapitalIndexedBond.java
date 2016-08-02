@@ -8,7 +8,6 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -39,6 +38,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.rate.RateComputation;
@@ -181,8 +181,8 @@ public final class CapitalIndexedBond
   public ResolvedCapitalIndexedBond resolve(ReferenceData refData) {
     Schedule adjustedSchedule = accrualSchedule.createSchedule(refData);
     DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
-    List<Double> resolvedGearings =
-        rateCalculation.getGearing().orElse(ALWAYS_1).resolveValues(adjustedSchedule.getPeriods());
+    DoubleArray resolvedGearings =
+        rateCalculation.getGearing().orElse(ALWAYS_1).resolveValues(adjustedSchedule);
     ImmutableList.Builder<CapitalIndexedBondPaymentPeriod> bondPeriodsBuilder = ImmutableList.builder();
     // coupon payments
     for (int i = 0; i < adjustedSchedule.size(); i++) {

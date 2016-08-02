@@ -111,7 +111,7 @@ public class IsdaCompliantScheduleGenerator {
   }
 
   /**
-   * Truncate an sort (ascending) array of dates so the the interior values are strictly after startDate
+   * Truncate an sort (ascending) array of dates so the interior values are strictly after startDate
    * and strictly before endEnd, and startDate and endDate becomes to first and last entries.
    * 
    * @param startDate This will be the first value in the list 

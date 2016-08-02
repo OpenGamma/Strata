@@ -178,7 +178,7 @@ public final class DayCounts {
    * The denominator is determined by examining the frequency and the period end date (the date of the next coupon).
    * If the frequency is annual then the denominator is 366 if the period contains February 29th,
    * if not it is 365. The first day in the period is excluded, the last day is included.
-   * If the frequency is not annual, the the denominator is 366 if the period end date
+   * If the frequency is not annual, the denominator is 366 if the period end date
    * is in a leap year, if not it is 365.
    * <p>
    * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will throw an

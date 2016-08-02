@@ -1,27 +1,42 @@
 Strata
 ======
 
-[![Build Status](https://travis-ci.org/OpenGamma/Strata.svg?branch=master)](https://travis-ci.org/OpenGamma/Strata)
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build Status](https://travis-ci.org/OpenGamma/Strata.svg?branch=master)](https://travis-ci.org/OpenGamma/Strata) [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-This repository contains the source code of Strata, OpenGamma's next-generation, open source toolkit for market risk.
+This repository contains the source code of Strata, the open source analytics and market risk library from OpenGamma.
 
 Strata is released as Open Source Software under the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html). 
+Commercial support is [available](http://www.opengamma.com/) from the authors.
 
 [![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
 
 
-Documentation
--------------
+Using Strata
+------------
 
 Documentation for Strata can be found at http://opengamma.github.io/StrataDocs.
+
+To use Strata Java SE 8u40 or later is required.
+The JAR files are available in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.opengamma.strata%22):
+
+```
+<dependency>
+  <groupId>com.opengamma.strata</groupId>
+  <artifactId>strata-measure</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+The JAR files, along with the command line tool and examples, can also be obtained from
+the [Strata Releases](https://github.com/OpenGamma/Strata/releases) page on GitHub.
 
 
 Building Strata
 ---------------
 
 The source code can be cloned using [git](http://git-scm.com/) from GitHub:
+
 ```
   git clone https://github.com/OpenGamma/Strata.git
 ```
@@ -45,8 +60,7 @@ Status
 ------
 
 Strata is well-maintained, tested, functional, and is being used in production.
-We are currently making the final enhancements to Strata's APIs and functionality in preparation for version 1.0, expected in June 2016.
-Until then, please be aware that breaking changes to classes and methods are possible at any time.
+The API will be maintained with backwards compatibility in mind.
 
 
 Strata modules

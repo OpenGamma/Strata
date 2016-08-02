@@ -31,7 +31,7 @@ final class StandardCreditMeasures {
   public static final Measure CS01_BUCKETED_HAZARD = ImmutableMeasure.of("CS01BucketedHazard");
   // scalar PV change to a 1 bps shift in recovery rate
   public static final Measure RECOVERY01 = ImmutableMeasure.of("Recovery01");
-  // risk of default as opposed to the the risk of change in credit spreads
+  // risk of default as opposed to the risk of change in credit spreads
   public static final Measure JUMP_TO_DEFAULT = ImmutableMeasure.of("JumpToDefault");
 
 }

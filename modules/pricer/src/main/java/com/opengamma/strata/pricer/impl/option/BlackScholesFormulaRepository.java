@@ -883,7 +883,7 @@ public final class BlackScholesFormulaRepository {
    * Computes the spot vega.
    * <p>
    * This is the sensitivity of the option's spot price wrt the implied volatility
-   * (which is just the the spot vega divided by the the numeraire).
+   * (which is just the spot vega divided by the numeraire).
    * 
    * @param spot  the spot value of the underlying
    * @param strike  the strike

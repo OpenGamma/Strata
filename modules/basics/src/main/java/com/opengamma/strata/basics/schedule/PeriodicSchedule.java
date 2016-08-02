@@ -266,7 +266,7 @@ public final class PeriodicSchedule
    * <p>
    * During schedule generation, if this is present it will be used to override the start date
    * of the first generated schedule period.
-   * If not present, then the the start of the first period will be the normal start date.
+   * If not present, then the start of the first period will be the normal start date.
    */
   @PropertyDefinition(get = "optional")
   private final AdjustableDate overrideStartDate;
@@ -601,7 +601,7 @@ public final class PeriodicSchedule
   // roughly estimate the number of periods (overestimating)
   private int estimateNumberPeriods(LocalDate start, LocalDate end) {
     int termInYearsEstimate = end.getYear() - start.getYear() + 2;
-    return (int) (frequency.eventsPerYearEstimate() * termInYearsEstimate);
+    return (int) (Math.max(frequency.eventsPerYearEstimate(), 1) * termInYearsEstimate);
   }
 
   //-------------------------------------------------------------------------
@@ -658,23 +658,17 @@ public final class PeriodicSchedule
    * @return the non-null roll convention
    */
   public RollConvention calculatedRollConvention() {
-    // determine roll convention from stub convention, using EOM as a flag
-    if (stubConvention != null) {
-      // special handling for EOM as it is advisory rather than mandatory
-      if (rollConvention == RollConventions.EOM) {
-        RollConvention derived = stubConvention.toRollConvention(
-            calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, true);
-        return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
-      }
-      // avoid RollConventions.NONE if possible
-      if (rollConvention == null || rollConvention == RollConventions.NONE) {
-        return stubConvention.toRollConvention(
-            calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, false);
-      }
+    // determine roll convention from stub convention
+    StubConvention stubConv = MoreObjects.firstNonNull(stubConvention, StubConvention.NONE);
+    // special handling for EOM as it is advisory rather than mandatory
+    if (rollConvention == RollConventions.EOM) {
+      RollConvention derived = stubConv.toRollConvention(
+          calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, true);
+      return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
     }
     // avoid RollConventions.NONE if possible
     if (rollConvention == null || rollConvention == RollConventions.NONE) {
-      return StubConvention.NONE.toRollConvention(
+      return stubConv.toRollConvention(
           calculatedFirstRegularStartDate(), calculatedLastRegularEndDate(), frequency, false);
     }
     // use RollConventions.NONE if nothing else applies
@@ -1017,7 +1011,7 @@ public final class PeriodicSchedule
    * <p>
    * During schedule generation, if this is present it will be used to override the start date
    * of the first generated schedule period.
-   * If not present, then the the start of the first period will be the normal start date.
+   * If not present, then the start of the first period will be the normal start date.
    * @return the optional value of the property, not null
    */
   public Optional<AdjustableDate> getOverrideStartDate() {
@@ -1715,7 +1709,7 @@ public final class PeriodicSchedule
      * <p>
      * During schedule generation, if this is present it will be used to override the start date
      * of the first generated schedule period.
-     * If not present, then the the start of the first period will be the normal start date.
+     * If not present, then the start of the first period will be the normal start date.
      * @param overrideStartDate  the new value
      * @return this, for chaining, not null
      */

@@ -30,6 +30,7 @@ public interface MarketDataFilter<T, I extends MarketDataId<T>> {
   /**
    * Obtains a filter that matches any value with the specified identifier type.
    *
+   * @param <T>  the type of market data handled by the filter
    * @param type  the type that is matched by this filter
    * @return a filter matching the specified type
    */
@@ -40,6 +41,7 @@ public interface MarketDataFilter<T, I extends MarketDataId<T>> {
   /**
    * Obtains a filter that matches the specified identifier.
    *
+   * @param <T>  the type of market data handled by the filter
    * @param id  the identifier that is matched by this filter
    * @return a filter matching the specified identifier
    */
@@ -50,6 +52,7 @@ public interface MarketDataFilter<T, I extends MarketDataId<T>> {
   /**
    * Obtains a filter that matches the specified name.
    *
+   * @param <T>  the type of market data handled by the filter
    * @param name  the name that is matched by this filter
    * @return a filter matching the specified name
    */

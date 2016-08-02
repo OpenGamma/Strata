@@ -679,7 +679,7 @@ public class CdsAnalyticFactory {
    *  the trade date, so the actually maturities will be some fixed periods after this.
    * @param termMatIndex  the maturities are fixed integer multiples of the payment interval, so  2Y tenor with a 3M 
    *  payment interval, this would be 8
-   * @return a a CDS represented as a MultiCdsAnalytic
+   * @return a CDS represented as a MultiCdsAnalytic
    */
   public MultiCdsAnalytic makeMultiCds(LocalDate tradeDate, LocalDate maturityReferanceDate, int termMatIndex) {
     int[] maturityIndexes = new int[termMatIndex + 1];

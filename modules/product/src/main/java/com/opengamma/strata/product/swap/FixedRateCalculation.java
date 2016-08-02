@@ -8,7 +8,6 @@ package com.opengamma.strata.product.swap;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -34,6 +33,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
@@ -124,7 +124,7 @@ public final class FixedRateCalculation
     Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();
     Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
     // resolve data by schedule
-    List<Double> resolvedRates = rate.resolveValues(accrualSchedule.getPeriods());
+    DoubleArray resolvedRates = rate.resolveValues(accrualSchedule);
     // build accrual periods
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {

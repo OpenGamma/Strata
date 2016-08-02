@@ -328,8 +328,12 @@ public class PeriodicScheduleTest {
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, EOM, null, null,
             ImmutableList.of(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
             ImmutableList.of(date(2013, NOVEMBER, 29), FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
-        // EOM flag true, but not EOM, thus roll on 30th
+        // EOM flag true, but not EOM, thus roll on 30th (stub convention defined)
         {MAY_30, NOV_30, P3M, STUB_NONE, EOM, null, null,
+            ImmutableList.of(MAY_30, AUG_30, NOV_30),
+            ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
+        // EOM flag true, but not EOM, thus roll on 30th (no stub convention defined)
+        {MAY_30, NOV_30, P3M, null, EOM, null, null,
             ImmutableList.of(MAY_30, AUG_30, NOV_30),
             ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
         // EOM flag true and is EOM, double stub, thus roll at EOM
@@ -348,6 +352,9 @@ public class PeriodicScheduleTest {
         {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, null, JUN_04,
             ImmutableList.of(JUN_04, SEP_17),
             ImmutableList.of(JUN_04, SEP_17)},
+        {date(2014, 9, 24), date(2016, 11, 24), Frequency.ofYears(2), SHORT_INITIAL, null, null, null,
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24)),
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24))},
 
         // IMM
         {date(2014, 9, 17), date(2014, 10, 15), P1M, STUB_NONE, IMM, null, null,

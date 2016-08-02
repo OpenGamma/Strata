@@ -8,15 +8,20 @@ package com.opengamma.strata.loader.csv;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.FieldName;
-import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.observable.QuoteId;
 
 /**
@@ -63,8 +68,8 @@ public final class QuotesCsvLoader {
    * If the files contain a duplicate entry an exception will be thrown.
    * 
    * @param marketDataDate  the date to load
-   * @param resources  the fixing series CSV resources
-   * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@linkplain QuoteId quote ID}
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<QuoteId, Double> load(LocalDate marketDataDate, ResourceLocator... resources) {
@@ -79,32 +84,80 @@ public final class QuotesCsvLoader {
    * If the files contain a duplicate entry an exception will be thrown.
    * 
    * @param marketDataDate  the date to load
-   * @param resources  the fixing series CSV resources
-   * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@linkplain QuoteId quote ID}
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<QuoteId, Double> load(LocalDate marketDataDate, Collection<ResourceLocator> resources) {
     // builder ensures keys can only be seen once
-    ImmutableMap.Builder<QuoteId, Double> builder = ImmutableMap.builder();
+    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap = new HashMap<>();
+    for (ResourceLocator resource : resources) {
+      loadSingle(ImmutableSet.of(marketDataDate), resource, mutableMap);
+    }
+    return mutableMap.getOrDefault(marketDataDate, ImmutableMap.builder()).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Loads one or more CSV format quote files for a set of dates.
+   * <p>
+   * Only those quotes that match one of the specified dates will be loaded.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param marketDataDates  the set of dates to load
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@link LocalDate} and {@linkplain QuoteId quote ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<LocalDate, ImmutableMap<QuoteId, Double>> load(
+      Set<LocalDate> marketDataDates,
+      ResourceLocator... resources) {
+
+    return load(marketDataDates, Arrays.asList(resources));
+  }
+
+  /**
+   * Loads one or more CSV format quote files for a set of dates.
+   * <p>
+   * Only those quotes that match one of the specified dates will be loaded.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param marketDataDates  the dates to load
+   * @param resources  the quotes CSV resources
+   * @return the loaded quotes, mapped by {@link LocalDate} and {@linkplain QuoteId quote ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<LocalDate, ImmutableMap<QuoteId, Double>> load(
+      Set<LocalDate> marketDataDates,
+      Collection<ResourceLocator> resources) {
+
+    // builder ensures keys can only be seen once
+    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap = new HashMap<>();
     for (ResourceLocator timeSeriesResource : resources) {
-      loadSingle(marketDataDate, timeSeriesResource, builder);
+      loadSingle(marketDataDates, timeSeriesResource, mutableMap);
+    }
+    ImmutableMap.Builder<LocalDate, ImmutableMap<QuoteId, Double>> builder = ImmutableMap.builder();
+    for (Entry<LocalDate, Builder<QuoteId, Double>> entry : mutableMap.entrySet()) {
+      builder.put(entry.getKey(), entry.getValue().build());
     }
     return builder.build();
   }
 
   //-------------------------------------------------------------------------
-  // loads a single CSV file
+  // loads a single CSV file for a set of dates
   private static void loadSingle(
-      LocalDate marketDataDate,
+      Set<LocalDate> marketDataDates,
       ResourceLocator resource,
-      ImmutableMap.Builder<QuoteId, Double> builder) {
+      Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap) {
 
     try {
       CsvFile csv = CsvFile.of(resource.getCharSource(), true);
       for (CsvRow row : csv.rows()) {
         String dateText = row.getField(DATE_FIELD);
         LocalDate date = LocalDate.parse(dateText);
-        if (date.equals(marketDataDate)) {
+        if (marketDataDates.contains(date)) {
           String symbologyStr = row.getField(SYMBOLOGY_FIELD);
           String tickerStr = row.getField(TICKER_FIELD);
           String fieldNameStr = row.getField(FIELD_NAME_FIELD);
@@ -114,7 +167,8 @@ public final class QuotesCsvLoader {
           StandardId id = StandardId.of(symbologyStr, tickerStr);
           FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
 
-          builder.put(QuoteId.of(id, fieldName), value);
+          ImmutableMap.Builder<QuoteId, Double> builderForDate = mutableMap.computeIfAbsent(date, k -> ImmutableMap.builder());
+          builderForDate.put(QuoteId.of(id, fieldName), value);
         }
       }
     } catch (RuntimeException ex) {

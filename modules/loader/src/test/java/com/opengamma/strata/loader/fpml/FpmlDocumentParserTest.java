@@ -78,6 +78,7 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
+import com.opengamma.strata.basics.value.ValueStepSequence;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.product.Trade;
@@ -626,6 +627,75 @@ public class FpmlDocumentParserTest {
     assertFixedPaymentPeriod(expandedRecLeg, 2, "1997-12-15", "1996-12-16", "1997-12-15", 30000000d, 0.06d);
     assertFixedPaymentPeriod(expandedRecLeg, 3, "1998-12-14", "1997-12-15", "1998-12-14", 20000000d, 0.06d);
     assertFixedPaymentPeriod(expandedRecLeg, 4, "1999-12-14", "1998-12-14", "1999-12-14", 10000000d, 0.06d);
+  }
+
+  public void stubAmortizedSwap2() {
+    // example where notionalStepParameters are used instead of explicit steps
+    // fixed and float legs express notionalStepParameters in two different ways, but they resolve to same object model
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex02-stub-amort-swap2.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), SwapTrade.class);
+    SwapTrade swapTrade = (SwapTrade) trade;
+    assertEquals(swapTrade.getInfo().getTradeDate(), Optional.of(date(1994, 12, 12)));
+    Swap swap = swapTrade.getProduct();
+
+    NotionalSchedule notionalFloat = NotionalSchedule.builder()
+        .currency(EUR)
+        .amount(ValueSchedule.builder()
+            .initialValue(50000000d)
+            .stepSequence(ValueStepSequence.of(
+                date(1995, 12, 14), date(1998, 12, 14), Frequency.P12M, ValueAdjustment.ofDeltaAmount(-10000000d)))
+            .build())
+        .build();
+    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(1995, 1, 16))
+            .endDate(date(1999, 12, 14))
+            .firstRegularStartDate(date(1995, 6, 14))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA))
+            .frequency(Frequency.P6M)
+            .rollConvention(RollConvention.ofDayOfMonth(14))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P6M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)))
+            .build())
+        .notionalSchedule(notionalFloat)
+        .calculation(IborRateCalculation.builder()
+            .index(EUR_LIBOR_6M)
+            .dayCount(ACT_360)
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
+            .build())
+        .build();
+    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(1995, 1, 16))
+            .endDate(date(1999, 12, 14))
+            .firstRegularStartDate(date(1995, 12, 14))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA))
+            .frequency(Frequency.P12M)
+            .rollConvention(RollConvention.ofDayOfMonth(14))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P12M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)))
+            .build())
+        .notionalSchedule(notionalFloat)
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(THIRTY_E_360)
+            .rate(ValueSchedule.of(0.06))
+            .build())
+        .build();
+    assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
+    assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
   }
 
   //-------------------------------------------------------------------------

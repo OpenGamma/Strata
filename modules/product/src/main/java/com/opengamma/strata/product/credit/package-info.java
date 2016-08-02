@@ -7,6 +7,8 @@
 /**
  * Entity objects describing credit products.
  * <p>
+ * <b>This package is currently being reviewed and refactored. Incompatible changes are expected.</b>
+ * <p>
  * A CDS is a financial instrument where the protection seller agrees to compensate
  * the protection buyer if a specified specified company or Sovereign entity experiences
  * a credit event, indicating it is or may be unable to service its debts.

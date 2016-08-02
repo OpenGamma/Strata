@@ -37,18 +37,15 @@ import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * An immutable calculation result.
+ * The result of an operation, either success or failure.
  * <p>
- * There are two types of result - success and failure.
- * A success result contains the calculated non-null result value.
+ * This provides a functional approach to error handling, that can be used instead of exceptions.
+ * A success result contains a non-null result value.
  * A failure result contains details of the {@linkplain Failure failure} that occurred.
  * <p>
- * The result model is typically used in a subsystem following functional programming style.
- * Functions will be written to have {@code Result<T>} as the return type.
- * Instead of using exceptions, code will return failure results. In line with
- * this, all methods will attempt to catch exception that happen within their
- * scope and and return a failure {@code Result} rather than propagating the
- * exception.
+ * Methods using this approach to error handling are expected to return {@code Result<T>}
+ * and not throw exceptions. The factory method {@link #of(Supplier)} and related methods
+ * can be used to capture exceptions and convert them to failure results.
  * <p>
  * Application code using a result should also operate in a functional style.
  * Use {@link #map(Function)} and {@link #flatMap(Function)} in preference to
@@ -189,8 +186,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(Exception exception, String message, Object... messageArgs) {
-    String msg = Messages.format(message, messageArgs);
-    return new Result<>(Failure.of(FailureReason.ERROR, msg, exception));
+    return new Result<>(Failure.of(FailureReason.ERROR, exception, message, messageArgs));
   }
 
   /**
@@ -223,7 +219,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, Exception exception, String message, Object... messageArgs) {
-    return new Result<>(Failure.of(reason, Messages.format(message, messageArgs), exception));
+    return new Result<>(Failure.of(reason, exception, message, messageArgs));
   }
 
   /**
@@ -600,7 +596,7 @@ public final class Result<T>
    * Returns the actual result value if calculated successfully, throwing an
    * exception if a failure occurred.
    * <p>
-   * If this result is a failure then an an IllegalStateException will be thrown.
+   * If this result is a failure then an {@code IllegalStateException} will be thrown.
    * To avoid this, call {@link #isSuccess()} or {@link #isFailure()} first.
    * <p>
    * Application code is recommended to use {@link #map(Function)} and

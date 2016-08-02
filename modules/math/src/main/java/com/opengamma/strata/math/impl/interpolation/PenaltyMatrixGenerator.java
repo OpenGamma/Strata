@@ -130,7 +130,7 @@ public abstract class PenaltyMatrixGenerator {
   /**
    * Get the kth order finite difference derivative matrix, D_k(x),  for a non-uniform set of points. For a (1D) set
    * of points, x, (which are not necessarily uniformly spaced), and a set of values at those points, y (i.e. y=f(x))
-   * the vector y_k = D_k(x) * y is the the finite difference estimate of the k^th order derivative (d^k y/ dx^k) at
+   * the vector y_k = D_k(x) * y is the finite difference estimate of the k^th order derivative (d^k y/ dx^k) at
    * the points, x. <p>
    * K = 0, trivially return the identity matrix; for k = 1 and 2, this is a three point estimate. K > 2 is not implemented      
    * @param x A non-uniform set of points

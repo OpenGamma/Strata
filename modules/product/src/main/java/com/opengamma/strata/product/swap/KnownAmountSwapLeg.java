@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PayReceive;
 
 /**
@@ -163,7 +164,7 @@ public final class KnownAmountSwapLeg
   // create the payment period
   private List<SwapPaymentPeriod> createPaymentPeriods(Schedule resolvedPayments, ReferenceData refData) {
     // resolve amount schedule against payment schedule
-    List<Double> amounts = amount.resolveValues(resolvedPayments.getPeriods());
+    DoubleArray amounts = amount.resolveValues(resolvedPayments);
     // resolve against reference data once
     DateAdjuster paymentDateAdjuster = paymentSchedule.getPaymentDateOffset().resolve(refData);
     // build up payment periods using schedule
