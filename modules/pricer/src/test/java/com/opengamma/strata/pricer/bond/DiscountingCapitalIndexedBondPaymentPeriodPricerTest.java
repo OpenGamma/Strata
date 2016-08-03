@@ -446,8 +446,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START_UNADJ);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END_UNADJ);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_UNADJ, END_UNADJ));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_UNADJ, END_UNADJ));
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), ICDF_BEFORE_START.discountFactor(END));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
         PRICER.forecastValue(PERIOD_INTERP, IRP_BEFORE_START), NOTIONAL * TOL);
@@ -466,8 +465,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START_UNADJ);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END_UNADJ);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_UNADJ, END_UNADJ));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_UNADJ, END_UNADJ));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
   }
@@ -484,8 +482,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START_UNADJ);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END_UNADJ);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_UNADJ, END_UNADJ));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_UNADJ, END_UNADJ));
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), ICDF_BEFORE_START.discountFactor(END));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
         PRICER.forecastValue(PERIOD_INTERP, IRP_BEFORE_START), NOTIONAL * TOL);
@@ -508,8 +505,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START_UNADJ);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END_UNADJ);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_UNADJ, END_UNADJ));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_UNADJ, END_UNADJ));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
   }

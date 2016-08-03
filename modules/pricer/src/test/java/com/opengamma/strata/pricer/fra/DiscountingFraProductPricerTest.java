@@ -607,7 +607,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explain.get(ExplainKey.START_DATE).get(), fraExp.getStartDate());
     assertEquals(explain.get(ExplainKey.END_DATE).get(), fraExp.getEndDate());
     assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), fraExp.getYearFraction());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) (int) daysBetween);
+    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) (int) daysBetween);
     assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
     assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);

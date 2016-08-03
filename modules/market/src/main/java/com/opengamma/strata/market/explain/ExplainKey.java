@@ -138,9 +138,13 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Double> ACCRUAL_YEAR_FRACTION = of("AccrualYearFraction");
   /**
-   * The number of days between the start and end dates.
+   * The number of accrual days between the start and end dates.
    */
   public static final ExplainKey<Integer> ACCRUAL_DAYS = of("AccrualDays");
+  /**
+   * The actual number of days between the start and end dates.
+   */
+  public static final ExplainKey<Integer> DAYS = of("Days");
 
   /**
    * The discount factor, typically derived from a curve.
