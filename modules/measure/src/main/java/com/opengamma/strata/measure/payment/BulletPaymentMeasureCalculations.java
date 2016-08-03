@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
@@ -160,6 +161,26 @@ final class BulletPaymentMeasureCalculations {
     PointSensitivities pointSensitivity = paymentPricer.presentValueSensitivity(payment, ratesProvider).build();
     CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
     return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates cash flows for all scenarios
+  ScenarioArray<CashFlows> cashFlows(
+      ResolvedBulletPaymentTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> cashFlows(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // cash flows for one scenario
+  CashFlows cashFlows(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    Payment payment = trade.getProduct().getPayment();
+    return paymentPricer.cashFlows(payment, ratesProvider);
   }
 
   //-------------------------------------------------------------------------

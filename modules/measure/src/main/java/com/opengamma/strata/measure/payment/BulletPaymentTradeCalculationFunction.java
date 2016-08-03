@@ -40,6 +40,7 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
+ *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  * </ul>
@@ -57,6 +58,7 @@ public class BulletPaymentTradeCalculationFunction
           .put(Measures.PV01_CALIBRATED_BUCKETED, BulletPaymentMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, BulletPaymentMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, BulletPaymentMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.CASH_FLOWS, BulletPaymentMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.CURRENCY_EXPOSURE, BulletPaymentMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, BulletPaymentMeasureCalculations.DEFAULT::currentCash)
           .build();
