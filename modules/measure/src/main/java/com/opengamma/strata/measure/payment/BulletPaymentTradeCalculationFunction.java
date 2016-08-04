@@ -36,6 +36,7 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
@@ -54,6 +55,7 @@ public class BulletPaymentTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, BulletPaymentMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.EXPLAIN_PRESENT_VALUE, BulletPaymentMeasureCalculations.DEFAULT::explainPresentValue)
           .put(Measures.PV01_CALIBRATED_SUM, BulletPaymentMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, BulletPaymentMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, BulletPaymentMeasureCalculations.DEFAULT::pv01MarketQuoteSum)

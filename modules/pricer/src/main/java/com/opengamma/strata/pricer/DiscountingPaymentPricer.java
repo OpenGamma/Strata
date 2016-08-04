@@ -5,11 +5,17 @@
  */
 package com.opengamma.strata.pricer;
 
+import java.time.LocalDate;
+
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -37,7 +43,7 @@ public class DiscountingPaymentPricer {
    * The present value is zero if the payment date is before the valuation date.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the present value
    */
   public CurrencyAmount presentValue(Payment payment, BaseProvider provider) {
@@ -73,7 +79,7 @@ public class DiscountingPaymentPricer {
    * The present value is zero if the payment date is before the valuation date.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the present value
    */
   public double presentValueAmount(Payment payment, BaseProvider provider) {
@@ -116,6 +122,34 @@ public class DiscountingPaymentPricer {
     return payment.getValue().multipliedBy(df);
   }
 
+  /**
+   * Explains the present value of the payment.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param payment  the payment
+   * @param provider  the provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(Payment payment, BaseProvider provider) {
+    Currency currency = payment.getCurrency();
+    LocalDate paymentDate = payment.getDate();
+
+    ExplainMapBuilder builder = ExplainMap.builder();
+    builder.put(ExplainKey.ENTRY_TYPE, "Payment");
+    builder.put(ExplainKey.PAYMENT_DATE, paymentDate);
+    builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
+    if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
+    } else {
+      builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
+      builder.put(ExplainKey.FORECAST_VALUE, forecastValue(payment, provider));
+      builder.put(ExplainKey.PRESENT_VALUE, presentValue(payment, provider));
+    }
+    return builder.build();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compute the present value curve sensitivity of the payment.
@@ -125,7 +159,7 @@ public class DiscountingPaymentPricer {
    * There is no sensitivity if the payment date is before the valuation date.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the point sensitivity of the present value
    */
   public PointSensitivityBuilder presentValueSensitivity(Payment payment, BaseProvider provider) {
@@ -198,7 +232,7 @@ public class DiscountingPaymentPricer {
    * The present value is zero if the payment date is before the valuation date.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the forecast value
    */
   public CurrencyAmount forecastValue(Payment payment, BaseProvider provider) {
@@ -214,7 +248,7 @@ public class DiscountingPaymentPricer {
    * The present value is zero if the payment date is before the valuation date.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the forecast value
    */
   public double forecastValueAmount(Payment payment, BaseProvider provider) {
@@ -231,7 +265,7 @@ public class DiscountingPaymentPricer {
    * The cash flow is returned, empty if the payment has already occurred.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the cash flow, empty if the payment has occurred
    */
   public CashFlows cashFlows(Payment payment, BaseProvider provider) {
@@ -248,7 +282,7 @@ public class DiscountingPaymentPricer {
    * Calculates the currency exposure.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(Payment payment, BaseProvider provider) {
@@ -259,7 +293,7 @@ public class DiscountingPaymentPricer {
    * Calculates the current cash.
    * 
    * @param payment  the payment
-   * @param provider  the rates provider
+   * @param provider  the provider
    * @return the current cash
    */
   public CurrencyAmount currentCash(Payment payment, BaseProvider provider) {

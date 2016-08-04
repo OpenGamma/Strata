@@ -45,6 +45,7 @@
 <listEntry value="com.opengamma.strata.pricer.index.e2e"/>
 <listEntry value="com.opengamma.strata.pricer.model"/>
 <listEntry value="com.opengamma.strata.pricer.option"/>
+<listEntry value="com.opengamma.strata.pricer.payment"/>
 <listEntry value="com.opengamma.strata.pricer.rate"/>
 <listEntry value="com.opengamma.strata.pricer.sensitivity"/>
 <listEntry value="com.opengamma.strata.pricer.swap"/>
