@@ -44,6 +44,7 @@ import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
  * </ul>
  * <p>
@@ -65,6 +66,7 @@ public class FxSwapTradeCalculationFunction
           .put(Measures.PAR_SPREAD, FxSwapMeasureCalculations.DEFAULT::parSpread)
           .put(Measures.CURRENCY_EXPOSURE, FxSwapMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FxSwapMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();

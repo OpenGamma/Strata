@@ -45,6 +45,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * 
  * <h4>Price</h4>
@@ -71,6 +72,7 @@ public class IborFutureOptionTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_SUM, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, IborFutureOptionMeasureCalculations.DEFAULT::unitPrice)
+          .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();

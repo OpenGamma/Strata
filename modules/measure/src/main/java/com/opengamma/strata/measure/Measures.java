@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure;
 
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.calc.Measure;
 
 /**
@@ -126,6 +127,13 @@ public final class Measures {
    * The price is represented as a {@code double}, even if it is actually a currency amount.
    */
   public static final Measure UNIT_PRICE = Measure.of(StandardMeasures.UNIT_PRICE.getName());
+  /**
+   * Measure representing the resolved form of the calculation target.
+   * <p>
+   * Many calculation targets have a {@linkplain Resolvable resolved} form that is optimized for pricing.
+   * This measure allows the resolved form to be obtained.
+   */
+  public static final Measure RESOLVED_TARGET = Measure.of(StandardMeasures.RESOLVED_TARGET.getName());
 
   //-------------------------------------------------------------------------
   private Measures() {

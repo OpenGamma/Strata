@@ -101,12 +101,16 @@ public class BulletPaymentTradeCalculationFunctionTest {
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
-        Measures.CASH_FLOWS);
+        Measures.CASH_FLOWS,
+        Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))));
+            Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(ScenarioArray.ofSingleValue(1, TRADE.resolve(REF_DATA))));
+
   }
 
   public void test_pv01() {
