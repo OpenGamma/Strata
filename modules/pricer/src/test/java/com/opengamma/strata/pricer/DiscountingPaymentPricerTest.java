@@ -18,6 +18,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.market.amount.CashFlow;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -192,6 +194,16 @@ public class DiscountingPaymentPricerTest {
   public void test_forecastValue_provider_ended() {
     assertEquals(PRICER.forecastValue(PAYMENT_PAST, PROVIDER).getAmount(), 0d, 0d);
     assertEquals(PRICER.forecastValueAmount(PAYMENT_PAST, PROVIDER), 0d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cashFlow_provider() {
+    CashFlow expected = CashFlow.ofForecastValue(PAYMENT_DATE, USD, NOTIONAL_USD, DF);
+    assertEquals(PRICER.cashFlows(PAYMENT, PROVIDER), CashFlows.of(expected));
+  }
+
+  public void test_cashFlow_provider_ended() {
+    assertEquals(PRICER.cashFlows(PAYMENT_PAST, PROVIDER), CashFlows.NONE);
   }
 
   //-------------------------------------------------------------------------

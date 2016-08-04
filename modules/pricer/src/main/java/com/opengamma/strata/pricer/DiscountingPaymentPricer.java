@@ -8,6 +8,8 @@ package com.opengamma.strata.pricer;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.market.amount.CashFlow;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -220,6 +222,25 @@ public class DiscountingPaymentPricer {
       return 0d;
     }
     return payment.getAmount();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flow of the payment.
+   * <p>
+   * The cash flow is returned, empty if the payment has already occurred.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the cash flow, empty if the payment has occurred
+   */
+  public CashFlows cashFlows(Payment payment, BaseProvider provider) {
+    if (provider.getValuationDate().isAfter(payment.getDate())) {
+      return CashFlows.NONE;
+    }
+    double df = provider.discountFactor(payment.getCurrency(), payment.getDate());
+    CashFlow flow = CashFlow.ofForecastValue(payment.getDate(), payment.getCurrency(), payment.getAmount(), df);
+    return CashFlows.of(flow);
   }
 
   //-------------------------------------------------------------------------

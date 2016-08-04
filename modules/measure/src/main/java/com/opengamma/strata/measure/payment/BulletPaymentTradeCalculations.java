@@ -12,6 +12,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
@@ -247,6 +248,41 @@ public class BulletPaymentTradeCalculations {
       RatesProvider ratesProvider) {
 
     return calc.pv01MarketQuoteBucketed(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates cash flows across one or more scenarios.
+   * <p>
+   * The cash flows provide details about the payments of the trade.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the cash flows, one entry per scenario
+   */
+  public ScenarioArray<CashFlows> cashFlows(
+      ResolvedBulletPaymentTrade trade,
+      RatesMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.cashFlows(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates cash flows for a single set of market data.
+   * <p>
+   * The cash flows provide details about the payments of the trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the cash flows
+   */
+  public CashFlows cashFlows(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    return calc.cashFlows(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
