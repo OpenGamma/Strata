@@ -184,7 +184,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), PERIOD.getUnadjustedStartDate());
     assertEquals(explain.get(ExplainKey.END_DATE).get(), PERIOD.getEndDate());
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), PERIOD.getUnadjustedEndDate());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
+    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) daysBetween);
 
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), PERIOD.getCurrency());
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), AMOUNT_1000, TOLERANCE_PV);
@@ -208,7 +208,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), PERIOD_PAST.getUnadjustedStartDate());
     assertEquals(explain.get(ExplainKey.END_DATE).get(), PERIOD_PAST.getEndDate());
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), PERIOD_PAST.getUnadjustedEndDate());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
+    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) daysBetween);
 
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOLERANCE_PV);
