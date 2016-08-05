@@ -7,6 +7,7 @@ package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -71,36 +72,35 @@ public class SwapPricingCcpExample {
    * The location of the curve calibration groups file for CCP1 and CCP2.
    */
   private static final ResourceLocator GROUPS_RESOURCE_CCP1 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/groups.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/curves/groups.csv"));
   private static final ResourceLocator GROUPS_RESOURCE_CCP2 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/groups-ccp2.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/curves/groups-ccp2.csv"));
   /**
    * The location of the curve calibration settings file for CCP1 and CCP2.
    */
   private static final ResourceLocator SETTINGS_RESOURCE_CCP1 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/settings.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/curves/settings.csv"));
   private static final ResourceLocator SETTINGS_RESOURCE_CCP2 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/settings-ccp2.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/curves/settings-ccp2.csv"));
   /**
    * The location of the curve calibration nodes file for CCP1 and CCP2.
    */
   private static final ResourceLocator CALIBRATION_RESOURCE_CCP1 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/calibrations.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/curves/calibrations.csv"));
   private static final ResourceLocator CALIBRATION_RESOURCE_CCP2 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/calibrations-ccp2.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/curves/calibrations-ccp2.csv"));
   /**
    * The location of the market quotes file for CCP1 and CCP2.
    */
   private static final ResourceLocator QUOTES_RESOURCE_CCP1 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/quotes/quotes.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/quotes/quotes.csv"));
   private static final ResourceLocator QUOTES_RESOURCE_CCP2 =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/quotes/quotes-ccp2.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-calibration/quotes/quotes-ccp2.csv"));
   /**
    * The location of the historical fixing file.
    */
   private static final ResourceLocator FIXINGS_RESOURCE =
-      ResourceLocator
-          .of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-marketdata/historical-fixings/usd-libor-3m.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "example-marketdata/historical-fixings/usd-libor-3m.csv"));
 
   /**
    * The first counterparty.
