@@ -32,6 +32,7 @@ import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
  * Data set of Ibor cap/floor securities.
@@ -42,6 +43,7 @@ public class IborCapFloorDataSet {
   private static final BusinessDayAdjustment BUSINESS_ADJ = BusinessDayAdjustment.of(
       BusinessDayConventions.MODIFIED_FOLLOWING, EUTA);
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an Ibor cap/floor leg.
    * <p>
@@ -66,6 +68,34 @@ public class IborCapFloorDataSet {
       PutCall putCall,
       PayReceive payRec) {
 
+    IborCapFloorLeg leg = createCapFloorLegUnresolved(index, startDate, endDate, strikeSchedule, notionalSchedule, putCall, payRec);
+    return leg.resolve(REF_DATA);
+  }
+
+  /**
+   * Creates an Ibor cap/floor leg.
+   * <p>
+   * The Ibor index should be {@code EUR_EURIBOR_3M} or {@code EUR_EURIBOR_6M} to match the availability of the curve 
+   * data in {@link IborCapletFloorletDataSet}. 
+   * 
+   * @param index  the index
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param strikeSchedule  the strike
+   * @param notionalSchedule  the notional
+   * @param putCall  cap or floor
+   * @param payRec  pay or receive
+   * @return the instance
+   */
+  public static IborCapFloorLeg createCapFloorLegUnresolved(
+      IborIndex index,
+      LocalDate startDate,
+      LocalDate endDate,
+      ValueSchedule strikeSchedule,
+      ValueSchedule notionalSchedule,
+      PutCall putCall,
+      PayReceive payRec) {
+
     Frequency frequency = Frequency.of(index.getTenor().getPeriod());
     PeriodicSchedule paySchedule =
         PeriodicSchedule.of(startDate, endDate, frequency, BUSINESS_ADJ, StubConvention.NONE, RollConventions.NONE);
@@ -77,8 +107,7 @@ public class IborCapFloorDataSet {
           .notional(notionalSchedule)
           .paymentSchedule(paySchedule)
           .payReceive(payRec)
-          .build()
-          .resolve(REF_DATA);
+          .build();
     }
     return IborCapFloorLeg.builder()
         .calculation(rateCalculation)
@@ -86,10 +115,10 @@ public class IborCapFloorDataSet {
         .notional(notionalSchedule)
         .paymentSchedule(paySchedule)
         .payReceive(payRec)
-        .build()
-        .resolve(REF_DATA);
+        .build();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Create a pay leg.
    * <p>
@@ -112,6 +141,32 @@ public class IborCapFloorDataSet {
       double notional,
       PayReceive payRec) {
 
+    SwapLeg leg = createFixedPayLegUnresolved(index, startDate, endDate, fixedRate, notional, payRec);
+    return leg.resolve(REF_DATA);
+  }
+
+  /**
+   * Create a pay leg.
+   * <p>
+   * The pay leg created is periodic fixed rate payments without compounding.
+   * The Ibor index is used to specify the payment frequency.
+   * 
+   * @param index  the Ibor index
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param fixedRate  the fixed rate
+   * @param notional  the notional
+   * @param payRec  pay or receive 
+   * @return the instance
+   */
+  public static SwapLeg createFixedPayLegUnresolved(
+      IborIndex index,
+      LocalDate startDate,
+      LocalDate endDate,
+      double fixedRate,
+      double notional,
+      PayReceive payRec) {
+
     Frequency frequency = Frequency.of(index.getTenor().getPeriod());
     PeriodicSchedule accSchedule =
         PeriodicSchedule.of(startDate, endDate, frequency, BUSINESS_ADJ, StubConvention.NONE, RollConventions.NONE);
@@ -124,8 +179,7 @@ public class IborCapFloorDataSet {
             PaymentSchedule.builder().paymentFrequency(frequency).paymentDateOffset(DaysAdjustment.NONE).build())
         .notionalSchedule(
             NotionalSchedule.of(CurrencyAmount.of(EUR, notional)))
-        .build()
-        .resolve(REF_DATA);
+        .build();
   }
 
 }

@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -186,6 +187,18 @@ public final class IborCapFloorLeg
    */
   public AdjustableDate getEndDate() {
     return paymentSchedule.calculatedEndDate();
+  }
+
+  /**
+   * Gets the Ibor index.
+   * <p>
+   * The rate to be paid is based on this index
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * 
+   * @return the Ibor index
+   */
+  public IborIndex getIndex() {
+    return calculation.getIndex();
   }
 
   //-------------------------------------------------------------------------

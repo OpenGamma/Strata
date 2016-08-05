@@ -20,6 +20,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
@@ -125,12 +126,16 @@ public class ResolvedIborCapFloorTest {
     ResolvedIborCapFloor test = ResolvedIborCapFloor.of(CAPFLOOR_LEG);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().isPresent(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR));
+    assertEquals(test.allIndices(), ImmutableSet.of(EUR_EURIBOR_3M));
   }
 
   public void test_of_twoLegs() {
     ResolvedIborCapFloor test = ResolvedIborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR));
+    assertEquals(test.allIndices(), ImmutableSet.of(EUR_EURIBOR_3M));
   }
 
   //-------------------------------------------------------------------------

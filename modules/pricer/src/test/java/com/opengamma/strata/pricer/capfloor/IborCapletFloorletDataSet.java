@@ -114,7 +114,7 @@ public class IborCapletFloorletDataSet {
    * @param index  the index
    * @return  the volatilities provider
    */
-  public static BlackIborCapletFloorletExpiryStrikeVolatilities createBlackVolatilitiesProvider(
+  public static BlackIborCapletFloorletExpiryStrikeVolatilities createBlackVolatilities(
       ZonedDateTime valuationDate,
       IborIndex index) {
     return BlackIborCapletFloorletExpiryStrikeVolatilities.of(index, valuationDate, BLACK_SURFACE_EXP_STR);
@@ -134,7 +134,7 @@ public class IborCapletFloorletDataSet {
    * @param index  the index
    * @return  the volatilities provider
    */
-  public static NormalIborCapletFloorletExpiryStrikeVolatilities createNormalVolatilitiesProvider(
+  public static NormalIborCapletFloorletExpiryStrikeVolatilities createNormalVolatilities(
       ZonedDateTime valuationDate,
       IborIndex index) {
     return NormalIborCapletFloorletExpiryStrikeVolatilities.of(index, valuationDate, NORMAL_SURFACE_EXP_STR);

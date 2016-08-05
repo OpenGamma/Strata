@@ -54,7 +54,7 @@ public class NormalIborCapFloorLegPricerTest {
   private static final ImmutableRatesProvider RATES =
       IborCapletFloorletDataSet.createRatesProvider(VALUATION.toLocalDate());
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(VALUATION, EUR_EURIBOR_3M);
+      .createNormalVolatilities(VALUATION, EUR_EURIBOR_3M);
   // valuation between fixing of 3rd period and payment of 2nd period
   private static final double OBS_INDEX_2 = 0.012;
   private static final double OBS_INDEX_3 = 0.0125;
@@ -66,13 +66,13 @@ public class NormalIborCapFloorLegPricerTest {
   private static final ImmutableRatesProvider RATES_AFTER =
       IborCapletFloorletDataSet.createRatesProvider(VALUATION_AFTER.toLocalDate(), EUR_EURIBOR_3M, TIME_SERIES);
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS_AFTER = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(VALUATION_AFTER, EUR_EURIBOR_3M);
+      .createNormalVolatilities(VALUATION_AFTER, EUR_EURIBOR_3M);
   // valuation at payment of 2nd period
   private static final ZonedDateTime VALUATION_PAY = dateUtc(2011, 9, 19);
   private static final ImmutableRatesProvider RATES_PAY =
       IborCapletFloorletDataSet.createRatesProvider(VALUATION_PAY.toLocalDate(), EUR_EURIBOR_3M, TIME_SERIES);
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS_PAY = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(VALUATION_PAY, EUR_EURIBOR_3M);
+      .createNormalVolatilities(VALUATION_PAY, EUR_EURIBOR_3M);
 
   private static final double TOL = 1.0e-14;
   private static final NormalIborCapFloorLegPricer PRICER = NormalIborCapFloorLegPricer.DEFAULT;

@@ -104,6 +104,18 @@ public class IborCapFloorTradeTest {
     assertEquals(test.resolve(REF_DATA), expected);
   }
 
+  public void test_resolve_noPremium() {
+    IborCapFloorTrade test = IborCapFloorTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .build();
+    ResolvedIborCapFloorTrade expected = ResolvedIborCapFloorTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT.resolve(REF_DATA))
+        .build();
+    assertEquals(test.resolve(REF_DATA), expected);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     IborCapFloorTrade test1 = IborCapFloorTrade.builder()

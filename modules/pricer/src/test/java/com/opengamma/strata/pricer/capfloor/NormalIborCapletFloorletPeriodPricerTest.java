@@ -126,28 +126,28 @@ public class NormalIborCapletFloorletPeriodPricerTest {
   private static final ImmutableRatesProvider RATES =
       IborCapletFloorletDataSet.createRatesProvider(VALUATION.toLocalDate());
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(VALUATION, EUR_EURIBOR_3M);
+      .createNormalVolatilities(VALUATION, EUR_EURIBOR_3M);
   // valuation date equal to fixing date
   private static final double OBS_INDEX = 0.013;
   private static final LocalDateDoubleTimeSeries TIME_SERIES = LocalDateDoubleTimeSeries.of(FIXING, OBS_INDEX);
   private static final ImmutableRatesProvider RATES_ON_FIX =
       IborCapletFloorletDataSet.createRatesProvider(FIXING, EUR_EURIBOR_3M, TIME_SERIES);
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS_ON_FIX = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(FIXING.atStartOfDay(ZoneOffset.UTC), EUR_EURIBOR_3M);
+      .createNormalVolatilities(FIXING.atStartOfDay(ZoneOffset.UTC), EUR_EURIBOR_3M);
   // valuation date after fixing date
   private static final ImmutableRatesProvider RATES_AFTER_FIX =
       IborCapletFloorletDataSet.createRatesProvider(FIXING.plusWeeks(1), EUR_EURIBOR_3M, TIME_SERIES);
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS_AFTER_FIX = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(FIXING.plusWeeks(1).atStartOfDay(ZoneOffset.UTC), EUR_EURIBOR_3M);
+      .createNormalVolatilities(FIXING.plusWeeks(1).atStartOfDay(ZoneOffset.UTC), EUR_EURIBOR_3M);
   // valuation date after payment date
   private static final LocalDate DATE_AFTER_PAY = LocalDate.of(2011, 5, 2);
   private static final ImmutableRatesProvider RATES_AFTER_PAY =
       IborCapletFloorletDataSet.createRatesProvider(DATE_AFTER_PAY, EUR_EURIBOR_3M, TIME_SERIES);
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS_AFTER_PAY = IborCapletFloorletDataSet
-      .createNormalVolatilitiesProvider(DATE_AFTER_PAY.plusWeeks(1).atStartOfDay(ZoneOffset.UTC), EUR_EURIBOR_3M);
+      .createNormalVolatilities(DATE_AFTER_PAY.plusWeeks(1).atStartOfDay(ZoneOffset.UTC), EUR_EURIBOR_3M);
   // Black vols
   private static final BlackIborCapletFloorletExpiryStrikeVolatilities VOLS_NORMAL = IborCapletFloorletDataSet
-      .createBlackVolatilitiesProvider(VALUATION, EUR_EURIBOR_3M);
+      .createBlackVolatilities(VALUATION, EUR_EURIBOR_3M);
 
   private static final double TOL = 1.0e-14;
   private static final double EPS_FD = 1.0e-6;
