@@ -79,13 +79,13 @@ public final class Cds
    * Whether the accrued premium is paid in the event of a default.
    */
   @PropertyDefinition(validate = "notNull")
-  private final boolean payAccruedOnDefault;
-
-  //  @PropertyDefinition(validate = "ArgChecker.notNegative")  // TODO should be in market data
-  //  private final double recoveryRate;
+  private final PaymentOnDefault paymentOnDefault;
 
   @PropertyDefinition(validate = "notNull")
-  private final boolean protectStart; // TODO only applied to protection leg and accrued on default
+  private final ProtectionStartOfDay protectionStart;
+
+  @PropertyDefinition(validate = "notNull")
+  private final DaysAdjustment stepinDateOffset;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
@@ -96,6 +96,7 @@ public final class Cds
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
+  
   /**
    * The legal entity identifier.
    * <p>
@@ -110,22 +111,26 @@ public final class Cds
   //-------------------------------------------------------------------------
   public static Cds of(LocalDate startDate, LocalDate endDate, Frequency paymentFrequency,
       BusinessDayAdjustment businessDayAdjustment, StubConvention stubConvention, Currency currency,
-      double notional, DayCount dayCount, double coupon, boolean payAccruedOnDefault, boolean protectStart,
-      DaysAdjustment settlementDateOffset, StandardId legalEntityId, BuySell buySell) {
+      double notional, DayCount dayCount, double coupon, PaymentOnDefault paymentOnDefault, ProtectionStartOfDay protectStart,
+      DaysAdjustment stepinDateOffset, DaysAdjustment settlementDateOffset, StandardId legalEntityId, BuySell buySell) {
 
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .businessDayAdjustment(businessDayAdjustment)
         .startDate(startDate)
         .endDate(endDate)
-        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE) // TODO do we need this flexibility?
-        .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)// TODO do we need this flexibility?
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
         .frequency(paymentFrequency)
         .rollConvention(RollConventions.NONE)
         .stubConvention(stubConvention)
         .build();
 
-    return new Cds(accrualSchedule, currency, notional, dayCount, coupon, payAccruedOnDefault, protectStart, settlementDateOffset,
-        legalEntityId, buySell);
+    return new Cds(accrualSchedule, currency, notional, dayCount, coupon, paymentOnDefault, protectStart, stepinDateOffset,
+        settlementDateOffset, legalEntityId, buySell);
+  }
+
+  public LocalDate getStartDate() {
+    return accrualSchedule.getStartDate();
   }
 
   //-------------------------------------------------------------------------
@@ -139,8 +144,8 @@ public final class Cds
       accrualPeriods.add(CreditCouponPaymentPeriod.builder()
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .unadjustedStartDate(period.getUnadjustedStartDate())
-          .unadjustedEndDate(period.getUnadjustedEndDate())
+          .effectiveStartDate(protectionStart.isBeginning() ? period.getStartDate().minusDays(1) : period.getStartDate())
+          .effectiveEndDate(protectionStart.isBeginning() ? period.getEndDate().minusDays(1) : period.getEndDate())
           .paymentDate(period.getEndDate())
           .notional(notional)
           .currency(currency)
@@ -149,26 +154,30 @@ public final class Cds
           .build());
     }
     SchedulePeriod lastPeriod = adjustedSchedule.getPeriod(nPeriods - 1);
+    LocalDate accEndDate = protectionStart.isBeginning() ? lastPeriod.getEndDate().plusDays(1) : lastPeriod.getEndDate();
     accrualPeriods.add(CreditCouponPaymentPeriod.builder()
         .startDate(lastPeriod.getStartDate())
-        .endDate(lastPeriod.getUnadjustedEndDate())  // TODO flexibility for adjusting??
-        .unadjustedStartDate(lastPeriod.getUnadjustedStartDate())
-        .unadjustedEndDate(lastPeriod.getUnadjustedEndDate())
-        .paymentDate(lastPeriod.getEndDate())
+        .endDate(accEndDate)
+        .effectiveStartDate(protectionStart.isBeginning() ? lastPeriod.getStartDate().minusDays(1) : lastPeriod.getStartDate())
+        .effectiveEndDate(lastPeriod.getEndDate())
+        .paymentDate(accrualSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
         .notional(notional)
         .currency(currency)
         .coupon(coupon)
-        .yearFraction(lastPeriod.yearFraction(dayCount, adjustedSchedule))
+        .yearFraction(
+            SchedulePeriod.of(lastPeriod.getStartDate(), accEndDate).yearFraction(dayCount, adjustedSchedule))
         .build());
     ImmutableList<CreditCouponPaymentPeriod> periodicPayments = accrualPeriods.build();
 
     return ResolvedCds.builder()
         .buySell(buySell)
         .legalEntityId(legalEntityId)
-        .protectStart(protectStart)
-        .payAccruedOnDefault(payAccruedOnDefault)
+        .protectionStart(protectionStart)
+        .paymentOnDefault(paymentOnDefault)
         .periodicPayments(periodicPayments)
+        .protectionEndDate(lastPeriod.getEndDate())
         .settlementDateOffset(settlementDateOffset)
+        .stepinDateOffset(stepinDateOffset)
         .dayCount(dayCount)
         .build();
   }
@@ -206,8 +215,9 @@ public final class Cds
       double notional,
       DayCount dayCount,
       double coupon,
-      boolean payAccruedOnDefault,
-      boolean protectStart,
+      PaymentOnDefault paymentOnDefault,
+      ProtectionStartOfDay protectionStart,
+      DaysAdjustment stepinDateOffset,
       DaysAdjustment settlementDateOffset,
       StandardId legalEntityId,
       BuySell buySell) {
@@ -216,8 +226,9 @@ public final class Cds
     ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     ArgChecker.notNegative(coupon, "coupon");
-    JodaBeanUtils.notNull(payAccruedOnDefault, "payAccruedOnDefault");
-    JodaBeanUtils.notNull(protectStart, "protectStart");
+    JodaBeanUtils.notNull(paymentOnDefault, "paymentOnDefault");
+    JodaBeanUtils.notNull(protectionStart, "protectionStart");
+    JodaBeanUtils.notNull(stepinDateOffset, "stepinDateOffset");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(buySell, "buySell");
@@ -226,8 +237,9 @@ public final class Cds
     this.notional = notional;
     this.dayCount = dayCount;
     this.coupon = coupon;
-    this.payAccruedOnDefault = payAccruedOnDefault;
-    this.protectStart = protectStart;
+    this.paymentOnDefault = paymentOnDefault;
+    this.protectionStart = protectionStart;
+    this.stepinDateOffset = stepinDateOffset;
     this.settlementDateOffset = settlementDateOffset;
     this.legalEntityId = legalEntityId;
     this.buySell = buySell;
@@ -311,17 +323,26 @@ public final class Cds
    * Gets whether the accrued premium is paid in the event of a default.
    * @return the value of the property, not null
    */
-  public boolean isPayAccruedOnDefault() {
-    return payAccruedOnDefault;
+  public PaymentOnDefault getPaymentOnDefault() {
+    return paymentOnDefault;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the protectStart.
+   * Gets the protectionStart.
    * @return the value of the property, not null
    */
-  public boolean isProtectStart() {
-    return protectStart;
+  public ProtectionStartOfDay getProtectionStart() {
+    return protectionStart;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the stepinDateOffset.
+   * @return the value of the property, not null
+   */
+  public DaysAdjustment getStepinDateOffset() {
+    return stepinDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -379,8 +400,9 @@ public final class Cds
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(coupon, other.coupon) &&
-          (payAccruedOnDefault == other.payAccruedOnDefault) &&
-          (protectStart == other.protectStart) &&
+          JodaBeanUtils.equal(paymentOnDefault, other.paymentOnDefault) &&
+          JodaBeanUtils.equal(protectionStart, other.protectionStart) &&
+          JodaBeanUtils.equal(stepinDateOffset, other.stepinDateOffset) &&
           JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
           JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(buySell, other.buySell);
@@ -396,8 +418,9 @@ public final class Cds
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
-    hash = hash * 31 + JodaBeanUtils.hashCode(payAccruedOnDefault);
-    hash = hash * 31 + JodaBeanUtils.hashCode(protectStart);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentOnDefault);
+    hash = hash * 31 + JodaBeanUtils.hashCode(protectionStart);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stepinDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(buySell);
@@ -406,15 +429,16 @@ public final class Cds
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("Cds{");
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("coupon").append('=').append(coupon).append(',').append(' ');
-    buf.append("payAccruedOnDefault").append('=').append(payAccruedOnDefault).append(',').append(' ');
-    buf.append("protectStart").append('=').append(protectStart).append(',').append(' ');
+    buf.append("paymentOnDefault").append('=').append(paymentOnDefault).append(',').append(' ');
+    buf.append("protectionStart").append('=').append(protectionStart).append(',').append(' ');
+    buf.append("stepinDateOffset").append('=').append(stepinDateOffset).append(',').append(' ');
     buf.append("settlementDateOffset").append('=').append(settlementDateOffset).append(',').append(' ');
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell));
@@ -458,15 +482,20 @@ public final class Cds
     private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
         this, "coupon", Cds.class, Double.TYPE);
     /**
-     * The meta-property for the {@code payAccruedOnDefault} property.
+     * The meta-property for the {@code paymentOnDefault} property.
      */
-    private final MetaProperty<Boolean> payAccruedOnDefault = DirectMetaProperty.ofImmutable(
-        this, "payAccruedOnDefault", Cds.class, Boolean.TYPE);
+    private final MetaProperty<PaymentOnDefault> paymentOnDefault = DirectMetaProperty.ofImmutable(
+        this, "paymentOnDefault", Cds.class, PaymentOnDefault.class);
     /**
-     * The meta-property for the {@code protectStart} property.
+     * The meta-property for the {@code protectionStart} property.
      */
-    private final MetaProperty<Boolean> protectStart = DirectMetaProperty.ofImmutable(
-        this, "protectStart", Cds.class, Boolean.TYPE);
+    private final MetaProperty<ProtectionStartOfDay> protectionStart = DirectMetaProperty.ofImmutable(
+        this, "protectionStart", Cds.class, ProtectionStartOfDay.class);
+    /**
+     * The meta-property for the {@code stepinDateOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> stepinDateOffset = DirectMetaProperty.ofImmutable(
+        this, "stepinDateOffset", Cds.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
@@ -492,8 +521,9 @@ public final class Cds
         "notional",
         "dayCount",
         "coupon",
-        "payAccruedOnDefault",
-        "protectStart",
+        "paymentOnDefault",
+        "protectionStart",
+        "stepinDateOffset",
         "settlementDateOffset",
         "legalEntityId",
         "buySell");
@@ -517,10 +547,12 @@ public final class Cds
           return dayCount;
         case -1354573786:  // coupon
           return coupon;
-        case -43782841:  // payAccruedOnDefault
-          return payAccruedOnDefault;
-        case 33810131:  // protectStart
-          return protectStart;
+        case -480203780:  // paymentOnDefault
+          return paymentOnDefault;
+        case 2103482633:  // protectionStart
+          return protectionStart;
+        case 852621746:  // stepinDateOffset
+          return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
         case 866287159:  // legalEntityId
@@ -588,19 +620,27 @@ public final class Cds
     }
 
     /**
-     * The meta-property for the {@code payAccruedOnDefault} property.
+     * The meta-property for the {@code paymentOnDefault} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> payAccruedOnDefault() {
-      return payAccruedOnDefault;
+    public MetaProperty<PaymentOnDefault> paymentOnDefault() {
+      return paymentOnDefault;
     }
 
     /**
-     * The meta-property for the {@code protectStart} property.
+     * The meta-property for the {@code protectionStart} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> protectStart() {
-      return protectStart;
+    public MetaProperty<ProtectionStartOfDay> protectionStart() {
+      return protectionStart;
+    }
+
+    /**
+     * The meta-property for the {@code stepinDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> stepinDateOffset() {
+      return stepinDateOffset;
     }
 
     /**
@@ -641,10 +681,12 @@ public final class Cds
           return ((Cds) bean).getDayCount();
         case -1354573786:  // coupon
           return ((Cds) bean).getCoupon();
-        case -43782841:  // payAccruedOnDefault
-          return ((Cds) bean).isPayAccruedOnDefault();
-        case 33810131:  // protectStart
-          return ((Cds) bean).isProtectStart();
+        case -480203780:  // paymentOnDefault
+          return ((Cds) bean).getPaymentOnDefault();
+        case 2103482633:  // protectionStart
+          return ((Cds) bean).getProtectionStart();
+        case 852621746:  // stepinDateOffset
+          return ((Cds) bean).getStepinDateOffset();
         case 135924714:  // settlementDateOffset
           return ((Cds) bean).getSettlementDateOffset();
         case 866287159:  // legalEntityId
@@ -677,8 +719,9 @@ public final class Cds
     private double notional;
     private DayCount dayCount;
     private double coupon;
-    private boolean payAccruedOnDefault;
-    private boolean protectStart;
+    private PaymentOnDefault paymentOnDefault;
+    private ProtectionStartOfDay protectionStart;
+    private DaysAdjustment stepinDateOffset;
     private DaysAdjustment settlementDateOffset;
     private StandardId legalEntityId;
     private BuySell buySell;
@@ -699,8 +742,9 @@ public final class Cds
       this.notional = beanToCopy.getNotional();
       this.dayCount = beanToCopy.getDayCount();
       this.coupon = beanToCopy.getCoupon();
-      this.payAccruedOnDefault = beanToCopy.isPayAccruedOnDefault();
-      this.protectStart = beanToCopy.isProtectStart();
+      this.paymentOnDefault = beanToCopy.getPaymentOnDefault();
+      this.protectionStart = beanToCopy.getProtectionStart();
+      this.stepinDateOffset = beanToCopy.getStepinDateOffset();
       this.settlementDateOffset = beanToCopy.getSettlementDateOffset();
       this.legalEntityId = beanToCopy.getLegalEntityId();
       this.buySell = beanToCopy.getBuySell();
@@ -720,10 +764,12 @@ public final class Cds
           return dayCount;
         case -1354573786:  // coupon
           return coupon;
-        case -43782841:  // payAccruedOnDefault
-          return payAccruedOnDefault;
-        case 33810131:  // protectStart
-          return protectStart;
+        case -480203780:  // paymentOnDefault
+          return paymentOnDefault;
+        case 2103482633:  // protectionStart
+          return protectionStart;
+        case 852621746:  // stepinDateOffset
+          return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
         case 866287159:  // legalEntityId
@@ -753,11 +799,14 @@ public final class Cds
         case -1354573786:  // coupon
           this.coupon = (Double) newValue;
           break;
-        case -43782841:  // payAccruedOnDefault
-          this.payAccruedOnDefault = (Boolean) newValue;
+        case -480203780:  // paymentOnDefault
+          this.paymentOnDefault = (PaymentOnDefault) newValue;
           break;
-        case 33810131:  // protectStart
-          this.protectStart = (Boolean) newValue;
+        case 2103482633:  // protectionStart
+          this.protectionStart = (ProtectionStartOfDay) newValue;
+          break;
+        case 852621746:  // stepinDateOffset
+          this.stepinDateOffset = (DaysAdjustment) newValue;
           break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
@@ -806,8 +855,9 @@ public final class Cds
           notional,
           dayCount,
           coupon,
-          payAccruedOnDefault,
-          protectStart,
+          paymentOnDefault,
+          protectionStart,
+          stepinDateOffset,
           settlementDateOffset,
           legalEntityId,
           buySell);
@@ -884,23 +934,34 @@ public final class Cds
 
     /**
      * Sets whether the accrued premium is paid in the event of a default.
-     * @param payAccruedOnDefault  the new value, not null
+     * @param paymentOnDefault  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder payAccruedOnDefault(boolean payAccruedOnDefault) {
-      JodaBeanUtils.notNull(payAccruedOnDefault, "payAccruedOnDefault");
-      this.payAccruedOnDefault = payAccruedOnDefault;
+    public Builder paymentOnDefault(PaymentOnDefault paymentOnDefault) {
+      JodaBeanUtils.notNull(paymentOnDefault, "paymentOnDefault");
+      this.paymentOnDefault = paymentOnDefault;
       return this;
     }
 
     /**
-     * Sets the protectStart.
-     * @param protectStart  the new value, not null
+     * Sets the protectionStart.
+     * @param protectionStart  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder protectStart(boolean protectStart) {
-      JodaBeanUtils.notNull(protectStart, "protectStart");
-      this.protectStart = protectStart;
+    public Builder protectionStart(ProtectionStartOfDay protectionStart) {
+      JodaBeanUtils.notNull(protectionStart, "protectionStart");
+      this.protectionStart = protectionStart;
+      return this;
+    }
+
+    /**
+     * Sets the stepinDateOffset.
+     * @param stepinDateOffset  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder stepinDateOffset(DaysAdjustment stepinDateOffset) {
+      JodaBeanUtils.notNull(stepinDateOffset, "stepinDateOffset");
+      this.stepinDateOffset = stepinDateOffset;
       return this;
     }
 
@@ -947,15 +1008,16 @@ public final class Cds
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("Cds.Builder{");
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
-      buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(payAccruedOnDefault)).append(',').append(' ');
-      buf.append("protectStart").append('=').append(JodaBeanUtils.toString(protectStart)).append(',').append(' ');
+      buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
+      buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
+      buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
       buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell));

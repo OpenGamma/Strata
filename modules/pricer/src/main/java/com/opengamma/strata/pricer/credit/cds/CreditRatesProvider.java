@@ -34,13 +34,13 @@ public final class CreditRatesProvider
    * All curves and other data items in this provider are calibrated for this date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate valuationDate;
+  private final LocalDate valuationDate;  // TODO check valuation dates??
   /**
    * The credit curves.
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    */
   @PropertyDefinition(validate = "notEmpty", get = "private")
-  private final ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves;
+  private final ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves;
 
   @PropertyDefinition(validate = "notEmpty", get = "private")
   private final ImmutableMap<StandardId, RecoveryRates> recoveryRateCurves;
@@ -57,8 +57,8 @@ public final class CreditRatesProvider
     return recoveryRates;
   }
 
-  public LegalEntitySurvivalProbabilities survivalProbabilities(StandardId legalEntity, Currency currency) {
-    LegalEntitySurvivalProbabilities survivalProbabilities = creditCurves.get(Pair.of(legalEntity, currency));
+  public CreditDiscountFactors survivalProbabilities(StandardId legalEntity, Currency currency) {
+    CreditDiscountFactors survivalProbabilities = creditCurves.get(Pair.of(legalEntity, currency));
     if (survivalProbabilities == null) {
       throw new IllegalArgumentException("Unable to find credit curve: " + legalEntity + ", " + currency);
     }
@@ -102,7 +102,7 @@ public final class CreditRatesProvider
 
   private CreditRatesProvider(
       LocalDate valuationDate,
-      Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves,
+      Map<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves,
       Map<StandardId, RecoveryRates> recoveryRateCurves,
       Map<Currency, CreditDiscountFactors> discountCurves) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
@@ -146,7 +146,7 @@ public final class CreditRatesProvider
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    * @return the value of the property, not empty
    */
-  private ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> getCreditCurves() {
+  private ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors> getCreditCurves() {
     return creditCurves;
   }
 
@@ -233,7 +233,7 @@ public final class CreditRatesProvider
      * The meta-property for the {@code creditCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities>> creditCurves = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors>> creditCurves = DirectMetaProperty.ofImmutable(
         this, "creditCurves", CreditRatesProvider.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code recoveryRateCurves} property.
@@ -306,7 +306,7 @@ public final class CreditRatesProvider
      * The meta-property for the {@code creditCurves} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities>> creditCurves() {
+    public MetaProperty<ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors>> creditCurves() {
       return creditCurves;
     }
 
@@ -360,7 +360,7 @@ public final class CreditRatesProvider
   public static final class Builder extends DirectFieldsBeanBuilder<CreditRatesProvider> {
 
     private LocalDate valuationDate;
-    private Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves = ImmutableMap.of();
+    private Map<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves = ImmutableMap.of();
     private Map<StandardId, RecoveryRates> recoveryRateCurves = ImmutableMap.of();
     private Map<Currency, CreditDiscountFactors> discountCurves = ImmutableMap.of();
 
@@ -406,7 +406,7 @@ public final class CreditRatesProvider
           this.valuationDate = (LocalDate) newValue;
           break;
         case -1612130883:  // creditCurves
-          this.creditCurves = (Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities>) newValue;
+          this.creditCurves = (Map<Pair<StandardId, Currency>, CreditDiscountFactors>) newValue;
           break;
         case 1744098265:  // recoveryRateCurves
           this.recoveryRateCurves = (Map<StandardId, RecoveryRates>) newValue;
@@ -472,7 +472,7 @@ public final class CreditRatesProvider
      * @param creditCurves  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder creditCurves(Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves) {
+    public Builder creditCurves(Map<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves) {
       JodaBeanUtils.notEmpty(creditCurves, "creditCurves");
       this.creditCurves = creditCurves;
       return this;

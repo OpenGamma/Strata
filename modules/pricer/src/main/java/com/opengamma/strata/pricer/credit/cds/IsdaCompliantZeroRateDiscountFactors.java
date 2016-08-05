@@ -90,6 +90,16 @@ public final class IsdaCompliantZeroRateDiscountFactors
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains day count convention of the curve.
+   * 
+   * @return the day count
+   */
+  public DayCount getDayCount() {
+    return dayCount;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
     return curve.getParameterCount();

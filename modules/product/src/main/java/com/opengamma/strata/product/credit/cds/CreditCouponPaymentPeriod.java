@@ -58,24 +58,30 @@ public final class CreditCouponPaymentPeriod
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
-  /**
-   * The unadjusted start date.
-   * <p>
-   * The start date before any business day adjustment is applied.
-   * <p>
-   * When building, this will default to the start date if not specified.
-   */
+//  /**
+//   * The unadjusted start date.
+//   * <p>
+//   * The start date before any business day adjustment is applied.
+//   * <p>
+//   * When building, this will default to the start date if not specified.
+//   */
+//  @PropertyDefinition(validate = "notNull")
+//  private final LocalDate unadjustedStartDate;
+//  /**
+//   * The unadjusted end date.
+//   * <p> 
+//   * The end date before any business day adjustment is applied.
+//   * <p>
+//   * When building, this will default to the end date if not specified.
+//   */
+//  @PropertyDefinition(validate = "notNull")
+//  private final LocalDate unadjustedEndDate;
+
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate unadjustedStartDate;
-  /**
-   * The unadjusted end date.
-   * <p>
-   * The end date before any business day adjustment is applied.
-   * <p>
-   * When building, this will default to the end date if not specified.
-   */
+  private final LocalDate effectiveStartDate;
+
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate unadjustedEndDate;
+  private final LocalDate effectiveEndDate;
   /**
    * The payment date.
    * <p>
@@ -138,8 +144,8 @@ public final class CreditCouponPaymentPeriod
       double notional,
       LocalDate startDate,
       LocalDate endDate,
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
+      LocalDate effectiveStartDate,
+      LocalDate effectiveEndDate,
       LocalDate paymentDate,
       double coupon,
       double yearFraction) {
@@ -147,16 +153,16 @@ public final class CreditCouponPaymentPeriod
     ArgChecker.notNegative(notional, "notional");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
-    JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
-    JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
+    JodaBeanUtils.notNull(effectiveStartDate, "effectiveStartDate");
+    JodaBeanUtils.notNull(effectiveEndDate, "effectiveEndDate");
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     ArgChecker.notNegative(yearFraction, "yearFraction");
     this.currency = currency;
     this.notional = notional;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.unadjustedStartDate = unadjustedStartDate;
-    this.unadjustedEndDate = unadjustedEndDate;
+    this.effectiveStartDate = effectiveStartDate;
+    this.effectiveEndDate = effectiveEndDate;
     this.paymentDate = paymentDate;
     this.coupon = coupon;
     this.yearFraction = yearFraction;
@@ -227,28 +233,20 @@ public final class CreditCouponPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unadjusted start date.
-   * <p>
-   * The start date before any business day adjustment is applied.
-   * <p>
-   * When building, this will default to the start date if not specified.
+   * Gets the effectiveStartDate.
    * @return the value of the property, not null
    */
-  public LocalDate getUnadjustedStartDate() {
-    return unadjustedStartDate;
+  public LocalDate getEffectiveStartDate() {
+    return effectiveStartDate;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unadjusted end date.
-   * <p>
-   * The end date before any business day adjustment is applied.
-   * <p>
-   * When building, this will default to the end date if not specified.
+   * Gets the effectiveEndDate.
    * @return the value of the property, not null
    */
-  public LocalDate getUnadjustedEndDate() {
-    return unadjustedEndDate;
+  public LocalDate getEffectiveEndDate() {
+    return effectiveEndDate;
   }
 
   //-----------------------------------------------------------------------
@@ -307,8 +305,8 @@ public final class CreditCouponPaymentPeriod
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
-          JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
-          JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate) &&
+          JodaBeanUtils.equal(effectiveStartDate, other.effectiveStartDate) &&
+          JodaBeanUtils.equal(effectiveEndDate, other.effectiveEndDate) &&
           JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
           JodaBeanUtils.equal(coupon, other.coupon) &&
           JodaBeanUtils.equal(yearFraction, other.yearFraction);
@@ -323,8 +321,8 @@ public final class CreditCouponPaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(effectiveStartDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(effectiveEndDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
@@ -339,8 +337,8 @@ public final class CreditCouponPaymentPeriod
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
     buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
+    buf.append("effectiveStartDate").append('=').append(effectiveStartDate).append(',').append(' ');
+    buf.append("effectiveEndDate").append('=').append(effectiveEndDate).append(',').append(' ');
     buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
     buf.append("coupon").append('=').append(coupon).append(',').append(' ');
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
@@ -379,15 +377,15 @@ public final class CreditCouponPaymentPeriod
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", CreditCouponPaymentPeriod.class, LocalDate.class);
     /**
-     * The meta-property for the {@code unadjustedStartDate} property.
+     * The meta-property for the {@code effectiveStartDate} property.
      */
-    private final MetaProperty<LocalDate> unadjustedStartDate = DirectMetaProperty.ofImmutable(
-        this, "unadjustedStartDate", CreditCouponPaymentPeriod.class, LocalDate.class);
+    private final MetaProperty<LocalDate> effectiveStartDate = DirectMetaProperty.ofImmutable(
+        this, "effectiveStartDate", CreditCouponPaymentPeriod.class, LocalDate.class);
     /**
-     * The meta-property for the {@code unadjustedEndDate} property.
+     * The meta-property for the {@code effectiveEndDate} property.
      */
-    private final MetaProperty<LocalDate> unadjustedEndDate = DirectMetaProperty.ofImmutable(
-        this, "unadjustedEndDate", CreditCouponPaymentPeriod.class, LocalDate.class);
+    private final MetaProperty<LocalDate> effectiveEndDate = DirectMetaProperty.ofImmutable(
+        this, "effectiveEndDate", CreditCouponPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code paymentDate} property.
      */
@@ -412,8 +410,8 @@ public final class CreditCouponPaymentPeriod
         "notional",
         "startDate",
         "endDate",
-        "unadjustedStartDate",
-        "unadjustedEndDate",
+        "effectiveStartDate",
+        "effectiveEndDate",
         "paymentDate",
         "coupon",
         "yearFraction");
@@ -435,10 +433,10 @@ public final class CreditCouponPaymentPeriod
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case 1457691881:  // unadjustedStartDate
-          return unadjustedStartDate;
-        case 31758114:  // unadjustedEndDate
-          return unadjustedEndDate;
+        case -1815017143:  // effectiveStartDate
+          return effectiveStartDate;
+        case -566060158:  // effectiveEndDate
+          return effectiveEndDate;
         case -1540873516:  // paymentDate
           return paymentDate;
         case -1354573786:  // coupon
@@ -498,19 +496,19 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * The meta-property for the {@code unadjustedStartDate} property.
+     * The meta-property for the {@code effectiveStartDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> unadjustedStartDate() {
-      return unadjustedStartDate;
+    public MetaProperty<LocalDate> effectiveStartDate() {
+      return effectiveStartDate;
     }
 
     /**
-     * The meta-property for the {@code unadjustedEndDate} property.
+     * The meta-property for the {@code effectiveEndDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> unadjustedEndDate() {
-      return unadjustedEndDate;
+    public MetaProperty<LocalDate> effectiveEndDate() {
+      return effectiveEndDate;
     }
 
     /**
@@ -549,10 +547,10 @@ public final class CreditCouponPaymentPeriod
           return ((CreditCouponPaymentPeriod) bean).getStartDate();
         case -1607727319:  // endDate
           return ((CreditCouponPaymentPeriod) bean).getEndDate();
-        case 1457691881:  // unadjustedStartDate
-          return ((CreditCouponPaymentPeriod) bean).getUnadjustedStartDate();
-        case 31758114:  // unadjustedEndDate
-          return ((CreditCouponPaymentPeriod) bean).getUnadjustedEndDate();
+        case -1815017143:  // effectiveStartDate
+          return ((CreditCouponPaymentPeriod) bean).getEffectiveStartDate();
+        case -566060158:  // effectiveEndDate
+          return ((CreditCouponPaymentPeriod) bean).getEffectiveEndDate();
         case -1540873516:  // paymentDate
           return ((CreditCouponPaymentPeriod) bean).getPaymentDate();
         case -1354573786:  // coupon
@@ -584,8 +582,8 @@ public final class CreditCouponPaymentPeriod
     private double notional;
     private LocalDate startDate;
     private LocalDate endDate;
-    private LocalDate unadjustedStartDate;
-    private LocalDate unadjustedEndDate;
+    private LocalDate effectiveStartDate;
+    private LocalDate effectiveEndDate;
     private LocalDate paymentDate;
     private double coupon;
     private double yearFraction;
@@ -605,8 +603,8 @@ public final class CreditCouponPaymentPeriod
       this.notional = beanToCopy.getNotional();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
-      this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
-      this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
+      this.effectiveStartDate = beanToCopy.getEffectiveStartDate();
+      this.effectiveEndDate = beanToCopy.getEffectiveEndDate();
       this.paymentDate = beanToCopy.getPaymentDate();
       this.coupon = beanToCopy.getCoupon();
       this.yearFraction = beanToCopy.getYearFraction();
@@ -624,10 +622,10 @@ public final class CreditCouponPaymentPeriod
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case 1457691881:  // unadjustedStartDate
-          return unadjustedStartDate;
-        case 31758114:  // unadjustedEndDate
-          return unadjustedEndDate;
+        case -1815017143:  // effectiveStartDate
+          return effectiveStartDate;
+        case -566060158:  // effectiveEndDate
+          return effectiveEndDate;
         case -1540873516:  // paymentDate
           return paymentDate;
         case -1354573786:  // coupon
@@ -654,11 +652,11 @@ public final class CreditCouponPaymentPeriod
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
           break;
-        case 1457691881:  // unadjustedStartDate
-          this.unadjustedStartDate = (LocalDate) newValue;
+        case -1815017143:  // effectiveStartDate
+          this.effectiveStartDate = (LocalDate) newValue;
           break;
-        case 31758114:  // unadjustedEndDate
-          this.unadjustedEndDate = (LocalDate) newValue;
+        case -566060158:  // effectiveEndDate
+          this.effectiveEndDate = (LocalDate) newValue;
           break;
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
@@ -706,8 +704,8 @@ public final class CreditCouponPaymentPeriod
           notional,
           startDate,
           endDate,
-          unadjustedStartDate,
-          unadjustedEndDate,
+          effectiveStartDate,
+          effectiveEndDate,
           paymentDate,
           coupon,
           yearFraction);
@@ -771,32 +769,24 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * Sets the unadjusted start date.
-     * <p>
-     * The start date before any business day adjustment is applied.
-     * <p>
-     * When building, this will default to the start date if not specified.
-     * @param unadjustedStartDate  the new value, not null
+     * Sets the effectiveStartDate.
+     * @param effectiveStartDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder unadjustedStartDate(LocalDate unadjustedStartDate) {
-      JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
-      this.unadjustedStartDate = unadjustedStartDate;
+    public Builder effectiveStartDate(LocalDate effectiveStartDate) {
+      JodaBeanUtils.notNull(effectiveStartDate, "effectiveStartDate");
+      this.effectiveStartDate = effectiveStartDate;
       return this;
     }
 
     /**
-     * Sets the unadjusted end date.
-     * <p>
-     * The end date before any business day adjustment is applied.
-     * <p>
-     * When building, this will default to the end date if not specified.
-     * @param unadjustedEndDate  the new value, not null
+     * Sets the effectiveEndDate.
+     * @param effectiveEndDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder unadjustedEndDate(LocalDate unadjustedEndDate) {
-      JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
-      this.unadjustedEndDate = unadjustedEndDate;
+    public Builder effectiveEndDate(LocalDate effectiveEndDate) {
+      JodaBeanUtils.notNull(effectiveEndDate, "effectiveEndDate");
+      this.effectiveEndDate = effectiveEndDate;
       return this;
     }
 
@@ -850,8 +840,8 @@ public final class CreditCouponPaymentPeriod
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
-      buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
+      buf.append("effectiveStartDate").append('=').append(JodaBeanUtils.toString(effectiveStartDate)).append(',').append(' ');
+      buf.append("effectiveEndDate").append('=').append(JodaBeanUtils.toString(effectiveEndDate)).append(',').append(' ');
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
