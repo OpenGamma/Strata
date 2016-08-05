@@ -44,6 +44,7 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  */
 public class TermDepositTradeCalculationFunction
@@ -63,6 +64,7 @@ public class TermDepositTradeCalculationFunction
           .put(Measures.PAR_SPREAD, TermDepositMeasureCalculations.DEFAULT::parSpread)
           .put(Measures.CURRENCY_EXPOSURE, TermDepositMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, TermDepositMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();

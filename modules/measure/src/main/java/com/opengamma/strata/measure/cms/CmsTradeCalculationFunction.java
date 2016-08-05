@@ -47,6 +47,7 @@ import com.opengamma.strata.product.cms.ResolvedCmsTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
  * The "natural" currency is determined from the CMS leg.
@@ -66,6 +67,7 @@ public class CmsTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, CmsMeasureCalculations::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, CmsMeasureCalculations::currencyExposure)
           .put(Measures.CURRENT_CASH, CmsMeasureCalculations::currentCash)
+          .put(Measures.RESOLVED_TARGET, (c, rt, smd, m) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
