@@ -59,7 +59,7 @@ public class BlackIborCapFloorTradePricerTest {
   private static final ImmutableRatesProvider RATES =
       IborCapletFloorletDataSet.createRatesProvider(VALUATION.toLocalDate());
   private static final BlackIborCapletFloorletExpiryStrikeVolatilities VOLS = IborCapletFloorletDataSet
-      .createBlackVolatilitiesProvider(VALUATION, EUR_EURIBOR_6M);
+      .createBlackVolatilities(VALUATION, EUR_EURIBOR_6M);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION.toLocalDate()).build();
   private static final Payment PREMIUM = Payment.of(EUR, -NOTIONAL_VALUE * 0.19, VALUATION.toLocalDate());
   private static final ResolvedIborCapFloorTrade TRADE_PAYLEG = ResolvedIborCapFloorTrade.builder()
@@ -82,7 +82,7 @@ public class BlackIborCapFloorTradePricerTest {
   private static final ImmutableRatesProvider RATES_PAY =
       IborCapletFloorletDataSet.createRatesProvider(VALUATION_PAY.toLocalDate(), EUR_EURIBOR_3M, TIME_SERIES);
   private static final BlackIborCapletFloorletExpiryStrikeVolatilities VOLS_PAY = IborCapletFloorletDataSet
-      .createBlackVolatilitiesProvider(VALUATION_PAY, EUR_EURIBOR_3M);
+      .createBlackVolatilities(VALUATION_PAY, EUR_EURIBOR_3M);
 
   private static final double TOL = 1.0e-13;
   private static final BlackIborCapFloorTradePricer PRICER = BlackIborCapFloorTradePricer.DEFAULT;
