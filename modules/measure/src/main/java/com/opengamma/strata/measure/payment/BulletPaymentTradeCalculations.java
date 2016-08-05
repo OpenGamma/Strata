@@ -16,6 +16,7 @@ import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
+import com.opengamma.strata.pricer.payment.DiscountingBulletPaymentTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
@@ -36,7 +37,7 @@ public class BulletPaymentTradeCalculations {
    * Default implementation.
    */
   public static final BulletPaymentTradeCalculations DEFAULT = new BulletPaymentTradeCalculations(
-      DiscountingPaymentPricer.DEFAULT);
+      DiscountingBulletPaymentTradePricer.DEFAULT);
 
   /**
    * Pricer for {@link ResolvedBulletPaymentTrade}.
@@ -49,10 +50,23 @@ public class BulletPaymentTradeCalculations {
    * In most cases, applications should use the {@link #DEFAULT} instance.
    * 
    * @param paymentPricer  the pricer for {@link Payment}
+   * @deprecated use constructor taking {@link DiscountingBulletPaymentTradePricer}
+   */
+  @Deprecated
+  public BulletPaymentTradeCalculations(DiscountingPaymentPricer paymentPricer) {
+    this(new DiscountingBulletPaymentTradePricer(paymentPricer));
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * In most cases, applications should use the {@link #DEFAULT} instance.
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedBulletPaymentTrade}
    */
   public BulletPaymentTradeCalculations(
-      DiscountingPaymentPricer paymentPricer) {
-    this.calc = new BulletPaymentMeasureCalculations(paymentPricer);
+      DiscountingBulletPaymentTradePricer tradePricer) {
+    this.calc = new BulletPaymentMeasureCalculations(tradePricer);
   }
 
   //-------------------------------------------------------------------------

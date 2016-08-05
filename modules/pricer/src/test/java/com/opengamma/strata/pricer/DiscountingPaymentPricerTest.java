@@ -22,6 +22,8 @@ import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
@@ -112,6 +114,35 @@ public class DiscountingPaymentPricerTest {
 
   private double discountFactorFromPeriodicallyCompoundedRate(double rate, double periodPerYear, double time) {
     return Math.pow(1d + rate / periodPerYear, -periodPerYear * time);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_explainPresentValue_provider() {
+    CurrencyAmount fvExpected = PRICER.forecastValue(PAYMENT, PROVIDER);
+    CurrencyAmount pvExpected = PRICER.presentValue(PAYMENT, PROVIDER);
+
+    ExplainMap explain = PRICER.explainPresentValue(PAYMENT, PROVIDER);
+    Currency currency = PAYMENT.getCurrency();
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Payment");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT.getDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DF, TOL);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fvExpected.getAmount(), TOL);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOL);
+  }
+
+  public void test_explainPresentValue_provider_ended() {
+    ExplainMap explain = PRICER.explainPresentValue(PAYMENT_PAST, PROVIDER);
+    Currency currency = PAYMENT_PAST.getCurrency();
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Payment");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PAST.getDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOL);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0, TOL);
   }
 
   //-------------------------------------------------------------------------
