@@ -52,32 +52,32 @@ public class QuotesCsvLoaderTest {
     assertEquals(map.size(), 0);
   }
 
-  public void test_file1_date1() {
+  public void test_load_oneDate_file1_date1() {
     Map<QuoteId, Double> map = QuotesCsvLoader.load(DATE1, QUOTES_1);
     assertEquals(map.size(), 2);
     assertFile1Date1(map);
   }
 
-  public void test_file1_date1date2() {
+  public void test_load_oneDate_file1_date1date2() {
     Map<LocalDate, ImmutableMap<QuoteId, Double>> map = QuotesCsvLoader.load(ImmutableSet.of(DATE1, DATE2), QUOTES_1);
     assertEquals(map.size(), 2);
     assertFile1Date1Date2(map);
   }
 
-  public void test_file1_date2() {
+  public void test_load_oneDate_file1_date2() {
     Map<QuoteId, Double> map = QuotesCsvLoader.load(DATE2, ImmutableList.of(QUOTES_1));
     assertEquals(map.size(), 2);
     assertFile1Date2(map);
   }
 
-  public void test_file1file2_date1() {
+  public void test_load_oneDate_file1file2_date1() {
     Map<QuoteId, Double> map = QuotesCsvLoader.load(DATE1, ImmutableList.of(QUOTES_1, QUOTES_2));
     assertEquals(map.size(), 3);
     assertFile1Date1(map);
     assertFile2Date1(map);
   }
 
-  public void test_invalidDate() {
+  public void test_load_oneDate_invalidDate() {
     assertThrows(
         () -> QuotesCsvLoader.load(date(2015, 10, 2), QUOTES_INVALID_DATE),
         IllegalArgumentException.class,
@@ -86,6 +86,20 @@ public class QuotesCsvLoaderTest {
 
   public void test_invalidDuplicate() {
     assertThrowsIllegalArg(() -> QuotesCsvLoader.load(DATE1, QUOTES_INVALID_DUPLICATE));
+  }
+
+  public void test_load_dateSet_file1_date1() {
+    Map<LocalDate, ImmutableMap<QuoteId, Double>> map = QuotesCsvLoader.load(ImmutableSet.of(DATE1, DATE2), QUOTES_1);
+    assertEquals(map.size(), 2);
+    assertFile1Date1(map.get(DATE1));
+    assertFile1Date2(map.get(DATE2));
+  }
+
+  public void test_load_alLDates_file1_date1() {
+    Map<LocalDate, ImmutableMap<QuoteId, Double>> map = QuotesCsvLoader.loadAllDates(QUOTES_1);
+    assertEquals(map.size(), 2);
+    assertFile1Date1(map.get(DATE1));
+    assertFile1Date2(map.get(DATE2));
   }
 
   //-------------------------------------------------------------------------
