@@ -155,7 +155,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * The keys specify which curve groups each curve belongs to and how it is used in the group, for example
    * as a discount curve for a particular currency or as a forward curve for an index.
    *
-   * @param garMap  the map of name to keyss
+   * @param garMap  the map of name to keys
    * @return a map of curve group name to curve group definition built from the curves
    */
   private static ImmutableList<CurveGroupDefinition> buildCurveGroups(
