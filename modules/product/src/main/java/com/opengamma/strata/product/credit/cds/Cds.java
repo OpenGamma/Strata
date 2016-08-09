@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.credit.cds;
 
 import java.io.Serializable;
@@ -24,8 +29,11 @@ import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -35,22 +43,37 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.BuySell;
 
+/**
+ * A single-name credit default swap (CDS).
+ * <p>
+ * A CDS is a financial instrument where the protection seller agrees to compensate
+ * the protection buyer when the reference entity suffers a default.
+ * The protection seller is paid premium regularly from the protection buyer until the expiry of the CDS contract 
+ * or the reference entity defaults before the expiry.
+ */
 @BeanDefinition
 public final class Cds
     implements Resolvable<ResolvedCds>, ImmutableBean, Serializable {
 
   /**
-   * The accrual schedule.
+   * Whether the CDS is buy or sell.
    * <p>
-   * This is used to define the accrual periods.
-   * These are used directly or indirectly to determine other dates in the product.
+   * A value of 'Buy' implies buying protection, i.e., the fixed coupon is paid and the protection is received 
+   * in the event of default. A value of 'Sell' implies selling protection, i.e., the fixed coupon is received 
+   * and the protection is paid in the event of default. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final PeriodicSchedule accrualSchedule;
+  private final BuySell buySell;
   /**
-   * The currency of the leg associated with the notional.
+   * The legal entity identifier.
    * <p>
-   * This is the currency of the leg and the currency that swap rate calculation is made in.
+   * This identifier is used for the reference legal entity of the CDS.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final StandardId legalEntityId;
+  /**
+   * The currency of the CDS.
+   * <p>
    * The amounts of the notional are expressed in terms of this currency.
    */
   @PropertyDefinition(validate = "notNull")
@@ -58,61 +81,102 @@ public final class Cds
   /**
    * The notional amount, must be non-negative.
    * <p>
-   * The notional amount applicable during the period.
+   * The fixed notional amount applicable during the lifetime of the CDS.
    * The currency of the notional is specified by {@code currency}.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
+   * The accrual schedule.
+   * <p>
+   * This is used to define the accrual periods.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final PeriodicSchedule accrualSchedule;
+  /**
+   * The fixed coupon rate.
+   * <p>
+   * This must be represented in decimal form.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double fixedRate;
+  /**
    * The day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
-   * <p>
-   * When building, this will default to the day count of the swap convention in the swap index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
-
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double coupon;
   /**
+   * The payment on default.
+   * <p>
    * Whether the accrued premium is paid in the event of a default.
    */
   @PropertyDefinition(validate = "notNull")
   private final PaymentOnDefault paymentOnDefault;
-
+  /**
+   * The protection start of the day.
+   * <p>
+   * When the protection starts on the start date.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ProtectionStartOfDay protectionStart;
-
+  /**
+   * The number of days between valuation date and step-in date.
+   * <p>
+   * The step-in date is also called protection effective date. 
+   * It is usually 1 calendar day for standardised CDS contracts. 
+   */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment stepinDateOffset;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
-   * This is used to compute clean price.
-   * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
-   * <p>
-   * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds.
+   * It is usually 3 business days for standardised CDS contracts.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
-  
-  /**
-   * The legal entity identifier.
-   * <p>
-   * This identifier is used for the legal entity that issues the bond.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId legalEntityId;
-
-  @PropertyDefinition(validate = "notNull")
-  private final BuySell buySell;
 
   //-------------------------------------------------------------------------
-  public static Cds of(LocalDate startDate, LocalDate endDate, Frequency paymentFrequency,
-      BusinessDayAdjustment businessDayAdjustment, StubConvention stubConvention, Currency currency,
-      double notional, DayCount dayCount, double coupon, PaymentOnDefault paymentOnDefault, ProtectionStartOfDay protectStart,
-      DaysAdjustment stepinDateOffset, DaysAdjustment settlementDateOffset, StandardId legalEntityId, BuySell buySell) {
+  /**
+   * Creates an instance.
+   * <p>
+   * The start date adjustment, end date adjustment, and roll convention are switched off. 
+   * Use {@link #builder()} for the full flexibilities.  
+   * 
+   * @param buySell  buy or sell
+   * @param legalEntityId  the legal entity ID
+   * @param currency  the currency
+   * @param notional  the notional 
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param paymentFrequency  the coupon frequency
+   * @param businessDayAdjustment  the business day adjustment
+   * @param stubConvention  the stub convention
+   * @param fixedRate  the fixed coupon rate
+   * @param dayCount  the day count convention
+   * @param paymentOnDefault  the payment on default
+   * @param protectStart  the protection start of the day
+   * @param stepinDateOffset  the step-in date offset
+   * @param settlementDateOffset  the settlement date offset
+   * @return the instance
+   */
+  public static Cds of(
+      BuySell buySell,
+      StandardId legalEntityId,
+      Currency currency,
+      double notional,
+      LocalDate startDate,
+      LocalDate endDate,
+      Frequency paymentFrequency,
+      BusinessDayAdjustment businessDayAdjustment,
+      StubConvention stubConvention,
+      double fixedRate,
+      DayCount dayCount,
+      PaymentOnDefault paymentOnDefault,
+      ProtectionStartOfDay protectStart,
+      DaysAdjustment stepinDateOffset,
+      DaysAdjustment settlementDateOffset) {
 
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .businessDayAdjustment(businessDayAdjustment)
@@ -124,13 +188,37 @@ public final class Cds
         .rollConvention(RollConventions.NONE)
         .stubConvention(stubConvention)
         .build();
-
-    return new Cds(accrualSchedule, currency, notional, dayCount, coupon, paymentOnDefault, protectStart, stepinDateOffset,
-        settlementDateOffset, legalEntityId, buySell);
+    return new Cds(buySell, legalEntityId, currency, notional, accrualSchedule, fixedRate, dayCount, paymentOnDefault,
+        protectStart, stepinDateOffset, settlementDateOffset);
   }
 
-  public LocalDate getStartDate() {
-    return accrualSchedule.getStartDate();
+  /**
+   * Creates an instance of standardised CDS.
+   * 
+   * @param buySell  buy or sell
+   * @param legalEntityId  the legal entity ID
+   * @param currency  the currency
+   * @param notional  the notional 
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param calendar  the calendar
+   * @param fixedRate  the fixed coupon rate
+   * @return the instance
+   */
+  public static Cds of(
+      BuySell buySell,
+      StandardId legalEntityId,
+      Currency currency,
+      double notional,
+      LocalDate startDate,
+      LocalDate endDate,
+      HolidayCalendarId calendar,
+      double fixedRate) {
+    
+    return of(buySell, legalEntityId, currency, notional, startDate, endDate, Frequency.P3M,
+        BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, calendar), StubConvention.SHORT_INITIAL,
+        fixedRate, DayCounts.ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING,
+        DaysAdjustment.ofCalendarDays(1), DaysAdjustment.ofBusinessDays(3, calendar));
   }
 
   //-------------------------------------------------------------------------
@@ -149,7 +237,7 @@ public final class Cds
           .paymentDate(period.getEndDate())
           .notional(notional)
           .currency(currency)
-          .coupon(coupon)
+          .fixedRate(fixedRate)
           .yearFraction(period.yearFraction(dayCount, adjustedSchedule))
           .build());
     }
@@ -163,7 +251,7 @@ public final class Cds
         .paymentDate(accrualSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
         .notional(notional)
         .currency(currency)
-        .coupon(coupon)
+        .fixedRate(fixedRate)
         .yearFraction(
             SchedulePeriod.of(lastPeriod.getStartDate(), accEndDate).yearFraction(dayCount, adjustedSchedule))
         .build());
@@ -210,39 +298,39 @@ public final class Cds
   }
 
   private Cds(
-      PeriodicSchedule accrualSchedule,
+      BuySell buySell,
+      StandardId legalEntityId,
       Currency currency,
       double notional,
+      PeriodicSchedule accrualSchedule,
+      double fixedRate,
       DayCount dayCount,
-      double coupon,
       PaymentOnDefault paymentOnDefault,
       ProtectionStartOfDay protectionStart,
       DaysAdjustment stepinDateOffset,
-      DaysAdjustment settlementDateOffset,
-      StandardId legalEntityId,
-      BuySell buySell) {
-    JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
+      DaysAdjustment settlementDateOffset) {
+    JodaBeanUtils.notNull(buySell, "buySell");
+    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegativeOrZero(notional, "notional");
+    JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
+    ArgChecker.notNegative(fixedRate, "fixedRate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
-    ArgChecker.notNegative(coupon, "coupon");
     JodaBeanUtils.notNull(paymentOnDefault, "paymentOnDefault");
     JodaBeanUtils.notNull(protectionStart, "protectionStart");
     JodaBeanUtils.notNull(stepinDateOffset, "stepinDateOffset");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
-    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-    JodaBeanUtils.notNull(buySell, "buySell");
-    this.accrualSchedule = accrualSchedule;
+    this.buySell = buySell;
+    this.legalEntityId = legalEntityId;
     this.currency = currency;
     this.notional = notional;
+    this.accrualSchedule = accrualSchedule;
+    this.fixedRate = fixedRate;
     this.dayCount = dayCount;
-    this.coupon = coupon;
     this.paymentOnDefault = paymentOnDefault;
     this.protectionStart = protectionStart;
     this.stepinDateOffset = stepinDateOffset;
     this.settlementDateOffset = settlementDateOffset;
-    this.legalEntityId = legalEntityId;
-    this.buySell = buySell;
   }
 
   @Override
@@ -262,21 +350,32 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrual schedule.
+   * Gets whether the CDS is buy or sell.
    * <p>
-   * This is used to define the accrual periods.
-   * These are used directly or indirectly to determine other dates in the product.
+   * A value of 'Buy' implies buying protection, i.e., the fixed coupon is paid and the protection is received
+   * in the event of default. A value of 'Sell' implies selling protection, i.e., the fixed coupon is received
+   * and the protection is paid in the event of default.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getAccrualSchedule() {
-    return accrualSchedule;
+  public BuySell getBuySell() {
+    return buySell;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the leg associated with the notional.
+   * Gets the legal entity identifier.
    * <p>
-   * This is the currency of the leg and the currency that swap rate calculation is made in.
+   * This identifier is used for the reference legal entity of the CDS.
+   * @return the value of the property, not null
+   */
+  public StandardId getLegalEntityId() {
+    return legalEntityId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency of the CDS.
+   * <p>
    * The amounts of the notional are expressed in terms of this currency.
    * @return the value of the property, not null
    */
@@ -288,7 +387,7 @@ public final class Cds
   /**
    * Gets the notional amount, must be non-negative.
    * <p>
-   * The notional amount applicable during the period.
+   * The fixed notional amount applicable during the lifetime of the CDS.
    * The currency of the notional is specified by {@code currency}.
    * @return the value of the property
    */
@@ -298,11 +397,31 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the accrual schedule.
+   * <p>
+   * This is used to define the accrual periods.
+   * @return the value of the property, not null
+   */
+  public PeriodicSchedule getAccrualSchedule() {
+    return accrualSchedule;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the fixed coupon rate.
+   * <p>
+   * This must be represented in decimal form.
+   * @return the value of the property
+   */
+  public double getFixedRate() {
+    return fixedRate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
-   * <p>
-   * When building, this will default to the day count of the swap convention in the swap index if not specified.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -311,16 +430,9 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the coupon.
-   * @return the value of the property
-   */
-  public double getCoupon() {
-    return coupon;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets whether the accrued premium is paid in the event of a default.
+   * Gets the payment on default.
+   * <p>
+   * Whether the accrued premium is paid in the event of a default.
    * @return the value of the property, not null
    */
   public PaymentOnDefault getPaymentOnDefault() {
@@ -329,7 +441,9 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the protectionStart.
+   * Gets the protection start of the day.
+   * <p>
+   * When the protection starts on the start date.
    * @return the value of the property, not null
    */
   public ProtectionStartOfDay getProtectionStart() {
@@ -338,7 +452,10 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the stepinDateOffset.
+   * Gets the number of days between valuation date and step-in date.
+   * <p>
+   * The step-in date is also called protection effective date.
+   * It is usually 1 calendar day for standardised CDS contracts.
    * @return the value of the property, not null
    */
   public DaysAdjustment getStepinDateOffset() {
@@ -349,34 +466,11 @@ public final class Cds
   /**
    * Gets the number of days between valuation date and settlement date.
    * <p>
-   * This is used to compute clean price.
-   * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
-   * <p>
-   * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds.
+   * It is usually 3 business days for standardised CDS contracts.
    * @return the value of the property, not null
    */
   public DaysAdjustment getSettlementDateOffset() {
     return settlementDateOffset;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the legal entity identifier.
-   * <p>
-   * This identifier is used for the legal entity that issues the bond.
-   * @return the value of the property, not null
-   */
-  public StandardId getLegalEntityId() {
-    return legalEntityId;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the buySell.
-   * @return the value of the property, not null
-   */
-  public BuySell getBuySell() {
-    return buySell;
   }
 
   //-----------------------------------------------------------------------
@@ -395,17 +489,17 @@ public final class Cds
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Cds other = (Cds) obj;
-      return JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+      return JodaBeanUtils.equal(buySell, other.buySell) &&
+          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(coupon, other.coupon) &&
           JodaBeanUtils.equal(paymentOnDefault, other.paymentOnDefault) &&
           JodaBeanUtils.equal(protectionStart, other.protectionStart) &&
           JodaBeanUtils.equal(stepinDateOffset, other.stepinDateOffset) &&
-          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
-          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
-          JodaBeanUtils.equal(buySell, other.buySell);
+          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset);
     }
     return false;
   }
@@ -413,17 +507,17 @@ public final class Cds
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(buySell);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentOnDefault);
     hash = hash * 31 + JodaBeanUtils.hashCode(protectionStart);
     hash = hash * 31 + JodaBeanUtils.hashCode(stepinDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(buySell);
     return hash;
   }
 
@@ -431,17 +525,17 @@ public final class Cds
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("Cds{");
-    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
+    buf.append("buySell").append('=').append(buySell).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("coupon").append('=').append(coupon).append(',').append(' ');
     buf.append("paymentOnDefault").append('=').append(paymentOnDefault).append(',').append(' ');
     buf.append("protectionStart").append('=').append(protectionStart).append(',').append(' ');
     buf.append("stepinDateOffset").append('=').append(stepinDateOffset).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(settlementDateOffset).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell));
+    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();
   }
@@ -457,10 +551,15 @@ public final class Cds
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code accrualSchedule} property.
+     * The meta-property for the {@code buySell} property.
      */
-    private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
-        this, "accrualSchedule", Cds.class, PeriodicSchedule.class);
+    private final MetaProperty<BuySell> buySell = DirectMetaProperty.ofImmutable(
+        this, "buySell", Cds.class, BuySell.class);
+    /**
+     * The meta-property for the {@code legalEntityId} property.
+     */
+    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", Cds.class, StandardId.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -472,15 +571,20 @@ public final class Cds
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", Cds.class, Double.TYPE);
     /**
+     * The meta-property for the {@code accrualSchedule} property.
+     */
+    private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
+        this, "accrualSchedule", Cds.class, PeriodicSchedule.class);
+    /**
+     * The meta-property for the {@code fixedRate} property.
+     */
+    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
+        this, "fixedRate", Cds.class, Double.TYPE);
+    /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", Cds.class, DayCount.class);
-    /**
-     * The meta-property for the {@code coupon} property.
-     */
-    private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
-        this, "coupon", Cds.class, Double.TYPE);
     /**
      * The meta-property for the {@code paymentOnDefault} property.
      */
@@ -502,31 +606,21 @@ public final class Cds
     private final MetaProperty<DaysAdjustment> settlementDateOffset = DirectMetaProperty.ofImmutable(
         this, "settlementDateOffset", Cds.class, DaysAdjustment.class);
     /**
-     * The meta-property for the {@code legalEntityId} property.
-     */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", Cds.class, StandardId.class);
-    /**
-     * The meta-property for the {@code buySell} property.
-     */
-    private final MetaProperty<BuySell> buySell = DirectMetaProperty.ofImmutable(
-        this, "buySell", Cds.class, BuySell.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "accrualSchedule",
+        "buySell",
+        "legalEntityId",
         "currency",
         "notional",
+        "accrualSchedule",
+        "fixedRate",
         "dayCount",
-        "coupon",
         "paymentOnDefault",
         "protectionStart",
         "stepinDateOffset",
-        "settlementDateOffset",
-        "legalEntityId",
-        "buySell");
+        "settlementDateOffset");
 
     /**
      * Restricted constructor.
@@ -537,16 +631,20 @@ public final class Cds
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 304659814:  // accrualSchedule
-          return accrualSchedule;
+        case 244977400:  // buySell
+          return buySell;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 304659814:  // accrualSchedule
+          return accrualSchedule;
+        case 747425396:  // fixedRate
+          return fixedRate;
         case 1905311443:  // dayCount
           return dayCount;
-        case -1354573786:  // coupon
-          return coupon;
         case -480203780:  // paymentOnDefault
           return paymentOnDefault;
         case 2103482633:  // protectionStart
@@ -555,10 +653,6 @@ public final class Cds
           return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
-        case 244977400:  // buySell
-          return buySell;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -580,11 +674,19 @@ public final class Cds
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code accrualSchedule} property.
+     * The meta-property for the {@code buySell} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> accrualSchedule() {
-      return accrualSchedule;
+    public MetaProperty<BuySell> buySell() {
+      return buySell;
+    }
+
+    /**
+     * The meta-property for the {@code legalEntityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<StandardId> legalEntityId() {
+      return legalEntityId;
     }
 
     /**
@@ -604,19 +706,27 @@ public final class Cds
     }
 
     /**
+     * The meta-property for the {@code accrualSchedule} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<PeriodicSchedule> accrualSchedule() {
+      return accrualSchedule;
+    }
+
+    /**
+     * The meta-property for the {@code fixedRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> fixedRate() {
+      return fixedRate;
+    }
+
+    /**
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
     public MetaProperty<DayCount> dayCount() {
       return dayCount;
-    }
-
-    /**
-     * The meta-property for the {@code coupon} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> coupon() {
-      return coupon;
     }
 
     /**
@@ -651,36 +761,24 @@ public final class Cds
       return settlementDateOffset;
     }
 
-    /**
-     * The meta-property for the {@code legalEntityId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> legalEntityId() {
-      return legalEntityId;
-    }
-
-    /**
-     * The meta-property for the {@code buySell} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<BuySell> buySell() {
-      return buySell;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 304659814:  // accrualSchedule
-          return ((Cds) bean).getAccrualSchedule();
+        case 244977400:  // buySell
+          return ((Cds) bean).getBuySell();
+        case 866287159:  // legalEntityId
+          return ((Cds) bean).getLegalEntityId();
         case 575402001:  // currency
           return ((Cds) bean).getCurrency();
         case 1585636160:  // notional
           return ((Cds) bean).getNotional();
+        case 304659814:  // accrualSchedule
+          return ((Cds) bean).getAccrualSchedule();
+        case 747425396:  // fixedRate
+          return ((Cds) bean).getFixedRate();
         case 1905311443:  // dayCount
           return ((Cds) bean).getDayCount();
-        case -1354573786:  // coupon
-          return ((Cds) bean).getCoupon();
         case -480203780:  // paymentOnDefault
           return ((Cds) bean).getPaymentOnDefault();
         case 2103482633:  // protectionStart
@@ -689,10 +787,6 @@ public final class Cds
           return ((Cds) bean).getStepinDateOffset();
         case 135924714:  // settlementDateOffset
           return ((Cds) bean).getSettlementDateOffset();
-        case 866287159:  // legalEntityId
-          return ((Cds) bean).getLegalEntityId();
-        case 244977400:  // buySell
-          return ((Cds) bean).getBuySell();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -714,17 +808,17 @@ public final class Cds
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Cds> {
 
-    private PeriodicSchedule accrualSchedule;
+    private BuySell buySell;
+    private StandardId legalEntityId;
     private Currency currency;
     private double notional;
+    private PeriodicSchedule accrualSchedule;
+    private double fixedRate;
     private DayCount dayCount;
-    private double coupon;
     private PaymentOnDefault paymentOnDefault;
     private ProtectionStartOfDay protectionStart;
     private DaysAdjustment stepinDateOffset;
     private DaysAdjustment settlementDateOffset;
-    private StandardId legalEntityId;
-    private BuySell buySell;
 
     /**
      * Restricted constructor.
@@ -737,33 +831,37 @@ public final class Cds
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Cds beanToCopy) {
-      this.accrualSchedule = beanToCopy.getAccrualSchedule();
+      this.buySell = beanToCopy.getBuySell();
+      this.legalEntityId = beanToCopy.getLegalEntityId();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
+      this.accrualSchedule = beanToCopy.getAccrualSchedule();
+      this.fixedRate = beanToCopy.getFixedRate();
       this.dayCount = beanToCopy.getDayCount();
-      this.coupon = beanToCopy.getCoupon();
       this.paymentOnDefault = beanToCopy.getPaymentOnDefault();
       this.protectionStart = beanToCopy.getProtectionStart();
       this.stepinDateOffset = beanToCopy.getStepinDateOffset();
       this.settlementDateOffset = beanToCopy.getSettlementDateOffset();
-      this.legalEntityId = beanToCopy.getLegalEntityId();
-      this.buySell = beanToCopy.getBuySell();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 304659814:  // accrualSchedule
-          return accrualSchedule;
+        case 244977400:  // buySell
+          return buySell;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 304659814:  // accrualSchedule
+          return accrualSchedule;
+        case 747425396:  // fixedRate
+          return fixedRate;
         case 1905311443:  // dayCount
           return dayCount;
-        case -1354573786:  // coupon
-          return coupon;
         case -480203780:  // paymentOnDefault
           return paymentOnDefault;
         case 2103482633:  // protectionStart
@@ -772,10 +870,6 @@ public final class Cds
           return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
-        case 244977400:  // buySell
-          return buySell;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -784,8 +878,11 @@ public final class Cds
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 304659814:  // accrualSchedule
-          this.accrualSchedule = (PeriodicSchedule) newValue;
+        case 244977400:  // buySell
+          this.buySell = (BuySell) newValue;
+          break;
+        case 866287159:  // legalEntityId
+          this.legalEntityId = (StandardId) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -793,11 +890,14 @@ public final class Cds
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
+        case 304659814:  // accrualSchedule
+          this.accrualSchedule = (PeriodicSchedule) newValue;
+          break;
+        case 747425396:  // fixedRate
+          this.fixedRate = (Double) newValue;
+          break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
-          break;
-        case -1354573786:  // coupon
-          this.coupon = (Double) newValue;
           break;
         case -480203780:  // paymentOnDefault
           this.paymentOnDefault = (PaymentOnDefault) newValue;
@@ -810,12 +910,6 @@ public final class Cds
           break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
-          break;
-        case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
-          break;
-        case 244977400:  // buySell
-          this.buySell = (BuySell) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -850,38 +944,51 @@ public final class Cds
     @Override
     public Cds build() {
       return new Cds(
-          accrualSchedule,
+          buySell,
+          legalEntityId,
           currency,
           notional,
+          accrualSchedule,
+          fixedRate,
           dayCount,
-          coupon,
           paymentOnDefault,
           protectionStart,
           stepinDateOffset,
-          settlementDateOffset,
-          legalEntityId,
-          buySell);
+          settlementDateOffset);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the accrual schedule.
+     * Sets whether the CDS is buy or sell.
      * <p>
-     * This is used to define the accrual periods.
-     * These are used directly or indirectly to determine other dates in the product.
-     * @param accrualSchedule  the new value, not null
+     * A value of 'Buy' implies buying protection, i.e., the fixed coupon is paid and the protection is received
+     * in the event of default. A value of 'Sell' implies selling protection, i.e., the fixed coupon is received
+     * and the protection is paid in the event of default.
+     * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder accrualSchedule(PeriodicSchedule accrualSchedule) {
-      JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
-      this.accrualSchedule = accrualSchedule;
+    public Builder buySell(BuySell buySell) {
+      JodaBeanUtils.notNull(buySell, "buySell");
+      this.buySell = buySell;
       return this;
     }
 
     /**
-     * Sets the currency of the leg associated with the notional.
+     * Sets the legal entity identifier.
      * <p>
-     * This is the currency of the leg and the currency that swap rate calculation is made in.
+     * This identifier is used for the reference legal entity of the CDS.
+     * @param legalEntityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder legalEntityId(StandardId legalEntityId) {
+      JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+      this.legalEntityId = legalEntityId;
+      return this;
+    }
+
+    /**
+     * Sets the currency of the CDS.
+     * <p>
      * The amounts of the notional are expressed in terms of this currency.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
@@ -895,7 +1002,7 @@ public final class Cds
     /**
      * Sets the notional amount, must be non-negative.
      * <p>
-     * The notional amount applicable during the period.
+     * The fixed notional amount applicable during the lifetime of the CDS.
      * The currency of the notional is specified by {@code currency}.
      * @param notional  the new value
      * @return this, for chaining, not null
@@ -907,11 +1014,35 @@ public final class Cds
     }
 
     /**
+     * Sets the accrual schedule.
+     * <p>
+     * This is used to define the accrual periods.
+     * @param accrualSchedule  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder accrualSchedule(PeriodicSchedule accrualSchedule) {
+      JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
+      this.accrualSchedule = accrualSchedule;
+      return this;
+    }
+
+    /**
+     * Sets the fixed coupon rate.
+     * <p>
+     * This must be represented in decimal form.
+     * @param fixedRate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder fixedRate(double fixedRate) {
+      ArgChecker.notNegative(fixedRate, "fixedRate");
+      this.fixedRate = fixedRate;
+      return this;
+    }
+
+    /**
      * Sets the day count convention.
      * <p>
      * This is used to convert dates to a numerical value.
-     * <p>
-     * When building, this will default to the day count of the swap convention in the swap index if not specified.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -922,18 +1053,9 @@ public final class Cds
     }
 
     /**
-     * Sets the coupon.
-     * @param coupon  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder coupon(double coupon) {
-      ArgChecker.notNegative(coupon, "coupon");
-      this.coupon = coupon;
-      return this;
-    }
-
-    /**
-     * Sets whether the accrued premium is paid in the event of a default.
+     * Sets the payment on default.
+     * <p>
+     * Whether the accrued premium is paid in the event of a default.
      * @param paymentOnDefault  the new value, not null
      * @return this, for chaining, not null
      */
@@ -944,7 +1066,9 @@ public final class Cds
     }
 
     /**
-     * Sets the protectionStart.
+     * Sets the protection start of the day.
+     * <p>
+     * When the protection starts on the start date.
      * @param protectionStart  the new value, not null
      * @return this, for chaining, not null
      */
@@ -955,7 +1079,10 @@ public final class Cds
     }
 
     /**
-     * Sets the stepinDateOffset.
+     * Sets the number of days between valuation date and step-in date.
+     * <p>
+     * The step-in date is also called protection effective date.
+     * It is usually 1 calendar day for standardised CDS contracts.
      * @param stepinDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -968,10 +1095,7 @@ public final class Cds
     /**
      * Sets the number of days between valuation date and settlement date.
      * <p>
-     * This is used to compute clean price.
-     * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
-     * <p>
-     * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds.
+     * It is usually 3 business days for standardised CDS contracts.
      * @param settlementDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -981,46 +1105,22 @@ public final class Cds
       return this;
     }
 
-    /**
-     * Sets the legal entity identifier.
-     * <p>
-     * This identifier is used for the legal entity that issues the bond.
-     * @param legalEntityId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder legalEntityId(StandardId legalEntityId) {
-      JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-      this.legalEntityId = legalEntityId;
-      return this;
-    }
-
-    /**
-     * Sets the buySell.
-     * @param buySell  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder buySell(BuySell buySell) {
-      JodaBeanUtils.notNull(buySell, "buySell");
-      this.buySell = buySell;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(384);
       buf.append("Cds.Builder{");
-      buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+      buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
+      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+      buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
       buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
       buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
       buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
-      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
-      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-      buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell));
+      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
       buf.append('}');
       return buf.toString();
     }

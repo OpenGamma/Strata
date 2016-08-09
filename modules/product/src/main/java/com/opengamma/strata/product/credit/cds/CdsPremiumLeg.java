@@ -121,7 +121,7 @@ public final class CdsPremiumLeg
           .paymentDate(period.getEndDate())
           .notional(notional)
           .currency(currency)
-          .coupon(coupon)
+          .fixedRate(coupon)
           .yearFraction(period.yearFraction(dayCount, adjustedSchedule))
           .build());
     }
@@ -132,7 +132,7 @@ public final class CdsPremiumLeg
         .paymentDate(accrualSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
         .notional(notional)
         .currency(currency)
-        .coupon(coupon)
+        .fixedRate(coupon)
         .yearFraction(lastPeriod.yearFraction(dayCount, adjustedSchedule))
         .build());
     ImmutableList<CreditCouponPaymentPeriod> periodicPayments = accrualPeriods.build();

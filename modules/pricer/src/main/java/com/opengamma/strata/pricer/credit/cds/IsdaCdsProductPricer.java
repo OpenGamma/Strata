@@ -44,7 +44,12 @@ public class IsdaCdsProductPricer {
     }
   }
 
-  public CurrencyAmount presentValue(ResolvedCds cds, CreditRatesProvider ratesProvider, ReferenceData refData) {
+  public CurrencyAmount presentValue(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
     ArgChecker.notNull(refData, "refData");
@@ -53,7 +58,7 @@ public class IsdaCdsProductPricer {
     }
     StandardId legalEntity = cds.getLegalEntityId();
     Currency currency = cds.getCurrency();
-    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+//    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntity);
@@ -71,18 +76,23 @@ public class IsdaCdsProductPricer {
     ArgChecker.isTrue(isdaDiscountFactors.getDayCount().equals(isdaSurvivalProbabilities.getDayCount()),
         "day count conventions of discounting curve and credit curve must be the same");
 
-    double price =
-        protectionLeg(cds, isdaDiscountFactors, isdaSurvivalProbabilities, cashSettleDate, effectiveStartDate, recoveryRate) -
-            dirtyRiskyAnnuity(cds, isdaDiscountFactors, isdaSurvivalProbabilities, stepinDate, cashSettleDate,
-                effectiveStartDate) * cds.getCoupon() +
-            cds.accruedInterest(stepinDate);
+    double protectionLeg =
+        protectionLeg(cds, isdaDiscountFactors, isdaSurvivalProbabilities, referenceDate, effectiveStartDate, recoveryRate);
+    double dirtyRpv01 =
+        dirtyRiskyAnnuity(cds, isdaDiscountFactors, isdaSurvivalProbabilities, stepinDate, referenceDate, effectiveStartDate);
+    double price = protectionLeg - dirtyRpv01 * cds.getFixedRate() + cds.accruedInterest(stepinDate);
 
     return CurrencyAmount.of(cds.getCurrency(), cds.getBuySell().normalize(cds.getNotional()) * price);
   }
 
   //TODO par spread, RPV01, sensitivities
 
-  public double protectionLeg(ResolvedCds cds, CreditRatesProvider ratesProvider, ReferenceData refData) {
+  public double protectionLeg(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
     ArgChecker.notNull(refData, "refData");
@@ -91,7 +101,7 @@ public class IsdaCdsProductPricer {
     }
     StandardId legalEntity = cds.getLegalEntityId();
     Currency currency = cds.getCurrency();
-    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+//    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntity);
@@ -109,10 +119,15 @@ public class IsdaCdsProductPricer {
     ArgChecker.isTrue(isdaDiscountFactors.getDayCount().equals(isdaSurvivalProbabilities.getDayCount()),
         "day count conventions of discounting curve and credit curve must be the same");
 
-    return protectionLeg(cds, isdaDiscountFactors, isdaSurvivalProbabilities, cashSettleDate, effectiveStartDate, recoveryRate);
+    return protectionLeg(cds, isdaDiscountFactors, isdaSurvivalProbabilities, referenceDate, effectiveStartDate, recoveryRate);
   }
 
-  public double dirtyRiskyAnnuity(ResolvedCds cds, CreditRatesProvider ratesProvider, ReferenceData refData) {
+  public double dirtyRiskyAnnuity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
     ArgChecker.notNull(refData, "refData");
@@ -132,11 +147,11 @@ public class IsdaCdsProductPricer {
     ArgChecker.isTrue(isdaDiscountFactors.getDayCount().equals(isdaSurvivalProbabilities.getDayCount()),
         "day count conventions of discounting curve and credit curve must be the same");
 
-    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+//    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
 
-    return dirtyRiskyAnnuity(cds, isdaDiscountFactors, isdaSurvivalProbabilities, stepinDate, cashSettleDate, effectiveStartDate);
+    return dirtyRiskyAnnuity(cds, isdaDiscountFactors, isdaSurvivalProbabilities, stepinDate, referenceDate, effectiveStartDate);
   }
 
   //-------------------------------------------------------------------------
@@ -144,7 +159,7 @@ public class IsdaCdsProductPricer {
       ResolvedCds cds,
       IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors,
       IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities,
-      LocalDate cashSettleDate,
+      LocalDate referenceDate,
       LocalDate effectiveStartDate,
       double recoveryRate) {
 
@@ -184,7 +199,7 @@ public class IsdaCdsProductPricer {
     pv *= (1d - recoveryRate);
 
     // roll to the cash settle date
-    double df = isdaDiscountFactors.discountFactor(cashSettleDate);
+    double df = isdaDiscountFactors.discountFactor(referenceDate);
     pv /= df;
 
     return pv;
@@ -195,7 +210,7 @@ public class IsdaCdsProductPricer {
       IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors,
       IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities,
       LocalDate stepinDate,
-      LocalDate cashSettleDate,
+      LocalDate referenceDate,
       LocalDate effectiveStartDate) {
 
     double pv = 0d;
@@ -225,7 +240,7 @@ public class IsdaCdsProductPricer {
     }
 
     // roll to the cash settle date
-    double df = isdaDiscountFactors.discountFactor(cashSettleDate);
+    double df = isdaDiscountFactors.discountFactor(referenceDate);
     pv /= df;
 
     return pv;

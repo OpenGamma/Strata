@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.credit.cds;
 
 import java.io.Serializable;
@@ -22,6 +27,13 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 
+/**
+ * A period over which a fixed coupon is paid.
+ * <p>
+ * A single payment period within a CDS, {@link ResolvedCds}.
+ * The payments of the CDS consist periodic coupon payments and protection payment on default.
+ * This class represents a single payment of the periodic payments.
+ */
 @BeanDefinition
 public final class CreditCouponPaymentPeriod
     implements ImmutableBean, Serializable {
@@ -43,7 +55,7 @@ public final class CreditCouponPaymentPeriod
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
   /**
-   * The start date of the payment period.
+   * The start date of the period.
    * <p>
    * This is the first date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -51,35 +63,25 @@ public final class CreditCouponPaymentPeriod
   @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
   /**
-   * The end date of the payment period.
+   * The end date of the period.
    * <p>
    * This is the last date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
-//  /**
-//   * The unadjusted start date.
-//   * <p>
-//   * The start date before any business day adjustment is applied.
-//   * <p>
-//   * When building, this will default to the start date if not specified.
-//   */
-//  @PropertyDefinition(validate = "notNull")
-//  private final LocalDate unadjustedStartDate;
-//  /**
-//   * The unadjusted end date.
-//   * <p> 
-//   * The end date before any business day adjustment is applied.
-//   * <p>
-//   * When building, this will default to the end date if not specified.
-//   */
-//  @PropertyDefinition(validate = "notNull")
-//  private final LocalDate unadjustedEndDate;
-
+  /**
+   * The effective protection start date of the period. 
+   * <p>
+   * This is the first date in the protection period associated with the payment period.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate effectiveStartDate;
-
+  /**
+   * The effective protection end date of the period. 
+   * <p>
+   * This is the last date in the protection period associated with the payment period.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate effectiveEndDate;
   /**
@@ -97,11 +99,11 @@ public final class CreditCouponPaymentPeriod
    * The coupon must be represented in fraction. 
    */
   @PropertyDefinition
-  private final double coupon;
+  private final double fixedRate;
   /**
    * The year fraction that the accrual period represents.
    * <p>
-   * The year fraction of a bond period is based on {@code startDate} and {@code endDate}.
+   * The year fraction of a period is based on {@code startDate} and {@code endDate}.
    * The value is usually calculated using a specific {@link DayCount}.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
@@ -147,7 +149,7 @@ public final class CreditCouponPaymentPeriod
       LocalDate effectiveStartDate,
       LocalDate effectiveEndDate,
       LocalDate paymentDate,
-      double coupon,
+      double fixedRate,
       double yearFraction) {
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegative(notional, "notional");
@@ -164,7 +166,7 @@ public final class CreditCouponPaymentPeriod
     this.effectiveStartDate = effectiveStartDate;
     this.effectiveEndDate = effectiveEndDate;
     this.paymentDate = paymentDate;
-    this.coupon = coupon;
+    this.fixedRate = fixedRate;
     this.yearFraction = yearFraction;
   }
 
@@ -209,7 +211,7 @@ public final class CreditCouponPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start date of the payment period.
+   * Gets the start date of the period.
    * <p>
    * This is the first date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -221,7 +223,7 @@ public final class CreditCouponPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end date of the payment period.
+   * Gets the end date of the period.
    * <p>
    * This is the last date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -233,7 +235,9 @@ public final class CreditCouponPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the effectiveStartDate.
+   * Gets the effective protection start date of the period.
+   * <p>
+   * This is the first date in the protection period associated with the payment period.
    * @return the value of the property, not null
    */
   public LocalDate getEffectiveStartDate() {
@@ -242,7 +246,9 @@ public final class CreditCouponPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the effectiveEndDate.
+   * Gets the effective protection end date of the period.
+   * <p>
+   * This is the last date in the protection period associated with the payment period.
    * @return the value of the property, not null
    */
   public LocalDate getEffectiveEndDate() {
@@ -269,15 +275,15 @@ public final class CreditCouponPaymentPeriod
    * The coupon must be represented in fraction.
    * @return the value of the property
    */
-  public double getCoupon() {
-    return coupon;
+  public double getFixedRate() {
+    return fixedRate;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the year fraction that the accrual period represents.
    * <p>
-   * The year fraction of a bond period is based on {@code startDate} and {@code endDate}.
+   * The year fraction of a period is based on {@code startDate} and {@code endDate}.
    * The value is usually calculated using a specific {@link DayCount}.
    * @return the value of the property
    */
@@ -308,7 +314,7 @@ public final class CreditCouponPaymentPeriod
           JodaBeanUtils.equal(effectiveStartDate, other.effectiveStartDate) &&
           JodaBeanUtils.equal(effectiveEndDate, other.effectiveEndDate) &&
           JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
-          JodaBeanUtils.equal(coupon, other.coupon) &&
+          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(yearFraction, other.yearFraction);
     }
     return false;
@@ -324,7 +330,7 @@ public final class CreditCouponPaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(effectiveStartDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(effectiveEndDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     return hash;
   }
@@ -340,7 +346,7 @@ public final class CreditCouponPaymentPeriod
     buf.append("effectiveStartDate").append('=').append(effectiveStartDate).append(',').append(' ');
     buf.append("effectiveEndDate").append('=').append(effectiveEndDate).append(',').append(' ');
     buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("coupon").append('=').append(coupon).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
     buf.append('}');
     return buf.toString();
@@ -392,10 +398,10 @@ public final class CreditCouponPaymentPeriod
     private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
         this, "paymentDate", CreditCouponPaymentPeriod.class, LocalDate.class);
     /**
-     * The meta-property for the {@code coupon} property.
+     * The meta-property for the {@code fixedRate} property.
      */
-    private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
-        this, "coupon", CreditCouponPaymentPeriod.class, Double.TYPE);
+    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
+        this, "fixedRate", CreditCouponPaymentPeriod.class, Double.TYPE);
     /**
      * The meta-property for the {@code yearFraction} property.
      */
@@ -413,7 +419,7 @@ public final class CreditCouponPaymentPeriod
         "effectiveStartDate",
         "effectiveEndDate",
         "paymentDate",
-        "coupon",
+        "fixedRate",
         "yearFraction");
 
     /**
@@ -439,8 +445,8 @@ public final class CreditCouponPaymentPeriod
           return effectiveEndDate;
         case -1540873516:  // paymentDate
           return paymentDate;
-        case -1354573786:  // coupon
-          return coupon;
+        case 747425396:  // fixedRate
+          return fixedRate;
         case -1731780257:  // yearFraction
           return yearFraction;
       }
@@ -520,11 +526,11 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * The meta-property for the {@code coupon} property.
+     * The meta-property for the {@code fixedRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> coupon() {
-      return coupon;
+    public MetaProperty<Double> fixedRate() {
+      return fixedRate;
     }
 
     /**
@@ -553,8 +559,8 @@ public final class CreditCouponPaymentPeriod
           return ((CreditCouponPaymentPeriod) bean).getEffectiveEndDate();
         case -1540873516:  // paymentDate
           return ((CreditCouponPaymentPeriod) bean).getPaymentDate();
-        case -1354573786:  // coupon
-          return ((CreditCouponPaymentPeriod) bean).getCoupon();
+        case 747425396:  // fixedRate
+          return ((CreditCouponPaymentPeriod) bean).getFixedRate();
         case -1731780257:  // yearFraction
           return ((CreditCouponPaymentPeriod) bean).getYearFraction();
       }
@@ -585,7 +591,7 @@ public final class CreditCouponPaymentPeriod
     private LocalDate effectiveStartDate;
     private LocalDate effectiveEndDate;
     private LocalDate paymentDate;
-    private double coupon;
+    private double fixedRate;
     private double yearFraction;
 
     /**
@@ -606,7 +612,7 @@ public final class CreditCouponPaymentPeriod
       this.effectiveStartDate = beanToCopy.getEffectiveStartDate();
       this.effectiveEndDate = beanToCopy.getEffectiveEndDate();
       this.paymentDate = beanToCopy.getPaymentDate();
-      this.coupon = beanToCopy.getCoupon();
+      this.fixedRate = beanToCopy.getFixedRate();
       this.yearFraction = beanToCopy.getYearFraction();
     }
 
@@ -628,8 +634,8 @@ public final class CreditCouponPaymentPeriod
           return effectiveEndDate;
         case -1540873516:  // paymentDate
           return paymentDate;
-        case -1354573786:  // coupon
-          return coupon;
+        case 747425396:  // fixedRate
+          return fixedRate;
         case -1731780257:  // yearFraction
           return yearFraction;
         default:
@@ -661,8 +667,8 @@ public final class CreditCouponPaymentPeriod
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
           break;
-        case -1354573786:  // coupon
-          this.coupon = (Double) newValue;
+        case 747425396:  // fixedRate
+          this.fixedRate = (Double) newValue;
           break;
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
@@ -707,7 +713,7 @@ public final class CreditCouponPaymentPeriod
           effectiveStartDate,
           effectiveEndDate,
           paymentDate,
-          coupon,
+          fixedRate,
           yearFraction);
     }
 
@@ -741,7 +747,7 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * Sets the start date of the payment period.
+     * Sets the start date of the period.
      * <p>
      * This is the first date in the period.
      * If the schedule adjusts for business days, then this is the adjusted date.
@@ -755,7 +761,7 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * Sets the end date of the payment period.
+     * Sets the end date of the period.
      * <p>
      * This is the last date in the period.
      * If the schedule adjusts for business days, then this is the adjusted date.
@@ -769,7 +775,9 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * Sets the effectiveStartDate.
+     * Sets the effective protection start date of the period.
+     * <p>
+     * This is the first date in the protection period associated with the payment period.
      * @param effectiveStartDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -780,7 +788,9 @@ public final class CreditCouponPaymentPeriod
     }
 
     /**
-     * Sets the effectiveEndDate.
+     * Sets the effective protection end date of the period.
+     * <p>
+     * This is the last date in the protection period associated with the payment period.
      * @param effectiveEndDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -809,18 +819,18 @@ public final class CreditCouponPaymentPeriod
      * <p>
      * The single payment is based on this fixed coupon rate.
      * The coupon must be represented in fraction.
-     * @param coupon  the new value
+     * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
-    public Builder coupon(double coupon) {
-      this.coupon = coupon;
+    public Builder fixedRate(double fixedRate) {
+      this.fixedRate = fixedRate;
       return this;
     }
 
     /**
      * Sets the year fraction that the accrual period represents.
      * <p>
-     * The year fraction of a bond period is based on {@code startDate} and {@code endDate}.
+     * The year fraction of a period is based on {@code startDate} and {@code endDate}.
      * The value is usually calculated using a specific {@link DayCount}.
      * @param yearFraction  the new value
      * @return this, for chaining, not null
@@ -843,7 +853,7 @@ public final class CreditCouponPaymentPeriod
       buf.append("effectiveStartDate").append('=').append(JodaBeanUtils.toString(effectiveStartDate)).append(',').append(' ');
       buf.append("effectiveEndDate").append('=').append(JodaBeanUtils.toString(effectiveEndDate)).append(',').append(' ');
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
-      buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
+      buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
       buf.append('}');
       return buf.toString();

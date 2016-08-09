@@ -1,6 +1,8 @@
 package com.opengamma.strata.pricer.credit.cds;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -12,7 +14,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
@@ -56,7 +57,7 @@ public class IsdaCdsProductPricerTest {
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.ZERO_RATE)
       .curveName("yield")
-      .dayCount(DayCounts.ACT_365F)
+      .dayCount(ACT_365F)
       .build();
   private static final InterpolatedNodalCurve NODAL_YC = InterpolatedNodalCurve.of(METADATA_YC, TIME_YC, RATE_YC,
       CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
@@ -73,7 +74,7 @@ public class IsdaCdsProductPricerTest {
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.ZERO_RATE)
       .curveName("credit")
-      .dayCount(DayCounts.ACT_365F)
+      .dayCount(ACT_365F)
       .build();
   private static final InterpolatedNodalCurve NODAL_CC = InterpolatedNodalCurve.of(METADATA_CC, TIME_CC, RATE_CC,
       CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
@@ -83,7 +84,7 @@ public class IsdaCdsProductPricerTest {
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.RECOVERY_RATE)
       .curveName("recovery")
-      .dayCount(DayCounts.ACT_365F)
+      .dayCount(ACT_365F)
       .build();
   private static final ConstantCurve CONST_RR = ConstantCurve.of(METADATA_RR, 0.25);
   private static final ConstantRecoveryRates RECOVERY_RATES =
@@ -95,91 +96,102 @@ public class IsdaCdsProductPricerTest {
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
       .build();
   
-  private static final ResolvedCds PRODUCT_NEXTDAY = Cds.of(
-      LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, USD, 1d,
-      DayCounts.ACT_360, 0.05, PaymentOnDefault.ACCRUED_INTEREST, ProtectionStartOfDay.BEGINNING,
-      STEPIN_DAY_ADJ, SETTLE_DAY_ADJ, LEGAL_ENTITY, BuySell.BUY).resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NEXTDAY =
+      Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, 1d, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M,
+          BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
+          PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
 
   private static final ResolvedCds PRODUCT_BEFORE = Cds.of(
-      LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, USD, 1d,
-      DayCounts.ACT_360, 0.05, PaymentOnDefault.ACCRUED_INTEREST, ProtectionStartOfDay.BEGINNING,
-      STEPIN_DAY_ADJ, SETTLE_DAY_ADJ, LEGAL_ENTITY, BuySell.BUY).resolve(REF_DATA);
+      BuySell.BUY, LEGAL_ENTITY, USD, 1d, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
+      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
 
   private static final ResolvedCds PRODUCT_AFTER = Cds.of(
-      LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, USD, 1d,
-      DayCounts.ACT_360, 0.05, PaymentOnDefault.ACCRUED_INTEREST, ProtectionStartOfDay.BEGINNING,
-      STEPIN_DAY_ADJ, SETTLE_DAY_ADJ, LEGAL_ENTITY, BuySell.BUY).resolve(REF_DATA);
+      BuySell.BUY, LEGAL_ENTITY, USD, 1d, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M,
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
+      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
 
   private static final DaysAdjustment SETTLE_DAY_ADJ_NS = DaysAdjustment.ofBusinessDays(5, CALENDAR);
   private static final DaysAdjustment STEPIN_DAY_ADJ_NS = DaysAdjustment.ofCalendarDays(7);
 
   private static final ResolvedCds PRODUCT_NS_TODAY = Cds.of(
-      VALUATION_DATE, LocalDate.of(2021, 4, 25), Frequency.P4M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_FINAL, USD, 1d,
-      DayCounts.ACT_360, 0.05, PaymentOnDefault.ACCRUED_INTEREST, ProtectionStartOfDay.NONE,
-      STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS, LEGAL_ENTITY, BuySell.BUY).resolve(REF_DATA);
+      BuySell.BUY, LEGAL_ENTITY, USD, 1d, VALUATION_DATE, LocalDate.of(2021, 4, 25), Frequency.P4M,
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_FINAL, 0.05, ACT_360,
+      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
 
   private static final ResolvedCds PRODUCT_NS_STEPIN = Cds.of(
-      STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA), LocalDate.of(2019, 1, 26), Frequency.P6M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_INITIAL, USD, 1d,
-      DayCounts.ACT_360, 0.05, PaymentOnDefault.ACCRUED_INTEREST, ProtectionStartOfDay.NONE,
-      STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS, LEGAL_ENTITY, BuySell.BUY).resolve(REF_DATA);
+      BuySell.BUY, LEGAL_ENTITY, USD, 1d, STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA), LocalDate.of(2019, 1, 26),
+      Frequency.P6M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_INITIAL,
+      0.05, ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS)
+      .resolve(REF_DATA);
 
   private static final ResolvedCds PRODUCT_NS_BTW = Cds.of(
-      VALUATION_DATE.plusDays(4), LocalDate.of(2026, 8, 2), Frequency.P12M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_FINAL, USD, 1d,
-      DayCounts.ACT_360, 0.05, PaymentOnDefault.ACCRUED_INTEREST, ProtectionStartOfDay.NONE,
-      STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS, LEGAL_ENTITY, BuySell.BUY).resolve(REF_DATA);
+      BuySell.BUY, LEGAL_ENTITY, USD, 1d, VALUATION_DATE.plusDays(4), LocalDate.of(2026, 8, 2), Frequency.P12M,
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_FINAL, 0.05, ACT_360,
+      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
 
   private static final IsdaCdsProductPricer PRICER = IsdaCdsProductPricer.DEFAULT;
 
   private static final double TOL = 1.0e-14;
 
   public void protectionLegRegressionTest() {
-    double resNext = PRICER.protectionLeg(PRODUCT_NEXTDAY, RATES_PROVIDER, REF_DATA);
+    double resNext = PRICER.protectionLeg(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNext, 0.11770082424693698, TOL);
-    double resBefore = PRICER.protectionLeg(PRODUCT_BEFORE, RATES_PROVIDER, REF_DATA);
+    double resBefore = PRICER.protectionLeg(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resBefore, 0.19621836970171463, TOL);
-    double resAfter = PRICER.protectionLeg(PRODUCT_AFTER, RATES_PROVIDER, REF_DATA);
+    double resAfter = PRICER.protectionLeg(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resAfter, 0.2744043768251808, TOL);
-    double resNsToday = PRICER.protectionLeg(PRODUCT_NS_TODAY, RATES_PROVIDER, REF_DATA);
+    double resNsToday = PRICER.protectionLeg(PRODUCT_NS_TODAY, RATES_PROVIDER,
+        PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNsToday, 0.12920042414763938, TOL);
-    double resNsStepin = PRICER.protectionLeg(PRODUCT_NS_STEPIN, RATES_PROVIDER, REF_DATA);
+    double resNsStepin = PRICER.protectionLeg(PRODUCT_NS_STEPIN, RATES_PROVIDER,
+        PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNsStepin, 0.07540932150559641, TOL);
-    double resNsBtw = PRICER.protectionLeg(PRODUCT_NS_BTW, RATES_PROVIDER, REF_DATA);
+    double resNsBtw = PRICER.protectionLeg(PRODUCT_NS_BTW, RATES_PROVIDER,
+        PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNsBtw, 0.22727774070157128, TOL);
   }
 
   public void premiumLegRegressionTest() {
-    double resNext = PRICER.dirtyRiskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER, REF_DATA);
+    double resNext = PRICER.dirtyRiskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNext, 6.395697031451866, TOL);
-    double resBefore = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, RATES_PROVIDER, REF_DATA);
+    double resBefore = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resBefore, 9.314426609002561, TOL);
-    double resAfter = PRICER.dirtyRiskyAnnuity(PRODUCT_AFTER, RATES_PROVIDER, REF_DATA);
+    double resAfter = PRICER.dirtyRiskyAnnuity(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resAfter, 12.018397498258862, TOL);
-    double resNsToday = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_TODAY, RATES_PROVIDER, REF_DATA);
+    double resNsToday = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_TODAY, RATES_PROVIDER,
+        PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNsToday, 6.806862528024904, TOL);
-    double resNsStepin = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_STEPIN, RATES_PROVIDER, REF_DATA);
+    double resNsStepin = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_STEPIN, RATES_PROVIDER,
+        PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNsStepin, 4.89033052696166, TOL);
-    double resNsBtw = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_BTW, RATES_PROVIDER, REF_DATA);
+    double resNsBtw = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_BTW, RATES_PROVIDER,
+        PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resNsBtw, 10.367538779382677, TOL);
   }
 
   public void truncationRegressionTest() {
     CreditRatesProvider ratesAccEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 22));
-    double resAccEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesAccEndDate, REF_DATA);
+    double resAccEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesAccEndDate,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesAccEndDate.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resAccEndDate, 9.140484282937514, TOL);
     CreditRatesProvider ratesEffectiveEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 21));
-    double resEffectiveEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesEffectiveEndDate, REF_DATA);
+    double resEffectiveEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesEffectiveEndDate,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesEffectiveEndDate.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resEffectiveEndDate, 9.139474456128156, TOL);
     CreditRatesProvider ratesProtectionEndDateOne = createCreditRatesProvider(LocalDate.of(2024, 9, 19));
-    double resProtectionEndDateOne = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDateOne, REF_DATA);
+    double resProtectionEndDateOne = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDateOne,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDateOne.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resProtectionEndDateOne, 0.2583274486014851, TOL);
     CreditRatesProvider ratesProtectionEndDate = createCreditRatesProvider(LocalDate.of(2024, 9, 20));
-    double resProtectionEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDate, REF_DATA);
+    double resProtectionEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDate,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(resProtectionEndDate, 0d, TOL);
   }
 
