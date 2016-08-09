@@ -15,19 +15,10 @@ import java.io.FileInputStream;
 import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.examples.CdsPricingExample;
-import com.opengamma.strata.examples.DsfPricingExample;
-import com.opengamma.strata.examples.FraPricingExample;
-import com.opengamma.strata.examples.FxPricingExample;
-import com.opengamma.strata.examples.GenericSecurityPricingExample;
-import com.opengamma.strata.examples.StirFuturePricingExample;
-import com.opengamma.strata.examples.SwapPricingExample;
-import com.opengamma.strata.examples.TermDepositPricingExample;
 import com.opengamma.strata.examples.finance.CalibrationCheckExample;
 import com.opengamma.strata.examples.finance.CalibrationEur3CheckExample;
 import com.opengamma.strata.examples.finance.CalibrationSimpleForwardCheckExample;
 import com.opengamma.strata.examples.finance.CalibrationXCcyCheckExample;
-import com.opengamma.strata.examples.finance.CdsTradeExample;
 import com.opengamma.strata.examples.finance.CurveScenarioExample;
 import com.opengamma.strata.examples.finance.HistoricalScenarioExample;
 import com.opengamma.strata.examples.finance.SwapPricingCcpExample;
@@ -43,15 +34,6 @@ import com.opengamma.strata.examples.report.TradeList;
 public class ExamplesTest {
 
   private static final String[] NO_ARGS = new String[0];
-
-  //-------------------------------------------------------------------------
-  public void test_cdsPricing_standalone() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> CdsPricingExample.main(NO_ARGS)));
-  }
-
-  public void test_cdsPricing_tool() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> ReportRunnerTool.main(toolArgs("cds"))));
-  }
 
   //-------------------------------------------------------------------------
   public void test_dsfPricing_standalone() {
@@ -137,13 +119,6 @@ public class ExamplesTest {
   public void test_historicalScenario() {
     String captured = caputureSystemOut(() -> HistoricalScenarioExample.main(NO_ARGS));
     assertTrue(captured.contains("Base PV"));
-    assertValidCaptured(captured);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_cdsTrade() {
-    String captured = caputureSystemOut(() -> CdsTradeExample.main(NO_ARGS));
-    assertTrue(captured.contains("<product>"));
     assertValidCaptured(captured);
   }
 

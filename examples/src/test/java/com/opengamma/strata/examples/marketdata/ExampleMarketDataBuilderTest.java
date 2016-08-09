@@ -37,21 +37,11 @@ import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.pricer.credit.IsdaIndexCreditCurveInputsId;
-import com.opengamma.strata.pricer.credit.IsdaIndexRecoveryRateId;
-import com.opengamma.strata.pricer.credit.IsdaSingleNameCreditCurveInputsId;
-import com.opengamma.strata.pricer.credit.IsdaSingleNameRecoveryRateId;
-import com.opengamma.strata.pricer.credit.IsdaYieldCurveInputsId;
-import com.opengamma.strata.product.credit.IndexReferenceInformation;
-import com.opengamma.strata.product.credit.RestructuringClause;
-import com.opengamma.strata.product.credit.SeniorityLevel;
-import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
  * Test {@link ExampleMarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.
@@ -95,78 +85,7 @@ public class ExampleMarketDataBuilderTest {
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15")),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15")),
-      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15"), FieldName.SETTLEMENT_PRICE),
-      IsdaYieldCurveInputsId.of(Currency.USD),
-      IsdaSingleNameCreditCurveInputsId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP10"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.USD,
-              RestructuringClause.NO_RESTRUCTURING_2014)),
-      IsdaSingleNameCreditCurveInputsId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP02"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.USD,
-              RestructuringClause.NO_RESTRUCTURING_2014)),
-      IsdaSingleNameCreditCurveInputsId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP01"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.USD,
-              RestructuringClause.NO_RESTRUCTURING_2014)),
-      IsdaSingleNameCreditCurveInputsId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP11"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.EUR,
-              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
-      IsdaSingleNameCreditCurveInputsId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP11"),
-              SeniorityLevel.SUBORDINATE_LOWER_TIER_2,
-              Currency.EUR,
-              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
-      IsdaIndexCreditCurveInputsId.of(
-          IndexReferenceInformation.of(
-              MarkitRedCode.id("INDEX0001"),
-              22,
-              4)),
-      IsdaSingleNameRecoveryRateId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP10"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.USD,
-              RestructuringClause.NO_RESTRUCTURING_2014)),
-      IsdaSingleNameRecoveryRateId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP02"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.USD,
-              RestructuringClause.NO_RESTRUCTURING_2014)),
-      IsdaSingleNameRecoveryRateId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP01"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.USD,
-              RestructuringClause.NO_RESTRUCTURING_2014)),
-      IsdaSingleNameRecoveryRateId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP11"),
-              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-              Currency.EUR,
-              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
-      IsdaSingleNameRecoveryRateId.of(
-          SingleNameReferenceInformation.of(
-              MarkitRedCode.id("COMP11"),
-              SeniorityLevel.SUBORDINATE_LOWER_TIER_2,
-              Currency.EUR,
-              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
-      IsdaIndexRecoveryRateId.of(
-          IndexReferenceInformation.of(
-              MarkitRedCode.id("INDEX0001"),
-              22,
-              4)));
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15"), FieldName.SETTLEMENT_PRICE));
 
   public void test_directory() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();

@@ -14,7 +14,6 @@ import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.measure.credit.CdsTradeCalculationFunction;
 import com.opengamma.strata.measure.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveMarketDataFunction;
@@ -35,7 +34,6 @@ import com.opengamma.strata.measure.swaption.SwaptionTradeCalculationFunction;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
-import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.dsf.DsfTrade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -66,7 +64,6 @@ public class StandardComponents {
    */
   private static final CalculationFunctions STANDARD = CalculationFunctions.of(
       new BulletPaymentTradeCalculationFunction(),
-      new CdsTradeCalculationFunction(),
       new DsfTradeCalculationFunction(),
       new FraTradeCalculationFunction(),
       new FxNdfTradeCalculationFunction(),
