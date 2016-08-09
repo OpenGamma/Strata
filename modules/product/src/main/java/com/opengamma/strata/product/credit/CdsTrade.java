@@ -33,8 +33,8 @@ import com.opengamma.strata.product.TradeInfo;
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link Cds}.
  * <p>
- * A CDS is a financial instrument where the protection seller agrees to compensate
- * the protection buyer when the reference entity suffers a default.
+ * A CDS is a financial instrument where the protection seller agrees to compensate the protection buyer 
+ * when the reference entity suffers a default.
  * The protection seller is paid premium regularly from the protection buyer until the expiry of the CDS contract 
  * or the reference entity defaults before the expiry.
  */
@@ -62,10 +62,10 @@ public final class CdsTrade
    * This specifies a single amount payable by the buyer to the seller
    * Thus the sign must be compatible with the product Pay/Receive flag.
    * <p>
-   * Certain (especially legacy) CDSs are traded at par and the upfront fee is not paid.
+   * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
    */
   @PropertyDefinition(get = "optional")
-  private final AdjustablePayment upFrontFee;
+  private final AdjustablePayment upfrontFee;
 
   //-------------------------------------------------------------------------
   @Override
@@ -73,7 +73,7 @@ public final class CdsTrade
     return ResolvedCdsTrade.builder()
         .product(product.resolve(refData))
         .info(info)
-        .upFrontFee(upFrontFee != null ? upFrontFee : null)
+        .upfrontFee(upfrontFee != null ? upfrontFee : null)
         .build();
   }
 
@@ -107,12 +107,12 @@ public final class CdsTrade
   private CdsTrade(
       TradeInfo info,
       Cds product,
-      AdjustablePayment upFrontFee) {
+      AdjustablePayment upfrontFee) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
     this.product = product;
-    this.upFrontFee = upFrontFee;
+    this.upfrontFee = upfrontFee;
   }
 
   @Override
@@ -160,11 +160,11 @@ public final class CdsTrade
    * This specifies a single amount payable by the buyer to the seller
    * Thus the sign must be compatible with the product Pay/Receive flag.
    * <p>
-   * Certain (especially legacy) CDSs are traded at par and the upfront fee is not paid.
+   * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
    * @return the optional value of the property, not null
    */
-  public Optional<AdjustablePayment> getUpFrontFee() {
-    return Optional.ofNullable(upFrontFee);
+  public Optional<AdjustablePayment> getUpfrontFee() {
+    return Optional.ofNullable(upfrontFee);
   }
 
   //-----------------------------------------------------------------------
@@ -185,7 +185,7 @@ public final class CdsTrade
       CdsTrade other = (CdsTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
-          JodaBeanUtils.equal(upFrontFee, other.upFrontFee);
+          JodaBeanUtils.equal(upfrontFee, other.upfrontFee);
     }
     return false;
   }
@@ -195,7 +195,7 @@ public final class CdsTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
-    hash = hash * 31 + JodaBeanUtils.hashCode(upFrontFee);
+    hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFee);
     return hash;
   }
 
@@ -205,7 +205,7 @@ public final class CdsTrade
     buf.append("CdsTrade{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
-    buf.append("upFrontFee").append('=').append(JodaBeanUtils.toString(upFrontFee));
+    buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
     buf.append('}');
     return buf.toString();
   }
@@ -231,10 +231,10 @@ public final class CdsTrade
     private final MetaProperty<Cds> product = DirectMetaProperty.ofImmutable(
         this, "product", CdsTrade.class, Cds.class);
     /**
-     * The meta-property for the {@code upFrontFee} property.
+     * The meta-property for the {@code upfrontFee} property.
      */
-    private final MetaProperty<AdjustablePayment> upFrontFee = DirectMetaProperty.ofImmutable(
-        this, "upFrontFee", CdsTrade.class, AdjustablePayment.class);
+    private final MetaProperty<AdjustablePayment> upfrontFee = DirectMetaProperty.ofImmutable(
+        this, "upfrontFee", CdsTrade.class, AdjustablePayment.class);
     /**
      * The meta-properties.
      */
@@ -242,7 +242,7 @@ public final class CdsTrade
         this, null,
         "info",
         "product",
-        "upFrontFee");
+        "upfrontFee");
 
     /**
      * Restricted constructor.
@@ -257,8 +257,8 @@ public final class CdsTrade
           return info;
         case -309474065:  // product
           return product;
-        case 1028112472:  // upFrontFee
-          return upFrontFee;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -296,11 +296,11 @@ public final class CdsTrade
     }
 
     /**
-     * The meta-property for the {@code upFrontFee} property.
+     * The meta-property for the {@code upfrontFee} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<AdjustablePayment> upFrontFee() {
-      return upFrontFee;
+    public MetaProperty<AdjustablePayment> upfrontFee() {
+      return upfrontFee;
     }
 
     //-----------------------------------------------------------------------
@@ -311,8 +311,8 @@ public final class CdsTrade
           return ((CdsTrade) bean).getInfo();
         case -309474065:  // product
           return ((CdsTrade) bean).getProduct();
-        case 1028112472:  // upFrontFee
-          return ((CdsTrade) bean).upFrontFee;
+        case 963468344:  // upfrontFee
+          return ((CdsTrade) bean).upfrontFee;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -336,7 +336,7 @@ public final class CdsTrade
 
     private TradeInfo info;
     private Cds product;
-    private AdjustablePayment upFrontFee;
+    private AdjustablePayment upfrontFee;
 
     /**
      * Restricted constructor.
@@ -351,7 +351,7 @@ public final class CdsTrade
     private Builder(CdsTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
-      this.upFrontFee = beanToCopy.upFrontFee;
+      this.upfrontFee = beanToCopy.upfrontFee;
     }
 
     //-----------------------------------------------------------------------
@@ -362,8 +362,8 @@ public final class CdsTrade
           return info;
         case -309474065:  // product
           return product;
-        case 1028112472:  // upFrontFee
-          return upFrontFee;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -378,8 +378,8 @@ public final class CdsTrade
         case -309474065:  // product
           this.product = (Cds) newValue;
           break;
-        case 1028112472:  // upFrontFee
-          this.upFrontFee = (AdjustablePayment) newValue;
+        case 963468344:  // upfrontFee
+          this.upfrontFee = (AdjustablePayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -416,7 +416,7 @@ public final class CdsTrade
       return new CdsTrade(
           info,
           product,
-          upFrontFee);
+          upfrontFee);
     }
 
     //-----------------------------------------------------------------------
@@ -452,12 +452,12 @@ public final class CdsTrade
      * This specifies a single amount payable by the buyer to the seller
      * Thus the sign must be compatible with the product Pay/Receive flag.
      * <p>
-     * Certain (especially legacy) CDSs are traded at par and the upfront fee is not paid.
-     * @param upFrontFee  the new value
+     * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
+     * @param upfrontFee  the new value
      * @return this, for chaining, not null
      */
-    public Builder upFrontFee(AdjustablePayment upFrontFee) {
-      this.upFrontFee = upFrontFee;
+    public Builder upfrontFee(AdjustablePayment upfrontFee) {
+      this.upfrontFee = upfrontFee;
       return this;
     }
 
@@ -468,7 +468,7 @@ public final class CdsTrade
       buf.append("CdsTrade.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-      buf.append("upFrontFee").append('=').append(JodaBeanUtils.toString(upFrontFee));
+      buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
       buf.append('}');
       return buf.toString();
     }

@@ -74,7 +74,7 @@ public final class ResolvedCds
   /**
    * The protection end date. 
    * <p>
-   * This may be different from the accrual end date of the last payment period.
+   * This may be different from the accrual end date of the last payment period in {@code periodicPayments}.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate protectionEndDate;
@@ -323,7 +323,7 @@ public final class ResolvedCds
   /**
    * Gets the protection end date.
    * <p>
-   * This may be different from the accrual end date of the last payment period.
+   * This may be different from the accrual end date of the last payment period in {@code periodicPayments}.
    * @return the value of the property, not null
    */
   public LocalDate getProtectionEndDate() {
@@ -871,7 +871,7 @@ public final class ResolvedCds
     /**
      * Sets the protection end date.
      * <p>
-     * This may be different from the accrual end date of the last payment period.
+     * This may be different from the accrual end date of the last payment period in {@code periodicPayments}.
      * @param protectionEndDate  the new value, not null
      * @return this, for chaining, not null
      */

@@ -46,8 +46,8 @@ import com.opengamma.strata.product.common.BuySell;
 /**
  * A single-name credit default swap (CDS).
  * <p>
- * A CDS is a financial instrument where the protection seller agrees to compensate
- * the protection buyer when the reference entity suffers a default.
+ * A CDS is a financial instrument where the protection seller agrees to compensate the protection buyer 
+ * when the reference entity suffers a default.
  * The protection seller is paid premium regularly from the protection buyer until the expiry of the CDS contract 
  * or the reference entity defaults before the expiry.
  */
@@ -142,7 +142,7 @@ public final class Cds
    * Creates an instance.
    * <p>
    * The start date adjustment, end date adjustment, and roll convention are switched off. 
-   * Use {@link #builder()} for the full flexibilities.  
+   * Use {@link #builder()} for the full flexibility.  
    * 
    * @param buySell  buy or sell
    * @param legalEntityId  the legal entity ID

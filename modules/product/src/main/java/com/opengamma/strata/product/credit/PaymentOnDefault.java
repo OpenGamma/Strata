@@ -15,13 +15,13 @@ public enum PaymentOnDefault {
   /**
    * The accrued premium.
    * <p>
-   * If the credit event happens between coupon payment dates, the accrued premium is paid. 
+   * If the credit event happens between coupon dates, the accrued premium is paid. 
    */
   ACCRUED_PREMIUM,
   /**
    * None. 
    * <p>
-   * The accrued premium is not paid under any situation.
+   * Even if the credit event happens between coupon dates, the accrued premium is not paid.
    */
   NONE;
 

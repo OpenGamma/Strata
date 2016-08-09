@@ -58,11 +58,11 @@ public class ResolvedCdsTradeTest {
     ResolvedCdsTrade test = ResolvedCdsTrade.builder()
         .product(PRODUCT)
         .info(TRADE_INFO)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .build();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpFrontFee().get(), UPFRONT);
+    assertEquals(test.getUpfrontFee().get(), UPFRONT);
   }
 
   public void test_builder_min() {
@@ -72,14 +72,14 @@ public class ResolvedCdsTradeTest {
         .build();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertFalse(test.getUpFrontFee().isPresent());
+    assertFalse(test.getUpfrontFee().isPresent());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedCdsTrade test1 = ResolvedCdsTrade.builder()
         .product(PRODUCT)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
@@ -94,7 +94,7 @@ public class ResolvedCdsTradeTest {
   public void test_serialization() {
     ResolvedCdsTrade test = ResolvedCdsTrade.builder()
         .product(PRODUCT)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build();
     assertSerialization(test);

@@ -23,7 +23,7 @@ public enum ProtectionStartOfDay {
    * None.
    * <p>
    * The protection start is not specified. 
-   * The CDS is priced based on the default date logic.
+   * The CDS is priced based on the default date logic in respective model implementation.
    */
   NONE;
 
