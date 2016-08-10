@@ -3,6 +3,7 @@ package com.opengamma.strata.pricer.credit.cds;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.pricer.credit.cds.PriceType.DIRTY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -156,42 +157,42 @@ public class IsdaCdsProductPricerTest {
   }
 
   public void premiumLegRegressionTest() {
-    double resNext = PRICER.dirtyRiskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
-        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double resNext = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resNext, 6.395697031451866, TOL);
-    double resBefore = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, RATES_PROVIDER,
-        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double resBefore = PRICER.riskyAnnuity(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resBefore, 9.314426609002561, TOL);
-    double resAfter = PRICER.dirtyRiskyAnnuity(PRODUCT_AFTER, RATES_PROVIDER,
-        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double resAfter = PRICER.riskyAnnuity(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resAfter, 12.018397498258862, TOL);
-    double resNsToday = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_TODAY, RATES_PROVIDER,
-        PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double resNsToday = PRICER.riskyAnnuity(PRODUCT_NS_TODAY, RATES_PROVIDER,
+        PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resNsToday, 6.806862528024904, TOL);
-    double resNsStepin = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_STEPIN, RATES_PROVIDER,
-        PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double resNsStepin = PRICER.riskyAnnuity(PRODUCT_NS_STEPIN, RATES_PROVIDER,
+        PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resNsStepin, 4.89033052696166, TOL);
-    double resNsBtw = PRICER.dirtyRiskyAnnuity(PRODUCT_NS_BTW, RATES_PROVIDER,
-        PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double resNsBtw = PRICER.riskyAnnuity(PRODUCT_NS_BTW, RATES_PROVIDER,
+        PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resNsBtw, 10.367538779382677, TOL);
   }
 
   public void truncationRegressionTest() {
     CreditRatesProvider ratesAccEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 22));
-    double resAccEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesAccEndDate,
-        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesAccEndDate.getValuationDate(), REF_DATA), REF_DATA);
+    double resAccEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesAccEndDate,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesAccEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resAccEndDate, 9.140484282937514, TOL);
     CreditRatesProvider ratesEffectiveEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 21));
-    double resEffectiveEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesEffectiveEndDate,
-        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesEffectiveEndDate.getValuationDate(), REF_DATA), REF_DATA);
+    double resEffectiveEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesEffectiveEndDate,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesEffectiveEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resEffectiveEndDate, 9.139474456128156, TOL);
     CreditRatesProvider ratesProtectionEndDateOne = createCreditRatesProvider(LocalDate.of(2024, 9, 19));
-    double resProtectionEndDateOne = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDateOne,
-        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDateOne.getValuationDate(), REF_DATA), REF_DATA);
+    double resProtectionEndDateOne = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDateOne,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDateOne.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resProtectionEndDateOne, 0.2583274486014851, TOL);
     CreditRatesProvider ratesProtectionEndDate = createCreditRatesProvider(LocalDate.of(2024, 9, 20));
-    double resProtectionEndDate = PRICER.dirtyRiskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDate,
-        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), REF_DATA);
+    double resProtectionEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDate,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resProtectionEndDate, 0d, TOL);
   }
 

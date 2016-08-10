@@ -5,7 +5,6 @@ import static com.opengamma.strata.math.impl.util.Epsilon.epsilon;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -48,44 +47,63 @@ public class IsdaCdsProductPricer {
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
+      PriceType priceType,
+      ReferenceData refData) {
+
+    double price = price(cds, ratesProvider, referenceDate, priceType, refData);
+    return CurrencyAmount.of(cds.getCurrency(), cds.getBuySell().normalize(cds.getNotional()) * price);
+  }
+
+  public double price(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      PriceType priceType,
       ReferenceData refData) {
 
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
+    ArgChecker.notNull(referenceDate, "referenceDate");
     ArgChecker.notNull(refData, "refData");
     if (cds.getProtectionEndDate().isBefore(ratesProvider.getValuationDate())) { //short cut already expired CDSs
-      return CurrencyAmount.of(cds.getCurrency(), 0d);
+      return 0d;
     }
-    StandardId legalEntity = cds.getLegalEntityId();
-    Currency currency = cds.getCurrency();
-//    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
-    RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntity);
-    ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
-    double recoveryRate = recoveryRates.recoveryRate(cds.getProtectionEndDate()); // constant recovery rate
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    IsdaCompliantZeroRateDiscountFactors[] rates = new IsdaCompliantZeroRateDiscountFactors[2];
+    reduceDiscountFactors(cds, ratesProvider, rates);
+    double protectionLeg = protectionLeg(cds, rates[0], rates[1], referenceDate, effectiveStartDate, recoveryRate);
+    double dirtyRpv01 = riskyAnnuity(cds, rates[0], rates[1], stepinDate, referenceDate, effectiveStartDate, priceType);
+    double price = protectionLeg - dirtyRpv01 * cds.getFixedRate();
 
-    CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
-    ArgChecker.isTrue(discountFactors instanceof IsdaCompliantZeroRateDiscountFactors,
-        "discountFactors must be IsdaCompliantZeroRateDiscountFactors");
-    CreditDiscountFactors survivalProbabilities = ratesProvider.survivalProbabilities(legalEntity, currency);
-    ArgChecker.isTrue(survivalProbabilities instanceof IsdaCompliantZeroRateDiscountFactors,
-        "survivalProbabilities must be IsdaCompliantZeroRateDiscountFactors");
-    IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors = (IsdaCompliantZeroRateDiscountFactors) discountFactors;
-    IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities = (IsdaCompliantZeroRateDiscountFactors) survivalProbabilities;
-    ArgChecker.isTrue(isdaDiscountFactors.getDayCount().equals(isdaSurvivalProbabilities.getDayCount()),
-        "day count conventions of discounting curve and credit curve must be the same");
-
-    double protectionLeg =
-        protectionLeg(cds, isdaDiscountFactors, isdaSurvivalProbabilities, referenceDate, effectiveStartDate, recoveryRate);
-    double dirtyRpv01 =
-        dirtyRiskyAnnuity(cds, isdaDiscountFactors, isdaSurvivalProbabilities, stepinDate, referenceDate, effectiveStartDate);
-    double price = protectionLeg - dirtyRpv01 * cds.getFixedRate() + cds.accruedInterest(stepinDate);
-
-    return CurrencyAmount.of(cds.getCurrency(), cds.getBuySell().normalize(cds.getNotional()) * price);
+    return price;
   }
 
-  //TODO par spread, RPV01, sensitivities
+  public double parSpread(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    ArgChecker.notNull(cds, "cds");
+    ArgChecker.notNull(ratesProvider, "ratesProvider");
+    ArgChecker.notNull(referenceDate, "referenceDate");
+    ArgChecker.notNull(refData, "refData");
+    ArgChecker.isFalse(cds.getProtectionEndDate().isBefore(ratesProvider.getValuationDate()), "CDS already expired");
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    IsdaCompliantZeroRateDiscountFactors[] rates = new IsdaCompliantZeroRateDiscountFactors[2];
+    reduceDiscountFactors(cds, ratesProvider, rates);
+    double protectionLeg = protectionLeg(cds, rates[0], rates[1], referenceDate, effectiveStartDate, recoveryRate);
+    double dirtyRpv01 = riskyAnnuity(cds, rates[0], rates[1], stepinDate, referenceDate, effectiveStartDate, PriceType.CLEAN);
+    double parSpread = protectionLeg / (dirtyRpv01 - cds.accruedInterest(stepinDate));
+
+    return parSpread;
+  }
+
+  //TODO RPV01, sensitivities
 
   public double protectionLeg(
       ResolvedCds cds,
@@ -99,33 +117,20 @@ public class IsdaCdsProductPricer {
     if (cds.getProtectionEndDate().isBefore(ratesProvider.getValuationDate())) { //short cut already expired CDSs
       return 0d;
     }
-    StandardId legalEntity = cds.getLegalEntityId();
-    Currency currency = cds.getCurrency();
-//    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
-    RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntity);
-    ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
-    double recoveryRate = recoveryRates.recoveryRate(cds.getProtectionEndDate()); // constant recovery rate
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    IsdaCompliantZeroRateDiscountFactors[] rates = new IsdaCompliantZeroRateDiscountFactors[2];
+    reduceDiscountFactors(cds, ratesProvider, rates);
 
-    CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
-    ArgChecker.isTrue(discountFactors instanceof IsdaCompliantZeroRateDiscountFactors,
-        "discountFactors must be IsdaCompliantZeroRateDiscountFactors");
-    CreditDiscountFactors survivalProbabilities = ratesProvider.survivalProbabilities(legalEntity, currency);
-    ArgChecker.isTrue(survivalProbabilities instanceof IsdaCompliantZeroRateDiscountFactors,
-        "survivalProbabilities must be IsdaCompliantZeroRateDiscountFactors");
-    IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors = (IsdaCompliantZeroRateDiscountFactors) discountFactors;
-    IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities = (IsdaCompliantZeroRateDiscountFactors) survivalProbabilities;
-    ArgChecker.isTrue(isdaDiscountFactors.getDayCount().equals(isdaSurvivalProbabilities.getDayCount()),
-        "day count conventions of discounting curve and credit curve must be the same");
-
-    return protectionLeg(cds, isdaDiscountFactors, isdaSurvivalProbabilities, referenceDate, effectiveStartDate, recoveryRate);
+    return protectionLeg(cds, rates[0], rates[1], referenceDate, effectiveStartDate, recoveryRate);
   }
 
-  public double dirtyRiskyAnnuity(
+  public double riskyAnnuity(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
+      PriceType priceType,
       ReferenceData refData) {
 
     ArgChecker.notNull(cds, "cds");
@@ -134,24 +139,12 @@ public class IsdaCdsProductPricer {
     if (cds.getProtectionEndDate().isBefore(ratesProvider.getValuationDate())) { //short cut already expired CDSs
       return 0d;
     }
-    StandardId legalEntity = cds.getLegalEntityId();
-    Currency currency = cds.getCurrency();
-    CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
-    ArgChecker.isTrue(discountFactors instanceof IsdaCompliantZeroRateDiscountFactors,
-        "discountFactors must be IsdaCompliantZeroRateDiscountFactors");
-    CreditDiscountFactors survivalProbabilities = ratesProvider.survivalProbabilities(legalEntity, currency);
-    ArgChecker.isTrue(survivalProbabilities instanceof IsdaCompliantZeroRateDiscountFactors,
-        "survivalProbabilities must be IsdaCompliantZeroRateDiscountFactors");
-    IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors = (IsdaCompliantZeroRateDiscountFactors) discountFactors;
-    IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities = (IsdaCompliantZeroRateDiscountFactors) survivalProbabilities;
-    ArgChecker.isTrue(isdaDiscountFactors.getDayCount().equals(isdaSurvivalProbabilities.getDayCount()),
-        "day count conventions of discounting curve and credit curve must be the same");
-
-//    LocalDate cashSettleDate = cds.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+    IsdaCompliantZeroRateDiscountFactors[] rates = new IsdaCompliantZeroRateDiscountFactors[2];
+    reduceDiscountFactors(cds, ratesProvider, rates);
 
-    return dirtyRiskyAnnuity(cds, isdaDiscountFactors, isdaSurvivalProbabilities, stepinDate, referenceDate, effectiveStartDate);
+    return riskyAnnuity(cds, rates[0], rates[1], stepinDate, referenceDate, effectiveStartDate, priceType);
   }
 
   //-------------------------------------------------------------------------
@@ -205,13 +198,14 @@ public class IsdaCdsProductPricer {
     return pv;
   }
 
-  private double dirtyRiskyAnnuity(
+  private double riskyAnnuity(
       ResolvedCds cds,
       IsdaCompliantZeroRateDiscountFactors isdaDiscountFactors,
       IsdaCompliantZeroRateDiscountFactors isdaSurvivalProbabilities,
       LocalDate stepinDate,
       LocalDate referenceDate,
-      LocalDate effectiveStartDate) {
+      LocalDate effectiveStartDate,
+      PriceType priceType) {
 
     double pv = 0d;
     for (CreditCouponPaymentPeriod coupon : cds.getPeriodicPayments()) {
@@ -237,6 +231,9 @@ public class IsdaCdsProductPricer {
         pv += calculateSinglePeriodAccrualOnDefault(
             coupon, effectiveStartDate, integrationSchedule, isdaDiscountFactors, isdaSurvivalProbabilities);
       }
+    }
+    if (priceType.isCleanPrice()) {
+//      pv -= cds.accruedInterest(stepinDate); TODO
     }
 
     // roll to the cash settle date
@@ -310,6 +307,28 @@ public class IsdaCdsProductPricer {
         isdaDiscountFactors.getDayCount().relativeYearFraction(coupon.getStartDate(), coupon.getEndDate());
 //    System.out.println(coupon.getYearFraction() / yearFractionCurve + "\t" + pv);
     return coupon.getYearFraction() * pv / yearFractionCurve;
+  }
+
+  //-------------------------------------------------------------------------
+  private double recoveryRate(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+    RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
+    ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
+    return recoveryRates.recoveryRate(cds.getProtectionEndDate());
+  }
+
+  private void reduceDiscountFactors(
+      ResolvedCds cds, CreditRatesProvider ratesProvider, IsdaCompliantZeroRateDiscountFactors[] rates) {
+    Currency currency = cds.getCurrency();
+    CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
+    ArgChecker.isTrue(discountFactors instanceof IsdaCompliantZeroRateDiscountFactors,
+        "discountFactors must be IsdaCompliantZeroRateDiscountFactors");
+    CreditDiscountFactors survivalProbabilities = ratesProvider.survivalProbabilities(cds.getLegalEntityId(), currency);
+    ArgChecker.isTrue(survivalProbabilities instanceof IsdaCompliantZeroRateDiscountFactors,
+        "survivalProbabilities must be IsdaCompliantZeroRateDiscountFactors");
+    rates[0] = (IsdaCompliantZeroRateDiscountFactors) discountFactors;
+    rates[1] = (IsdaCompliantZeroRateDiscountFactors) survivalProbabilities;
+    ArgChecker.isTrue(rates[0].getDayCount().equals(rates[1].getDayCount()),
+        "day count conventions of discounting curve and credit curve must be the same");
   }
 
 }
