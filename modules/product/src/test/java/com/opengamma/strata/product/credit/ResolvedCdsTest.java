@@ -112,7 +112,7 @@ public class ResolvedCdsTest {
     assertEquals(test.getStepinDateOffset(), STEPIN_DAY_ADJ);
   }
 
-  public void test_accruedInterest() {
+  public void test_accruedYearFraction() {
     double eps = 1.0e-15;
     ResolvedCds test = ResolvedCds.builder()
         .buySell(BUY)
