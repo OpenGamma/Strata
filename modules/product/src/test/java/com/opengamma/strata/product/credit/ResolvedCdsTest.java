@@ -125,22 +125,21 @@ public class ResolvedCdsTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    double accStart = test.accruedInterest(START_DATE.minusDays(1));
-    double accNextMinusOne = test.accruedInterest(START_DATE.plusMonths(3).minusDays(1));
-    double accNext = test.accruedInterest(START_DATE.plusMonths(3));
-    double accNextOne = test.accruedInterest(START_DATE.plusMonths(3).plusDays(1));
-    double accMod = test.accruedInterest(START_DATE.plusYears(1));
-    double accEnd = test.accruedInterest(END_DATE);
-    double accEndOne = test.accruedInterest(END_DATE.plusDays(1));
+    double accStart = test.accruedYearFraction(START_DATE.minusDays(1));
+    double accNextMinusOne = test.accruedYearFraction(START_DATE.plusMonths(3).minusDays(1));
+    double accNext = test.accruedYearFraction(START_DATE.plusMonths(3));
+    double accNextOne = test.accruedYearFraction(START_DATE.plusMonths(3).plusDays(1));
+    double accMod = test.accruedYearFraction(START_DATE.plusYears(1));
+    double accEnd = test.accruedYearFraction(END_DATE);
+    double accEndOne = test.accruedYearFraction(END_DATE.plusDays(1));
     assertEquals(accStart, 0d);
     assertEquals(accNext, 0d);
-    assertEquals(accNextMinusOne,
-        COUPON * ACT_360.relativeYearFraction(START_DATE, START_DATE.plusMonths(3).minusDays(1)), eps);
-    assertEquals(accNextOne, COUPON / 360d, eps);
+    assertEquals(accNextMinusOne, ACT_360.relativeYearFraction(START_DATE, START_DATE.plusMonths(3).minusDays(1)), eps);
+    assertEquals(accNextOne, 1d / 360d, eps);
     // 2.x
-    assertEquals(accMod, 0.012361111111111113, eps);
-    assertEquals(accEnd, 0.012777777777777777, eps);
-    assertEquals(accEndOne, 0.012916666666666668, eps);
+    assertEquals(accMod, 0.24722222222222223, eps);
+    assertEquals(accEnd, 0.25555555555555554, eps);
+    assertEquals(accEndOne, 0.25833333333333336, eps);
   }
 
   public void test_effectiveStartDate() {
