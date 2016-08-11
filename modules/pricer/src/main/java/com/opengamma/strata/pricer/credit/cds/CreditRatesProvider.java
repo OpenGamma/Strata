@@ -3,12 +3,15 @@ package com.opengamma.strata.pricer.credit.cds;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -22,6 +25,12 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 @BeanDefinition
 public final class CreditRatesProvider
@@ -43,26 +52,45 @@ public final class CreditRatesProvider
   private final ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves;
 
   @PropertyDefinition(validate = "notEmpty", get = "private")
-  private final ImmutableMap<StandardId, RecoveryRates> recoveryRateCurves;
-
-  @PropertyDefinition(validate = "notEmpty", get = "private")
   private final ImmutableMap<Currency, CreditDiscountFactors> discountCurves;
 
+  @PropertyDefinition(validate = "notEmpty", get = "private")
+  private final ImmutableMap<StandardId, RecoveryRates> recoveryRateCurves;
+
   //-------------------------------------------------------------------------
-  public RecoveryRates recoveryRates(StandardId legalEntity) {
-    RecoveryRates recoveryRates = recoveryRateCurves.get(legalEntity);
-    if (recoveryRates == null) {
-      throw new IllegalArgumentException("Unable to find recovery rate curve: " + legalEntity);
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.valuationDate == null && !builder.discountCurves.isEmpty()) {
+      builder.valuationDate = builder.discountCurves.values().iterator().next().getValuationDate();
     }
-    return recoveryRates;
   }
 
-  public CreditDiscountFactors survivalProbabilities(StandardId legalEntity, Currency currency) {
-    CreditDiscountFactors survivalProbabilities = creditCurves.get(Pair.of(legalEntity, currency));
-    if (survivalProbabilities == null) {
-      throw new IllegalArgumentException("Unable to find credit curve: " + legalEntity + ", " + currency);
+  @ImmutableValidator
+  private void validate() {
+    for (Entry<Pair<StandardId, Currency>, CreditDiscountFactors> entry : creditCurves.entrySet()) {
+      if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
+        throw new IllegalArgumentException("Invalid valuation date for the credit curve: " + entry.getValue());
+      }
     }
-    return survivalProbabilities;
+    for (Entry<Currency, CreditDiscountFactors> entry : discountCurves.entrySet()) {
+      if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
+        throw new IllegalArgumentException("Invalid valuation date for the discount curve: " + entry.getValue());
+      }
+    }
+    for (Entry<StandardId, RecoveryRates> entry : recoveryRateCurves.entrySet()) {
+      if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
+        throw new IllegalArgumentException("Invalid valuation date for the recovery rate curve: " + entry.getValue());
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public LegalEntitySurvivalProbabilities survivalProbabilities(StandardId legalEntityId, Currency currency) {
+    CreditDiscountFactors survivalProbabilities = creditCurves.get(Pair.of(legalEntityId, currency));
+    if (survivalProbabilities == null) {
+      throw new IllegalArgumentException("Unable to find credit curve: " + legalEntityId + ", " + currency);
+    }
+    return LegalEntitySurvivalProbabilities.of(survivalProbabilities, legalEntityId);
   }
 
   public CreditDiscountFactors discountFactors(Currency currency) {
@@ -71,6 +99,47 @@ public final class CreditRatesProvider
       throw new IllegalArgumentException("Unable to find discount curve: " + currency);
     }
     return discountFactors;
+  }
+
+  public RecoveryRates recoveryRates(StandardId legalEntityId) {
+    RecoveryRates recoveryRates = recoveryRateCurves.get(legalEntityId);
+    if (recoveryRates == null) {
+      throw new IllegalArgumentException("Unable to find recovery rate curve: " + legalEntityId);
+    }
+    return recoveryRates;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the parameter sensitivity.
+   * <p>
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
+   * <p>
+   * The sensitivities handled here are {@link CreditCurveZeroRateSensitivity}, {@link ZeroRateSensitivity} and 
+   * {@link RecoveryRateSensitivity}. For the other sensitivity objects, use {@link RatesProvider} instead.
+   * 
+   * @param pointSensitivities  the point sensitivity
+   * @return the sensitivity to the curve parameters
+   */
+  public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof CreditCurveZeroRateSensitivity) {
+        CreditCurveZeroRateSensitivity pt = (CreditCurveZeroRateSensitivity) point;
+        LegalEntitySurvivalProbabilities factors = survivalProbabilities(pt.getLegalEntityId(), pt.getCurveCurrency());
+        sens = sens.combinedWith(factors.parameterSensitivity(pt));
+      } else if (point instanceof ZeroRateSensitivity) {
+        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
+        DiscountFactors factors = discountFactors(pt.getCurveCurrency()).toDiscountFactors();
+        sens = sens.combinedWith(factors.parameterSensitivity(pt));
+      } else if (point instanceof RecoveryRateSensitivity) {
+        RecoveryRateSensitivity pt = (RecoveryRateSensitivity) point;
+        RecoveryRates factors = recoveryRates(pt.getLegalEntityId());
+        sens = sens.combinedWith(factors.parameterSensitivity(pt));
+      }
+    }
+    return sens;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -103,16 +172,17 @@ public final class CreditRatesProvider
   private CreditRatesProvider(
       LocalDate valuationDate,
       Map<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves,
-      Map<StandardId, RecoveryRates> recoveryRateCurves,
-      Map<Currency, CreditDiscountFactors> discountCurves) {
+      Map<Currency, CreditDiscountFactors> discountCurves,
+      Map<StandardId, RecoveryRates> recoveryRateCurves) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notEmpty(creditCurves, "creditCurves");
-    JodaBeanUtils.notEmpty(recoveryRateCurves, "recoveryRateCurves");
     JodaBeanUtils.notEmpty(discountCurves, "discountCurves");
+    JodaBeanUtils.notEmpty(recoveryRateCurves, "recoveryRateCurves");
     this.valuationDate = valuationDate;
     this.creditCurves = ImmutableMap.copyOf(creditCurves);
-    this.recoveryRateCurves = ImmutableMap.copyOf(recoveryRateCurves);
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
+    this.recoveryRateCurves = ImmutableMap.copyOf(recoveryRateCurves);
+    validate();
   }
 
   @Override
@@ -152,20 +222,20 @@ public final class CreditRatesProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the recoveryRateCurves.
-   * @return the value of the property, not empty
-   */
-  private ImmutableMap<StandardId, RecoveryRates> getRecoveryRateCurves() {
-    return recoveryRateCurves;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the discountCurves.
    * @return the value of the property, not empty
    */
   private ImmutableMap<Currency, CreditDiscountFactors> getDiscountCurves() {
     return discountCurves;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the recoveryRateCurves.
+   * @return the value of the property, not empty
+   */
+  private ImmutableMap<StandardId, RecoveryRates> getRecoveryRateCurves() {
+    return recoveryRateCurves;
   }
 
   //-----------------------------------------------------------------------
@@ -186,8 +256,8 @@ public final class CreditRatesProvider
       CreditRatesProvider other = (CreditRatesProvider) obj;
       return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           JodaBeanUtils.equal(creditCurves, other.creditCurves) &&
-          JodaBeanUtils.equal(recoveryRateCurves, other.recoveryRateCurves) &&
-          JodaBeanUtils.equal(discountCurves, other.discountCurves);
+          JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
+          JodaBeanUtils.equal(recoveryRateCurves, other.recoveryRateCurves);
     }
     return false;
   }
@@ -197,8 +267,8 @@ public final class CreditRatesProvider
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(creditCurves);
-    hash = hash * 31 + JodaBeanUtils.hashCode(recoveryRateCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(recoveryRateCurves);
     return hash;
   }
 
@@ -208,8 +278,8 @@ public final class CreditRatesProvider
     buf.append("CreditRatesProvider{");
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("creditCurves").append('=').append(creditCurves).append(',').append(' ');
-    buf.append("recoveryRateCurves").append('=').append(recoveryRateCurves).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves));
+    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
+    buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves));
     buf.append('}');
     return buf.toString();
   }
@@ -236,17 +306,17 @@ public final class CreditRatesProvider
     private final MetaProperty<ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors>> creditCurves = DirectMetaProperty.ofImmutable(
         this, "creditCurves", CreditRatesProvider.class, (Class) ImmutableMap.class);
     /**
-     * The meta-property for the {@code recoveryRateCurves} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<StandardId, RecoveryRates>> recoveryRateCurves = DirectMetaProperty.ofImmutable(
-        this, "recoveryRateCurves", CreditRatesProvider.class, (Class) ImmutableMap.class);
-    /**
      * The meta-property for the {@code discountCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<Currency, CreditDiscountFactors>> discountCurves = DirectMetaProperty.ofImmutable(
         this, "discountCurves", CreditRatesProvider.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code recoveryRateCurves} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<StandardId, RecoveryRates>> recoveryRateCurves = DirectMetaProperty.ofImmutable(
+        this, "recoveryRateCurves", CreditRatesProvider.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -254,8 +324,8 @@ public final class CreditRatesProvider
         this, null,
         "valuationDate",
         "creditCurves",
-        "recoveryRateCurves",
-        "discountCurves");
+        "discountCurves",
+        "recoveryRateCurves");
 
     /**
      * Restricted constructor.
@@ -270,10 +340,10 @@ public final class CreditRatesProvider
           return valuationDate;
         case -1612130883:  // creditCurves
           return creditCurves;
-        case 1744098265:  // recoveryRateCurves
-          return recoveryRateCurves;
         case -624113147:  // discountCurves
           return discountCurves;
+        case 1744098265:  // recoveryRateCurves
+          return recoveryRateCurves;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -311,19 +381,19 @@ public final class CreditRatesProvider
     }
 
     /**
-     * The meta-property for the {@code recoveryRateCurves} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableMap<StandardId, RecoveryRates>> recoveryRateCurves() {
-      return recoveryRateCurves;
-    }
-
-    /**
      * The meta-property for the {@code discountCurves} property.
      * @return the meta-property, not null
      */
     public MetaProperty<ImmutableMap<Currency, CreditDiscountFactors>> discountCurves() {
       return discountCurves;
+    }
+
+    /**
+     * The meta-property for the {@code recoveryRateCurves} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<StandardId, RecoveryRates>> recoveryRateCurves() {
+      return recoveryRateCurves;
     }
 
     //-----------------------------------------------------------------------
@@ -334,10 +404,10 @@ public final class CreditRatesProvider
           return ((CreditRatesProvider) bean).getValuationDate();
         case -1612130883:  // creditCurves
           return ((CreditRatesProvider) bean).getCreditCurves();
-        case 1744098265:  // recoveryRateCurves
-          return ((CreditRatesProvider) bean).getRecoveryRateCurves();
         case -624113147:  // discountCurves
           return ((CreditRatesProvider) bean).getDiscountCurves();
+        case 1744098265:  // recoveryRateCurves
+          return ((CreditRatesProvider) bean).getRecoveryRateCurves();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -361,8 +431,8 @@ public final class CreditRatesProvider
 
     private LocalDate valuationDate;
     private Map<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves = ImmutableMap.of();
-    private Map<StandardId, RecoveryRates> recoveryRateCurves = ImmutableMap.of();
     private Map<Currency, CreditDiscountFactors> discountCurves = ImmutableMap.of();
+    private Map<StandardId, RecoveryRates> recoveryRateCurves = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -377,8 +447,8 @@ public final class CreditRatesProvider
     private Builder(CreditRatesProvider beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
       this.creditCurves = beanToCopy.getCreditCurves();
-      this.recoveryRateCurves = beanToCopy.getRecoveryRateCurves();
       this.discountCurves = beanToCopy.getDiscountCurves();
+      this.recoveryRateCurves = beanToCopy.getRecoveryRateCurves();
     }
 
     //-----------------------------------------------------------------------
@@ -389,10 +459,10 @@ public final class CreditRatesProvider
           return valuationDate;
         case -1612130883:  // creditCurves
           return creditCurves;
-        case 1744098265:  // recoveryRateCurves
-          return recoveryRateCurves;
         case -624113147:  // discountCurves
           return discountCurves;
+        case 1744098265:  // recoveryRateCurves
+          return recoveryRateCurves;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -408,11 +478,11 @@ public final class CreditRatesProvider
         case -1612130883:  // creditCurves
           this.creditCurves = (Map<Pair<StandardId, Currency>, CreditDiscountFactors>) newValue;
           break;
-        case 1744098265:  // recoveryRateCurves
-          this.recoveryRateCurves = (Map<StandardId, RecoveryRates>) newValue;
-          break;
         case -624113147:  // discountCurves
           this.discountCurves = (Map<Currency, CreditDiscountFactors>) newValue;
+          break;
+        case 1744098265:  // recoveryRateCurves
+          this.recoveryRateCurves = (Map<StandardId, RecoveryRates>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -446,11 +516,12 @@ public final class CreditRatesProvider
 
     @Override
     public CreditRatesProvider build() {
+      preBuild(this);
       return new CreditRatesProvider(
           valuationDate,
           creditCurves,
-          recoveryRateCurves,
-          discountCurves);
+          discountCurves,
+          recoveryRateCurves);
     }
 
     //-----------------------------------------------------------------------
@@ -479,17 +550,6 @@ public final class CreditRatesProvider
     }
 
     /**
-     * Sets the recoveryRateCurves.
-     * @param recoveryRateCurves  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder recoveryRateCurves(Map<StandardId, RecoveryRates> recoveryRateCurves) {
-      JodaBeanUtils.notEmpty(recoveryRateCurves, "recoveryRateCurves");
-      this.recoveryRateCurves = recoveryRateCurves;
-      return this;
-    }
-
-    /**
      * Sets the discountCurves.
      * @param discountCurves  the new value, not empty
      * @return this, for chaining, not null
@@ -500,6 +560,17 @@ public final class CreditRatesProvider
       return this;
     }
 
+    /**
+     * Sets the recoveryRateCurves.
+     * @param recoveryRateCurves  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder recoveryRateCurves(Map<StandardId, RecoveryRates> recoveryRateCurves) {
+      JodaBeanUtils.notEmpty(recoveryRateCurves, "recoveryRateCurves");
+      this.recoveryRateCurves = recoveryRateCurves;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
@@ -507,8 +578,8 @@ public final class CreditRatesProvider
       buf.append("CreditRatesProvider.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("creditCurves").append('=').append(JodaBeanUtils.toString(creditCurves)).append(',').append(' ');
-      buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves)).append(',').append(' ');
-      buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves));
+      buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
+      buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves));
       buf.append('}');
       return buf.toString();
     }

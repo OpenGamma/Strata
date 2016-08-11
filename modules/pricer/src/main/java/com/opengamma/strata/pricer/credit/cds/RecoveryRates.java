@@ -7,11 +7,13 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 
 public interface RecoveryRates {
 
+  public abstract LocalDate getValuationDate();
+
   public abstract StandardId getLegalEntityId();
 
   public abstract double recoveryRate(LocalDate date);
 
   public abstract RecoveryRateSensitivity recoveryRatePointSensitivity(LocalDate date);
 
-  public abstract CurrencyParameterSensitivities parameterSensitivities(RecoveryRateSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(RecoveryRateSensitivity pointSensitivity);
 }

@@ -30,8 +30,10 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
@@ -90,16 +92,14 @@ public final class IsdaCompliantZeroRateDiscountFactors
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Obtains day count convention of the curve.
-   * 
-   * @return the day count
-   */
-  public DayCount getDayCount() {
-    return dayCount;
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (curve.getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(curve));
+    }
+    return Optional.empty();
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
     return curve.getParameterCount();
@@ -111,27 +111,29 @@ public final class IsdaCompliantZeroRateDiscountFactors
   }
 
   @Override
+  public DoubleArray getParameterKeys() {
+    return curve.getXValues();
+  }
+
+  @Override
   public ParameterMetadata getParameterMetadata(int parameterIndex) {
-    // TODO Auto-generated method stub
-    return null;
+    return curve.getParameterMetadata(parameterIndex);
   }
 
   @Override
-  public <T> Optional<T> findData(MarketDataName<T> name) {
-    // TODO Auto-generated method stub
-    return null;
+  public IsdaCompliantZeroRateDiscountFactors withParameter(int parameterIndex, double newValue) {
+    return withCurve(curve.withParameter(parameterIndex, newValue));
   }
 
   @Override
-  public DiscountFactors withParameter(int parameterIndex, double newValue) {
-    // TODO Auto-generated method stub
-    return null;
+  public IsdaCompliantZeroRateDiscountFactors withPerturbation(ParameterPerturbation perturbation) {
+    return withCurve(curve.withPerturbation(perturbation));
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public DiscountFactors withPerturbation(ParameterPerturbation perturbation) {
-    // TODO Auto-generated method stub
-    return null;
+  public DayCount getDayCount() {
+    return dayCount;
   }
 
   @Override
@@ -150,27 +152,47 @@ public final class IsdaCompliantZeroRateDiscountFactors
     return curve.yValue(yearFraction);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
-    // TODO Auto-generated method stub
-    return null;
+    double discountFactor = discountFactor(yearFraction);
+    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
+  }
+
+  @Override
+  public ZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction, Currency sensitivityCurrency) {
+    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, yearFraction);
   }
 
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSensitivity) {
-    // TODO Auto-generated method stub
-    return null;
+    double yearFraction = pointSensitivity.getYearFraction();
+    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
+    CurrencyParameterSensitivity curSens =
+        unitSens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
+    return CurrencyParameterSensitivities.of(curSens);
   }
 
   @Override
   public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
-    // TODO Auto-generated method stub
-    return null;
+    return CurrencyParameterSensitivities.of(curve.createParameterSensitivity(currency, sensitivities));
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public DoubleArray getParameterKeys() {
-    return curve.getXValues();
+  public DiscountFactors toDiscountFactors() {
+    return DiscountFactors.of(currency, valuationDate, curve);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a new instance with a different curve.
+   * 
+   * @param curve  the new curve
+   * @return the new instance
+   */
+  public IsdaCompliantZeroRateDiscountFactors withCurve(InterpolatedNodalCurve curve) {
+    return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, curve);
   }
 
   //------------------------- AUTOGENERATED START -------------------------

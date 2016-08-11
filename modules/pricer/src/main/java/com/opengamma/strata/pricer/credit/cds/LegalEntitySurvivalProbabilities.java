@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -20,27 +21,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class LegalEntitySurvivalProbabilities
     implements ImmutableBean, Serializable {
-
-  /**
-   * The currency that the discount factors are for.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Currency currency;
-
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId legalEntityId;
-//  /** 
-//   * The underlying curve.
-//   * The metadata of the curve must define a day count.
-//   */
-//  @PropertyDefinition(get = "optional")
-//  private final ImmutableMap<Pair<LocalDate, LocalDate>, DiscountFactors> uniqueCurve;  // TODO extra structure for index
   /**
    * The underlying curve.
    * The metadata of the curve must define a day count.
@@ -48,24 +35,48 @@ public final class LegalEntitySurvivalProbabilities
   @PropertyDefinition(validate = "notNull")
   private final CreditDiscountFactors survivalProbabilities;
 
-//  public double survivalProbability(Pair<LocalDate, LocalDate> startEnd, LocalDate date) {
-//    if (getUniqueCurve().isPresent()) {
-//      DiscountFactors single = getUniqueCurve().get().get(startEnd);
-//      if (single != null) {
-//        return single.discountFactor(date);
-//      }
-//    }
-//    return curve.discountFactor(date);
-//  }
+  @PropertyDefinition(validate = "notNull")
+  private final StandardId legalEntityId;
 
+  public static LegalEntitySurvivalProbabilities of(CreditDiscountFactors survivalProbabilities, StandardId legalEntityId) {
+    return new LegalEntitySurvivalProbabilities(survivalProbabilities, legalEntityId);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * <p>
+   * The currency that discount factors are provided for.
+   * 
+   * @return the currency
+   */
+  public Currency getCurrency() {
+    return survivalProbabilities.getCurrency();
+  }
+
+  /**
+   * Gets the valuation date.
+   * <p>
+   * The raw data in this provider is calibrated for this date.
+   * 
+   * @return the valuation date
+   */
+  public LocalDate getValuationDate() {
+    return survivalProbabilities.getValuationDate();
+  }
+
+  //-------------------------------------------------------------------------
   public double survivalProbability(LocalDate date) {
     return survivalProbabilities.discountFactor(date);
   }
 
-  public double zeroRateYearFraction(LocalDate date) {
-    double yearFraction = survivalProbabilities.relativeYearFraction(date);
+  public double zeroRateYearFraction(double yearFraction) {
     double zeroRate = survivalProbabilities.zeroRate(yearFraction);
     return yearFraction * zeroRate;
+  }
+
+  public DoubleArray getParameterKeys() {
+    return survivalProbabilities.getParameterKeys();
   }
 
   public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(LocalDate date) {
@@ -74,6 +85,11 @@ public final class LegalEntitySurvivalProbabilities
 
   public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
     ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRatePointSensitivity(date, sensitivityCurrency);
+    return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
+  }
+
+  public CreditCurveZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction) {
+    ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRateYearFractionPointSensitivity(yearFraction);
     return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
   }
 
@@ -100,24 +116,13 @@ public final class LegalEntitySurvivalProbabilities
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static LegalEntitySurvivalProbabilities.Builder builder() {
-    return new LegalEntitySurvivalProbabilities.Builder();
-  }
-
   private LegalEntitySurvivalProbabilities(
-      Currency currency,
-      StandardId legalEntityId,
-      CreditDiscountFactors survivalProbabilities) {
-    JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+      CreditDiscountFactors survivalProbabilities,
+      StandardId legalEntityId) {
     JodaBeanUtils.notNull(survivalProbabilities, "survivalProbabilities");
-    this.currency = currency;
-    this.legalEntityId = legalEntityId;
+    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     this.survivalProbabilities = survivalProbabilities;
+    this.legalEntityId = legalEntityId;
   }
 
   @Override
@@ -137,11 +142,12 @@ public final class LegalEntitySurvivalProbabilities
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency that the discount factors are for.
+   * Gets the underlying curve.
+   * The metadata of the curve must define a day count.
    * @return the value of the property, not null
    */
-  public Currency getCurrency() {
-    return currency;
+  public CreditDiscountFactors getSurvivalProbabilities() {
+    return survivalProbabilities;
   }
 
   //-----------------------------------------------------------------------
@@ -154,24 +160,6 @@ public final class LegalEntitySurvivalProbabilities
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the underlying curve.
-   * The metadata of the curve must define a day count.
-   * @return the value of the property, not null
-   */
-  public CreditDiscountFactors getSurvivalProbabilities() {
-    return survivalProbabilities;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -179,9 +167,8 @@ public final class LegalEntitySurvivalProbabilities
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LegalEntitySurvivalProbabilities other = (LegalEntitySurvivalProbabilities) obj;
-      return JodaBeanUtils.equal(currency, other.currency) &&
-          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
-          JodaBeanUtils.equal(survivalProbabilities, other.survivalProbabilities);
+      return JodaBeanUtils.equal(survivalProbabilities, other.survivalProbabilities) &&
+          JodaBeanUtils.equal(legalEntityId, other.legalEntityId);
     }
     return false;
   }
@@ -189,19 +176,17 @@ public final class LegalEntitySurvivalProbabilities
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(survivalProbabilities);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("LegalEntitySurvivalProbabilities{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("survivalProbabilities").append('=').append(JodaBeanUtils.toString(survivalProbabilities));
+    buf.append("survivalProbabilities").append('=').append(survivalProbabilities).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId));
     buf.append('}');
     return buf.toString();
   }
@@ -217,28 +202,22 @@ public final class LegalEntitySurvivalProbabilities
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code survivalProbabilities} property.
      */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", LegalEntitySurvivalProbabilities.class, Currency.class);
+    private final MetaProperty<CreditDiscountFactors> survivalProbabilities = DirectMetaProperty.ofImmutable(
+        this, "survivalProbabilities", LegalEntitySurvivalProbabilities.class, CreditDiscountFactors.class);
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
     private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
         this, "legalEntityId", LegalEntitySurvivalProbabilities.class, StandardId.class);
     /**
-     * The meta-property for the {@code survivalProbabilities} property.
-     */
-    private final MetaProperty<CreditDiscountFactors> survivalProbabilities = DirectMetaProperty.ofImmutable(
-        this, "survivalProbabilities", LegalEntitySurvivalProbabilities.class, CreditDiscountFactors.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "currency",
-        "legalEntityId",
-        "survivalProbabilities");
+        "survivalProbabilities",
+        "legalEntityId");
 
     /**
      * Restricted constructor.
@@ -249,18 +228,16 @@ public final class LegalEntitySurvivalProbabilities
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return currency;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
         case -2020275979:  // survivalProbabilities
           return survivalProbabilities;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public LegalEntitySurvivalProbabilities.Builder builder() {
+    public BeanBuilder<? extends LegalEntitySurvivalProbabilities> builder() {
       return new LegalEntitySurvivalProbabilities.Builder();
     }
 
@@ -276,11 +253,11 @@ public final class LegalEntitySurvivalProbabilities
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code survivalProbabilities} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currency() {
-      return currency;
+    public MetaProperty<CreditDiscountFactors> survivalProbabilities() {
+      return survivalProbabilities;
     }
 
     /**
@@ -291,24 +268,14 @@ public final class LegalEntitySurvivalProbabilities
       return legalEntityId;
     }
 
-    /**
-     * The meta-property for the {@code survivalProbabilities} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CreditDiscountFactors> survivalProbabilities() {
-      return survivalProbabilities;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return ((LegalEntitySurvivalProbabilities) bean).getCurrency();
-        case 866287159:  // legalEntityId
-          return ((LegalEntitySurvivalProbabilities) bean).getLegalEntityId();
         case -2020275979:  // survivalProbabilities
           return ((LegalEntitySurvivalProbabilities) bean).getSurvivalProbabilities();
+        case 866287159:  // legalEntityId
+          return ((LegalEntitySurvivalProbabilities) bean).getLegalEntityId();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -328,11 +295,10 @@ public final class LegalEntitySurvivalProbabilities
   /**
    * The bean-builder for {@code LegalEntitySurvivalProbabilities}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<LegalEntitySurvivalProbabilities> {
+  private static final class Builder extends DirectFieldsBeanBuilder<LegalEntitySurvivalProbabilities> {
 
-    private Currency currency;
-    private StandardId legalEntityId;
     private CreditDiscountFactors survivalProbabilities;
+    private StandardId legalEntityId;
 
     /**
      * Restricted constructor.
@@ -340,26 +306,14 @@ public final class LegalEntitySurvivalProbabilities
     private Builder() {
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(LegalEntitySurvivalProbabilities beanToCopy) {
-      this.currency = beanToCopy.getCurrency();
-      this.legalEntityId = beanToCopy.getLegalEntityId();
-      this.survivalProbabilities = beanToCopy.getSurvivalProbabilities();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return currency;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
         case -2020275979:  // survivalProbabilities
           return survivalProbabilities;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -368,14 +322,11 @@ public final class LegalEntitySurvivalProbabilities
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
+        case -2020275979:  // survivalProbabilities
+          this.survivalProbabilities = (CreditDiscountFactors) newValue;
           break;
         case 866287159:  // legalEntityId
           this.legalEntityId = (StandardId) newValue;
-          break;
-        case -2020275979:  // survivalProbabilities
-          this.survivalProbabilities = (CreditDiscountFactors) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -410,54 +361,17 @@ public final class LegalEntitySurvivalProbabilities
     @Override
     public LegalEntitySurvivalProbabilities build() {
       return new LegalEntitySurvivalProbabilities(
-          currency,
-          legalEntityId,
-          survivalProbabilities);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the currency that the discount factors are for.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the legalEntityId.
-     * @param legalEntityId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder legalEntityId(StandardId legalEntityId) {
-      JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-      this.legalEntityId = legalEntityId;
-      return this;
-    }
-
-    /**
-     * Sets the underlying curve.
-     * The metadata of the curve must define a day count.
-     * @param survivalProbabilities  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder survivalProbabilities(CreditDiscountFactors survivalProbabilities) {
-      JodaBeanUtils.notNull(survivalProbabilities, "survivalProbabilities");
-      this.survivalProbabilities = survivalProbabilities;
-      return this;
+          survivalProbabilities,
+          legalEntityId);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("LegalEntitySurvivalProbabilities.Builder{");
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-      buf.append("survivalProbabilities").append('=').append(JodaBeanUtils.toString(survivalProbabilities));
+      buf.append("survivalProbabilities").append('=').append(JodaBeanUtils.toString(survivalProbabilities)).append(',').append(' ');
+      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId));
       buf.append('}');
       return buf.toString();
     }

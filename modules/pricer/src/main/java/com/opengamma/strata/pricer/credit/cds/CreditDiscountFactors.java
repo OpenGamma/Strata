@@ -20,7 +20,7 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
 public interface CreditDiscountFactors
     extends MarketDataView, ParameterizedData {
 
-  // TODO toDiscountFactors fromDiscountFactors
+  // TODO fromDiscountFactors ?
 
   /**
    * Gets the currency.
@@ -43,12 +43,21 @@ public interface CreditDiscountFactors
    */
   public abstract <T> Optional<T> findData(MarketDataName<T> name);
 
+  public abstract DiscountFactors toDiscountFactors();
+
+  /**
+   * Obtains day count convention of the curve.
+   * 
+   * @return the day count
+   */
+  public abstract DayCount getDayCount();
+
   //-------------------------------------------------------------------------
   @Override
-  public abstract DiscountFactors withParameter(int parameterIndex, double newValue);
+  public abstract CreditDiscountFactors withParameter(int parameterIndex, double newValue);
 
   @Override
-  public abstract DiscountFactors withPerturbation(ParameterPerturbation perturbation);
+  public abstract CreditDiscountFactors withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**
@@ -196,6 +205,12 @@ public interface CreditDiscountFactors
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency);
+
+  public default ZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction) {
+    return zeroRateYearFractionPointSensitivity(yearFraction, getCurrency());
+  }
+
+  public abstract ZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction, Currency sensitivityCurrency);
 
   //-------------------------------------------------------------------------
   /**

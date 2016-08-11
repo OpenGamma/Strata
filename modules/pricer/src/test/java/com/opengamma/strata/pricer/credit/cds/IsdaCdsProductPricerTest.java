@@ -23,7 +23,6 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
@@ -81,15 +80,8 @@ public class IsdaCdsProductPricerTest {
       CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
   private static final CreditDiscountFactors CREDIT_CRVE =
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
-  private static final DefaultCurveMetadata METADATA_RR = DefaultCurveMetadata.builder()
-      .xValueType(ValueType.YEAR_FRACTION)
-      .yValueType(ValueType.RECOVERY_RATE)
-      .curveName("recovery")
-      .dayCount(ACT_365F)
-      .build();
-  private static final ConstantCurve CONST_RR = ConstantCurve.of(METADATA_RR, 0.25);
   private static final ConstantRecoveryRates RECOVERY_RATES =
-      ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, CONST_RR);
+      ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, 0.25);
   private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), CREDIT_CRVE))
@@ -134,6 +126,33 @@ public class IsdaCdsProductPricerTest {
   private static final IsdaCdsProductPricer PRICER = IsdaCdsProductPricer.DEFAULT;
 
   private static final double TOL = 1.0e-14;
+
+  public void cleanPvTest() {
+    double resNext = PRICER.presentValue(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), PriceType.CLEAN, REF_DATA)
+        .getAmount();
+    assertEquals(resNext, -0.20208402732565636, TOL);
+    double resBefore = PRICER.presentValue(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), PriceType.CLEAN, REF_DATA)
+        .getAmount();
+    assertEquals(resBefore, -0.26741962741508013, TOL);
+    double resAfter = PRICER.presentValue(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), PriceType.CLEAN, REF_DATA)
+        .getAmount();
+    assertEquals(resAfter, -0.32651549808776237, TOL);
+    double resNsToday = PRICER.presentValue(PRODUCT_NS_TODAY, RATES_PROVIDER,
+        PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), PriceType.CLEAN, REF_DATA)
+        .getAmount();
+    assertEquals(resNsToday, -0.2101704800313836, TOL);
+    double resNsStepin = PRICER.presentValue(PRODUCT_NS_STEPIN, RATES_PROVIDER,
+        PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), PriceType.CLEAN,
+        REF_DATA).getAmount();
+    assertEquals(resNsStepin, -0.1691072048424866, TOL);
+    double resNsBtw = PRICER.presentValue(PRODUCT_NS_BTW, RATES_PROVIDER,
+        PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), PriceType.CLEAN, REF_DATA)
+        .getAmount();
+    assertEquals(resNsBtw, -0.29068253160089597, TOL);
+  }
 
   public void protectionLegRegressionTest() {
     double resNext = PRICER.protectionLeg(PRODUCT_NEXTDAY, RATES_PROVIDER,
@@ -197,10 +216,10 @@ public class IsdaCdsProductPricerTest {
   }
 
   public void accruedInterestTest() {
-    double acc = PRODUCT_BEFORE.accruedInterest(VALUATION_DATE);
-    double accAccEndDate = PRODUCT_BEFORE.accruedInterest(LocalDate.of(2014, 3, 22));
-    double accEffectiveEndDateOne = PRODUCT_BEFORE.accruedInterest(LocalDate.of(2014, 3, 20));
-    double accEffectiveEndDate = PRODUCT_BEFORE.accruedInterest(LocalDate.of(2014, 3, 21));
+    double acc = PRODUCT_BEFORE.accruedYearFraction(VALUATION_DATE) * PRODUCT_BEFORE.getFixedRate();
+    double accAccEndDate = PRODUCT_BEFORE.accruedYearFraction(LocalDate.of(2014, 3, 22)) * PRODUCT_BEFORE.getFixedRate();
+    double accEffectiveEndDateOne = PRODUCT_BEFORE.accruedYearFraction(LocalDate.of(2014, 3, 20)) * PRODUCT_BEFORE.getFixedRate();
+    double accEffectiveEndDate = PRODUCT_BEFORE.accruedYearFraction(LocalDate.of(2014, 3, 21)) * PRODUCT_BEFORE.getFixedRate();
     assertEquals(acc, 0.0019444444444444446, TOL);
     assertEquals(accAccEndDate, 2.777777777777778E-4, TOL);
     assertEquals(accEffectiveEndDateOne, 0d, TOL);
@@ -211,7 +230,7 @@ public class IsdaCdsProductPricerTest {
   private CreditRatesProvider createCreditRatesProvider(LocalDate valuationDate) {
     IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC);
     CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC);
-    ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, CONST_RR);
+    ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25);
     return CreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), cc))

@@ -25,17 +25,11 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
 @BeanDefinition(builderScope = "private")
 public final class RecoveryRateSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
-  /**
-   * The currency of the curve for which the sensitivity is computed.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Currency curveCurrency;
   /**
    * The time that was queried, expressed as a year fraction.
    */
@@ -58,36 +52,12 @@ public final class RecoveryRateSensitivity
   //-------------------------------------------------------------------------
 
   public static RecoveryRateSensitivity of(
+      double yearFraction,
       Currency currency,
-      double yearFraction,
       StandardId legalEntityId,
       double sensitivity) {
 
-    return of(currency, yearFraction, currency, legalEntityId, sensitivity);
-  }
-
-
-  public static RecoveryRateSensitivity of(
-      ZeroRateSensitivity zeroRateSensitivity,
-      StandardId legalEntityId) {
-
-    return of(
-        zeroRateSensitivity.getCurveCurrency(),
-        zeroRateSensitivity.getYearFraction(),
-        zeroRateSensitivity.getCurrency(),
-        legalEntityId,
-        zeroRateSensitivity.getSensitivity());
-  }
-
-
-  public static RecoveryRateSensitivity of(
-      Currency curveCurrency,
-      double yearFraction,
-      Currency sensitivityCurrency,
-      StandardId legalEntityId,
-      double sensitivity) {
-
-    return new RecoveryRateSensitivity(curveCurrency, yearFraction, sensitivityCurrency, legalEntityId, sensitivity);
+    return new RecoveryRateSensitivity(yearFraction, currency, legalEntityId, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -159,15 +129,12 @@ public final class RecoveryRateSensitivity
   private static final long serialVersionUID = 1L;
 
   private RecoveryRateSensitivity(
-      Currency curveCurrency,
       double yearFraction,
       Currency currency,
       StandardId legalEntityId,
       double sensitivity) {
-    JodaBeanUtils.notNull(curveCurrency, "curveCurrency");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-    this.curveCurrency = curveCurrency;
     this.yearFraction = yearFraction;
     this.currency = currency;
     this.legalEntityId = legalEntityId;
@@ -187,15 +154,6 @@ public final class RecoveryRateSensitivity
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currency of the curve for which the sensitivity is computed.
-   * @return the value of the property, not null
-   */
-  public Currency getCurveCurrency() {
-    return curveCurrency;
   }
 
   //-----------------------------------------------------------------------
@@ -244,8 +202,7 @@ public final class RecoveryRateSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RecoveryRateSensitivity other = (RecoveryRateSensitivity) obj;
-      return JodaBeanUtils.equal(curveCurrency, other.curveCurrency) &&
-          JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
+      return JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
@@ -256,7 +213,6 @@ public final class RecoveryRateSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(curveCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
@@ -266,9 +222,8 @@ public final class RecoveryRateSensitivity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("RecoveryRateSensitivity{");
-    buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
     buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
@@ -287,11 +242,6 @@ public final class RecoveryRateSensitivity
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code curveCurrency} property.
-     */
-    private final MetaProperty<Currency> curveCurrency = DirectMetaProperty.ofImmutable(
-        this, "curveCurrency", RecoveryRateSensitivity.class, Currency.class);
     /**
      * The meta-property for the {@code yearFraction} property.
      */
@@ -317,7 +267,6 @@ public final class RecoveryRateSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveCurrency",
         "yearFraction",
         "currency",
         "legalEntityId",
@@ -332,8 +281,6 @@ public final class RecoveryRateSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1303639584:  // curveCurrency
-          return curveCurrency;
         case -1731780257:  // yearFraction
           return yearFraction;
         case 575402001:  // currency
@@ -362,14 +309,6 @@ public final class RecoveryRateSensitivity
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code curveCurrency} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Currency> curveCurrency() {
-      return curveCurrency;
-    }
-
     /**
      * The meta-property for the {@code yearFraction} property.
      * @return the meta-property, not null
@@ -406,8 +345,6 @@ public final class RecoveryRateSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1303639584:  // curveCurrency
-          return ((RecoveryRateSensitivity) bean).getCurveCurrency();
         case -1731780257:  // yearFraction
           return ((RecoveryRateSensitivity) bean).getYearFraction();
         case 575402001:  // currency
@@ -437,7 +374,6 @@ public final class RecoveryRateSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<RecoveryRateSensitivity> {
 
-    private Currency curveCurrency;
     private double yearFraction;
     private Currency currency;
     private StandardId legalEntityId;
@@ -453,8 +389,6 @@ public final class RecoveryRateSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1303639584:  // curveCurrency
-          return curveCurrency;
         case -1731780257:  // yearFraction
           return yearFraction;
         case 575402001:  // currency
@@ -471,9 +405,6 @@ public final class RecoveryRateSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1303639584:  // curveCurrency
-          this.curveCurrency = (Currency) newValue;
-          break;
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
           break;
@@ -519,7 +450,6 @@ public final class RecoveryRateSensitivity
     @Override
     public RecoveryRateSensitivity build() {
       return new RecoveryRateSensitivity(
-          curveCurrency,
           yearFraction,
           currency,
           legalEntityId,
@@ -529,9 +459,8 @@ public final class RecoveryRateSensitivity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("RecoveryRateSensitivity.Builder{");
-      buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
