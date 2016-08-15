@@ -75,6 +75,10 @@ public final class LegalEntitySurvivalProbabilities
     return yearFraction * zeroRate;
   }
 
+  public double zeroRate(double yearFraction) {
+    return survivalProbabilities.zeroRate(yearFraction);
+  }
+
   public DoubleArray getParameterKeys() {
     return survivalProbabilities.getParameterKeys();
   }

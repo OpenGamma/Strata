@@ -10,11 +10,13 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
 public interface CreditDiscountFactors
@@ -44,6 +46,11 @@ public interface CreditDiscountFactors
   public abstract <T> Optional<T> findData(MarketDataName<T> name);
 
   public abstract DiscountFactors toDiscountFactors();
+
+  public static CreditDiscountFactors fromDiscountFactors(DiscountFactors discountFactors) {
+    InterpolatedNodalCurve curve = (InterpolatedNodalCurve) ((ZeroRateDiscountFactors) discountFactors).getCurve();
+    return IsdaCompliantZeroRateDiscountFactors.of(discountFactors.getCurrency(), discountFactors.getValuationDate(), curve);
+  }
 
   /**
    * Obtains day count convention of the curve.

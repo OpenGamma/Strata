@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
@@ -36,6 +37,9 @@ public final class CreditCurveZeroRateSensitivity
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency curveCurrency;
+
+  @PropertyDefinition(validate = "notNull")
+  private final StandardId legalEntityId;
   /**
    * The time that was queried, expressed as a year fraction.
    */
@@ -46,9 +50,6 @@ public final class CreditCurveZeroRateSensitivity
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
-
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId legalEntityId;
   /**
    * The value of the sensitivity.
    */
@@ -63,7 +64,7 @@ public final class CreditCurveZeroRateSensitivity
       StandardId legalEntityId,
       double sensitivity) {
 
-    return of(currency, yearFraction, currency, legalEntityId, sensitivity);
+    return of(currency, legalEntityId, yearFraction, currency, sensitivity);
   }
 
   public static CreditCurveZeroRateSensitivity of(
@@ -72,20 +73,20 @@ public final class CreditCurveZeroRateSensitivity
 
     return of(
         zeroRateSensitivity.getCurveCurrency(),
+        legalEntityId,
         zeroRateSensitivity.getYearFraction(),
         zeroRateSensitivity.getCurrency(),
-        legalEntityId,
         zeroRateSensitivity.getSensitivity());
   }
 
   public static CreditCurveZeroRateSensitivity of(
       Currency curveCurrency,
+      StandardId legalEntityId,
       double yearFraction,
       Currency sensitivityCurrency,
-      StandardId legalEntityId,
       double sensitivity) {
 
-    return new CreditCurveZeroRateSensitivity(curveCurrency, yearFraction, sensitivityCurrency, legalEntityId, sensitivity);
+    return new CreditCurveZeroRateSensitivity(curveCurrency, legalEntityId, yearFraction, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -95,51 +96,61 @@ public final class CreditCurveZeroRateSensitivity
 
   //-------------------------------------------------------------------------
   @Override
-  public CreditCurveZeroRateSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public CreditCurveZeroRateSensitivity withCurrency(Currency currency) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public CreditCurveZeroRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public CreditCurveZeroRateSensitivity normalize() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public MutablePointSensitivities buildInto(MutablePointSensitivities combination) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public CreditCurveZeroRateSensitivity cloned() {
-    // TODO Auto-generated method stub
-    return null;
+    if (this.currency.equals(currency)) {
+      return this;
+    }
+    return new CreditCurveZeroRateSensitivity(curveCurrency, legalEntityId, yearFraction, currency, sensitivity);
   }
 
   @Override
   public CreditCurveZeroRateSensitivity withSensitivity(double sensitivity) {
-    // TODO Auto-generated method stub
-    return null;
+    return new CreditCurveZeroRateSensitivity(curveCurrency, legalEntityId, yearFraction, currency, sensitivity);
   }
 
   @Override
   public int compareKey(PointSensitivity other) {
-    // TODO Auto-generated method stub
-    return 0;
+    if (other instanceof CreditCurveZeroRateSensitivity) {
+      CreditCurveZeroRateSensitivity otherZero = (CreditCurveZeroRateSensitivity) other;
+      return ComparisonChain.start()
+          .compare(curveCurrency, otherZero.curveCurrency)
+          .compare(legalEntityId, otherZero.legalEntityId)
+          .compare(currency, otherZero.currency)
+          .compare(yearFraction, otherZero.yearFraction)
+          .result();
+    }
+    return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+  }
+
+  @Override
+  public CreditCurveZeroRateSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (CreditCurveZeroRateSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public CreditCurveZeroRateSensitivity multipliedBy(double factor) {
+    return new CreditCurveZeroRateSensitivity(curveCurrency, legalEntityId, yearFraction, currency, sensitivity * factor);
+  }
+
+  @Override
+  public CreditCurveZeroRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
+    return new CreditCurveZeroRateSensitivity(curveCurrency, legalEntityId, yearFraction, currency, operator.applyAsDouble(sensitivity));
+  }
+
+  @Override
+  public CreditCurveZeroRateSensitivity normalize() {
+    return this;
+  }
+
+  @Override
+  public MutablePointSensitivities buildInto(MutablePointSensitivities combination) {
+    return combination.add(this);
+  }
+
+  @Override
+  public CreditCurveZeroRateSensitivity cloned() {
+    return this;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -163,17 +174,17 @@ public final class CreditCurveZeroRateSensitivity
 
   private CreditCurveZeroRateSensitivity(
       Currency curveCurrency,
+      StandardId legalEntityId,
       double yearFraction,
       Currency currency,
-      StandardId legalEntityId,
       double sensitivity) {
     JodaBeanUtils.notNull(curveCurrency, "curveCurrency");
-    JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+    JodaBeanUtils.notNull(currency, "currency");
     this.curveCurrency = curveCurrency;
+    this.legalEntityId = legalEntityId;
     this.yearFraction = yearFraction;
     this.currency = currency;
-    this.legalEntityId = legalEntityId;
     this.sensitivity = sensitivity;
   }
 
@@ -203,6 +214,15 @@ public final class CreditCurveZeroRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the legalEntityId.
+   * @return the value of the property, not null
+   */
+  public StandardId getLegalEntityId() {
+    return legalEntityId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the time that was queried, expressed as a year fraction.
    * @return the value of the property
    */
@@ -218,15 +238,6 @@ public final class CreditCurveZeroRateSensitivity
   @Override
   public Currency getCurrency() {
     return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the legalEntityId.
-   * @return the value of the property, not null
-   */
-  public StandardId getLegalEntityId() {
-    return legalEntityId;
   }
 
   //-----------------------------------------------------------------------
@@ -248,9 +259,9 @@ public final class CreditCurveZeroRateSensitivity
     if (obj != null && obj.getClass() == this.getClass()) {
       CreditCurveZeroRateSensitivity other = (CreditCurveZeroRateSensitivity) obj;
       return JodaBeanUtils.equal(curveCurrency, other.curveCurrency) &&
+          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
           JodaBeanUtils.equal(currency, other.currency) &&
-          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
@@ -260,9 +271,9 @@ public final class CreditCurveZeroRateSensitivity
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(curveCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
@@ -272,9 +283,9 @@ public final class CreditCurveZeroRateSensitivity
     StringBuilder buf = new StringBuilder(192);
     buf.append("CreditCurveZeroRateSensitivity{");
     buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
@@ -296,6 +307,11 @@ public final class CreditCurveZeroRateSensitivity
     private final MetaProperty<Currency> curveCurrency = DirectMetaProperty.ofImmutable(
         this, "curveCurrency", CreditCurveZeroRateSensitivity.class, Currency.class);
     /**
+     * The meta-property for the {@code legalEntityId} property.
+     */
+    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", CreditCurveZeroRateSensitivity.class, StandardId.class);
+    /**
      * The meta-property for the {@code yearFraction} property.
      */
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
@@ -305,11 +321,6 @@ public final class CreditCurveZeroRateSensitivity
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", CreditCurveZeroRateSensitivity.class, Currency.class);
-    /**
-     * The meta-property for the {@code legalEntityId} property.
-     */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", CreditCurveZeroRateSensitivity.class, StandardId.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
@@ -321,9 +332,9 @@ public final class CreditCurveZeroRateSensitivity
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "curveCurrency",
+        "legalEntityId",
         "yearFraction",
         "currency",
-        "legalEntityId",
         "sensitivity");
 
     /**
@@ -337,12 +348,12 @@ public final class CreditCurveZeroRateSensitivity
       switch (propertyName.hashCode()) {
         case 1303639584:  // curveCurrency
           return curveCurrency;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         case -1731780257:  // yearFraction
           return yearFraction;
         case 575402001:  // currency
           return currency;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -374,6 +385,14 @@ public final class CreditCurveZeroRateSensitivity
     }
 
     /**
+     * The meta-property for the {@code legalEntityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<StandardId> legalEntityId() {
+      return legalEntityId;
+    }
+
+    /**
      * The meta-property for the {@code yearFraction} property.
      * @return the meta-property, not null
      */
@@ -390,14 +409,6 @@ public final class CreditCurveZeroRateSensitivity
     }
 
     /**
-     * The meta-property for the {@code legalEntityId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> legalEntityId() {
-      return legalEntityId;
-    }
-
-    /**
      * The meta-property for the {@code sensitivity} property.
      * @return the meta-property, not null
      */
@@ -411,12 +422,12 @@ public final class CreditCurveZeroRateSensitivity
       switch (propertyName.hashCode()) {
         case 1303639584:  // curveCurrency
           return ((CreditCurveZeroRateSensitivity) bean).getCurveCurrency();
+        case 866287159:  // legalEntityId
+          return ((CreditCurveZeroRateSensitivity) bean).getLegalEntityId();
         case -1731780257:  // yearFraction
           return ((CreditCurveZeroRateSensitivity) bean).getYearFraction();
         case 575402001:  // currency
           return ((CreditCurveZeroRateSensitivity) bean).getCurrency();
-        case 866287159:  // legalEntityId
-          return ((CreditCurveZeroRateSensitivity) bean).getLegalEntityId();
         case 564403871:  // sensitivity
           return ((CreditCurveZeroRateSensitivity) bean).getSensitivity();
       }
@@ -441,9 +452,9 @@ public final class CreditCurveZeroRateSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<CreditCurveZeroRateSensitivity> {
 
     private Currency curveCurrency;
+    private StandardId legalEntityId;
     private double yearFraction;
     private Currency currency;
-    private StandardId legalEntityId;
     private double sensitivity;
 
     /**
@@ -458,12 +469,12 @@ public final class CreditCurveZeroRateSensitivity
       switch (propertyName.hashCode()) {
         case 1303639584:  // curveCurrency
           return curveCurrency;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         case -1731780257:  // yearFraction
           return yearFraction;
         case 575402001:  // currency
           return currency;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -477,14 +488,14 @@ public final class CreditCurveZeroRateSensitivity
         case 1303639584:  // curveCurrency
           this.curveCurrency = (Currency) newValue;
           break;
+        case 866287159:  // legalEntityId
+          this.legalEntityId = (StandardId) newValue;
+          break;
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
-          break;
-        case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (Double) newValue;
@@ -523,9 +534,9 @@ public final class CreditCurveZeroRateSensitivity
     public CreditCurveZeroRateSensitivity build() {
       return new CreditCurveZeroRateSensitivity(
           curveCurrency,
+          legalEntityId,
           yearFraction,
           currency,
-          legalEntityId,
           sensitivity);
     }
 
@@ -535,9 +546,9 @@ public final class CreditCurveZeroRateSensitivity
       StringBuilder buf = new StringBuilder(192);
       buf.append("CreditCurveZeroRateSensitivity.Builder{");
       buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
+      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();

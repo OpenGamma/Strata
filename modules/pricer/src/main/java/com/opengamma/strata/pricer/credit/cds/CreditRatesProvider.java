@@ -116,8 +116,8 @@ public final class CreditRatesProvider
    * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * <p>
-   * The sensitivities handled here are {@link CreditCurveZeroRateSensitivity}, {@link ZeroRateSensitivity} and 
-   * {@link RecoveryRateSensitivity}. For the other sensitivity objects, use {@link RatesProvider} instead.
+   * The sensitivities handled here are {@link CreditCurveZeroRateSensitivity}, {@link ZeroRateSensitivity}. 
+   * For the other sensitivity objects, use {@link RatesProvider} instead.
    * 
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters
@@ -132,10 +132,6 @@ public final class CreditRatesProvider
       } else if (point instanceof ZeroRateSensitivity) {
         ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
         DiscountFactors factors = discountFactors(pt.getCurveCurrency()).toDiscountFactors();
-        sens = sens.combinedWith(factors.parameterSensitivity(pt));
-      } else if (point instanceof RecoveryRateSensitivity) {
-        RecoveryRateSensitivity pt = (RecoveryRateSensitivity) point;
-        RecoveryRates factors = recoveryRates(pt.getLegalEntityId());
         sens = sens.combinedWith(factors.parameterSensitivity(pt));
       }
     }
