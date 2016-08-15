@@ -214,53 +214,49 @@ public class IsdaCdsProductPricer {
         survivalProbabilities.getParameterKeys());
 
     // TODO clean sensitivity computation
-    double pv = 0d;
-    PointSensitivityBuilder pvSensi = PointSensitivityBuilder.none();
-    double ht0 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[0]);
-    PointSensitivityBuilder ht0Sensi = survivalProbabilities.zeroRateYearFractionPointSensitivity(integrationSchedule[0]);
-    double rt0 = discountFactors.zeroRateYearFraction(integrationSchedule[0]);
-    PointSensitivityBuilder rt0Sensi = discountFactors.zeroRateYearFractionPointSensitivity(integrationSchedule[0]);
-    double b0 = Math.exp(-ht0 - rt0);
-    PointSensitivityBuilder b0Sensi = (ht0Sensi.cloned().combinedWith(rt0Sensi.cloned())).multipliedBy(-b0);
+
     int n = integrationSchedule.length;
+    double[] dht = new double[n];
+    double[] drt = new double[n];
+    double[] dhrt = new double[n];
+    double[] p = new double[n + 1];
+    double[] q = new double[n + 1];
+
+    double pv = 0d;
+    double ht0 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[0]);
+    double rt0 = discountFactors.zeroRateYearFraction(integrationSchedule[0]);
+    p[0] = Math.exp(-rt0);
+    q[0] = Math.exp(-ht0);
+    double b0 = p[0] * q[0];
     for (int i = 1; i < n; ++i) {
       double ht1 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[i]);
-      PointSensitivityBuilder ht1Sensi = survivalProbabilities.zeroRateYearFractionPointSensitivity(integrationSchedule[i]);
       double rt1 = discountFactors.zeroRateYearFraction(integrationSchedule[i]);
-      PointSensitivityBuilder rt1Sensi = discountFactors.zeroRateYearFractionPointSensitivity(integrationSchedule[i]);
-      double b1 = Math.exp(-ht1 - rt1);
-      PointSensitivityBuilder b1Sensi = ht1Sensi.cloned().combinedWith(rt1Sensi.cloned()).multipliedBy(-b1);
-      double dht = ht1 - ht0;
-      PointSensitivityBuilder dhtSensi = ht1Sensi.cloned().combinedWith(ht0Sensi.cloned().multipliedBy(-1d));
-      double drt = rt1 - rt0;
-      double dhrt = dht + drt;
-      PointSensitivityBuilder dhrtSensi =
-          dhtSensi.cloned().combinedWith(rt1Sensi.cloned().combinedWith(rt0Sensi.cloned().multipliedBy(-1d)));
+      p[i] = Math.exp(-rt0);
+      q[i] = Math.exp(-ht0);
+      double b1 = p[i] * q[i];
+      dht[i - 1] = ht1 - ht0;
+      drt[i - 1] = rt1 - rt0;
+      dhrt[i - 1] = dht[i - 1] + drt[i - 1];
 
       // The formula has been modified from ISDA (but is equivalent) to avoid log(exp(x)) and explicitly
       // calculating the time step - it also handles the limit
       double dPv = 0d;
-      PointSensitivityBuilder dPvSensi;
-      if (Math.abs(dhrt) < 1e-5) {
-        double eps = epsilon(-dhrt);
-        dPv = dht * b0 * eps;
-        dPvSensi = dhtSensi.cloned().multipliedBy(b0 * eps).combinedWith(b0Sensi.cloned().multipliedBy(dht * eps))
-            .combinedWith(dhrtSensi.cloned().multipliedBy(-dht * b0 * epsilonP(-dhrt)));
+      if (Math.abs(dhrt[i - 1]) < 1e-5) {
+        double eps = epsilon(-dhrt[i - 1]);
+        dPv = dht[i - 1] * b0 * eps;
       } else {
-        dPv = (b0 - b1) * dht / dhrt;
-        dPvSensi = (b0Sensi.cloned().combinedWith(b1Sensi.cloned().multipliedBy(-1d))).multipliedBy(dht / dhrt)
-            .combinedWith(dhtSensi.cloned().multipliedBy((b0 - b1) / dhrt))
-            .combinedWith(dhrtSensi.cloned().multipliedBy((b1 - b0) * dht / (dhrt * dhrt)));
+        dPv = (b0 - b1) * dht[i - 1] / dhrt[i - 1];
     }
 
       pv += dPv;
-      pvSensi = pvSensi.combinedWith(dPvSensi);
       ht0 = ht1;
-      ht0Sensi = ht1Sensi;
       rt0 = rt1;
-      rt0Sensi = rt1Sensi;
       b0 = b1;
-      b0Sensi = b1Sensi;
+    }
+
+    PointSensitivityBuilder pvSensi = PointSensitivityBuilder.none();
+    for (int i = 1; i < n - 1; ++i) {
+
     }
 
 //    double pv = 0d;

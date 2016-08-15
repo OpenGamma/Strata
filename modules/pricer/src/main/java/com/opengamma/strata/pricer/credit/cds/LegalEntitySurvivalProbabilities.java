@@ -92,6 +92,15 @@ public final class LegalEntitySurvivalProbabilities
     return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
   }
 
+  public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(double yearFraction) {
+    return zeroRatePointSensitivity(yearFraction, getCurrency());
+  }
+
+  public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
+    ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
+    return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
+  }
+
   public CreditCurveZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction) {
     ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRateYearFractionPointSensitivity(yearFraction);
     return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
