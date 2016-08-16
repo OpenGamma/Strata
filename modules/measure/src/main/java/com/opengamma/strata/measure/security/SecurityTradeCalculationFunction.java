@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.security;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -62,6 +63,11 @@ public class SecurityTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(SecurityTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
