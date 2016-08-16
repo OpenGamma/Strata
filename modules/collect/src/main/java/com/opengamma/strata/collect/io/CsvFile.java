@@ -6,19 +6,20 @@
 package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static java.util.stream.Collectors.toCollection;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
+import com.google.common.io.LineProcessor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
 
@@ -63,7 +64,7 @@ public final class CsvFile {
    * Parses the specified source as a CSV file.
    * 
    * @param source  the CSV file resource
-   * @param headerRow  whether the source has a header row
+   * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @return the CSV file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
@@ -79,7 +80,7 @@ public final class CsvFile {
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
    * 
    * @param source  the file resource
-   * @param headerRow  whether the source has a header row
+   * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
    * @return the TSV file
    * @throws UncheckedIOException if an IO exception occurs
@@ -88,29 +89,135 @@ public final class CsvFile {
   public static CsvFile of(CharSource source, boolean headerRow, char separator) {
     ArgChecker.notNull(source, "source");
     ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
-    ArrayList<ImmutableList<String>> parsedCsv = parse(lines, separator);
+    ArrayList<ImmutableList<String>> parsedCsv = parseAll(lines, separator);
     if (!headerRow) {
-      return new CsvFile(ImmutableList.of(), ImmutableList.copyOf(parsedCsv));
+      return new CsvFile(ImmutableList.of(), ImmutableMap.of(), ImmutableList.copyOf(parsedCsv));
     }
     if (parsedCsv.isEmpty()) {
       throw new IllegalArgumentException("Could not read header row from empty CSV file");
     }
     ImmutableList<String> headers = parsedCsv.remove(0);
-    return new CsvFile(headers, ImmutableList.copyOf(parsedCsv));
+    return new CsvFile(headers, buildSearchHeaders(headers), ImmutableList.copyOf(parsedCsv));
+  }
+
+  // parses the CSV file format
+  private static ArrayList<ImmutableList<String>> parseAll(ImmutableList<String> lines, char separator) {
+    ArrayList<ImmutableList<String>> parsedLines = new ArrayList<>();
+    for (String line : lines) {
+      ImmutableList<String> parsed = parseLine(line, separator);
+      if (!parsed.isEmpty()) {
+        parsedLines.add(parsed);
+      }
+    }
+    return parsedLines;
   }
 
   //------------------------------------------------------------------------
-  // parses the CSV file format
-  private static ArrayList<ImmutableList<String>> parse(ImmutableList<String> lines, char separator) {
-    return lines.stream()
-        .flatMap(line -> parseLine(line, separator))
-        .collect(toCollection(ArrayList::new));
+  /**
+   * Obtains an instance from a list of headers and rows.
+   * <p>
+   * The headers may be an empty list.
+   * All the rows must contain a list of the same size, matching the header if present.
+   * 
+   * @param headers  the headers, empty if no headers
+   * @param rows  the data rows
+   * @return the CSV file
+   * @throws IllegalArgumentException if the rows do not match the headers
+   */
+  public static CsvFile of(List<String> headers, List<? extends List<String>> rows) {
+    ArgChecker.notNull(headers, "headers");
+    ArgChecker.notNull(rows, "rows");
+    int size = (headers.size() == 0 && rows.size() > 0 ? rows.get(0).size() : headers.size());
+    if (rows.stream().filter(row -> row.size() != size).findAny().isPresent()) {
+      throw new IllegalArgumentException("Invalid data rows, each row must have same columns as header row");
+    }
+    ImmutableList<String> copiedHeaders = ImmutableList.copyOf(headers);
+    ImmutableList<ImmutableList<String>> copiedRows = rows.stream()
+        .map(row -> ImmutableList.copyOf(row))
+        .collect(toImmutableList());
+    return new CsvFile(copiedHeaders, buildSearchHeaders(copiedHeaders), copiedRows);
   }
 
-  // return Stream rather than Optional as works better with flatMap
-  private static Stream<ImmutableList<String>> parseLine(String line, char separator) {
+  //-------------------------------------------------------------------------
+  /**
+   * Parses the specified source as a CSV file without loading the whole file into memory.
+   * <p>
+   * The specified consumer is invoked for each row.
+   * 
+   * @param source  the CSV file resource
+   * @param headerRow  whether the source has a header row, an empty source may omit the header
+   * @param consumer  the row consumer
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public static void parse(CharSource source, boolean headerRow, Consumer<CsvRow> consumer) {
+    parse(source, headerRow, ',', consumer);
+  }
+
+  /**
+   * Parses the specified source as a CSV file without loading the whole file into memory,
+   * where the separator is specified and might not be a comma.
+   * <p>
+   * The specified consumer is invoked for each row.
+   * <p>
+   * This overload allows the separator to be controlled.
+   * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * 
+   * @param source  the file resource
+   * @param headerRow  whether the source has a header row, an empty source may omit the header
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   * @param consumer  the row consumer
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public static void parse(CharSource source, boolean headerRow, char separator, Consumer<CsvRow> consumer) {
+    ArgChecker.notNull(source, "source");
+    ArgChecker.notNull(consumer, "consumer");
+    Unchecked.wrap(() -> parseConsume(source, headerRow, separator, consumer));
+  }
+
+  // parses the CSV file, consuming each row
+  private static void parseConsume(
+      CharSource source,
+      boolean headerRow,
+      char separator,
+      Consumer<CsvRow> consumer) throws IOException {
+
+    LineProcessor<Boolean> processor = new LineProcessor<Boolean>() {
+      boolean expectHeader = headerRow;
+      ImmutableList<String> headers = ImmutableList.of();
+      ImmutableMap<String, Integer> searchHeaders = ImmutableMap.of();
+
+      @Override
+      public boolean processLine(String line) throws IOException {
+        ImmutableList<String> parsed = parseLine(line, separator);
+        if (parsed.isEmpty()) {
+          return true;
+        }
+        if (expectHeader) {
+          headers = parsed;
+          searchHeaders = buildSearchHeaders(parsed);
+          expectHeader = false;
+        } else {
+          CsvRow row = new CsvRow(headers, searchHeaders, parsed);
+          consumer.accept(row);
+        }
+        return true;
+      }
+
+      @Override
+      public Boolean getResult() {
+        return Boolean.FALSE;
+      }
+    };
+    source.readLines(processor);
+  }
+
+  //------------------------------------------------------------------------
+  // parse a single line
+  private static ImmutableList<String> parseLine(String line, char separator) {
     if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
-      return Stream.empty();
+      return ImmutableList.of();
     }
     ImmutableList.Builder<String> builder = ImmutableList.builder();
     int start = 0;
@@ -138,9 +245,9 @@ public final class CsvFile {
     }
     ImmutableList<String> fields = builder.build();
     if (!hasContent(fields)) {
-      return Stream.empty();
+      return ImmutableList.of();
     }
-    return Stream.of(fields);
+    return fields;
   }
 
   // determines whether there is any content on a line
@@ -154,29 +261,15 @@ public final class CsvFile {
     return false;
   }
 
-  //------------------------------------------------------------------------
-  /**
-   * Creates an instance from a list of headers and rows.
-   * <p>
-   * The headers may be an empty list.
-   * All the rows must contain a list of the same size, matching the header if present.
-   * 
-   * @param headers  the headers, empty if no headers
-   * @param rows  the data rows
-   * @return the CSV file
-   * @throws IllegalArgumentException if the rows do not match the headers
-   */
-  public static CsvFile of(List<String> headers, List<? extends List<String>> rows) {
-    ArgChecker.notNull(headers, "headers");
-    ArgChecker.notNull(rows, "rows");
-    int size = (headers.size() == 0 && rows.size() > 0 ? rows.get(0).size() : headers.size());
-    if (rows.stream().filter(row -> row.size() != size).findAny().isPresent()) {
-      throw new IllegalArgumentException("Invalid data rows, each row must have same columns as header row");
+  // build the search headers
+  private static ImmutableMap<String, Integer> buildSearchHeaders(ImmutableList<String> headers) {
+    // need to allow duplicate headers and only store the first instance
+    Map<String, Integer> searchHeaders = new HashMap<>();
+    for (int i = 0; i < headers.size(); i++) {
+      String searchHeader = headers.get(i).toLowerCase(Locale.ENGLISH);
+      searchHeaders.putIfAbsent(searchHeader, i);
     }
-    ImmutableList<ImmutableList<String>> copiedRows = rows.stream()
-        .map(row -> ImmutableList.copyOf(row))
-        .collect(toImmutableList());
-    return new CsvFile(ImmutableList.copyOf(headers), copiedRows);
+    return ImmutableMap.copyOf(searchHeaders);
   }
 
   //------------------------------------------------------------------------
@@ -186,15 +279,13 @@ public final class CsvFile {
    * @param headers  the header row
    * @param rows  the data rows
    */
-  private CsvFile(ImmutableList<String> headers, ImmutableList<ImmutableList<String>> rows) {
+  private CsvFile(
+      ImmutableList<String> headers,
+      ImmutableMap<String, Integer> searchHeaders,
+      ImmutableList<ImmutableList<String>> rows) {
+
     this.headers = headers;
-    // need to allow duplicate headers and only store the first instance
-    Map<String, Integer> searchHeaders = new HashMap<>();
-    for (int i = 0; i < headers.size(); i++) {
-      String searchHeader = headers.get(i).toLowerCase(Locale.ENGLISH);
-      searchHeaders.putIfAbsent(searchHeader, i);
-    }
-    this.searchHeaders = ImmutableMap.copyOf(searchHeaders);
+    this.searchHeaders = searchHeaders;
     this.rows = rows.stream()
         .map(cols -> new CsvRow(headers, this.searchHeaders, cols))
         .collect(toImmutableList());

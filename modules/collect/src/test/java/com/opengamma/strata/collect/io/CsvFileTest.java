@@ -13,6 +13,7 @@ import static org.testng.Assert.assertNotNull;
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,17 +75,17 @@ public class CsvFileTest {
         UncheckedIOException.class);
   }
 
-  public void test_empty_no_header() {
+  public void test_of_empty_no_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(""), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 0);
   }
 
-  public void test_empty_with_header() {
+  public void test_of_empty_with_header() {
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap(""), true));
   }
 
-  public void test_simple_no_header() {
+  public void test_of_simple_no_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 3);
@@ -106,7 +107,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).subRow(2).fieldCount(), 0);
   }
 
-  public void test_simple_no_header_tabs() {
+  public void test_of_simple_no_header_tabs() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1T), false, '\t');
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 3);
@@ -124,7 +125,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(2).field(1), "r22");
   }
 
-  public void test_simple_with_header() {
+  public void test_of_simple_with_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), true);
     ImmutableList<String> headers = csvFile.headers();
     assertEquals(headers.size(), 2);
@@ -169,7 +170,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).subRow(2, 2).fieldCount(), 0);
   }
 
-  public void test_duplicate_headers() {
+  public void test_of_duplicate_headers() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV5), true);
     assertEquals(csvFile.headers(), ImmutableList.of("a", "b", "c", "b", "c"));
     assertEquals(csvFile.row(0).getField("a"), "aa");
@@ -182,7 +183,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).subRow(3).getField("c"), "c2");
   }
 
-  public void test_short_data_row() {
+  public void test_of_short_data_row() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV6), true);
     assertEquals(csvFile.headers(), ImmutableList.of("a", "b", "c"));
     assertEquals(csvFile.row(0).getField("a"), "r11");
@@ -198,7 +199,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(1).getField("c"), "");
   }
 
-  public void test_comment_blank_no_header() {
+  public void test_of_comment_blank_no_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV2), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 2);
@@ -210,7 +211,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(1).field(1), "r22");
   }
 
-  public void test_comment_blank_with_header() {
+  public void test_of_comment_blank_with_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV2), true);
     ImmutableList<String> headers = csvFile.headers();
     assertEquals(headers.size(), 2);
@@ -224,19 +225,19 @@ public class CsvFileTest {
     assertEquals(csvFile.rows().get(0), csvFile.row(0));
   }
 
-  public void test_simple_no_header_access_by_field() {
+  public void test_of_simple_no_header_access_by_field() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.row(0).findField("h1"), Optional.empty());
     assertThrowsIllegalArg(() -> csvFile.row(0).getField("h1"));
   }
 
-  public void test_simple_with_header_access_by_invalid_field() {
+  public void test_of_simple_with_header_access_by_invalid_field() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), true);
     assertEquals(csvFile.row(0).findField("h3"), Optional.empty());
     assertThrowsIllegalArg(() -> csvFile.row(0).getField("h3"));
   }
 
-  public void test_blank_row() {
+  public void test_of_blank_row() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV3), false);
     assertEquals(csvFile.rowCount(), 2);
     assertEquals(csvFile.row(0).fieldCount(), 2);
@@ -247,7 +248,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(1).field(1), "r22");
   }
 
-  public void test_quoting() {
+  public void test_of_quoting() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV4), false);
     assertEquals(csvFile.rowCount(), 3);
     assertEquals(csvFile.row(0).fieldCount(), 2);
@@ -261,7 +262,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(2).field(1), " r22 ");
   }
 
-  public void test_quoting_mismatched() {
+  public void test_of_quoting_mismatched() {
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"alpha"), false));
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"pha"), false));
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"\"pha"), false));
@@ -301,6 +302,124 @@ public class CsvFileTest {
     List<String> headers = Arrays.asList("1", "2");
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b"));
     assertThrowsIllegalArg(() -> CsvFile.of(headers, rows));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parse_ioException() {
+    assertThrows(
+        () -> CsvFile.parse(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8), false, r -> {}),
+        UncheckedIOException.class);
+  }
+
+  public void test_parse_empty_no_header() {
+    List<CsvRow> rows = new ArrayList<>();
+    CsvFile.parse(CharSource.wrap(""), false, r -> rows.add(r));
+    assertEquals(rows.size(), 0);
+  }
+
+  public void test_parse_empty_with_header() {
+    List<CsvRow> rows = new ArrayList<>();
+    CsvFile.parse(CharSource.wrap(""), true, r -> rows.add(r));
+    assertEquals(rows.size(), 0);
+  }
+
+  public void test_parse_simple_no_header() {
+    List<CsvRow> rows = new ArrayList<>();
+    CsvFile.parse(CharSource.wrap(CSV1), false, r -> rows.add(r));
+    assertEquals(rows.size(), 3);
+    assertEquals(rows.get(0).headers().size(), 0);
+    assertEquals(rows.get(0).fieldCount(), 2);
+    assertEquals(rows.get(0).field(0), "h1");
+    assertEquals(rows.get(0).field(1), "h2");
+    assertEquals(rows.get(1).headers().size(), 0);
+    assertEquals(rows.get(1).fieldCount(), 2);
+    assertEquals(rows.get(1).field(0), "r11");
+    assertEquals(rows.get(1).field(1), "r12");
+    assertEquals(rows.get(2).headers().size(), 0);
+    assertEquals(rows.get(2).fieldCount(), 2);
+    assertEquals(rows.get(2).field(0), "r21");
+    assertEquals(rows.get(2).field(1), "r22");
+
+    assertEquals(rows.get(0).subRow(0).fieldCount(), 2);
+    assertEquals(rows.get(0).subRow(1).fieldCount(), 1);
+    assertEquals(rows.get(0).subRow(2).fieldCount(), 0);
+  }
+
+  public void test_parse_simple_no_header_tabs() {
+    List<CsvRow> rows = new ArrayList<>();
+    CsvFile.parse(CharSource.wrap(CSV1T), false, '\t', r -> rows.add(r));
+    assertEquals(rows.size(), 3);
+    assertEquals(rows.get(0).headers().size(), 0);
+    assertEquals(rows.get(0).fieldCount(), 2);
+    assertEquals(rows.get(0).field(0), "h1");
+    assertEquals(rows.get(0).field(1), "h2");
+    assertEquals(rows.get(1).headers().size(), 0);
+    assertEquals(rows.get(1).fieldCount(), 2);
+    assertEquals(rows.get(1).field(0), "r11");
+    assertEquals(rows.get(1).field(1), "r12");
+    assertEquals(rows.get(2).headers().size(), 0);
+    assertEquals(rows.get(2).fieldCount(), 2);
+    assertEquals(rows.get(2).field(0), "r21");
+    assertEquals(rows.get(2).field(1), "r22");
+  }
+
+  public void test_parse_simple_with_header() {
+    List<CsvRow> rows = new ArrayList<>();
+    CsvFile.parse(CharSource.wrap(CSV1), true, r -> rows.add(r));
+    ImmutableList<String> headers = rows.get(0).headers();
+    assertEquals(headers.size(), 2);
+    assertEquals(headers.get(0), "h1");
+    assertEquals(headers.get(1), "h2");
+    assertEquals(rows.size(), 2);
+    assertEquals(rows.get(0).headers(), headers);
+    assertEquals(rows.get(0).fieldCount(), 2);
+    assertEquals(rows.get(0).field(0), "r11");
+    assertEquals(rows.get(0).field(1), "r12");
+    assertEquals(rows.get(1).headers(), headers);
+    assertEquals(rows.get(1).fieldCount(), 2);
+    assertEquals(rows.get(1).field(0), "r21");
+    assertEquals(rows.get(1).field(1), "r22");
+
+    assertEquals(rows.get(0).getField("h1"), "r11");
+    assertEquals(rows.get(0).getField("h2"), "r12");
+    assertEquals(rows.get(1).getField("h1"), "r21");
+    assertEquals(rows.get(1).getField("h2"), "r22");
+    assertThrowsIllegalArg(() -> rows.get(0).getField("zzz"));
+
+    assertEquals(rows.get(0).findField("h1"), Optional.of("r11"));
+    assertEquals(rows.get(0).findField("h2"), Optional.of("r12"));
+    assertEquals(rows.get(1).findField("h1"), Optional.of("r21"));
+    assertEquals(rows.get(1).findField("h2"), Optional.of("r22"));
+    assertEquals(rows.get(0).findField("zzz"), Optional.empty());
+
+    assertEquals(rows.get(0).getField(Pattern.compile("h[13]")), "r11");
+    assertEquals(rows.get(0).getField(Pattern.compile("h[24]")), "r12");
+    assertThrowsIllegalArg(() -> rows.get(0).getField(Pattern.compile("zzz")));
+
+    assertEquals(rows.get(0).findField(Pattern.compile("h[13]")), Optional.of("r11"));
+    assertEquals(rows.get(0).findField(Pattern.compile("h[24]")), Optional.of("r12"));
+    assertEquals(rows.get(0).findField(Pattern.compile("zzz")), Optional.empty());
+
+    assertEquals(rows.get(0).subRow(0).fieldCount(), 2);
+    assertEquals(rows.get(0).subRow(1).fieldCount(), 1);
+    assertEquals(rows.get(0).subRow(2).fieldCount(), 0);
+
+    assertEquals(rows.get(0).subRow(0, 0).fieldCount(), 0);
+    assertEquals(rows.get(0).subRow(0, 1).fieldCount(), 1);
+    assertEquals(rows.get(0).subRow(2, 2).fieldCount(), 0);
+  }
+
+  public void test_parse_comment_blank_with_header() {
+    List<CsvRow> rows = new ArrayList<>();
+    CsvFile.parse(CharSource.wrap(CSV2), true, r -> rows.add(r));
+    ImmutableList<String> headers = rows.get(0).headers();
+    assertEquals(headers.size(), 2);
+    assertEquals(headers.get(0), "h1");
+    assertEquals(headers.get(1), "h2");
+    assertEquals(rows.size(), 1);
+    assertEquals(rows.get(0).fieldCount(), 2);
+    assertEquals(rows.get(0).field(0), "r21");
+    assertEquals(rows.get(0).field(1), "r22");
   }
 
   //-------------------------------------------------------------------------
