@@ -436,7 +436,7 @@ public final class PeriodicSchedule
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
     if (deduplicated.size() < unadj.size()) {
-      throw new ScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates: {}", unadj);
+      throw new ScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates {}", unadj);
     }
     return deduplicated;
   }
@@ -623,11 +623,14 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createAdjustedDates(ReferenceData refData) {
-    List<LocalDate> adj = applyBusinessDayAdjustment(generateUnadjustedDates(), refData);
+    List<LocalDate> unadj = generateUnadjustedDates();
+    List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
     if (deduplicated.size() < adj.size()) {
-      throw new ScheduleException(this, "Schedule calculation resulted in duplicate adjusted dates: {}", adj);
+      throw new ScheduleException(
+          this, "Schedule calculation resulted in duplicate adjusted dates {} from unadjusted dates {} " +
+              "using adjustment '{}'", adj, unadj, businessDayAdjustment);
     }
     return deduplicated;
   }
