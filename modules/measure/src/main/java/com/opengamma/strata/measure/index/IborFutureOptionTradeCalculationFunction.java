@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.index;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -92,6 +93,11 @@ public class IborFutureOptionTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(IborFutureOptionTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override

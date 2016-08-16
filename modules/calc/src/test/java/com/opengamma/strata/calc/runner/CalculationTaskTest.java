@@ -18,6 +18,7 @@ import static org.testng.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -175,7 +176,7 @@ public class CalculationTaskTest {
     Result<?> result = calculationResults.getCells().get(0).getResult();
     assertThat(result)
         .isFailure(FailureReason.CALCULATION_FAILED)
-        .hasFailureMessageMatching("Error when invoking function 'ConvertibleFunction':.*: This is a failure");
+        .hasFailureMessageMatching("Error when invoking function 'ConvertibleFunction' for ID '123':.*: This is a failure");
   }
 
   /**
@@ -268,7 +269,7 @@ public class CalculationTaskTest {
     Result<?> result = calculationResults.getCells().get(0).getResult();
     assertThat(result)
         .isFailure(FailureReason.CALCULATION_FAILED)
-        .hasFailureMessageMatching("Error when invoking function 'SupplierFunction': .*: foo");
+        .hasFailureMessageMatching("Error when invoking function 'SupplierFunction' for ID '123': .*: foo");
   }
 
   /**
@@ -286,7 +287,7 @@ public class CalculationTaskTest {
     Result<?> result = calculationResults.getCells().get(0).getResult();
     assertThat(result)
         .isFailure(FailureReason.MISSING_DATA)
-        .hasFailureMessageMatching("Missing market data when invoking function 'SupplierFunction': foo");
+        .hasFailureMessageMatching("Missing market data when invoking function 'SupplierFunction' for ID '123': foo");
   }
 
   /**
@@ -304,7 +305,7 @@ public class CalculationTaskTest {
     Result<?> result = calculationResults.getCells().get(0).getResult();
     assertThat(result)
         .isFailure(FailureReason.MISSING_DATA)
-        .hasFailureMessageMatching("Missing reference data when invoking function 'SupplierFunction': foo");
+        .hasFailureMessageMatching("Missing reference data when invoking function 'SupplierFunction' for ID '123': foo");
   }
 
   /**
@@ -322,7 +323,7 @@ public class CalculationTaskTest {
     Result<?> result = calculationResults.getCells().get(0).getResult();
     assertThat(result)
         .isFailure(FailureReason.UNSUPPORTED)
-        .hasFailureMessageMatching("Unsupported operation when invoking function 'SupplierFunction': foo");
+        .hasFailureMessageMatching("Unsupported operation when invoking function 'SupplierFunction' for ID '123': foo");
   }
 
   /**
@@ -488,6 +489,11 @@ public class CalculationTaskTest {
     }
 
     @Override
+    public Optional<String> identifier(TestTarget target) {
+      return Optional.of("123");
+    }
+
+    @Override
     public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return naturalCurrency;
     }
@@ -539,6 +545,11 @@ public class CalculationTaskTest {
     @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
+    }
+
+    @Override
+    public Optional<String> identifier(TestTarget target) {
+      return Optional.of("123");
     }
 
     @Override
