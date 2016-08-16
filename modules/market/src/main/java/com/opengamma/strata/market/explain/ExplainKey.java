@@ -79,6 +79,12 @@ public final class ExplainKey<T>
    * The forecast value.
    */
   public static final ExplainKey<CurrencyAmount> FORECAST_VALUE = of("ForecastValue");
+  /**
+   * The flag to indicate that the period has completed.
+   * For example, a swap payment period that has already paid would have this set to true.
+   * This will generally never be set to false.
+   */
+  public static final ExplainKey<Boolean> COMPLETED = of("Completed");
 
   /**
    * The currency of the payment.
