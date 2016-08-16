@@ -140,6 +140,7 @@ public class DiscountingPaymentPricer {
     builder.put(ExplainKey.PAYMENT_DATE, paymentDate);
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {

@@ -109,6 +109,7 @@ public class DiscountingKnownAmountPaymentPeriodPricer
     builder.put(ExplainKey.UNADJUSTED_END_DATE, period.getUnadjustedEndDate());
     builder.put(ExplainKey.DAYS, (int) DAYS.between(period.getStartDate(), period.getEndDate()));
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
