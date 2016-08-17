@@ -60,4 +60,5 @@ Milestone releases
 
 1. Create git commit, with message such as "Bump version"
 
-1. Push the commits and tag: `git push --follow-tags`
+1. Push the commits and tag:  
+`git push --follow-tags`
