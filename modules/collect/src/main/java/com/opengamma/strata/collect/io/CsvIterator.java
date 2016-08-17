@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.io;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,22 +35,22 @@ import com.opengamma.strata.collect.Unchecked;
  * <p>
  * This class must be used in a try-with-resources block to ensure that the underlying CSV file is closed:
  * <pre>
- *  try (CsvIterable iterable = CsvIterable.of(source, true)) {
- *    // use the CsvIterable
+ *  try (CsvIterator csvIterator = CsvIterator.of(source, true)) {
+ *    // use the CsvIterator
  *  }
  * </pre>
  * One way to use the iterable is with the for-each loop, using a lambda to adapt {@code Iterator} to {@code Iterable}:
  * <pre>
- *  try (CsvIterable iterable = CsvIterable.of(source, true)) {
- *    for (CsvRow row : () -> iterable) {
+ *  try (CsvIterator csvIterator = CsvIterator.of(source, true)) {
+ *    for (CsvRow row : () -> csvIterator) {
  *      // process the row
  *    }
  *  }
  * </pre>
  * This class also allows the headers to be obtained without reading the whole CSV file:
  * <pre>
- *  try (CsvIterable iterable = CsvIterable.of(source, true)) {
- *    ImmutableList{@literal <String>} headers = iterable.headers();
+ *  try (CsvIterator csvIterator = CsvIterator.of(source, true)) {
+ *    ImmutableList{@literal <String>} headers = csvIterator.headers();
  *  }
  * </pre>
  */
@@ -79,6 +80,9 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   //------------------------------------------------------------------------
   /**
    * Parses the specified source as a CSV file.
+   * <p>
+   * This method opens the CSV file for reading.
+   * The caller is responsible for closing it by calling {@link #close()}.
    * 
    * @param source  the CSV file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
@@ -95,6 +99,9 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    * <p>
    * This overload allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * <p>
+   * This method opens the CSV file for reading.
+   * The caller is responsible for closing it by calling {@link #close()}.
    * 
    * @param source  the file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
@@ -105,9 +112,9 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    */
   public static CsvIterator of(CharSource source, boolean headerRow, char separator) {
     ArgChecker.notNull(source, "source");
-
-    return Unchecked.wrap(() -> {
-      BufferedReader reader = source.openBufferedStream();
+    @SuppressWarnings("resource")
+    BufferedReader reader = Unchecked.wrap(() -> source.openBufferedStream());
+    try {
       if (!headerRow) {
         return new CsvIterator(reader, separator, ImmutableList.of(), ImmutableMap.of());
       }
@@ -117,7 +124,23 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
       }
       ImmutableList<String> headers = CsvFile.parseLine(line, separator);
       return new CsvIterator(reader, separator, headers, CsvFile.buildSearchHeaders(headers));
-    });
+
+    } catch (RuntimeException ex) {
+      try {
+        reader.close();
+      } catch (IOException ex2) {
+        ex.addSuppressed(ex2);
+      }
+      throw ex;
+
+    } catch (IOException ex) {
+      try {
+        reader.close();
+      } catch (IOException ex2) {
+        ex.addSuppressed(ex2);
+      }
+      throw new UncheckedIOException(ex);
+    }
   }
 
   //------------------------------------------------------------------------
@@ -169,7 +192,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   /**
    * Checks whether there is another row in the CSV file.
    * 
-   * @return the peeked row
+   * @return true if there is another row, false if not
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
@@ -203,7 +226,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
     if (nextRow != null || hasNext()) {
       return nextRow;
     } else {
-      throw new NoSuchElementException("CsvIterable has reached the end of the file");
+      throw new NoSuchElementException("CsvIterator has reached the end of the file");
     }
   }
 
@@ -222,7 +245,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
       nextRow = null;
       return row;
     } else {
-      throw new NoSuchElementException("CsvIterable has reached the end of the file");
+      throw new NoSuchElementException("CsvIterator has reached the end of the file");
     }
   }
 
@@ -254,7 +277,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    */
   @Override
   public void remove() {
-    throw new UnsupportedOperationException("CsvIterable does not support remove()");
+    throw new UnsupportedOperationException("CsvIterator does not support remove()");
   }
 
   /**
@@ -275,7 +298,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    */
   @Override
   public String toString() {
-    return "CsvIterable" + headers.toString();
+    return "CsvIterator" + headers.toString();
   }
 
 }
