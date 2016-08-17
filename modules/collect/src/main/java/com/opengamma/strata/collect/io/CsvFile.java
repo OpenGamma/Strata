@@ -7,19 +7,16 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
-import com.google.common.io.LineProcessor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
 
@@ -28,6 +25,9 @@ import com.opengamma.strata.collect.Unchecked;
  * <p>
  * Represents a CSV file together with the ability to parse it from a {@link CharSource}.
  * The separator may be specified, allowing TSV files (tab-separated) and other similar formats to be parsed.
+ * <p>
+ * This class loads the entire CSV file into memory.
+ * To process the CSV file row-by-row, use {@link CsvIterator}.
  * <p>
  * The CSV file format is a general-purpose comma-separated value format.
  * The format is parsed line-by-line, with lines separated by CR, LF or CRLF.
@@ -100,18 +100,6 @@ public final class CsvFile {
     return new CsvFile(headers, buildSearchHeaders(headers), ImmutableList.copyOf(parsedCsv));
   }
 
-  // parses the CSV file format
-  private static ArrayList<ImmutableList<String>> parseAll(ImmutableList<String> lines, char separator) {
-    ArrayList<ImmutableList<String>> parsedLines = new ArrayList<>();
-    for (String line : lines) {
-      ImmutableList<String> parsed = parseLine(line, separator);
-      if (!parsed.isEmpty()) {
-        parsedLines.add(parsed);
-      }
-    }
-    return parsedLines;
-  }
-
   //------------------------------------------------------------------------
   /**
    * Obtains an instance from a list of headers and rows.
@@ -138,84 +126,21 @@ public final class CsvFile {
     return new CsvFile(copiedHeaders, buildSearchHeaders(copiedHeaders), copiedRows);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Parses the specified source as a CSV file without loading the whole file into memory.
-   * <p>
-   * The specified consumer is invoked for each row.
-   * 
-   * @param source  the CSV file resource
-   * @param headerRow  whether the source has a header row, an empty source may omit the header
-   * @param consumer  the row consumer
-   * @throws UncheckedIOException if an IO exception occurs
-   * @throws IllegalArgumentException if the file cannot be parsed
-   */
-  public static void parse(CharSource source, boolean headerRow, Consumer<CsvRow> consumer) {
-    parse(source, headerRow, ',', consumer);
-  }
-
-  /**
-   * Parses the specified source as a CSV file without loading the whole file into memory,
-   * where the separator is specified and might not be a comma.
-   * <p>
-   * The specified consumer is invoked for each row.
-   * <p>
-   * This overload allows the separator to be controlled.
-   * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
-   * 
-   * @param source  the file resource
-   * @param headerRow  whether the source has a header row, an empty source may omit the header
-   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
-   * @param consumer  the row consumer
-   * @throws UncheckedIOException if an IO exception occurs
-   * @throws IllegalArgumentException if the file cannot be parsed
-   */
-  public static void parse(CharSource source, boolean headerRow, char separator, Consumer<CsvRow> consumer) {
-    ArgChecker.notNull(source, "source");
-    ArgChecker.notNull(consumer, "consumer");
-    Unchecked.wrap(() -> parseConsume(source, headerRow, separator, consumer));
-  }
-
-  // parses the CSV file, consuming each row
-  private static void parseConsume(
-      CharSource source,
-      boolean headerRow,
-      char separator,
-      Consumer<CsvRow> consumer) throws IOException {
-
-    LineProcessor<Boolean> processor = new LineProcessor<Boolean>() {
-      boolean expectHeader = headerRow;
-      ImmutableList<String> headers = ImmutableList.of();
-      ImmutableMap<String, Integer> searchHeaders = ImmutableMap.of();
-
-      @Override
-      public boolean processLine(String line) throws IOException {
-        ImmutableList<String> parsed = parseLine(line, separator);
-        if (parsed.isEmpty()) {
-          return true;
-        }
-        if (expectHeader) {
-          headers = parsed;
-          searchHeaders = buildSearchHeaders(parsed);
-          expectHeader = false;
-        } else {
-          CsvRow row = new CsvRow(headers, searchHeaders, parsed);
-          consumer.accept(row);
-        }
-        return true;
-      }
-
-      @Override
-      public Boolean getResult() {
-        return Boolean.FALSE;
-      }
-    };
-    source.readLines(processor);
-  }
-
   //------------------------------------------------------------------------
+  // parses the CSV file format
+  private static ArrayList<ImmutableList<String>> parseAll(ImmutableList<String> lines, char separator) {
+    ArrayList<ImmutableList<String>> parsedLines = new ArrayList<>();
+    for (String line : lines) {
+      ImmutableList<String> parsed = parseLine(line, separator);
+      if (!parsed.isEmpty()) {
+        parsedLines.add(parsed);
+      }
+    }
+    return parsedLines;
+  }
+
   // parse a single line
-  private static ImmutableList<String> parseLine(String line, char separator) {
+  static ImmutableList<String> parseLine(String line, char separator) {
     if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
       return ImmutableList.of();
     }
@@ -262,7 +187,7 @@ public final class CsvFile {
   }
 
   // build the search headers
-  private static ImmutableMap<String, Integer> buildSearchHeaders(ImmutableList<String> headers) {
+  static ImmutableMap<String, Integer> buildSearchHeaders(ImmutableList<String> headers) {
     // need to allow duplicate headers and only store the first instance
     Map<String, Integer> searchHeaders = new HashMap<>();
     for (int i = 0; i < headers.size(); i++) {
