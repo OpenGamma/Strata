@@ -70,11 +70,6 @@ public final class LegalEntitySurvivalProbabilities
     return survivalProbabilities.discountFactor(date);
   }
 
-  public double zeroRateYearFraction(double yearFraction) {
-    double zeroRate = survivalProbabilities.zeroRate(yearFraction);
-    return yearFraction * zeroRate;
-  }
-
   public double zeroRate(double yearFraction) {
     return survivalProbabilities.zeroRate(yearFraction);
   }

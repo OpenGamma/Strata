@@ -183,14 +183,15 @@ public class RatesFiniteDifferenceSensitivityCalculator {
     ImmutableMap<T, CreditDiscountFactors> baseCurves = metaProperty.get(provider);
     CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
     for (T key : baseCurves.keySet()) {
-      DiscountFactors discountFactors = baseCurves.get(key).toDiscountFactors();
+      CreditDiscountFactors creditDiscountFactors = baseCurves.get(key);
+      DiscountFactors discountFactors = creditDiscountFactors.toDiscountFactors();
       Curve curve = checkDiscountFactors(discountFactors);
       int paramCount = curve.getParameterCount();
       double[] sensitivity = new double[paramCount];
       for (int i = 0; i < paramCount; i++) {
         Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<T, CreditDiscountFactors> mapBumped = new HashMap<>(baseCurves);
-        mapBumped.put(key, CreditDiscountFactors.fromDiscountFactors(createDiscountFactors(discountFactors, dscBumped)));
+        mapBumped.put(key, creditDiscountFactors.withDiscountFactors(createDiscountFactors(discountFactors, dscBumped)));
         CreditRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }

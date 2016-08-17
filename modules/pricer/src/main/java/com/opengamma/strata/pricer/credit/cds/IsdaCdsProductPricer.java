@@ -172,33 +172,7 @@ public class IsdaCdsProductPricer {
     return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }
 
-//  public PointSensitivityBuilder protectionPvSensitivity(
-//      ResolvedCds cds,
-//      CreditRatesProvider ratesProvider,
-//      LocalDate referenceDate,
-//      PriceType priceType,
-//      ReferenceData refData) {
-//
-//    ArgChecker.notNull(cds, "cds");
-//    ArgChecker.notNull(ratesProvider, "ratesProvider");
-//    ArgChecker.notNull(referenceDate, "referenceDate");
-//    ArgChecker.notNull(refData, "refData");
-//    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
-//      return PointSensitivityBuilder.none();
-//    }
-//    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-//    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
-//    double recoveryRate = recoveryRate(cds, ratesProvider);
-//    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-//
-//    double signedNotional = cds.getBuySell().normalize(cds.getNotional());
-//    PointSensitivityBuilder protectionLegSensi =
-//        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
-//            .multipliedBy(signedNotional);
-//
-//    return protectionLegSensi;
-//  }
-
+  //-------------------------------------------------------------------------
   private PointSensitivityBuilder protectionLegSensitivity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
@@ -220,14 +194,14 @@ public class IsdaCdsProductPricer {
     double[] q = new double[n];
     // pv
     double pv = 0d;
-    double ht0 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[0]);
-    double rt0 = discountFactors.zeroRateYearFraction(integrationSchedule[0]);
+    double ht0 = survivalProbabilities.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
+    double rt0 = discountFactors.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
     p[0] = Math.exp(-rt0);
     q[0] = Math.exp(-ht0);
     double b0 = p[0] * q[0];
     for (int i = 1; i < n; ++i) {
-      double ht1 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[i]);
-      double rt1 = discountFactors.zeroRateYearFraction(integrationSchedule[i]);
+      double ht1 = survivalProbabilities.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
+      double rt1 = discountFactors.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
       p[i] = Math.exp(-rt1);
       q[i] = Math.exp(-ht1);
       double b1 = p[i] * q[i];
@@ -246,48 +220,34 @@ public class IsdaCdsProductPricer {
       rt0 = rt1;
       b0 = b1;
     }
+    double df = discountFactors.discountFactor(referenceDate);
     // pv sensitivity
+    double factor = (1d - recoveryRate) / df;
     double eps0 = computeExtendedEpsilon(-dhrt[0], p[1], q[1], p[0], q[0]);
     PointSensitivityBuilder pvSensi = discountFactors.zeroRatePointSensitivity(integrationSchedule[0])
-        .multipliedBy(-dht[0] * q[0] * eps0);
-    pvSensi = pvSensi.combinedWith(
-        survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[0]).multipliedBy(drt[0] * p[0] * eps0 + p[0]));
+        .multipliedBy(-dht[0] * q[0] * eps0 * factor);
+    pvSensi = pvSensi.combinedWith(survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[0])
+        .multipliedBy(factor * (drt[0] * p[0] * eps0 + p[0])));
     for (int i = 1; i < n - 1; ++i) {
       double epsp = computeExtendedEpsilon(-dhrt[i], p[i + 1], q[i + 1], p[i], q[i]);
       double epsm = computeExtendedEpsilon(dhrt[i - 1], p[i - 1], q[i - 1], p[i], q[i]);
       PointSensitivityBuilder pSensi = discountFactors.zeroRatePointSensitivity(integrationSchedule[i])
-          .multipliedBy(-dht[i] * q[i] * epsp - dht[i - 1] * q[i] * epsm);
+          .multipliedBy(factor * (-dht[i] * q[i] * epsp - dht[i - 1] * q[i] * epsm));
       PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[i])
-          .multipliedBy(drt[i - 1] * p[i] * epsm + drt[i] * p[i] * epsp);
+          .multipliedBy(factor * (drt[i - 1] * p[i] * epsm + drt[i] * p[i] * epsp));
       pvSensi = pvSensi.combinedWith(pSensi).combinedWith(qSensi);
     }
-    if (n > 2) {
+    if (n > 1) {
       double epsLast = computeExtendedEpsilon(dhrt[n - 2], p[n - 2], q[n - 2], p[n - 1], q[n - 1]);
       pvSensi = pvSensi.combinedWith(discountFactors.zeroRatePointSensitivity(integrationSchedule[n - 1])
-          .multipliedBy(-dht[n - 2] * q[n - 1] * epsLast));
+          .multipliedBy(-dht[n - 2] * q[n - 1] * epsLast * factor));
       pvSensi = pvSensi.combinedWith(survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[n - 1])
-          .multipliedBy(drt[n - 2] * p[n - 1] * epsLast - p[n - 1]));
+          .multipliedBy(factor * (drt[n - 2] * p[n - 1] * epsLast - p[n - 1])));
     }
     
-    double df = discountFactors.discountFactor(referenceDate);
     PointSensitivityBuilder dfSensi =
-        discountFactors.zeroRatePointSensitivity(referenceDate).multipliedBy(-pv * (1d - recoveryRate) / (df * df));
-    pvSensi = pvSensi.multipliedBy((1d - recoveryRate) / df);
+        discountFactors.zeroRatePointSensitivity(referenceDate).multipliedBy(-pv * factor / df);
     return dfSensi.combinedWith(pvSensi);
-  }
-
-  private double computeEpsilon(double dhrt, double pn, double qn, double pd, double qd) {
-    if (Math.abs(dhrt) < 1e-5) {
-      return epsilon(dhrt);
-    }
-    return (pn * qn / (pd * qd) - 1d) / dhrt;
-  }
-
-  private double computeEpsilonDerivative(double dhrt, double pn, double qn, double pd, double qd) {
-    if (Math.abs(dhrt) < 1e-5) {
-      return epsilonP(dhrt);
-    }
-    return ((pn * qn / (pd * qd) - 1d) * (dhrt - 1d) + dhrt) / (dhrt * dhrt);
   }
 
   private double computeExtendedEpsilon(double dhrt, double pn, double qn, double pd, double qd) {
@@ -295,13 +255,6 @@ public class IsdaCdsProductPricer {
       return -0.5 - dhrt / 6d - dhrt * dhrt / 24d;
     }
     return (1d - (pn * qn / (pd * qd) - 1d) / dhrt) / dhrt;
-  }
-
-  private double computeExtendedEpsilonDerivative(double dhrt, double pn, double qn, double pd, double qd) {
-    if (Math.abs(dhrt) < 1e-5) {
-      return -1d / 6d - dhrt / 12d - dhrt / 40d;
-    }
-    return (pn * qn / (pd * qd) * (2d - dhrt) - 2d - dhrt) / Math.pow(dhrt, 3);
   }
 
   private PointSensitivityBuilder riskyAnnuitySensitivity(
@@ -352,7 +305,6 @@ public class IsdaCdsProductPricer {
 
     return dfSensi.combinedWith(pvSensi);
   }
-
   private  Pair<Double, PointSensitivityBuilder> singlePeriodAccrualOnDefaultSensitivity(
       CreditCouponPaymentPeriod coupon,
       LocalDate effectiveStartDate,
@@ -365,197 +317,97 @@ public class IsdaCdsProductPricer {
     if (!start.isBefore(coupon.getEffectiveEndDate())) {
       return Pair.of(0d, PointSensitivityBuilder.none()) ; //this coupon has already expired 
     }
-
     double[] knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
         discountFactors.relativeYearFraction(coupon.getEffectiveEndDate()), integrationSchedule);
-
+    // pv
+    double pv = 0d;
     final int nItems = knots.length;
-    double[] dt = new double[nItems-1];
-    double[] tMod = new double [nItems];
-    double[] dht = new double[nItems - 1];
-    double[] dhrt = new double[nItems - 1];
+    double[] dhrtBar = new double[nItems - 1];
+    double[] dhtBar = new double[nItems - 1];
+    double[] bBar = new double[nItems];
     double[] p = new double[nItems];
     double[] q = new double[nItems];
-
     double t = knots[0];
-    double ht0 = survivalProbabilities.zeroRateYearFraction(t);
-    PointSensitivityBuilder ht0Sensi = survivalProbabilities.zeroRateYearFractionPointSensitivity(t);
-    double rt0 = discountFactors.zeroRateYearFraction(t);
-    PointSensitivityBuilder rt0Sensi = discountFactors.zeroRateYearFractionPointSensitivity(t);
-    p[0] = Math.exp(-rt0);
+    double ht0 = survivalProbabilities.zeroRate(t) * t;
+    double rt0 = discountFactors.zeroRate(t) * t;
     q[0] = Math.exp(-ht0);
-    double b0 = p[0] * q[0];
-    PointSensitivityBuilder b0Sensi = ht0Sensi.cloned().combinedWith(rt0Sensi.cloned()).multipliedBy(-b0);
-
+    p[0] = Math.exp(-rt0);
+    double b0 = q[0] * p[0];
     double effStart = discountFactors.relativeYearFraction(coupon.getEffectiveStartDate());
-    tMod[0] = t - effStart + omega;
-    double pv = 0d;
-    PointSensitivityBuilder pvSensi = PointSensitivityBuilder.none();
-    for (int j = 1; j < nItems; ++j) {
-      t = knots[j];
-      double ht1 = survivalProbabilities.zeroRateYearFraction(t);
-      PointSensitivityBuilder ht1Sensi = survivalProbabilities.zeroRateYearFractionPointSensitivity(t);
-      double rt1 = discountFactors.zeroRateYearFraction(t);
-      PointSensitivityBuilder rt1Sensi = discountFactors.zeroRateYearFractionPointSensitivity(t);
-      p[j] = Math.exp(-rt1);
-      q[j] = Math.exp(-ht1);
-      double b1 = p[j] * q[j];
-      PointSensitivityBuilder b1Sensi = ht1Sensi.cloned().combinedWith(rt1Sensi.cloned()).multipliedBy(-b1);
-
-      // TODO clean sensitivity computation
-      
-      dt[j - 1] = knots[j] - knots[j - 1];
-
-      dht[j - 1] = ht1 - ht0;
+    double t0 = t - effStart + omega;
+    for (int i = 1; i < nItems; ++i) {
+      t = knots[i];
+      double ht1 = survivalProbabilities.zeroRate(t) * t;
+      double rt1 = discountFactors.zeroRate(t) * t;
+      q[i] = Math.exp(-ht1);
+      p[i] = Math.exp(-rt1);
+      double b1 = q[i] * p[i];
+      double dt = knots[i] - knots[i - 1];
+      double dht = ht1 - ht0;
       double drt = rt1 - rt0;
-      dhrt[j - 1] = dht[j - 1] + drt;
-      PointSensitivityBuilder dhtSensi = ht1Sensi.cloned().combinedWith(ht0Sensi.multipliedBy(-1d));
-      PointSensitivityBuilder dhrtSensi =
-          dhtSensi.cloned().combinedWith(rt1Sensi.cloned().combinedWith(rt0Sensi.multipliedBy(-1d)));
-
+      double dhrt = dht + drt;
       double tPv;
-      PointSensitivityBuilder tPvSensi;
       if (formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
-        if (Math.abs(dhrt[j - 1]) < 1e-5) {
-          double eps = epsilonP(-dhrt[j - 1]);
-          tPv = dht[j - 1] * dt[j - 1] * b0 * eps;
-          tPvSensi = dhtSensi.multipliedBy(dt[j - 1] * b0 * eps)
-              .combinedWith(b0Sensi.multipliedBy(dht[j - 1] * eps))
-              .combinedWith(dhrtSensi.multipliedBy(-dht[j - 1] * dt[j - 1] * b0 * epsilonPP(-dhrt[j - 1])));
+        if (Math.abs(dhrt) < 1e-5) {
+          double eps = epsilonP(-dhrt);
+          tPv = dht * dt * b0 * eps;
+          dhtBar[i - 1] = dt * b0 * eps;
+          dhrtBar[i - 1] = -dht * dt * b0 * epsilonPP(-dhrt);
+          bBar[i - 1] += dht * eps;
         } else {
-          tPv = dht[j - 1] * dt[j - 1] / dhrt[j - 1] * ((b0 - b1) / dhrt[j - 1] - b1);
-          tPvSensi = dhtSensi.multipliedBy(dt[j - 1] / dhrt[j - 1] * ((b0 - b1) / dhrt[j - 1] - b1))
-              .combinedWith(dhrtSensi
-                  .multipliedBy(dht[j - 1] * dt[j - 1] / (dhrt[j - 1] * dhrt[j - 1]) * (b1 - 2d * (b0 - b1) / dhrt[j - 1])))
-              .combinedWith(b0Sensi.multipliedBy(dht[j - 1] * dt[j - 1] / (dhrt[j - 1] * dhrt[j - 1])))
-              .combinedWith(b1Sensi.cloned().multipliedBy(-dht[j - 1] * dt[j - 1] / dhrt[j - 1] * (1d + 1d / dhrt[j - 1])));
+          tPv = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
+          dhtBar[i - 1] = dt / dhrt * ((b0 - b1) / dhrt - b1);
+          dhrtBar[i - 1] = dht * dt / (dhrt * dhrt) * (b1 - 2d * (b0 - b1) / dhrt);
+          bBar[i - 1] += dht * dt / (dhrt * dhrt);
+          bBar[i] += -dht * dt / dhrt * (1d + 1d / dhrt);
         }
       } else {
-        tMod[j] = t - effStart + omega;
-        if (Math.abs(dhrt[j - 1]) < 1e-5) {
-          double eps = epsilon(-dhrt[j - 1]);
-          double epsp = epsilonP(-dhrt[j - 1]);
-          tPv = dht[j - 1] * b0 * (tMod[j - 1] * eps + dt[j - 1] * epsp);
-          tPvSensi = dhtSensi.multipliedBy(b0 * (tMod[j-1] * eps + dt[j - 1] * epsp))
-              .combinedWith(b0Sensi.multipliedBy(dht[j - 1] * (tMod[j - 1] * eps + dt[j - 1] * epsp)))
-              .combinedWith(
-                  dhrtSensi.multipliedBy(-dht[j - 1] * b0 * (tMod[j - 1] * epsp + dt[j - 1] * epsilonPP(-dhrt[j - 1]))));
+        double t1 = t - effStart + omega;
+        if (Math.abs(dhrt) < 1e-5) {
+          double eps = epsilon(-dhrt);
+          double epsp = epsilonP(-dhrt);
+          tPv = dht * b0 * (t0 * eps + dt * epsp);
+          dhtBar[i - 1] = b0 * (t0 * eps + dt * epsp);
+          dhrtBar[i - 1] = -dht * b0 * (t0 * epsp + dt * epsilonPP(-dhrt));
+          bBar[i - 1] += dht * (t0 * eps + dt * epsp);
         } else {
-          tPv = dht[j - 1] / dhrt[j - 1] * (tMod[j - 1] * b0 - tMod[j] * b1 + dt[j - 1] / dhrt[j - 1] * (b0 - b1));
-          tPvSensi =
-              dhrtSensi.multipliedBy(
-                  dht[j - 1] / (dhrt[j - 1] * dhrt[j - 1]) *
-                      (-2d * dt[j - 1] / dhrt[j - 1] * (b0 - b1) - tMod[j - 1] * b0 + tMod[j] * b1))
-                  .combinedWith(dhtSensi
-                      .multipliedBy((tMod[j - 1] * b0 - tMod[j] * b1 + dt[j - 1] / dhrt[j - 1] * (b0 - b1)) / dhrt[j - 1]))
-                  .combinedWith(b0Sensi.multipliedBy(dht[j - 1] / dhrt[j - 1] * (tMod[j - 1] + dt[j - 1] / dhrt[j - 1])))
-                  .combinedWith(b1Sensi.cloned().multipliedBy(dht[j - 1] / dhrt[j - 1] * (-tMod[j] - dt[j - 1] / dhrt[j - 1])));
+          tPv = dht / dhrt * (t0 * b0 - t1 * b1 + dt / dhrt * (b0 - b1));
+          dhtBar[i - 1] = (t0 * b0 - t1 * b1 + dt / dhrt * (b0 - b1)) / dhrt;
+          dhrtBar[i - 1] = dht / (dhrt * dhrt) * (-2d * dt / dhrt * (b0 - b1) - t0 * b0 + t1 * b1);
+          bBar[i - 1] += dht / dhrt * (t0 + dt / dhrt);
+          bBar[i] += dht / dhrt * (-t1 - dt / dhrt);
         }
+        t0 = t1;
       }
-
       pv += tPv;
-      pvSensi = pvSensi.combinedWith(tPvSensi);
       ht0 = ht1;
-      ht0Sensi = ht1Sensi;
       rt0 = rt1;
-      rt0Sensi = rt1Sensi;
       b0 = b1;
-      b0Sensi = b1Sensi;
     }
     double yfRatio = coupon.getYearFraction() /
         discountFactors.getDayCount().relativeYearFraction(coupon.getStartDate(), coupon.getEndDate());
-     
-    return Pair.of(yfRatio * pv, pvSensi.multipliedBy(yfRatio));
-//    
-//
-//    double ht0 = survivalProbabilities.zeroRateYearFraction(t);
-//    PointSensitivityBuilder ht0Sensi = survivalProbabilities.zeroRateYearFractionPointSensitivity(t);
-//    double rt0 = discountFactors.zeroRateYearFraction(t);
-//    PointSensitivityBuilder rt0Sensi = discountFactors.zeroRateYearFractionPointSensitivity(t);
-//    p[0] = Math.exp(-rt0);
-//    q[0] = Math.exp(-ht0);
-//    double b0 = p[0] * q[0];
-//    PointSensitivityBuilder b0Sensi = ht0Sensi.cloned().combinedWith(rt0Sensi.cloned()).multipliedBy(-b0);
-//
-//    double effStart = discountFactors.relativeYearFraction(coupon.getEffectiveStartDate());
-//    tMod[0] = t - effStart + omega;
-//    double pv = 0d;
-//    PointSensitivityBuilder pvSensi = PointSensitivityBuilder.none();
-//    for (int j = 1; j < nItems; ++j) {
-//      t = knots[j];
-//      double ht1 = survivalProbabilities.zeroRateYearFraction(t);
-//      PointSensitivityBuilder ht1Sensi = survivalProbabilities.zeroRateYearFractionPointSensitivity(t);
-//      double rt1 = discountFactors.zeroRateYearFraction(t);
-//      PointSensitivityBuilder rt1Sensi = discountFactors.zeroRateYearFractionPointSensitivity(t);
-//      p[j] = Math.exp(-rt1);
-//      q[j] = Math.exp(-ht1);
-//      double b1 = p[j] * q[j];
-//      PointSensitivityBuilder b1Sensi = ht1Sensi.cloned().combinedWith(rt1Sensi.cloned()).multipliedBy(-b1);
-//
-//      // TODO clean sensitivity computation
-//      
-//      dt[j - 1] = knots[j] - knots[j - 1];
-//
-//      dht[j - 1] = ht1 - ht0;
-//      double drt = rt1 - rt0;
-//      dhrt[j - 1] = dht[j - 1] + drt;
-//      PointSensitivityBuilder dhtSensi = ht1Sensi.cloned().combinedWith(ht0Sensi.multipliedBy(-1d));
-//      PointSensitivityBuilder dhrtSensi =
-//          dhtSensi.cloned().combinedWith(rt1Sensi.cloned().combinedWith(rt0Sensi.multipliedBy(-1d)));
-//
-//      double tPv;
-//      PointSensitivityBuilder tPvSensi;
-//      if (formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
-//        if (Math.abs(dhrt[j - 1]) < 1e-5) {
-//          double eps = epsilonP(-dhrt[j - 1]);
-//          tPv = dht[j - 1] * dt[j - 1] * b0 * eps;
-//          tPvSensi = dhtSensi.multipliedBy(dt[j - 1] * b0 * eps)
-//              .combinedWith(b0Sensi.multipliedBy(dht[j - 1] * eps))
-//              .combinedWith(dhrtSensi.multipliedBy(-dht[j - 1] * dt[j - 1] * b0 * epsilonPP(-dhrt[j - 1])));
-//        } else {
-//          tPv = dht[j - 1] * dt[j - 1] / dhrt[j - 1] * ((b0 - b1) / dhrt[j - 1] - b1);
-//          tPvSensi = dhtSensi.multipliedBy(dt[j - 1] / dhrt[j - 1] * ((b0 - b1) / dhrt[j - 1] - b1))
-//              .combinedWith(dhrtSensi
-//                  .multipliedBy(dht[j - 1] * dt[j - 1] / (dhrt[j - 1] * dhrt[j - 1]) * (b1 - 2d * (b0 - b1) / dhrt[j - 1])))
-//              .combinedWith(b0Sensi.multipliedBy(dht[j - 1] * dt[j - 1] / (dhrt[j - 1] * dhrt[j - 1])))
-//              .combinedWith(b1Sensi.cloned().multipliedBy(-dht[j - 1] * dt[j - 1] / dhrt[j - 1] * (1d + 1d / dhrt[j - 1])));
-//        }
-//      } else {
-//        tMod[j] = t - effStart + omega;
-//        if (Math.abs(dhrt[j - 1]) < 1e-5) {
-//          double eps = epsilon(-dhrt[j - 1]);
-//          double epsp = epsilonP(-dhrt[j - 1]);
-//          tPv = dht[j - 1] * b0 * (tMod[j - 1] * eps + dt[j - 1] * epsp);
-//          tPvSensi = dhtSensi.multipliedBy(b0 * (tMod[j-1] * eps + dt[j - 1] * epsp))
-//              .combinedWith(b0Sensi.multipliedBy(dht[j - 1] * (tMod[j - 1] * eps + dt[j - 1] * epsp)))
-//              .combinedWith(
-//                  dhrtSensi.multipliedBy(-dht[j - 1] * b0 * (tMod[j - 1] * epsp + dt[j - 1] * epsilonPP(-dhrt[j - 1]))));
-//        } else {
-//          tPv = dht[j - 1] / dhrt[j - 1] * (tMod[j - 1] * b0 - tMod[j] * b1 + dt[j - 1] / dhrt[j - 1] * (b0 - b1));
-//          tPvSensi =
-//              dhrtSensi.multipliedBy(
-//                  dht[j - 1] / (dhrt[j - 1] * dhrt[j - 1]) *
-//                      (-2d * dt[j - 1] / dhrt[j - 1] * (b0 - b1) - tMod[j - 1] * b0 + tMod[j] * b1))
-//                  .combinedWith(dhtSensi
-//                      .multipliedBy((tMod[j - 1] * b0 - tMod[j] * b1 + dt[j - 1] / dhrt[j - 1] * (b0 - b1)) / dhrt[j - 1]))
-//                  .combinedWith(b0Sensi.multipliedBy(dht[j - 1] / dhrt[j - 1] * (tMod[j - 1] + dt[j - 1] / dhrt[j - 1])))
-//                  .combinedWith(b1Sensi.cloned().multipliedBy(dht[j - 1] / dhrt[j - 1] * (-tMod[j] - dt[j - 1] / dhrt[j - 1])));
-//        }
-//      }
-//
-//      pv += tPv;
-//      pvSensi = pvSensi.combinedWith(tPvSensi);
-//      ht0 = ht1;
-//      ht0Sensi = ht1Sensi;
-//      rt0 = rt1;
-//      rt0Sensi = rt1Sensi;
-//      b0 = b1;
-//      b0Sensi = b1Sensi;
-//    }
-//    double yfRatio = coupon.getYearFraction() /
-//        discountFactors.getDayCount().relativeYearFraction(coupon.getStartDate(), coupon.getEndDate());
-//     
-//    return Pair.of(yfRatio * pv, pvSensi.multipliedBy(yfRatio));
+    // pv sensitivity
+    PointSensitivityBuilder qSensiFirst = survivalProbabilities.zeroRatePointSensitivity(knots[0])
+        .multipliedBy(yfRatio * ((dhrtBar[0] + dhtBar[0]) / q[0] + bBar[0] * p[0]));
+    PointSensitivityBuilder pSensiFirst = discountFactors.zeroRatePointSensitivity(knots[0])
+        .multipliedBy(yfRatio * (dhrtBar[0] / p[0] + bBar[0] * q[0]));
+    PointSensitivityBuilder pvSensi = pSensiFirst.combinedWith(qSensiFirst);
+    for (int i = 1; i < nItems - 1; ++i) {
+      PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(knots[i]).multipliedBy(
+          yfRatio * (-(dhrtBar[i - 1] + dhtBar[i - 1]) / q[i] + (dhrtBar[i] + dhtBar[i]) / q[i] + bBar[i] * p[i]));
+      PointSensitivityBuilder pSensi = discountFactors.zeroRatePointSensitivity(knots[i]).multipliedBy(
+          yfRatio * (-dhrtBar[i - 1] / p[i] + dhrtBar[i] / p[i] + bBar[i] * q[i]));
+      pvSensi = pvSensi.combinedWith(pSensi).combinedWith(qSensi);
+    }
+    if (nItems > 1) {
+      PointSensitivityBuilder qSensiLast = survivalProbabilities.zeroRatePointSensitivity(knots[nItems - 1]).multipliedBy(
+          yfRatio * (-(dhrtBar[nItems - 2] + dhtBar[nItems - 2]) / q[nItems - 1] + bBar[nItems - 1] * p[nItems - 1]));
+      PointSensitivityBuilder pSensiLast = discountFactors.zeroRatePointSensitivity(knots[nItems - 1]).multipliedBy(
+          yfRatio * (-dhrtBar[nItems - 2] / p[nItems - 1] + bBar[nItems - 1] * q[nItems - 1]));
+      pvSensi = pvSensi.combinedWith(pSensiLast).combinedWith(qSensiLast);
+    }
+
+    return Pair.of(yfRatio * pv, pvSensi);
   }
 
   //-------------------------------------------------------------------------
@@ -623,13 +475,13 @@ public class IsdaCdsProductPricer {
         survivalProbabilities.getParameterKeys());
 
     double pv = 0d;
-    double ht0 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[0]);
-    double rt0 = discountFactors.zeroRateYearFraction(integrationSchedule[0]);
+    double ht0 = survivalProbabilities.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
+    double rt0 = discountFactors.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
     double b0 = Math.exp(-ht0 - rt0);
     int n = integrationSchedule.length;
     for (int i = 1; i < n; ++i) {
-      double ht1 = survivalProbabilities.zeroRateYearFraction(integrationSchedule[i]);
-      double rt1 = discountFactors.zeroRateYearFraction(integrationSchedule[i]);
+      double ht1 = survivalProbabilities.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
+      double rt1 = discountFactors.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
       double b1 = Math.exp(-ht1 - rt1);
       double dht = ht1 - ht0;
       double drt = rt1 - rt0;
@@ -719,8 +571,8 @@ public class IsdaCdsProductPricer {
         discountFactors.relativeYearFraction(coupon.getEffectiveEndDate()), integrationSchedule);
 
     double t = knots[0];
-    double ht0 = survivalProbabilities.zeroRateYearFraction(t);
-    double rt0 = discountFactors.zeroRateYearFraction(t);
+    double ht0 = survivalProbabilities.zeroRate(t) * t;
+    double rt0 = discountFactors.zeroRate(t) * t;
     double b0 = Math.exp(-rt0 - ht0);
 
     double effStart = discountFactors.relativeYearFraction(coupon.getEffectiveStartDate());
@@ -729,8 +581,8 @@ public class IsdaCdsProductPricer {
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
       t = knots[j];
-      double ht1 = survivalProbabilities.zeroRateYearFraction(t);
-      double rt1 = discountFactors.zeroRateYearFraction(t);
+      double ht1 = survivalProbabilities.zeroRate(t) * t;
+      double rt1 = discountFactors.zeroRate(t) * t;
       double b1 = Math.exp(-rt1 - ht1);
 
       double dt = knots[j] - knots[j - 1];

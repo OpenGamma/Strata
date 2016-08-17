@@ -35,6 +35,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
 @BeanDefinition(builderScope = "private")
@@ -66,6 +67,11 @@ public final class IsdaCompliantZeroRateDiscountFactors
   public static IsdaCompliantZeroRateDiscountFactors of(Currency currency, LocalDate valuationDate,
       InterpolatedNodalCurve underlyingCurve) {
     return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, underlyingCurve);
+  }
+
+  public IsdaCompliantZeroRateDiscountFactors withDiscountFactors(DiscountFactors discountFactors) {
+    InterpolatedNodalCurve curve = (InterpolatedNodalCurve) ((ZeroRateDiscountFactors) discountFactors).getCurve();
+    return IsdaCompliantZeroRateDiscountFactors.of(discountFactors.getCurrency(), discountFactors.getValuationDate(), curve);
   }
 
   @ImmutableConstructor
