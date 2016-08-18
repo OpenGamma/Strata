@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit.cds;
 
 import java.time.LocalDate;
@@ -17,6 +22,14 @@ import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
+/**
+ * Provides access to discount factors for a single currency.
+ * <p>
+ * The discount factor represents the time value of money for the specified currency
+ * when comparing the valuation date to the specified date.
+ * <p>
+ * This is also used for representing survival probabilities of a legal entity for a single currency.
+ */
 public interface CreditDiscountFactors
     extends MarketDataView, ParameterizedData {
 
@@ -30,6 +43,15 @@ public interface CreditDiscountFactors
   public abstract Currency getCurrency();
 
   /**
+   * Obtains day count convention.
+   * <p>
+   * This is typically the day count convention of the underlying curve.
+   * 
+   * @return the day count
+   */
+  public abstract DayCount getDayCount();
+
+  /**
    * Finds the market data structure underlying this instance with the specified name.
    * <p>
    * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
@@ -41,16 +63,19 @@ public interface CreditDiscountFactors
    */
   public abstract <T> Optional<T> findData(MarketDataName<T> name);
 
+  /**
+   * Creates an instance of {@link DiscountFactors}.
+   * 
+   * @return the instance
+   */
   public abstract DiscountFactors toDiscountFactors();
 
-  public abstract CreditDiscountFactors withDiscountFactors(DiscountFactors discountFactors);
-
   /**
-   * Obtains day count convention of the curve.
+   * Obtains the parameter keys of the underlying curve.
    * 
-   * @return the day count
+   * @return the parameter keys
    */
-  public abstract DayCount getDayCount();
+  public abstract DoubleArray getParameterKeys();
 
   //-------------------------------------------------------------------------
   @Override
@@ -58,6 +83,14 @@ public interface CreditDiscountFactors
 
   @Override
   public abstract CreditDiscountFactors withPerturbation(ParameterPerturbation perturbation);
+
+  /**
+   * Obtains a new instance with the underlying curve replaced.
+   * 
+   * @param curve  the curve
+   * @return the instance
+   */
+  public abstract CreditDiscountFactors withCurve(Curve curve);
 
   //-------------------------------------------------------------------------
   /**
@@ -78,7 +111,7 @@ public interface CreditDiscountFactors
    * The discount factor represents the time value of money for the specified currency
    * when comparing the valuation date to the specified date.
    * <p>
-   * If the valuation date is on or after the specified date, the discount factor is 1.
+   * If the valuation date is on the specified date, the discount factor is 1.
    * 
    * @param date  the date to discount to
    * @return the discount factor
@@ -202,12 +235,6 @@ public interface CreditDiscountFactors
    */
   public abstract ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency);
 
-  public default ZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction) {
-    return zeroRateYearFractionPointSensitivity(yearFraction, getCurrency());
-  }
-
-  public abstract ZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction, Currency sensitivityCurrency);
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the parameter sensitivity from the point sensitivity.
@@ -237,8 +264,5 @@ public interface CreditDiscountFactors
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities);
-
-  //-------------------------------------------------------------------------
-  public DoubleArray getParameterKeys();
 
 }

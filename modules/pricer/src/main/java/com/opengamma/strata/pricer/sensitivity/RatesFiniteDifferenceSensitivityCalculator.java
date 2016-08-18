@@ -32,8 +32,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Computes the curve parameter sensitivity by finite difference.
  * <p>
- * This is based on an {@link ImmutableRatesProvider} or {@link LegalEntityDiscountingProvider}, 
- * and calculates the sensitivity by finite difference.
+ * This is based on an {@link ImmutableRatesProvider}, {@link LegalEntityDiscountingProvider} or {@link CreditRatesProvider}.
+ * The sensitivities are calculated by finite difference.
  */
 public class RatesFiniteDifferenceSensitivityCalculator {
 
@@ -162,6 +162,16 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Computes the first order sensitivities of a function of a CreditRatesProvider to a double by finite difference.
+   * <p>
+   * The finite difference is computed by forward type.
+   * The function should return a value in the same currency for any rates provider of CreditRatesProvider.
+   * 
+   * @param provider  the rates provider
+   * @param valueFn  the function from a rate provider to a currency amount for which the sensitivity should be computed
+   * @return the curve sensitivity
+   */
   public CurrencyParameterSensitivities sensitivity(
       CreditRatesProvider provider,
       Function<CreditRatesProvider, CurrencyAmount> valueFn) {
@@ -191,7 +201,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       for (int i = 0; i < paramCount; i++) {
         Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<T, CreditDiscountFactors> mapBumped = new HashMap<>(baseCurves);
-        mapBumped.put(key, creditDiscountFactors.withDiscountFactors(createDiscountFactors(discountFactors, dscBumped)));
+        mapBumped.put(key, creditDiscountFactors.withCurve(dscBumped));
         CreditRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }

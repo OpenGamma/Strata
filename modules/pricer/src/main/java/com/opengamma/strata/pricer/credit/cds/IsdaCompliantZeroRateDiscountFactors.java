@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit.cds;
 
 import java.io.Serializable;
@@ -27,17 +32,28 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.pricer.DiscountFactors;
-import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
+/**
+ * ISDA compliant zero rate discount factors. 
+ * <p>
+ * This is used to price credit default swaps under ISDA standard model. 
+ * <p>
+ * The underlying curve must be zero rate curve represented by {@code InterpolatedNodalCurve}. 
+ * The zero rates must be interpolated by {@code ProductLinearCurveInterpolator} and extrapolated by 
+ * {@code FlatCurveExtrapolator} on the left and {@code ProductLinearCurveExtrapolator} on the right.
+ */
 @BeanDefinition(builderScope = "private")
 public final class IsdaCompliantZeroRateDiscountFactors
     implements CreditDiscountFactors, ImmutableBean, Serializable {
@@ -64,14 +80,17 @@ public final class IsdaCompliantZeroRateDiscountFactors
   private final DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param currency  the currency 
+   * @param valuationDate  the valuation date
+   * @param underlyingCurve  the underlying curve
+   * @return the instance
+   */
   public static IsdaCompliantZeroRateDiscountFactors of(Currency currency, LocalDate valuationDate,
       InterpolatedNodalCurve underlyingCurve) {
     return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, underlyingCurve);
-  }
-
-  public IsdaCompliantZeroRateDiscountFactors withDiscountFactors(DiscountFactors discountFactors) {
-    InterpolatedNodalCurve curve = (InterpolatedNodalCurve) ((ZeroRateDiscountFactors) discountFactors).getCurve();
-    return IsdaCompliantZeroRateDiscountFactors.of(discountFactors.getCurrency(), discountFactors.getValuationDate(), curve);
   }
 
   @ImmutableConstructor
@@ -89,7 +108,10 @@ public final class IsdaCompliantZeroRateDiscountFactors
         ValueType.ZERO_RATE, "Incorrect y-value type for zero-rate discount curve");
     DayCount dayCount = curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect curve metadata, missing DayCount"));
-
+    ArgChecker.isTrue(curve.getInterpolator().equals(CurveInterpolators.PRODUCT_LINEAR), "Interpolator must be PRODUCT_LINEAR");
+    ArgChecker.isTrue(curve.getExtrapolatorLeft().equals(CurveExtrapolators.FLAT), "Left extrapolator must be FLAT");
+    ArgChecker.isTrue(curve.getExtrapolatorRight().equals(CurveExtrapolators.PRODUCT_LINEAR),
+        "Right extrapolator must be PRODUCT_LINEAR");
 
     this.currency = currency;
     this.valuationDate = valuationDate;
@@ -166,11 +188,6 @@ public final class IsdaCompliantZeroRateDiscountFactors
   }
 
   @Override
-  public ZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction, Currency sensitivityCurrency) {
-    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, yearFraction);
-  }
-
-  @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSensitivity) {
     double yearFraction = pointSensitivity.getYearFraction();
     UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
@@ -190,15 +207,11 @@ public final class IsdaCompliantZeroRateDiscountFactors
     return DiscountFactors.of(currency, valuationDate, curve);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a new instance with a different curve.
-   * 
-   * @param curve  the new curve
-   * @return the new instance
-   */
-  public IsdaCompliantZeroRateDiscountFactors withCurve(InterpolatedNodalCurve curve) {
-    return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, curve);
+  @Override
+  public IsdaCompliantZeroRateDiscountFactors withCurve(Curve curve) {
+    ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "curve must be InterpolatedNodalCurve");
+    InterpolatedNodalCurve nodalCurve = (InterpolatedNodalCurve) curve;
+    return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve);
   }
 
   //------------------------- AUTOGENERATED START -------------------------

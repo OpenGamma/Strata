@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit.cds;
 
 import java.io.Serializable;
@@ -25,19 +30,37 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
+/**
+ * The legal entity survival probabilities. 
+ * <p>
+ * This represents the survival probabilities of a legal entity for a single currency.
+ */
 @BeanDefinition(builderScope = "private")
 public final class LegalEntitySurvivalProbabilities
     implements ImmutableBean, Serializable {
   /**
    * The underlying curve.
+   * <p>
    * The metadata of the curve must define a day count.
    */
   @PropertyDefinition(validate = "notNull")
   private final CreditDiscountFactors survivalProbabilities;
-
+  /**
+   * The legal entity identifier.
+   * <p>
+   * This identifier is used for the reference legal entity of a credit derivative.
+   */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param survivalProbabilities  the survival probabilities
+   * @param legalEntityId  the legal entity ID
+   * @return the instance
+   */
   public static LegalEntitySurvivalProbabilities of(CreditDiscountFactors survivalProbabilities, StandardId legalEntityId) {
     return new LegalEntitySurvivalProbabilities(survivalProbabilities, legalEntityId);
   }
@@ -46,7 +69,7 @@ public final class LegalEntitySurvivalProbabilities
   /**
    * Gets the currency.
    * <p>
-   * The currency that discount factors are provided for.
+   * The currency that survival probabilities are provided for.
    * 
    * @return the currency
    */
@@ -65,42 +88,123 @@ public final class LegalEntitySurvivalProbabilities
     return survivalProbabilities.getValuationDate();
   }
 
-  //-------------------------------------------------------------------------
-  public double survivalProbability(LocalDate date) {
-    return survivalProbabilities.discountFactor(date);
-  }
-
-  public double zeroRate(double yearFraction) {
-    return survivalProbabilities.zeroRate(yearFraction);
-  }
-
+  /**
+   * Obtains the parameter keys of the underlying curve.
+   * 
+   * @return the parameter keys
+   */
   public DoubleArray getParameterKeys() {
     return survivalProbabilities.getParameterKeys();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the survival probability for the specified date.
+   * <p>
+   * If the valuation date is on the specified date, the survival probability is 1.
+   * 
+   * @param date  the date
+   * @return the survival probability
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public double survivalProbability(LocalDate date) {
+    return survivalProbabilities.discountFactor(date);
+  }
+
+  /**
+   * Gets the continuously compounded zero hazard rate for specified year fraction.
+   * 
+   * @param yearFraction  the year fraction 
+   * @return the zero hazard rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public double zeroRate(double yearFraction) {
+    return survivalProbabilities.zeroRate(yearFraction);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the zero rate point sensitivity at the specified date.
+   * <p>
+   * This returns a sensitivity instance referring to the zero hazard rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity typically has the value {@code (-survivalProbability * yearFraction)}.
+   * The sensitivity refers to the result of {@link #survivalProbability(LocalDate)}.
+   * 
+   * @param date  the date
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
   public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(LocalDate date) {
     return zeroRatePointSensitivity(date, getCurrency());
   }
 
+  /**
+   * Calculates the zero rate point sensitivity at the specified year fraction.
+   * <p>
+   * This returns a sensitivity instance referring to the zero hazard rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity typically has the value {@code (-survivalProbability * yearFraction)}.
+   * The sensitivity refers to the result of {@link #survivalProbability(yearFraction)}.
+   * 
+   * @param yearFraction  the year fraction
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(double yearFraction) {
+    return zeroRatePointSensitivity(yearFraction, getCurrency());
+  }
+
+  /**
+   * Calculates the zero rate point sensitivity at the specified date specifying the currency of the sensitivity.
+   * <p>
+   * This returns a sensitivity instance referring to the zero hazard rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity typically has the value {@code (-survivalProbability * yearFraction)}.
+   * The sensitivity refers to the result of {@link #survivalProbability(LocalDate)}.
+   * <p>
+   * This method allows the currency of the sensitivity to differ from the currency of the market data.
+   * 
+   * @param date  the date
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
   public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
     ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRatePointSensitivity(date, sensitivityCurrency);
     return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
   }
 
-  public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(double yearFraction) {
-    return zeroRatePointSensitivity(yearFraction, getCurrency());
-  }
-
+  /**
+   * Calculates the zero rate point sensitivity at the specified year fraction specifying the currency of the sensitivity.
+   * <p>
+   * This returns a sensitivity instance referring to the zero hazard rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity typically has the value {@code (-survivalProbability * yearFraction)}.
+   * The sensitivity refers to the result of {@link #survivalProbability(yearFraction)}.
+   * <p>
+   * This method allows the currency of the sensitivity to differ from the currency of the market data.
+   * 
+   * @param yearFraction  the year fraction
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
   public CreditCurveZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
     return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
   }
 
-  public CreditCurveZeroRateSensitivity zeroRateYearFractionPointSensitivity(double yearFraction) {
-    ZeroRateSensitivity zeroRateSensitivity = survivalProbabilities.zeroRateYearFractionPointSensitivity(yearFraction);
-    return CreditCurveZeroRateSensitivity.of(zeroRateSensitivity, legalEntityId);
-  }
-
+  /**
+   * Calculates the parameter sensitivity from the point sensitivity.
+   * <p>
+   * This is used to convert a single point sensitivity to parameter sensitivity.
+   * The calculation typically involves multiplying the point and unit sensitivities.
+   * 
+   * @param pointSensitivity  the point sensitivity to convert
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
   public CurrencyParameterSensitivities parameterSensitivity(CreditCurveZeroRateSensitivity pointSensitivity) {
     return survivalProbabilities.parameterSensitivity(pointSensitivity.createZeroRateSensitivity());
   }
@@ -151,6 +255,7 @@ public final class LegalEntitySurvivalProbabilities
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying curve.
+   * <p>
    * The metadata of the curve must define a day count.
    * @return the value of the property, not null
    */
@@ -160,7 +265,9 @@ public final class LegalEntitySurvivalProbabilities
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the legalEntityId.
+   * Gets the legal entity identifier.
+   * <p>
+   * This identifier is used for the reference legal entity of a credit derivative.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {

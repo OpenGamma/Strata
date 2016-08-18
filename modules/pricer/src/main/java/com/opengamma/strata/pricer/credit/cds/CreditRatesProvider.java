@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit.cds;
 
 import java.io.Serializable;
@@ -28,32 +33,45 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
-import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
+/**
+ * The rates provider, used to calculate analytic measures.
+ * <p>
+ * The primary usage of this provider is to price credit default swaps on a legal entity.
+ * This includes credit curves, discounting curves and recovery rate curves.
+ */
 @BeanDefinition
 public final class CreditRatesProvider
     implements ImmutableBean, Serializable {
 
-  //TODO check consistency in valuationTime
-
   /**
    * The valuation date.
+   * <p>
    * All curves and other data items in this provider are calibrated for this date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate valuationDate;  // TODO check valuation dates??
+  private final LocalDate valuationDate;
   /**
    * The credit curves.
+   * <p>
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    */
   @PropertyDefinition(validate = "notEmpty", get = "private")
   private final ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors> creditCurves;
-
+  /**
+   * The discounting curves.
+   * <p>
+   * The curve data, predicting the discount factor, associated with each currency.
+   */
   @PropertyDefinition(validate = "notEmpty", get = "private")
   private final ImmutableMap<Currency, CreditDiscountFactors> discountCurves;
-
+  /**
+   * The credit rate curves.
+   * <p>
+   * The curve date, predicting the recovery rate, associated with each legal entity.
+   */
   @PropertyDefinition(validate = "notEmpty", get = "private")
   private final ImmutableMap<StandardId, RecoveryRates> recoveryRateCurves;
 
@@ -85,6 +103,18 @@ public final class CreditRatesProvider
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the survival probabilities for a standard ID and a currency.
+   * <p>
+   * If both the standard ID and currency are matched, the relevant {@code LegalEntitySurvivalProbabilities} is returned. 
+   * <p>
+   * If the valuation date is on the specified date, the survival probability is 1.
+   * 
+   * @param legalEntityId  the standard ID of legal entity to get the discount factors for
+   * @param currency  the currency to get the discount factors for
+   * @return the survival probabilities 
+   * @throws IllegalArgumentException if the survival probabilities are not available
+   */
   public LegalEntitySurvivalProbabilities survivalProbabilities(StandardId legalEntityId, Currency currency) {
     CreditDiscountFactors survivalProbabilities = creditCurves.get(Pair.of(legalEntityId, currency));
     if (survivalProbabilities == null) {
@@ -93,6 +123,17 @@ public final class CreditRatesProvider
     return LegalEntitySurvivalProbabilities.of(survivalProbabilities, legalEntityId);
   }
 
+  /**
+   * Gets the discount factors for a currency. 
+   * <p>
+   * The discount factor represents the time value of money for the specified currency 
+   * when comparing the valuation date to the specified date. 
+   * <p>
+   * If the valuation date is on the specified date, the discount factor is 1.
+   * 
+   * @param currency  the currency to get the discount factors for
+   * @return the discount factors for the specified currency
+   */
   public CreditDiscountFactors discountFactors(Currency currency) {
     CreditDiscountFactors discountFactors = discountCurves.get(currency);
     if (discountFactors == null) {
@@ -101,6 +142,15 @@ public final class CreditRatesProvider
     return discountFactors;
   }
 
+  /**
+   * Gets the recovery rates for a standard ID.
+   * <p>
+   * If both the standard ID and currency are matched, the relevant {@code RecoveryRates} is returned. 
+   * 
+   * @param legalEntityId  the standard ID of legal entity to get the discount factors for
+   * @return the recovery rates
+   * @throws IllegalArgumentException if the recovery rates are not available
+   */
   public RecoveryRates recoveryRates(StandardId legalEntityId) {
     RecoveryRates recoveryRates = recoveryRateCurves.get(legalEntityId);
     if (recoveryRates == null) {
@@ -131,7 +181,7 @@ public final class CreditRatesProvider
         sens = sens.combinedWith(factors.parameterSensitivity(pt));
       } else if (point instanceof ZeroRateSensitivity) {
         ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
-        DiscountFactors factors = discountFactors(pt.getCurveCurrency()).toDiscountFactors();
+        CreditDiscountFactors factors = discountFactors(pt.getCurveCurrency());
         sens = sens.combinedWith(factors.parameterSensitivity(pt));
       }
     }
@@ -199,6 +249,7 @@ public final class CreditRatesProvider
   //-----------------------------------------------------------------------
   /**
    * Gets the valuation date.
+   * <p>
    * All curves and other data items in this provider are calibrated for this date.
    * @return the value of the property, not null
    */
@@ -209,6 +260,7 @@ public final class CreditRatesProvider
   //-----------------------------------------------------------------------
   /**
    * Gets the credit curves.
+   * <p>
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    * @return the value of the property, not empty
    */
@@ -218,7 +270,9 @@ public final class CreditRatesProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the discountCurves.
+   * Gets the discounting curves.
+   * <p>
+   * The curve data, predicting the discount factor, associated with each currency.
    * @return the value of the property, not empty
    */
   private ImmutableMap<Currency, CreditDiscountFactors> getDiscountCurves() {
@@ -227,7 +281,9 @@ public final class CreditRatesProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the recoveryRateCurves.
+   * Gets the credit rate curves.
+   * <p>
+   * The curve date, predicting the recovery rate, associated with each legal entity.
    * @return the value of the property, not empty
    */
   private ImmutableMap<StandardId, RecoveryRates> getRecoveryRateCurves() {
@@ -523,6 +579,7 @@ public final class CreditRatesProvider
     //-----------------------------------------------------------------------
     /**
      * Sets the valuation date.
+     * <p>
      * All curves and other data items in this provider are calibrated for this date.
      * @param valuationDate  the new value, not null
      * @return this, for chaining, not null
@@ -535,6 +592,7 @@ public final class CreditRatesProvider
 
     /**
      * Sets the credit curves.
+     * <p>
      * The curve data, predicting the survival probability, associated with each legal entity and currency.
      * @param creditCurves  the new value, not empty
      * @return this, for chaining, not null
@@ -546,7 +604,9 @@ public final class CreditRatesProvider
     }
 
     /**
-     * Sets the discountCurves.
+     * Sets the discounting curves.
+     * <p>
+     * The curve data, predicting the discount factor, associated with each currency.
      * @param discountCurves  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -557,7 +617,9 @@ public final class CreditRatesProvider
     }
 
     /**
-     * Sets the recoveryRateCurves.
+     * Sets the credit rate curves.
+     * <p>
+     * The curve date, predicting the recovery rate, associated with each legal entity.
      * @param recoveryRateCurves  the new value, not empty
      * @return this, for chaining, not null
      */
