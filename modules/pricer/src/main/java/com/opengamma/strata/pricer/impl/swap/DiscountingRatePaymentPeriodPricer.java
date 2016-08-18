@@ -401,6 +401,7 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, notional));
     builder.put(ExplainKey.TRADE_NOTIONAL, paymentPeriod.getNotionalAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {

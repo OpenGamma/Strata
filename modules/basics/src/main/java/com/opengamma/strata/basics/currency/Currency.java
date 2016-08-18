@@ -10,11 +10,11 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
@@ -42,10 +42,9 @@ public final class Currency
   private static final long serialVersionUID = 1L;
 
   /**
-   * Regular expression to parse the textual format.
-   * Three ASCII upper case letters.
+   * The matcher for the code.
    */
-  static final Pattern REGEX_FORMAT = Pattern.compile("[A-Z]{3}");
+  static final CharMatcher CODE_MATCHER = CharMatcher.inRange('A', 'Z');
   /**
    * The configured instances.
    */
@@ -309,10 +308,15 @@ public final class Currency
     ArgChecker.notNull(currencyCode, "currencyCode");
     Currency currency = CONFIGURED.get(currencyCode);
     if (currency == null) {
-      ArgChecker.matches(REGEX_FORMAT, currencyCode, "currencyCode");
-      return DYNAMIC.computeIfAbsent(currencyCode, code -> new Currency(code, 0, "USD"));
+      return addCode(currencyCode);
     }
     return currency;
+  }
+
+  // add code
+  private static Currency addCode(String currencyCode) {
+    ArgChecker.matches(CODE_MATCHER, 3, 3, currencyCode, "currencyCode", "[A-Z][A-Z][A-Z]");
+    return DYNAMIC.computeIfAbsent(currencyCode, code -> new Currency(code, 0, "USD"));
   }
 
   //-------------------------------------------------------------------------

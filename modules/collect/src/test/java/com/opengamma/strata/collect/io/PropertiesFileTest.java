@@ -69,6 +69,13 @@ public class PropertiesFileTest {
         UncheckedIOException.class);
   }
 
+  public void test_of_set() {
+    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
+    PropertiesFile test = PropertiesFile.of(PropertySet.of(keyValues));
+    assertEquals(test.getProperties(), PropertySet.of(keyValues));
+    assertEquals(test.toString(), "{a=[x], b=[y]}");
+  }
+
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     PropertiesFile a1 = PropertiesFile.of(CharSource.wrap(FILE1));

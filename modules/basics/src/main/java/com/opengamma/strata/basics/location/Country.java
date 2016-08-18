@@ -10,11 +10,11 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -37,10 +37,9 @@ public final class Country
    */
   private static final ConcurrentMap<String, Country> CACHE = new ConcurrentHashMap<>();
   /**
-   * The valid regex for schemes.
-   * Three ASCII upper case letters.
+   * The matcher for the code.
    */
-  private static final Pattern REGEX_CODE = Pattern.compile("[A-Z]{2}");
+  private static final CharMatcher CODE_MATCHER = CharMatcher.inRange('A', 'Z');
 
   // selected countries of Europe
   /**
@@ -256,8 +255,14 @@ public final class Country
    */
   @FromString
   public static Country of(String countryCode) {
-    ArgChecker.matches(REGEX_CODE, countryCode, "countryCode");
-    return CACHE.computeIfAbsent(countryCode, Country::new);
+    ArgChecker.notNull(countryCode, "countryCode");
+    return CACHE.computeIfAbsent(countryCode, c -> addCode(c));
+  }
+
+  // add code
+  private static Country addCode(String countryCode) {
+    ArgChecker.matches(CODE_MATCHER, 2, 2, countryCode, "countryCode", "[A-Z][A-Z]");
+    return new Country(countryCode);
   }
 
   //-------------------------------------------------------------------------

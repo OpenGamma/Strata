@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -88,6 +89,11 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
   @Override
   public Set<Measure> supportedMeasures() {
     return supportedMeasures;
+  }
+
+  @Override
+  public Optional<String> identifier(T target) {
+    return delegate.identifier(target);
   }
 
   @Override

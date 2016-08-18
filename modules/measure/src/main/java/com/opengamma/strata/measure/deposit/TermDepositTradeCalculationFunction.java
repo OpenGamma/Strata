@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.deposit;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -84,6 +85,11 @@ public class TermDepositTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(TermDepositTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override

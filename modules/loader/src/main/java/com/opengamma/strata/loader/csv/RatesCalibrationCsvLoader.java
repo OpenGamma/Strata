@@ -654,7 +654,7 @@ public final class RatesCalibrationCsvLoader {
     if (!DoubleMath.fuzzyEquals(spread, 0d, 1e-10d)) {
       throw new IllegalArgumentException("Additional spread must be zero for FX swaps");
     }
-    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YMD_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for FX swap: {}", timeStr));
     }

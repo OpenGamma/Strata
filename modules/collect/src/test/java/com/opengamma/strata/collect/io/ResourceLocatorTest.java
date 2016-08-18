@@ -113,7 +113,6 @@ public class ResourceLocatorTest {
     URL url = file.toURI().toURL();
     ResourceLocator test = ResourceLocator.ofUrl(url);
     String locator = test.getLocator();
-    System.out.println(locator);
     assertEquals(locator.startsWith("url:file:"), true);
     assertEquals(locator.endsWith("src/test/resources/com/opengamma/strata/collect/io/TestFile.txt"), true);
     assertEquals(test.getByteSource().read()[0], 'H');

@@ -226,6 +226,7 @@ public class DiscountingFraProductPricer {
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     builder.put(ExplainKey.TRADE_NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {

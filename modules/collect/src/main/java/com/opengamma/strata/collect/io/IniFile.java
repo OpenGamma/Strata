@@ -66,17 +66,6 @@ public final class IniFile {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance, specifying the map of section to properties.
-   * 
-   * @param sectionMap  the map of sections
-   * @return the INI file
-   */
-  public static IniFile of(Map<String, PropertySet> sectionMap) {
-    return new IniFile(ImmutableMap.copyOf(sectionMap));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Parses the specified source as an INI file.
    * <p>
    * This parses the specified character source expecting an INI file format.
@@ -130,6 +119,17 @@ public final class IniFile {
       }
     }
     return ini;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance, specifying the map of section to properties.
+   * 
+   * @param sectionMap  the map of sections
+   * @return the INI file
+   */
+  public static IniFile of(Map<String, PropertySet> sectionMap) {
+    return new IniFile(ImmutableMap.copyOf(sectionMap));
   }
 
   //-------------------------------------------------------------------------

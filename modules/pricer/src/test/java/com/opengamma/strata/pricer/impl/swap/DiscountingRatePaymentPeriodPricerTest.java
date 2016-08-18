@@ -757,6 +757,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.COMPLETED).get(), Boolean.TRUE);
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);

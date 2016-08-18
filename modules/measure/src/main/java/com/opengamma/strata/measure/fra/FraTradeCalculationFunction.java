@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.fra;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -93,6 +94,11 @@ public class FraTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(FraTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override

@@ -240,6 +240,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
     builder.put(ExplainKey.UNADJUSTED_END_DATE, period.getUnadjustedEndDate());
     builder.put(ExplainKey.DAYS, (int) DAYS.between(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()));
     if (paymentDate.isBefore(ratesProvider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
@@ -283,6 +284,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
     builder.put(ExplainKey.UNADJUSTED_END_DATE, period.getUnadjustedEndDate());
     builder.put(ExplainKey.DAYS, (int) DAYS.between(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()));
     if (paymentDate.isBefore(ratesProvider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {

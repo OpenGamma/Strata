@@ -61,8 +61,8 @@ public final class PropertiesFile {
    * This parses the specified character source expecting a properties file format.
    * The resulting instance can be queried for each key and value.
    * 
-   * @param source  the properties file resource, not null
-   * @return the properties file, not null
+   * @param source  the properties file resource
+   * @return the properties file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
@@ -92,6 +92,18 @@ public final class PropertiesFile {
       parsed.put(key, value);
     }
     return PropertySet.of(parsed);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a key-value property set.
+   * 
+   * @param keyValueMap  the key-value property set
+   * @return the properties file
+   */
+  public static PropertiesFile of(PropertySet keyValueMap) {
+    ArgChecker.notNull(keyValueMap, "keyValueMap");
+    return new PropertiesFile(keyValueMap);
   }
 
   //-------------------------------------------------------------------------

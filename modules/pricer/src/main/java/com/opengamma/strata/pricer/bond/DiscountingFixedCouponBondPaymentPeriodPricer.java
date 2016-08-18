@@ -212,6 +212,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     LocalDate paymentDate = period.getPaymentDate();
     explainBasics(period, builder, currency, paymentDate);
     if (paymentDate.isBefore(discountFactors.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
@@ -248,6 +249,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     LocalDate paymentDate = period.getPaymentDate();
     explainBasics(period, builder, currency, paymentDate);
     if (paymentDate.isBefore(discountFactors.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
