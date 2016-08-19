@@ -33,10 +33,10 @@ import com.opengamma.strata.product.TradeInfo;
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link Cds}.
  * <p>
- * A CDS is a financial instrument where the protection seller agrees to compensate the protection buyer 
- * when the reference entity suffers a default.
- * The protection seller is paid premium regularly from the protection buyer until the expiry of the CDS contract 
- * or the reference entity defaults before the expiry.
+ * A CDS is a financial instrument where the protection seller agrees to compensate
+ * the protection buyer when the reference entity suffers a default.
+ * The protection seller is paid premium regularly from the protection buyer until
+ * the expiry of the CDS contract or the reference entity defaults before the expiry.
  */
 @BeanDefinition
 public final class CdsTrade
@@ -50,7 +50,7 @@ public final class CdsTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
-   * The CDS that was traded.
+   * The CDS product that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    */
@@ -59,7 +59,7 @@ public final class CdsTrade
   /**
    * The upfront fee of the product.
    * <p>
-   * This specifies a single amount payable by the buyer to the seller
+   * This specifies a single amount payable by the buyer to the seller.
    * Thus the sign must be compatible with the product Pay/Receive flag.
    * <p>
    * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
@@ -71,8 +71,8 @@ public final class CdsTrade
   @Override
   public ResolvedCdsTrade resolve(ReferenceData refData) {
     return ResolvedCdsTrade.builder()
-        .product(product.resolve(refData))
         .info(info)
+        .product(product.resolve(refData))
         .upfrontFee(upfrontFee != null ? upfrontFee : null)
         .build();
   }
@@ -144,7 +144,7 @@ public final class CdsTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the CDS that was traded.
+   * Gets the CDS product that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null
@@ -157,7 +157,7 @@ public final class CdsTrade
   /**
    * Gets the upfront fee of the product.
    * <p>
-   * This specifies a single amount payable by the buyer to the seller
+   * This specifies a single amount payable by the buyer to the seller.
    * Thus the sign must be compatible with the product Pay/Receive flag.
    * <p>
    * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
@@ -434,7 +434,7 @@ public final class CdsTrade
     }
 
     /**
-     * Sets the CDS that was traded.
+     * Sets the CDS product that was agreed when the trade occurred.
      * <p>
      * The product captures the contracted financial details of the trade.
      * @param product  the new value, not null
@@ -449,7 +449,7 @@ public final class CdsTrade
     /**
      * Sets the upfront fee of the product.
      * <p>
-     * This specifies a single amount payable by the buyer to the seller
+     * This specifies a single amount payable by the buyer to the seller.
      * Thus the sign must be compatible with the product Pay/Receive flag.
      * <p>
      * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.

@@ -40,7 +40,8 @@ import com.opengamma.strata.product.common.BuySell;
  * A single-name credit default swap (CDS), resolved for pricing.
  * <p>
  * This is the resolved form of {@link Cds} and is an input to the pricers.
- * Applications will typically create a {@code ResolvedCds} from a {@code Cds} using {@link Cds#resolve(ReferenceData)}.
+ * Applications will typically create a {@code ResolvedCds} from a {@code Cds}
+ * using {@link Cds#resolve(ReferenceData)}.
  */
 @BeanDefinition
 public final class ResolvedCds
@@ -49,8 +50,9 @@ public final class ResolvedCds
   /**
    * Whether the CDS is buy or sell.
    * <p>
-   * A value of 'Buy' implies buying protection, i.e., the fixed coupon is paid and the protection is received 
-   * in the event of default. A value of 'Sell' implies selling protection, i.e., the fixed coupon is received 
+   * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+   * and the protection is received  in the event of default.
+   * A value of 'Sell' implies selling protection, where the fixed coupon is received
    * and the protection is paid in the event of default. 
    */
   @PropertyDefinition(validate = "notNull")
@@ -72,7 +74,7 @@ public final class ResolvedCds
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<CreditCouponPaymentPeriod> periodicPayments;
   /**
-   * The protection end date. 
+   * The protection end date.
    * <p>
    * This may be different from the accrual end date of the last payment period in {@code periodicPayments}.
    */
@@ -103,14 +105,14 @@ public final class ResolvedCds
    * The number of days between valuation date and step-in date.
    * <p>
    * The step-in date is also called protection effective date. 
-   * It is usually 1 calendar day for standardised CDS contracts. 
+   * It is usually 1 calendar day for standardized CDS contracts. 
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment stepinDateOffset;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
-   * It is usually 3 business days for standardised CDS contracts.
+   * It is usually 3 business days for standardized CDS contracts.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
@@ -140,7 +142,7 @@ public final class ResolvedCds
   }
 
   /**
-   * Obtains the accrual end date. 
+   * Obtains the accrual end date.
    * 
    * @return the accrual end date
    */
@@ -149,7 +151,7 @@ public final class ResolvedCds
   }
 
   /**
-   * Obtains the notional. 
+   * Obtains the notional.
    * 
    * @return the notional
    */
@@ -285,8 +287,9 @@ public final class ResolvedCds
   /**
    * Gets whether the CDS is buy or sell.
    * <p>
-   * A value of 'Buy' implies buying protection, i.e., the fixed coupon is paid and the protection is received
-   * in the event of default. A value of 'Sell' implies selling protection, i.e., the fixed coupon is received
+   * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+   * and the protection is received  in the event of default.
+   * A value of 'Sell' implies selling protection, where the fixed coupon is received
    * and the protection is paid in the event of default.
    * @return the value of the property, not null
    */
@@ -367,7 +370,7 @@ public final class ResolvedCds
    * Gets the number of days between valuation date and step-in date.
    * <p>
    * The step-in date is also called protection effective date.
-   * It is usually 1 calendar day for standardised CDS contracts.
+   * It is usually 1 calendar day for standardized CDS contracts.
    * @return the value of the property, not null
    */
   public DaysAdjustment getStepinDateOffset() {
@@ -378,7 +381,7 @@ public final class ResolvedCds
   /**
    * Gets the number of days between valuation date and settlement date.
    * <p>
-   * It is usually 3 business days for standardised CDS contracts.
+   * It is usually 3 business days for standardized CDS contracts.
    * @return the value of the property, not null
    */
   public DaysAdjustment getSettlementDateOffset() {
@@ -817,8 +820,9 @@ public final class ResolvedCds
     /**
      * Sets whether the CDS is buy or sell.
      * <p>
-     * A value of 'Buy' implies buying protection, i.e., the fixed coupon is paid and the protection is received
-     * in the event of default. A value of 'Sell' implies selling protection, i.e., the fixed coupon is received
+     * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+     * and the protection is received  in the event of default.
+     * A value of 'Sell' implies selling protection, where the fixed coupon is received
      * and the protection is paid in the event of default.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
@@ -923,7 +927,7 @@ public final class ResolvedCds
      * Sets the number of days between valuation date and step-in date.
      * <p>
      * The step-in date is also called protection effective date.
-     * It is usually 1 calendar day for standardised CDS contracts.
+     * It is usually 1 calendar day for standardized CDS contracts.
      * @param stepinDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -936,7 +940,7 @@ public final class ResolvedCds
     /**
      * Sets the number of days between valuation date and settlement date.
      * <p>
-     * It is usually 3 business days for standardised CDS contracts.
+     * It is usually 3 business days for standardized CDS contracts.
      * @param settlementDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
