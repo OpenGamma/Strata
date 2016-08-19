@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,6 +18,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
@@ -65,7 +67,9 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
-import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
+import com.opengamma.strata.pricer.index.HullWhiteIborFutureTradePricer;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
@@ -91,18 +95,19 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 /**
  * Test for curve calibration with 2 curves in USD.
  * One curve is Discounting and Fed Fund forward and the other one is Libor 3M forward.
- * The Forward 3M curve is calibrated in part to Ibor futures without convexity adjustment.
+ * The Forward 3M curve is calibrated in part to Ibor futures with convexity adjustment computed with Hull-White one factor model.
  */
 @Test
-public class CalibrationZeroRateUsd2OisFuturesIrsTest {
-  
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
+public class CalibrationZeroRateUsd2OisFuturesHWIrsTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
 
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
+
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -240,15 +245,36 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
 
   private static final DiscountingIborFixingDepositProductPricer FIXING_PRICER =
       DiscountingIborFixingDepositProductPricer.DEFAULT;
-  private static final DiscountingIborFutureTradePricer FUT_PRICER =
-      DiscountingIborFutureTradePricer.DEFAULT;
+  private static final HullWhiteIborFutureTradePricer FUT_PRICER =
+      HullWhiteIborFutureTradePricer.DEFAULT;
   private static final DiscountingSwapProductPricer SWAP_PRICER =
       DiscountingSwapProductPricer.DEFAULT;
   private static final DiscountingTermDepositProductPricer DEPO_PRICER =
       DiscountingTermDepositProductPricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
 
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100);
+  // Create a HW one factor piecewise constant
+  private static final double MEAN_REVERSION = 0.01;
+  private static final DoubleArray VOLATILITY = DoubleArray.of(0.01, 0.011, 0.012, 0.013, 0.014);
+  private static final DoubleArray VOLATILITY_TIME = DoubleArray.of(0.5, 1.0, 2.0, 5.0);
+  private static final HullWhiteOneFactorPiecewiseConstantParameters HW =
+      HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =
+      HullWhiteOneFactorPiecewiseConstantParametersProvider
+          .of(HW, CURVE_DC, VAL_DATE.atStartOfDay(ZoneId.of("Europe/London")));  
+  
+  //Create a calibration measure for Ibor futures with the HW parameters used in the pricing
+  private static final TradeCalibrationMeasure<ResolvedIborFutureTrade> IBOR_FUT_PAR_SPREAD_HW =
+      TradeCalibrationMeasure.of(
+          "IborFutureParSpreadHullWhite",
+          ResolvedIborFutureTrade.class,
+          (trade, p) -> HullWhiteIborFutureTradePricer.DEFAULT.parSpread(trade, p, HW_PROVIDER, 0.0),
+          (trade, p) -> HullWhiteIborFutureTradePricer.DEFAULT.parSpreadSensitivityRates(trade, p, HW_PROVIDER));
+  private static final CalibrationMeasures HW_PAR_SPREAD = CalibrationMeasures.of(DSCON_NAME, 
+      IBOR_FUT_PAR_SPREAD_HW, TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.SWAP_PAR_SPREAD,
+      TradeCalibrationMeasure.FX_SWAP_PAR_SPREAD, TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
+      TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD);
+  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, HW_PAR_SPREAD);
 
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;
@@ -359,7 +385,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     // Futures
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
       CurrencyAmount pvFut = FUT_PRICER.presentValue(
-          ((ResolvedIborFutureTrade) fwd3Trades.get(i + 1)), result, 0.0);
+          ((ResolvedIborFutureTrade) fwd3Trades.get(i + 1)), result, HW_PROVIDER, 0.0);
       assertEquals(pvFut.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
@@ -390,7 +416,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
           + (endTime - startTime) + " ms.");
     }
     System.out.println("Avoiding hotspot: " + count);
-    // Previous run: 665 ms for 100 calibrations (2 curves simultaneous - 35 nodes)
+    // Previous run: 670 ms for 100 calibrations (2 curves simultaneous - 35 nodes)
   }
 
 }
