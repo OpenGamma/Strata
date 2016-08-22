@@ -56,7 +56,8 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
  * <p>
  * This is used to price credit default swaps under ISDA standard model. 
  * <p>
- * The underlying curve must be zero rate curve represented by {@code InterpolatedNodalCurve}. 
+ * The underlying curve must be zero rate curve represented by {@code InterpolatedNodalCurve} for multiple data points 
+ * and {@code InterpolatedNodalCurve} for a single data point. 
  * The zero rates must be interpolated by {@code ProductLinearCurveInterpolator} and extrapolated by 
  * {@code FlatCurveExtrapolator} on the left and {@code ProductLinearCurveExtrapolator} on the right.
  */
