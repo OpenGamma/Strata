@@ -213,11 +213,9 @@ public final class InflationRateCalculation
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
-      accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(1d)  // inflation does not use a day count
-          .rateComputation(createRateComputation(period, i))
-          .gearing(resolvedGearings.get(i))
-          .build());
+      // inflation does not use a day count, so year fraction is 1d
+      accrualPeriods.add(new RateAccrualPeriod(
+          period, 1d, createRateComputation(period, i), resolvedGearings.get(i), 0d, NegativeRateMethod.ALLOW_NEGATIVE));
     }
     return accrualPeriods.build();
   }
