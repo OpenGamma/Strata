@@ -174,6 +174,31 @@ public final class RateAccrualPeriod
         this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
   }
 
+  // trusted constructor
+  RateAccrualPeriod(SchedulePeriod period, double yearFraction, RateComputation rateComputation) {
+    this(period, yearFraction, rateComputation, 1d, 0d, NegativeRateMethod.ALLOW_NEGATIVE);
+  }
+
+  // trusted constructor
+  RateAccrualPeriod(
+      SchedulePeriod period,
+      double yearFraction,
+      RateComputation rateComputation,
+      double gearing,
+      double spread,
+      NegativeRateMethod negativeRateMethod) {
+
+    this.startDate = period.getStartDate();
+    this.endDate = period.getEndDate();
+    this.unadjustedStartDate = period.getUnadjustedStartDate();
+    this.unadjustedEndDate = period.getUnadjustedEndDate();
+    this.yearFraction = yearFraction;
+    this.rateComputation = rateComputation;
+    this.gearing = gearing;
+    this.spread = spread;
+    this.negativeRateMethod = negativeRateMethod;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a builder used to create an instance of the bean, based on a schedule period.

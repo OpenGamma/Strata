@@ -48,7 +48,7 @@ import com.opengamma.strata.collect.Messages;
  * Any combination of accrual periods is supported in the data model, however
  * there is no guarantee that exotic combinations will price sensibly.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class RatePaymentPeriod
     implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
@@ -240,7 +240,17 @@ public final class RatePaymentPeriod
     return new RatePaymentPeriod.Builder();
   }
 
-  private RatePaymentPeriod(
+  /**
+   * Creates an instance.
+   * @param paymentDate  the value of the property, not null
+   * @param accrualPeriods  the value of the property, not empty
+   * @param dayCount  the value of the property, not null
+   * @param currency  the value of the property, not null
+   * @param fxReset  the value of the property
+   * @param notional  the value of the property
+   * @param compoundingMethod  the value of the property, not null
+   */
+  RatePaymentPeriod(
       LocalDate paymentDate,
       List<RateAccrualPeriod> accrualPeriods,
       DayCount dayCount,

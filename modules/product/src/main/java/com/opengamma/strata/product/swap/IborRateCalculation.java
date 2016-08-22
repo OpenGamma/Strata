@@ -299,13 +299,9 @@ public final class IborRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       RateComputation rateComputation = createRateComputation(
           period, fixingDateAdjuster, resetScheduleFn, iborObservationFn, i, scheduleInitialStub, scheduleFinalStub, refData);
-      accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateComputation(rateComputation)
-          .negativeRateMethod(negativeRateMethod)
-          .gearing(resolvedGearings.get(i))
-          .spread(resolvedSpreads.get(i))
-          .build());
+      double yearFraction = period.yearFraction(dayCount, accrualSchedule);
+      accrualPeriods.add(new RateAccrualPeriod(
+          period, yearFraction, rateComputation, resolvedGearings.get(i), resolvedSpreads.get(i), negativeRateMethod));
     }
     return accrualPeriods.build();
   }

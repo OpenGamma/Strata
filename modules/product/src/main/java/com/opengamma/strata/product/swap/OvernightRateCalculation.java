@@ -203,13 +203,10 @@ public final class OvernightRateCalculation
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
-      accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateComputation(createRateComputation(period, paymentSchedule, refData))
-          .negativeRateMethod(negativeRateMethod)
-          .gearing(resolvedGearings.get(i))
-          .spread(resolvedSpreads.get(i))
-          .build());
+      double yearFraction = period.yearFraction(dayCount, accrualSchedule);
+      RateComputation rateComputation = createRateComputation(period, paymentSchedule, refData);
+      accrualPeriods.add(new RateAccrualPeriod(
+          period, yearFraction, rateComputation, resolvedGearings.get(i), resolvedSpreads.get(i), negativeRateMethod));
     }
     return accrualPeriods.build();
   }

@@ -108,6 +108,13 @@ public final class ResolvedSwap
     this.indices = buildIndices(legs);
   }
 
+  // trusted constructor
+  ResolvedSwap(ImmutableList<ResolvedSwapLeg> legs, ImmutableSet<Currency> currencies, ImmutableSet<Index> indices) {
+    this.legs = legs;
+    this.currencies = currencies;
+    this.indices = indices;
+  }
+
   // collect the set of currencies
   private static ImmutableSet<Currency> buildCurrencies(List<ResolvedSwapLeg> legs) {
     // avoid streams as profiling showed a hotspot

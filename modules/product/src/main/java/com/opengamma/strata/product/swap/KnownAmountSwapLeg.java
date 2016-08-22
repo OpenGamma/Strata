@@ -154,11 +154,7 @@ public final class KnownAmountSwapLeg
     Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
     List<SwapPaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments, refData);
-    return ResolvedSwapLeg.builder()
-        .type(getType())
-        .payReceive(payReceive)
-        .paymentPeriods(payPeriods)
-        .build();
+    return new ResolvedSwapLeg(getType(), payReceive, payPeriods, ImmutableList.of(), currency);
   }
 
   // create the payment period
