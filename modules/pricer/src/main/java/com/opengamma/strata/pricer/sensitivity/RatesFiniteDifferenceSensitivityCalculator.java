@@ -24,14 +24,16 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.credit.cds.CreditDiscountFactors;
+import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Computes the curve parameter sensitivity by finite difference.
  * <p>
- * This is based on an {@link ImmutableRatesProvider} or {@link LegalEntityDiscountingProvider}, 
- * and calculates the sensitivity by finite difference.
+ * This is based on an {@link ImmutableRatesProvider}, {@link LegalEntityDiscountingProvider} or {@link CreditRatesProvider}.
+ * The sensitivities are calculated by finite difference.
  */
 public class RatesFiniteDifferenceSensitivityCalculator {
 
@@ -151,6 +153,56 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         Map<Pair<T, Currency>, DiscountFactors> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(key, createDiscountFactors(discountFactors, dscBumped));
         LegalEntityDiscountingProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
+        sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
+      }
+      result = result.combinedWith(
+          curve.createParameterSensitivity(valueInit.getCurrency(), DoubleArray.copyOf(sensitivity)));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the first order sensitivities of a function of a {@code CreditRatesProvider} to a double by finite difference.
+   * <p>
+   * The finite difference is computed by forward type.
+   * The function should return a value in the same currency for any rates provider of {@code CreditRatesProvider}.
+   * 
+   * @param provider  the rates provider
+   * @param valueFn  the function from a rate provider to a currency amount for which the sensitivity should be computed
+   * @return the curve sensitivity
+   */
+  public CurrencyParameterSensitivities sensitivity(
+      CreditRatesProvider provider,
+      Function<CreditRatesProvider, CurrencyAmount> valueFn) {
+
+    CurrencyAmount valueInit = valueFn.apply(provider);
+    CurrencyParameterSensitivities discounting = sensitivity(
+        provider, valueFn, CreditRatesProvider.meta().discountCurves(), valueInit);
+    CurrencyParameterSensitivities forward = sensitivity(
+        provider, valueFn, CreditRatesProvider.meta().creditCurves(), valueInit);
+    return discounting.combinedWith(forward);
+  }
+
+  private <T> CurrencyParameterSensitivities sensitivity(
+      CreditRatesProvider provider,
+      Function<CreditRatesProvider, CurrencyAmount> valueFn,
+      MetaProperty<ImmutableMap<T, CreditDiscountFactors>> metaProperty,
+      CurrencyAmount valueInit) {
+
+    ImmutableMap<T, CreditDiscountFactors> baseCurves = metaProperty.get(provider);
+    CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
+    for (T key : baseCurves.keySet()) {
+      CreditDiscountFactors creditDiscountFactors = baseCurves.get(key);
+      DiscountFactors discountFactors = creditDiscountFactors.toDiscountFactors();
+      Curve curve = checkDiscountFactors(discountFactors);
+      int paramCount = curve.getParameterCount();
+      double[] sensitivity = new double[paramCount];
+      for (int i = 0; i < paramCount; i++) {
+        Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
+        Map<T, CreditDiscountFactors> mapBumped = new HashMap<>(baseCurves);
+        mapBumped.put(key, creditDiscountFactors.withCurve(dscBumped));
+        CreditRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }
       result = result.combinedWith(

@@ -8,11 +8,14 @@ package com.opengamma.strata.pricer.sensitivity;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
@@ -29,6 +32,10 @@ import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.BondGroup;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityGroup;
+import com.opengamma.strata.pricer.credit.cds.CreditDiscountFactors;
+import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.datasets.CreditRatesProviderDataSets;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -191,4 +198,43 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     }
     throw new IllegalArgumentException("Not supported");
   }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void sensitivity_credit_isda() {
+    LocalDate valuationDate = LocalDate.of(2014, 1, 3);
+    CreditRatesProvider rates = CreditRatesProviderDataSets.createCreditRatesProvider(valuationDate);
+    CurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(
+        rates, this::creditFunction);
+    List<IsdaCompliantZeroRateDiscountFactors> curves = CreditRatesProviderDataSets.getAllDiscountFactors(valuationDate);
+    assertEquals(sensiComputed.size(), curves.size());
+    for (IsdaCompliantZeroRateDiscountFactors curve : curves) {
+      DoubleArray time = curve.getParameterKeys();
+      DoubleArray sensiValueComputed = sensiComputed.getSensitivity(curve.getCurve().getName(), USD).getSensitivity();
+      assertEquals(sensiValueComputed.size(), time.size());
+      for (int i = 0; i < time.size(); i++) {
+        assertEquals(time.get(i), sensiValueComputed.get(i), TOLERANCE_DELTA);
+      }
+    }
+  }
+
+  // private function for testing. Returns the sum of rates multiplied by time
+  private CurrencyAmount creditFunction(CreditRatesProvider provider) {
+    double result = 0.0;
+    // credit curve
+    ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors> mapCredit = provider.metaBean().creditCurves()
+        .get(provider);
+    for (Entry<Pair<StandardId, Currency>, CreditDiscountFactors> entry : mapCredit.entrySet()) {
+      InterpolatedNodalCurve curveInt = checkInterpolated(checkDiscountFactors(entry.getValue().toDiscountFactors()));
+      result += sumProduct(curveInt);
+    }
+    // repo curve
+    ImmutableMap<Currency, CreditDiscountFactors> mapDiscount = provider.metaBean().discountCurves().get(provider);
+    for (Entry<Currency, CreditDiscountFactors> entry : mapDiscount.entrySet()) {
+      InterpolatedNodalCurve curveInt = checkInterpolated(checkDiscountFactors(entry.getValue().toDiscountFactors()));
+      result += sumProduct(curveInt);
+    }
+    return CurrencyAmount.of(USD, result);
+  }
+
 }
