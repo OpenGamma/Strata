@@ -82,8 +82,8 @@ public final class CreditCurveZeroRateSensitivity
    */
   public static CreditCurveZeroRateSensitivity of(
       Currency currency,
-      double yearFraction,
       StandardId legalEntityId,
+      double yearFraction,
       double sensitivity) {
 
     return of(currency, legalEntityId, yearFraction, currency, sensitivity);

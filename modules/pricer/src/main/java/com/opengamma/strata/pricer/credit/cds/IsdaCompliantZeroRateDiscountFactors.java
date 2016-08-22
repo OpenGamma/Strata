@@ -5,6 +5,10 @@
  */
 package com.opengamma.strata.pricer.credit.cds;
 
+import static com.opengamma.strata.market.ValueType.YEAR_FRACTION;
+import static com.opengamma.strata.market.ValueType.ZERO_RATE;
+import static com.opengamma.strata.market.curve.CurveInfoType.DAY_COUNT;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -31,10 +35,12 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketDataName;
-import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -70,10 +76,11 @@ public final class IsdaCompliantZeroRateDiscountFactors
   private final LocalDate valuationDate;
   /**
    * The underlying curve.
+   * <p>
    * The metadata of the curve must define a day count.
    */
   @PropertyDefinition(validate = "notNull")
-  private final InterpolatedNodalCurve curve;
+  private final NodalCurve curve;
   /**
    * The day count convention of the curve.
    */
@@ -81,37 +88,78 @@ public final class IsdaCompliantZeroRateDiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
+   * Creates an instance from the underlying curve
    * 
    * @param currency  the currency 
    * @param valuationDate  the valuation date
-   * @param underlyingCurve  the underlying curve
+   * @param curve  the underlying curve
    * @return the instance
    */
-  public static IsdaCompliantZeroRateDiscountFactors of(Currency currency, LocalDate valuationDate,
-      InterpolatedNodalCurve underlyingCurve) {
-    return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, underlyingCurve);
+  public static IsdaCompliantZeroRateDiscountFactors of(Currency currency, LocalDate valuationDate, NodalCurve curve) {
+
+    curve.getMetadata().getXValueType().checkEquals(YEAR_FRACTION, "Incorrect x-value type for zero-rate discount curve");
+    curve.getMetadata().getYValueType().checkEquals(ZERO_RATE, "Incorrect y-value type for zero-rate discount curve");
+    if (curve instanceof InterpolatedNodalCurve) {
+      InterpolatedNodalCurve interpolatedCurve = (InterpolatedNodalCurve) curve;
+      ArgChecker.isTrue(interpolatedCurve.getInterpolator().equals(CurveInterpolators.PRODUCT_LINEAR),
+          "Interpolator must be PRODUCT_LINEAR");
+      ArgChecker.isTrue(interpolatedCurve.getExtrapolatorLeft().equals(CurveExtrapolators.FLAT),
+          "Left extrapolator must be FLAT");
+      ArgChecker.isTrue(interpolatedCurve.getExtrapolatorRight().equals(CurveExtrapolators.PRODUCT_LINEAR),
+          "Right extrapolator must be PRODUCT_LINEAR");
+    } else {
+      ArgChecker.isTrue(curve instanceof ConstantNodalCurve,
+          "the underlying curve must be InterpolatedNodalCurve or ConstantNodalCurve");
+    }
+    return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, curve);
+  }
+
+  /**
+   * Creates an instance from year fraction and zero rate values.
+   * 
+   * @param currency  the currency
+   * @param valuationDate  the valuation date
+   * @param curveName  the curve name
+   * @param yearFractions  the year fractions
+   * @param zeroRates  the zero rates
+   * @param dayCount  the day count
+   * @return the instance
+   */
+  public static IsdaCompliantZeroRateDiscountFactors of(
+      Currency currency,
+      LocalDate valuationDate,
+      CurveName curveName,
+      DoubleArray yearFractions,
+      DoubleArray zeroRates,
+      DayCount dayCount) {
+
+    ArgChecker.notNull(yearFractions, "yearFractions");
+    ArgChecker.notNull(zeroRates, "zeroRates");
+    DefaultCurveMetadata metadata = DefaultCurveMetadata.builder()
+        .xValueType(YEAR_FRACTION)
+        .yValueType(ZERO_RATE)
+        .curveName(curveName)
+        .dayCount(dayCount)
+        .build();
+    NodalCurve curve = (yearFractions.size() == 1 && zeroRates.size() == 1)
+        ? ConstantNodalCurve.of(metadata, yearFractions.get(0), zeroRates.get(0))
+        : InterpolatedNodalCurve.of(metadata, yearFractions, zeroRates,
+        CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
+
+    return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, curve);
   }
 
   @ImmutableConstructor
   private IsdaCompliantZeroRateDiscountFactors(
       Currency currency,
       LocalDate valuationDate,
-      InterpolatedNodalCurve curve) {
+      NodalCurve curve) {
 
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(curve, "curve");
-    curve.getMetadata().getXValueType().checkEquals(
-        ValueType.YEAR_FRACTION, "Incorrect x-value type for zero-rate discount curve");
-    curve.getMetadata().getYValueType().checkEquals(
-        ValueType.ZERO_RATE, "Incorrect y-value type for zero-rate discount curve");
-    DayCount dayCount = curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT)
+    DayCount dayCount = curve.getMetadata().findInfo(DAY_COUNT)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect curve metadata, missing DayCount"));
-    ArgChecker.isTrue(curve.getInterpolator().equals(CurveInterpolators.PRODUCT_LINEAR), "Interpolator must be PRODUCT_LINEAR");
-    ArgChecker.isTrue(curve.getExtrapolatorLeft().equals(CurveExtrapolators.FLAT), "Left extrapolator must be FLAT");
-    ArgChecker.isTrue(curve.getExtrapolatorRight().equals(CurveExtrapolators.PRODUCT_LINEAR),
-        "Right extrapolator must be PRODUCT_LINEAR");
 
     this.currency = currency;
     this.valuationDate = valuationDate;
@@ -209,8 +257,8 @@ public final class IsdaCompliantZeroRateDiscountFactors
 
   @Override
   public IsdaCompliantZeroRateDiscountFactors withCurve(Curve curve) {
-    ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "curve must be InterpolatedNodalCurve");
-    InterpolatedNodalCurve nodalCurve = (InterpolatedNodalCurve) curve;
+    ArgChecker.isTrue(curve instanceof NodalCurve, "curve must be NodalCurve");
+    NodalCurve nodalCurve = (NodalCurve) curve;
     return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve);
   }
 
@@ -271,10 +319,11 @@ public final class IsdaCompliantZeroRateDiscountFactors
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying curve.
+   * <p>
    * The metadata of the curve must define a day count.
    * @return the value of the property, not null
    */
-  public InterpolatedNodalCurve getCurve() {
+  public NodalCurve getCurve() {
     return curve;
   }
 
@@ -336,8 +385,8 @@ public final class IsdaCompliantZeroRateDiscountFactors
     /**
      * The meta-property for the {@code curve} property.
      */
-    private final MetaProperty<InterpolatedNodalCurve> curve = DirectMetaProperty.ofImmutable(
-        this, "curve", IsdaCompliantZeroRateDiscountFactors.class, InterpolatedNodalCurve.class);
+    private final MetaProperty<NodalCurve> curve = DirectMetaProperty.ofImmutable(
+        this, "curve", IsdaCompliantZeroRateDiscountFactors.class, NodalCurve.class);
     /**
      * The meta-properties.
      */
@@ -402,7 +451,7 @@ public final class IsdaCompliantZeroRateDiscountFactors
      * The meta-property for the {@code curve} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<InterpolatedNodalCurve> curve() {
+    public MetaProperty<NodalCurve> curve() {
       return curve;
     }
 
@@ -439,7 +488,7 @@ public final class IsdaCompliantZeroRateDiscountFactors
 
     private Currency currency;
     private LocalDate valuationDate;
-    private InterpolatedNodalCurve curve;
+    private NodalCurve curve;
 
     /**
      * Restricted constructor.
@@ -472,7 +521,7 @@ public final class IsdaCompliantZeroRateDiscountFactors
           this.valuationDate = (LocalDate) newValue;
           break;
         case 95027439:  // curve
-          this.curve = (InterpolatedNodalCurve) newValue;
+          this.curve = (NodalCurve) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

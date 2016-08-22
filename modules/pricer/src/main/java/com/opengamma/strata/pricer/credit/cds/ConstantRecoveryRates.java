@@ -31,13 +31,17 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * The constant recovery rate.
  * <p>
- * The recovery rate is constant for any given date. Thus {@code CurrencyParameterSensitivities} is not computed in 
- * this implementation.
+ * The recovery rate is constant for any given date.
  */
 @BeanDefinition(builderScope = "private")
 public final class ConstantRecoveryRates
     implements RecoveryRates, ImmutableBean, Serializable {
 
+  /**
+   * The legal entity identifier.
+   * <p>
+   * This identifier is used for the reference legal entity of a credit derivative.
+   */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
   /**
@@ -46,8 +50,9 @@ public final class ConstantRecoveryRates
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
   /**
-   * The underlying curve.
-   * The metadata of the curve must define a day count.
+   * The recovery rate.
+   * <p>
+   * The recovery rate is represented in decimal form, and must be between 0 and 1.
    */
   @PropertyDefinition
   private final double recoveryRate;
@@ -124,7 +129,9 @@ public final class ConstantRecoveryRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the legalEntityId.
+   * Gets the legal entity identifier.
+   * <p>
+   * This identifier is used for the reference legal entity of a credit derivative.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {
@@ -143,8 +150,9 @@ public final class ConstantRecoveryRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying curve.
-   * The metadata of the curve must define a day count.
+   * Gets the recovery rate.
+   * <p>
+   * The recovery rate is represented in decimal form, and must be between 0 and 1.
    * @return the value of the property
    */
   public double getRecoveryRate() {
