@@ -15,7 +15,7 @@ Commercial support is [available](http://www.opengamma.com/) from the authors.
 Using Strata
 ------------
 
-Documentation for Strata can be found at http://opengamma.github.io/StrataDocs.
+Documentation for Strata can be found at http://strata.opengamma.io.
 
 To use Strata Java SE 8u40 or later is required.
 The JAR files are available in [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.opengamma.strata%22):
@@ -53,7 +53,7 @@ Note that Strata is based on Java SE 8.
 Version 8u40 or later is required to compile the code.
 
 For more information about developing code on Strata
-see the [documentation](http://opengamma.github.io/StrataDocs).
+see the [documentation](http://strata.opengamma.io).
 
 
 Status
