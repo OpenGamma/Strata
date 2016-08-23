@@ -58,6 +58,10 @@ public final class ImmutableReferenceData
    * For example, a {@link HolidayCalendarId} associated with a {@link HolidayCalendar}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.
+   * <p>
+   * The resulting {@code ImmutableReferenceData} instance does not include the
+   * {@linkplain ReferenceData#minimal() minimal} set of reference data that is essential for pricing.
+   * To include the minimal set, use {@link ReferenceData#of(Map)} or {@link #combinedWith(ReferenceData)}.
    *
    * @param values  the reference data values
    * @return the reference data instance
@@ -74,6 +78,9 @@ public final class ImmutableReferenceData
    * <p>
    * This returns an instance containing a single entry based on the specified identifier and value.
    * This is primarily of interest to test cases.
+   * <p>
+   * The resulting {@code ImmutableReferenceData} instance does not include the
+   * {@linkplain ReferenceData#minimal() minimal} set of reference data that is essential for pricing.
    *
    * @param <T>  the type of the reference data
    * @param id  the identifier
