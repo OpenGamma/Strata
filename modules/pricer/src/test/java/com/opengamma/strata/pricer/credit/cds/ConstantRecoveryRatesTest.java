@@ -11,10 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link ConstantRecoveryRates}.
@@ -33,11 +36,19 @@ public class ConstantRecoveryRatesTest {
     assertEquals(test.getRecoveryRate(), RECOVERY_RATE);
     assertEquals(test.getValuationDate(), VALUATION);
     assertEquals(test.recoveryRate(DATE_AFTER), RECOVERY_RATE);
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.getParameter(0), RECOVERY_RATE);
+    assertEquals(test.getParameterCount(), 1);
+    assertEquals(test.getParameterMetadata(0), ParameterMetadata.empty());
+    assertEquals(test.withParameter(0, 0.5), ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 0.5));
   }
 
   public void test_of_rateOutOfRange() {
     assertThrowsIllegalArg(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, -0.5));
     assertThrowsIllegalArg(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 1.5));
+    ConstantRecoveryRates test = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, RECOVERY_RATE);
+    assertThrowsIllegalArg(() -> test.getParameter(1));
+    assertThrowsIllegalArg(() -> test.withParameter(1, 0.5));
   }
 
   //-------------------------------------------------------------------------

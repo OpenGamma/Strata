@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
@@ -26,6 +27,8 @@ import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.credit.cds.CreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.cds.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -177,14 +180,14 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       Function<CreditRatesProvider, CurrencyAmount> valueFn) {
 
     CurrencyAmount valueInit = valueFn.apply(provider);
-    CurrencyParameterSensitivities discounting = sensitivity(
+    CurrencyParameterSensitivities discounting = sensitivityDiscountCurve(
         provider, valueFn, CreditRatesProvider.meta().discountCurves(), valueInit);
-    CurrencyParameterSensitivities forward = sensitivity(
+    CurrencyParameterSensitivities credit = sensitivityCreidtCurve(
         provider, valueFn, CreditRatesProvider.meta().creditCurves(), valueInit);
-    return discounting.combinedWith(forward);
+    return discounting.combinedWith(credit);
   }
 
-  private <T> CurrencyParameterSensitivities sensitivity(
+  private <T> CurrencyParameterSensitivities sensitivityDiscountCurve(
       CreditRatesProvider provider,
       Function<CreditRatesProvider, CurrencyAmount> valueFn,
       MetaProperty<ImmutableMap<T, CreditDiscountFactors>> metaProperty,
@@ -201,7 +204,36 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       for (int i = 0; i < paramCount; i++) {
         Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<T, CreditDiscountFactors> mapBumped = new HashMap<>(baseCurves);
-        mapBumped.put(key, creditDiscountFactors.withCurve(dscBumped));
+        mapBumped.put(key, createCreditDiscountFactors(creditDiscountFactors, dscBumped));
+        CreditRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
+        sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
+      }
+      result = result.combinedWith(
+          curve.createParameterSensitivity(valueInit.getCurrency(), DoubleArray.copyOf(sensitivity)));
+    }
+    return result;
+  }
+
+  private <T> CurrencyParameterSensitivities sensitivityCreidtCurve(
+      CreditRatesProvider provider,
+      Function<CreditRatesProvider, CurrencyAmount> valueFn,
+      MetaProperty<ImmutableMap<T, LegalEntitySurvivalProbabilities>> metaProperty,
+      CurrencyAmount valueInit) {
+
+    ImmutableMap<T, LegalEntitySurvivalProbabilities> baseCurves = metaProperty.get(provider);
+    CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
+    for (T key : baseCurves.keySet()) {
+      LegalEntitySurvivalProbabilities credit = baseCurves.get(key);
+      CreditDiscountFactors creditDiscountFactors = credit.getSurvivalProbabilities();
+      DiscountFactors discountFactors = creditDiscountFactors.toDiscountFactors();
+      Curve curve = checkDiscountFactors(discountFactors);
+      int paramCount = curve.getParameterCount();
+      double[] sensitivity = new double[paramCount];
+      for (int i = 0; i < paramCount; i++) {
+        Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
+        Map<T, LegalEntitySurvivalProbabilities> mapBumped = new HashMap<>(baseCurves);
+        mapBumped.put(key, LegalEntitySurvivalProbabilities.of(
+            credit.getLegalEntityId(), createCreditDiscountFactors(creditDiscountFactors, dscBumped)));
         CreditRatesProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }
@@ -228,6 +260,15 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       return ZeroRateDiscountFactors.of(originalDsc.getCurrency(), originalDsc.getValuationDate(), bumpedCurve);
     } else if (originalDsc instanceof SimpleDiscountFactors) {
       return SimpleDiscountFactors.of(originalDsc.getCurrency(), originalDsc.getValuationDate(), bumpedCurve);
+    }
+    throw new IllegalArgumentException("Not supported");
+  }
+
+  // return correct instance of CreditDiscountFactors
+  private CreditDiscountFactors createCreditDiscountFactors(CreditDiscountFactors originalDsc, Curve bumpedCurve) {
+    if (originalDsc instanceof IsdaCompliantZeroRateDiscountFactors && bumpedCurve instanceof NodalCurve) {
+      IsdaCompliantZeroRateDiscountFactors isdaDsc = (IsdaCompliantZeroRateDiscountFactors) originalDsc;
+      return isdaDsc.withCurve((NodalCurve) bumpedCurve);
     }
     throw new IllegalArgumentException("Not supported");
   }

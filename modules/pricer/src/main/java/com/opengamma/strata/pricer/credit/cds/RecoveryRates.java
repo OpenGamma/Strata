@@ -8,13 +8,16 @@ package com.opengamma.strata.pricer.credit.cds;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.param.ParameterizedData;
 
 /**
  * Recovery rates.
  * <p>
  * This represents the recovery rates of a legal entity.
  */
-public interface RecoveryRates {
+public interface RecoveryRates
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Gets the valuation date. 

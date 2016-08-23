@@ -25,6 +25,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.credit.cds.ConstantRecoveryRates;
 import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.cds.LegalEntitySurvivalProbabilities;
 
 /**
  * {@code CreditRatesProvider} data sets for testing.
@@ -121,12 +122,20 @@ public class CreditRatesProviderDataSets {
     ConstantRecoveryRates rrJp = ConstantRecoveryRates.of(LEGAL_ENTITY_JP, valuationDate, RECOVERY_RATE_JP);
     return CreditRatesProvider.builder()
         .valuationDate(valuationDate)
-        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY_US, USD), ccUs, Pair.of(LEGAL_ENTITY_JP, JPY), ccJp))
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY_US, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_US, ccUs),
+            Pair.of(LEGAL_ENTITY_JP, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_JP, ccJp)))
         .discountCurves(ImmutableMap.of(USD, ycUsd, JPY, ycJpy))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_US, rrUs, LEGAL_ENTITY_JP, rrJp))
         .build();
   }
 
+  /**
+   * Gets all the discount factors
+   * 
+   * @param valuationDate  the valuation date
+   * @return the discount factors
+   */
   public static List<IsdaCompliantZeroRateDiscountFactors> getAllDiscountFactors(LocalDate valuationDate) {
 
     IsdaCompliantZeroRateDiscountFactors ycUsd = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);

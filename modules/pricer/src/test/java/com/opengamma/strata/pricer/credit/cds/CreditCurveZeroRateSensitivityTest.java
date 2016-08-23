@@ -41,7 +41,7 @@ public class CreditCurveZeroRateSensitivityTest {
   private static final double VALUE = 1.5d;
 
   public void test_of_full() {
-    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, GBP, VALUE);
+    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, GBP, VALUE);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getCurveCurrency(), USD);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
@@ -50,7 +50,7 @@ public class CreditCurveZeroRateSensitivityTest {
   }
 
   public void test_of() {
-    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, VALUE);
+    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, VALUE);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurveCurrency(), USD);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
@@ -71,26 +71,26 @@ public class CreditCurveZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_withCurrency() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, VALUE);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, VALUE);
     assertSame(base.withCurrency(USD), base);
-    assertEquals(base.withCurrency(GBP), CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, GBP, VALUE));
+    assertEquals(base.withCurrency(GBP), CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, GBP, VALUE));
   }
 
   //-------------------------------------------------------------------------
   public void test_withSensitivity() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, VALUE);
-    CreditCurveZeroRateSensitivity expected = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, 20d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, VALUE);
+    CreditCurveZeroRateSensitivity expected = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, 20d);
     CreditCurveZeroRateSensitivity test = base.withSensitivity(20d);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_compareKey() {
-    CreditCurveZeroRateSensitivity a1 = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
-    CreditCurveZeroRateSensitivity a2 = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
-    CreditCurveZeroRateSensitivity b = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, 10d, 32d);
-    CreditCurveZeroRateSensitivity c = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, 32d);
-    CreditCurveZeroRateSensitivity d = CreditCurveZeroRateSensitivity.of(USD, LEGAL_ENTITY, YEAR_FRACTION, GBP, 32d);
+    CreditCurveZeroRateSensitivity a1 = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity a2 = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity b = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, 10d, 32d);
+    CreditCurveZeroRateSensitivity c = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity d = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, USD, YEAR_FRACTION, GBP, 32d);
     IborRateSensitivity other = IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
@@ -105,12 +105,12 @@ public class CreditCurveZeroRateSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_convertedTo() {
     double sensi = 32d;
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, sensi);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, sensi);
     double rate = 1.5d;
     FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
     CreditCurveZeroRateSensitivity test1 = base.convertedTo(USD, matrix);
     CreditCurveZeroRateSensitivity expected =
-        CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, USD, rate * sensi);
+        CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, USD, rate * sensi);
     assertEquals(test1, expected);
     CreditCurveZeroRateSensitivity test2 = base.convertedTo(GBP, matrix);
     assertEquals(test2, base);
@@ -118,31 +118,31 @@ public class CreditCurveZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
-    CreditCurveZeroRateSensitivity expected = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d * 3.5d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity expected = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d * 3.5d);
     CreditCurveZeroRateSensitivity test = base.multipliedBy(3.5d);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_mapSensitivity() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
-    CreditCurveZeroRateSensitivity expected = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 1 / 32d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity expected = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 1 / 32d);
     CreditCurveZeroRateSensitivity test = base.mapSensitivity(s -> 1 / s);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_normalize() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     CreditCurveZeroRateSensitivity test = base.normalize();
     assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
-    CreditCurveZeroRateSensitivity base1 = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
-    CreditCurveZeroRateSensitivity base2 = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 22d);
+    CreditCurveZeroRateSensitivity base1 = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity base2 = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 22d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base1).add(base2);
     PointSensitivityBuilder test = base1.combinedWith(base2);
@@ -150,7 +150,7 @@ public class CreditCurveZeroRateSensitivityTest {
   }
 
   public void test_combinedWith_mutable() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base);
     PointSensitivityBuilder test = base.combinedWith(new MutablePointSensitivities());
@@ -159,7 +159,7 @@ public class CreditCurveZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_buildInto() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
     assertSame(test, combo);
@@ -168,28 +168,28 @@ public class CreditCurveZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_build() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
   }
 
   //-------------------------------------------------------------------------
   public void test_cloned() {
-    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity base = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     CreditCurveZeroRateSensitivity test = base.cloned();
     assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     coverImmutableBean(test);
-    CreditCurveZeroRateSensitivity test2 = CreditCurveZeroRateSensitivity.of(USD, StandardId.of("OG", "AAA"), YEAR_FRACTION, 16d);
+    CreditCurveZeroRateSensitivity test2 = CreditCurveZeroRateSensitivity.of(StandardId.of("OG", "AAA"), USD, YEAR_FRACTION, 16d);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(GBP, LEGAL_ENTITY, YEAR_FRACTION, 32d);
+    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, GBP, YEAR_FRACTION, 32d);
     assertSerialization(test);
   }
 
