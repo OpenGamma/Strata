@@ -169,12 +169,15 @@ public class CreditRatesProviderTest {
     IsdaCompliantZeroRateDiscountFactors hzd =
         IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY_DEF, VALUATION.plusDays(1), RECOVERY_RATE_DEF);
-    CreditRatesProvider test2 = CreditRatesProvider.builder()
-        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, hzd)))
-        .discountCurves(ImmutableMap.of(JPY, dsc))
-        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_DEF, rr))
-        .valuationDate(VALUATION.plusDays(1))
-        .build();
+    CreditRatesProvider test2 =
+        CreditRatesProvider
+            .builder()
+            .creditCurves(
+                ImmutableMap.of(Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, hzd)))
+            .discountCurves(ImmutableMap.of(JPY, dsc))
+            .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_DEF, rr))
+            .valuationDate(VALUATION.plusDays(1))
+            .build();
     coverBeanEquals(test1, test2);
   }
 

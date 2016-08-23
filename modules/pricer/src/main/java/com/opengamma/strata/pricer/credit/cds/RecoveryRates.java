@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 
 /**
@@ -24,6 +25,7 @@ public interface RecoveryRates
    * 
    * @return the valuation date
    */
+  @Override
   public abstract LocalDate getValuationDate();
 
   /**
@@ -40,5 +42,11 @@ public interface RecoveryRates
    * @return the recovery rate
    */
   public abstract double recoveryRate(LocalDate date);
+
+  @Override
+  public abstract RecoveryRates withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract RecoveryRates withPerturbation(ParameterPerturbation perturbation);
 
 }

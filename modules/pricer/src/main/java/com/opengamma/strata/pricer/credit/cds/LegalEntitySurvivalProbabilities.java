@@ -146,7 +146,7 @@ public final class LegalEntitySurvivalProbabilities
    * This returns a sensitivity instance referring to the zero hazard rate sensitivity of the
    * points that were queried in the market data.
    * The sensitivity typically has the value {@code (-survivalProbability * yearFraction)}.
-   * The sensitivity refers to the result of {@link #survivalProbability(yearFraction)}.
+   * The sensitivity refers to the result of {@link #survivalProbability(LocalDate)}.
    * 
    * @param yearFraction  the year fraction
    * @return the point sensitivity of the zero rate
@@ -182,7 +182,7 @@ public final class LegalEntitySurvivalProbabilities
    * This returns a sensitivity instance referring to the zero hazard rate sensitivity of the
    * points that were queried in the market data.
    * The sensitivity typically has the value {@code (-survivalProbability * yearFraction)}.
-   * The sensitivity refers to the result of {@link #survivalProbability(yearFraction)}.
+   * The sensitivity refers to the result of {@link #survivalProbability(LocalDate)}.
    * <p>
    * This method allows the currency of the sensitivity to differ from the currency of the market data.
    * 
