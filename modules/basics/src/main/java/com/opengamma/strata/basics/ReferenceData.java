@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -47,7 +48,22 @@ public interface ReferenceData {
    * @return standard reference data
    */
   public static ReferenceData standard() {
-    return StandardReferenceData.INSTANCE;
+    return StandardReferenceData.STANDARD;
+  }
+
+  /**
+   * Obtains the minimal set of reference data.
+   * <p>
+   * The {@linkplain #standard() standard} reference data contains common holiday calendars
+   * and indices, but may not be suitable for production use. The minimal reference data contains
+   * just those identifiers that are needed by Strata, and that are non-controversial.
+   * These are {@link HolidayCalendars#NO_HOLIDAYS}, {@link HolidayCalendars#SAT_SUN},
+   * {@link HolidayCalendars#FRI_SAT} and {@link HolidayCalendars#THU_FRI}.
+   *
+   * @return minimal reference data
+   */
+  public static ReferenceData minimal() {
+    return StandardReferenceData.MINIMAL;
   }
 
   /**

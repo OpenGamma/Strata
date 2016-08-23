@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 
 /**
  * Test {@link ReferenceData} and {@link ImmutableReferenceData}.
@@ -60,6 +61,25 @@ public class ReferenceDataTest {
       return id.equals(ID2) ? Optional.of((T) VAL2) : (id.equals(ID1) ? Optional.of((T) VAL1) : Optional.empty());
     }
   };
+
+  //-------------------------------------------------------------------------
+  public void test_standard() {
+    ReferenceData test = ReferenceData.standard();
+    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.GBLO), true);
+  }
+
+  public void test_minimal() {
+    ReferenceData test = ReferenceData.minimal();
+    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.GBLO), false);
+  }
 
   //-------------------------------------------------------------------------
   public void test_of() {
