@@ -82,9 +82,36 @@ public class ReferenceDataTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_of() {
+  public void test_of_RD() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     ReferenceData test = ReferenceData.of(dataMap);
+
+    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), true);
+    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), true);
+
+    assertEquals(test.containsValue(ID1), true);
+    assertEquals(test.getValue(ID1), VAL1);
+    assertEquals(test.findValue(ID1), Optional.of(VAL1));
+
+    assertEquals(test.containsValue(ID2), true);
+    assertEquals(test.getValue(ID2), VAL2);
+    assertEquals(test.findValue(ID2), Optional.of(VAL2));
+
+    assertEquals(test.containsValue(ID3), false);
+    assertThrows(() -> test.getValue(ID3), ReferenceDataNotFoundException.class);
+    assertEquals(test.findValue(ID3), Optional.empty());
+  }
+
+  public void test_of_IRD() {
+    Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    ImmutableReferenceData test = ImmutableReferenceData.of(dataMap);
+
+    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), false);
+    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), false);
+    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), false);
+    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), false);
 
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.getValue(ID1), VAL1);
@@ -101,6 +128,11 @@ public class ReferenceDataTest {
 
   public void test_of_single() {
     ReferenceData test = ImmutableReferenceData.of(ID1, VAL1);
+
+    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), false);
+    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), false);
+    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), false);
+    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), false);
 
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.getValue(ID1), VAL1);

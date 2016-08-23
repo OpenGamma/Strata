@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,13 +31,21 @@ public interface ReferenceData {
    * For example, a {@link HolidayCalendar} can be looked up using a {@link HolidayCalendarId}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.
+   * <p>
+   * The resulting {@code ReferenceData} instance will include the {@linkplain #minimal() minimal}
+   * set of reference data that includes non-controversial identifiers that are essential for pricing.
+   * To exclude the minimal set of identifiers, use {@link ImmutableReferenceData#of(Map)}.
    *
    * @param values  the reference data values
    * @return the reference data instance containing the values in the map
    * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static ReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
-    return ImmutableReferenceData.of(values);
+    // hash map so that keys can overlap, with this instance taking priority
+    Map<ReferenceDataId<?>, Object> combined = new HashMap<>();
+    combined.putAll(StandardReferenceData.MINIMAL.getValues());
+    combined.putAll(values);
+    return ImmutableReferenceData.of(combined);
   }
 
   /**

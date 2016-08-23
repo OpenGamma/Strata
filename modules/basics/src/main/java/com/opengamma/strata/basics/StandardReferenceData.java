@@ -17,25 +17,25 @@ final class StandardReferenceData {
   /**
    * Standard reference data.
    */
-  static ReferenceData STANDARD;
+  static ImmutableReferenceData STANDARD;
   static {
     ImmutableMap.Builder<ReferenceDataId<?>, Object> builder = ImmutableMap.builder();
     for (HolidayCalendar cal : HolidayCalendars.extendedEnum().lookupAll().values()) {
       builder.put(cal.getId(), cal);
     }
-    STANDARD = ReferenceData.of(builder.build());
+    STANDARD = ImmutableReferenceData.of(builder.build());
   }
   /**
    * Minimal reference data.
    */
-  static ReferenceData MINIMAL;
+  static ImmutableReferenceData MINIMAL;
   static {
     ImmutableMap.Builder<ReferenceDataId<?>, Object> builder = ImmutableMap.builder();
     builder.put(HolidayCalendars.NO_HOLIDAYS.getId(), HolidayCalendars.NO_HOLIDAYS);
     builder.put(HolidayCalendars.SAT_SUN.getId(), HolidayCalendars.SAT_SUN);
     builder.put(HolidayCalendars.FRI_SAT.getId(), HolidayCalendars.FRI_SAT);
     builder.put(HolidayCalendars.THU_FRI.getId(), HolidayCalendars.THU_FRI);
-    MINIMAL = ReferenceData.of(builder.build());
+    MINIMAL = ImmutableReferenceData.of(builder.build());
   }
 
   // restricted constructor
