@@ -21,4 +21,18 @@ public interface ReferenceDataId<T> {
    */
   public abstract Class<T> getReferenceDataType();
 
+  /**
+   * Low-level method to query the reference data value associated with this identifier,
+   * returning null if not found.
+   * <p>
+   * This is a low-level method that obtains the reference data value, returning null instead of an error.
+   * Applications should use {@link ReferenceData#getValue(ReferenceDataId)} in preference to this method.
+   *
+   * @param refData  the reference data to lookup the value in
+   * @return the reference data value, null if not found
+   */
+  public default T queryValueOrNull(ReferenceData refData) {
+    return refData.queryValueOrNull(this);
+  }
+
 }

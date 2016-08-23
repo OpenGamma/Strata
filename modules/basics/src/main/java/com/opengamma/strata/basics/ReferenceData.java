@@ -99,6 +99,21 @@ public interface ReferenceData {
    */
   public abstract <T> Optional<T> findValue(ReferenceDataId<T> id);
 
+  /**
+   * Low-level method to query the reference data value associated with the specified identifier,
+   * returning null if not found.
+   * <p>
+   * This is a low-level method that obtains the reference data value, returning null instead of an error.
+   * Applications should use {@link #getValue(ReferenceDataId)} in preference to this method.
+   *
+   * @param <T>  the type of the reference data value
+   * @param id  the identifier to find
+   * @return the reference data value, null if not found
+   */
+  public default <T> T queryValueOrNull(ReferenceDataId<T> id) {
+    return findValue(id).orElse(null);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Combines this reference data with another.
