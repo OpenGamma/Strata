@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.ReferenceDataId;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -53,6 +54,7 @@ public final class HolidayCalendarId
   private transient final int hashCode;
   /**
    * The resolver function.
+   * Implementations of this function must only call {@link ReferenceData#queryValueOrNull(ReferenceDataId)}.
    */
   private transient final BiFunction<HolidayCalendarId, ReferenceData, HolidayCalendar> resolver;
 
@@ -100,7 +102,8 @@ public final class HolidayCalendarId
       for (HolidayCalendarId splitId : ids) {
         HolidayCalendar splitCal = refData.queryValueOrNull(splitId);
         if (splitCal == null) {
-          throw new ReferenceDataNotFoundException("");
+          throw new ReferenceDataNotFoundException(Messages.format(
+              "Reference data not found for '{}' of type 'HolidayCalendarId' when finding '{}'", splitId, id));
         }
         cal = cal.combinedWith(splitCal);
       }
