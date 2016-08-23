@@ -21,6 +21,7 @@ import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 
 /**
@@ -109,6 +110,13 @@ public interface FraConvention
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * <p>
+   * The start date will be the trade date, plus spot offset, plus period to start, adjusted to a valid business day.
+   * The end date will be the trade date, plus spot offset, plus period to end, adjusted to a valid business day.
+   * The adjustment of the start and end date occurs at trade creation.
+   * The payment date offset is also applied at trade creation.
+   * When the Fra is {@linkplain Fra#resolve(ReferenceData) resolved}, the start and end date
+   * are not adjusted again but the payment date is.
    * 
    * @param tradeDate  the date of the trade
    * @param periodToStart  the period between the spot date and the start date
@@ -129,6 +137,7 @@ public interface FraConvention
       double fixedRate,
       ReferenceData refData);
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a trade based on this convention.
    * <p>
@@ -138,9 +147,9 @@ public interface FraConvention
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
    * @param tradeDate  the date of the trade
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param paymentDate  the payment date
+   * @param startDate  the start date, which should be adjusted to be a valid business day
+   * @param endDate  the end date, which should be adjusted to be a valid business day
+   * @param paymentDate  the payment date, which should be adjusted to be a valid business day
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -168,9 +177,9 @@ public interface FraConvention
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
    * @param tradeInfo  additional information about the trade
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param paymentDate  the payment date
+   * @param startDate  the start date, which should be adjusted to be a valid business day
+   * @param endDate  the end date, which should be adjusted to be a valid business day
+   * @param paymentDate  the payment date, which should be adjusted to be a valid business day
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
