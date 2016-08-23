@@ -12,6 +12,8 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -57,16 +59,40 @@ public class HolidayCalendarIdTest {
     ReferenceData refData = ImmutableReferenceData.of(gb, gbCal);
     assertEquals(gb.resolve(refData), gbCal);
     assertThrows(() -> eu.resolve(refData), ReferenceDataNotFoundException.class);
+    assertEquals(refData.getValue(gb), gbCal);
   }
 
-  public void test_resolve_combined() {
+  public void test_resolve_combined_direct() {
     HolidayCalendarId gb = HolidayCalendarId.of("GB");
     HolidayCalendar gbCal = HolidayCalendars.SAT_SUN;
     HolidayCalendarId eu = HolidayCalendarId.of("EU");
     HolidayCalendar euCal = HolidayCalendars.FRI_SAT;
-    ReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(gb, gbCal, eu, euCal));
     HolidayCalendarId combined = gb.combinedWith(eu);
-    assertEquals(combined.resolve(refData), euCal.combinedWith(gbCal));
+    HolidayCalendar combinedCal = euCal.combinedWith(gbCal);
+    ReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(combined, combinedCal));
+    assertEquals(combined.resolve(refData), combinedCal);
+    assertEquals(refData.getValue(combined), combinedCal);
+  }
+
+  public void test_resolve_combined_indirect() {
+    HolidayCalendarId gb = HolidayCalendarId.of("GB");
+    HolidayCalendar gbCal = HolidayCalendars.SAT_SUN;
+    HolidayCalendarId eu = HolidayCalendarId.of("EU");
+    HolidayCalendar euCal = HolidayCalendars.FRI_SAT;
+    HolidayCalendarId combined = gb.combinedWith(eu);
+    HolidayCalendar combinedCal = euCal.combinedWith(gbCal);
+    ReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(gb, gbCal, eu, euCal));
+    assertEquals(combined.resolve(refData), combinedCal);
+    assertEquals(refData.getValue(combined), combinedCal);
+  }
+
+  @Test
+  public void testImmutableReferenceDataWithMergedHolidays() {
+    HolidayCalendar hc = HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN);
+    ImmutableReferenceData referenceData = ImmutableReferenceData.of(hc.getId(), hc);
+    LocalDate date =
+        BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, hc.getId()).adjust(LocalDate.of(2016, 8, 20), referenceData);
+    assertEquals(LocalDate.of(2016, 8, 18), date);
   }
 
   //-------------------------------------------------------------------------
