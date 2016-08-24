@@ -168,6 +168,23 @@ public class DefaultCalculationTaskRunnerTest {
     }
   }
 
+  /**
+   * Tests that running an empty list of tasks completes and returns a set of results with zero rows.
+   */
+  public void runWithNoTasks() {
+    Column column = Column.of(TestingMeasures.PRESENT_VALUE);
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(), ImmutableList.of(column));
+
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
+
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    Results results = test.calculate(tasks, marketData, REF_DATA);
+    assertThat(results.getRowCount()).isEqualTo(0);
+    assertThat(results.getColumnCount()).isEqualTo(1);
+    assertThat(results.getColumns().get(0).getMeasure()).isEqualTo(TestingMeasures.PRESENT_VALUE);
+  }
+
   //-------------------------------------------------------------------------
   private static final class ScenarioResultFunction implements CalculationFunction<TestTarget> {
 

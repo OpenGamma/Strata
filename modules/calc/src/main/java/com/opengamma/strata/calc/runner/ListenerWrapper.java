@@ -72,7 +72,11 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
    */
   ListenerWrapper(CalculationListener listener, int tasksExpected) {
     this.listener = ArgChecker.notNull(listener, "listener");
-    this.tasksExpected = ArgChecker.notNegativeOrZero(tasksExpected, "tasksExpected");
+    this.tasksExpected = ArgChecker.notNegative(tasksExpected, "tasksExpected");
+
+    if (tasksExpected == 0) {
+      listener.calculationsComplete();
+    }
   }
 
   //-------------------------------------------------------------------------
