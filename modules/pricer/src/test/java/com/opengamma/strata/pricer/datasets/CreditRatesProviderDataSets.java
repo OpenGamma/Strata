@@ -25,6 +25,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.credit.cds.ConstantRecoveryRates;
 import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.cds.LegalEntitySurvivalProbabilities;
 
 /**
  * {@code CreditRatesProvider} data sets for testing.
@@ -54,7 +55,7 @@ public class CreditRatesProviderDataSets {
       .build();
   private static final InterpolatedNodalCurve NODAL_YC_USD =
       InterpolatedNodalCurve.of(METADATA_YC_USD, TIME_YC_USD, RATE_YC_USD,
-      CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
+          CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
   private static final DoubleArray TIME_YC_JPY = DoubleArray.ofUnsafe(new double[] {
       0.09041095890410959, 0.1726027397260274, 0.26301369863013696, 0.5041095890410959, 1.010958904109589, 2.008219178082192,
       3.008219178082192, 4.008219178082192, 5.008219178082192, 6.008219178082192, 7.013698630136987, 8.01095890410959,
@@ -88,7 +89,7 @@ public class CreditRatesProviderDataSets {
       .build();
   private static final InterpolatedNodalCurve NODAL_CC_US =
       InterpolatedNodalCurve.of(METADATA_CC_US, TIME_CC_US, RATE_CC_US,
-      CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
+          CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
   private static final DoubleArray TIME_CC_JP = DoubleArray.ofUnsafe(new double[] {
       0.5205479452054794, 1.021917808219178, 3.021917808219178, 5.024657534246575, 7.024657534246575, 10.027397260273972});
   private static final DoubleArray RATE_CC_JP = DoubleArray.ofUnsafe(new double[] {
@@ -121,12 +122,20 @@ public class CreditRatesProviderDataSets {
     ConstantRecoveryRates rrJp = ConstantRecoveryRates.of(LEGAL_ENTITY_JP, valuationDate, RECOVERY_RATE_JP);
     return CreditRatesProvider.builder()
         .valuationDate(valuationDate)
-        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY_US, USD), ccUs, Pair.of(LEGAL_ENTITY_JP, JPY), ccJp))
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY_US, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_US, ccUs),
+            Pair.of(LEGAL_ENTITY_JP, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_JP, ccJp)))
         .discountCurves(ImmutableMap.of(USD, ycUsd, JPY, ycJpy))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_US, rrUs, LEGAL_ENTITY_JP, rrJp))
         .build();
   }
 
+  /**
+   * Gets all the discount factors
+   * 
+   * @param valuationDate  the valuation date
+   * @return the discount factors
+   */
   public static List<IsdaCompliantZeroRateDiscountFactors> getAllDiscountFactors(LocalDate valuationDate) {
 
     IsdaCompliantZeroRateDiscountFactors ycUsd = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);

@@ -74,21 +74,22 @@ public class CreditRatesProviderTest {
 
   public void test_getter() {
     CreditRatesProvider test = CreditRatesProvider.builder()
+        .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
-            Pair.of(LEGAL_ENTITY_ABC, USD), CRD_ABC_USD,
-            Pair.of(LEGAL_ENTITY_ABC, JPY), CRD_ABC_JPY,
-            Pair.of(LEGAL_ENTITY_DEF, JPY), CRD_DEF))
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build();
     assertEquals(test.discountFactors(USD), DSC_USD);
     assertEquals(test.discountFactors(JPY), DSC_JPY);
     assertEquals(test.survivalProbabilities(LEGAL_ENTITY_ABC, USD),
-        LegalEntitySurvivalProbabilities.of(CRD_ABC_USD, LEGAL_ENTITY_ABC));
+        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD));
     assertEquals(test.survivalProbabilities(LEGAL_ENTITY_ABC, JPY),
-        LegalEntitySurvivalProbabilities.of(CRD_ABC_JPY, LEGAL_ENTITY_ABC));
+        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY));
     assertEquals(test.survivalProbabilities(LEGAL_ENTITY_DEF, JPY),
-        LegalEntitySurvivalProbabilities.of(CRD_DEF, LEGAL_ENTITY_DEF));
+        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF));
     assertEquals(test.recoveryRates(LEGAL_ENTITY_ABC), RR_ABC);
     assertEquals(test.recoveryRates(LEGAL_ENTITY_DEF), RR_DEF);
     StandardId entity = StandardId.of("OG", "NONE");
@@ -101,10 +102,11 @@ public class CreditRatesProviderTest {
   public void test_valuationDateMismatch() {
     ConstantRecoveryRates rr_wrong = ConstantRecoveryRates.of(LEGAL_ENTITY_ABC, VALUATION.plusWeeks(1), RECOVERY_RATE_ABC);
     assertThrowsIllegalArg(() -> CreditRatesProvider.builder()
+        .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
-            Pair.of(LEGAL_ENTITY_ABC, USD), CRD_ABC_USD,
-            Pair.of(LEGAL_ENTITY_ABC, JPY), CRD_ABC_JPY,
-            Pair.of(LEGAL_ENTITY_DEF, JPY), CRD_DEF))
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, rr_wrong, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
@@ -113,9 +115,9 @@ public class CreditRatesProviderTest {
     assertThrowsIllegalArg(() -> CreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
-            Pair.of(LEGAL_ENTITY_ABC, USD), CRD_ABC_USD,
-            Pair.of(LEGAL_ENTITY_ABC, JPY), CRD_ABC_JPY,
-            Pair.of(LEGAL_ENTITY_DEF, JPY), crd_wrong))
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, crd_wrong)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
@@ -124,9 +126,9 @@ public class CreditRatesProviderTest {
     assertThrowsIllegalArg(() -> CreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
-            Pair.of(LEGAL_ENTITY_ABC, USD), CRD_ABC_USD,
-            Pair.of(LEGAL_ENTITY_ABC, JPY), CRD_ABC_JPY,
-            Pair.of(LEGAL_ENTITY_DEF, JPY), CRD_DEF))
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
         .discountCurves(ImmutableMap.of(USD, dsc_wrong, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
@@ -134,41 +136,48 @@ public class CreditRatesProviderTest {
 
   public void test_parameterSensitivity() {
     ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
-    CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(JPY, LEGAL_ENTITY_ABC, 2d, 3d);
+    CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
     FxForwardSensitivity fxPt = FxForwardSensitivity.of(CurrencyPair.of(JPY, USD), USD, LocalDate.of(2017, 2, 14), 15d);
     CreditRatesProvider test = CreditRatesProvider.builder()
         .creditCurves(ImmutableMap.of(
-            Pair.of(LEGAL_ENTITY_ABC, USD), CRD_ABC_USD,
-            Pair.of(LEGAL_ENTITY_ABC, JPY), CRD_ABC_JPY,
-            Pair.of(LEGAL_ENTITY_DEF, JPY), CRD_DEF))
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
+        .valuationDate(VALUATION)
         .build();
     CurrencyParameterSensitivities computed =
         test.parameterSensitivity(zeroPt.combinedWith(creditPt).combinedWith(fxPt).build());
     CurrencyParameterSensitivities expected = DSC_USD.parameterSensitivity(zeroPt).combinedWith(
-        LegalEntitySurvivalProbabilities.of(CRD_ABC_JPY, LEGAL_ENTITY_ABC).parameterSensitivity(creditPt));
+        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY).parameterSensitivity(creditPt));
     assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     CreditRatesProvider test1 = CreditRatesProvider.builder()
-        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY_ABC, USD), CRD_ABC_USD))
+        .creditCurves(
+            ImmutableMap.of(Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC))
+        .valuationDate(VALUATION)
         .build();
     coverImmutableBean(test1);
-     IsdaCompliantZeroRateDiscountFactors dsc =
+    IsdaCompliantZeroRateDiscountFactors dsc =
         IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_DSC_JPY, TIME_DSC_JPY, RATE_DSC_JPY, ACT_365F);
     IsdaCompliantZeroRateDiscountFactors hzd =
         IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY_DEF, VALUATION.plusDays(1), RECOVERY_RATE_DEF);
-    CreditRatesProvider test2 = CreditRatesProvider.builder()
-        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY_DEF, JPY), hzd))
-        .discountCurves(ImmutableMap.of(JPY, dsc))
-        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_DEF, rr))
-        .build();
+    CreditRatesProvider test2 =
+        CreditRatesProvider
+            .builder()
+            .creditCurves(
+                ImmutableMap.of(Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, hzd)))
+            .discountCurves(ImmutableMap.of(JPY, dsc))
+            .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_DEF, rr))
+            .valuationDate(VALUATION.plusDays(1))
+            .build();
     coverBeanEquals(test1, test2);
   }
 

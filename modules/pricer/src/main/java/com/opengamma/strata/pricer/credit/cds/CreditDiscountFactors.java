@@ -6,15 +6,11 @@
 package com.opengamma.strata.pricer.credit.cds;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -52,18 +48,6 @@ public interface CreditDiscountFactors
   public abstract DayCount getDayCount();
 
   /**
-   * Finds the market data structure underlying this instance with the specified name.
-   * <p>
-   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
-   * If the market data cannot be found, empty is returned.
-   * 
-   * @param <T>  the type of the market data value
-   * @param name  the name to find
-   * @return the market data value, empty if not found
-   */
-  public abstract <T> Optional<T> findData(MarketDataName<T> name);
-
-  /**
    * Creates an instance of {@link DiscountFactors}.
    * 
    * @return the instance
@@ -83,14 +67,6 @@ public interface CreditDiscountFactors
 
   @Override
   public abstract CreditDiscountFactors withPerturbation(ParameterPerturbation perturbation);
-
-  /**
-   * Obtains a new instance with the underlying curve replaced.
-   * 
-   * @param curve  the curve
-   * @return the instance
-   */
-  public abstract CreditDiscountFactors withCurve(Curve curve);
 
   //-------------------------------------------------------------------------
   /**
@@ -132,7 +108,6 @@ public interface CreditDiscountFactors
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double discountFactor(double yearFraction);
-
 
   /**
    * Gets the continuously compounded zero rate for the specified date.

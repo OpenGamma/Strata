@@ -45,7 +45,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
   private static final LocalDate DATE_AFTER = LocalDate.of(2017, 2, 24);
 
   public void test_of() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getParameterKeys(), TIME);
@@ -55,12 +55,12 @@ public class LegalEntitySurvivalProbabilitiesTest {
 
   //-------------------------------------------------------------------------
   public void test_survivalProbability() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     assertEquals(test.survivalProbability(DATE_AFTER), DFS.discountFactor(DATE_AFTER));
   }
 
   public void test_zeroRate() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VALUATION, DATE_AFTER);
     double discountFactor = test.survivalProbability(DATE_AFTER);
     double zeroRate = test.zeroRate(relativeYearFraction);
@@ -69,14 +69,14 @@ public class LegalEntitySurvivalProbabilitiesTest {
 
   //-------------------------------------------------------------------------
   public void test_zeroRatePointSensitivity() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
         CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(DATE_AFTER), LEGAL_ENTITY);
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER), expected);
   }
 
   public void test_zeroRatePointSensitivity_sensitivityCurrency() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
         CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(DATE_AFTER, GBP), LEGAL_ENTITY);
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER, GBP), expected);
@@ -84,15 +84,15 @@ public class LegalEntitySurvivalProbabilitiesTest {
 
   public void test_zeroRatePointSensitivity_yearFraction() {
     double yearFraction = DFS.relativeYearFraction(DATE_AFTER);
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
         CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(yearFraction), LEGAL_ENTITY);
     assertEquals(test.zeroRatePointSensitivity(yearFraction), expected);
   }
 
   public void test_zeroRatePointSensitivity_sensitivityCurrency_yearFraction() {
-    double yearFraction = DFS.relativeYearFraction(DATE_AFTER);      
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    double yearFraction = DFS.relativeYearFraction(DATE_AFTER);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
         CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(yearFraction, GBP), LEGAL_ENTITY);
     assertEquals(test.zeroRatePointSensitivity(yearFraction, GBP), expected);
@@ -100,7 +100,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
 
   //-------------------------------------------------------------------------
   public void test_unitParameterSensitivity() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_AFTER);
     CurrencyParameterSensitivities expected =
         DFS.parameterSensitivity(DFS.zeroRatePointSensitivity(DATE_AFTER));
@@ -110,7 +110,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
   //-------------------------------------------------------------------------
   // proper end-to-end FD tests are in pricer test
   public void test_parameterSensitivity() {
-    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity point =
         CreditCurveZeroRateSensitivity.of(ZeroRateSensitivity.of(USD, 1d, 1d), LEGAL_ENTITY);
     assertEquals(test.parameterSensitivity(point).size(), 1);
@@ -118,12 +118,12 @@ public class LegalEntitySurvivalProbabilitiesTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    LegalEntitySurvivalProbabilities test1 = LegalEntitySurvivalProbabilities.of(DFS, LEGAL_ENTITY);
+    LegalEntitySurvivalProbabilities test1 = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     coverImmutableBean(test1);
     LegalEntitySurvivalProbabilities test2 = LegalEntitySurvivalProbabilities.of(
+        StandardId.of("OG", "CCC"),
         IsdaCompliantZeroRateDiscountFactors.of(
-            GBP, VALUATION, CURVE_NAME, DoubleArray.of(5.0), DoubleArray.of(0.014), ACT_365F),
-        StandardId.of("OG", "CCC"));
+            GBP, VALUATION, CURVE_NAME, DoubleArray.of(5.0), DoubleArray.of(0.014), ACT_365F));
     coverBeanEquals(test1, test2);
   }
 

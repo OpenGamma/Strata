@@ -35,6 +35,7 @@ import com.opengamma.strata.pricer.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.credit.cds.CreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.cds.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.datasets.CreditRatesProviderDataSets;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -222,10 +223,11 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   private CurrencyAmount creditFunction(CreditRatesProvider provider) {
     double result = 0.0;
     // credit curve
-    ImmutableMap<Pair<StandardId, Currency>, CreditDiscountFactors> mapCredit = provider.metaBean().creditCurves()
-        .get(provider);
-    for (Entry<Pair<StandardId, Currency>, CreditDiscountFactors> entry : mapCredit.entrySet()) {
-      InterpolatedNodalCurve curveInt = checkInterpolated(checkDiscountFactors(entry.getValue().toDiscountFactors()));
+    ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> mapCredit =
+        provider.metaBean().creditCurves().get(provider);
+    for (Entry<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> entry : mapCredit.entrySet()) {
+      InterpolatedNodalCurve curveInt =
+          checkInterpolated(checkDiscountFactors(entry.getValue().getSurvivalProbabilities().toDiscountFactors()));
       result += sumProduct(curveInt);
     }
     // repo curve

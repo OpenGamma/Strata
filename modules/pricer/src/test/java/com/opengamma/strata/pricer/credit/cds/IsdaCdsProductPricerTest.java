@@ -94,7 +94,7 @@ public class IsdaCdsProductPricerTest {
       ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, 0.25);
   private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
-      .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), CREDIT_CRVE))
+      .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, CREDIT_CRVE)))
       .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
       .build();
@@ -261,7 +261,8 @@ public class IsdaCdsProductPricerTest {
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC_BUMP);
   private static final CreditRatesProvider RATES_PROVIDER_BUMP = CreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
-      .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), CREDIT_CRVE_BUMP))
+      .creditCurves(
+          ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, CREDIT_CRVE_BUMP)))
       .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
       .build();
@@ -401,7 +402,7 @@ public class IsdaCdsProductPricerTest {
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25);
     return CreditRatesProvider.builder()
         .valuationDate(valuationDate)
-        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), cc))
+        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
         .discountCurves(ImmutableMap.of(USD, yc))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, rr))
         .build();
