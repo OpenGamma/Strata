@@ -56,7 +56,7 @@ public final class MultiCurrencyAmountArray
     implements FxConvertible<CurrencyAmountArray>, ImmutableBean, Serializable {
 
   /**
-   * This size of the array.
+   * The size of this array.
    */
   @PropertyDefinition(validate = "notNegative")
   private final int size;
