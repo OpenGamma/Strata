@@ -75,6 +75,15 @@ public class MultiCurrencyAmountArrayTest {
     assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
   }
 
+  public void test_empty_amounts() {
+    MultiCurrencyAmountArray array = MultiCurrencyAmountArray.of(
+        MultiCurrencyAmount.empty(),
+        MultiCurrencyAmount.empty());
+    assertThat(array.size()).isEqualTo(2);
+    assertThat(array.get(0)).isEqualTo(MultiCurrencyAmount.empty());
+    assertThat(array.get(1)).isEqualTo(MultiCurrencyAmount.empty());
+  }
+
   public void test_of_function() {
     MultiCurrencyAmount mca1 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.USD, 20));
     MultiCurrencyAmount mca2 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.EUR, 30));
@@ -85,6 +94,11 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(test.get(0)).isEqualTo(mca1.plus(Currency.EUR, 0));
     assertThat(test.get(1)).isEqualTo(mca2.plus(Currency.USD, 0));
     assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
+  }
+
+  public void test_of_function_empty_amounts() {
+    MultiCurrencyAmountArray test = MultiCurrencyAmountArray.of(3, i -> MultiCurrencyAmount.empty());
+    assertThat(test.size()).isEqualTo(3);
   }
 
   public void test_of_map() {

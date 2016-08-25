@@ -73,6 +73,15 @@ public class MultiCurrencyScenarioArrayTest {
     assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
   }
 
+  public void emptyAmounts() {
+    MultiCurrencyScenarioArray array = MultiCurrencyScenarioArray.of(
+        MultiCurrencyAmount.empty(),
+        MultiCurrencyAmount.empty());
+    assertThat(array.getScenarioCount()).isEqualTo(2);
+    assertThat(array.get(0)).isEqualTo(MultiCurrencyAmount.empty());
+    assertThat(array.get(1)).isEqualTo(MultiCurrencyAmount.empty());
+  }
+
   public void createByFunction() {
     MultiCurrencyAmount mca1 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.USD, 20));
     MultiCurrencyAmount mca2 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.EUR, 30));
@@ -83,6 +92,11 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(test.get(0)).isEqualTo(mca1.plus(Currency.EUR, 0));
     assertThat(test.get(1)).isEqualTo(mca2.plus(Currency.USD, 0));
     assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
+  }
+
+  public void createByFunctionEmptyAmounts() {
+    MultiCurrencyScenarioArray test = MultiCurrencyScenarioArray.of(3, i -> MultiCurrencyAmount.empty());
+    assertThat(test.getScenarioCount()).isEqualTo(3);
   }
 
   public void mapFactoryMethod() {

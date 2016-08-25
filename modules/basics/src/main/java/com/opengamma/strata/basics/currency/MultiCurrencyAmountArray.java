@@ -56,14 +56,16 @@ public final class MultiCurrencyAmountArray
     implements FxConvertible<CurrencyAmountArray>, ImmutableBean, Serializable {
 
   /**
+   * This size of the array.
+   */
+  @PropertyDefinition(validate = "notNegative")
+  private final int size;
+
+  /**
    * The currency values, keyed by currency.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSortedMap<Currency, DoubleArray> values;
-  /**
-   * The number of values for each currency.
-   */
-  private final int size;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -93,7 +95,7 @@ public final class MultiCurrencyAmountArray
       }
     }
     Map<Currency, DoubleArray> doubleArrayMap = MapStream.of(valueMap).mapValues(v -> DoubleArray.ofUnsafe(v)).toMap();
-    return new MultiCurrencyAmountArray(doubleArrayMap);
+    return new MultiCurrencyAmountArray(size, doubleArrayMap);
   }
 
   /**
@@ -115,7 +117,7 @@ public final class MultiCurrencyAmountArray
         array[i] = ca.getAmount();
       }
     }
-    return new MultiCurrencyAmountArray(MapStream.of(map).mapValues(array -> DoubleArray.ofUnsafe(array)).toMap());
+    return new MultiCurrencyAmountArray(size, MapStream.of(map).mapValues(array -> DoubleArray.ofUnsafe(array)).toMap());
   }
 
   /**
@@ -129,7 +131,7 @@ public final class MultiCurrencyAmountArray
    */
   public static MultiCurrencyAmountArray of(Map<Currency, DoubleArray> values) {
     values.values().stream().reduce((a1, a2) -> checkSize(a1, a2));
-    return new MultiCurrencyAmountArray(values);
+    return new MultiCurrencyAmountArray(values.size(), values);
   }
 
   /**
@@ -152,14 +154,9 @@ public final class MultiCurrencyAmountArray
   }
 
   @ImmutableConstructor
-  private MultiCurrencyAmountArray(Map<Currency, DoubleArray> values) {
+  private MultiCurrencyAmountArray(int size, Map<Currency, DoubleArray> values) {
     this.values = ImmutableSortedMap.copyOf(values);
-    if (values.isEmpty()) {
-      size = 0;
-    } else {
-      // All currencies must have the same number of values so we can just take the size of the first
-      size = values.values().iterator().next().size();
-    }
+    this.size = size;
   }
 
   // validate when deserializing
@@ -407,6 +404,15 @@ public final class MultiCurrencyAmountArray
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the number of values for each currency.
+   * @return the value of the property
+   */
+  public int getSize() {
+    return size;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the currency values, keyed by currency.
    * @return the value of the property, not null
    */
@@ -422,7 +428,8 @@ public final class MultiCurrencyAmountArray
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MultiCurrencyAmountArray other = (MultiCurrencyAmountArray) obj;
-      return JodaBeanUtils.equal(values, other.values);
+      return (size == other.size) &&
+          JodaBeanUtils.equal(values, other.values);
     }
     return false;
   }
@@ -430,14 +437,16 @@ public final class MultiCurrencyAmountArray
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(size);
     hash = hash * 31 + JodaBeanUtils.hashCode(values);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("MultiCurrencyAmountArray{");
+    buf.append("size").append('=').append(size).append(',').append(' ');
     buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
@@ -454,6 +463,11 @@ public final class MultiCurrencyAmountArray
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code size} property.
+     */
+    private final MetaProperty<Integer> size = DirectMetaProperty.ofImmutable(
+        this, "size", MultiCurrencyAmountArray.class, Integer.TYPE);
+    /**
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -464,6 +478,7 @@ public final class MultiCurrencyAmountArray
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "size",
         "values");
 
     /**
@@ -475,6 +490,8 @@ public final class MultiCurrencyAmountArray
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3530753:  // size
+          return size;
         case -823812830:  // values
           return values;
       }
@@ -498,6 +515,14 @@ public final class MultiCurrencyAmountArray
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code size} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> size() {
+      return size;
+    }
+
+    /**
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
@@ -509,6 +534,8 @@ public final class MultiCurrencyAmountArray
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 3530753:  // size
+          return ((MultiCurrencyAmountArray) bean).getSize();
         case -823812830:  // values
           return ((MultiCurrencyAmountArray) bean).getValues();
       }
@@ -532,6 +559,7 @@ public final class MultiCurrencyAmountArray
    */
   private static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyAmountArray> {
 
+    private int size;
     private SortedMap<Currency, DoubleArray> values = ImmutableSortedMap.of();
 
     /**
@@ -544,6 +572,8 @@ public final class MultiCurrencyAmountArray
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3530753:  // size
+          return size;
         case -823812830:  // values
           return values;
         default:
@@ -555,6 +585,9 @@ public final class MultiCurrencyAmountArray
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 3530753:  // size
+          this.size = (Integer) newValue;
+          break;
         case -823812830:  // values
           this.values = (SortedMap<Currency, DoubleArray>) newValue;
           break;
@@ -591,14 +624,16 @@ public final class MultiCurrencyAmountArray
     @Override
     public MultiCurrencyAmountArray build() {
       return new MultiCurrencyAmountArray(
+          size,
           values);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("MultiCurrencyAmountArray.Builder{");
+      buf.append("size").append('=').append(JodaBeanUtils.toString(size)).append(',').append(' ');
       buf.append("values").append('=').append(JodaBeanUtils.toString(values));
       buf.append('}');
       return buf.toString();
