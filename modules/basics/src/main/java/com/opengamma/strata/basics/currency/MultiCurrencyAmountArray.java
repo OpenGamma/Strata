@@ -404,7 +404,7 @@ public final class MultiCurrencyAmountArray
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of values for each currency.
+   * Gets this size of the array.
    * @return the value of the property
    */
   public int getSize() {
