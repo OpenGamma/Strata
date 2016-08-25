@@ -24,28 +24,56 @@ import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 
-public final class IsdaDiscountCurveCalibrator {
+public final class IsdaCompliantDiscountCurveCalibrator {
 
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder(); // new BrentSingleRootFinder(); // TODO get gradient and use Newton
   private static final BracketRoot BRACKETER = new BracketRoot();
   
+  public static final IsdaCompliantDiscountCurveCalibrator DEFAULT = new IsdaCompliantDiscountCurveCalibrator();
+
+  public IsdaCompliantDiscountCurveCalibrator() {
+    // TODO set variable for root finders??
+  }
+
+  public IsdaCompliantZeroRateDiscountFactors build(LocalDate cdsSpotDate, LocalDate curveSpotDate,
+      CurveNode[] curveNode,
+      final Period[] tenors,
+      final DayCount moneyMarketDCC,
+      final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention,
+      final HolidayCalendarId calendar, ReferenceData refData, double[] rates) {
+
+    InnerCurveCalibrator calibrator = new InnerCurveCalibrator(cdsSpotDate, curveSpotDate, curveNode, tenors, moneyMarketDCC,
+        swapDCC, swapInterval, curveDCC, convention, calendar, refData);
+    return calibrator.build(rates);
+  }
+
+  private class InnerCurveCalibrator {
+
   // TODO create inner calibrator
 
   private final double _offset; //if curve spot date is not the same as CDS trade date
-  private final double[] _t; //yieldCurve nodes
-  private final double[] _mmYF; //money market year fractions
-  private final BasicFixedLeg[] _swaps;
+    private final DoubleArray time; //yieldCurve nodes
+    private final double[] _mmYF; //money market year fractions // TODO not need to be stored
+    private final BasicFixedLeg[] _swaps; // TODO not need to be stored, derived from node
   private final CurveNode[] _curveNode;
-  private final DayCount _curveDcc;
-  private final LocalDate _cdsSpotDate;
-  private final Currency _currency;
+    private final DayCount _curveDcc;  // TODO stored in node
+    private final LocalDate _cdsSpotDate;
+    private final Currency _currency;  // TODO stored in node
 
   // TODO tenors must be in CurveNode
 
-  public IsdaDiscountCurveCalibrator(LocalDate cdsSpotDate, LocalDate curveSpotDate,
-      CurveNode[] curveNode, final Period[] tenors, final DayCount moneyMarketDCC,
-      final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention,
-      final HolidayCalendarId calendar, ReferenceData refData) {
+    private InnerCurveCalibrator(
+        LocalDate cdsSpotDate,
+        LocalDate curveSpotDate,
+      CurveNode[] curveNode,
+        final Period[] tenors, // TODO available in node
+        final DayCount moneyMarketDCC, // TODO available in node
+        final DayCount swapDCC,  // TODO available in node
+        final Period swapInterval, // TODO available in node 
+        final DayCount curveDCC,
+        final BusinessDayConvention convention, // TODO available in node 
+        final HolidayCalendarId calendar, // TODO available in node
+        ReferenceData refData) {
 //    ArgumentChecker.notNull(spotDate, "spotDate");
 //    ArgumentChecker.noNulls(instrumentTypes, "instrumentTypes");
 //    ArgumentChecker.noNulls(tenors, "tenors");
@@ -54,7 +82,7 @@ public final class IsdaDiscountCurveCalibrator {
 //    ArgumentChecker.notNull(swapInterval, "swapInterval");
 //    ArgumentChecker.notNull(curveDCC, "curveDCC");
 //    ArgumentChecker.notNull(convention, "convention");
-    final int n = tenors.length;
+    final int n = curveNode.length;
 //    ArgumentChecker.isTrue(n == instrumentTypes.length, "{} tenors given, but {} instrumentTypes", n, instrumentTypes.length);
 
     HolidayCalendar holidayCalendar = calendar.resolve(refData);
@@ -68,14 +96,16 @@ public final class IsdaDiscountCurveCalibrator {
       } else {
 //        ArgumentChecker.isTrue(matDates[i].isAfter(matDates[i - 1]), "tenors are not assending");
       }
-      adjMatDates[i] = convention.adjust(matDates[i], holidayCalendar);
+//        adjMatDates[i] = convention.adjust(matDates[i], holidayCalendar);
+//        System.out.println(convention.adjust(matDates[i], holidayCalendar) + "\t" + curveNode[i].date(cdsSpotDate, refData));
+        adjMatDates[i] = curveNode[i].date(cdsSpotDate, refData);
     }
 
-    _t = new double[n];
+      double[] t = new double[n];
     _curveNode = curveNode;
     int nMM = 0;
     for (int i = 0; i < n; i++) {
-      _t[i] = curveDCC.relativeYearFraction(curveSpotDate, adjMatDates[i]);
+        t[i] = curveDCC.relativeYearFraction(curveSpotDate, adjMatDates[i]);
       if (_curveNode[i] instanceof TermDepositCurveNode) {
         nMM++;
       }
@@ -100,6 +130,7 @@ public final class IsdaDiscountCurveCalibrator {
     _curveDcc = curveDCC;
     _cdsSpotDate = cdsSpotDate;
     _currency = Currency.USD; // TODO
+      time = DoubleArray.ofUnsafe(t);
   }
 
   /**
@@ -107,7 +138,7 @@ public final class IsdaDiscountCurveCalibrator {
    * @param rates The par rates of the instruments (as fractions) 
    * @return a yield curve 
    */
-  public IsdaCompliantZeroRateDiscountFactors build(final double[] rates) {
+    private IsdaCompliantZeroRateDiscountFactors build(final double[] rates) {
 //    ArgumentChecker.notEmpty(rates, "rates");
     final int n = _curveNode.length;
 //    ArgumentChecker.isTrue(n == rates.length, "expecting " + n + " rates, given " + rates.length);
@@ -122,7 +153,7 @@ public final class IsdaDiscountCurveCalibrator {
     // TODO parameter meta data
 
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
-        metadata, DoubleArray.ofUnsafe(_t), DoubleArray.ofUnsafe(rates), // TODO DoubleArray.ofUnsafe(_t) can be finalised
+          metadata, time, DoubleArray.ofUnsafe(rates), // TODO DoubleArray.ofUnsafe(_t) can be finalised
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR); // TODO rates.length > 1 is assumed
     // loop over the instruments and adjust the curve to price each in turn
     int mmCount = 0;
@@ -131,7 +162,7 @@ public final class IsdaDiscountCurveCalibrator {
       if (_curveNode[i] instanceof TermDepositCurveNode) {
         // TODO in ISDA code money market instruments of less than 21 days have special treatment
         double dfInv = 1d + rates[i] * _mmYF[mmCount++];
-        double zr = Math.log(dfInv) / _t[i];
+          double zr = Math.log(dfInv) / time.get(i);
         curve = curve.withParameter(i, zr);
       } else {
         curve = fitSwap(i, _swaps[swapCount++], curve, rates[i]);
@@ -338,5 +369,6 @@ public final class IsdaDiscountCurveCalibrator {
     }
     return curve.withValues(DoubleArray.ofUnsafe(time), DoubleArray.ofUnsafe(rate)); // parameter metadata if # of nodes changed?
 
+  }
   }
 }
