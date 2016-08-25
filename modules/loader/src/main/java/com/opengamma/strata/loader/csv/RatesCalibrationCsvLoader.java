@@ -43,6 +43,7 @@ import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.FixedInflationSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
@@ -66,6 +67,8 @@ import com.opengamma.strata.product.index.type.IborFutureConvention;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
@@ -366,6 +369,9 @@ public final class RatesCalibrationCsvLoader {
     if ("FXS".equalsIgnoreCase(typeStr) || "FxSwap".equalsIgnoreCase(typeStr)) {
       return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
+    if ("INF".equalsIgnoreCase(typeStr) || "FixedInflationSwap".equalsIgnoreCase(typeStr)) {
+      return curveFixedInflationCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
+    }
     throw new IllegalArgumentException(Messages.format("Invalid curve node type: {}", typeStr));
   }
 
@@ -664,6 +670,32 @@ public final class RatesCalibrationCsvLoader {
     return FxSwapCurveNode.builder()
         .template(template)
         .farForwardPointsId(quoteId)
+        .label(label)
+        .date(date)
+        .dateOrder(order)
+        .build();
+  }
+
+  private static CurveNode curveFixedInflationCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteId quoteId,
+      double spread,
+      CurveNodeDate date,
+      CurveNodeDateOrder order) {
+
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException(Messages.format("Invalid time format for Fixed-Inflation swap: {}", timeStr));
+    }
+    Period periodToEnd = Period.parse("P" + matcher.group(1));
+    FixedInflationSwapConvention convention = FixedInflationSwapConvention.of(conventionStr);
+    FixedInflationSwapTemplate template = FixedInflationSwapTemplate.of(Tenor.of(periodToEnd), convention);
+    return FixedInflationSwapCurveNode.builder()
+        .template(template)
+        .rateId(quoteId)
+        .additionalSpread(spread)
         .label(label)
         .date(date)
         .dateOrder(order)

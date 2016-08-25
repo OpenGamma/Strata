@@ -48,3 +48,13 @@ Valuation Date,Symbology,Ticker,Field Name,Value
 2015-07-21,OG-Ticker,USD-FFS-20Y,MarketValue,0.0023
 2015-07-21,OG-Ticker,USD-FFS-25Y,MarketValue,0.0023
 2015-07-21,OG-Ticker,USD-FFS-30Y,MarketValue,0.0023
+2015-07-21,OG-Ticker,USD-CPI-1Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-2Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-3Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-4Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-5Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-6Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-7Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-8Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-9Y,MarketValue,0.02
+2015-07-21,OG-Ticker,USD-CPI-10Y,MarketValue,0.02
