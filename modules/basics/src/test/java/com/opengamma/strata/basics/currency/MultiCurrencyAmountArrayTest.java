@@ -105,10 +105,22 @@ public class MultiCurrencyAmountArrayTest {
     MultiCurrencyAmountArray array = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),
-            Currency.USD, DoubleArray.of(30, 32, 33),
             Currency.EUR, DoubleArray.of(40, 43, 44)));
 
-    assertThat(array).isEqualTo(VALUES_ARRAY);
+    MultiCurrencyAmountArray expected = MultiCurrencyAmountArray.of(
+        ImmutableList.of(
+            MultiCurrencyAmount.of(
+                CurrencyAmount.of(Currency.GBP, 20),
+                CurrencyAmount.of(Currency.EUR, 40)),
+            MultiCurrencyAmount.of(
+                CurrencyAmount.of(Currency.GBP, 21),
+                CurrencyAmount.of(Currency.EUR, 43)),
+            MultiCurrencyAmount.of(
+                CurrencyAmount.of(Currency.GBP, 22),
+                CurrencyAmount.of(Currency.EUR, 44))));
+
+    assertThat(array.size()).isEqualTo(3);
+    assertThat(array).isEqualTo(expected);
 
     assertThrowsIllegalArg(
         () -> MultiCurrencyAmountArray.of(
@@ -116,6 +128,9 @@ public class MultiCurrencyAmountArrayTest {
                 Currency.GBP, DoubleArray.of(20, 21),
                 Currency.EUR, DoubleArray.of(40, 43, 44))),
         "Arrays must have the same size.*");
+
+    MultiCurrencyAmountArray empty = MultiCurrencyAmountArray.of(ImmutableMap.of());
+    assertThat(empty.size()).isEqualTo(0);
   }
 
   public void test_getValues() {

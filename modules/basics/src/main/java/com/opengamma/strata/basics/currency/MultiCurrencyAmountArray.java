@@ -124,14 +124,19 @@ public final class MultiCurrencyAmountArray
    * Obtains an instance from a map of amounts.
    * <p>
    * Each currency is associated with an array of amounts.
-   * All the arrays must have the same number of elements in each array.
+   * All the arrays must have the same number of elements.
+   * <p>
+   * If the map is empty the returned array will have a size of zero. To create an empty array
+   * with a non-zero size use one of the other {@code of} methods.
    *
    * @param values  map of currencies to values
    * @return an instance containing the values from the map
    */
   public static MultiCurrencyAmountArray of(Map<Currency, DoubleArray> values) {
     values.values().stream().reduce((a1, a2) -> checkSize(a1, a2));
-    return new MultiCurrencyAmountArray(values.size(), values);
+    // All of the values must have the same size so use the size of the first
+    int size = values.isEmpty() ? 0 : values.values().iterator().next().size();
+    return new MultiCurrencyAmountArray(size, values);
   }
 
   /**
