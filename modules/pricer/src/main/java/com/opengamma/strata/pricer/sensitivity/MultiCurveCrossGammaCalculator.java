@@ -40,7 +40,7 @@ public class MultiCurveCrossGammaCalculator {
    * Default implementation. Finite difference is forward and the shift is one basis point (0.0001).
    */
   public static final MultiCurveCrossGammaCalculator DEFAULT =
-      new MultiCurveCrossGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-6);
+      new MultiCurveCrossGammaCalculator(FiniteDifferenceType.FORWARD, 1.0E-4);
 
   /**
    * The first order finite difference calculator.
