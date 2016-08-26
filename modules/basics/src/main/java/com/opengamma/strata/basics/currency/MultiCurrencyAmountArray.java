@@ -166,7 +166,8 @@ public final class MultiCurrencyAmountArray
 
   // validate when deserializing
   private Object readResolve() {
-    return of(values);
+    values.values().stream().reduce((a1, a2) -> checkSize(a1, a2));
+    return this;
   }
 
   //-------------------------------------------------------------------------
