@@ -73,7 +73,7 @@ public final class CrossGammaParameterSensitivity
   /**
   * The parameter sensitivity values.
   * <p>
-  * There is one sensitivity value for each parameter.
+  * There is one sensitivity value for each parameter pair (square matrix of sensitivities).
   */
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix sensitivity;
@@ -336,7 +336,7 @@ public final class CrossGammaParameterSensitivity
   /**
    * Gets the parameter sensitivity values.
    * <p>
-   * There is one sensitivity value for each parameter.
+   * There is one sensitivity value for each parameter pair (square matrix of sensitivities).
    * @return the value of the property, not null
    */
   public DoubleMatrix getSensitivity() {

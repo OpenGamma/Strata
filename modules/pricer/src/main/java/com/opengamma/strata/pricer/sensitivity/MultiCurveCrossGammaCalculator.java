@@ -30,7 +30,8 @@ import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDiffe
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
- * Computes the cross-gamma to the curve parameters for multi-curve with all the curves in the same currency and instruments.
+ * Computes the cross-gamma to the curve parameters for multi-curve with all the curves and the trade for which
+ * the gamma is calculated in the same currency.
  * <p>
  * Reference: Interest Rate Cross-gamma for Single and Multiple Curves. OpenGamma Analysis 1, August 14
  */
@@ -97,7 +98,7 @@ public class MultiCurveCrossGammaCalculator {
    * Thus the sensitivity of a curve delta to another curve is not produced.
    * <p>
    * The sensitivities are computed for discount curves, and forward curves for {@code RateIndex} and {@code PriceIndex}. 
-   * This implementation works only for single currency assets. 
+   * This implementation works only for single currency trades. 
    * 
    * @param ratesProvider  the rates provider
    * @param sensitivitiesFn  the sensitivity function

@@ -53,7 +53,8 @@ import com.opengamma.strata.market.curve.Curve;
  * {@linkplain ParameterizedData parameterized market data} objects that are used to determine the value.
  * The main application is the parameter sensitivities for curves. Thus {@code ParameterizedData} is typically {@link Curve}.
  * <p>
- * The sensitivity is expressed as a single entry for piece of parameterized market data.
+ * The sensitivity is expressed as a single entry of second order sensitivities for piece of parameterized market data.
+ * The cross-gamma between different {@code ParameterizedData} is not represented.
  * The sensitivity represents a monetary value in the specified currency.
  * The order of the list has no specific meaning.
  * <p>
