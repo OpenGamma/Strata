@@ -18,6 +18,10 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +98,20 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(test.get(0)).isEqualTo(mca1.plus(Currency.EUR, 0));
     assertThat(test.get(1)).isEqualTo(mca2.plus(Currency.USD, 0));
     assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
+  }
+
+  /**
+   * Test that the size is correctly restored after deserialization.
+   */
+  public void serializeSize() throws Exception {
+    MultiCurrencyAmountArray deserialized = serializedDeserialize(VALUES_ARRAY);
+    assertThat(deserialized.size()).isEqualTo(3);
+
+    MultiCurrencyAmountArray empty = MultiCurrencyAmountArray.of(
+        MultiCurrencyAmount.empty(),
+        MultiCurrencyAmount.empty());
+    MultiCurrencyAmountArray deserializedEmpty = serializedDeserialize(empty);
+    assertThat(deserializedEmpty.size()).isEqualTo(2);
   }
 
   public void test_of_function_empty_amounts() {
@@ -394,4 +412,18 @@ public class MultiCurrencyAmountArrayTest {
     assertThrowsIllegalArg(() -> arrays.stream().collect(toMultiCurrencyAmountArray()));
   }
 
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Serializes and deserializes an array using default serialization.
+   */
+  private static MultiCurrencyAmountArray serializedDeserialize(MultiCurrencyAmountArray array) throws Exception {
+    ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream);
+    objectOutputStream.writeObject(array);
+    objectOutputStream.flush();
+    ByteArrayInputStream byteInputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
+    ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
+    return (MultiCurrencyAmountArray) objectInputStream.readObject();
+  }
 }
