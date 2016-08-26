@@ -42,12 +42,14 @@ public class DiscountFactorsDecoratedForwardTest {
   private static final DiscountFactors DF_START = DiscountFactors.of(GBP, DATE_VAL, CURVE_ZERO);
   private static final DiscountFactorsDecoratedForward DF_FWD = DiscountFactorsDecoratedForward.of(DF_START, DATE_FWD);
 
-  private static final double TOLERANCE_DF = 1.0E-8;
+  private static final double TOLERANCE = 1.0E-8;
 
-  public void date_ccy() {
-    DiscountFactorsDecoratedForward test = DiscountFactorsDecoratedForward.of(DF_START, DATE_FWD);
-    assertEquals(test.getValuationDate(), DATE_FWD);
-    assertEquals(test.getCurrency(), GBP);
+  public void date_ccy_param() {
+    assertEquals(DF_FWD.getValuationDate(), DATE_FWD);
+    assertEquals(DF_FWD.getCurrency(), GBP);
+    assertEquals(DF_FWD.getParameterCount(), DF_START.getParameterCount());
+    assertEquals(DF_FWD.getParameter(2), DF_START.getParameter(2));
+    assertEquals(DF_FWD.getParameterMetadata(2), DF_START.getParameterMetadata(2));
   }
 
   public void discount_factor() {
@@ -58,10 +60,11 @@ public class DiscountFactorsDecoratedForwardTest {
       LocalDate testDate = DATE_FWD.plus(step.multipliedBy(i));
       double dfComputed = DF_FWD.discountFactor(testDate);
       double dfExpected = DF_START.discountFactor(testDate) / dfFwd;
-      assertEquals(dfComputed, dfExpected, TOLERANCE_DF);
+      assertEquals(dfComputed, dfExpected, TOLERANCE);
       double yf = DF_FWD.relativeYearFraction(testDate);
       double dfComputedYf = DF_FWD.discountFactor(yf);
-      assertEquals(dfComputedYf, dfExpected, TOLERANCE_DF);
+      assertEquals(dfComputedYf, dfExpected, TOLERANCE);
+      assertEquals(yf, DF_START.relativeYearFraction(testDate) - DF_START.relativeYearFraction(DATE_FWD), TOLERANCE);
     }
   }
 
@@ -74,10 +77,17 @@ public class DiscountFactorsDecoratedForwardTest {
       double yf = DF_FWD.relativeYearFraction(testDate);
       double yfEffective = Math.max(1.0E-10, yf);
       double zrExpected = -1.0 / yfEffective * Math.log(DF_FWD.discountFactor(yfEffective));
-      assertEquals(zrComputed, zrExpected, TOLERANCE_DF);
+      assertEquals(zrComputed, zrExpected, TOLERANCE);
       double zrComputedYf = DF_FWD.zeroRate(yf);
-      assertEquals(zrComputedYf, zrExpected, TOLERANCE_DF);
+      assertEquals(zrComputedYf, zrExpected, TOLERANCE);
     }
+  }  
+
+  public void with_param() {
+    double newParam = 0.12345;
+    int paramIndex = 2;
+    DiscountFactors dfWithParam = DF_FWD.withParameter(paramIndex, newParam);
+    assertEquals(dfWithParam.getParameter(paramIndex), newParam, TOLERANCE);
   }
 
 }

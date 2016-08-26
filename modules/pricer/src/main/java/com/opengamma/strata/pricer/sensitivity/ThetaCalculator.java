@@ -18,6 +18,11 @@ import com.opengamma.strata.pricer.rate.RatesProviderDecoratedForward;
  * Reference: OpenGamma Documentation n28, Generic Interest Rate Theta Calculators and P/L. August 2016.
  */
 public class ThetaCalculator {
+
+  /**
+   * The default instance.
+   */
+  public static final ThetaCalculator DEFAULT = new ThetaCalculator();
   
   /**
    * Computes the theta by difference of PV between two dates.

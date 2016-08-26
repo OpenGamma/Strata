@@ -31,6 +31,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountFactorsDecoratedForward;
 import com.opengamma.strata.pricer.fx.FxForwardRates;
+import com.opengamma.strata.pricer.fx.FxForwardRatesDecoratedForward;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -51,6 +52,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Rates provider build as an existing provider brought at a forward date by implied forward rates and discount factors.
+ * <p>
+ * Only the methods used for direct valuation are implemented. The methods with spread and the methods related
+ * to sensitivities are not implemented.
  */
 @BeanDefinition(builderScope = "private")
 public class RatesProviderDecoratedForward 
@@ -87,7 +91,7 @@ public class RatesProviderDecoratedForward
 
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
-    throw new UnsupportedOperationException("Not implemented");
+    return underlying.fxForwardRates(CurrencyPair.of(baseCurrency, counterCurrency)).rate(baseCurrency, valuationDate);
   }
 
   @Override
@@ -96,13 +100,8 @@ public class RatesProviderDecoratedForward
   }
 
   @Override
-  public FxIndexRates fxIndexRates(FxIndex index) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
   public FxForwardRates fxForwardRates(CurrencyPair currencyPair) {
-    throw new UnsupportedOperationException("Not implemented");
+    return FxForwardRatesDecoratedForward.of(underlying.fxForwardRates(currencyPair), valuationDate);
   }
 
   @Override
@@ -113,6 +112,31 @@ public class RatesProviderDecoratedForward
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     return underlying.overnightIndexRates(index);
+  }
+
+  @Override
+  public Set<Currency> getDiscountCurrencies() {
+    return underlying.getDiscountCurrencies();
+  }
+
+  @Override
+  public Set<IborIndex> getIborIndices() {
+    return underlying.getIborIndices();
+  }
+
+  @Override
+  public Set<OvernightIndex> getOvernightIndices() {
+    return underlying.getOvernightIndices();
+  }
+
+  @Override
+  public Set<PriceIndex> getPriceIndices() {
+    return underlying.getPriceIndices();
+  }
+
+  @Override
+  public FxIndexRates fxIndexRates(FxIndex index) {
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
@@ -138,26 +162,6 @@ public class RatesProviderDecoratedForward
 
   @Override
   public <T> Optional<T> findData(MarketDataName<T> name) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public Set<Currency> getDiscountCurrencies() {
-    return underlying.getDiscountCurrencies();
-  }
-
-  @Override
-  public Set<IborIndex> getIborIndices() {
-    return underlying.getIborIndices();
-  }
-
-  @Override
-  public Set<OvernightIndex> getOvernightIndices() {
-    return underlying.getOvernightIndices();
-  }
-
-  @Override
-  public Set<PriceIndex> getPriceIndices() {
     throw new UnsupportedOperationException("Not implemented");
   }
 

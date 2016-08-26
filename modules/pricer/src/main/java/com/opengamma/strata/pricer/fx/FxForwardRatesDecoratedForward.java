@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer;
+package com.opengamma.strata.pricer.fx;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -15,15 +15,13 @@ import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.PropertyDefinition;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
-import com.opengamma.strata.pricer.CompoundedRateType;
-import com.opengamma.strata.pricer.DiscountFactors;
-import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -39,66 +37,49 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * Discount factors based on an underlying discount factors and a forward date. 
- * The new discount factors acts as the implied forward discount factor.
+ * Fx forward based on an underlying fx forward and a forward date. 
+ * The new fx forwards acts as the implied forward fx rates from the underlying.
  * <p>
- * Only the methods used for direct valuation are implemented. The methods with spread and the methods related
- * to sensitivities are not implemented.
+ * Only the methods used for direct valuation are implemented. The methods related to sensitivities are not implemented.
  */
 @BeanDefinition(builderScope = "private")
-public class DiscountFactorsDecoratedForward 
-    implements DiscountFactors, ImmutableBean, Serializable {
+public class FxForwardRatesDecoratedForward
+    implements FxForwardRates, ImmutableBean, Serializable {
 
-  /**
-   * Year fraction used as an effective zero.
-   */
-  private static final double EFFECTIVE_ZERO = 1e-10;
-  
   /** Underlying provider. */
   @PropertyDefinition(validate = "notNull")
-  private final DiscountFactors underlying;
-  /** The forward rate. */
+  private final FxForwardRates underlying;
+  /** The forward date. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
-  /** The discount factor to forward date. */
-  private final double discountFactorForwardDate;  // cached, not a property
 
-  //-------------------------------------------------------------------------
   /**
-   * Creates a new {@link DiscountFactors} from an existing one and a forward date. 
-   * <p>
-   * The provider created as a valuation date at the forward date. The discount factors at a given date are the 
-   * forward discount factors, i.e the ratio of the original discount factor at the date and the discount 
-   * factor at the forward date.
+   * Creates a new {@link FxForwardRates} from an existing one and a forward date. 
    * 
-   * @param underlying  the underlying discount factors
+   * @param underlying  the underlying fx forward
    * @param valuationDate  the valuation date for which the curve is valid
-   * @return the discount factors
+   * @return the fx forwards
    */
-  public static DiscountFactorsDecoratedForward of(DiscountFactors underlying, LocalDate valuationDate) {
-    return new DiscountFactorsDecoratedForward(underlying, valuationDate);
+  public static FxForwardRatesDecoratedForward of(FxForwardRates underlying, LocalDate valuationDate) {
+    return new FxForwardRatesDecoratedForward(underlying, valuationDate);
   }
 
   @ImmutableConstructor
-  private DiscountFactorsDecoratedForward(DiscountFactors underlying, LocalDate valuationDate) {
-    this.underlying = ArgChecker.notNull(underlying, "underlying");
-    this.valuationDate = ArgChecker.notNull(valuationDate, "valuation date");
-    this.discountFactorForwardDate = underlying.discountFactor(valuationDate);
+  private FxForwardRatesDecoratedForward(FxForwardRates underlying, LocalDate valuationDate) {
+    JodaBeanUtils.notNull(underlying, "underlying");
+    JodaBeanUtils.notNull(valuationDate, "valuationDate");
+    this.underlying = underlying;
+    this.valuationDate = valuationDate;
   }
 
   @Override
-  public Currency getCurrency() {
-    return underlying.getCurrency();
+  public double rate(Currency baseCurrency, LocalDate referenceDate) {
+    return underlying.rate(baseCurrency, referenceDate);
   }
 
   @Override
   public int getParameterCount() {
     return underlying.getParameterCount();
-  }
-
-  @Override
-  public double discountFactor(LocalDate date) {
-    return underlying.discountFactor(date) / discountFactorForwardDate;
   }
 
   @Override
@@ -112,47 +93,18 @@ public class DiscountFactorsDecoratedForward
   }
 
   @Override
-  public double relativeYearFraction(LocalDate date) {
-    return underlying.relativeYearFraction(date) - underlying.relativeYearFraction(valuationDate); 
-    // Rely on additive relative year fraction
+  public CurrencyPair getCurrencyPair() {
+    return underlying.getCurrencyPair();
   }
 
   @Override
-  public double discountFactor(double yearFraction) {
-    return underlying.discountFactor(yearFraction + underlying.relativeYearFraction(valuationDate)) 
-        / discountFactorForwardDate;
+  public FxForwardRates withParameter(int parameterIndex, double newValue) {
+    return FxForwardRatesDecoratedForward.of(underlying.withParameter(parameterIndex, newValue), valuationDate);
   }
 
   @Override
-  public double zeroRate(double yearFraction) {
-    double yearFractionMod = Math.max(EFFECTIVE_ZERO, yearFraction);
-    double discountFactor = discountFactor(yearFractionMod);
-    return -Math.log(discountFactor) / yearFractionMod;
-  }
-
-  @Override
-  public DiscountFactors withParameter(int parameterIndex, double newValue) {
-    return DiscountFactorsDecoratedForward.of(underlying.withParameter(parameterIndex, newValue), valuationDate);
-  }
-
-  @Override
-  public DiscountFactors withPerturbation(ParameterPerturbation perturbation) {
-    return DiscountFactorsDecoratedForward.of(underlying.withPerturbation(perturbation), valuationDate);
-  }
-
-  @Override
-  public double discountFactorWithSpread(LocalDate date, double zSpread, CompoundedRateType compoundedRateType, int periodsPerYear) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(LocalDate date, Currency sensitivityCurrency, double zSpread, CompoundedRateType compoundedRateType, int periodsPerYear) {
-    throw new UnsupportedOperationException("Not implemented");
+  public FxForwardRates withPerturbation(ParameterPerturbation perturbation) {
+    return FxForwardRatesDecoratedForward.of(underlying.withPerturbation(perturbation), valuationDate);
   }
 
   @Override
@@ -161,44 +113,37 @@ public class DiscountFactorsDecoratedForward
   }
 
   @Override
-  public double discountFactorWithSpread(double yearFraction, double zSpread, CompoundedRateType compoundedRateType,
-      int periodsPerYear) {
+  public PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate referenceDate) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
-  public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
+  public double rateFxSpotSensitivity(Currency baseCurrency, LocalDate referenceDate) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
-  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(double yearFraction, Currency sensitivityCurrency, double zSpread,
-      CompoundedRateType compoundedRateType, int periodsPerYear) {
+  public CurrencyParameterSensitivities parameterSensitivity(FxForwardSensitivity pointSensitivity) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
-  public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSensitivity) {
+  public MultiCurrencyAmount currencyExposure(FxForwardSensitivity pointSensitivity) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
-  @Override
-  public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-    
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code DiscountFactorsDecoratedForward}.
+   * The meta-bean for {@code FxForwardRatesDecoratedForward}.
    * @return the meta-bean, not null
    */
-  public static DiscountFactorsDecoratedForward.Meta meta() {
-    return DiscountFactorsDecoratedForward.Meta.INSTANCE;
+  public static FxForwardRatesDecoratedForward.Meta meta() {
+    return FxForwardRatesDecoratedForward.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(DiscountFactorsDecoratedForward.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FxForwardRatesDecoratedForward.Meta.INSTANCE);
   }
 
   /**
@@ -207,8 +152,8 @@ public class DiscountFactorsDecoratedForward
   private static final long serialVersionUID = 1L;
 
   @Override
-  public DiscountFactorsDecoratedForward.Meta metaBean() {
-    return DiscountFactorsDecoratedForward.Meta.INSTANCE;
+  public FxForwardRatesDecoratedForward.Meta metaBean() {
+    return FxForwardRatesDecoratedForward.Meta.INSTANCE;
   }
 
   @Override
@@ -226,13 +171,13 @@ public class DiscountFactorsDecoratedForward
    * Gets underlying provider.
    * @return the value of the property, not null
    */
-  public DiscountFactors getUnderlying() {
+  public FxForwardRates getUnderlying() {
     return underlying;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the forward rate.
+   * Gets the forward date.
    * @return the value of the property, not null
    */
   @Override
@@ -247,7 +192,7 @@ public class DiscountFactorsDecoratedForward
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DiscountFactorsDecoratedForward other = (DiscountFactorsDecoratedForward) obj;
+      FxForwardRatesDecoratedForward other = (FxForwardRatesDecoratedForward) obj;
       return JodaBeanUtils.equal(underlying, other.underlying) &&
           JodaBeanUtils.equal(valuationDate, other.valuationDate);
     }
@@ -265,7 +210,7 @@ public class DiscountFactorsDecoratedForward
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("DiscountFactorsDecoratedForward{");
+    buf.append("FxForwardRatesDecoratedForward{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -282,7 +227,7 @@ public class DiscountFactorsDecoratedForward
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code DiscountFactorsDecoratedForward}.
+   * The meta-bean for {@code FxForwardRatesDecoratedForward}.
    */
   public static class Meta extends DirectMetaBean {
     /**
@@ -293,13 +238,13 @@ public class DiscountFactorsDecoratedForward
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<DiscountFactors> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", DiscountFactorsDecoratedForward.class, DiscountFactors.class);
+    private final MetaProperty<FxForwardRates> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", FxForwardRatesDecoratedForward.class, FxForwardRates.class);
     /**
      * The meta-property for the {@code valuationDate} property.
      */
     private final MetaProperty<LocalDate> valuationDate = DirectMetaProperty.ofImmutable(
-        this, "valuationDate", DiscountFactorsDecoratedForward.class, LocalDate.class);
+        this, "valuationDate", FxForwardRatesDecoratedForward.class, LocalDate.class);
     /**
      * The meta-properties.
      */
@@ -326,13 +271,13 @@ public class DiscountFactorsDecoratedForward
     }
 
     @Override
-    public BeanBuilder<? extends DiscountFactorsDecoratedForward> builder() {
-      return new DiscountFactorsDecoratedForward.Builder();
+    public BeanBuilder<? extends FxForwardRatesDecoratedForward> builder() {
+      return new FxForwardRatesDecoratedForward.Builder();
     }
 
     @Override
-    public Class<? extends DiscountFactorsDecoratedForward> beanType() {
-      return DiscountFactorsDecoratedForward.class;
+    public Class<? extends FxForwardRatesDecoratedForward> beanType() {
+      return FxForwardRatesDecoratedForward.class;
     }
 
     @Override
@@ -345,7 +290,7 @@ public class DiscountFactorsDecoratedForward
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DiscountFactors> underlying() {
+    public final MetaProperty<FxForwardRates> underlying() {
       return underlying;
     }
 
@@ -362,9 +307,9 @@ public class DiscountFactorsDecoratedForward
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1770633379:  // underlying
-          return ((DiscountFactorsDecoratedForward) bean).getUnderlying();
+          return ((FxForwardRatesDecoratedForward) bean).getUnderlying();
         case 113107279:  // valuationDate
-          return ((DiscountFactorsDecoratedForward) bean).getValuationDate();
+          return ((FxForwardRatesDecoratedForward) bean).getValuationDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -382,11 +327,11 @@ public class DiscountFactorsDecoratedForward
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code DiscountFactorsDecoratedForward}.
+   * The bean-builder for {@code FxForwardRatesDecoratedForward}.
    */
-  private static class Builder extends DirectFieldsBeanBuilder<DiscountFactorsDecoratedForward> {
+  private static class Builder extends DirectFieldsBeanBuilder<FxForwardRatesDecoratedForward> {
 
-    private DiscountFactors underlying;
+    private FxForwardRates underlying;
     private LocalDate valuationDate;
 
     /**
@@ -412,7 +357,7 @@ public class DiscountFactorsDecoratedForward
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1770633379:  // underlying
-          this.underlying = (DiscountFactors) newValue;
+          this.underlying = (FxForwardRates) newValue;
           break;
         case 113107279:  // valuationDate
           this.valuationDate = (LocalDate) newValue;
@@ -448,8 +393,8 @@ public class DiscountFactorsDecoratedForward
     }
 
     @Override
-    public DiscountFactorsDecoratedForward build() {
-      return new DiscountFactorsDecoratedForward(
+    public FxForwardRatesDecoratedForward build() {
+      return new FxForwardRatesDecoratedForward(
           underlying,
           valuationDate);
     }
@@ -458,7 +403,7 @@ public class DiscountFactorsDecoratedForward
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("DiscountFactorsDecoratedForward.Builder{");
+      buf.append("FxForwardRatesDecoratedForward.Builder{");
       int len = buf.length();
       toString(buf);
       if (buf.length() > len) {
