@@ -171,6 +171,29 @@ public final class CrossGammaParameterSensitivities
   }
 
   /**
+   * Gets a single sensitivity instance by names and currency.
+   * <p>
+   * This returns the sensitivity of the market data ({@code nameFirst}) delta to another market data ({@code nameSecond}).
+   * The result is sensitive to the order of {@code nameFirst} and {@code nameSecond}.
+   * 
+   * @param nameFirst  the name
+   * @param nameSecond  the name
+   * @param currency  the currency
+   * @return the matching sensitivity
+   * @throws IllegalArgumentException if the name and currency do not match an entry
+   */
+  public CrossGammaParameterSensitivity getSensitivity(
+      MarketDataName<?> nameFirst,
+      MarketDataName<?> nameSecond,
+      Currency currency) {
+
+    CrossGammaParameterSensitivity sensi = findSensitivity(nameFirst, currency)
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Unable to find sensitivity: {} for {}", nameFirst, currency)));
+    return sensi.getSensitivity(nameSecond);
+  }
+
+  /**
    * Finds a single sensitivity instance by name and currency.
    * <p>
    * If the sensitivity is not found, optional empty is returned.
