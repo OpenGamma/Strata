@@ -190,7 +190,7 @@ public class MultiCurveCrossGammaCalculator {
           }
         }
       }
-      result = result.combinedWith(combineSnesitivities(baseDeltaSingle, resultInner));
+      result = result.combinedWith(combineSensitivities(baseDeltaSingle, resultInner));
     }
     return result;
   }
@@ -262,7 +262,7 @@ public class MultiCurveCrossGammaCalculator {
         sensi);
   }
 
-  private CrossGammaParameterSensitivity combineSnesitivities(
+  private CrossGammaParameterSensitivity combineSensitivities(
       CurrencyParameterSensitivity baseDeltaSingle,
       CrossGammaParameterSensitivities blockCrossGamma) {
 
