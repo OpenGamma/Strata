@@ -217,13 +217,19 @@ public final class HolidayCalendarId
    * <p>
    * The comparison checks the name.
    * 
-   * @param obj  the other identifier, null returns false
+   * @param o  the other identifier, null returns false
    * @return true if equal
    */
   @Override
-  public boolean equals(Object obj) {
-    // cache permits fast equality check
-    return obj == this;
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    HolidayCalendarId that = (HolidayCalendarId) o;
+    return name.equals(that.name);
   }
 
   /**
