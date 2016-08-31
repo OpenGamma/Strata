@@ -151,8 +151,8 @@ public class RatesProviderDecoratedForward
 
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
-    throw new UnsupportedOperationException("Not implemented");
-    // Do we need to add fixing of the days between original date and new date?
+    return underlying.timeSeries(index);
+    // TODO: Do we need to add fixing of the days between original date and new date?
   }
 
   @Override
