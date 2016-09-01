@@ -7,255 +7,217 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.product.deposit.type.ImmutableTermDepositConvention;
+import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
+import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
 
 public final class IsdaCompliantDiscountCurveCalibrator {
 
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder();
   private static final BracketRoot BRACKETER = new BracketRoot();
-  
-  public static final IsdaCompliantDiscountCurveCalibrator DEFAULT = new IsdaCompliantDiscountCurveCalibrator();
 
-  public IsdaCompliantZeroRateDiscountFactors build(LocalDate cdsSpotDate, LocalDate curveSpotDate,
-      CurveNode[] curveNode,
-      final Period[] tenors,
-      final DayCount moneyMarketDCC,
-      final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention,
-      final HolidayCalendarId calendar, ReferenceData refData, double[] rates) {
+  private final DayCount curveDcc;
+  private final LocalDate valuationDate;
+  private final LocalDate curveSpotDate;
+  private final int nNode;
+  private final int nTermDeposit;
+  private final ImmutableList<ParameterMetadata> parameterMetadata;
+  private final DoubleArray curveNodeTime;
+  private final double[] termDepositYearFraction;
+  private final Currency currency;
+  private final BasicFixedLeg[] swapLeg;
+  private final CurveMetadata baseMetadata;
 
-    InnerCurveCalibrator calibrator = new InnerCurveCalibrator(cdsSpotDate, curveSpotDate, curveNode, tenors,
-//        moneyMarketDCC,
-        swapDCC, swapInterval, curveDCC, convention, calendar, refData);
-    return calibrator.build(null, rates);
-  }
+  // TODO jacobian matrix
 
-  private class InnerCurveCalibrator {
+  public IsdaCompliantDiscountCurveCalibrator(
+      LocalDate valuationDate,
+      List<CurveNode> curveNode,
+      DayCount curveDCC,
+      CurveName name,
+      ReferenceData refData) {
 
-  // TODO create inner calibrator
+    // TODO not null
+    this.curveDcc = curveDCC;
+    this.valuationDate = valuationDate;
+    this.nNode = curveNode.size();
+    this.swapLeg = new BasicFixedLeg[nNode];
+    this.termDepositYearFraction = new double[nNode];
 
-  private final double _offset; //if curve spot date is not the same as CDS trade date
-    private final DoubleArray time; //yieldCurve nodes
-    private final double[] _mmYF; //money market year fractions // TODO not need to be stored
-    private final BasicFixedLeg[] _swaps; // TODO not need to be stored, derived from node
-  private final CurveNode[] _curveNode;
-    private final DayCount _curveDcc;  // TODO stored in node
-    private final LocalDate _cdsSpotDate;
-    private final LocalDate _curveSpotDate;
-    private final Currency _currency;  // TODO stored in node
+    Builder<ParameterMetadata> paramMetadata = ImmutableList.builder();
+    int nTermDeposit = 0;
+    double[] time = new double[nNode];
+    Currency currency = null;
+    LocalDate curveSpotDate = null;
+    for (int i = 0; i < nNode; i++) {
+      Currency ccyTmp;
+      LocalDate cvDateTmp;
+      if (curveNode.get(i) instanceof TermDepositCurveNode) {
+        TermDepositTemplate template = ((TermDepositCurveNode) curveNode.get(i)).getTemplate();
+        ImmutableTermDepositConvention conv = (ImmutableTermDepositConvention) template.getConvention();
+        LocalDate adjMatDate = curveNode.get(i).date(valuationDate, refData);
+        cvDateTmp = conv.getSpotDateOffset().adjust(valuationDate, refData);
+        termDepositYearFraction[i] = conv.getDayCount().relativeYearFraction(cvDateTmp, adjMatDate);
+        ccyTmp = conv.getCurrency();
+        time[i] = curveDcc.relativeYearFraction(cvDateTmp, adjMatDate);
+        paramMetadata.add(TenorDateParameterMetadata.of(adjMatDate, Tenor.of(template.getDepositPeriod())));
+        ArgChecker.isTrue(nTermDeposit == i, "TermDepositCurveNode should be before FixedIborSwapCurveNode");
+        ++nTermDeposit;
+      } else if (curveNode.get(i) instanceof FixedIborSwapCurveNode) {
+        FixedIborSwapTemplate template = ((FixedIborSwapCurveNode) curveNode.get(i)).getTemplate();
+        FixedRateSwapLegConvention conv = template.getConvention().getFixedLeg();
+        cvDateTmp = template.getConvention().getSpotDateOffset().adjust(valuationDate, refData);
+        ccyTmp = conv.getCurrency();
+        LocalDate adjMatDate = curveNode.get(i).date(valuationDate, refData);
+        time[i] = curveDcc.relativeYearFraction(cvDateTmp, adjMatDate);
 
-    private final ReferenceData _refData;
-    private final HolidayCalendar _holidayCalendar;
-
-//    private final CurveGroupDefinition _curveGroupDefinition;
-
-  // TODO tenors must be in CurveNode
-
-    private InnerCurveCalibrator(
-        LocalDate cdsSpotDate,
-        LocalDate curveSpotDate,
-      CurveNode[] curveNode,
-        final Period[] tenors, // TODO available in node
-//        final DayCount moneyMarketDCC, // TODO available in node
-        final DayCount swapDCC,  // TODO available in node
-        final Period swapInterval, // TODO available in node 
-        final DayCount curveDCC,
-        final BusinessDayConvention convention, // TODO available in node 
-        final HolidayCalendarId calendar, // TODO available in node
-//        CurveGroupDefinition curveGroupDefinition,
-        ReferenceData refData) {
-//    ArgumentChecker.notNull(spotDate, "spotDate");
-//    ArgumentChecker.noNulls(instrumentTypes, "instrumentTypes");
-//    ArgumentChecker.noNulls(tenors, "tenors");
-//    ArgumentChecker.notNull(moneyMarketDCC, "moneyMarketDCC");
-//    ArgumentChecker.notNull(swapDCC, "swapDCC");
-//    ArgumentChecker.notNull(swapInterval, "swapInterval");
-//    ArgumentChecker.notNull(curveDCC, "curveDCC");
-//    ArgumentChecker.notNull(convention, "convention");
-    final int n = curveNode.length;
-//    ArgumentChecker.isTrue(n == instrumentTypes.length, "{} tenors given, but {} instrumentTypes", n, instrumentTypes.length);
-
-      _holidayCalendar = calendar.resolve(refData);
-      _curveSpotDate = cdsSpotDate;
-
-    final LocalDate[] matDates = new LocalDate[n];
-    final LocalDate[] adjMatDates = new LocalDate[n];
-    for (int i = 0; i < n; i++) {
-      matDates[i] = curveSpotDate.plus(tenors[i]);
-      if (i == 0) {
-//        ArgumentChecker.isTrue(matDates[0].isAfter(spotDate), "first tenor zero");
+        BusinessDayAdjustment busAdj = conv.getAccrualBusinessDayAdjustment();
+        ArgChecker.isTrue(
+            busAdj.equals(conv.getStartDateBusinessDayAdjustment()) && busAdj.equals(conv.getEndDateBusinessDayAdjustment()),
+            "The same business day adjustment should be used for start date, end date and accrual schedule");
+        swapLeg[i] = new BasicFixedLeg(cvDateTmp, cvDateTmp.plus(template.getTenor()), conv.getPaymentFrequency().getPeriod(),
+            conv.getDayCount(), busAdj, refData);
+        paramMetadata.add(TenorDateParameterMetadata.of(adjMatDate, template.getTenor()));
       } else {
-//        ArgumentChecker.isTrue(matDates[i].isAfter(matDates[i - 1]), "tenors are not assending");
+        throw new IllegalArgumentException("unsupported cuve node type");
       }
-//        adjMatDates[i] = convention.adjust(matDates[i], holidayCalendar);
-//        System.out.println(convention.adjust(matDates[i], holidayCalendar) + "\t" + curveNode[i].date(cdsSpotDate, refData));
-        adjMatDates[i] = curveNode[i].date(cdsSpotDate, refData);
-    }
-
-      double[] t = new double[n];
-    _curveNode = curveNode;
-    int nMM = 0;
-    for (int i = 0; i < n; i++) {
-        t[i] = curveDCC.relativeYearFraction(curveSpotDate, adjMatDates[i]);
-      if (_curveNode[i] instanceof TermDepositCurveNode) {
-        nMM++;
-      }
-    }
-    final int nSwap = n - nMM;
-    _mmYF = new double[nMM];
-    _swaps = new BasicFixedLeg[nSwap];
-    int mmCount = 0;
-    int swapCount = 0;
-    for (int i = 0; i < n; i++) {
-      if (_curveNode[i] instanceof TermDepositCurveNode) {
-
-        // TODO in ISDA code money market instruments of less than 21 days have special treatment
-//        _mmYF[mmCount++] = moneyMarketDCC.relativeYearFraction(curveSpotDate, adjMatDates[i]);
+      if (i > 0) {
+        ArgChecker.isTrue(time[i] - time[i - 1] > 0, "curve nodes should be ascending in terms of tenor");
+        ArgChecker.isTrue(ccyTmp.equals(currency), "currency should be common for all of the curve nodes");
+        ArgChecker.isTrue(cvDateTmp.equals(curveSpotDate), "spot lag should be common for all of the curve nodes");
       } else {
-        _swaps[swapCount++] =
-              new BasicFixedLeg(curveSpotDate, matDates[i], swapInterval, swapDCC, curveDCC, convention, _holidayCalendar);
+        ArgChecker.isTrue(time[i] >= 0d, "the first node should be after curve spot date");
+        currency = ccyTmp;
+        curveSpotDate = cvDateTmp;
       }
     }
-    _offset = cdsSpotDate.isAfter(curveSpotDate) ? curveDCC.relativeYearFraction(curveSpotDate, cdsSpotDate)
-        : -curveDCC.relativeYearFraction(cdsSpotDate, curveSpotDate);
+    parameterMetadata = paramMetadata.build();
+    baseMetadata = DefaultCurveMetadata.builder()
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .curveName(name)
+        .dayCount(curveDcc)
+        .build();
 
-    _curveDcc = curveDCC;
-    _cdsSpotDate = cdsSpotDate;
-    _currency = Currency.USD; // TODO
-      time = DoubleArray.ofUnsafe(t);
-
-      _refData = refData;
-//      _curveGroupDefinition = curveGroupDefinition;
+    this.nTermDeposit = nTermDeposit;
+    this.curveNodeTime = DoubleArray.ofUnsafe(time);
+    this.currency = currency;
+    this.curveSpotDate = curveSpotDate;
   }
 
   /**
-   * build a yield curve 
+   * Builds a yield curve. 
+   * 
    * @param rates The par rates of the instruments (as fractions) 
+   * @param name  the curve name
    * @return a yield curve 
    */
-    private IsdaCompliantZeroRateDiscountFactors build(
-        MarketData marketData, final double[] rates) {
-//    ArgumentChecker.notEmpty(rates, "rates");
-    final int n = _curveNode.length;
-//    ArgumentChecker.isTrue(n == rates.length, "expecting " + n + " rates, given " + rates.length);
+  public IsdaCompliantZeroRateDiscountFactors build(double[] rates) {
+    ArgChecker.isTrue(nNode == rates.length, "expecting " + nNode + " rates, given " + rates.length);
 
-
-    // set up curve with best guess rates
-    DefaultCurveMetadata metadata = DefaultCurveMetadata.builder()
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.ZERO_RATE)
-        .curveName("yield")                   // TODO relevant name, taken from index? -> can be final
-        .dayCount(_curveDcc)
-        .build();
-    // TODO parameter meta data
-
-//      ImmutableList<ResolvedTrade> trades = _curveGroupDefinition.resolvedTrades(marketData, _refData);
-
+    double[] ratesMod = Arrays.copyOf(rates, nNode);
+    for (int i = 0; i < nTermDeposit; ++i) {
+      double dfInv = 1d + ratesMod[i] * termDepositYearFraction[i];
+      ratesMod[i] = Math.log(dfInv) / curveNodeTime.get(i);
+    }
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
-          metadata, time, DoubleArray.ofUnsafe(rates), // TODO DoubleArray.ofUnsafe(_t) can be finalised
-        CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR); // TODO rates.length > 1 is assumed
-
-    // loop over the instruments and adjust the curve to price each in turn
-    int mmCount = 0;
-    int swapCount = 0;
-    for (int i = 0; i < n; i++) {
-        if (_curveNode[i] instanceof TermDepositCurveNode) {
-        // TODO in ISDA code money market instruments of less than 21 days have special treatment
-          ImmutableTermDepositConvention conv =
-              (ImmutableTermDepositConvention) ((TermDepositCurveNode) _curveNode[i]).getTemplate().getConvention();
-          LocalDate adjMatDate = _curveNode[i].date(_cdsSpotDate, _refData);
-
-          double yearFraction = conv.getDayCount().relativeYearFraction(_curveSpotDate, adjMatDate);
-
-          double dfInv = 1d + rates[i] * yearFraction;
-          double zr = Math.log(dfInv) / time.get(i);
-        curve = curve.withParameter(i, zr);
-      } else {
-        curve = fitSwap(i, _swaps[swapCount++], curve, rates[i]);
-      }
+        baseMetadata, curveNodeTime, DoubleArray.ofUnsafe(ratesMod),
+        CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
+    for (int i = nTermDeposit; i < nNode; ++i) {
+      curve = fitSwap(i, swapLeg[i], curve, rates[i]);
     }
 
-//    final ISDACompliantYieldCurve baseCurve = new ISDACompliantYieldCurve(curve); // TODO offset
-    if (_offset == 0.0) {
-      return IsdaCompliantZeroRateDiscountFactors.of(_currency, _cdsSpotDate, curve);
+    if (valuationDate.isEqual(curveSpotDate)) {
+      NodalCurve curveWithParamMetadata = curve.withMetadata(baseMetadata.withParameterMetadata(parameterMetadata));
+      return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, curveWithParamMetadata);
     }
-    return IsdaCompliantZeroRateDiscountFactors.of(_currency, _cdsSpotDate, withShift(curve, _offset));
+    double offset = curveDcc.relativeYearFraction(curveSpotDate, valuationDate);
+    return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, withShift(curve, offset));
   }
 
-  private InterpolatedNodalCurve fitSwap(final int curveIndex, final BasicFixedLeg swap, final InterpolatedNodalCurve curve,
-      final double swapRate) {
+  private InterpolatedNodalCurve fitSwap(int curveIndex, BasicFixedLeg swap, InterpolatedNodalCurve curve,
+      double swapRate) {
 
-    final int nPayments = swap.getNumPayments();
-    final int nNodes = curve.getParameterCount();
-    final double t1 = curveIndex == 0 ? 0.0 : curve.getXValues().get(curveIndex - 1);
-    final double t2 = curveIndex == nNodes - 1 ? Double.POSITIVE_INFINITY : curve.getXValues().get(curveIndex + 1);
+    int nPayments = swap.getNumPayments();
+    int nNodes = curve.getParameterCount();
+    double t1 = curveIndex == 0 ? 0.0 : curve.getXValues().get(curveIndex - 1);
+    double t2 = curveIndex == nNodes - 1 ? Double.POSITIVE_INFINITY : curve.getXValues().get(curveIndex + 1);
 
     double temp = 0;
     double temp2 = 0;
     int i1 = 0;
     int i2 = nPayments;
-    final double[] paymentAmounts = new double[nPayments];
+    double[] paymentAmounts = new double[nPayments];
     for (int i = 0; i < nPayments; i++) {
-      final double t = swap.getPaymentTime(i);
+      double t = swap.getPaymentTime(i);
       paymentAmounts[i] = swap.getPaymentAmounts(i, swapRate);
       if (t <= t1) {
-        final double df = Math.exp(-curve.yValue(t) * t);
+        double df = Math.exp(-curve.yValue(t) * t);
         temp += paymentAmounts[i] * df;
         temp2 += paymentAmounts[i] * t * df *
             curve.yValueParameterSensitivity(t).getSensitivity().get(curveIndex);
         i1++;
       } else if (t >= t2) {
-        final double df = Math.exp(-curve.yValue(t) * t);
+        double df = Math.exp(-curve.yValue(t) * t);
         temp += paymentAmounts[i] * df;
         temp2 -= paymentAmounts[i] * t * df *
             curve.yValueParameterSensitivity(t).getSensitivity().get(curveIndex);
         i2--;
       }
     }
-    final double cachedValues = temp;
-    final double cachedSense = temp2;
-    final int index1 = i1;
-    final int index2 = i2;
+    double cachedValues = temp;
+    double cachedSense = temp2;
+    int index1 = i1;
+    int index2 = i2;
 
-    final Function<Double, Double> func = new Function<Double, Double>() {
+    Function<Double, Double> func = new Function<Double, Double>() {
 
       @Override
       public Double apply(final Double x) {
-        final InterpolatedNodalCurve tempCurve = curve.withParameter(curveIndex, x);
+        InterpolatedNodalCurve tempCurve = curve.withParameter(curveIndex, x);
         double sum = 1.0 - cachedValues; // Floating leg at par
         for (int i = index1; i < index2; i++) {
-          final double t = swap.getPaymentTime(i);
+          double t = swap.getPaymentTime(i);
           sum -= paymentAmounts[i] * Math.exp(-tempCurve.yValue(t) * t);
         }
         return sum;
       }
     };
 
-    final Function<Double, Double> grad = new Function<Double, Double>() {
+    Function<Double, Double> grad = new Function<Double, Double>() {
 
       @Override
       public Double apply(final Double x) {
-        final InterpolatedNodalCurve tempCurve = curve.withParameter(curveIndex, x);
+        InterpolatedNodalCurve tempCurve = curve.withParameter(curveIndex, x);
         double sum = cachedSense;
         for (int i = index1; i < index2; i++) {
-          final double t = swap.getPaymentTime(i);
-          // TODO have two looks ups for the same time - could have a specialist function in ISDACompliantCurve
+          double t = swap.getPaymentTime(i);
           sum += swap.getPaymentAmounts(i, swapRate) * t * Math.exp(-tempCurve.yValue(t) * t) *
               tempCurve.yValueParameterSensitivity(t).getSensitivity().get(curveIndex);
         }
@@ -264,133 +226,107 @@ public final class IsdaCompliantDiscountCurveCalibrator {
 
     };
 
-    final double guess = curve.getParameter(curveIndex);
+    double guess = curve.getParameter(curveIndex);
     if (guess == 0.0 && func.apply(guess) == 0.0) {
       return curve;
     }
-    final double[] bracket = guess > 0d
+    double[] bracket = guess > 0d
         ? BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)
         : BRACKETER.getBracketedPoints(func, 1.25 * guess, 0.8 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-    // final double r = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-    final double r = ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
+    double r = ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
     return curve.withParameter(curveIndex, r);
   }
 
   /**
-   * very crude swap fixed leg description. TODO modify to match ISDA <p>
+   * very crude swap fixed leg description.
    * So that the floating leg can be taken as having a value of 1.0, rather than the text book 1 - P(T) for LIBOR discounting,
    * we add 1.0 to the final payment, which is financially equivalent
    */
-  private class BasicFixedLeg {
-    private final int _nPayments;
-    private final double[] _swapPaymentTimes;
-    private final double[] _yearFraction;
+  private final class BasicFixedLeg {
+    private final int nPayment;
+    private final double[] swapPaymentTime;
+    private final double[] yearFraction;
 
-    public BasicFixedLeg(final LocalDate curveSpotDate, final LocalDate mat, final Period swapInterval, final DayCount swapDCC,
-        final DayCount curveDCC, final BusinessDayConvention convention,
-        final HolidayCalendar calendar) {
-//      ArgumentChecker.isFalse(swapInterval.getDays() > 0, "swap interval must be in months or years");
+    public BasicFixedLeg(LocalDate curveSpotDate, LocalDate maturityDate, Period swapInterval, DayCount swapDCC,
+//        BusinessDayConvention convention, HolidayCalendar calendar) {
+        BusinessDayAdjustment busAdj, ReferenceData refData) {
 
       final List<LocalDate> list = new ArrayList<>();
-      LocalDate tDate = mat;
+      LocalDate tDate = maturityDate;
       int step = 1;
       while (tDate.isAfter(curveSpotDate)) {
         list.add(tDate);
-        tDate = mat.minus(swapInterval.multipliedBy(step++));
+        tDate = maturityDate.minus(swapInterval.multipliedBy(step++));
       }
 
       // remove spotDate from list, if it ends up there
       list.remove(curveSpotDate);
 
-      _nPayments = list.size();
-      _swapPaymentTimes = new double[_nPayments];
-      _yearFraction = new double[_nPayments];
+      nPayment = list.size();
+      swapPaymentTime = new double[nPayment];
+      yearFraction = new double[nPayment];
 
       LocalDate prev = curveSpotDate;
-      int j = _nPayments - 1;
-      for (int i = 0; i < _nPayments; i++, j--) {
-        final LocalDate current = list.get(j);
-        final LocalDate adjCurr = convention.adjust(current, calendar);
-        _yearFraction[i] = swapDCC.relativeYearFraction(prev, adjCurr);
-        _swapPaymentTimes[i] = curveDCC.relativeYearFraction(curveSpotDate, adjCurr); // Payment times always good business days
+      int j = nPayment - 1;
+      for (int i = 0; i < nPayment; i++, j--) {
+        LocalDate current = list.get(j);
+        LocalDate adjCurr = busAdj.adjust(current, refData);
+        yearFraction[i] = swapDCC.relativeYearFraction(prev, adjCurr);
+        swapPaymentTime[i] = curveDcc.relativeYearFraction(curveSpotDate, adjCurr); // Payment times always good business days
         prev = adjCurr;
       }
       //  _paymentAmounts[_nPayments - 1] += 1.0; // see Javadocs comment
     }
 
     public int getNumPayments() {
-      return _nPayments;
+      return nPayment;
     }
 
     public double getPaymentAmounts(final int index, final double rate) {
-      return index == _nPayments - 1 ? 1 + rate * _yearFraction[index] : rate * _yearFraction[index];
+      return index == nPayment - 1 ? 1 + rate * yearFraction[index] : rate * yearFraction[index];
     }
 
     public double getPaymentTime(final int index) {
-      return _swapPaymentTimes[index];
+      return swapPaymentTime[index];
     }
 
   }
 
-  private InterpolatedNodalCurve withShift(InterpolatedNodalCurve curve,
-      final double newBaseFromOriginalBase) {
-    final int n = curve.getParameterCount();
-//    ArgumentChecker.isTrue(n == r.length, "times and rates different lengths");
-//    ArgumentChecker.isTrue(timesFromBaseDate[0] >= 0.0, "timesFromBaseDate must be >= 0");
-
-    for (int i = 1; i < n; i++) {
-//      ArgumentChecker.isTrue(timesFromBaseDate[i] > timesFromBaseDate[i - 1], "Times must be ascending");
-    }
-
-
-    if (newBaseFromOriginalBase == 0) { //no offset 
-      return curve;
-    }
-//    final double[] timesFromBaseDate = curve.getXValues(); 
-//    final double[] r = curve.getYValues();
-
-    double[] time;
-    double[] rate;
-    if (newBaseFromOriginalBase < curve.getXValues().get(0)) {
+  private NodalCurve withShift(InterpolatedNodalCurve curve, double shift) {
+    if (shift < curve.getXValues().get(0)) {
       //offset less than t value of 1st knot, so no knots are not removed 
-      time = new double[n];
-      rate = new double[n];
-      final double eta = curve.getYValues().get(0) * newBaseFromOriginalBase;
-      for (int i = 0; i < n; i++) {
-        time[i] = curve.getXValues().get(i) - newBaseFromOriginalBase;
-        rate[i] = (curve.getYValues().get(i) * curve.getXValues().get(i) - eta) / time[i];
-      }
-    } else if (newBaseFromOriginalBase >= curve.getXValues().get(n - 1)) {
-      //new base after last knot. The new 'curve' has a constant zero rate which we represent with a nominal knot at 1.0
-      time = new double[1];
-      rate = new double[1];
-      time[0] = 1.0;
-      rate[0] = (curve.getYValues().get(n - 1) * curve.getXValues().get(n - 1) -
-          curve.getYValues().get(n - 2) * curve.getXValues().get(n - 2)) /
-          (curve.getXValues().get(n - 1) - curve.getXValues().get(n - 2));
-    } else {
-      //offset greater than (or equal to) t value of 1st knot, so at least one knot must be removed  
-      int index = Arrays.binarySearch(curve.getXValues().toArray(), newBaseFromOriginalBase);
-      if (index < 0) {
-        index = -(index + 1);
-      } else {
-        index++;
-      }
-      final double eta = (curve.getYValues().get(index - 1) * curve.getXValues().get(index - 1) *
-          (curve.getXValues().get(index) - newBaseFromOriginalBase) +
-          curve.getYValues().get(index) * curve.getXValues().get(index) *
-              (newBaseFromOriginalBase - curve.getXValues().get(index - 1))) /
-          (curve.getXValues().get(index) - curve.getXValues().get(index - 1));
-      final int m = n - index;
-      time = new double[m];
-      rate = new double[m];
-      for (int i = 0; i < m; i++) {
-        time[i] = curve.getXValues().get(i + index) - newBaseFromOriginalBase;
-        rate[i] = (curve.getYValues().get(i + index) * curve.getXValues().get(i + index) - eta) / time[i];
-      }
+      double eta = curve.getYValues().get(0) * shift;
+      DoubleArray time = DoubleArray.of(nNode, i -> curve.getXValues().get(i) - shift);
+      DoubleArray rate = DoubleArray.of(nNode, i -> (curve.getYValues().get(i) * curve.getXValues().get(i) - eta) / time.get(i));
+      CurveMetadata metadata = baseMetadata.withParameterMetadata(parameterMetadata);
+      return curve.withValues(time, rate).withMetadata(metadata);
     }
-    return curve.withValues(DoubleArray.ofUnsafe(time), DoubleArray.ofUnsafe(rate)); // parameter metadata if # of nodes changed?
+    if (shift >= curve.getXValues().get(nNode - 1)) {
+      //new base after last knot. The new 'curve' has a constant zero rate which we represent with a nominal knot at 1.0
+      double time = 1d;
+      double rate = (curve.getYValues().get(nNode - 1) * curve.getXValues().get(nNode - 1) -
+          curve.getYValues().get(nNode - 2) * curve.getXValues().get(nNode - 2)) /
+          (curve.getXValues().get(nNode - 1) - curve.getXValues().get(nNode - 2));
+      return ConstantNodalCurve.of(baseMetadata, time, rate);
+    }
+    //offset greater than (or equal to) t value of 1st knot, so at least one knot must be removed  
+    int index = Arrays.binarySearch(curve.getXValues().toArray(), shift);
+    if (index < 0) {
+      index = -(index + 1);
+    } else {
+      index++;
+    }
+    double eta =
+        (curve.getYValues().get(index - 1) * curve.getXValues().get(index - 1) * (curve.getXValues().get(index) - shift) +
+            curve.getYValues().get(index) * curve.getXValues().get(index) * (shift - curve.getXValues().get(index - 1))) /
+            (curve.getXValues().get(index) - curve.getXValues().get(index - 1));
+    int m = nNode - index;
+    CurveMetadata metadata = baseMetadata.withParameterMetadata(parameterMetadata.subList(index, nNode));
+    final int indexFinal = index;
+    DoubleArray time = DoubleArray.of(m, i -> curve.getXValues().get(i + indexFinal) - shift);
+    DoubleArray rate = DoubleArray.of(m,
+        i -> (curve.getYValues().get(i + indexFinal) * curve.getXValues().get(i + indexFinal) - eta) / time.get(i));
+    return curve.withValues(time, rate).withMetadata(metadata);
+  }
 
-  }
-  }
 }
