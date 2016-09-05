@@ -175,7 +175,7 @@ public final class StandardId
 
   // resolve after deserialization
   private Object readResolve() {
-    return of(scheme, value);
+    return new StandardId(scheme, value);
   }
 
   //-------------------------------------------------------------------------
