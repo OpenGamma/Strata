@@ -36,7 +36,8 @@ import com.opengamma.strata.collect.Messages;
  * There is a single reason and message and a set of detailed failure items.
  * Each {@link FailureItem} has details of the actual cause.
  * <p>
- * Instances of {@code Failure} are public classes created via {@link Result}.
+ * In most cases, instances of {@code Failure} should be created using one of the
+ * {@code failure} methods on {@link Result}.
  */
 @BeanDefinition(builderScope = "private")
 public final class Failure
@@ -61,7 +62,37 @@ public final class Failure
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains a failure from a reason and message.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   * <p>
+   * An exception will be created internally to obtain a stack trace.
+   * The cause type will not be present in the resulting failure.
+   * 
+   * @param reason  the reason
+   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
+   * @return the failure
+   */
+  public static Failure of(FailureReason reason, String message, Object... messageArgs) {
+    String msg = Messages.format(message, messageArgs);
+    return Failure.of(FailureItem.of(reason, msg, 1));
+  }
+
+  /**
    * Obtains a failure from a reason, message and exception.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
    * 
    * @param reason  the reason
    * @param cause  the cause
@@ -71,17 +102,6 @@ public final class Failure
    */
   public static Failure of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
     return Failure.of(FailureItem.of(reason, cause, message, messageArgs));
-  }
-
-  /**
-   * Obtains a failure from a reason and message.
-   * 
-   * @param reason  the reason
-   * @param message  the failure message, not empty
-   * @return the failure
-   */
-  public static Failure of(FailureReason reason, String message) {
-    return Failure.of(FailureItem.of(reason, message, 2));
   }
 
   /**
