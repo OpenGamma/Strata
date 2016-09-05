@@ -59,8 +59,6 @@ public class CrossGammaParameterSensitivitiesTest {
       CrossGammaParameterSensitivity.of(NAME1, METADATA1, USD, MATRIX_USD2);
   private static final CrossGammaParameterSensitivity ENTRY_USD_TOTAL =
       CrossGammaParameterSensitivity.of(NAME1, METADATA1, USD, TOTAL_USD);
-  private static final CrossGammaParameterSensitivity ENTRY_USD_SMALL =
-      CrossGammaParameterSensitivity.of(NAME1, ParameterMetadata.listOfEmpty(1), USD, DoubleMatrix.of(1, 1, 100d));
   private static final CrossGammaParameterSensitivity ENTRY_USD2_IN_EUR =
       CrossGammaParameterSensitivity.of(NAME1, METADATA1, EUR, MATRIX_USD2_IN_EUR);
   private static final CrossGammaParameterSensitivity ENTRY_EUR =

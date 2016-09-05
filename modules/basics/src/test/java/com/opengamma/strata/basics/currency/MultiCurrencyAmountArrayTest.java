@@ -100,9 +100,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
   }
 
-  /**
-   * Test that the size is correctly restored after deserialization.
-   */
+  // Test that the size is correctly restored after deserialization.
   public void serializeSize() throws Exception {
     MultiCurrencyAmountArray deserialized = serializedDeserialize(VALUES_ARRAY);
     assertThat(deserialized.size()).isEqualTo(3);
