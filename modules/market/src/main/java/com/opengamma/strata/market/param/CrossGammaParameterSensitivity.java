@@ -43,11 +43,11 @@ import com.opengamma.strata.market.curve.Curve;
  * <p>
  * Parameter sensitivity is the sensitivity of a value to the parameters of a
  * {@linkplain ParameterizedData parameterized market data} object that is used to determine the value.
- * The main application of this class is the parameter sensitivities for curves. 
+ * The main application of this class is the parameter sensitivities for curves.
  * Thus {@code ParameterizedData} is typically {@link Curve}.
  * <p>
  * The sensitivity is expressed as a matrix.
- * The {@code (i,j)} component is the sensitivity of the {@code i}-th component of the {@code parameterMetadata} delta to 
+ * The {@code (i,j)} component is the sensitivity of the {@code i}-th component of the {@code parameterMetadata} delta to
  * the {@code j}-th parameter in {@code order}.
  * <p>
  * The sensitivity represents a monetary value in the specified currency.
@@ -57,17 +57,17 @@ public final class CrossGammaParameterSensitivity
     implements FxConvertible<CrossGammaParameterSensitivity>, ImmutableBean {
 
   /**
-  * The market data name.
-  * <p>
-  * This name is used in the market data system to identify the data that the sensitivities refer to.
-  */
+   * The market data name.
+   * <p>
+   * This name is used in the market data system to identify the data that the sensitivities refer to.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataName<?> marketDataName;
   /**
-  * The list of parameter metadata.
-  * <p>
-  * There is one entry for each parameter.
-  */
+   * The list of parameter metadata.
+   * <p>
+   * There is one entry for each parameter.
+   */
   @PropertyDefinition(validate = "notNull", builderType = "List<? extends ParameterMetadata>")
   private final ImmutableList<ParameterMetadata> parameterMetadata;
   /**
@@ -84,12 +84,12 @@ public final class CrossGammaParameterSensitivity
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-  * The parameter sensitivity values.
-  * <p>
-  * The curve delta sensitivities to parameterized market data.
-  * This is a {@code n x m} matrix, where {@code n} must agree with the size of {@code parameterMetadata} and 
-  * {@code m} must be the sum of parameter count in {@code order}.
-  */
+   * The parameter sensitivity values.
+   * <p>
+   * The curve delta sensitivities to parameterized market data.
+   * This is a {@code n x m} matrix, where {@code n} must agree with the size of {@code parameterMetadata} and 
+   * {@code m} must be the sum of parameter count in {@code order}.
+   */
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix sensitivity;
 
