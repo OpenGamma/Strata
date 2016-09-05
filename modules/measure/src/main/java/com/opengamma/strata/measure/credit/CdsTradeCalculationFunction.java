@@ -22,7 +22,6 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.pricer.credit.IsdaIndexCreditCurveInputsId;
@@ -79,7 +78,7 @@ public class CdsTradeCalculationFunction
           .put(CreditMeasures.RECOVERY01, CdsMeasureCalculations::recovery01)
           .put(CreditMeasures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
           .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
-          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -191,7 +190,7 @@ public class CdsTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedCdsTrade trade,
         ScenarioMarketData marketData);
   }
