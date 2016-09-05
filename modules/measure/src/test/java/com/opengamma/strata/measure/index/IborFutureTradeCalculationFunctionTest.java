@@ -29,7 +29,6 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.DoubleScenarioArray;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -104,7 +103,7 @@ public class IborFutureTradeCalculationFunctionTest {
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread))))
         .containsEntry(
-            Measures.RESOLVED_TARGET, Result.success(ScenarioArray.ofSingleValue(1, TRADE.resolve(REF_DATA))));
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   //-------------------------------------------------------------------------

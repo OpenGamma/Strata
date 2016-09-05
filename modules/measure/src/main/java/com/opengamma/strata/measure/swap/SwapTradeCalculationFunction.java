@@ -20,7 +20,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
@@ -79,7 +78,7 @@ public class SwapTradeCalculationFunction
           .put(Measures.LEG_PRESENT_VALUE, SwapMeasureCalculations.DEFAULT::legPresentValue)
           .put(Measures.CURRENCY_EXPOSURE, SwapMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, SwapMeasureCalculations.DEFAULT::currentCash)
-          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, SwapMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
           .build();
 
@@ -169,7 +168,7 @@ public class SwapTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedSwapTrade trade,
         RatesScenarioMarketData marketData);
   }

@@ -22,7 +22,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
@@ -73,7 +72,7 @@ public class FraTradeCalculationFunction
           .put(Measures.CASH_FLOWS, FraMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FraMeasureCalculations.DEFAULT::currentCash)
-          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
           .build();
 
@@ -166,7 +165,7 @@ public class FraTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedFraTrade trade,
         RatesScenarioMarketData marketData);
   }

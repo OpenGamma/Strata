@@ -109,7 +109,7 @@ public class BulletPaymentTradeCalculationFunctionTest {
         .containsEntry(
             Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))))
         .containsEntry(
-            Measures.RESOLVED_TARGET, Result.success(ScenarioArray.ofSingleValue(1, TRADE.resolve(REF_DATA))));
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
 
   }
 
