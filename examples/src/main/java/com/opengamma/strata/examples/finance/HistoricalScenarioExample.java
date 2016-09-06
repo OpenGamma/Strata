@@ -51,7 +51,6 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurvePointShifts;
 import com.opengamma.strata.market.curve.CurvePointShiftsBuilder;
-import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
@@ -192,16 +191,14 @@ public class HistoricalScenarioExample {
       Curve previousCurve = historicalCurves.get(scenarioIndex - 1);
       Curve curve = historicalCurves.get(scenarioIndex);
 
-      // obtain the curve node metadata - this is used to identify a node to apply a perturbation to
-      List<ParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
-
       // build up the shifts to apply to each node
       // these are calculated as the actual change in the zero rate at that node between the two scenario dates
       for (int curveNodeIdx = 0; curveNodeIdx < curve.getParameterCount(); curveNodeIdx++) {
         double zeroRate = curve.getParameter(curveNodeIdx);
         double previousZeroRate = previousCurve.getParameter(curveNodeIdx);
         double shift = (zeroRate - previousZeroRate);
-        builder.addShift(scenarioIndex, curveNodeMetadata.get(curveNodeIdx).getIdentifier(), shift);
+        // the parameter metadata is used to identify a node to apply a perturbation to
+        builder.addShift(scenarioIndex, curve.getParameterMetadata(curveNodeIdx).getIdentifier(), shift);
       }
     }
     return builder.build();
