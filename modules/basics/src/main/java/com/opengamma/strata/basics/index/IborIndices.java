@@ -408,6 +408,56 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 week CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_1W = IborIndex.of("DKK-CIBOR-1W");
+  /**
+   * The 2 week CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_2W = IborIndex.of("DKK-CIBOR-2W");
+  /**
+   * The 1 month CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_1M = IborIndex.of("DKK-CIBOR-1M");
+  /**
+   * The 2 month CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_2M = IborIndex.of("DKK-CIBOR-2M");
+  /**
+   * The 3 month CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_3M = IborIndex.of("DKK-CIBOR-3M");
+  /**
+   * The 6 month CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_6M = IborIndex.of("DKK-CIBOR-6M");
+  /**
+   * The 9 month CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_9M = IborIndex.of("DKK-CIBOR-9M");
+  /**
+   * The 12 month CIBOR index.
+   * <p>
+   * The "Copenhagen Interbank Offered Rate".
+   */
+  public static final IborIndex DKK_CIBOR_12M = IborIndex.of("DKK-CIBOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week NIBOR index.
    * <p>
    * The "Norwegian Interbank Offered Rate".

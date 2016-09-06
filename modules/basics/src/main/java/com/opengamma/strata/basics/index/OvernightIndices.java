@@ -60,13 +60,19 @@ public final class OvernightIndices {
   /**
    * The CORRA index for CAD.
    * <p>
-   * CORRA is an "Overnight" index.
+   * The "Canadian Overnight Repo Rate Average" index.
    */
   public static final OvernightIndex CAD_CORRA = OvernightIndex.of("CAD-CORRA");
   /**
+   * The TN index for DKK.
+   * <p>
+   * The "Tomorrow/Next-renten" index.
+   */
+  public static final OvernightIndex DKK_TNR = OvernightIndex.of("DKK-TNR");
+  /**
    * The NOWA index for NOK.
    * <p>
-   * NOWA is an "Overnight" index.
+   * The "Norwegian Overnight Weighted Average" index.
    */
   public static final OvernightIndex NOK_NOWA = OvernightIndex.of("NOK-NOWA");
 
