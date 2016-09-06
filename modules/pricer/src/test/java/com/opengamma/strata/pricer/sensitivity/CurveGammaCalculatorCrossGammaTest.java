@@ -46,20 +46,20 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
- * Test {@link MultiCurveCrossGammaCalculator}.
+ * Test {@link CurveGammaCalculator} cross-gamma.
  */
 @Test
-public class MultiCurveCrossGammaCalculatorTest {
+public class CurveGammaCalculatorCrossGammaTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double EPS = 1.0e-6;
   private static final double TOL = 1.0e-14;
-  private static final MultiCurveCrossGammaCalculator FORWARD =
-      MultiCurveCrossGammaCalculator.ofForwardDifference(EPS * 0.1);
-  private static final MultiCurveCrossGammaCalculator CENTRAL =
-      MultiCurveCrossGammaCalculator.ofCentralDifference(EPS);
-  private static final MultiCurveCrossGammaCalculator BACKWARD =
-      MultiCurveCrossGammaCalculator.ofBackwardDifference(EPS * 0.1);
+  private static final CurveGammaCalculator FORWARD =
+      CurveGammaCalculator.ofForwardDifference(EPS * 0.1);
+  private static final CurveGammaCalculator CENTRAL =
+      CurveGammaCalculator.ofCentralDifference(EPS);
+  private static final CurveGammaCalculator BACKWARD =
+      CurveGammaCalculator.ofBackwardDifference(EPS * 0.1);
 
   public void sensitivity_single_curve() {
     CrossGammaParameterSensitivities forward =

@@ -67,15 +67,15 @@ public final class CrossGammaParameterSensitivities
     implements FxConvertible<CrossGammaParameterSensitivities>, ImmutableBean, Serializable {
 
   /**
-  * An empty instance.
-  */
+   * An empty instance.
+   */
   private static final CrossGammaParameterSensitivities EMPTY = new CrossGammaParameterSensitivities(ImmutableList.of());
 
   /**
-  * The parameter sensitivities.
-  * <p>
-  * Each entry includes details of the {@link ParameterizedData} it relates to.
-  */
+   * The parameter sensitivities.
+   * <p>
+   * Each entry includes details of the {@link ParameterizedData} it relates to.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<CrossGammaParameterSensitivity> sensitivities;
 
