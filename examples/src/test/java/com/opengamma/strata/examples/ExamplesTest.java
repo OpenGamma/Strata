@@ -26,6 +26,7 @@ import com.opengamma.strata.examples.TermDepositPricingExample;
 import com.opengamma.strata.examples.finance.CalibrationCheckExample;
 import com.opengamma.strata.examples.finance.CalibrationEur3CheckExample;
 import com.opengamma.strata.examples.finance.CalibrationSimpleForwardCheckExample;
+import com.opengamma.strata.examples.finance.CalibrationUsdCpiExample;
 import com.opengamma.strata.examples.finance.CalibrationXCcyCheckExample;
 import com.opengamma.strata.examples.finance.CdsTradeExample;
 import com.opengamma.strata.examples.finance.CurveScenarioExample;
@@ -190,6 +191,13 @@ public class ExamplesTest {
 
   public void test_calibration_simple_forward() throws Exception {
     String captured = caputureSystemOut(() -> CalibrationSimpleForwardCheckExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  public void test_calibration_cpi() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationUsdCpiExample.main(NO_ARGS));
     assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
     assertFalse(captured.contains("ERROR"));
     assertFalse(captured.contains("Exception"));
