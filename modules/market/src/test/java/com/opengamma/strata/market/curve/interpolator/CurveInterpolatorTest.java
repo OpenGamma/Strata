@@ -106,6 +106,31 @@ public class CurveInterpolatorTest {
     assertNotNull(bound.toString());
   }
 
+  public void test_lowerBound() {
+    // bad input, but still produces good output
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[] {1, 2, 3}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.5d, new double[] {1, 2, 3}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.9999d, new double[] {1, 2, 3}), 0);
+    // good input
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[] {1, 2, 3}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0001d, new double[] {1, 2, 3}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.9999d, new double[] {1, 2, 3}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0d, new double[] {1, 2, 3}), 1);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0001d, new double[] {1, 2, 3}), 1);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(2.9999d, new double[] {1, 2, 3}), 1);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0d, new double[] {1, 2, 3}), 2);
+    // bad input, but still produces good output
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0001d, new double[] {1, 2, 3}), 2);
+    // check zero
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-1.0d, new double[] {-1, 0, 1}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.9999d, new double[] {-1, 0, 1}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0001d, new double[] {-1, 0, 1}), 0);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0d, new double[] {-1, 0, 1}), 1);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[] {-1, 0, 1}), 1);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[] {-1, 0, 1}), 2);
+    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.5d, new double[] {-1, 0, 1}), 2);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(CurveInterpolators.class);

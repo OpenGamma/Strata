@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.market.curve.interpolator;
 
-import java.util.Arrays;
-
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -15,6 +13,11 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 public abstract class AbstractBoundCurveInterpolator
     implements BoundCurveInterpolator {
+
+  /**
+   * Negative zero.
+   */
+  private static long NEGATIVE_ZERO_BITS = Double.doubleToRawLongBits(-0d);
 
   /**
    * The left extrapolator.
@@ -133,36 +136,48 @@ public abstract class AbstractBoundCurveInterpolator
   protected abstract DoubleArray doParameterSensitivity(double xValue);
 
   //-------------------------------------------------------------------------
-
   /**
    * Returns the index of the last value in the input array which is lower than the specified value.
    * <p>
    * The following conditions must be true for this method to work correctly:
    * <ul>
    *   <li>{@code xValues} is sorted in ascending order</li>
-   *   <li>{@code xValue} is less than the last element of {@code xValues}</li>
+   *   <li>{@code xValue} is greater or equal to the first element of {@code xValues}</li>
+   *   <li>{@code xValue} is less than or equal to the last element of {@code xValues}</li>
    * </ul>
    * The returned value satisfies:
    * <pre>
    *   0 <= value < xValues.length
    * </pre>
+   * <p>
+   * The x-values must not be NaN.
    *
    * @param xValue  a value which is less than the last element in {@code xValues}
    * @param xValues  an array of values sorted in ascending order
    * @return the index of the last value in {@code xValues} which is lower than {@code xValue}
    */
   protected static int lowerBoundIndex(double xValue, double[] xValues) {
-    int index = Arrays.binarySearch(xValues, xValue);
-    // break out if find an exact match
-    if (index >= 0) {
-      return index;
-    }
-    index = -index - 2;
     // handle -zero, ensure same result as +zero
-    if (xValue == -0d && index < xValues.length - 1 && xValues[index + 1] == 0d) {
-      index++;
+    if (Double.doubleToRawLongBits(xValue) == NEGATIVE_ZERO_BITS) {
+      return lowerBoundIndex(0d, xValues);
     }
-    return index;
+    // manual inline of binary search to avoid NaN checks and negation
+    int lo = 1;
+    int hi = xValues.length - 1;
+    while (lo <= hi) {
+      // find the middle
+      int mid = (lo + hi) >>> 1;
+      double midVal = xValues[mid];
+      // decide where to search next
+      if (midVal < xValue) {
+        lo = mid + 1;  // search top half
+      } else if (midVal > xValue) {
+        hi = mid - 1;  // search bottom half
+      } else {
+        return mid;  // found
+      }
+    }
+    return lo - 1;
   }
 
 }
