@@ -272,7 +272,7 @@ public final class RatesCurvesCsvLoader {
       CurveExtrapolator rightExtrapolator = CurveExtrapolator.of(rightExtrapolatorStr);
       LoadedCurveSettings settings = (valueType.equals(ValueType.PRICE_INDEX))
           ? LoadedCurveSettings.of(curveName, ValueType.MONTHS, valueType, 
-              DayCounts.ACT_360, interpolator, leftExtrapolator, rightExtrapolator) // DayCount not used
+              DayCounts.ONE_ONE, interpolator, leftExtrapolator, rightExtrapolator) // DayCount not used
           : LoadedCurveSettings.of(curveName, ValueType.YEAR_FRACTION, valueType, 
               DayCount.of(dayCountStr), interpolator, leftExtrapolator, rightExtrapolator);
       builder.put(curveName, settings);

@@ -97,7 +97,7 @@ public class CalibrationUsdCpiExample {
    * The location of the historical fixing file.
    */
   private static final ResourceLocator FIXING_RESOURCE =
-      ResourceLocator.ofFile(new File(PATH_CONFIG + "quotes/US-CPI-U-fixing.csv"));
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "fixingss/us-cpi-u.csv"));
 
   //-------------------------------------------------------------------------
   /**
