@@ -149,13 +149,13 @@ final class SwapFpmlParserPlugin
         document.validateNotPresent(legEl, "resetDates");
         // pay/receive and counterparty
         PayReceive payReceive = document.parsePayerReceiver(legEl, tradeInfoBuilder);
-        ValueSchedule notionalSchedule = parseSchedule(knownAmountEl, document);
+        ValueSchedule amountSchedule = parseSchedule(knownAmountEl, document);
         // build
         legsBuilder.add(KnownAmountSwapLeg.builder()
             .payReceive(payReceive)
             .accrualSchedule(accrualSchedule)
             .paymentSchedule(paymentSchedule)
-            .amount(notionalSchedule)
+            .amount(amountSchedule)
             .currency(document.parseCurrency(knownAmountEl.getChild("currency")))
             .build());
       } else {
