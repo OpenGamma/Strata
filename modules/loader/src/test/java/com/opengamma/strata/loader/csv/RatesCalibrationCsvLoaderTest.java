@@ -78,7 +78,7 @@ public class RatesCalibrationCsvLoaderTest {
   //-------------------------------------------------------------------------
   private void assertDefinition(CurveGroupDefinition defn) {
     assertEquals(defn.getName(), CurveGroupName.of("Default"));
-    assertEquals(defn.getEntries().size(), 2);
+    assertEquals(defn.getEntries().size(), 3);
 
     CurveGroupEntry entry0 = defn.getEntries().get(0);
     CurveGroupEntry entry1 = defn.getEntries().get(1);
