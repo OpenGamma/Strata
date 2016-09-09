@@ -99,6 +99,9 @@ public class FraConventionTest {
     assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getDiscounting(), ISDA);
+    // ensure other factories match
+    assertEquals(FraConvention.of(GBP_LIBOR_3M), test);
+    assertEquals(FraConventions.of(GBP_LIBOR_3M), test);
   }
 
   //-------------------------------------------------------------------------
@@ -157,6 +160,26 @@ public class FraConventionTest {
     ImmutableFraConvention test = ImmutableFraConvention.of(NZD_INDEX);
     assertEquals(test.getIndex(), NZD_INDEX);
     assertEquals(test.getDiscounting(), AFMA);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createTrade_period() {
+    FraConvention base = ImmutableFraConvention.builder()
+        .index(GBP_LIBOR_3M)
+        .spotDateOffset(NEXT_SAME_BUS_DAY)
+        .build();
+    LocalDate tradeDate = LocalDate.of(2015, 5, 5);
+    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(3), BUY, NOTIONAL_2M, 0.25d, REF_DATA);
+    Fra expected = Fra.builder()
+        .buySell(BUY)
+        .notional(NOTIONAL_2M)
+        .startDate(date(2015, 8, 5))
+        .endDate(date(2015, 11, 5))
+        .fixedRate(0.25d)
+        .index(GBP_LIBOR_3M)
+        .build();
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getProduct(), expected);
   }
 
   //-------------------------------------------------------------------------
@@ -267,6 +290,10 @@ public class FraConventionTest {
         .build();
     assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
+  }
+
+  public void test_unknownIndex() {
+    assertThrowsIllegalArg(() -> FraConvention.of("Rubbish"));
   }
 
   public void test_toTemplate_badDateOrder() {
