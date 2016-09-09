@@ -36,6 +36,8 @@ import com.opengamma.strata.pricer.fx.FxIndexSensitivity;
  * This provides the environmental information against which pricing occurs.
  * The valuation date, FX rates, discount factors, time-series and forward curves are included.
  * <p>
+ * The standard independent implementation is {@link ImmutableRatesProvider}.
+ * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface RatesProvider
