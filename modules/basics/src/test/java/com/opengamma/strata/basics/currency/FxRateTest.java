@@ -177,6 +177,33 @@ public class FxRateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_crossRate() {
+    FxRate gbpUsd = FxRate.of(GBP, USD, 5d / 4d);
+    FxRate usdGbp = FxRate.of(USD, GBP, 4d / 5d);
+    FxRate eurUsd = FxRate.of(EUR, USD, 8d / 7d);
+    FxRate usdEur = FxRate.of(USD, EUR, 7d / 8d);
+    FxRate eurGbp = FxRate.of(EUR, GBP, (8d / 7d) * (4d / 5d));
+    FxRate gbpGbp = FxRate.of(GBP, GBP, 1d);
+    FxRate usdUsd = FxRate.of(USD, USD, 1d);
+
+    assertEquals(eurUsd.crossRate(usdGbp), eurGbp);
+    assertEquals(eurUsd.crossRate(gbpUsd), eurGbp);
+    assertEquals(usdEur.crossRate(usdGbp), eurGbp);
+    assertEquals(usdEur.crossRate(gbpUsd), eurGbp);
+
+    assertEquals(gbpUsd.crossRate(usdEur), eurGbp);
+    assertEquals(gbpUsd.crossRate(eurUsd), eurGbp);
+    assertEquals(usdGbp.crossRate(usdEur), eurGbp);
+    assertEquals(usdGbp.crossRate(eurUsd), eurGbp);
+
+    assertThrowsIllegalArg(() -> gbpGbp.crossRate(gbpUsd));  // identity
+    assertThrowsIllegalArg(() -> usdUsd.crossRate(gbpUsd));  // identity
+    assertThrowsIllegalArg(() -> gbpUsd.crossRate(gbpUsd));  // same currencies
+    assertThrowsIllegalArg(() -> gbpUsd.crossRate(usdGbp));  // same currencies
+    assertThrowsIllegalArg(() -> gbpUsd.crossRate(FxRate.of(EUR, CAD, 12d / 5d)));  // no common currency
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals_hashCode() {
     FxRate a1 = FxRate.of(AUD, GBP, 1.25d);
     FxRate a2 = FxRate.of(AUD, GBP, 1.25d);

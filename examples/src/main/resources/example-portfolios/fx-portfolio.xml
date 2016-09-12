@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.strata.examples.report.TradeList">
+ <trades>
+  <item type="com.opengamma.strata.product.fx.FxSingleTrade">
+   <info>
+    <id>example~1</id>
+    <counterparty>example~A</counterparty>
+    <settlementDate>2014-09-14</settlementDate>
+    <attributes>
+     <entry key="description">GBP 10,000/USD @ 1.62 fwd</entry>
+    </attributes>
+   </info>
+   <product>
+    <baseCurrencyAmount>GBP 10000</baseCurrencyAmount>
+    <counterCurrencyAmount>USD -16200</counterCurrencyAmount>
+    <paymentDate>2014-09-14</paymentDate>
+   </product>
+  </item>
+  <item type="FxSingleTrade">
+   <info>
+    <id>example~2</id>
+    <counterparty>example~A</counterparty>
+    <settlementDate>2014-09-14</settlementDate>
+    <attributes>
+     <entry key="description">USD 15,000/GBP @ 1.62 fwd</entry>
+    </attributes>
+   </info>
+   <product>
+    <baseCurrencyAmount>GBP -9259.2593</baseCurrencyAmount>
+    <counterCurrencyAmount>USD 15000</counterCurrencyAmount>
+    <paymentDate>2014-09-14</paymentDate>
+   </product>
+  </item>
+  <item type="com.opengamma.strata.product.fx.FxSwapTrade">
+   <info>
+    <id>example~3</id>
+    <counterparty>example~A</counterparty>
+    <settlementDate>2014-09-14</settlementDate>
+    <attributes>
+     <entry key="description">GBP 10,000/USD @ 1.62 swap</entry>
+    </attributes>
+   </info>
+   <product>
+    <nearLeg>
+     <baseCurrencyAmount>GBP 10000</baseCurrencyAmount>
+     <counterCurrencyAmount>USD -16200</counterCurrencyAmount>
+     <paymentDate>2014-06-14</paymentDate>
+    </nearLeg>
+    <farLeg>
+     <baseCurrencyAmount>GBP -10000</baseCurrencyAmount>
+     <counterCurrencyAmount>USD 16500</counterCurrencyAmount>
+     <paymentDate>2014-09-14</paymentDate>
+    </farLeg>
+   </product>
+  </item>
+ </trades>
+</bean>

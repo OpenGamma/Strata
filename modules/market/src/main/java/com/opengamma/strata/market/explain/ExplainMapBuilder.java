@@ -57,6 +57,7 @@ public final class ExplainMapBuilder {
    * The method {@link #closeListEntry(ExplainKey)} must be used to close the
    * child and receive an instance of the parent back again.
    * 
+   * @param <R>  the type of the value
    * @param key  the list key to open
    * @return the child builder
    */
@@ -82,6 +83,7 @@ public final class ExplainMapBuilder {
    * <p>
    * This returns the parent builder.
    * 
+   * @param <R>  the type of the value
    * @param key  the list key to close
    * @return the parent builder
    */
@@ -106,6 +108,7 @@ public final class ExplainMapBuilder {
    * {@link #closeListEntry(ExplainKey)} directly.
    * The consumer function receives the child builder and must add data to it.
    * 
+   * @param <R>  the type of the value
    * @param key  the list key to open
    * @param consumer  the consumer that receives the list entry builder and adds to it
    * @return this builder
@@ -123,6 +126,7 @@ public final class ExplainMapBuilder {
    * {@link #closeListEntry(ExplainKey)} directly.
    * The consumer function receives the child builder and must add data to it.
    * 
+   * @param <R>  the type of the value
    * @param key  the list key to open
    * @param consumer  the consumer that receives the list entry builder and adds to it
    * @return this builder
@@ -144,6 +148,7 @@ public final class ExplainMapBuilder {
    * <p>
    * If the key already exists, the value will be replaced.
    * 
+   * @param <R>  the type of the value
    * @param key  the key to add
    * @param value  the value to add
    * @return this builder

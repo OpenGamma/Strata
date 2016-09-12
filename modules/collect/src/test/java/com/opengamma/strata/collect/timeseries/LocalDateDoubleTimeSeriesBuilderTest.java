@@ -68,6 +68,16 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
     assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(3d));
   }
 
+  public void test_putAll_collection_array() {
+    Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
+    double[] values = new double[]{2d, 3d};
+    LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
+    test.putAll(dates, values);
+
+    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(2d));
+    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(3d));
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_putAll_collectionsMismatch() {
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();

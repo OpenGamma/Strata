@@ -155,6 +155,22 @@ public final class DoubleArrayMath {
   }
 
   /**
+   * Adds values in two arrays together, mutating the first array.
+   * <p>
+   * The arrays must be the same length. Each value in {@code arrayToAdd} is added to the value at the
+   * corresponding index in {@code array}.
+   *
+   * @param array  the array to mutate
+   * @param arrayToAdd  the array containing values to add
+   */
+  public static void mutateByAddition(double[] array, double[] arrayToAdd) {
+    int length = length(array, arrayToAdd);
+    for (int i = 0; i < length; i++) {
+      array[i] += arrayToAdd[i];
+    }
+  }
+
+  /**
    * Multiplies each element in the array by a value by mutation.
    * <p>
    * The input array is mutated.
@@ -165,6 +181,22 @@ public final class DoubleArrayMath {
   public static void mutateByMultiplication(double[] array, double valueToMultiplyBy) {
     for (int i = 0; i < array.length; i++) {
       array[i] *= valueToMultiplyBy;
+    }
+  }
+
+  /**
+   * Multiplies values in two arrays, mutating the first array.
+   * <p>
+   * The arrays must be the same length. Each value in {@code array} is multiplied by the value at the
+   * corresponding index in {@code arrayToMultiplyBy}.
+   *
+   * @param array  the array to mutate
+   * @param arrayToMultiplyBy  the array containing values to multiply by
+   */
+  public static void mutateByMultiplication(double[] array, double[] arrayToMultiplyBy) {
+    int length = length(array, arrayToMultiplyBy);
+    for (int i = 0; i < length; i++) {
+      array[i] *= arrayToMultiplyBy[i];
     }
   }
 
@@ -245,13 +277,9 @@ public final class DoubleArrayMath {
    * @return an array combining the two input arrays using the operator
    */
   public static double[] combine(double[] array1, double[] array2, DoubleBinaryOperator operator) {
-    int len1 = array1.length;
-    int len2 = array2.length;
-    if (len1 != len2) {
-      throw new IllegalArgumentException("Arrays cannot be combined as they differ in length");
-    }
-    double[] result = new double[len1];
-    for (int i = 0; i < len1; i++) {
+    int length = length(array1, array2);
+    double[] result = new double[length];
+    for (int i = 0; i < length; i++) {
       result[i] = operator.applyAsDouble(array1[i], array2[i]);
     }
     return result;
@@ -444,6 +472,18 @@ public final class DoubleArrayMath {
     T t = values[first];
     values[first] = values[second];
     values[second] = t;
+  }
+
+  /**
+   * Return the array lengths if they are the same, otherwise throws an {@code IllegalArgumentException}.
+   */
+  private static int length(double[] array1, double[] array2) {
+    int len1 = array1.length;
+    int len2 = array2.length;
+    if (len1 != len2) {
+      throw new IllegalArgumentException("Arrays cannot be combined as they differ in length");
+    }
+    return len1;
   }
 
 }

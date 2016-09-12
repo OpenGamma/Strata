@@ -35,7 +35,7 @@ public class CdsCoupon {
    *  start and end dates are one day less. The exception is the final accrual end date which has one day 
    *  added (if  protectionFromStartOfDay = true) in ISDAPremiumLegSchedule to compensate for this, so the
    *  accrual end date is just the CDS maturity.
-   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection. 
+   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection.
    * @param accrualDCC The day count used to compute accrual periods 
    * @param curveDCC  Day count used on curve (NOTE ISDA uses ACT/365 (fixed) and it is not recommended to change this)
    * @see CdsAnalytic
@@ -67,7 +67,7 @@ public class CdsCoupon {
    *  start and end dates are one day less. The exception is the accrual end date which should have one day
    *  added (if  protectionFromStartOfDay = true) in the CDSCouponDes to compensate for this, so the 
    *  accrual end date is just the CDS maturity.
-   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection. 
+   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection.
    * @param curveDCC Day count used on curve (NOTE ISDA uses ACT/365 (fixed) and it is not recommended to change this)
    * @return A set of CDSCoupon
    */
@@ -94,7 +94,7 @@ public class CdsCoupon {
 
   /**
    * Turn a date based description of a CDS accrual period ({@link CdsCouponDes}) into an analytic description
-   * ({@link CdsCoupon}). This has protection from  start of day and uses ACT/360 for the accrual day count. 
+   * ({@link CdsCoupon}). This has protection from  start of day and uses ACT/360 for the accrual day count.
    * 
    * @param tradeDate The trade date 
    * @param coupon A date based description of a CDS accrual period 
@@ -125,7 +125,7 @@ public class CdsCoupon {
    *  start and end dates are one day less. The exception is the accrual end date which should have one day
    *  added (if  protectionFromStartOfDay = true) in the CDSCouponDes to compensate for this, so the 
    *  accrual end date is just the CDS maturity.
-   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection. 
+   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection.
    */
   public CdsCoupon(LocalDate tradeDate, CdsCouponDes coupon, boolean protectionFromStartOfDay) {
     this(tradeDate, coupon, protectionFromStartOfDay, ACT_360);
@@ -141,7 +141,7 @@ public class CdsCoupon {
    *  start and end dates are one day less. The exception is the accrual end date which should have one day
    *  added (if  protectionFromStartOfDay = true) in the CDSCouponDes to compensate for this, so the
    *  accrual end date is just the CDS maturity.
-   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection. 
+   *  The effect of having protectionFromStartOfDay = true is to add an extra day of protection.
    * @param curveDCC Day count used on curve (NOTE ISDA uses ACT/365 (fixed) and it is not recommended to change this)
    */
   public CdsCoupon(LocalDate tradeDate, CdsCouponDes coupon, boolean protectionFromStartOfDay, DayCount curveDCC) {

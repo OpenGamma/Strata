@@ -54,7 +54,7 @@ public final class DoublesPair
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code DoublesPair} from two {@code double} elements.
+   * Obtains an instance from two {@code double} elements.
    * 
    * @param first  the first element
    * @param second  the second element
@@ -65,7 +65,7 @@ public final class DoublesPair
   }
 
   /**
-   * Obtains a {@code DoublesPair} from a {@code Pair}.
+   * Obtains an instance from a {@code Pair}.
    * 
    * @param pair  the pair to convert
    * @return a pair formed by extracting values from the pair

@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public class BondAnalytic {
 
-  private static final Logger LOG = LoggerFactory.getLogger(BondAnalytic.class);
+  private static final Logger log = LoggerFactory.getLogger(BondAnalytic.class);
   private static final DayCount ACT_365 = DayCounts.ACT_365F;
 
   private final double[] _paymentTimes;
@@ -65,7 +65,7 @@ public class BondAnalytic {
     ArgChecker.notNull(today, "today");
     ArgChecker.isTrue(coupon >= 0.0, "coupon is negative");
     if (coupon > 1.0) {
-      LOG.warn("coupon should be given as fraction. Value of " + coupon + "seems high.");
+      log.warn("coupon should be given as fraction. Value of " + coupon + "seems high.");
     }
     ArgChecker.notNull(schedule, "schedule");
     ArgChecker.isTrue(recoveryRate >= 0.0 && recoveryRate <= 1.0, "recovery rate must be in range 0 - 1. value gives: ",

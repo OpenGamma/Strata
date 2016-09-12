@@ -6,8 +6,13 @@
 package com.opengamma.strata.collect;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -26,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -70,6 +76,93 @@ public final class Guavate {
     return optional.isPresent() ?
         Stream.of(optional.get()) :
         Stream.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a stream that wraps a stream with the index.
+   * <p>
+   * Each input object is decorated with an {@link ObjIntPair}.
+   * The {@code int} is the index of the element in the stream.
+   *
+   * @param <T>  the type of the stream
+   * @param stream  the stream to index
+   * @return a stream of pairs, containing the element and index
+   */
+  public static <T> Stream<ObjIntPair<T>> zipWithIndex(Stream<T> stream) {
+    Spliterator<T> split1 = stream.spliterator();
+    Iterator<T> it1 = Spliterators.iterator(split1);
+    Iterator<ObjIntPair<T>> it = new Iterator<ObjIntPair<T>>() {
+      int index = 0;
+
+      @Override
+      public boolean hasNext() {
+        return it1.hasNext();
+      }
+
+      @Override
+      public ObjIntPair<T> next() {
+        return ObjIntPair.of(it1.next(), index++);
+      }
+    };
+    Spliterator<ObjIntPair<T>> split = Spliterators.spliterator(it, split1.getExactSizeIfKnown(), split1.characteristics());
+    return StreamSupport.stream(split, false);
+  }
+
+  /**
+   * Creates a stream that combines two other streams, continuing until either stream ends.
+   * <p>
+   * Each pair of input objects is combined into a {@link Pair}.
+   *
+   * @param <A>  the type of the first stream
+   * @param <B>  the type of the second stream
+   * @param stream1  the first stream
+   * @param stream2  the first stream
+   * @return a stream of pairs, one from each stream
+   */
+  public static <A, B> Stream<Pair<A, B>> zip(Stream<A> stream1, Stream<B> stream2) {
+    return zip(stream1, stream2, (a, b) -> Pair.of(a, b));
+  }
+
+  /**
+   * Creates a stream that combines two other streams, continuing until either stream ends.
+   * <p>
+   * The combiner function is called once for each pair of objects found in the input streams.
+   *
+   * @param <A>  the type of the first stream
+   * @param <B>  the type of the second stream
+   * @param <R>  the type of the resulting stream
+   * @param stream1  the first stream
+   * @param stream2  the first stream
+   * @param zipper  the function used to combine the pair of objects
+   * @return a stream of pairs, one from each stream
+   */
+  private static <A, B, R> Stream<R> zip(Stream<A> stream1, Stream<B> stream2, BiFunction<A, B, R> zipper) {
+    // this is private for now, to see if it is really needed on the API
+    // it suffers from generics problems at the call site with common zipper functions
+    // as such, it is less useful than it might seem
+    Spliterator<A> split1 = stream1.spliterator();
+    Spliterator<B> split2 = stream2.spliterator();
+    // merged stream lacks some characteristics
+    int characteristics = split1.characteristics() & split2.characteristics() &
+        ~(Spliterator.DISTINCT | Spliterator.SORTED);
+    long size = Math.min(split1.getExactSizeIfKnown(), split2.getExactSizeIfKnown());
+
+    Iterator<A> it1 = Spliterators.iterator(split1);
+    Iterator<B> it2 = Spliterators.iterator(split2);
+    Iterator<R> it = new Iterator<R>() {
+      @Override
+      public boolean hasNext() {
+        return it1.hasNext() && it2.hasNext();
+      }
+
+      @Override
+      public R next() {
+        return zipper.apply(it1.next(), it2.next());
+      }
+    };
+    Spliterator<R> split = Spliterators.spliterator(it, size, characteristics);
+    return StreamSupport.stream(split, false);
   }
 
   //-------------------------------------------------------------------------
@@ -265,6 +358,38 @@ public final class Guavate {
         (builder, val) -> builder.put(keyExtractor.apply(val), valueExtractor.apply(val)),
         (l, r) -> l.putAll(r.build()),
         ImmutableMap.Builder<K, V>::build,
+        Collector.Characteristics.UNORDERED);
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable map.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableMap}.
+   * <p>
+   * This returns a map by converting each stream element to a key and value.
+   * If the same key is generated more than once the merge function is applied to the
+   * values and the return value of the function is used as the value in the map.
+   *
+   * @param <T> the type of the stream elements
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @param keyExtractor  function to produce keys from stream elements
+   * @param valueExtractor  function to produce values from stream elements
+   * @param mergeFn  function to merge values with the same key
+   * @return the immutable map collector
+   */
+  public static <T, K, V> Collector<T, Map<K, V>, ImmutableMap<K, V>> toImmutableMap(
+      Function<? super T, ? extends K> keyExtractor,
+      Function<? super T, ? extends V> valueExtractor,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    return Collector.of(
+        HashMap<K, V>::new,
+        (map, val) -> map.merge(keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
+        (m1, m2) -> mergeMaps(m1, m2, mergeFn),
+        map -> ImmutableMap.copyOf(map),
         Collector.Characteristics.UNORDERED);
   }
 
@@ -495,5 +620,37 @@ public final class Guavate {
    */
   public static <K, V> Collector<Pair<K, V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
     return toImmutableMap(Pair::getFirst, Pair::getSecond);
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Helper method to merge two mutable maps by inserting all values from {@code map2} into {@code map1}.
+   * <p>
+   * If {@code map1} already contains a mapping for a key the merge function is applied to the existing value and
+   * the new value, and the return value is inserted.
+   *
+   * @param map1  the map into which values are copied
+   * @param map2  the map from which values are copied
+   * @param mergeFn  function applied to the existing and new values if the map contains the key
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @return {@code map1} with the values from {@code map2} inserted
+   */
+  private static <K, V> Map<K, V> mergeMaps(
+      Map<K, V> map1,
+      Map<K, V> map2,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    for (Map.Entry<K, V> entry : map2.entrySet()) {
+      V existingValue = map1.get(entry.getKey());
+
+      if (existingValue == null) {
+        map1.put(entry.getKey(), entry.getValue());
+      } else {
+        map1.put(entry.getKey(), mergeFn.apply(existingValue, entry.getValue()));
+      }
+    }
+    return map1;
   }
 }

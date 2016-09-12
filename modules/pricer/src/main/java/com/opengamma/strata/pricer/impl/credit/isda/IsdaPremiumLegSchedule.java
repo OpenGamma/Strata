@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -42,10 +43,10 @@ public class IsdaPremiumLegSchedule {
    * @param startDate The start date - this will be the first entry in the list
    * @param endDate The end date - this will be the last entry in the list
    * @param step the step period (e.g. 3M - will produce dates every 3 months, with adjustments at the beginning or end based on stub type)
-   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE - <b>Note</b> in this code NONE is not allowed
+   * @param stubType the stub convention
    * @return an array of LocalDate
    */
-  public static LocalDate[] getUnadjustedDates(LocalDate startDate, LocalDate endDate, Period step, CdsStubType stubType) {
+  public static LocalDate[] getUnadjustedDates(LocalDate startDate, LocalDate endDate, Period step, StubConvention stubType) {
     ArgChecker.notNull(startDate, "null startDate");
     ArgChecker.notNull(endDate, "null endDate");
     ArgChecker.notNull(step, "step");
@@ -59,7 +60,8 @@ public class IsdaPremiumLegSchedule {
       return tempDates;
     }
 
-    ArgChecker.isFalse(stubType == CdsStubType.NONE, "NONE is not allowed as a stubType");
+    ArgChecker.isFalse(stubType == StubConvention.NONE, "NONE is not allowed as a stub convention");
+    ArgChecker.isFalse(stubType == StubConvention.BOTH, "BOTH is not allowed as a stub convention");
 
     long firstJulianDate = startDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     long secondJulianDate = endDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
@@ -69,8 +71,7 @@ public class IsdaPremiumLegSchedule {
     List<LocalDate> dates = new ArrayList<>(nApprox);
 
     // stub at front end, so start at endDate and work backwards
-    if (stubType == CdsStubType.FRONTSHORT || stubType == CdsStubType.FRONTLONG) {
-
+    if (stubType.isCalculateBackwards()) {
       int intervals = 0;
       LocalDate tDate = endDate;
       while (tDate.isAfter(startDate)) {
@@ -80,7 +81,7 @@ public class IsdaPremiumLegSchedule {
       }
 
       int n = dates.size();
-      if (tDate.isEqual(startDate) || n == 1 || stubType == CdsStubType.FRONTSHORT) {
+      if (tDate.isEqual(startDate) || n == 1 || stubType == StubConvention.SHORT_INITIAL) {
         dates.add(startDate);
       } else {
         // long front stub - remove the last date entry in the list and replace it with startDate
@@ -108,7 +109,7 @@ public class IsdaPremiumLegSchedule {
       }
 
       int n = dates.size();
-      if (tDate.isEqual(endDate) || n == 1 || stubType == CdsStubType.BACKSHORT) {
+      if (tDate.isEqual(endDate) || n == 1 || stubType == StubConvention.SHORT_FINAL) {
         dates.add(endDate);
       } else {
         // long back stub - remove the last date entry in the list and replace it with endDate
@@ -198,7 +199,7 @@ public class IsdaPremiumLegSchedule {
    * @param startDate The protection start date
    * @param endDate The protection end date
    * @param step The period or frequency at which payments are made (e.g. every three months)
-   * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE - <b>Note</b> in this code NONE is not allowed
+   * @param stubType The stub convention
    * @param businessdayAdjustmentConvention options are 'following' or 'proceeding'
    * @param calandar A holiday calendar
    * @param protectionStart If true, protection starts are the beginning rather than end of day (protection still ends at end of day).
@@ -207,7 +208,7 @@ public class IsdaPremiumLegSchedule {
       LocalDate startDate,
       LocalDate endDate,
       Period step,
-      CdsStubType stubType,
+      StubConvention stubType,
       BusinessDayConvention businessdayAdjustmentConvention,
       HolidayCalendar calandar,
       boolean protectionStart) {

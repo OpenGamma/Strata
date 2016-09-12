@@ -14,6 +14,7 @@ import java.time.Month;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.JulianFields;
+import java.util.Locale;
 
 import org.testng.annotations.Test;
 
@@ -23,6 +24,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -42,7 +44,7 @@ public class IsdaPremiumLegScheduleTest {
     final LocalDate startDate = LocalDate.of(2012, 6, 7);
     final LocalDate endDate = LocalDate.of(2015, 11, 29); // sunday
     final Period step = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.NONE;
+    final StubConvention stubType = StubConvention.NONE;
     final boolean protectionStart = false;
     @SuppressWarnings("unused")
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, step, stubType, FOLLOWING, CALENDAR, protectionStart);
@@ -69,7 +71,7 @@ public class IsdaPremiumLegScheduleTest {
     final LocalDate startDate = LocalDate.of(2012, 6, 7);
     final LocalDate endDate = LocalDate.of(2015, 11, 29); // sunday
     final Period step = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.FRONTSHORT;
+    final StubConvention stubType = StubConvention.SHORT_INITIAL;
     final boolean protectionStart = true;
 
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, step, stubType, FOLLOWING, CALENDAR, protectionStart);
@@ -97,7 +99,7 @@ public class IsdaPremiumLegScheduleTest {
     final LocalDate startDate = LocalDate.of(2012, 6, 30); // Saturday
     final LocalDate endDate = LocalDate.of(2013, 12, 20); // IMM date
     final Period step = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.FRONTLONG;
+    final StubConvention stubType = StubConvention.LONG_INITIAL;
     final boolean protectionStart = true;
 
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, step, stubType, FOLLOWING, CALENDAR, protectionStart);
@@ -124,7 +126,7 @@ public class IsdaPremiumLegScheduleTest {
     final LocalDate startDate = LocalDate.of(2012, 6, 20); // IMM date
     final LocalDate endDate = LocalDate.of(2013, 9, 20); // IMM date
     final Period step = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.BACKSHORT;
+    final StubConvention stubType = StubConvention.SHORT_FINAL;
     final boolean protectionStart = true;
 
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, step, stubType, FOLLOWING, CALENDAR, protectionStart);
@@ -151,7 +153,7 @@ public class IsdaPremiumLegScheduleTest {
     final LocalDate startDate = LocalDate.of(2012, 5, 10);
     final LocalDate endDate = LocalDate.of(2013, 10, 20);
     final Period step = Period.ofMonths(3);
-    final CdsStubType stubType = CdsStubType.BACKLONG;
+    final StubConvention stubType = StubConvention.LONG_FINAL;
     final boolean protectionStart = true;
 
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, step, stubType, FOLLOWING, CALENDAR, protectionStart);
@@ -176,13 +178,13 @@ public class IsdaPremiumLegScheduleTest {
     final LocalDate startDate = getPrevIMMDate(stepIn);
     final LocalDate endDate = getNextIMMDate(tradeDate).plus(tenor);
     final Period paymentInt = Period.ofMonths(3);
-    final CdsStubType stub = CdsStubType.FRONTSHORT;
+    final StubConvention stub = StubConvention.SHORT_INITIAL;
     final double notional = 1e7;
     final double coupon = 1e-2;
 
     final IsdaPremiumLegSchedule schedule = new IsdaPremiumLegSchedule(startDate, endDate, paymentInt, stub, FOLLOWING, CALENDAR, true);
 
-    final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-yy");
+    final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-uu", Locale.ENGLISH);
 
     final int n = schedule.getNumPayments();
 
@@ -203,7 +205,7 @@ public class IsdaPremiumLegScheduleTest {
       final int days = (int) (secondJulianDate - firstJulianDate);
       System.out.print(days + " & ");
       final double premium = notional * coupon * ACT360.yearFraction(start, end);
-      System.out.format("%.2f" + " \\\\" + "\n", premium);
+      System.out.format(Locale.ENGLISH, "%.2f" + " \\\\" + "\n", premium);
     }
     System.out.println("\\hline");
     System.out.println("\\end{tabular}");

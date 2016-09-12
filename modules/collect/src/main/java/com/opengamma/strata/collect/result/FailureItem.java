@@ -25,21 +25,27 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
- * Details of a single failed item in a failure.
+ * Details of a single failed item.
  * <p>
- * When a {@link Failure} occurs, details are captured and stored in an instance of this class.
+ * This is used in {@link Failure} and {@link TolerantResult} to capture details of a single failure.
  * Details include the reason, message and stack trace.
- * <p>
- * Instances of {@code FailureItem} are public classes created via {@link Result}.
  */
 @BeanDefinition(builderScope = "private")
 public final class FailureItem
     implements ImmutableBean, Serializable {
 
+  /**
+   * Header used when generating stack trace internally.
+   */
+  private static final String FAILURE_EXCEPTION = "com.opengamma.strata.collect.result.FailureItem: ";
   /**
    * Stack traces can take up a lot of memory if a large number of failures are stored.
    * They are often duplicated many times so interning them can save a significant amount of memory.
@@ -69,6 +75,99 @@ public final class FailureItem
   @PropertyDefinition(get = "optional")
   private final Class<? extends Exception> causeType;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a failure from a reason and message.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   * <p>
+   * An exception will be created internally to obtain a stack trace.
+   * The cause type will not be present in the resulting failure.
+   * 
+   * @param reason  the reason
+   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
+   * @return the failure
+   */
+  public static FailureItem of(FailureReason reason, String message, Object... messageArgs) {
+    String msg = Messages.format(message, messageArgs);
+    return of(reason, msg, 1);
+  }
+
+  /**
+   * Obtains a failure from a reason and message.
+   * <p>
+   * The failure will still have a stack trace, but the cause type will not be present.
+   * 
+   * @param reason  the reason
+   * @param message  the failure message, not empty
+   * @param skipFrames  the number of caller frames to skip, not including this one
+   * @return the failure
+   */
+  static FailureItem of(FailureReason reason, String message, int skipFrames) {
+    ArgChecker.notNull(reason, "reason");
+    ArgChecker.notEmpty(message, "message");
+    String stackTrace = localGetStackTraceAsString(message, skipFrames);
+    return new FailureItem(reason, message, stackTrace, null);
+  }
+
+  private static String localGetStackTraceAsString(String message, int skipFrames) {
+    StringBuilder builder = new StringBuilder();
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    // simulate full stack trace, pretending this class is a Throwable subclass
+    builder.append(FAILURE_EXCEPTION).append(message).append(System.lineSeparator());
+    // drop the first few frames because they are part of the immediate calling code
+    for (int i = skipFrames + 3; i < stackTrace.length; i++) {
+      builder.append("\tat ").append(stackTrace[i]).append(System.lineSeparator());
+    }
+    return builder.toString();
+  }
+
+  /**
+   * Obtains a failure from a reason and exception.
+   * 
+   * @param reason  the reason
+   * @param cause  the cause
+   * @return the failure
+   */
+  public static FailureItem of(FailureReason reason, Exception cause) {
+    ArgChecker.notNull(reason, "reason");
+    ArgChecker.notNull(cause, "cause");
+    String causeMessage = cause.getMessage();
+    String message = Strings.isNullOrEmpty(causeMessage) ? cause.getClass().getSimpleName() : causeMessage;
+    return FailureItem.of(reason, cause, message);
+  }
+
+  /**
+   * Obtains a failure from a reason, exception and message.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   * 
+   * @param reason  the reason
+   * @param cause  the cause
+   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
+   * @return the failure
+   */
+  public static FailureItem of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
+    ArgChecker.notNull(reason, "reason");
+    ArgChecker.notNull(cause, "cause");
+    String msg = Messages.format(message, messageArgs);
+    String stackTrace = Throwables.getStackTraceAsString(cause);
+    return new FailureItem(reason, msg, stackTrace, cause.getClass());
+  }
+
+  //-------------------------------------------------------------------------
   @ImmutableConstructor
   private FailureItem(
       FailureReason reason,
@@ -85,17 +184,20 @@ public final class FailureItem
   }
 
   /**
-   * Creates an instance.
+   * Returns a string summary of the failure, as a single line excluding the stack trace.
    * 
-   * @param reason  the reason
-   * @param message  the message, not empty
-   * @param stackTrace  the stack trace
-   * @param causeType  the cause type, may be null
-   * @return the failure item
+   * @return the summary string
    */
-  static FailureItem of(
-      FailureReason reason, String message, String stackTrace, Class<? extends Exception> causeType) {
-    return new FailureItem(reason, message, stackTrace, causeType);
+  @Override
+  public String toString() {
+    if (stackTrace.startsWith(FAILURE_EXCEPTION)) {
+      return reason + ": " + message;
+    }
+    String firstLine = stackTrace.substring(0, stackTrace.indexOf(System.lineSeparator()));
+    if (firstLine.endsWith(": " + message)) {
+      return reason + ": " + message + ": " + firstLine.substring(0, firstLine.length() - message.length() - 2);
+    }
+    return reason + ": " + message + ": " + firstLine;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -178,9 +280,9 @@ public final class FailureItem
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FailureItem other = (FailureItem) obj;
-      return JodaBeanUtils.equal(getReason(), other.getReason()) &&
-          JodaBeanUtils.equal(getMessage(), other.getMessage()) &&
-          JodaBeanUtils.equal(getStackTrace(), other.getStackTrace()) &&
+      return JodaBeanUtils.equal(reason, other.reason) &&
+          JodaBeanUtils.equal(message, other.message) &&
+          JodaBeanUtils.equal(stackTrace, other.stackTrace) &&
           JodaBeanUtils.equal(causeType, other.causeType);
     }
     return false;
@@ -189,23 +291,11 @@ public final class FailureItem
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReason());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
+    hash = hash * 31 + JodaBeanUtils.hashCode(reason);
+    hash = hash * 31 + JodaBeanUtils.hashCode(message);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stackTrace);
     hash = hash * 31 + JodaBeanUtils.hashCode(causeType);
     return hash;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("FailureItem{");
-    buf.append("reason").append('=').append(getReason()).append(',').append(' ');
-    buf.append("message").append('=').append(getMessage()).append(',').append(' ');
-    buf.append("stackTrace").append('=').append(getStackTrace()).append(',').append(' ');
-    buf.append("causeType").append('=').append(JodaBeanUtils.toString(causeType));
-    buf.append('}');
-    return buf.toString();
   }
 
   //-----------------------------------------------------------------------

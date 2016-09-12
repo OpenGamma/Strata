@@ -125,10 +125,10 @@ public class FrequencyTest {
     assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(1001)));
     assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)));
 
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(12001));
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(12001), "Months must not exceed 12,000");
     assertThrowsIllegalArg(() -> Frequency.ofMonths(Integer.MAX_VALUE));
 
-    assertThrowsIllegalArg(() -> Frequency.ofYears(1001));
+    assertThrowsIllegalArg(() -> Frequency.ofYears(1001), "Years must not exceed 1,000");
     assertThrowsIllegalArg(() -> Frequency.ofYears(Integer.MAX_VALUE));
 
     assertThrowsIllegalArg(() -> Frequency.of(Period.of(10000, 0, 1)));
@@ -140,6 +140,9 @@ public class FrequencyTest {
     return new Object[][] {
         {1, Period.ofMonths(1), "P1M"},
         {2, Period.ofMonths(2), "P2M"},
+        {3, Period.ofMonths(3), "P3M"},
+        {4, Period.ofMonths(4), "P4M"},
+        {6, Period.ofMonths(6), "P6M"},
         {12, Period.ofMonths(12), "P12M"},
         {20, Period.ofMonths(20), "P20M"},
         {24, Period.ofMonths(24), "P24M"},
@@ -196,29 +199,35 @@ public class FrequencyTest {
   @DataProvider(name = "based")
   static Object[][] data_based() {
     return new Object[][] {
-        {Frequency.ofDays(1), false, false},
-        {Frequency.ofDays(2), false, false},
-        {Frequency.ofDays(6), false, false},
-        {Frequency.ofDays(7), true, false},
-        {Frequency.ofWeeks(1), true, false},
-        {Frequency.ofWeeks(3), true, false},
-        {Frequency.ofMonths(1), false, true},
-        {Frequency.ofMonths(3), false, true},
-        {Frequency.ofYears(1), false, true},
-        {Frequency.ofYears(3), false, true},
-        {Frequency.of(Period.of(1, 2, 3)), false, false},
-        {Frequency.TERM, false, false},
+        {Frequency.ofDays(1), false, false, false},
+        {Frequency.ofDays(2), false, false, false},
+        {Frequency.ofDays(6), false, false, false},
+        {Frequency.ofDays(7), true, false, false},
+        {Frequency.ofWeeks(1), true, false, false},
+        {Frequency.ofWeeks(3), true, false, false},
+        {Frequency.ofMonths(1), false, true, false},
+        {Frequency.ofMonths(3), false, true, false},
+        {Frequency.ofMonths(12), false, true, true},
+        {Frequency.ofYears(1), false, true, true},
+        {Frequency.ofYears(3), false, true, false},
+        {Frequency.of(Period.of(1, 2, 3)), false, false, false},
+        {Frequency.TERM, false, false, false},
     };
   }
 
   @Test(dataProvider = "based")
-  public void test_isWeekBased(Frequency test, boolean weekBased, boolean monthBased) {
+  public void test_isWeekBased(Frequency test, boolean weekBased, boolean monthBased, boolean annual) {
     assertEquals(test.isWeekBased(), weekBased);
   }
 
   @Test(dataProvider = "based")
-  public void test_isMonthBased(Frequency test, boolean weekBased, boolean monthBased) {
+  public void test_isMonthBased(Frequency test, boolean weekBased, boolean monthBased, boolean annual) {
     assertEquals(test.isMonthBased(), monthBased);
+  }
+
+  @Test(dataProvider = "based")
+  public void test_isAnnual(Frequency test, boolean weekBased, boolean monthBased, boolean annual) {
+    assertEquals(test.isAnnual(), annual);
   }
 
   //-------------------------------------------------------------------------
@@ -254,6 +263,24 @@ public class FrequencyTest {
     assertThrowsIllegalArg(() -> Frequency.ofMonths(5).eventsPerYear());
     assertThrowsIllegalArg(() -> Frequency.ofMonths(24).eventsPerYear());
     assertThrowsIllegalArg(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear());
+  }
+
+  @Test(dataProvider = "events")
+  public void test_eventsPerYearEstimate(Frequency test, int expected) {
+    assertEquals(test.eventsPerYearEstimate(), expected, 1e-8);
+  }
+
+  public void test_eventsPerYearEstimate_bad() {
+    assertEquals(Frequency.ofDays(3).eventsPerYearEstimate(), 364d / 3, 1e-8);
+    assertEquals(Frequency.ofWeeks(3).eventsPerYearEstimate(), 364d / 21, 1e-8);
+    assertEquals(Frequency.ofWeeks(104).eventsPerYearEstimate(), 364d / 728, 1e-8);
+    assertEquals(Frequency.ofMonths(5).eventsPerYearEstimate(), 12d / 5, 1e-8);
+    assertEquals(Frequency.ofMonths(22).eventsPerYearEstimate(), 12d / 22, 1e-8);
+    assertEquals(Frequency.ofMonths(24).eventsPerYearEstimate(), 12d / 24, 1e-8);
+    assertEquals(Frequency.ofYears(2).eventsPerYearEstimate(), 0.5d, 1e-8);
+    assertEquals(Frequency.of(Period.of(10, 0, 1)).eventsPerYearEstimate(), 0.1d, 1e-3);
+    assertEquals(Frequency.of(Period.of(5, 0, 95)).eventsPerYearEstimate(), 0.19d, 1e-3);
+    assertEquals(Frequency.of(Period.of(5, 0, 97)).eventsPerYearEstimate(), 0.19d, 1e-3);
   }
 
   //-------------------------------------------------------------------------

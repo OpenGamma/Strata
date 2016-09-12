@@ -11,8 +11,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.examples.finance.credit.harness.TestHarness;
+import com.opengamma.strata.product.common.BuySell;
 
 @Test
 public class CdsPricingCompany01TminusThreeTests {

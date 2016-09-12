@@ -7,13 +7,13 @@ package com.opengamma.strata.market.option;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The type of a strike.
  * <p>
- * The strike of option instruments is represented in different ways. 
- * For example, the strike types include delta, moneyness, log-moneyness, and strike itself. 
+ * The strike of option instruments is represented in different ways.
+ * For example, the strike types include delta, moneyness, log-moneyness, and strike itself.
  */
 public final class StrikeType
     extends TypedString<StrikeType> {
@@ -45,7 +45,7 @@ public final class StrikeType
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code StrikeType} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Strike types may contain any character, but must not be empty.
    *

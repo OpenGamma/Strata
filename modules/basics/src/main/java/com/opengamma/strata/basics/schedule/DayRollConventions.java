@@ -96,7 +96,8 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
     @Override
     public boolean matches(LocalDate date) {
       ArgChecker.notNull(date, "date");
-      return date.getDayOfMonth() == day;
+      return date.getDayOfMonth() == day ||
+          (date.getMonthValue() == 2 && day >= date.lengthOfMonth() && date.getDayOfMonth() == date.lengthOfMonth());
     }
 
     @Override

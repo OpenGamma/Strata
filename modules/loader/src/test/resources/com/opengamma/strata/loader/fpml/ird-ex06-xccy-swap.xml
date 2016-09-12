@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-8-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+  == Copyright (c) 2014-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-8" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-8.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.partyA.com/swaps/trade-id">TW9235</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <tradeId tradeIdScheme="http://www.barclays.com/swaps/trade-id">SW2000</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>1994-12-12</tradeDate>
+    </tradeHeader>
+    <swap>
+<!-- Party A pays the floating rate every 6 months, based on 6M USD-LIBOR-BBA,
+            on an ACT/360 basis -->
+      <swapStream>
+        <payerPartyReference href="party1" />
+        <receiverPartyReference href="party2" />
+        <calculationPeriodDates id="floatingCalcPeriodDates">
+          <effectiveDate>
+            <unadjustedDate>1994-12-14</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>1999-12-14</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters id="primaryBusinessCenters">
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>JPTO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </calculationPeriodDatesAdjustments>
+          <calculationPeriodFrequency>
+            <periodMultiplier>6</periodMultiplier>
+            <period>M</period>
+            <rollConvention>14</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="floatingCalcPeriodDates" />
+          <paymentFrequency>
+            <periodMultiplier>6</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <resetDates id="resetDates">
+          <calculationPeriodDatesReference href="floatingCalcPeriodDates" />
+          <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+          <fixingDates>
+            <periodMultiplier>-2</periodMultiplier>
+            <period>D</period>
+            <dayType>Business</dayType>
+            <businessDayConvention>NONE</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+            </businessCenters>
+            <dateRelativeTo href="resetDates" />
+          </fixingDates>
+          <resetFrequency>
+            <periodMultiplier>6</periodMultiplier>
+            <period>M</period>
+          </resetFrequency>
+          <resetDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </resetDatesAdjustments>
+        </resetDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>10000000.00</initialValue>
+                <currency>USD</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <floatingRateCalculation>
+              <floatingRateIndex>USD-LIBOR-BBA</floatingRateIndex>
+              <indexTenor>
+                <periodMultiplier>6</periodMultiplier>
+                <period>M</period>
+              </indexTenor>
+            </floatingRateCalculation>
+            <dayCountFraction>ACT/360</dayCountFraction>
+          </calculation>
+        </calculationPeriodAmount>
+        <principalExchanges>
+          <initialExchange>true</initialExchange>
+          <finalExchange>true</finalExchange>
+          <intermediateExchange>false</intermediateExchange>
+        </principalExchanges>
+        <cashflows>
+          <cashflowsMatchParameters>true</cashflowsMatchParameters>
+<!-- Party A receives the initial USD principal exchange from Barclays -->
+          <principalExchange>
+            <adjustedPrincipalExchangeDate>1994-12-14</adjustedPrincipalExchangeDate>
+            <principalExchangeAmount>-10000000.00</principalExchangeAmount>
+          </principalExchange>
+<!-- Party A pays the final USD principal exchange to Barclays -->
+          <principalExchange>
+            <adjustedPrincipalExchangeDate>1999-12-14</adjustedPrincipalExchangeDate>
+            <principalExchangeAmount>10000000.00</principalExchangeAmount>
+          </principalExchange>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1995-06-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1994-12-14</adjustedStartDate>
+              <adjustedEndDate>1995-06-14</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1994-12-12</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1995-12-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1995-06-14</adjustedStartDate>
+              <adjustedEndDate>1995-12-14</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1995-06-12</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1996-06-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1995-12-14</adjustedStartDate>
+              <adjustedEndDate>1996-06-14</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1995-12-12</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1996-12-16</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1996-06-14</adjustedStartDate>
+              <adjustedEndDate>1996-12-16</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1996-06-12</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1997-06-16</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1996-12-16</adjustedStartDate>
+              <adjustedEndDate>1997-06-16</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1996-12-12</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1997-12-15</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1997-06-16</adjustedStartDate>
+              <adjustedEndDate>1997-12-15</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1997-06-12</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1998-06-15</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1997-12-15</adjustedStartDate>
+              <adjustedEndDate>1998-06-15</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1997-12-11</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1998-12-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1998-06-15</adjustedStartDate>
+              <adjustedEndDate>1998-12-14</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1998-06-11</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1999-06-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1998-12-14</adjustedStartDate>
+              <adjustedEndDate>1999-06-14</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1998-12-10</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1999-12-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1999-06-14</adjustedStartDate>
+              <adjustedEndDate>1999-12-14</adjustedEndDate>
+              <notionalAmount>10000000.00</notionalAmount>
+              <floatingRateDefinition>
+                <rateObservation>
+                  <adjustedFixingDate>1999-06-10</adjustedFixingDate>
+                  <observationWeight>1</observationWeight>
+                </rateObservation>
+              </floatingRateDefinition>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+        </cashflows>
+      </swapStream>
+<!-- Barclays pays the 6% fixed rate every year on
+            a 30E/360 basis -->
+      <swapStream>
+        <payerPartyReference href="party2" />
+        <receiverPartyReference href="party1" />
+        <calculationPeriodDates id="fixedCalcPeriodDates">
+          <effectiveDate>
+            <unadjustedDate>1994-12-14</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>1999-12-14</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters" />
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </calculationPeriodDatesAdjustments>
+          <calculationPeriodFrequency>
+            <periodMultiplier>1</periodMultiplier>
+            <period>Y</period>
+            <rollConvention>14</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="fixedCalcPeriodDates" />
+          <paymentFrequency>
+            <periodMultiplier>1</periodMultiplier>
+            <period>Y</period>
+          </paymentFrequency>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCentersReference href="primaryBusinessCenters" />
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>1000000000.00</initialValue>
+                <currency>JPY</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <fixedRateSchedule>
+              <initialValue>0.06</initialValue>
+            </fixedRateSchedule>
+            <dayCountFraction>30E/360</dayCountFraction>
+          </calculation>
+        </calculationPeriodAmount>
+        <principalExchanges>
+          <initialExchange>true</initialExchange>
+          <finalExchange>true</finalExchange>
+          <intermediateExchange>false</intermediateExchange>
+        </principalExchanges>
+        <cashflows>
+          <cashflowsMatchParameters>true</cashflowsMatchParameters>
+<!-- Barclays receives the initial JPY principal exchange from Party A -->
+          <principalExchange>
+            <adjustedPrincipalExchangeDate>1994-12-14</adjustedPrincipalExchangeDate>
+            <principalExchangeAmount>-1000000000.00</principalExchangeAmount>
+          </principalExchange>
+<!-- Barclays pays the final JPY principal exchange to Party A -->
+          <principalExchange>
+            <adjustedPrincipalExchangeDate>1999-12-14</adjustedPrincipalExchangeDate>
+            <principalExchangeAmount>1000000000.00</principalExchangeAmount>
+          </principalExchange>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1995-12-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1994-12-14</adjustedStartDate>
+              <adjustedEndDate>1995-12-14</adjustedEndDate>
+              <notionalAmount>1000000000.00</notionalAmount>
+              <fixedRate>0.06</fixedRate>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1996-12-16</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1995-12-14</adjustedStartDate>
+              <adjustedEndDate>1996-12-16</adjustedEndDate>
+              <notionalAmount>1000000000.00</notionalAmount>
+              <fixedRate>0.06</fixedRate>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1997-12-15</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1996-12-16</adjustedStartDate>
+              <adjustedEndDate>1997-12-15</adjustedEndDate>
+              <notionalAmount>1000000000.00</notionalAmount>
+              <fixedRate>0.06</fixedRate>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1998-12-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1997-12-15</adjustedStartDate>
+              <adjustedEndDate>1998-12-14</adjustedEndDate>
+              <notionalAmount>1000000000.00</notionalAmount>
+              <fixedRate>0.06</fixedRate>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+          <paymentCalculationPeriod>
+            <adjustedPaymentDate>1999-12-14</adjustedPaymentDate>
+            <calculationPeriod>
+              <adjustedStartDate>1998-12-14</adjustedStartDate>
+              <adjustedEndDate>1999-12-14</adjustedEndDate>
+              <notionalAmount>1000000000.00</notionalAmount>
+              <fixedRate>0.06</fixedRate>
+            </calculationPeriod>
+          </paymentCalculationPeriod>
+        </cashflows>
+      </swapStream>
+    </swap>
+  </trade>
+  <party id="party1">
+    <partyId>PARTYAUS33</partyId>
+    <partyName>Party A</partyName>
+  </party>
+  <party id="party2">
+    <partyId>BARCGB2L</partyId>
+  </party>
+</dataDocument>
+

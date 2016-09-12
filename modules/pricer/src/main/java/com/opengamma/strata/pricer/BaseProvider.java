@@ -6,12 +6,12 @@
 package com.opengamma.strata.pricer;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.data.MarketDataId;
 
 /**
  * A provider of data used for pricing.
@@ -33,6 +33,13 @@ public interface BaseProvider
    */
   public abstract LocalDate getValuationDate();
 
+  /**
+   * Gets the set of currencies that discount factors are provided for.
+   *
+   * @return the set of discount curve currencies
+   */
+  public abstract Set<Currency> getDiscountCurrencies();
+
   //-------------------------------------------------------------------------
   /**
    * Gets market data of a specific type.
@@ -41,18 +48,13 @@ public interface BaseProvider
    * In general, it is desirable to pass the specific market data needed for pricing into
    * the pricing method. However, in some cases, notably swaps, this is not feasible.
    * It is strongly recommended to clearly state on pricing methods what data is required.
-   * <p>
-   * The method returns data based on a key, which will be created from some aspect
-   * of the trade, for example, the Ibor index:
-   * <pre>
-   *   IborIndexRates rates = provider.data(IborIndexRatesKey.of(iborIndex));
-   * </pre>
    * 
-   * @param key  the key defining the data that is required
+   * @param <T>  the type of the value
+   * @param id  the identifier to find
    * @return the data associated with the key
    * @throws IllegalArgumentException if the data is not available
    */
-  public abstract <T> T data(MarketDataKey<T> key);
+  public abstract <T> T data(MarketDataId<T> id);
 
   //-------------------------------------------------------------------------
   /**

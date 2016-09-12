@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuilder.ArbitrageHandling;
 
 /**
@@ -97,7 +98,7 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
     final LocalDate valueDate = DEFAULT_CALENDAR.shift(tradeDate, 3);
     final LocalDate startDate = ImmDateLogic.getPrevIMMDate(tradeDate);
     final LocalDate endDate = ImmDateLogic.getNextIMMDate(tradeDate.plus(tenors[3]));
-    final IsdaCompliantCreditCurve curveFastElem = BUILDER_ISDA.calibrateCreditCurve(tradeDate, stepinDate, valueDate, startDate, endDate, spreads[3], false, Period.ofMonths(3), CdsStubType.FRONTSHORT,
+    final IsdaCompliantCreditCurve curveFastElem = BUILDER_ISDA.calibrateCreditCurve(tradeDate, stepinDate, valueDate, startDate, endDate, spreads[3], false, Period.ofMonths(3), StubConvention.SHORT_INITIAL,
         true, yc, 0.4);
 
     assertEquals(1, curveFastPuf.getNumberOfKnots());
@@ -177,7 +178,7 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
     }
 
     try {
-      BUILDER_ISDA.calibrateCreditCurve(tradeDate, stepinDate, valueDate, startDate, new LocalDate[] {endDate }, spreads, false, Period.ofMonths(3), CdsStubType.FRONTSHORT,
+      BUILDER_ISDA.calibrateCreditCurve(tradeDate, stepinDate, valueDate, startDate, new LocalDate[] {endDate }, spreads, false, Period.ofMonths(3), StubConvention.SHORT_INITIAL,
           true, yc, 0.4);
       throw new RuntimeException();
     } catch (final Exception e) {

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.math.DoubleMath;
 
 /**
@@ -296,15 +297,56 @@ public final class ArgChecker {
   public static String matches(Pattern pattern, String argument, String name) {
     notNull(pattern, "pattern");
     notNull(argument, name);
-    if (pattern.matcher(argument).matches() == false) {
-      throw new IllegalArgumentException(matchesMsg(pattern, name));
+    if (!pattern.matcher(argument).matches()) {
+      throw new IllegalArgumentException(matchesMsg(pattern, name, argument));
     }
     return argument;
   }
 
   // extracted to aid inlining performance
-  private static String matchesMsg(Pattern pattern, String name) {
-    return "Argument '" + name + "' must match pattern: " + pattern;
+  private static String matchesMsg(Pattern pattern, String name, String value) {
+    return "Argument '" + name + "' with value '" + value + "' must match pattern: " + pattern;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the specified argument is non-null and only contains the specified characters.
+   * <p>
+   * Given the input argument, this returns only if it is non-null and matches
+   * the {@link CharMatcher} specified.
+   * For example, in a constructor:
+   * <pre>
+   *  this.name = ArgChecker.matches(REGEX_NAME, 1, Integer.MAX_VALUE, name, "name", "[A-Z]+");
+   * </pre>
+   * 
+   * @param matcher  the matcher to check against, not null
+   * @param minLength  the minimum length to allow
+   * @param maxLength  the minimum length to allow
+   * @param argument  the argument to check, null throws an exception
+   * @param name  the name of the argument to use in the error message, not null
+   * @param equivalentRegex  the equivalent regular expression pattern
+   * @return the input {@code argument}, not null
+   * @throws IllegalArgumentException if the input is null or empty
+   */
+  public static String matches(
+      CharMatcher matcher,
+      int minLength,
+      int maxLength,
+      String argument,
+      String name,
+      String equivalentRegex) {
+
+    notNull(matcher, "pattern");
+    notNull(argument, name);
+    if (argument.length() < minLength || argument.length() > maxLength || !matcher.matchesAllOf(argument)) {
+      throw new IllegalArgumentException(matchesMsg(matcher, name, argument, equivalentRegex));
+    }
+    return argument;
+  }
+
+  // extracted to aid inlining performance
+  private static String matchesMsg(CharMatcher matcher, String name, String value, String equivalentRegex) {
+    return "Argument '" + name + "' with value '" + value + "' must match pattern: " + equivalentRegex;
   }
 
   //-------------------------------------------------------------------------
@@ -727,14 +769,14 @@ public final class ArgChecker {
    */
   public static int notNegativeOrZero(int argument, String name) {
     if (argument <= 0) {
-      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name, argument));
     }
     return argument;
   }
 
   // extracted to aid inlining performance
-  private static String notNegativeOrZeroMsg(String name) {
-    return "Argument '" + name + "' must not be negative or zero";
+  private static String notNegativeOrZeroMsg(String name, double argument) {
+    return "Argument '" + name + "' must not be negative or zero but has value " + argument;
   }
 
   /**
@@ -753,7 +795,7 @@ public final class ArgChecker {
    */
   public static long notNegativeOrZero(long argument, String name) {
     if (argument <= 0) {
-      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name, argument));
     }
     return argument;
   }
@@ -774,7 +816,7 @@ public final class ArgChecker {
    */
   public static double notNegativeOrZero(double argument, String name) {
     if (argument <= 0) {
-      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name, argument));
     }
     return argument;
   }
@@ -800,7 +842,7 @@ public final class ArgChecker {
       throw new IllegalArgumentException("Argument '" + name + "' must not be zero");
     }
     if (argument < 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must be greater than zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must be greater than zero but has value " + argument);
     }
     return argument;
   }
@@ -896,6 +938,80 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
   public static double inRangeExclusive(double argument, double lowExclusive, double highExclusive, String name) {
+    if (argument <= lowExclusive || argument >= highExclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} < '{}' < {}, but found {}", lowExclusive, name, highExclusive, argument));
+    }
+    return argument;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the argument is within the range defined by {@code low <= x < high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range including the
+   * lower boundary but excluding the upper boundary.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRange(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param lowInclusive  the low value of the range
+   * @param highExclusive  the high value of the range
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static int inRange(int argument, int lowInclusive, int highExclusive, String name) {
+    if (argument < lowInclusive || argument >= highExclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} <= '{}' < {}, but found {}", lowInclusive, name, highExclusive, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is within the range defined by {@code low <= x <= high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range including both boundaries.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRangeInclusive(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param lowInclusive  the low value of the range
+   * @param highInclusive  the high value of the range
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static int inRangeInclusive(int argument, int lowInclusive, int highInclusive, String name) {
+    if (argument < lowInclusive || argument > highInclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} <= '{}' <= {}, but found {}", lowInclusive, name, highInclusive, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is within the range defined by {@code low < x < high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range excluding both boundaries.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRangeExclusive(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param lowExclusive  the low value of the range
+   * @param highExclusive  the high value of the range
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static int inRangeExclusive(int argument, int lowExclusive, int highExclusive, String name) {
     if (argument <= lowExclusive || argument >= highExclusive) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} < '{}' < {}, but found {}", lowExclusive, name, highExclusive, argument));

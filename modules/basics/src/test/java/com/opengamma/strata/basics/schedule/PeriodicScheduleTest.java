@@ -5,10 +5,13 @@
  */
 package com.opengamma.strata.basics.schedule;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_PRECEDING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.NO_HOLIDAYS;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
+import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -45,11 +48,11 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 
 /**
  * Test {@link PeriodicSchedule}.
@@ -57,10 +60,10 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 @Test
 public class PeriodicScheduleTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final StubConvention STUB_NONE = StubConvention.NONE;
   private static final StubConvention STUB_BOTH = StubConvention.BOTH;
-  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(
-      MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
+  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
   private static final LocalDate NOV_30_2013 = date(2013, NOVEMBER, 30);
   private static final LocalDate FEB_28 = date(2014, FEBRUARY, 28);
   private static final LocalDate MAY_30 = date(2014, MAY, 30);
@@ -96,13 +99,12 @@ public class PeriodicScheduleTest {
     assertEquals(test.getRollConvention(), Optional.empty());
     assertEquals(test.getFirstRegularStartDate(), Optional.empty());
     assertEquals(test.getLastRegularEndDate(), Optional.empty());
-    assertEquals(test.getEffectiveRollConvention(), DAY_17);
-    assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
-    assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
-    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), BDA);
-    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), BDA);
-    assertEquals(test.getAdjustedStartDate(), JUN_04);
-    assertEquals(test.getAdjustedEndDate(), SEP_17);
+    assertEquals(test.getOverrideStartDate(), Optional.empty());
+    assertEquals(test.calculatedRollConvention(), DAY_17);
+    assertEquals(test.calculatedFirstRegularStartDate(), JUN_04);
+    assertEquals(test.calculatedLastRegularEndDate(), SEP_17);
+    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
+    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
   }
 
   public void test_of_LocalDateEomTrue() {
@@ -117,13 +119,12 @@ public class PeriodicScheduleTest {
     assertEquals(test.getRollConvention(), Optional.of(EOM));
     assertEquals(test.getFirstRegularStartDate(), Optional.empty());
     assertEquals(test.getLastRegularEndDate(), Optional.empty());
-    assertEquals(test.getEffectiveRollConvention(), DAY_4);
-    assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
-    assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
-    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), BDA);
-    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), BDA);
-    assertEquals(test.getAdjustedStartDate(), JUN_04);
-    assertEquals(test.getAdjustedEndDate(), SEP_17);
+    assertEquals(test.getOverrideStartDate(), Optional.empty());
+    assertEquals(test.calculatedRollConvention(), DAY_4);
+    assertEquals(test.calculatedFirstRegularStartDate(), JUN_04);
+    assertEquals(test.calculatedLastRegularEndDate(), SEP_17);
+    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
+    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
   }
 
   public void test_of_LocalDateEom_null() {
@@ -147,13 +148,12 @@ public class PeriodicScheduleTest {
     assertEquals(test.getRollConvention(), Optional.of(DAY_17));
     assertEquals(test.getFirstRegularStartDate(), Optional.empty());
     assertEquals(test.getLastRegularEndDate(), Optional.empty());
-    assertEquals(test.getEffectiveRollConvention(), DAY_17);
-    assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
-    assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
-    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), BDA);
-    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), BDA);
-    assertEquals(test.getAdjustedStartDate(), JUN_04);
-    assertEquals(test.getAdjustedEndDate(), SEP_17);
+    assertEquals(test.getOverrideStartDate(), Optional.empty());
+    assertEquals(test.calculatedRollConvention(), DAY_17);
+    assertEquals(test.calculatedFirstRegularStartDate(), JUN_04);
+    assertEquals(test.calculatedLastRegularEndDate(), SEP_17);
+    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
+    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
   }
 
   public void test_of_LocalDateRoll_null() {
@@ -176,6 +176,15 @@ public class PeriodicScheduleTest {
     // first regular vs last regular
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_05));
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_04));
+    // first regular vs override start date
+    assertThrowsIllegalArg(() -> PeriodicSchedule.builder()
+        .startDate(JUN_04)
+        .endDate(SEP_17)
+        .frequency(P1M)
+        .businessDayAdjustment(BDA)
+        .firstRegularStartDate(JUL_17)
+        .overrideStartDate(AdjustableDate.of(AUG_04))
+        .build());
   }
 
   private PeriodicSchedule createDates(LocalDate start, LocalDate end, LocalDate first, LocalDate last) {
@@ -319,8 +328,12 @@ public class PeriodicScheduleTest {
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, EOM, null, null,
             ImmutableList.of(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
             ImmutableList.of(date(2013, NOVEMBER, 29), FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
-        // EOM flag true, but not EOM, thus roll on 30th
+        // EOM flag true, but not EOM, thus roll on 30th (stub convention defined)
         {MAY_30, NOV_30, P3M, STUB_NONE, EOM, null, null,
+            ImmutableList.of(MAY_30, AUG_30, NOV_30),
+            ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
+        // EOM flag true, but not EOM, thus roll on 30th (no stub convention defined)
+        {MAY_30, NOV_30, P3M, null, EOM, null, null,
             ImmutableList.of(MAY_30, AUG_30, NOV_30),
             ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
         // EOM flag true and is EOM, double stub, thus roll at EOM
@@ -332,6 +345,16 @@ public class PeriodicScheduleTest {
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_04, SEP_17),
             ImmutableList.of(JUN_04, SEP_17)},
+        // TERM period defined as a stub and no regular periods
+        {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, SEP_17, null,
+            ImmutableList.of(JUN_04, SEP_17),
+            ImmutableList.of(JUN_04, SEP_17)},
+        {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, null, JUN_04,
+            ImmutableList.of(JUN_04, SEP_17),
+            ImmutableList.of(JUN_04, SEP_17)},
+        {date(2014, 9, 24), date(2016, 11, 24), Frequency.ofYears(2), SHORT_INITIAL, null, null, null,
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24)),
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24))},
 
         // IMM
         {date(2014, 9, 17), date(2014, 10, 15), P1M, STUB_NONE, IMM, null, null,
@@ -347,6 +370,17 @@ public class PeriodicScheduleTest {
         {date(2014, 9, 17), date(2014, 10, 1), Frequency.ofDays(2), STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1)),
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1))},
+
+        // Day30 rolling with February
+        {date(2015, 1, 30), date(2015, 4, 30), P1M, STUB_NONE, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 1, 30), date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
+            ImmutableList.of(date(2015, 1, 30), date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
+        {date(2015, 2, 28), date(2015, 4, 30), P1M, STUB_NONE, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
+            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
+        {date(2015, 2, 28), date(2015, 4, 30), P1M, SHORT_INITIAL, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
+            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
     };
   }
 
@@ -364,7 +398,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(firstReg)
         .lastRegularEndDate(lastReg)
         .build();
-    Schedule test = defn.createSchedule();
+    Schedule test = defn.createSchedule(REF_DATA);
     assertEquals(test.size(), unadjusted.size() - 1);
     for (int i = 0; i < test.size(); i++) {
       SchedulePeriod period = test.getPeriod(i);
@@ -374,7 +408,40 @@ public class PeriodicScheduleTest {
       assertEquals(period.getEndDate(), adjusted.get(i + 1));
     }
     assertEquals(test.getFrequency(), freq);
-    assertEquals(test.getRollConvention(), defn.getEffectiveRollConvention());
+    assertEquals(test.getRollConvention(), defn.calculatedRollConvention());
+  }
+
+  @Test(dataProvider = "generation")
+  public void test_monthly_schedule_withOverride(
+      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(start)
+        .endDate(end)
+        .frequency(freq)
+        .businessDayAdjustment(BDA)
+        .stubConvention(stubConv)
+        .rollConvention(rollConv)
+        .firstRegularStartDate(firstReg)
+        .lastRegularEndDate(lastReg)
+        .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
+        .build();
+    Schedule test = defn.createSchedule(REF_DATA);
+    assertEquals(test.size(), unadjusted.size() - 1);
+    SchedulePeriod period0 = test.getPeriod(0);
+    assertEquals(period0.getUnadjustedStartDate(), date(2011, 1, 9));
+    assertEquals(period0.getUnadjustedEndDate(), unadjusted.get(1));
+    assertEquals(period0.getStartDate(), date(2011, 1, 10));
+    assertEquals(period0.getEndDate(), adjusted.get(1));
+    for (int i = 1; i < test.size(); i++) {
+      SchedulePeriod period = test.getPeriod(i);
+      assertEquals(period.getUnadjustedStartDate(), unadjusted.get(i));
+      assertEquals(period.getUnadjustedEndDate(), unadjusted.get(i + 1));
+      assertEquals(period.getStartDate(), adjusted.get(i));
+      assertEquals(period.getEndDate(), adjusted.get(i + 1));
+    }
+    assertEquals(test.getFrequency(), freq);
+    assertEquals(test.getRollConvention(), defn.calculatedRollConvention());
   }
 
   @Test(dataProvider = "generation")
@@ -396,6 +463,26 @@ public class PeriodicScheduleTest {
   }
 
   @Test(dataProvider = "generation")
+  public void test_monthly_unadjusted_withOverride(
+      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(start)
+        .endDate(end)
+        .frequency(freq)
+        .businessDayAdjustment(BDA)
+        .stubConvention(stubConv)
+        .rollConvention(rollConv)
+        .firstRegularStartDate(firstReg)
+        .lastRegularEndDate(lastReg)
+        .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
+        .build();
+    ImmutableList<LocalDate> test = defn.createUnadjustedDates();
+    assertEquals(test.get(0), date(2011, 1, 9));
+    assertEquals(test.subList(1, test.size()), unadjusted.subList(1, test.size()));
+  }
+
+  @Test(dataProvider = "generation")
   public void test_monthly_adjusted(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
       LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
@@ -409,14 +496,34 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(firstReg)
         .lastRegularEndDate(lastReg)
         .build();
-    ImmutableList<LocalDate> test = defn.createAdjustedDates();
+    ImmutableList<LocalDate> test = defn.createAdjustedDates(REF_DATA);
     assertEquals(test, adjusted);
+  }
+
+  @Test(dataProvider = "generation")
+  public void test_monthly_adjusted_withOverride(
+      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(start)
+        .endDate(end)
+        .frequency(freq)
+        .businessDayAdjustment(BDA)
+        .stubConvention(stubConv)
+        .rollConvention(rollConv)
+        .firstRegularStartDate(firstReg)
+        .lastRegularEndDate(lastReg)
+        .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
+        .build();
+    ImmutableList<LocalDate> test = defn.createAdjustedDates(REF_DATA);
+    assertEquals(test.get(0), date(2011, 1, 10));
+    assertEquals(test.subList(1, test.size()), adjusted.subList(1, test.size()));
   }
 
   //-------------------------------------------------------------------------
   public void test_startEndAdjust() {
-    BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN);
-    BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, SAT_SUN);
+    BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, SAT_SUN);
     PeriodicSchedule test = PeriodicSchedule.builder()
         .startDate(date(2014, 10, 4))
         .endDate(date(2015, 4, 4))
@@ -426,17 +533,16 @@ public class PeriodicScheduleTest {
         .endDateBusinessDayAdjustment(bda2)
         .stubConvention(STUB_NONE)
         .build();
-    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), bda1);
-    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), bda2);
-    assertEquals(test.getAdjustedStartDate(), date(2014, 10, 3));
-    assertEquals(test.getAdjustedEndDate(), date(2015, 4, 3));
+    assertEquals(test.calculatedStartDate(), AdjustableDate.of(date(2014, 10, 4), bda1));
+    assertEquals(test.calculatedEndDate(), AdjustableDate.of(date(2015, 4, 4), bda2));
     assertEquals(test.createUnadjustedDates(), ImmutableList.of(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4)));
-    assertEquals(test.createAdjustedDates(), ImmutableList.of(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
+    assertEquals(test.createAdjustedDates(REF_DATA), ImmutableList.of(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = ScheduleException.class)
   public void test_none_badStub() {
+    // Jun 4th to Sep 17th requires a stub, but NONE specified
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUN_04)
         .endDate(SEP_17)
@@ -445,6 +551,22 @@ public class PeriodicScheduleTest {
         .stubConvention(STUB_NONE)
         .rollConvention(DAY_4)
         .firstRegularStartDate(null)
+        .lastRegularEndDate(null)
+        .build();
+    defn.createUnadjustedDates();
+  }
+
+  @Test(expectedExceptions = ScheduleException.class)
+  public void test_none_stubDate() {
+    // Jun 17th to Sep 17th is correct for NONE stub convention, but firstRegularStartDate specified
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(JUN_17)
+        .endDate(SEP_17)
+        .frequency(P1M)
+        .businessDayAdjustment(BDA)
+        .stubConvention(STUB_NONE)
+        .rollConvention(DAY_4)
+        .firstRegularStartDate(JUL_17)
         .lastRegularEndDate(null)
         .build();
     defn.createUnadjustedDates();
@@ -554,7 +676,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createAdjustedDates();
+    defn.createAdjustedDates(REF_DATA);
   }
 
   @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
@@ -569,7 +691,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule();
+    defn.createSchedule(REF_DATA);
   }
 
   public void test_emptyWhenAdjusted_twoPeriods_createUnadjustedDates() {
@@ -599,7 +721,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createAdjustedDates();
+    defn.createAdjustedDates(REF_DATA);
   }
 
   @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
@@ -614,7 +736,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule();
+    defn.createSchedule(REF_DATA);
   }
 
   @Test(
@@ -644,7 +766,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule();
+    defn.createSchedule(REF_DATA);
   }
 
   @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate unadjusted dates.*")
@@ -690,21 +812,23 @@ public class PeriodicScheduleTest {
   public void coverage_equals(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
       LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
-    PeriodicSchedule a1 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
-    PeriodicSchedule a2 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
-    PeriodicSchedule b = of(LocalDate.MIN, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
-    PeriodicSchedule c = of(start, LocalDate.MAX, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
+    PeriodicSchedule a1 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
+    PeriodicSchedule a2 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
+    PeriodicSchedule b = of(LocalDate.MIN, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
+    PeriodicSchedule c = of(start, LocalDate.MAX, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule d = of(
-        start, end, freq == P1M ? P3M : P1M, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
+        start, end, freq == P1M ? P3M : P1M, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule e = of(
-        start, end, freq, BusinessDayAdjustment.NONE, stubConv, rollConv, firstReg, lastReg, null, null);
+        start, end, freq, BusinessDayAdjustment.NONE, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule f = of(
-        start, end, freq, BDA, stubConv == STUB_NONE ? SHORT_FINAL : STUB_NONE, rollConv, firstReg, lastReg, null, null);
-    PeriodicSchedule g = of(start, end, freq, BDA, stubConv, SFE, firstReg, lastReg, null, null);
-    PeriodicSchedule h = of(start, end, freq, BDA, stubConv, rollConv, start.plusDays(1), lastReg, null, null);
-    PeriodicSchedule i = of(start, end, freq, BDA, stubConv, rollConv, firstReg, end.minusDays(1), null, null);
-    PeriodicSchedule j = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, BDA, null);
-    PeriodicSchedule k = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, BDA);
+        start, end, freq, BDA, stubConv == STUB_NONE ? SHORT_FINAL : STUB_NONE, rollConv, firstReg, lastReg, null, null, null);
+    PeriodicSchedule g = of(start, end, freq, BDA, stubConv, SFE, firstReg, lastReg, null, null, null);
+    PeriodicSchedule h = of(start, end, freq, BDA, stubConv, rollConv, start.plusDays(1), null, null, null, null);
+    PeriodicSchedule i = of(start, end, freq, BDA, stubConv, rollConv, null, end.minusDays(1), null, null, null);
+    PeriodicSchedule j = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, BDA, null, null);
+    PeriodicSchedule k = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, BDA, null);
+    PeriodicSchedule m = of(
+        start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, AdjustableDate.of(start.minusDays(1)));
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
@@ -717,12 +841,13 @@ public class PeriodicScheduleTest {
     assertEquals(a1.equals(i), false);
     assertEquals(a1.equals(j), false);
     assertEquals(a1.equals(k), false);
+    assertEquals(a1.equals(m), false);
   }
 
   private PeriodicSchedule of(
       LocalDate start, LocalDate end, Frequency freq, BusinessDayAdjustment bda,
       StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg,
-      BusinessDayAdjustment startBda, BusinessDayAdjustment endBda) {
+      BusinessDayAdjustment startBda, BusinessDayAdjustment endBda, AdjustableDate overrideStartDate) {
     return PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -734,12 +859,12 @@ public class PeriodicScheduleTest {
         .rollConvention(rollConv)
         .firstRegularStartDate(firstReg)
         .lastRegularEndDate(lastReg)
+        .overrideStartDate(overrideStartDate)
         .build();
   }
 
   public void coverage_builder() {
-    PeriodicSchedule.Builder builder = PeriodicSchedule.builder();
-    builder
+    PeriodicSchedule test = PeriodicSchedule.builder()
         .startDate(JUL_17)
         .endDate(SEP_17)
         .frequency(P2M)
@@ -750,12 +875,17 @@ public class PeriodicScheduleTest {
         .rollConvention(EOM)
         .firstRegularStartDate(JUL_17)
         .lastRegularEndDate(SEP_17)
+        .overrideStartDate(AdjustableDate.of(JUL_11))
         .build();
+    assertEquals(test.getStartDate(), JUL_17);
+    assertEquals(test.getEndDate(), SEP_17);
+    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUL_11, BusinessDayAdjustment.NONE));
+    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BusinessDayAdjustment.NONE));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    BusinessDayAdjustment bda = BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule defn = PeriodicSchedule.of(
         date(2014, JUNE, 4),
         date(2014, SEPTEMBER, 17),
@@ -767,7 +897,7 @@ public class PeriodicScheduleTest {
   }
 
   public void test_serialization() {
-    BusinessDayAdjustment bda = BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule defn = PeriodicSchedule.of(
         date(2014, JUNE, 4),
         date(2014, SEPTEMBER, 17),

@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
@@ -32,7 +31,7 @@ public interface BusinessDayConvention
     extends Named {
 
   /**
-   * Obtains a {@code BusinessDayConvention} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the business convention
@@ -40,14 +39,13 @@ public interface BusinessDayConvention
    */
   @FromString
   public static BusinessDayConvention of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code BusinessDayConvention} to be lookup up.
+   * This helper allows instances of the convention to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper

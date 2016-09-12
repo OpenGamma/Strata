@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.index;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.location.Country.GB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -28,6 +30,16 @@ import com.opengamma.strata.basics.schedule.Frequency;
 @Test
 public class PriceIndexTest {
 
+  public void test_gbpHicp() {
+    PriceIndex test = PriceIndex.of("GB-HICP");
+    assertEquals(test.getName(), "GB-HICP");
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getRegion(), GB);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getPublicationFrequency(), Frequency.P1M);
+    assertEquals(test.toString(), "GB-HICP");
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
@@ -36,9 +48,11 @@ public class PriceIndexTest {
         {PriceIndices.GB_RPI, "GB-RPI"},
         {PriceIndices.GB_RPIX, "GB-RPIX"},
         {PriceIndices.CH_CPI, "CH-CPI"},
-        {PriceIndices.EU_HICP_AI, "EU-HICP-AI"},
+        {PriceIndices.EU_AI_CPI, "EU-AI-CPI"},
+        {PriceIndices.EU_EXT_CPI, "EU-EXT-CPI"},
         {PriceIndices.JP_CPI_EXF, "JP-CPI-EXF"},
         {PriceIndices.US_CPI_U, "US-CPI-U"},
+        {PriceIndices.FR_EXT_CPI, "FR-EXT-CPI"},
     };
   }
 
@@ -68,15 +82,14 @@ public class PriceIndexTest {
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> PriceIndex.of((String) null));
+    assertThrowsIllegalArg(() -> PriceIndex.of(null));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(PriceIndices.class);
-    coverPrivateConstructor(StandardPriceIndices.class);
     coverImmutableBean((ImmutableBean) PriceIndices.US_CPI_U);
-    coverBeanEquals((ImmutableBean) PriceIndices.US_CPI_U, (ImmutableBean) ImmutablePriceIndex.builder()
+    coverBeanEquals((ImmutableBean) PriceIndices.US_CPI_U, ImmutablePriceIndex.builder()
         .name("Test")
         .region(Country.AR)
         .currency(Currency.ARS)

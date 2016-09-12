@@ -8,12 +8,15 @@ package com.opengamma.strata.collect.named;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.collect.named.ExtendedEnum.ExternalEnumNames;
 
 /**
  * Test {@link ExtendedEnum}.
@@ -31,6 +34,8 @@ public class ExtendedEnumTest {
             "Another1", SampleNamedInstanceLookup1.ANOTHER1,
             "Another2", SampleNamedInstanceLookup2.ANOTHER2));
     assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
+    assertEquals(test.find("Standard"), Optional.of(SampleNameds.STANDARD));
+    assertEquals(test.find("Rubbish"), Optional.empty());
     assertEquals(test.lookup("Standard"), SampleNameds.STANDARD);
     assertEquals(test.lookup("Alternate"), SampleNameds.STANDARD);
     assertEquals(test.lookup("More"), MoreSampleNameds.MORE);
@@ -39,16 +44,42 @@ public class ExtendedEnumTest {
     assertEquals(test.lookup("Other", OtherSampleNameds.class), OtherSampleNameds.OTHER);
     assertEquals(test.lookup("Another1"), SampleNamedInstanceLookup1.ANOTHER1);
     assertEquals(test.lookup("Another2"), SampleNamedInstanceLookup2.ANOTHER2);
+    assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
     assertThrowsIllegalArg(() -> test.lookup("Rubbish"));
     assertThrowsIllegalArg(() -> test.lookup(null));
     assertThrowsIllegalArg(() -> test.lookup("Other", MoreSampleNameds.class));
     assertEquals(test.toString(), "ExtendedEnum[SampleNamed]");
   }
 
+  public void test_enum_SampleNamed_externals() {
+    ExtendedEnum<SampleNamed> test = ExtendedEnum.of(SampleNamed.class);
+    assertEquals(test.externalNameGroups(), ImmutableSet.of("Foo", "Bar"));
+    assertThrowsIllegalArg(() -> test.externalNames("Rubbish"));
+    ExternalEnumNames<SampleNamed> fooExternals = test.externalNames("Foo");
+    assertEquals(fooExternals.lookup("Foo1"), SampleNameds.STANDARD);
+    assertEquals(fooExternals.lookup("Foo1", SampleNamed.class), SampleNameds.STANDARD);
+    assertEquals(fooExternals.lookup("Foo1", SampleNamed.class), SampleNameds.STANDARD);
+    assertEquals(fooExternals.externalNames(), ImmutableMap.of("Foo1", "Standard"));
+    assertThrowsIllegalArg(() -> fooExternals.lookup("Rubbish"));
+    assertThrowsIllegalArg(() -> fooExternals.lookup(null));
+    assertThrowsIllegalArg(() -> fooExternals.lookup("Other", MoreSampleNameds.class));
+    assertEquals(fooExternals.toString(), "ExternalEnumNames[SampleNamed:Foo]");
+
+    ExternalEnumNames<SampleNamed> barExternals = test.externalNames("Bar");
+    assertEquals(barExternals.lookup("Foo1"), MoreSampleNameds.MORE);
+    assertEquals(barExternals.lookup("Foo2"), SampleNameds.STANDARD);
+    assertEquals(barExternals.reverseLookup(MoreSampleNameds.MORE), "Foo1");
+    assertEquals(barExternals.reverseLookup(SampleNameds.STANDARD), "Foo2");
+    assertThrowsIllegalArg(() -> barExternals.reverseLookup(OtherSampleNameds.OTHER));
+    assertEquals(barExternals.externalNames(), ImmutableMap.of("Foo1", "More", "Foo2", "Standard"));
+    assertEquals(barExternals.toString(), "ExternalEnumNames[SampleNamed:Bar]");
+  }
+
   public void test_enum_SampleOther() {
     ExtendedEnum<SampleOther> test = ExtendedEnum.of(SampleOther.class);
     assertEquals(test.lookupAll(), ImmutableMap.of());
     assertEquals(test.alternateNames(), ImmutableMap.of());
+    assertEquals(test.externalNameGroups(), ImmutableSet.of());
     assertThrowsIllegalArg(() -> test.lookup("Rubbish"));
     assertThrowsIllegalArg(() -> test.lookup(null));
     assertEquals(test.toString(), "ExtendedEnum[SampleOther]");

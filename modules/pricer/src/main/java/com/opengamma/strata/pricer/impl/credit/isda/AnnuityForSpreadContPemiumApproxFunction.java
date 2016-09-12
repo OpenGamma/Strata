@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import com.opengamma.analytics.math.utilities.Epsilon;
+import com.opengamma.strata.math.impl.util.Epsilon;
 
 /**
  * 
@@ -21,7 +21,7 @@ public class AnnuityForSpreadContPemiumApproxFunction extends AnnuityForSpreadFu
   /**
    * For a given quoted spread (aka 'flat' spread), this function returns the risky annuity
    * (aka risky PV01, RPV01 or risky duration).
-   * This works by using the credit triangle approximation; that is, the premiums are assumed to be paid continuously. 
+   * This works by using the credit triangle approximation; that is, the premiums are assumed to be paid continuously.
    * 
    * @param cds  the analytic description of a CDS traded at a certain time 
    * @param yieldCurve  the calibrated yield curve 
@@ -39,7 +39,7 @@ public class AnnuityForSpreadContPemiumApproxFunction extends AnnuityForSpreadFu
   }
 
   @Override
-  public Double evaluate(Double spread) {
+  public Double apply(Double spread) {
     double lambda = _eta * spread / _lgd;
     return annuity(lambda);
   }

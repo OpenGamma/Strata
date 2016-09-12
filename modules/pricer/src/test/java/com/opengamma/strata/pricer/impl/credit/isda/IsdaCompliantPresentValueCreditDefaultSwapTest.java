@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * Test.
@@ -77,7 +78,7 @@ public class IsdaCompliantPresentValueCreditDefaultSwapTest {
       final LocalDate startDate = res.startDate;
       final LocalDate endDate = res.endDate;
       final Period tenor = Period.ofMonths(3); // TODO should be part of the CSV
-      final CdsStubType stubType = CdsStubType.FRONTSHORT; // TODO ditto
+      final StubConvention stubType = StubConvention.SHORT_INITIAL; // TODO ditto
       final boolean protectionStart = true; // TODO ditto
 
       double protectionLeg_new = 0;

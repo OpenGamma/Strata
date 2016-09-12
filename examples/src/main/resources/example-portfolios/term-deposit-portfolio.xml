@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.strata.examples.report.TradeList">
+ <trades>
+  <item type="com.opengamma.strata.product.deposit.TermDepositTrade">
+   <info>
+    <id>example~1</id>
+    <counterparty>example~A</counterparty>
+    <settlementDate>2014-12-16</settlementDate>
+    <attributes>
+     <entry key="description">Deposit 10M at 3%</entry>
+    </attributes>
+   </info>
+   <product>
+    <buySell>Buy</buySell>
+    <currency>USD</currency>
+    <notional>1.0E7</notional>
+    <startDate>2014-09-12</startDate>
+    <endDate>2014-12-12</endDate>
+    <businessDayAdjustment>
+     <convention>Following</convention>
+     <calendar>GBLO</calendar>
+    </businessDayAdjustment>
+    <dayCount>30/360 ISDA</dayCount>
+    <rate>0.003</rate>
+   </product>
+  </item>
+  <item type="TermDepositTrade">
+   <info>
+    <id>example~2</id>
+    <counterparty>example~A</counterparty>
+    <settlementDate>2015-12-16</settlementDate>
+    <attributes>
+     <entry key="description">Deposit 5M at 3.8%</entry>
+    </attributes>
+   </info>
+   <product>
+    <buySell>Buy</buySell>
+    <currency>USD</currency>
+    <notional>5000000.0</notional>
+    <startDate>2014-12-12</startDate>
+    <endDate>2015-12-12</endDate>
+    <businessDayAdjustment>
+     <convention>Following</convention>
+     <calendar>GBLO</calendar>
+    </businessDayAdjustment>
+    <dayCount>30/360 ISDA</dayCount>
+    <rate>0.0038</rate>
+   </product>
+  </item>
+ </trades>
+</bean>

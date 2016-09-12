@@ -14,17 +14,18 @@ import java.time.Month;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.curve.ShiftType;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.market.ShiftType;
+import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
+import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
+import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
@@ -41,12 +42,12 @@ import com.opengamma.strata.pricer.impl.credit.isda.MarketQuoteConverter;
 /**
  * This code generates the results in the paper <i>The Pricing and Risk Management of Credit Default Swaps, with a Focus
  * on the ISDA Model</i>. Tests either produce tables for Latex (directly using dumpLatexTable or via the Exce2LaTeX pluin)
- * or data sets used to produce graphs in Excel.  
+ * or data sets used to produce graphs in Excel.
  */
 @Test(enabled = false)
 public class CdsPaperExamples extends IsdaBaseTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MMM-yy");
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MMM-uu", Locale.ENGLISH);
 
   private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();
   private static final FiniteDifferenceSpreadSensitivityCalculator FD_SPREAD_SENSE_CAL = new FiniteDifferenceSpreadSensitivityCalculator();
@@ -160,7 +161,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
       res[2][i] = notional * PRICER_MARKIT_FIX.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, 0.01);
     }
 
-    System.out.println(new DoubleMatrix2D(res));
+    System.out.println(DoubleMatrix.copyOf(res));
   }
 
   /**
@@ -281,9 +282,9 @@ public class CdsPaperExamples extends IsdaBaseTest {
         res[j][i] = sense;
       }
     }
-    DoubleMatrix2D jacT = new DoubleMatrix2D(res);
+    DoubleMatrix jacT = DoubleMatrix.copyOf(res);
     LUDecompositionCommons decomp = new LUDecompositionCommons();
-    LUDecompositionResult luRes = decomp.evaluate(jacT);
+    LUDecompositionResult luRes = decomp.apply(jacT);
 
     System.out.print("CDS Maturity");
     for (int i = 0; i < nPillars; i++) {
@@ -295,16 +296,13 @@ public class CdsPaperExamples extends IsdaBaseTest {
       LocalDate mat = IMM_DATES[i];
       System.out.print(mat.format(DATE_FORMAT));
       CdsAnalytic cds = CDS_FACTORY.makeCds(TRADE_DATE, STARTDATE, mat);
-      double[] temp = new double[nPillars];
-      for (int j = 0; j < nPillars; j++) {
-        double sense = PRICER.pvCreditSensitivity(cds, YIELD_CURVE, CREDIT_CURVE, coupon, j);
-        temp[j] = sense;
-      }
-      DoubleMatrix1D vLambda = new DoubleMatrix1D(temp);
+      DoubleArray vLambda = DoubleArray.of(
+          nPillars,
+          j -> PRICER.pvCreditSensitivity(cds, YIELD_CURVE, CREDIT_CURVE, coupon, j));
 
-      DoubleMatrix1D w = luRes.solve(vLambda);
+      DoubleArray w = luRes.solve(vLambda);
       for (int j = 0; j < nPillars; j++) {
-        System.out.print("\t" + w.getEntry(j));
+        System.out.print("\t" + w.get(j));
       }
       System.out.print("\n");
     }
@@ -313,7 +311,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
   /**
    * Take a hedged CDS portfolio (1.0 of June 20th 2015 and -0.47556 & -0.52474 of June 20th 2014 & June 20th 2016),
    * and compute its change in PV for both parallel shifts and tilts to the credit curve. The results are shown for a
-   * notional of 10MM. 
+   * notional of 10MM.
    */
   @Test(description = "Demo", enabled = false)
   public void hedgingPerformanceDemo() {
@@ -354,7 +352,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
    * The sensitivity of the PV of a set of CDSs to the par spreads of the CDSs used to construct the credit curve.
    * The last column shows the sensitivity of all the spreads moving in parallel. The (priced) CDSs all have a coupon of 100bps.
    * All CDSs have a recovery rate of 40\% and the Trade date is 13-Jun-2011. <p>
-   * This uses the method dumpLatexTable to format the output into a Latex table. 
+   * This uses the method dumpLatexTable to format the output into a Latex table.
    */
   @Test(description = "Demo", enabled = false)
   public void analyticCS01test() {
@@ -391,7 +389,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
   /**
    * The sensitivity of the PV of 8Y CDSs to the par spreads of the CDSs used to construct the credit curve.  The calculation
    * methods are analytic and forward finite difference (or bump and reprice). The bump in the forward difference is 1bps.<p>
-   *  This uses the method dumpLatexTable to format the output into a Latex table. 
+   *  This uses the method dumpLatexTable to format the output into a Latex table.
    */
   @Test(description = "Demo", enabled = false)
   void analyticVFDCS01Test() {
@@ -430,7 +428,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
   /**
    * This calculates hedge ratios from bucketed CS01. The main point this demonstrates is that this gives exactly (up to
    * numerical tolerances) as from  pvHedgingDemo, but this involves a lot more work (i.e. calculating the CS01). <p>
-   *  <b>Note:</b> This does not appear as a table in the paper. 
+   *  <b>Note:</b> This does not appear as a table in the paper.
    */
   @Test(description = "Demo", enabled = false)
   public void spreadHedgeDemo() {
@@ -440,8 +438,8 @@ public class CdsPaperExamples extends IsdaBaseTest {
     Arrays.fill(coupons, COUPON);
     double[][] temp = ANALYTIC_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(PILLAR_CDSS, coupons, PILLAR_CDSS, YIELD_CURVE,
         CREDIT_CURVE);
-    DoubleMatrix2D jacT = MA.getTranspose(new DoubleMatrix2D(temp));
-    LUDecompositionResult decRes = decomp.evaluate(jacT);
+    DoubleMatrix jacT = MA.getTranspose(DoubleMatrix.copyOf(temp));
+    LUDecompositionResult decRes = decomp.apply(jacT);
 
     int nMat = MATURITIES_6M_STEP.length;
 
@@ -451,7 +449,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
       double[] vs = ANALYTIC_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(cds[i], COUPON, PILLAR_CDSS, YIELD_CURVE, CREDIT_CURVE);
       res[i] = decRes.solve(vs);
     }
-    DoubleMatrix2D hedge = new DoubleMatrix2D(res);
+    DoubleMatrix hedge = DoubleMatrix.copyOf(res);
     System.out.println(hedge);
   }
 
@@ -608,7 +606,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
     for (int i = 0; i < nRows; i++) {
       out.append("\\multicolumn{1}{|c|}{" + rowHeadings[i] + "}");
       for (int j = 0; j < nColumns; j++) {
-        out.append(String.format(format, data[i][j]));
+        out.append(String.format(Locale.ENGLISH, format, data[i][j]));
       }
       out.append("\\\\\n");
     }

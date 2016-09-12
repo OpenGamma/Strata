@@ -220,7 +220,7 @@ public class IntrinsicIndexDataBundle {
   }
 
   /**
-   * Gets the weight of a particular name in the index. 
+   * Gets the weight of a particular name in the index.
    * @param index The index of the constituent name 
    * @return The weight
    */

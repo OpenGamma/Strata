@@ -14,6 +14,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -49,7 +50,7 @@ public class IsdaBaseTest {
   //standard CDS settings 
   protected static final boolean PAY_ACC_ON_DEFAULT = true;
   protected static final Period PAYMENT_INTERVAL = Period.ofMonths(3);
-  protected static final CdsStubType STUB = CdsStubType.FRONTSHORT;
+  protected static final StubConvention STUB = StubConvention.SHORT_INITIAL;
   protected static final boolean PROCTECTION_START = true;
   protected static final double RECOVERY_RATE = 0.4;
 

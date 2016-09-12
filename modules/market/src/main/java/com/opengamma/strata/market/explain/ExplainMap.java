@@ -190,7 +190,7 @@ public final class ExplainMap
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExplainMap other = (ExplainMap) obj;
-      return JodaBeanUtils.equal(getMap(), other.getMap());
+      return JodaBeanUtils.equal(map, other.map);
     }
     return false;
   }
@@ -198,7 +198,7 @@ public final class ExplainMap
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(map);
     return hash;
   }
 
@@ -206,7 +206,7 @@ public final class ExplainMap
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ExplainMap{");
-    buf.append("map").append('=').append(JodaBeanUtils.toString(getMap()));
+    buf.append("map").append('=').append(JodaBeanUtils.toString(map));
     buf.append('}');
     return buf.toString();
   }

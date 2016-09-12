@@ -11,7 +11,7 @@ import java.time.Period;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Utility for producing sets of IMM dates. 
+ * Utility for producing sets of IMM dates.
  */
 public abstract class ImmDateLogic {
 

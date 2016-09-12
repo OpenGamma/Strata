@@ -1,0 +1,4 @@
+Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator
+USD-Disc,Zero,Act/Act ISDA,Linear,Flat,Flat
+USD-3ML,Zero,Act/Act ISDA,Linear,Flat,Flat
+USD-CPI,PriceIndex,Act/Act ISDA,LogLinear,Flat,Flat

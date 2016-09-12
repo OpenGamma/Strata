@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-8-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+  == Copyright (c) 2014-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<!-- This version has been updated to use a namespace -->
+<fpml:dataDocument xmlns:fpml="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-8" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-8.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <fpml:trade>
+    <fpml:tradeHeader>
+      <fpml:partyTradeIdentifier>
+        <fpml:partyReference href="party1" />
+        <fpml:tradeId tradeIdScheme="http://www.hsbc.com/swaps/trade-id">MB87623</fpml:tradeId>
+      </fpml:partyTradeIdentifier>
+      <fpml:partyTradeIdentifier>
+        <fpml:partyReference href="party2" />
+        <fpml:tradeId tradeIdScheme="http://www.abnamro.com/swaps/trade-id">AA9876</fpml:tradeId>
+      </fpml:partyTradeIdentifier>
+      <fpml:tradeDate>1991-05-14</fpml:tradeDate>
+    </fpml:tradeHeader>
+    <fpml:fra>
+      <fpml:buyerPartyReference href="party1" />
+      <fpml:sellerPartyReference href="party2" />
+      <fpml:adjustedEffectiveDate id="resetDate">1991-07-17</fpml:adjustedEffectiveDate>
+      <fpml:adjustedTerminationDate>1992-01-17</fpml:adjustedTerminationDate>
+      <fpml:paymentDate>
+        <fpml:unadjustedDate>1991-07-17</fpml:unadjustedDate>
+        <fpml:dateAdjustments>
+          <fpml:businessDayConvention>FOLLOWING</fpml:businessDayConvention>
+          <fpml:businessCenters>
+            <fpml:businessCenter>CHZU</fpml:businessCenter>
+          </fpml:businessCenters>
+        </fpml:dateAdjustments>
+      </fpml:paymentDate>
+      <fpml:fixingDateOffset>
+        <fpml:periodMultiplier>-2</fpml:periodMultiplier>
+        <fpml:period>D</fpml:period>
+        <fpml:dayType>Business</fpml:dayType>
+        <fpml:businessDayConvention>NONE</fpml:businessDayConvention>
+        <fpml:businessCenters>
+          <fpml:businessCenter>GBLO</fpml:businessCenter>
+        </fpml:businessCenters>
+        <fpml:dateRelativeTo href="resetDate" />
+      </fpml:fixingDateOffset>
+      <fpml:dayCountFraction>ACT/360</fpml:dayCountFraction>
+      <fpml:calculationPeriodNumberOfDays>184</fpml:calculationPeriodNumberOfDays>
+      <fpml:notional>
+        <fpml:currency>CHF</fpml:currency>
+        <fpml:amount>25000000.00</fpml:amount>
+      </fpml:notional>
+      <fpml:fixedRate>0.04</fpml:fixedRate>
+      <fpml:floatingRateIndex>CHF-LIBOR-BBA</fpml:floatingRateIndex>
+      <fpml:indexTenor>
+        <fpml:periodMultiplier>6</fpml:periodMultiplier>
+        <fpml:period>M</fpml:period>
+      </fpml:indexTenor>
+      <fpml:fraDiscounting>ISDA</fpml:fraDiscounting>
+    </fpml:fra>
+  </fpml:trade>
+  <fpml:party id="party1">
+    <fpml:partyId>Party1</fpml:partyId>
+  </fpml:party>
+  <fpml:party id="party2">
+    <fpml:partyId>Party2</fpml:partyId>
+  </fpml:party>
+</fpml:dataDocument>
+

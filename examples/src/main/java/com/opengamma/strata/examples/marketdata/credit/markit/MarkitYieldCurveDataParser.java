@@ -16,11 +16,12 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
-import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
+import com.opengamma.strata.pricer.credit.IsdaYieldCurveInputs;
+import com.opengamma.strata.pricer.credit.IsdaYieldCurveInputsId;
+import com.opengamma.strata.pricer.credit.IsdaYieldCurveUnderlyingType;
+import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
 /**
  * Parser to load daily yield curve information provided by Markit.
@@ -42,16 +43,16 @@ public class MarkitYieldCurveDataParser {
    * @param source the source to parse
    * @return the map of parsed yield curve par rates
    */
-  public static Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> parse(CharSource source) {
+  public static Map<IsdaYieldCurveInputsId, IsdaYieldCurveInputs> parse(CharSource source) {
     // parse the curve data
     Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
     CsvFile csv = CsvFile.of(source, true);
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String dateText = csv.field(i, DATE);
-      String tenorText = csv.field(i, TENOR);
-      String instrumentText = csv.field(i, INSTRUMENT);
-      String rateText = csv.field(i, RATE);
-      String conventionText = csv.field(i, CONVENTION);
+    for (CsvRow row : csv.rows()) {
+      String dateText = row.getField(DATE);
+      String tenorText = row.getField(TENOR);
+      String instrumentText = row.getField(INSTRUMENT);
+      String rateText = row.getField(RATE);
+      String conventionText = row.getField(CONVENTION);
 
       Point point = new Point(
           Tenor.parse(tenorText),
@@ -69,11 +70,11 @@ public class MarkitYieldCurveDataParser {
     }
 
     // convert the curve data into the result map
-    Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> result = Maps.newHashMap();
+    Map<IsdaYieldCurveInputsId, IsdaYieldCurveInputs> result = Maps.newHashMap();
     for (IsdaYieldCurveConvention convention : curveData.keySet()) {
       List<Point> points = curveData.get(convention);
-      result.put(IsdaYieldCurveParRatesId.of(convention.getCurrency()),
-          IsdaYieldCurveParRates.of(
+      result.put(IsdaYieldCurveInputsId.of(convention.getCurrency()),
+          IsdaYieldCurveInputs.of(
               CurveName.of(convention.getName()),
               points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new),
               points.stream().map(s -> s.getDate()).toArray(LocalDate[]::new),

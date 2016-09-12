@@ -5,13 +5,9 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.UncheckedIOException;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -34,6 +30,7 @@ import com.opengamma.strata.collect.Unchecked;
  * The key is separated from the value using the '=' symbol.
  * Duplicate keys are allowed.
  * For example 'key = value'.
+ * The equals sign and value may be omitted, in which case the value is an empty string.
  * <p>
  * All properties are grouped into named sections.
  * The section name occurs on a line by itself surrounded by square brackets.
@@ -63,23 +60,6 @@ import com.opengamma.strata.collect.Unchecked;
 public final class IniFile {
 
   /**
-   * Section name used for chaining.
-   */
-  private static final String CHAIN_SECTION = "chain";
-  /**
-   * Property name used for priority.
-   */
-  private static final String PRIORITY = "priority";
-  /**
-   * Property name used for chaining.
-   */
-  private static final String CHAIN_NEXT = "chainNextFile";
-  /**
-   * Property name used for removing sections.
-   */
-  private static final String CHAIN_REMOVE = "chainRemoveSections";
-
-  /**
    * The INI sections.
    */
   private final ImmutableMap<String, PropertySet> sectionMap;
@@ -103,58 +83,6 @@ public final class IniFile {
     ImmutableMap.Builder<String, PropertySet> builder = ImmutableMap.builder();
     parsedIni.forEach((sectionName, sectionData) -> builder.put(sectionName, PropertySet.of(sectionData)));
     return new IniFile(builder.build());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a single INI file that is the chained combination of the inputs.
-   * <p>
-   * The result of this method is formed by chaining all the specified files together.
-   * The files are combined using a simple algorithm defined in the '[chain]' section.
-   * Firstly, the 'priority' value is used to sort the files, higher numbers have higher priority
-   * All entries in the highest priority file are used
-   * <p>
-   * Once data from the highest priority file is included, the 'chainNextFile' property is examined.
-   * If 'chainNextFile' is 'true', then the next file in the chain is considered.
-   * The 'chainRemoveSections' property can be used to ignore specific sections from the files lower in the chain.
-   * The chain process continues until the 'chainNextFile' is 'false', or all files have been combined.
-   * 
-   * @param sources  the INI file sources to read
-   * @return the combined chained INI file
-   * @throws UncheckedIOException if an IO error occurs
-   * @throws IllegalArgumentException if the configuration is invalid
-   */
-  public static IniFile ofChained(Stream<CharSource> sources) {
-    ArgChecker.notNull(sources, "sources");
-    List<IniFile> files = sources
-        .map(IniFile::of)
-        .sorted(IniFile::compareByReversePriority)
-        .collect(toList());
-    // combine files, based on chain flag
-    Map<String, PropertySet> builder = new LinkedHashMap<>();
-    for (IniFile file : files) {
-      // remove everything from lower priority files if not chaining
-      if (Boolean.parseBoolean(file.getSection(CHAIN_SECTION).getValue(CHAIN_NEXT)) == false) {
-        builder.clear();
-      } else {
-        // remove sections from lower priority files
-        builder.keySet().removeAll(file.getSection(CHAIN_SECTION).getValueList(CHAIN_REMOVE));
-      }
-      // add entries, replacing existing data
-      for (String sectionName : file.asMap().keySet()) {
-        if (!sectionName.equals(CHAIN_SECTION)) {
-          builder.merge(sectionName, file.getSection(sectionName), PropertySet::combinedWith);
-        }
-      }
-    }
-    return new IniFile(ImmutableMap.copyOf(builder));
-  }
-
-  // sort by priority, lowest first
-  private static int compareByReversePriority(IniFile a, IniFile b) {
-    int priority1 = Integer.parseInt(a.getSection(CHAIN_SECTION).getValue(PRIORITY));
-    int priority2 = Integer.parseInt(b.getSection(CHAIN_SECTION).getValue(PRIORITY));
-    return Integer.compare(priority1, priority2);
   }
 
   //-------------------------------------------------------------------------
@@ -182,11 +110,8 @@ public final class IniFile {
 
       } else {
         int equalsPosition = line.indexOf('=');
-        if (equalsPosition < 0) {
-          throw new IllegalArgumentException("Invalid INI file, expected key=value property, line " + lineNum);
-        }
-        String key = line.substring(0, equalsPosition).trim();
-        String value = line.substring(equalsPosition + 1).trim();
+        String key = (equalsPosition < 0 ? line.trim() : line.substring(0, equalsPosition).trim());
+        String value = (equalsPosition < 0 ? "" : line.substring(equalsPosition + 1).trim());
         if (key.length() == 0) {
           throw new IllegalArgumentException("Invalid INI file, empty key, line " + lineNum);
         }
@@ -194,6 +119,17 @@ public final class IniFile {
       }
     }
     return ini;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance, specifying the map of section to properties.
+   * 
+   * @param sectionMap  the map of sections
+   * @return the INI file
+   */
+  public static IniFile of(Map<String, PropertySet> sectionMap) {
+    return new IniFile(ImmutableMap.copyOf(sectionMap));
   }
 
   //-------------------------------------------------------------------------
@@ -208,11 +144,11 @@ public final class IniFile {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the set of keys of this INI file.
+   * Returns the set of sections of this INI file.
    * 
-   * @return the set of keys
+   * @return the set of sections
    */
-  public ImmutableSet<String> keys() {
+  public ImmutableSet<String> sections() {
     return sectionMap.keySet();
   }
 
@@ -249,7 +185,7 @@ public final class IniFile {
    * @return the INI file section
    * @throws IllegalArgumentException if the section does not exist
    */
-  public PropertySet getSection(String name) {
+  public PropertySet section(String name) {
     ArgChecker.notNull(name, "name");
     if (contains(name) == false) {
       throw new IllegalArgumentException("Unknown INI file section: " + name);

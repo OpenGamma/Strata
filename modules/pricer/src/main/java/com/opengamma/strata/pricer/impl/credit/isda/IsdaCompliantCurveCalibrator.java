@@ -7,14 +7,15 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.function.Function;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
+import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
+import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 
 /**
  * This should be viewed as "proof of concept" code, since it used the code that has date logic mixed with the analytics (this was to
@@ -39,7 +40,7 @@ public class IsdaCompliantCurveCalibrator {
       double[] couponRates,
       boolean payAccOnDefault,
       Period tenor,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       IsdaCompliantDateYieldCurve yieldCurve,
       double recoveryRate) {
@@ -82,7 +83,7 @@ public class IsdaCompliantCurveCalibrator {
     return hazardCurve;
   }
 
-  private class CDSPricer extends Function1D<Double, Double> {
+  private class CDSPricer implements Function<Double, Double> {
 
     private final int _index;
     private final LocalDate _today;
@@ -95,7 +96,7 @@ public class IsdaCompliantCurveCalibrator {
 
     private final boolean _payAccOnDefault;
     private final Period _tenor;
-    private final CdsStubType _stubType;
+    private final StubConvention _stubType;
     private final double _rr;
 
     private IsdaCompliantDateYieldCurve _yieldCurve;
@@ -112,7 +113,7 @@ public class IsdaCompliantCurveCalibrator {
         boolean protectStart,
         boolean payAccOnDefault,
         Period tenor,
-        CdsStubType stubType,
+        StubConvention stubType,
         double rr,
         IsdaCompliantDateYieldCurve yieldCurve,
         IsdaCompliantDateCreditCurve hazardCurve) {
@@ -135,7 +136,7 @@ public class IsdaCompliantCurveCalibrator {
     }
 
     @Override
-    public Double evaluate(Double x) {
+    public Double apply(Double x) {
       // TODO this direct access is unpleasant
       IsdaCompliantDateCreditCurve hazardCurve = _hazardCurve.withRate(x, _index);
       double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate,

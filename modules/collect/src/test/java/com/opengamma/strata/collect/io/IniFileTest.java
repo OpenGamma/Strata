@@ -12,7 +12,6 @@ import static org.testng.Assert.assertEquals;
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -49,35 +48,6 @@ public class IniFileTest {
       "[section]\n" +
       "a = x\n" +
       "a = y\n";
-  private final String CHAIN0 = "" +
-      "[chain]\n" +
-      "priority = 1\n" +
-      "chainNextFile = true\n" +
-      "[one]\n" +
-      "a = x\n" +
-      "b = y\n";
-  private final String CHAIN1 = "" +
-      "[chain]\n" +
-      "priority = 1\n" +
-      "chainNextFile = false\n" +
-      "[one]\n" +
-      "a = x\n" +
-      "b = y\n";
-  private final String CHAIN2 = "" +
-      "[chain]\n" +
-      "priority = 2\n" +
-      "chainNextFile = true\n" +
-      "[one]\n" +
-      "a = z\n" +
-      "[two]\n" +
-      "m = n\n";
-  private final String CHAIN3 = "" +
-      "[chain]\n" +
-      "priority = 3\n" +
-      "chainNextFile = true\n" +
-      "chainRemoveSections = one\n" +
-      "[three]\n" +
-      "p = q\n";
 
   public void test_of_noLists() {
     IniFile test = IniFile.of(CharSource.wrap(INI1));
@@ -92,33 +62,33 @@ public class IniFileTest {
         ImmutableMap.of("section", PropertySet.of(keyValues1), "name", PropertySet.of(keyValues2)));
 
     assertEquals(test.contains("section"), true);
-    assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
-    assertEquals(test.getSection("section").contains("a"), true);
-    assertEquals(test.getSection("section").getValue("a"), "x");
-    assertEquals(test.getSection("section").getValueList("a"), ImmutableList.of("x"));
-    assertEquals(test.getSection("section").contains("b"), true);
-    assertEquals(test.getSection("section").getValue("b"), "y");
-    assertEquals(test.getSection("section").getValueList("b"), ImmutableList.of("y"));
-    assertEquals(test.getSection("section").contains("c"), false);
-    assertEquals(test.getSection("section").keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.getSection("section").asMap(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.section("section"), PropertySet.of(keyValues1));
+    assertEquals(test.section("section").contains("a"), true);
+    assertEquals(test.section("section").value("a"), "x");
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of("x"));
+    assertEquals(test.section("section").contains("b"), true);
+    assertEquals(test.section("section").value("b"), "y");
+    assertEquals(test.section("section").valueList("b"), ImmutableList.of("y"));
+    assertEquals(test.section("section").contains("c"), false);
+    assertEquals(test.section("section").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", "x", "b", "y"));
 
     assertEquals(test.contains("name"), true);
-    assertEquals(test.getSection("name"), PropertySet.of(keyValues2));
-    assertEquals(test.getSection("name").contains("a"), true);
-    assertEquals(test.getSection("name").getValue("a"), "m");
-    assertEquals(test.getSection("name").getValueList("a"), ImmutableList.of("m"));
-    assertEquals(test.getSection("name").contains("b"), true);
-    assertEquals(test.getSection("name").getValue("b"), "n");
-    assertEquals(test.getSection("name").getValueList("b"), ImmutableList.of("n"));
-    assertEquals(test.getSection("name").contains("c"), false);
-    assertEquals(test.getSection("name").keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.getSection("name").asMap(), ImmutableListMultimap.of("a", "m", "b", "n"));
+    assertEquals(test.section("name"), PropertySet.of(keyValues2));
+    assertEquals(test.section("name").contains("a"), true);
+    assertEquals(test.section("name").value("a"), "m");
+    assertEquals(test.section("name").valueList("a"), ImmutableList.of("m"));
+    assertEquals(test.section("name").contains("b"), true);
+    assertEquals(test.section("name").value("b"), "n");
+    assertEquals(test.section("name").valueList("b"), ImmutableList.of("n"));
+    assertEquals(test.section("name").contains("c"), false);
+    assertEquals(test.section("name").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.section("name").asMultimap(), ImmutableListMultimap.of("a", "m", "b", "n"));
 
     assertEquals(test.contains("unknown"), false);
-    assertThrowsIllegalArg(() -> test.getSection("unknown"));
-    assertEquals(test.getSection("section").getValueList("unknown"), ImmutableList.of());
-    assertThrowsIllegalArg(() -> test.getSection("section").getValue("unknown"));
+    assertThrowsIllegalArg(() -> test.section("unknown"));
+    assertEquals(test.section("section").valueList("unknown"), ImmutableList.of());
+    assertThrowsIllegalArg(() -> test.section("section").value("unknown"));
     assertEquals(test.toString(), "{section={a=[x], b=[y]}, name={a=[m], b=[n]}}");
   }
 
@@ -129,14 +99,29 @@ public class IniFileTest {
     keyValues1.put("a", "y");
     assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
 
-    assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
-    assertEquals(test.getSection("section").contains("a"), true);
-    assertThrowsIllegalArg(() -> test.getSection("section").getValue("a"));
-    assertEquals(test.getSection("section").getValueList("a"), ImmutableList.of("x", "y"));
-    assertEquals(test.getSection("section").contains("b"), false);
-    assertEquals(test.getSection("section").keys(), ImmutableSet.of("a"));
-    assertEquals(test.getSection("section").asMap(), ImmutableListMultimap.of("a", "x", "a", "y"));
+    assertEquals(test.section("section"), PropertySet.of(keyValues1));
+    assertEquals(test.section("section").contains("a"), true);
+    assertThrowsIllegalArg(() -> test.section("section").value("a"));
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of("x", "y"));
+    assertEquals(test.section("section").contains("b"), false);
+    assertEquals(test.section("section").keys(), ImmutableSet.of("a"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", "x", "a", "y"));
     assertEquals(test.toString(), "{section={a=[x, y]}}");
+  }
+
+  public void test_of_propertyNoEquals() {
+    IniFile test = IniFile.of(CharSource.wrap("[section]\na\n"));
+    Multimap<String, String> keyValues1 = ArrayListMultimap.create();
+    keyValues1.put("a", "");
+    assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
+
+    assertEquals(test.section("section"), PropertySet.of(keyValues1));
+    assertEquals(test.section("section").contains("a"), true);
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of(""));
+    assertEquals(test.section("section").contains("b"), false);
+    assertEquals(test.section("section").keys(), ImmutableSet.of("a"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", ""));
+    assertEquals(test.toString(), "{section={a=[]}}");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -150,14 +135,6 @@ public class IniFileTest {
   public void test_of_invalid_badSection() {
     String invalid = "" +
         "[section\n" +
-        "b\n";
-    IniFile.of(CharSource.wrap(invalid));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_of_invalid_propertyNoEquals() {
-    String invalid = "" +
-        "[section]\n" +
         "b\n";
     IniFile.of(CharSource.wrap(invalid));
   }
@@ -187,46 +164,6 @@ public class IniFileTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_ofChained_chain() {
-    IniFile test = IniFile.ofChained(
-        Stream.of(CharSource.wrap(CHAIN1), CharSource.wrap(CHAIN2)));
-    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "z", "b", "y");
-    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
-    assertEquals(
-        test.asMap(),
-        ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
-  }
-
-  public void test_ofChained_chainRemoveSections() {
-    IniFile test = IniFile.ofChained(
-        Stream.of(CharSource.wrap(CHAIN1), CharSource.wrap(CHAIN3), CharSource.wrap(CHAIN2)));
-    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
-    Multimap<String, String> keyValues3 = ImmutableListMultimap.of("p", "q");
-    assertEquals(
-        test.asMap(),
-        ImmutableMap.of("two", PropertySet.of(keyValues2), "three", PropertySet.of(keyValues3)));
-  }
-
-  public void test_ofChained_noChain() {
-    IniFile test = IniFile.ofChained(Stream.of(CharSource.wrap(CHAIN1)));
-    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
-    assertEquals(test.asMap(), ImmutableMap.of("one", PropertySet.of(keyValues)));
-  }
-
-  public void test_ofChained_noChain_chainToNowhere() {
-    IniFile test = IniFile.ofChained(Stream.of(CharSource.wrap(CHAIN0)));
-    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
-    assertEquals(test.asMap(), ImmutableMap.of("one", PropertySet.of(keyValues)));
-  }
-
-  public void test_ofChained_ioException() {
-    CharSource source = Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8);
-    assertThrows(
-        () -> IniFile.ofChained(Stream.of(source)),
-        UncheckedIOException.class);
-  }
-
-  //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     IniFile a1 = IniFile.of(CharSource.wrap(INI1));
     IniFile a2 = IniFile.of(CharSource.wrap(INI1));
@@ -245,12 +182,12 @@ public class IniFileTest {
     IniFile a2 = IniFile.of(CharSource.wrap(INI1));
     IniFile b = IniFile.of(CharSource.wrap(INI2));
 
-    assertEquals(a1.getSection("name").equals(a1.getSection("name")), true);
-    assertEquals(a1.getSection("name").equals(a2.getSection("name")), true);
-    assertEquals(a1.getSection("name").equals(b.getSection("section")), false);
-    assertEquals(a1.getSection("name").equals(null), false);
-    assertEquals(a1.getSection("name").equals(""), false);
-    assertEquals(a1.getSection("name").hashCode(), a2.getSection("name").hashCode());
+    assertEquals(a1.section("name").equals(a1.section("name")), true);
+    assertEquals(a1.section("name").equals(a2.section("name")), true);
+    assertEquals(a1.section("name").equals(b.section("section")), false);
+    assertEquals(a1.section("name").equals(null), false);
+    assertEquals(a1.section("name").equals(""), false);
+    assertEquals(a1.section("name").hashCode(), a2.section("name").hashCode());
   }
 
 }

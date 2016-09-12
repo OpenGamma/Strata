@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-root</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Root</name>
   <description>OpenGamma Strata root</description>
@@ -96,6 +96,15 @@
   </build>
 
   <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-public-release</id>
+      <name>OpenGamma public maven repository</name>
+      <url>${og-public-release.url}</url>
+    </repository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
   <profiles>
     <!-- Profile including examples only if JavaFX available -->
     <profile>
@@ -105,17 +114,6 @@
       </activation>
       <modules>
         <module>examples</module>
-      </modules>
-    </profile>
-    <!-- Profile including analytics triggered by -Dbootstrap -->
-    <profile>
-      <id>include-analytics-module</id>
-      <activation>
-        <property><name>bootstrap</name></property>
-        <file><exists>${analytics.dir.path}/pom.xml</exists></file>
-      </activation>
-      <modules>
-        <module>${analytics.dir.path}</module>
       </modules>
     </profile>
     <!-- Profile creating dist zip triggered by -Ddist -->
@@ -141,13 +139,35 @@
                   <windowtitle>OpenGamma Strata</windowtitle>
                   <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
                   <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-                  <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
-                  <additionalparam>-Xdoclint:none</additionalparam>
-                  <excludePackageNames>com.opengamma.strata.source</excludePackageNames>
+                  <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
+                  <additionalparam>-Xdoclint:missing -Xdoclint:reference</additionalparam>
+                  <excludePackageNames>com.opengamma.strata.loader.impl:com.opengamma.strata.math.impl:com.opengamma.strata.pricer.impl:com.opengamma.strata.examples</excludePackageNames>
+                  <groups>
+                    <group>
+                      <title>Measure-level API</title>
+                      <packages>com.opengamma.strata.measure:com.opengamma.strata.measure.*</packages>
+                    </group>
+                    <group>
+                      <title>Pricer-level API</title>
+                      <packages>com.opengamma.strata.pricer:com.opengamma.strata.pricer.*</packages>
+                    </group>
+                    <group>
+                      <title>Market data structures</title>
+                      <packages>com.opengamma.strata.market:com.opengamma.strata.market.*</packages>
+                    </group>
+                    <group>
+                      <title>Product domain model</title>
+                      <packages>com.opengamma.strata.product:com.opengamma.strata.product.*</packages>
+                    </group>
+                    <group>
+                      <title>Supporting toolkit</title>
+                      <packages>com.opengamma.strata.*</packages>
+                    </group>
+                  </groups>
                   <links>
                     <link>http://www.joda.org/joda-beans/apidocs</link>
                     <link>http://www.joda.org/joda-collect/apidocs</link>
-                    <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
+                    <link>http://google.github.io/guava/releases/19.0/api/docs/</link>
                   </links>
                   <validateLinks>true</validateLinks>
                 </configuration>
@@ -160,6 +180,9 @@
             <artifactId>maven-assembly-plugin</artifactId>
             <configuration>
               <attach>false</attach>
+              <finalName>strata-dist-${project.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <baseDirectory>strata-dist-${project.version}</baseDirectory>
               <descriptors>
                 <descriptor>src/assembly/dist.xml</descriptor>
               </descriptors>
@@ -182,12 +205,14 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <author>false</author>
+    <notimestamp>true</notimestamp>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
     <!-- The relative module paths, can be overridden on command line -->
     <javafx.jar.path>${java.home}/lib/ext/jfxrt.jar</javafx.jar.path>
-    <analytics.dir.path>../Analytics</analytics.dir.path>
   </properties>
 
 </project>

@@ -34,7 +34,7 @@ public interface PriceIndex
     extends Index, Named {
 
   /**
-   * Obtains an {@code PriceIndex} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the index
@@ -49,7 +49,7 @@ public interface PriceIndex
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code PriceIndex} to be lookup up.
+   * This helper allows instances of the index to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper
@@ -72,6 +72,16 @@ public interface PriceIndex
    * @return the currency of the index
    */
   public abstract Currency getCurrency();
+
+  /**
+   * Gets whether the index is active.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this method will return false.
+   * 
+   * @return true if the index is active, false if inactive
+   */
+  public abstract boolean isActive();
 
   /**
    * Gets the frequency that the index is published.

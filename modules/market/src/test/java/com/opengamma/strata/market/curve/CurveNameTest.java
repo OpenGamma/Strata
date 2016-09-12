@@ -15,9 +15,12 @@ import org.testng.annotations.Test;
 @Test
 public class CurveNameTest {
 
-  public void coverage() {
+  public void test_of() {
     CurveName test = CurveName.of("Foo");
+    assertEquals(test.getName(), "Foo");
+    assertEquals(test.getMarketDataType(), Curve.class);
     assertEquals(test.toString(), "Foo");
+    assertEquals(test.compareTo(CurveName.of("Goo")) < 0, true);
   }
 
 }

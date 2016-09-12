@@ -29,6 +29,7 @@ import com.opengamma.strata.collect.Unchecked;
  * The key is separated from the value using the '=' symbol.
  * Duplicate keys are allowed.
  * For example 'key = value'.
+ * The equals sign and value may be omitted, in which case the value is an empty string.
  * <p>
  * Keys and values are trimmed.
  * Blank lines are ignored.
@@ -60,8 +61,8 @@ public final class PropertiesFile {
    * This parses the specified character source expecting a properties file format.
    * The resulting instance can be queried for each key and value.
    * 
-   * @param source  the properties file resource, not null
-   * @return the properties file, not null
+   * @param source  the properties file resource
+   * @return the properties file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
@@ -83,17 +84,26 @@ public final class PropertiesFile {
         continue;
       }
       int equalsPosition = line.indexOf('=');
-      if (equalsPosition < 0) {
-        throw new IllegalArgumentException("Invalid properties file, expected key=value property, line " + lineNum);
-      }
-      String key = line.substring(0, equalsPosition).trim();
-      String value = line.substring(equalsPosition + 1).trim();
+      String key = (equalsPosition < 0 ? line.trim() : line.substring(0, equalsPosition).trim());
+      String value = (equalsPosition < 0 ? "" : line.substring(equalsPosition + 1).trim());
       if (key.length() == 0) {
         throw new IllegalArgumentException("Invalid properties file, empty key, line " + lineNum);
       }
       parsed.put(key, value);
     }
     return PropertySet.of(parsed);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a key-value property set.
+   * 
+   * @param keyValueMap  the key-value property set
+   * @return the properties file
+   */
+  public static PropertiesFile of(PropertySet keyValueMap) {
+    ArgChecker.notNull(keyValueMap, "keyValueMap");
+    return new PropertiesFile(keyValueMap);
   }
 
   //-------------------------------------------------------------------------

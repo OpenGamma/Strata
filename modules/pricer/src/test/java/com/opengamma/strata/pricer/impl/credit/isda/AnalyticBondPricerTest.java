@@ -10,13 +10,14 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * 
@@ -49,9 +50,9 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double cleanPrice = defaultFreeBondCleanPrice(bond, yieldCurve);
 
     final AnalyticBondPricer bondSpreadCal = new AnalyticBondPricer();
-    final Function1D<Double, Double> bondPriceFunc = bondSpreadCal.getBondPriceForHazardRateFunction(bond, yieldCurve, CdsPriceType.CLEAN);
+    final Function<Double, Double> bondPriceFunc = bondSpreadCal.getBondPriceForHazardRateFunction(bond, yieldCurve, CdsPriceType.CLEAN);
     //now price will zero hazard rate - should get same number
-    final double price = bondPriceFunc.evaluate(0.0);
+    final double price = bondPriceFunc.apply(0.0);
     assertEquals(cleanPrice, price, 1e-15);
 
     assertEquals("Hazard rate limit", recoveryRate, bondSpreadCal.bondPriceForHazardRate(bond, yieldCurve, 1000.0, CdsPriceType.DIRTY), 2e-5);
@@ -69,7 +70,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double recoveryRate = 0.27;
 
     final Period couponPeriod = Period.ofMonths(6);
-    final CdsStubType stub = CdsStubType.FRONTSHORT;
+    final StubConvention stub = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bd = FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     final CdsAnalyticFactory factory = new CdsAnalyticFactory(0.0).with(couponPeriod).withPayAccOnDefault(false);
@@ -116,7 +117,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final LocalDate endDate = LocalDate.of(2018, 12, 20);
 
     final Period couponPrd = Period.ofMonths(6);
-    final CdsStubType stubTp = CdsStubType.FRONTSHORT;
+    final StubConvention stubTp = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bdConv = MOD_FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     boolean ProtStart = false;
@@ -167,7 +168,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double coupon = 0.11;
     double rr = 0.3;
     final Period couponPrd = Period.ofMonths(6);
-    final CdsStubType stubTp = CdsStubType.FRONTSHORT;
+    final StubConvention stubTp = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bdConv = MOD_FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     final boolean ProtStart = true;
@@ -222,7 +223,7 @@ public class AnalyticBondPricerTest extends IsdaBaseTest {
     final double coupon = 0.11;
     double rr = 0.3;
     final Period couponPrd = Period.ofMonths(6);
-    final CdsStubType stubTp = CdsStubType.FRONTSHORT;
+    final StubConvention stubTp = StubConvention.SHORT_INITIAL;
     final BusinessDayConvention bdConv = MOD_FOLLOWING;
     final HolidayCalendar cal = DEFAULT_CALENDAR;
     final boolean ProtStart = true;

@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
-import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
-import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
+import static com.opengamma.strata.math.impl.util.Epsilon.epsilon;
+import static com.opengamma.strata.math.impl.util.Epsilon.epsilonP;
+import static com.opengamma.strata.math.impl.util.Epsilon.epsilonPP;
 
 import java.util.Arrays;
 

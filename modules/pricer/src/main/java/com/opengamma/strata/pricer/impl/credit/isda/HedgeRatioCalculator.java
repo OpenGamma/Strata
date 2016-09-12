@@ -5,13 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
+import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
+import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
 /**
  * Calculates the hedge ratio.
@@ -52,7 +52,7 @@ public class HedgeRatioCalculator {
    * @param yieldCurve  the yield curve
    * @return vector of sensitivities 
    */
-  public DoubleMatrix1D getCurveSensitivities(
+  public DoubleArray getCurveSensitivities(
       CdsAnalytic cds,
       double coupon,
       IsdaCompliantCreditCurve creditCurve,
@@ -62,13 +62,9 @@ public class HedgeRatioCalculator {
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(creditCurve, "creditCurve");
     ArgChecker.notNull(yieldCurve, "yieldCurve");
-
-    int nKnots = creditCurve.getNumberOfKnots();
-    double[] sense = new double[nKnots];
-    for (int i = 0; i < nKnots; i++) {
-      sense[i] = _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, coupon, i);
-    }
-    return new DoubleMatrix1D(sense);
+    return DoubleArray.of(
+        creditCurve.getNumberOfKnots(),
+        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, coupon, i));
   }
 
   /**
@@ -81,7 +77,7 @@ public class HedgeRatioCalculator {
    * @param yieldCurve  the yield curve
    * @return matrix of sensitivities
    */
-  public DoubleMatrix2D getCurveSensitivities(
+  public DoubleMatrix getCurveSensitivities(
       CdsAnalytic[] cds,
       double[] coupons,
       IsdaCompliantCreditCurve creditCurve,
@@ -101,7 +97,7 @@ public class HedgeRatioCalculator {
         sense[j][i] = _pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, coupons[i], j);
       }
     }
-    return new DoubleMatrix2D(sense);
+    return DoubleMatrix.copyOf(sense);
   }
 
   //-------------------------------------------------------------------------
@@ -109,9 +105,9 @@ public class HedgeRatioCalculator {
    * Hedge a CDS with other CDSs on the same underlying (single-name or index) at different maturities.
    * <p>
    * The hedge is such that the total portfolio (the CDS <b>minus</b> the hedging CDSs, with notionals of the
-   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the the credit curve.
+   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the credit curve.
    * <p>
-   * Here the credit curve is built using the hedging CDSs as pillars. 
+   * Here the credit curve is built using the hedging CDSs as pillars.
    * 
    * @param cds  the CDS to be hedged
    * @param coupon  the coupon of the CDS to be hedged
@@ -122,8 +118,14 @@ public class HedgeRatioCalculator {
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
    */
-  public DoubleMatrix1D getHedgeRatios(CdsAnalytic cds, double coupon, CdsAnalytic[] hedgeCDSs, double[] hedgeCDSCoupons, double[] hegdeCDSPUF,
+  public DoubleArray getHedgeRatios(
+      CdsAnalytic cds,
+      double coupon,
+      CdsAnalytic[] hedgeCDSs,
+      double[] hedgeCDSCoupons,
+      double[] hegdeCDSPUF,
       IsdaCompliantYieldCurve yieldCurve) {
+
     IsdaCompliantCreditCurve cc = _builder.calibrateCreditCurve(hedgeCDSs, hedgeCDSCoupons, yieldCurve, hegdeCDSPUF);
     return getHedgeRatios(cds, coupon, hedgeCDSs, hedgeCDSCoupons, cc, yieldCurve);
   }
@@ -132,7 +134,7 @@ public class HedgeRatioCalculator {
    * Hedge a CDS with other CDSs on the same underlying (single-name or index) at different maturities.
    * <p>
    * The hedge is such that the total portfolio (the CDS <b>minus</b> the hedging CDSs, with notionals of the
-   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the the credit curve.
+   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the credit curve.
    * <p>
    * If the number of hedge-CDSs equals the number of credit-curve knots, the system is square
    * and is solved exactly (see below).<br>
@@ -152,10 +154,16 @@ public class HedgeRatioCalculator {
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
    */
-  public DoubleMatrix1D getHedgeRatios(CdsAnalytic cds, double coupon, CdsAnalytic[] hedgeCDSs, double[] hedgeCDSCoupons, IsdaCompliantCreditCurve creditCurve,
+  public DoubleArray getHedgeRatios(
+      CdsAnalytic cds,
+      double coupon,
+      CdsAnalytic[] hedgeCDSs,
+      double[] hedgeCDSCoupons,
+      IsdaCompliantCreditCurve creditCurve,
       IsdaCompliantYieldCurve yieldCurve) {
-    DoubleMatrix1D cdsSense = getCurveSensitivities(cds, coupon, creditCurve, yieldCurve);
-    DoubleMatrix2D hedgeSense = getCurveSensitivities(hedgeCDSs, hedgeCDSCoupons, creditCurve, yieldCurve);
+
+    DoubleArray cdsSense = getCurveSensitivities(cds, coupon, creditCurve, yieldCurve);
+    DoubleMatrix hedgeSense = getCurveSensitivities(hedgeCDSs, hedgeCDSCoupons, creditCurve, yieldCurve);
     return getHedgeRatios(cdsSense, hedgeSense);
   }
 
@@ -163,7 +171,7 @@ public class HedgeRatioCalculator {
    * Hedge a CDS with other CDSs on the same underlying (single-name or index) at different maturities.
    * <p>
    * The hedge is such that the total portfolio (the CDS <b>minus</b> the hedging CDSs, with notionals of the
-   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the the credit curve. 
+   * CDS notional times the computed hedge ratios) is insensitive to infinitesimal changes to the credit curve.
    * <p>
    * If the number of hedge-CDSs equals the number of credit-curve knots, the system is
    * square and is solved exactly (see below).<br>
@@ -176,18 +184,18 @@ public class HedgeRatioCalculator {
    * 
    * @param cdsSensitivities  the vector of sensitivities of the CDS to the zero hazard rates at the credit curve knots
    * @param hedgeCDSSensitivities  the matrix of sensitivities of the hedging-CDSs to the zero hazard rates
-   *  at the credit curve knots. The (i,j) element is the sensitivity of the jth CDS to the ith knot. 
+   *  at the credit curve knots. The (i,j) element is the sensitivity of the jth CDS to the ith knot.
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
    */
-  public DoubleMatrix1D getHedgeRatios(DoubleMatrix1D cdsSensitivities, DoubleMatrix2D hedgeCDSSensitivities) {
+  public DoubleArray getHedgeRatios(DoubleArray cdsSensitivities, DoubleMatrix hedgeCDSSensitivities) {
     ArgChecker.notNull(hedgeCDSSensitivities, "hedgeCDSSensitivities");
-    int nRows = hedgeCDSSensitivities.getNumberOfRows();
-    int nCols = hedgeCDSSensitivities.getNumberOfColumns();
-    ArgChecker.isTrue(nRows == cdsSensitivities.getNumberOfElements(), "Number of matrix rows does not match vector length");
+    int nRows = hedgeCDSSensitivities.rowCount();
+    int nCols = hedgeCDSSensitivities.columnCount();
+    ArgChecker.isTrue(nRows == cdsSensitivities.size(), "Number of matrix rows does not match vector length");
     if (nCols == nRows) {
       LUDecompositionCommons decomp = new LUDecompositionCommons();
-      LUDecompositionResult luRes = decomp.evaluate(hedgeCDSSensitivities);
+      LUDecompositionResult luRes = decomp.apply(hedgeCDSSensitivities);
       return getHedgeRatios(cdsSensitivities, luRes);
     } else {
       if (nRows < nCols) {
@@ -196,20 +204,20 @@ public class HedgeRatioCalculator {
             " curve knots but " + nCols + " hedging instruments.");
       } else {
         //over-specified. Solve in a least-square sense 
-        DoubleMatrix2D senseT = MA.getTranspose(hedgeCDSSensitivities);
-        DoubleMatrix2D a = (DoubleMatrix2D) MA.multiply(senseT, hedgeCDSSensitivities);
-        DoubleMatrix1D b = (DoubleMatrix1D) MA.multiply(senseT, cdsSensitivities);
+        DoubleMatrix senseT = MA.getTranspose(hedgeCDSSensitivities);
+        DoubleMatrix a = (DoubleMatrix) MA.multiply(senseT, hedgeCDSSensitivities);
+        DoubleArray b = (DoubleArray) MA.multiply(senseT, cdsSensitivities);
         LUDecompositionCommons decomp = new LUDecompositionCommons();
-        LUDecompositionResult luRes = decomp.evaluate(a);
+        LUDecompositionResult luRes = decomp.apply(a);
         return getHedgeRatios(b, luRes);
       }
     }
   }
 
-  public DoubleMatrix1D getHedgeRatios(DoubleMatrix1D cdsSensitivities, LUDecompositionResult luRes) {
+  public DoubleArray getHedgeRatios(DoubleArray cdsSensitivities, LUDecompositionResult luRes) {
     ArgChecker.notNull(cdsSensitivities, "cdsSensitivities");
     ArgChecker.notNull(luRes, " luRes");
-    DoubleMatrix1D w = luRes.solve(cdsSensitivities);
+    DoubleArray w = luRes.solve(cdsSensitivities);
     return w;
   }
 

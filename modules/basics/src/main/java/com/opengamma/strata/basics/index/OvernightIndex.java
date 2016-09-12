@@ -10,15 +10,15 @@ import java.time.LocalDate;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
 /**
- * An overnight index, such as Sonia or Eonia.
+ * An Overnight index, such as Sonia or Eonia.
  * <p>
  * An index represented by this class relates to lending over one night.
  * The rate typically refers to "Today/Tomorrow" but might refer to "Tomorrow/Next".
@@ -37,7 +37,7 @@ public interface OvernightIndex
     extends RateIndex, Named {
 
   /**
-   * Obtains an {@code OvernightIndex} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the index
@@ -52,7 +52,7 @@ public interface OvernightIndex
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code OvernightIndex} to be lookup up.
+   * This helper allows instances of the index to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper
@@ -63,6 +63,16 @@ public interface OvernightIndex
 
   //-------------------------------------------------------------------------
   /**
+   * Gets whether the index is active.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this method will return false.
+   * 
+   * @return true if the index is active, false if inactive
+   */
+  public abstract boolean isActive();
+
+  /**
    * Gets the day count convention of the index.
    * 
    * @return the day count convention
@@ -70,79 +80,15 @@ public interface OvernightIndex
   public abstract DayCount getDayCount();
 
   /**
-   * Gets the fixing calendar of the index.
+   * Gets the calendar that determines which dates are fixing dates.
    * <p>
    * The rate will be fixed on each business day in this calendar.
    * 
-   * @return the currency pair of the index
+   * @return the calendar used to determine the fixing dates of the index
    */
-  public abstract HolidayCalendar getFixingCalendar();
-
-  /**
-   * Gets the tenor of the index.
-   * 
-   * @return the tenor
-   */
-  public abstract Tenor getTenor();
+  public abstract HolidayCalendarId getFixingCalendar();
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the publication date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The publication date is the date on which the fixed rate is actually published.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the publication date
-   */
-  public abstract LocalDate calculatePublicationFromFixing(LocalDate fixingDate);
-
-  /**
-   * Calculates the effective date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the effective date
-   */
-  public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate);
-
-  /**
-   * Calculates the fixing date from the effective date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the fixing date
-   */
-  public abstract LocalDate calculateFixingFromEffective(LocalDate effectiveDate);
-
-  /**
-   * Calculates the maturity date from the effective date.
-   * <p>
-   * The effective date is the date on which the implied deposit starts.
-   * The maturity date is the date on which the implied deposit ends.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the maturity date
-   */
-  public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate);
-
-  //-----------------------------------------------------------------------
   /**
    * Gets the number of days to add to the fixing date to obtain the publication date.
    * <p>
@@ -165,6 +111,82 @@ public interface OvernightIndex
    * @return the effective date offset
    */
   public abstract int getEffectiveDateOffset();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the publication date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The publication date is the date on which the fixed rate is actually published.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return the publication date
+   */
+  public abstract LocalDate calculatePublicationFromFixing(LocalDate fixingDate, ReferenceData refData);
+
+  /**
+   * Calculates the effective date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The effective date is the date on which the implied deposit starts.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return the effective date
+   */
+  public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData);
+
+  /**
+   * Calculates the maturity date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The maturity date is the date on which the implied deposit ends.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return the maturity date
+   */
+  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData);
+
+  /**
+   * Calculates the fixing date from the effective date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The effective date is the date on which the implied deposit starts.
+   * <p>
+   * No error is thrown if the input date is not a valid effective date.
+   * Instead, the effective date is moved to the next valid effective date and then processed.
+   * 
+   * @param effectiveDate  the effective date
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return the fixing date
+   */
+  public abstract LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData);
+
+  /**
+   * Calculates the maturity date from the effective date.
+   * <p>
+   * The effective date is the date on which the implied deposit starts.
+   * The maturity date is the date on which the implied deposit ends.
+   * <p>
+   * No error is thrown if the input date is not a valid effective date.
+   * Instead, the effective date is moved to the next valid effective date and then processed.
+   * 
+   * @param effectiveDate  the effective date
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return the maturity date
+   */
+  public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**

@@ -61,7 +61,7 @@ public class CdsIndexCalculator {
    * @param indexCoupon The coupon of the index (as a fraction)
    * @param yieldCurve The yield curve
    * @param intrinsicData credit curves, weights and recovery rates of the intrinsic names
-   * @return The index value for a unit  notional. 
+   * @return The index value for a unit  notional.
    */
   public double indexPV(
       CdsAnalytic indexCDS,
@@ -83,7 +83,7 @@ public class CdsIndexCalculator {
    * @param yieldCurve The yield curve
    * @param intrinsicData credit curves, weights and recovery rates of the intrinsic names
    * @param priceType Clean or dirty price
-   * @return The index value for a unit  notional. 
+   * @return The index value for a unit  notional.
    */
   public double indexPV(
       CdsAnalytic indexCDS,
@@ -110,7 +110,7 @@ public class CdsIndexCalculator {
    *  forward (using the risk free yield curve) to the valuation time.
    *  This is because cash payments occur on the cash-settlement-date, which is usually
    *  three working days after the trade date (today) 
-   * @return The index value for a unit  notional. 
+   * @return The index value for a unit  notional.
    */
   public double indexPV(
       CdsAnalytic indexCDS,
@@ -155,7 +155,7 @@ public class CdsIndexCalculator {
    * @param indexCDS representation of the index cashflows (seen from today). 
    * @param yieldCurve The current yield curves 
    * @param intrinsicData credit curves, weights and recovery rates of the intrinsic names
-   * @return The normalised intrinsic value of the protection leg. 
+   * @return The normalised intrinsic value of the protection leg.
    */
   public double indexProtLeg(
       CdsAnalytic indexCDS,
@@ -177,7 +177,7 @@ public class CdsIndexCalculator {
    *  then rolled forward (using the risk free yield curve) to the valuation time.
    *  This is because cash payments occur on the cash-settlement-date, which is usually
    *  three working days after the trade date (today) 
-   * @return The normalised intrinsic value of the protection leg. 
+   * @return The normalised intrinsic value of the protection leg.
    */
   public double indexProtLeg(
       CdsAnalytic indexCDS,
@@ -420,11 +420,11 @@ public class CdsIndexCalculator {
    * value of the index plus the cash settlement of any defaults before
    * the expiry date, valued on the (forward) cash settlement date (usually 3 working days after
    * the expiry date - i.e. the expiry settlement date). 
-   * This calculation assumes an homogeneous pool that can be described by a single index curve. 
+   * This calculation assumes an homogeneous pool that can be described by a single index curve.
    * 
    * @param fwdStartingCDS A forward starting CDS to represent cash flows in the index.
    *  The stepin date should be one day after the expiry and the cashSettlement 
-   *  date (usually) 3 working days after expiry. This must contain the index recovery rate. 
+   *  date (usually) 3 working days after expiry. This must contain the index recovery rate.
    * @param timeToExpiry the time in years between the trade date and expiry.
    *  This should use the same DCC as the curves (ACT365F unless manually changed). 
    * @param yieldCurve The yield curve 
@@ -455,11 +455,11 @@ public class CdsIndexCalculator {
    * value of the index plus the cash settlement of any defaults before
    * the expiry date, valued on the (forward) cash settlement date (usually 3 working days after
    * the expiry date - i.e. the expiry settlement date). 
-   * This calculation assumes an homogeneous pool that can be described by a single index curve. 
+   * This calculation assumes an homogeneous pool that can be described by a single index curve.
    * 
    * @param fwdStartingCDS A forward starting CDS to represent cash flows in the index.
    *  The stepin date should be one day after the expiry and the cashSettlement 
-   *  date (usually) 3 working days after expiry. This must contain the index recovery rate. 
+   *  date (usually) 3 working days after expiry. This must contain the index recovery rate.
    * @param timeToExpiry the time in years between the trade date and expiry.
    *  This should use the same DCC as the curves (ACT365F unless manually changed). 
    * @param initialIndexSize The initial number of names in the index 
@@ -569,7 +569,7 @@ public class CdsIndexCalculator {
    * The (default adjusted) intrinsic forward spread of an index.
    * This is defined as the ratio of expected value of the protection leg and default settlement to
    * the expected value of the annuity at expiry.  This calculation assumes an homogeneous pool that
-   * can be described by a single index curve. 
+   * can be described by a single index curve.
    * 
    * @param fwdStartingCDS forward starting CDS to represent cash flows in the index.
    *  The stepin date should be one day after the expiry and the cashSettlement 
@@ -610,7 +610,7 @@ public class CdsIndexCalculator {
 
   /**
    * The normalised expected default settlement value paid on the  exercise settlement date.
-   * The actual default settlement is this multiplied by the (initial) index notional.  
+   * The actual default settlement is this multiplied by the (initial) index notional.
    * 
    * @param timeToExpiry Time to expiry 
    * @param intrinsicData credit curves, weights and recovery rates of the intrinsic names
@@ -657,7 +657,7 @@ public class CdsIndexCalculator {
   /**
    * The normalised expected default settlement value paid on the  exercise settlement date.
    * The actual default settlement is this multiplied by the (initial) 
-   * index notional.   This calculation assumes an homogeneous pool that can be described by a single index curve. 
+   * index notional.   This calculation assumes an homogeneous pool that can be described by a single index curve.
    * @param initialIndexSize Initial index size 
    * @param timeToExpiry Time to expiry 
    * @param indexCurve Pseudo credit curve for the index.

@@ -49,6 +49,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
@@ -75,6 +79,11 @@ import com.google.common.collect.ImmutableSortedSet;
  * Provides additional classes to help with testing.
  */
 public class TestHelper {
+
+  /**
+   * UTF-8 encoding name.
+   */
+  private static final String UTF_8 = "UTF-8";
 
   //-------------------------------------------------------------------------
   /**
@@ -171,6 +180,7 @@ public class TestHelper {
   /**
    * Asserts that the object can be serialized and deserialized via a string using Joda-Convert.
    * 
+   * @param <T>  the type
    * @param cls  the effective type
    * @param base  the object to be tested
    */
@@ -244,11 +254,25 @@ public class TestHelper {
   }
 
   /**
+   * Asserts that the lambda-based code throws an {@code RuntimeException}.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrowsRuntime(() -> new Foo(null));
+   * </pre>
+   * 
+   * @param runner  the lambda containing the code to test
+   */
+  public static void assertThrowsRuntime(AssertRunnable runner) {
+    assertThrows(runner, RuntimeException.class);
+  }
+
+  /**
    * Asserts that the lambda-based code throws an {@code IllegalArgumentException}.
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() -> new Foo(null));
+   *  assertThrowsIllegalArg(() -> new Foo(null));
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -258,12 +282,28 @@ public class TestHelper {
   }
 
   /**
+   * Asserts that the lambda-based code throws an {@code IllegalArgumentException} and checks the message
+   * matches an regex.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrowsIllegalArg(() -> new Foo(null), "Foo constructor argument must not be null");
+   * </pre>
+   *
+   * @param runner  the lambda containing the code to test
+   * @param regex  regular expression that must match the exception message
+   */
+  public static void assertThrowsIllegalArg(AssertRunnable runner, String regex) {
+    assertThrows(runner, IllegalArgumentException.class, regex);
+  }
+
+  /**
    * Asserts that the lambda-based code throws an exception
    * and that the cause of the exception is the supplied cause.
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() ->
+   *  assertThrowsWithCause(() ->
    *    executeSql("INSERT DATA THAT ALREADY EXISTS"), SQLIntegrityConstraintViolationException.class);
    * </pre>
    *
@@ -320,7 +360,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String sysOut = caputureSystemOut(() -> myCode);
+   *  String sysOut = captureSystemOut(() -> myCode);
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -331,7 +371,7 @@ public class TestHelper {
     // but that should be done only if synchronized is insufficient
     assertNotNull(runner, "caputureSystemOut() called with null Runnable");
     ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-    PrintStream ps = new PrintStream(baos);
+    PrintStream ps = Unchecked.wrap(() -> new PrintStream(baos, false, UTF_8));
     PrintStream old = System.out;
     try {
       System.setOut(ps);
@@ -340,7 +380,7 @@ public class TestHelper {
     } finally {
       System.setOut(old);
     }
-    return baos.toString();
+    return Unchecked.wrap(() -> baos.toString(UTF_8));
   }
 
   /**
@@ -351,7 +391,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  String sysErr = caputureSystemerr(() -> myCode);
+   *  String sysErr = captureSystemErr(() -> myCode);
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -362,7 +402,7 @@ public class TestHelper {
     // but that should be done only if synchronized is insufficient
     assertNotNull(runner, "caputureSystemErr() called with null Runnable");
     ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-    PrintStream ps = new PrintStream(baos);
+    PrintStream ps = Unchecked.wrap(() -> new PrintStream(baos, false, UTF_8));
     PrintStream old = System.err;
     try {
       System.setErr(ps);
@@ -371,7 +411,56 @@ public class TestHelper {
     } finally {
       System.setErr(old);
     }
-    return baos.toString();
+    return Unchecked.wrap(() -> baos.toString(UTF_8));
+  }
+
+  /**
+   * Capture log for testing.
+   * <p>
+   * This returns the output from calls to the java logger.
+   * This is thread-safe, providing that no other utility alters the logger.
+   * <p>
+   * For example:
+   * <pre>
+   *  String log = captureLog(Foo.class, () -> myCode);
+   * </pre>
+   * 
+   * @param loggerClass  the class defining the logger to trap
+   * @param runner  the lambda containing the code to test
+   * @return the captured output
+   */
+  public static synchronized List<LogRecord> caputureLog(Class<?> loggerClass, Runnable runner) {
+    assertNotNull(loggerClass, "caputureLog() called with null Class");
+    assertNotNull(runner, "caputureLog() called with null Runnable");
+    
+    Logger logger = Logger.getLogger(loggerClass.getName());
+    LogHandler handler = new LogHandler();
+    try {
+      handler.setLevel(Level.ALL);
+      logger.setUseParentHandlers(false);
+      logger.addHandler(handler);
+      runner.run();
+      return handler.records;
+    } finally {
+      logger.removeHandler(handler);
+    }
+  }
+
+  private static class LogHandler extends Handler {
+    List<LogRecord> records = new ArrayList<>();
+
+    @Override
+    public void publish(LogRecord record) {
+      records.add(record);
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public void flush() {
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -424,6 +513,7 @@ public class TestHelper {
   /**
    * Test an enum for the primary purpose of increasing test coverage.
    * 
+   * @param <E>  the enum type
    * @param clazz  the class to test
    */
   public static <E extends Enum<E>> void coverEnum(Class<E> clazz) {
@@ -492,8 +582,8 @@ public class TestHelper {
     assertFalse(bean1.equals("NonBean"));
     assertTrue(bean1.equals(bean1));
     assertTrue(bean2.equals(bean2));
-    assertEquals(bean1, JodaBeanUtils.cloneAlways(bean1));
-    assertEquals(bean2, JodaBeanUtils.cloneAlways(bean2));
+    ignoreThrows(() -> assertEquals(bean1, JodaBeanUtils.cloneAlways(bean1)));
+    ignoreThrows(() -> assertEquals(bean2, JodaBeanUtils.cloneAlways(bean2)));
     assertTrue(bean1.hashCode() == bean1.hashCode());
     assertTrue(bean2.hashCode() == bean2.hashCode());
     if (bean1.equals(bean2) || bean1.getClass() != bean2.getClass()) {
@@ -634,6 +724,11 @@ public class TestHelper {
 
     Class<? extends Bean> beanClass = bean.getClass();
     ignoreThrows(() -> {
+      Method m = beanClass.getDeclaredMethod("meta");
+      m.setAccessible(true);
+      m.invoke(null);
+    });
+    ignoreThrows(() -> {
       Method m = beanClass.getDeclaredMethod("meta" + beanClass.getSimpleName(), Class.class);
       m.setAccessible(true);
       m.invoke(null, String.class);
@@ -696,7 +791,7 @@ public class TestHelper {
     assertFalse(bean.equals(null));
     assertFalse(bean.equals("NonBean"));
     assertTrue(bean.equals(bean));
-    assertEquals(bean, JodaBeanUtils.cloneAlways(bean));
+    ignoreThrows(() -> assertEquals(bean, JodaBeanUtils.cloneAlways(bean)));
     assertTrue(bean.hashCode() == bean.hashCode());
   }
 
@@ -778,18 +873,19 @@ public class TestHelper {
           .put(Character.TYPE, Arrays.asList(' ', 'A', 'z'))
           .put(Boolean.class, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
           .put(Boolean.TYPE, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
-          .put(LocalDate.class, Arrays.asList(LocalDate.now(), LocalDate.of(2012, 6, 30)))
-          .put(LocalTime.class, Arrays.asList(LocalTime.now(), LocalTime.of(11, 30)))
-          .put(LocalDateTime.class, Arrays.asList(LocalDateTime.now(), LocalDateTime.of(2012, 6, 30, 11, 30)))
-          .put(OffsetTime.class, Arrays.asList(OffsetTime.now(), OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(1))))
+          .put(LocalDate.class, Arrays.asList(LocalDate.now(ZoneOffset.UTC), LocalDate.of(2012, 6, 30)))
+          .put(LocalTime.class, Arrays.asList(LocalTime.now(ZoneOffset.UTC), LocalTime.of(11, 30)))
+          .put(LocalDateTime.class, Arrays.asList(LocalDateTime.now(ZoneOffset.UTC), LocalDateTime.of(2012, 6, 30, 11, 30)))
+          .put(OffsetTime.class, Arrays.asList(
+              OffsetTime.now(ZoneOffset.UTC), OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(1))))
           .put(OffsetDateTime.class, Arrays.asList(
-              OffsetDateTime.now(), OffsetDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneOffset.ofHours(1))))
+              OffsetDateTime.now(ZoneOffset.UTC), OffsetDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneOffset.ofHours(1))))
           .put(ZonedDateTime.class, Arrays.asList(
-              ZonedDateTime.now(), ZonedDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneId.systemDefault())))
+              ZonedDateTime.now(ZoneOffset.UTC), ZonedDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneId.systemDefault())))
           .put(Instant.class, Arrays.asList(Instant.now(), Instant.EPOCH))
-          .put(Year.class, Arrays.asList(Year.now(), Year.of(2012)))
-          .put(YearMonth.class, Arrays.asList(YearMonth.now(), YearMonth.of(2012, 6)))
-          .put(MonthDay.class, Arrays.asList(MonthDay.now(), MonthDay.of(12, 25)))
+          .put(Year.class, Arrays.asList(Year.now(ZoneOffset.UTC), Year.of(2012)))
+          .put(YearMonth.class, Arrays.asList(YearMonth.now(ZoneOffset.UTC), YearMonth.of(2012, 6)))
+          .put(MonthDay.class, Arrays.asList(MonthDay.now(ZoneOffset.UTC), MonthDay.of(12, 25)))
           .put(Month.class, Arrays.asList(Month.JULY, Month.DECEMBER))
           .put(DayOfWeek.class, Arrays.asList(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
           .put(URI.class, Arrays.asList(URI.create("http://www.opengamma.com"), URI.create("http://www.joda.org")))

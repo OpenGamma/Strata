@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSortedMap;
 
 /**
@@ -135,9 +136,39 @@ public class ArgCheckerTest {
     ArgChecker.matches(Pattern.compile("[A-Z]+"), "", "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
   public void test_matches_String_noMatch() {
     ArgChecker.matches(Pattern.compile("[A-Z]+"), "123", "name");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_matches_CharMatcher_String_ok() {
+    assertEquals(ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "OG", "name", "[A-Z]+"), "OG");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_CharMatcher_String_tooShort() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "", "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_CharMatcher_String_tooLong() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "abc", "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'pattern'.*")
+  public void test_matches_CharMatcher_String_nullMatcher() {
+    ArgChecker.matches(null, 1, Integer.MAX_VALUE, "", "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_CharMatcher_String_nullString() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, null, "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
+  public void test_matches_CharMatcher_String_noMatch() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "123", "name", "[A-Z]+");
   }
 
   //-------------------------------------------------------------------------
@@ -514,7 +545,7 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_inRange() {
+  public void test_double_inRange() {
     double low = 0d;
     double mid = 0.5d;
     double high = 1d;
@@ -532,7 +563,7 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.inRangeExclusive(high - small, low, high, "name"), high - small);
   }
 
-  public void test_inRange_outOfRange() {
+  public void test_double_inRange_outOfRange() {
     double low = 0d;
     double high = 1d;
     double small = 0.00000000001d;
@@ -541,6 +572,33 @@ public class ArgCheckerTest {
 
     assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(low - small, low, high, "name"));
     assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(high + small, low, high, "name"));
+
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
+  }
+
+  public void test_int_inRange() {
+    int low = 0;
+    int mid = 1;
+    int high = 2;
+    assertEquals(ArgChecker.inRange(mid, low, high, "name"), mid);
+    assertEquals(ArgChecker.inRange(low, low, high, "name"), low);
+
+    assertEquals(ArgChecker.inRangeInclusive(mid, low, high, "name"), mid);
+    assertEquals(ArgChecker.inRangeInclusive(low, low, high, "name"), low);
+    assertEquals(ArgChecker.inRangeInclusive(high, low, high, "name"), high);
+
+    assertEquals(ArgChecker.inRangeExclusive(mid, low, high, "name"), mid);
+  }
+
+  public void test_int_inRange_outOfRange() {
+    int low = 0;
+    int high = 1;
+    assertThrowsIllegalArg(() -> ArgChecker.inRange(low - 1, low, high, "name"));
+    assertThrowsIllegalArg(() -> ArgChecker.inRange(high, low, high, "name"));
+
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(low - 1, low, high, "name"));
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(high + 1, low, high, "name"));
 
     assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
     assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));

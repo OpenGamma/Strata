@@ -1,5 +1,5 @@
 RedCode,Convention
-COMP10,NorthAmericanUsd
-COMP02,NorthAmericanUsd
-COMP01,NorthAmericanUsd
-COMP11,EuropeanEur
+COMP10,USD-NorthAmerican
+COMP02,USD-NorthAmerican
+COMP01,USD-NorthAmerican
+COMP11,EUR-European

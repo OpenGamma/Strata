@@ -27,23 +27,25 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 
 /**
  * A single cash flow of a currency amount on a specific date.
  */
 @BeanDefinition(builderScope = "private")
 public final class CashFlow
-    implements Comparable<CashFlow>, ImmutableBean, Serializable {
+    implements FxConvertible<CashFlow>, Comparable<CashFlow>, ImmutableBean, Serializable {
 
   /**
    * The payment date.
    * <p>
-   * This is the date on which the cash flow occurs. 
+   * This is the date on which the cash flow occurs.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate paymentDate;
   /**
-   * The present value of the cash flow. 
+   * The present value of the cash flow.
    * <p>
    * The present value is signed.
    * A negative value indicates a payment while a positive value indicates receipt.
@@ -51,18 +53,18 @@ public final class CashFlow
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount presentValue;
   /**
-   * The future value of the cash flow. 
+   * The forecast value of the cash flow.
    * <p>
-   * The future value is signed.
+   * The forecast value is signed.
    * A negative value indicates a payment while a positive value indicates receipt.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurrencyAmount futureValue;
+  private final CurrencyAmount forecastValue;
   /**
-   * The discount factor. 
+   * The discount factor.
    * <p>
    * This is the discount factor between valuation date and the payment date.
-   * Thus present value is the future value multiplied by the discount factor. 
+   * Thus present value is the forecast value multiplied by the discount factor.
    */
   @PropertyDefinition
   private final double discountFactor;
@@ -70,7 +72,7 @@ public final class CashFlow
   //-------------------------------------------------------------------------
   /**
    * Creates a {@code CashFlow} representing a single cash flow from
-   * payment date, present value and discount factor. 
+   * payment date, present value and discount factor.
    * 
    * @param paymentDate  the payment date
    * @param presentValue  the present value as a currency amount
@@ -83,7 +85,7 @@ public final class CashFlow
 
   /**
    * Creates a {@code CashFlow} representing a single cash flow from payment date, present value amount, 
-   * discount factor and currency. 
+   * discount factor and currency.
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency
@@ -97,29 +99,51 @@ public final class CashFlow
 
   /**
    * Creates a {@code CashFlow} representing a single cash flow from
-   * payment date, future value and discount factor. 
+   * payment date, forecast value and discount factor.
    * 
    * @param paymentDate  the payment date
-   * @param futureValue  the future value as a currency amount
+   * @param forecastValue  the forecast value as a currency amount
    * @param discountFactor  the discount factor
    * @return the cash flow instance
    */
-  public static CashFlow ofFutureValue(LocalDate paymentDate, CurrencyAmount futureValue, double discountFactor) {
-    return new CashFlow(paymentDate, futureValue.multipliedBy(discountFactor), futureValue, discountFactor);
+  public static CashFlow ofForecastValue(LocalDate paymentDate, CurrencyAmount forecastValue, double discountFactor) {
+    return new CashFlow(paymentDate, forecastValue.multipliedBy(discountFactor), forecastValue, discountFactor);
   }
 
   /**
-   * Creates a {@code CashFlow} representing a single cash flow from payment date, future value amount, 
-   * discount factor and currency. 
+   * Creates a {@code CashFlow} representing a single cash flow from payment date, forecast value amount,
+   * discount factor and currency.
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency
-   * @param futureValue  the amount of the future value
+   * @param forecastValue  the amount of the forecast value
    * @param discountFactor  the discount factor
    * @return the cash flow instance
    */
-  public static CashFlow ofFutureValue(LocalDate paymentDate, Currency currency, double futureValue, double discountFactor) {
-    return ofFutureValue(paymentDate, CurrencyAmount.of(currency, futureValue), discountFactor);
+  public static CashFlow ofForecastValue(LocalDate paymentDate, Currency currency, double forecastValue, double discountFactor) {
+    return ofForecastValue(paymentDate, CurrencyAmount.of(currency, forecastValue), discountFactor);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this cash flow to an equivalent amount in the specified currency.
+   * <p>
+   * The result will have both the present and forecast value expressed in terms of the given currency.
+   * If conversion is needed, the provider will be used to supply the FX rate.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the converted instance, in the specified currency
+   * @throws RuntimeException if no FX rate could be found
+   */
+  @Override
+  public CashFlow convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    if (presentValue.getCurrency().equals(resultCurrency) && forecastValue.getCurrency().equals(resultCurrency)) {
+      return this;
+    }
+    CurrencyAmount pv = presentValue.convertedTo(resultCurrency, rateProvider);
+    CurrencyAmount fv = forecastValue.convertedTo(resultCurrency, rateProvider);
+    return new CashFlow(paymentDate, pv, fv, discountFactor);
   }
 
   //-------------------------------------------------------------------------
@@ -134,7 +158,7 @@ public final class CashFlow
     return ComparisonChain.start()
         .compare(paymentDate, other.paymentDate)
         .compare(presentValue, other.presentValue)
-        .compare(futureValue, other.futureValue)
+        .compare(forecastValue, other.forecastValue)
         .compare(discountFactor, other.discountFactor)
         .result();
   }
@@ -161,14 +185,14 @@ public final class CashFlow
   private CashFlow(
       LocalDate paymentDate,
       CurrencyAmount presentValue,
-      CurrencyAmount futureValue,
+      CurrencyAmount forecastValue,
       double discountFactor) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(presentValue, "presentValue");
-    JodaBeanUtils.notNull(futureValue, "futureValue");
+    JodaBeanUtils.notNull(forecastValue, "forecastValue");
     this.paymentDate = paymentDate;
     this.presentValue = presentValue;
-    this.futureValue = futureValue;
+    this.forecastValue = forecastValue;
     this.discountFactor = discountFactor;
   }
 
@@ -212,14 +236,14 @@ public final class CashFlow
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the future value of the cash flow.
+   * Gets the forecast value of the cash flow.
    * <p>
-   * The future value is signed.
+   * The forecast value is signed.
    * A negative value indicates a payment while a positive value indicates receipt.
    * @return the value of the property, not null
    */
-  public CurrencyAmount getFutureValue() {
-    return futureValue;
+  public CurrencyAmount getForecastValue() {
+    return forecastValue;
   }
 
   //-----------------------------------------------------------------------
@@ -227,7 +251,7 @@ public final class CashFlow
    * Gets the discount factor.
    * <p>
    * This is the discount factor between valuation date and the payment date.
-   * Thus present value is the future value multiplied by the discount factor.
+   * Thus present value is the forecast value multiplied by the discount factor.
    * @return the value of the property
    */
   public double getDiscountFactor() {
@@ -242,10 +266,10 @@ public final class CashFlow
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CashFlow other = (CashFlow) obj;
-      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getPresentValue(), other.getPresentValue()) &&
-          JodaBeanUtils.equal(getFutureValue(), other.getFutureValue()) &&
-          JodaBeanUtils.equal(getDiscountFactor(), other.getDiscountFactor());
+      return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+          JodaBeanUtils.equal(presentValue, other.presentValue) &&
+          JodaBeanUtils.equal(forecastValue, other.forecastValue) &&
+          JodaBeanUtils.equal(discountFactor, other.discountFactor);
     }
     return false;
   }
@@ -253,10 +277,10 @@ public final class CashFlow
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPresentValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(presentValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(forecastValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountFactor);
     return hash;
   }
 
@@ -264,10 +288,10 @@ public final class CashFlow
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CashFlow{");
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("presentValue").append('=').append(getPresentValue()).append(',').append(' ');
-    buf.append("futureValue").append('=').append(getFutureValue()).append(',').append(' ');
-    buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(getDiscountFactor()));
+    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("presentValue").append('=').append(presentValue).append(',').append(' ');
+    buf.append("forecastValue").append('=').append(forecastValue).append(',').append(' ');
+    buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(discountFactor));
     buf.append('}');
     return buf.toString();
   }
@@ -293,10 +317,10 @@ public final class CashFlow
     private final MetaProperty<CurrencyAmount> presentValue = DirectMetaProperty.ofImmutable(
         this, "presentValue", CashFlow.class, CurrencyAmount.class);
     /**
-     * The meta-property for the {@code futureValue} property.
+     * The meta-property for the {@code forecastValue} property.
      */
-    private final MetaProperty<CurrencyAmount> futureValue = DirectMetaProperty.ofImmutable(
-        this, "futureValue", CashFlow.class, CurrencyAmount.class);
+    private final MetaProperty<CurrencyAmount> forecastValue = DirectMetaProperty.ofImmutable(
+        this, "forecastValue", CashFlow.class, CurrencyAmount.class);
     /**
      * The meta-property for the {@code discountFactor} property.
      */
@@ -309,7 +333,7 @@ public final class CashFlow
         this, null,
         "paymentDate",
         "presentValue",
-        "futureValue",
+        "forecastValue",
         "discountFactor");
 
     /**
@@ -325,8 +349,8 @@ public final class CashFlow
           return paymentDate;
         case 686253430:  // presentValue
           return presentValue;
-        case -513460882:  // futureValue
-          return futureValue;
+        case 1310579766:  // forecastValue
+          return forecastValue;
         case -557144592:  // discountFactor
           return discountFactor;
       }
@@ -366,11 +390,11 @@ public final class CashFlow
     }
 
     /**
-     * The meta-property for the {@code futureValue} property.
+     * The meta-property for the {@code forecastValue} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> futureValue() {
-      return futureValue;
+    public MetaProperty<CurrencyAmount> forecastValue() {
+      return forecastValue;
     }
 
     /**
@@ -389,8 +413,8 @@ public final class CashFlow
           return ((CashFlow) bean).getPaymentDate();
         case 686253430:  // presentValue
           return ((CashFlow) bean).getPresentValue();
-        case -513460882:  // futureValue
-          return ((CashFlow) bean).getFutureValue();
+        case 1310579766:  // forecastValue
+          return ((CashFlow) bean).getForecastValue();
         case -557144592:  // discountFactor
           return ((CashFlow) bean).getDiscountFactor();
       }
@@ -416,7 +440,7 @@ public final class CashFlow
 
     private LocalDate paymentDate;
     private CurrencyAmount presentValue;
-    private CurrencyAmount futureValue;
+    private CurrencyAmount forecastValue;
     private double discountFactor;
 
     /**
@@ -433,8 +457,8 @@ public final class CashFlow
           return paymentDate;
         case 686253430:  // presentValue
           return presentValue;
-        case -513460882:  // futureValue
-          return futureValue;
+        case 1310579766:  // forecastValue
+          return forecastValue;
         case -557144592:  // discountFactor
           return discountFactor;
         default:
@@ -451,8 +475,8 @@ public final class CashFlow
         case 686253430:  // presentValue
           this.presentValue = (CurrencyAmount) newValue;
           break;
-        case -513460882:  // futureValue
-          this.futureValue = (CurrencyAmount) newValue;
+        case 1310579766:  // forecastValue
+          this.forecastValue = (CurrencyAmount) newValue;
           break;
         case -557144592:  // discountFactor
           this.discountFactor = (Double) newValue;
@@ -492,7 +516,7 @@ public final class CashFlow
       return new CashFlow(
           paymentDate,
           presentValue,
-          futureValue,
+          forecastValue,
           discountFactor);
     }
 
@@ -503,7 +527,7 @@ public final class CashFlow
       buf.append("CashFlow.Builder{");
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("presentValue").append('=').append(JodaBeanUtils.toString(presentValue)).append(',').append(' ');
-      buf.append("futureValue").append('=').append(JodaBeanUtils.toString(futureValue)).append(',').append(' ');
+      buf.append("forecastValue").append('=').append(JodaBeanUtils.toString(forecastValue)).append(',').append(' ');
       buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(discountFactor));
       buf.append('}');
       return buf.toString();

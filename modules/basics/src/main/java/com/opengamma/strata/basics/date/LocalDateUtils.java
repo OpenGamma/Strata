@@ -6,6 +6,11 @@
 package com.opengamma.strata.basics.date;
 
 import java.time.LocalDate;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Utilities for working with {@code LocalDate}.
@@ -91,6 +96,41 @@ final class LocalDateUtils {
       return (firstDate.lengthOfYear() - doy(firstDate)) + doy(secondDate);
     }
     return secondDate.toEpochDay() - firstDate.toEpochDay();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Streams the set of dates included in the range.
+   * <p>
+   * This returns a stream consisting of each date in the range.
+   * The stream is ordered.
+   * 
+   * @param startInclusive  the start date
+   * @param endExclusive  the end date
+   * @return the stream of dates from the start to the end
+   */
+  static Stream<LocalDate> stream(LocalDate startInclusive, LocalDate endExclusive) {
+    Iterator<LocalDate> it = new Iterator<LocalDate>() {
+      private LocalDate current = startInclusive;
+
+      @Override
+      public LocalDate next() {
+        LocalDate result = current;
+        current = plusDays(current, 1);
+        return result;
+      }
+
+      @Override
+      public boolean hasNext() {
+        return current.isBefore(endExclusive);
+      }
+    };
+    long count = endExclusive.toEpochDay() - startInclusive.toEpochDay() + 1;
+    Spliterator<LocalDate> spliterator = Spliterators.spliterator(it, count,
+        Spliterator.IMMUTABLE | Spliterator.NONNULL |
+            Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SORTED |
+            Spliterator.SIZED | Spliterator.SUBSIZED);
+    return StreamSupport.stream(spliterator, false);
   }
 
 }

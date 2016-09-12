@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -46,29 +46,18 @@
   </scm>
 
   <!-- ==================================================================== -->
-  <!-- OpenGamma public repositories -->
-  <repositories>
-    <repository>
-      <id>og-public</id>
-      <name>OG Public</name>
-      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
-    </repository>
-  </repositories>
-
-  <!-- ==================================================================== -->
   <modules>
     <module>basics</module>
     <module>collect</module>
-    <module>engine</module>
-    <module>source</module>
-    <module>finance</module>
-    <module>finance-beta</module>
-    <module>function</module>
-    <module>function-beta</module>
+    <module>data</module>
+    <module>product</module>
     <module>market</module>
+    <module>loader</module>
+    <module>math</module>
     <module>pricer</module>
-    <module>pricer-beta</module>
-    <module>report-beta</module>
+    <module>calc</module>
+    <module>measure</module>
+    <module>report</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -141,9 +130,12 @@
             </goals>
             <configuration>
               <rules>
+                <dependencyConvergence />
                 <requireMavenVersion>
                   <version>[3.2.0,)</version>
                 </requireMavenVersion>
+                <requireNoRepositories />
+                <requirePluginVersions />
               </rules>
             </configuration>
           </execution>
@@ -157,6 +149,28 @@
           <execution>
             <goals>
               <goal>attach-descriptor</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Block bad APIs -->
+      <plugin>
+        <groupId>de.thetaphi</groupId>
+        <artifactId>forbiddenapis</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <internalRuntimeForbidden>true</internalRuntimeForbidden>
+          <failOnUnsupportedJava>false</failOnUnsupportedJava>
+          <bundledSignatures>
+            <bundledSignature>jdk-unsafe</bundledSignature>
+            <bundledSignature>jdk-deprecated</bundledSignature>
+          </bundledSignatures>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+              <goal>testCheck</goal>
             </goals>
           </execution>
         </executions>
@@ -194,17 +208,22 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-finance</artifactId>
+        <artifactId>strata-data</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-finance-beta</artifactId>
+        <artifactId>strata-math</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-engine</artifactId>
+        <artifactId>strata-product</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -214,39 +233,23 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-loader</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-pricer</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-pricer-beta</artifactId>
+        <artifactId>strata-report</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-report-beta</artifactId>
+        <artifactId>strata-measure</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-function</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-function-beta</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.analytics</groupId>
-        <artifactId>og-analytics</artifactId>
-        <version>${og-analytics.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <!-- Third party -->
       <dependency>
@@ -271,14 +274,24 @@
         <optional>true</optional><!-- needed only for annotations -->
       </dependency>
       <dependency>
-        <groupId>org.jooq</groupId>
-        <artifactId>jool</artifactId>
-        <version>${jool.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-nop</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
       </dependency>
       <!-- Testing -->
       <dependency>
@@ -297,14 +310,14 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-finance</artifactId>
+        <artifactId>strata-product</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-engine</artifactId>
+        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
@@ -317,19 +330,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.opengamma.analytics</groupId>
-        <artifactId>og-analytics</artifactId>
-        <version>${og-analytics.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
@@ -338,10 +338,19 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>1.10.19</version>
+        <version>${mockito.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-public-release</id>
+      <name>OpenGamma public maven repository</name>
+      <url>${og-public-release.url}</url>
+    </repository>
+  </distributionManagement>
 
   <!-- ==================================================================== -->
   <profiles>
@@ -504,22 +513,22 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Versions -->
-    <assertj.version>2.0.0</assertj.version>
+    <assertj.version>3.4.1</assertj.version>
     <findbugs.version>1.3.9</findbugs.version>
-    <guava.version>18.0</guava.version>
-    <joda-convert.version>1.7</joda-convert.version>
-    <joda-beans.version>1.6</joda-beans.version>
-    <jool.version>0.9.6</jool.version>
-    <og-analytics.version>3.0.0-SNAPSHOT</og-analytics.version>
-    <slf4j.version>1.7.12</slf4j.version>
-    <testng.version>6.9.4</testng.version>
+    <guava.version>19.0</guava.version>
+    <joda-convert.version>1.8.1</joda-convert.version>
+    <joda-beans.version>1.8</joda-beans.version>
+    <slf4j.version>1.7.21</slf4j.version>
+    <jcommander.version>1.48</jcommander.version>
+    <testng.version>6.9.10</testng.version>
+    <mockito.version>1.10.19</mockito.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
-    <javadoc.footer.license></javadoc.footer.license>
-    <additionalparam>-Xdoclint:none</additionalparam>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
+    <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
+    <additionalparam>-Xdoclint:missing -Xdoclint:reference</additionalparam>
   </properties>
 
 </project>

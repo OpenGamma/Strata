@@ -1,0 +1,11 @@
+Name,Currency,Country,Active,Publication Frequency
+,,,,,,
+GB-HICP,GBP,GB,true,P1M
+GB-RPI,GBP,GB,true,P1M
+GB-RPIX,GBP,GB,true,P1M
+CH-CPI,CHF,CH,true,P1M
+EU-AI-CPI,EUR,EU,true,P1M
+EU-EXT-CPI,EUR,EU,true,P1M
+JP-CPI-EXF,JPY,JP,true,P1M
+US-CPI-U,USD,US,true,P1M
+FR-EXT-CPI,EUR,FR,true,P1M

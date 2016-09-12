@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.strata</groupId>
     <artifactId>strata-parent</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>strata-market</artifactId>
@@ -21,23 +21,31 @@
     <!-- OpenGamma -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-basics</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-collect</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-finance</artifactId>
+      <artifactId>strata-basics</artifactId>
     </dependency>
-    <!-- TODO Temporary dependency on analytics -->
     <dependency>
-      <groupId>com.opengamma.analytics</groupId>
-      <artifactId>og-analytics</artifactId>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-data</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-product</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-math</artifactId>
     </dependency>
 
     <!-- Testing -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-collect</artifactId>

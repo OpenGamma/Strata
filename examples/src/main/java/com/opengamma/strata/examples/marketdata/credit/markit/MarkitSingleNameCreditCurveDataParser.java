@@ -23,16 +23,17 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
-import com.opengamma.strata.engine.marketdata.MarketEnvironmentBuilder;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
-import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
-import com.opengamma.strata.market.value.CdsRecoveryRate;
+import com.opengamma.strata.pricer.credit.CdsRecoveryRate;
+import com.opengamma.strata.pricer.credit.IsdaCreditCurveInputs;
+import com.opengamma.strata.pricer.credit.IsdaSingleNameCreditCurveInputsId;
+import com.opengamma.strata.pricer.credit.IsdaSingleNameRecoveryRateId;
+import com.opengamma.strata.product.credit.RestructuringClause;
+import com.opengamma.strata.product.credit.SeniorityLevel;
+import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
  * Parser to load daily credit curve information provided by Markit.
@@ -57,7 +58,7 @@ public class MarkitSingleNameCreditCurveDataParser {
 
   // Markit date format with the month in full caps. e.g. 11-JUL-14
   private static final DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder()
-      .parseCaseInsensitive().appendPattern("dd-MMM-yy").toFormatter(Locale.ENGLISH);
+      .parseCaseInsensitive().appendPattern("dd-MMM-uu").toFormatter(Locale.ENGLISH);
 
   // Index used to access the specified columns of string data in the file
   private static final int DATE = 0;
@@ -89,7 +90,7 @@ public class MarkitSingleNameCreditCurveDataParser {
    * @param staticDataSource  the source of static data to parse
    */
   public static void parse(
-      MarketEnvironmentBuilder builder,
+      ImmutableMarketDataBuilder builder,
       CharSource curveSource,
       CharSource staticDataSource) {
 
@@ -125,7 +126,7 @@ public class MarkitSingleNameCreditCurveDataParser {
             currency,
             restructuringClause);
 
-        IsdaSingleNameCreditCurveParRatesId curveId = IsdaSingleNameCreditCurveParRatesId.of(referenceInformation);
+        IsdaSingleNameCreditCurveInputsId curveId = IsdaSingleNameCreditCurveInputsId.of(referenceInformation);
 
         List<Period> periodsList = Lists.newArrayList();
         List<Double> ratesList = Lists.newArrayList();
@@ -147,13 +148,13 @@ public class MarkitSingleNameCreditCurveDataParser {
         LocalDate[] endDates = Lists
             .newArrayList(periods)
             .stream()
-            .map(p -> cdsConvention.getUnadjustedMaturityDateFromValuationDate(valuationDate, p))
+            .map(p -> cdsConvention.calculateUnadjustedMaturityDateFromValuationDate(valuationDate, p))
             .toArray(LocalDate[]::new);
 
         double[] rates = ratesList.stream().mapToDouble(s -> s).toArray();
         double unitScalingFactor = 1d; // for single name, we don't do any scaling (no index factor)
 
-        IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
+        IsdaCreditCurveInputs curveInputs = IsdaCreditCurveInputs.of(
             CurveName.of(creditCurveName),
             periods,
             endDates,
@@ -161,7 +162,7 @@ public class MarkitSingleNameCreditCurveDataParser {
             cdsConvention,
             unitScalingFactor);
 
-        builder.addValue(curveId, parRates);
+        builder.addValue(curveId, curveInputs);
 
         IsdaSingleNameRecoveryRateId recoveryRateId = IsdaSingleNameRecoveryRateId.of(referenceInformation);
         CdsRecoveryRate cdsRecoveryRate = CdsRecoveryRate.of(recoveryRate);
@@ -178,9 +179,9 @@ public class MarkitSingleNameCreditCurveDataParser {
   private static Map<MarkitRedCode, CdsConvention> parseStaticData(CharSource source) {
     CsvFile csv = CsvFile.of(source, true);
     Map<MarkitRedCode, CdsConvention> result = Maps.newHashMap();
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String redCodeText = csv.field(i, "RedCode");
-      String conventionText = csv.field(i, "Convention");
+    for (CsvRow row : csv.rows()) {
+      String redCodeText = row.getField("RedCode");
+      String conventionText = row.getField("Convention");
       result.put(MarkitRedCode.of(redCodeText), CdsConvention.of(conventionText));
     }
     return result;

@@ -8,9 +8,9 @@ package com.opengamma.strata.examples.marketdata.credit.markit;
 import org.joda.convert.FromString;
 
 import com.google.common.base.Preconditions;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * A simple string type to contain a 6 or 9 character Markit RED Code.
@@ -34,7 +34,7 @@ public final class MarkitRedCode
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code MarkitRedCode} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * RED codes must be 6 or 9 characters long.
    *
@@ -85,7 +85,7 @@ public final class MarkitRedCode
    * @return the standard identifier
    */
   public StandardId toStandardId() {
-    return StandardId.of(MARKIT_REDCODE_SCHEME, toString());
+    return StandardId.of(MARKIT_REDCODE_SCHEME, getName());
   }
 
 }

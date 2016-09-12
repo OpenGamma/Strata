@@ -54,7 +54,7 @@ public final class IntDoublePair
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code IntDoublePair} from an {@code int} and a {@code double}.
+   * Obtains an instance from an {@code int} and a {@code double}.
    * 
    * @param first  the first element
    * @param second  the second element
@@ -65,7 +65,7 @@ public final class IntDoublePair
   }
 
   /**
-   * Obtains an {@code IntDoublePair} from a {@code Pair}.
+   * Obtains an instance from a {@code Pair}.
    * 
    * @param pair  the pair to convert
    * @return a pair formed by extracting values from the pair

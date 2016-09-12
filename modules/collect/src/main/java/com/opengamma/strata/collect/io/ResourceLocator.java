@@ -8,13 +8,11 @@ package com.opengamma.strata.collect.io;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.stream.Stream;
+import java.nio.file.Path;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -24,13 +22,12 @@ import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Unchecked;
 
 /**
- * A locator for a resource, specified as a file or classpath resource.
+ * A locator for a resource, specified as a file, URL, path or classpath resource.
  * <p>
  * An instance of this class provides access to a resource, such as a configuration file.
- * The resource data is accessed using Guava {@link CharSource} or {@link ByteSource}.
+ * The resource data is accessed using {@link CharSource} or {@link ByteSource}.
  */
 public final class ResourceLocator {
 
@@ -42,6 +39,10 @@ public final class ResourceLocator {
    * The prefix for file resource locators.
    */
   public static final String FILE_URL_PREFIX = "file:";
+  /**
+   * The prefix for URL resource locators.
+   */
+  public static final String URL_PREFIX = "url:";
 
   /**
    * The resource locator.
@@ -56,8 +57,8 @@ public final class ResourceLocator {
   /**
    * Creates a resource from a string locator.
    * <p>
-   * This accepts locators starting with 'classpath:' or 'file:'.
-   * It also accepts unprefixed locators, treated as 'file:'.
+   * This accepts locators starting with 'classpath:', 'url:' or 'file:'.
+   * It also accepts unprefixed locators, treated as files.
    * 
    * @param locator  the string form of the resource locator
    * @return the resource locator
@@ -68,25 +69,32 @@ public final class ResourceLocator {
     try {
       if (locator.startsWith(CLASSPATH_URL_PREFIX)) {
         String urlStr = locator.substring(CLASSPATH_URL_PREFIX.length());
-        return ofClasspathUrl(Resources.getResource(urlStr));
+        return ofClasspath(urlStr);
 
       } else if (locator.startsWith(FILE_URL_PREFIX)) {
         String fileStr = locator.substring(FILE_URL_PREFIX.length());
         return ofFile(new File(fileStr));
 
+      } else if (locator.startsWith(URL_PREFIX)) {
+        String pathStr = locator.substring(URL_PREFIX.length());
+        return ofUrl(new URL(pathStr));
+
       } else {
         return ofFile(new File(locator));
       }
-    } catch (RuntimeException ex) {
+    } catch (Exception ex) {
       throw new IllegalArgumentException("Invalid resource locator: " + locator, ex);
     }
   }
 
   /**
    * Creates a resource from a {@code File}.
+   * <p>
+   * Windows separators are converted to UNIX style.
+   * This takes no account of possible '/' characters in the name.
    * 
    * @param file  the file to wrap
-   * @return the resource
+   * @return the resource locator
    */
   public static ResourceLocator ofFile(File file) {
     ArgChecker.notNull(file, "file");
@@ -97,10 +105,81 @@ public final class ResourceLocator {
   }
 
   /**
+   * Creates a resource from a {@code Path}.
+   * <p>
+   * This will return either a file locator or a URL locator.
+   *
+   * @param path  path to the file to wrap
+   * @return the resource locator
+   * @throws IllegalArgumentException if the path is neither a file nor a URL
+   */
+  public static ResourceLocator ofPath(Path path) {
+    ArgChecker.notNull(path, "path");
+    try {
+      return ofFile(path.toFile());
+    } catch (UnsupportedOperationException ex) {
+      try {
+        return ofUrl(path.toUri().toURL());
+      } catch (MalformedURLException ex2) {
+        throw new IllegalArgumentException("Path could not be converted to a File or URL: " + path);
+      }
+    }
+  }
+
+  /**
+   * Creates a resource from a {@code URL}.
+   *
+   * @param url  path to the file to wrap
+   * @return the resource locator
+   */
+  public static ResourceLocator ofUrl(URL url) {
+    ArgChecker.notNull(url, "url");
+    String filename = url.toString();
+    return new ResourceLocator(URL_PREFIX + filename, Resources.asByteSource(url));
+  }
+
+  /**
+   * Creates a resource from a fully qualified resource name.
+   * 
+   * @param resourceName  the classpath resource name
+   * @return the resource locator
+   */
+  public static ResourceLocator ofClasspath(String resourceName) {
+    ArgChecker.notNull(resourceName, "classpathLocator");
+    URL url = classLoader().getResource(resourceName);
+    if (url == null) {
+      throw new IllegalArgumentException("Resource not found: " + resourceName);
+    }
+    return ofClasspathUrl(url);
+  }
+
+  /**
+   * Creates a resource locator for a classpath resource which is associated with a class.
+   * <p>
+   * The classpath is searched using the same method as {@code Class.getResource}.
+   * <ul>
+   *   <li>If the resource name starts with '/' it is treated as an absolute path relative to the classpath root</li>
+   *   <li>Otherwise the resource name is treated as a path relative to the package containing the class</li>
+   * </ul>
+   *
+   * @param cls  the class
+   * @param resourceName  the resource name
+   * @return the resource locator
+   */
+  public static ResourceLocator ofClasspath(Class<?> cls, String resourceName) {
+    ArgChecker.notNull(resourceName, "classpathLocator");
+    URL url = cls.getResource(resourceName);
+    if (url == null) {
+      throw new IllegalArgumentException("Resource not found: " + resourceName);
+    }
+    return ofClasspathUrl(url);
+  }
+
+  /**
    * Creates a resource from a {@code URL}.
    * 
    * @param url  the URL to wrap
-   * @return the resource
+   * @return the resource locator
    */
   public static ResourceLocator ofClasspathUrl(URL url) {
     ArgChecker.notNull(url, "url");
@@ -109,27 +188,12 @@ public final class ResourceLocator {
   }
 
   /**
-   * Creates a stream of resource locators.
-   * <p>
-   * This finds all occurrences of the resource name in the classpath and returns them.
+   * Selects a suitable class loader.
    * 
-   * @param classpathResourceName  the classpath resource name
-   * @return the resource locators
-   * @throws UncheckedIOException if an IO exception occurs
+   * @return the class loader
    */
-  @FromString
-  public static Stream<ResourceLocator> streamOfClasspathResources(String classpathResourceName) {
-    ArgChecker.notNull(classpathResourceName, "classpathResourceName");
-    return Unchecked.wrap(() -> stream(classpathResourceName));
-  }
-
-  // break method out to avoid Eclipse compiler issues
-  private static Stream<ResourceLocator> stream(String classpathResourceName) throws IOException {
-    ClassLoader classLoader = firstNonNull(
-        Thread.currentThread().getContextClassLoader(),
-        ResourceLocator.class.getClassLoader());
-    return Collections.list(classLoader.getResources(classpathResourceName)).stream()
-        .map(url -> ResourceLocator.ofClasspathUrl(url));
+  static ClassLoader classLoader() {
+    return firstNonNull(Thread.currentThread().getContextClassLoader(), ResourceConfig.class.getClassLoader());
   }
 
   //-------------------------------------------------------------------------

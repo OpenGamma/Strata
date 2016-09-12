@@ -9,16 +9,16 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
+import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 
 /**
  *
@@ -289,10 +289,10 @@ public class IsdaCompliantYieldCurveBuild {
     int index1 = i1;
     int index2 = i2;
 
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    Function<Double, Double> func = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCurve tempCurve = curve.withRate(x, curveIndex);
         double sum = 1.0 - cachedValues; // Floating leg at par
         for (int i = index1; i < index2; i++) {
@@ -303,10 +303,10 @@ public class IsdaCompliantYieldCurveBuild {
       }
     };
 
-    Function1D<Double, Double> grad = new Function1D<Double, Double>() {
+    Function<Double, Double> grad = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double apply(Double x) {
         IsdaCompliantCurve tempCurve = curve.withRate(x, curveIndex);
         double sum = cachedSense;
         for (int i = index1; i < index2; i++) {
@@ -320,11 +320,14 @@ public class IsdaCompliantYieldCurveBuild {
     };
 
     double guess = curve.getZeroRateAtIndex(curveIndex);
-    if (guess == 0.0 && func.evaluate(guess) == 0.0) {
+    if (guess == 0.0 && func.apply(guess) == 0.0) {
       return curve;
     }
-    double[] bracket = BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, 0, Double.POSITIVE_INFINITY);
-    double r = ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
+    double[] bracket = BRACKETER.getBracketedPoints(
+        func, 0.8 * guess, 1.25 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+    double r = bracket[0] > bracket[1] ?
+        ROOTFINDER.getRoot(func, grad, bracket[1], bracket[0]) :
+        ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
     return curve.withRate(r, curveIndex);
   }
 

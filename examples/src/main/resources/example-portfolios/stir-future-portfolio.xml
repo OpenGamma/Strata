@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.strata.examples.report.TradeList">
+ <trades>
+  <item type="com.opengamma.strata.product.index.IborFutureTrade">
+   <info>
+    <id>example~1</id>
+    <counterparty>example~A</counterparty>
+    <tradeDate>2014-09-12</tradeDate>
+    <settlementDate>2014-09-14</settlementDate>
+    <attributes>
+     <entry key="description">Mar15 IMM Ibor Future</entry>
+    </attributes>
+   </info>
+   <product type="com.opengamma.strata.product.index.IborFuture">
+    <securityId>OG-Future~Ibor-USD-LIBOR-3M-Mar15</securityId>
+    <currency>USD</currency>
+    <notional>1000000.0</notional>
+    <accrualFactor>0.25</accrualFactor>
+    <lastTradeDate>2015-03-16</lastTradeDate>
+    <index>USD-LIBOR-3M</index>
+    <rounding type="com.opengamma.strata.basics.value.NoRounding"/>
+   </product>
+   <quantity>20</quantity>
+   <price>0.9997</price>
+  </item>
+  <item type="IborFutureTrade">
+   <info>
+    <id>example~1</id>
+    <counterparty>example~A</counterparty>
+    <tradeDate>2014-09-12</tradeDate>
+    <settlementDate>2014-09-14</settlementDate>
+    <attributes>
+     <entry key="description">Jun15 IMM Ibor Future</entry>
+    </attributes>
+   </info>
+   <product type="IborFuture">
+    <securityId>OG-Future~Ibor-USD-LIBOR-3M-Jun15</securityId>
+    <currency>USD</currency>
+    <notional>1000000.0</notional>
+    <accrualFactor>0.25</accrualFactor>
+    <lastTradeDate>2015-06-15</lastTradeDate>
+    <index>USD-LIBOR-3M</index>
+    <rounding type="NoRounding"/>
+   </product>
+   <quantity>20</quantity>
+   <price>0.9997</price>
+  </item>
+ </trades>
+</bean>

@@ -79,7 +79,7 @@ public class CdsIndexE2ETest extends IsdaBaseTest {
     double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * INTRINSIC_DATA.getIndexFactor() * NOTIONAL; // indexFactor = (initialIndexSize - numDefaults) / initialIndexSize
 
     /*
-     * Using credit curves for constituent single name CDSs. 
+     * Using credit curves for constituent single name CDSs.
      * The curves are adjusted by using only the target CDX.
      */
     IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF[pos], CDX[pos], INDEX_COUPON, YIELD_CURVE,
@@ -277,7 +277,7 @@ public class CdsIndexE2ETest extends IsdaBaseTest {
     double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * NOTIONAL * INTRINSIC_DATA.getIndexFactor();
 
     /*
-     * Using credit curves for constituent single name CDSs. 
+     * Using credit curves for constituent single name CDSs.
      * The curves are adjusted by using only the target CDX.
      */
     IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF, marketCDX, INDEX_COUPON, YIELD_CURVE,
@@ -370,7 +370,7 @@ public class CdsIndexE2ETest extends IsdaBaseTest {
     double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * NOTIONAL * dataDefaulted.getIndexFactor();
 
     /*
-     * Using credit curves for constituent single name CDSs. 
+     * Using credit curves for constituent single name CDSs.
      * The curves are adjusted by using only the target CDX.
      */
     IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF[pos], CDX[pos], INDEX_COUPON, YIELD_CURVE,

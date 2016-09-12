@@ -14,14 +14,15 @@ import java.time.Month;
 import java.time.Period;
 import java.util.Arrays;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
+import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
+
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
-import org.testng.annotations.Test;
-
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
@@ -63,17 +64,17 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
     final int n = HEDGE_CDS.length;
     final double[] hedgeCoupons = new double[n];
     Arrays.fill(hedgeCoupons, cdsCoupon);
-    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
+    final DoubleArray w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
     final double[] expected = new double[] {-1.1842173839714448E-6, 0.36244465818986815, 0.6376106050590048, 0.0, 0.0, 0.0 };
     //regression test
     for (int i = 0; i < n; i++) {
-      assertEquals("", expected[i], w.getEntry(i), 1e-15);
+      assertEquals("", expected[i], w.get(i), 1e-15);
     }
 
     //value portfolio
     double pv = PRICER.pv(cds, YIELD_CURVE, CREDIT_CURVE, cdsCoupon);
     for (int i = 0; i < n; i++) {
-      pv -= w.getEntry(i) * PRICER.pv(HEDGE_CDS[i], YIELD_CURVE, CREDIT_CURVE, hedgeCoupons[i]);
+      pv -= w.get(i) * PRICER.pv(HEDGE_CDS[i], YIELD_CURVE, CREDIT_CURVE, hedgeCoupons[i]);
     }
 
     //perturb the credit curve 
@@ -90,7 +91,7 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
       final IsdaCompliantCreditCurve cc = new IsdaCompliantCreditCurve(t, bumpedH);
       double pvBumped = PRICER.pv(cds, YIELD_CURVE, cc, cdsCoupon);
       for (int i = 0; i < n; i++) {
-        pvBumped -= w.getEntry(i) * PRICER.pv(HEDGE_CDS[i], YIELD_CURVE, cc, hedgeCoupons[i]);
+        pvBumped -= w.get(i) * PRICER.pv(HEDGE_CDS[i], YIELD_CURVE, cc, hedgeCoupons[i]);
       }
       final double change = pvBumped - pv;
       assertTrue(change > 0 && change < 3e-7); //position has positive gamma, so change should always be positive 
@@ -107,7 +108,7 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
     final int n = HEDGE_CDS.length;
     final double[] hedgeCoupons = new double[n];
     Arrays.fill(hedgeCoupons, cdsCoupon);
-    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, flatCC, YIELD_CURVE);
+    final DoubleArray w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, flatCC, YIELD_CURVE);
     System.out.println(w);
   }
 
@@ -120,10 +121,10 @@ public class HedgeRatioCalculatorTest extends IsdaBaseTest {
     final int n = hedgeCDS.length;
     final double[] hedgeCoupons = new double[n];
     Arrays.fill(hedgeCoupons, cdsCoupon);
-    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, hedgeCDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
+    final DoubleArray w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, hedgeCDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
     final double[] expected = new double[] {0.3877847710928422, 0.026594401620818442 };
     for (int i = 0; i < n; i++) {
-      assertEquals("", expected[i], w.getEntry(i), 1e-15);
+      assertEquals("", expected[i], w.get(i), 1e-15);
     }
   }
 

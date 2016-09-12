@@ -1,0 +1,5 @@
+Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator
+EUR-DSCON-FRTB,Zero,Act/365F,Linear,Flat,Flat
+EUR-EURIBOR3M-FRTB,Zero,Act/365F,Linear,Flat,Flat
+USD-DSCON-FRTB,Zero,Act/365F,Linear,Flat,Flat
+USD-LIBOR3M-FRTB,Zero,Act/365F,Linear,Flat,Flat

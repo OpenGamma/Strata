@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.examples.finance.credit;
 
-import com.opengamma.strata.examples.finance.CdsTradeExample;
+import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
+import com.opengamma.strata.examples.finance.CdsTradeExample;
 
 /**
  * Test.
@@ -19,7 +20,7 @@ public class CdsTradeExampleTest {
   public void test_load_from_classpath() {
     String xmlStringFromClasspath = CdsTradeExample.loadExamplePortfolio();
     String xmlStringFromClasspathCompact = CdsTradeExample.serializeCompact(CdsTradeExample.deserialize(xmlStringFromClasspath));
-    String xmlStringFromCode = CdsTradeExample.serializeCompact(CdsTradeExample.portfolio);
+    String xmlStringFromCode = CdsTradeExample.serializeCompact(CdsTradeExample.tradeList);
     assertEquals(xmlStringFromClasspathCompact, xmlStringFromCode);
   }
 

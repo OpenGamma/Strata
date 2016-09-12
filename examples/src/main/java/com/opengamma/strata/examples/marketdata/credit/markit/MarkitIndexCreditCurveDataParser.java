@@ -16,18 +16,19 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.CsvFile;
-import com.opengamma.strata.engine.marketdata.MarketEnvironmentBuilder;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
-import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
-import com.opengamma.strata.market.value.CdsRecoveryRate;
+import com.opengamma.strata.pricer.credit.CdsRecoveryRate;
+import com.opengamma.strata.pricer.credit.IsdaCreditCurveInputs;
+import com.opengamma.strata.pricer.credit.IsdaIndexCreditCurveInputsId;
+import com.opengamma.strata.pricer.credit.IsdaIndexRecoveryRateId;
+import com.opengamma.strata.product.credit.IndexReferenceInformation;
+import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
  * Parser to load daily index curve information provided by Markit.
@@ -45,7 +46,7 @@ public class MarkitIndexCreditCurveDataParser {
 
   // Markit date format with the month in full caps. e.g. 11-JUL-14
   private static final DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder()
-      .parseCaseInsensitive().appendPattern("dd-MMM-yy").toFormatter(Locale.ENGLISH);
+      .parseCaseInsensitive().appendPattern("dd-MMM-uu").toFormatter(Locale.ENGLISH);
 
   enum Columns {
 
@@ -76,29 +77,28 @@ public class MarkitIndexCreditCurveDataParser {
    * @param staticDataSource  the source of static data to parse
    */
   public static void parse(
-      MarketEnvironmentBuilder builder,
+      ImmutableMarketDataBuilder builder,
       CharSource curveSource,
       CharSource staticDataSource) {
 
-    Map<IsdaIndexCreditCurveParRatesId, List<Point>> curveData = Maps.newHashMap();
+    Map<IsdaIndexCreditCurveInputsId, List<Point>> curveData = Maps.newHashMap();
     Map<MarkitRedCode, StaticData> staticDataMap = parseStaticData(staticDataSource);
 
     CsvFile csv = CsvFile.of(curveSource, true);
-    for (int i = 0; i < csv.rowCount(); i++) {
-
-      String seriesText = csv.field(i, Columns.Series.getColumnName());
-      String versionText = csv.field(i, Columns.Version.getColumnName());
-      String termText = csv.field(i, Columns.Term.getColumnName());
-      String redCodeText = csv.field(i, Columns.RedCode.getColumnName());
-      String maturityText = csv.field(i, Columns.Maturity.getColumnName());
-      String compositeSpreadText = csv.field(i, Columns.CompositeSpread.getColumnName());
-      String modelSpreadText = csv.field(i, Columns.ModelSpread.getColumnName());
+    for (CsvRow row : csv.rows()) {
+      String seriesText = row.getField(Columns.Series.getColumnName());
+      String versionText = row.getField(Columns.Version.getColumnName());
+      String termText = row.getField(Columns.Term.getColumnName());
+      String redCodeText = row.getField(Columns.RedCode.getColumnName());
+      String maturityText = row.getField(Columns.Maturity.getColumnName());
+      String compositeSpreadText = row.getField(Columns.CompositeSpread.getColumnName());
+      String modelSpreadText = row.getField(Columns.ModelSpread.getColumnName());
 
       StandardId indexId = MarkitRedCode.id(redCodeText);
       int indexSeries = Integer.parseInt(seriesText);
       int indexAnnexVersion = Integer.parseInt(versionText);
 
-      IsdaIndexCreditCurveParRatesId id = IsdaIndexCreditCurveParRatesId.of(
+      IsdaIndexCreditCurveInputsId id = IsdaIndexCreditCurveInputsId.of(
           IndexReferenceInformation.of(
               indexId,
               indexSeries,
@@ -128,7 +128,7 @@ public class MarkitIndexCreditCurveDataParser {
       points.add(new Point(term, maturity, spread));
     }
 
-    for (IsdaIndexCreditCurveParRatesId curveId : curveData.keySet()) {
+    for (IsdaIndexCreditCurveInputsId curveId : curveData.keySet()) {
       MarkitRedCode redCode = MarkitRedCode.from(curveId.getReferenceInformation().getIndexId());
       StaticData staticData = staticDataMap.get(redCode);
       ArgChecker.notNull(staticData, "Did not find a static data record for " + redCode);
@@ -145,7 +145,7 @@ public class MarkitIndexCreditCurveDataParser {
       LocalDate[] endDates = points.stream().map(s -> s.getDate()).toArray(LocalDate[]::new);
       double[] rates = points.stream().mapToDouble(s -> s.getRate()).toArray();
 
-      IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
+      IsdaCreditCurveInputs curveInputs = IsdaCreditCurveInputs.of(
           CurveName.of(creditCurveName),
           periods,
           endDates,
@@ -153,7 +153,7 @@ public class MarkitIndexCreditCurveDataParser {
           convention,
           indexFactor);
 
-      builder.addValue(curveId, parRates);
+      builder.addValue(curveId, curveInputs);
 
       IsdaIndexRecoveryRateId recoveryRateId = IsdaIndexRecoveryRateId.of(curveId.getReferenceInformation());
       CdsRecoveryRate cdsRecoveryRate = CdsRecoveryRate.of(recoveryRate);
@@ -167,12 +167,12 @@ public class MarkitIndexCreditCurveDataParser {
     CsvFile csv = CsvFile.of(source, true);
 
     Map<MarkitRedCode, StaticData> result = Maps.newHashMap();
-    for (int i = 0; i < csv.rowCount(); i++) {
-      String redCodeText = csv.field(i, "RedCode");
-      String fromDateText = csv.field(i, "From Date");
-      String conventionText = csv.field(i, "Convention");
-      String recoveryRateText = csv.field(i, "Recovery Rate");
-      String indexFactorText = csv.field(i, "Index Factor");
+    for (CsvRow row : csv.rows()) {
+      String redCodeText = row.getField("RedCode");
+      String fromDateText = row.getField("From Date");
+      String conventionText = row.getField("Convention");
+      String recoveryRateText = row.getField("Recovery Rate");
+      String indexFactorText = row.getField("Index Factor");
 
       MarkitRedCode redCode = MarkitRedCode.of(redCodeText);
       LocalDate fromDate = LocalDate.parse(fromDateText, DATE_FORMAT);

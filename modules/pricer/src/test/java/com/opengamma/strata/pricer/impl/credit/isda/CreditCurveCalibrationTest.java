@@ -12,6 +12,8 @@ import java.time.Month;
 import java.time.Period;
 import java.util.Arrays;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
+
 /**
  * Test.
  */
@@ -85,7 +87,9 @@ public class CreditCurveCalibrationTest extends IsdaBaseTest {
     spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     maDates = new LocalDate[] {LocalDate.of(2011, Month.NOVEMBER, 30), LocalDate.of(2012, Month.MAY, 30), LocalDate.of(2014, Month.MAY, 30), LocalDate.of(2016, Month.MAY, 30),
       LocalDate.of(2018, Month.MAY, 30), LocalDate.of(2021, Month.MAY, 30) };
-    PILLAR_CDS[3] = factory.withRecoveryRate(0.25).withAccrualDCC(ACT365F).with(Period.ofMonths(6)).with(CdsStubType.FRONTLONG).makeCds(tradeDate, effDate, maDates);
+    PILLAR_CDS[3] =
+        factory.withRecoveryRate(0.25).withAccrualDCC(ACT365F).with(Period.ofMonths(6)).with(StubConvention.LONG_INITIAL)
+            .makeCds(tradeDate, effDate, maDates);
     SPREADS[3] = new double[] {0.07, 0.06, 0.05, 0.055, 0.06, 0.065 };
     YIELD_CURVES[3] = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
     SUR_PROB_ISDA[3] = new double[] {0.99238650617037, 0.977332973057625, 0.955179740225657, 0.92187587198518, 0.868032006457467, 0.817353939709416, 0.751100020583073, 0.690170357851426,

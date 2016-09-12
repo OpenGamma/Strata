@@ -14,15 +14,7 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
-import com.opengamma.strata.pricer.impl.credit.isda.CreditCurveCalibrator;
-import com.opengamma.strata.pricer.impl.credit.isda.FastCreditCurveBuilder;
-import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuilder.ArbitrageHandling;
-import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
-import com.opengamma.strata.pricer.impl.credit.isda.MultiCdsAnalytic;
-import com.opengamma.strata.pricer.impl.credit.isda.SuperFastCreditCurveBuilder;
 
 /**
  * Test.

@@ -13,6 +13,8 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.schedule.StubConvention;
+
 /**
  * Test.
  */
@@ -40,7 +42,7 @@ public class AnalyticCdsPricerTest extends IsdaBaseTest {
 
     final boolean payAccOnDefault = true;
 
-    final CdsAnalytic cds = new CdsAnalytic(today, stepin, valueDate, startDate, endDate, payAccOnDefault, Period.ofMonths(3), CdsStubType.FRONTSHORT, false, 0.4);
+    final CdsAnalytic cds = new CdsAnalytic(today, stepin, valueDate, startDate, endDate, payAccOnDefault, Period.ofMonths(3), StubConvention.SHORT_INITIAL, false, 0.4);
 
     for (int count = 0; count < 2; count++) {
       final AnalyticCdsPricer pricer = count == 0 ? PRICER : PRICER_MARKIT_FIX;
@@ -114,7 +116,7 @@ public class AnalyticCdsPricerTest extends IsdaBaseTest {
     final LocalDate startDate = today.plusMonths(1); // protection starts in a month
     final LocalDate endDate = LocalDate.of(2023, 6, 20);
 
-    final CdsAnalytic cds = new CdsAnalytic(today, stepin, valueDate, startDate, endDate, true, Period.ofMonths(3), CdsStubType.FRONTSHORT, false, 0.4);
+    final CdsAnalytic cds = new CdsAnalytic(today, stepin, valueDate, startDate, endDate, true, Period.ofMonths(3), StubConvention.SHORT_INITIAL, false, 0.4);
 
     final double fd = fdProtectionLegSense(cds, yieldCurve, creditCurve);
 

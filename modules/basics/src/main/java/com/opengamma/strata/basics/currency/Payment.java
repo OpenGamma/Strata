@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -23,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
 /**
  * A single payment of a known amount on a specific date.
@@ -53,9 +54,23 @@ public final class Payment
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a {@code Payment} representing an amount.
+   * Obtains an instance representing an amount.
    * <p>
-   * Whether the payment is pay or receive is determined by the sign of the specified amonut.
+   * Whether the payment is pay or receive is determined by the sign of the specified amount.
+   * 
+   * @param currency  the currency of the payment
+   * @param amount  the amount of the payment
+   * @param date  the date that the payment is made
+   * @return the payment instance
+   */
+  public static Payment of(Currency currency, double amount, LocalDate date) {
+    return new Payment(CurrencyAmount.of(currency, amount), date);
+  }
+
+  /**
+   * Obtains an instance representing an amount.
+   * <p>
+   * Whether the payment is pay or receive is determined by the sign of the specified amount.
    * 
    * @param value  the amount of the payment
    * @param date  the date that the payment is made
@@ -66,7 +81,7 @@ public final class Payment
   }
 
   /**
-   * Creates a {@code Payment} representing an amount to be paid.
+   * Obtains an instance representing an amount to be paid.
    * <p>
    * The sign of the amount will be normalized to be negative, indicating a payment.
    * 
@@ -79,7 +94,7 @@ public final class Payment
   }
 
   /**
-   * Creates a {@code Payment} representing an amount to be received.
+   * Obtains an instance representing an amount to be received.
    * <p>
    * The sign of the amount will be normalized to be positive, indicating receipt.
    * 
@@ -117,13 +132,19 @@ public final class Payment
     return value.getAmount();
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets a flag indicating whether the value is to be paid or received.
+   * Adjusts the payment date using the rules of the specified adjuster.
+   * <p>
+   * The adjuster is typically an instance of {@link BusinessDayAdjustment}.
+   * If the date is unchanged by the adjuster, {@code this} payment will be returned.
    * 
-   * @return the pay receive flag
+   * @param adjuster  the adjuster to apply to the payment date
+   * @return the adjusted payment
    */
-  public PayReceive getPayReceive() {
-    return PayReceive.ofSignedAmount(value.getAmount());
+  public Payment adjustDate(TemporalAdjuster adjuster) {
+    LocalDate adjusted = date.with(adjuster);
+    return adjusted.equals(date) ? this : toBuilder().date(adjusted).build();
   }
 
   //-------------------------------------------------------------------------
@@ -132,7 +153,7 @@ public final class Payment
    * <p>
    * This takes this payment and negates it.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a payment based on this with the value negated
    */
@@ -249,8 +270,8 @@ public final class Payment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Payment other = (Payment) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate());
+      return JodaBeanUtils.equal(value, other.value) &&
+          JodaBeanUtils.equal(date, other.date);
     }
     return false;
   }
@@ -258,8 +279,8 @@ public final class Payment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
   }
 
@@ -267,8 +288,8 @@ public final class Payment
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Payment{");
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("date").append('=').append(JodaBeanUtils.toString(getDate()));
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();
   }

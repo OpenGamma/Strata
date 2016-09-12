@@ -24,7 +24,7 @@ public final class DateAdjusters {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a date adjuster that finds the next leap day after the input date.
+   * Obtains an instance that finds the next leap day after the input date.
    * <p>
    * The adjuster returns the next occurrence of February 29 after the input date.
    * 

@@ -1,0 +1,3 @@
+Curve Name,Label,Symbology,Ticker,Field Name,Type,Convention,Time
+,,,,,,,,,,,
+USD-Disc,1M,OG-Ticker,USD-OIS-1M,MarketValue,Rubbish,USD-FIXED-TERM-FED-FUND-OIS,1M

@@ -7,12 +7,13 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.function.Function;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
+import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
+import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 
 /**
  * This is a bootstrapper for the credit curve that is consistent with ISDA in that it will produce the same curve from
@@ -102,7 +103,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
    */
   @Override
   public IsdaCompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
-      final double fractionalParSpread, final boolean payAccOnDefault, final Period tenor, final CdsStubType stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
+      final double fractionalParSpread, final boolean payAccOnDefault, final Period tenor, final StubConvention stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
       final double recoveryRate) {
     return calibrateCreditCurve(today, stepinDate, valueDate, startDate, new LocalDate[] {endDate }, new double[] {fractionalParSpread }, payAccOnDefault, tenor, stubType, protectStart, yieldCurve,
         recoveryRate);
@@ -113,7 +114,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
    */
   @Override
   public IsdaCompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, final CdsStubType stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, final StubConvention stubType, final boolean protectStart, final IsdaCompliantYieldCurve yieldCurve,
       final double recoveryRate) {
 
     ArgChecker.notNull(today, "null today");
@@ -140,7 +141,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
     return calibrateCreditCurve(cds, couponRates, yieldCurve);
   }
 
-  private class CDSPricer extends Function1D<Double, Double> {
+  private class CDSPricer implements Function<Double, Double> {
 
     private final int _index;
     private final CdsAnalytic _cds;
@@ -160,7 +161,7 @@ public class SimpleCreditCurveBuilder extends IsdaCompliantCreditCurveBuilder {
     }
 
     @Override
-    public Double evaluate(final Double x) {
+    public Double apply(final Double x) {
       final IsdaCompliantCreditCurve cc = _creditCurve.withRate(x, _index);
       return _pricer.pv(_cds, _yieldCurve, cc, _spread) - _pointsUpfront;
     }

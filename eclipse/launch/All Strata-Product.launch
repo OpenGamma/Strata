@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.testng.eclipse.launchconfig">
+<listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
+<listEntry value="=strata-product/src\/main\/java"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-product"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS"/>
+<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>
+<booleanAttribute key="org.testng.eclipse.DEBUG" value="false"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
+<stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
+<listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.strata.product"/>
+<listEntry value="com.opengamma.strata.product.bond"/>
+<listEntry value="com.opengamma.strata.product.bond.type"/>
+<listEntry value="com.opengamma.strata.product.capfloor"/>
+<listEntry value="com.opengamma.strata.product.capfloor.type"/>
+<listEntry value="com.opengamma.strata.product.cms"/>
+<listEntry value="com.opengamma.strata.product.cms.type"/>
+<listEntry value="com.opengamma.strata.product.credit"/>
+<listEntry value="com.opengamma.strata.product.credit.type"/>
+<listEntry value="com.opengamma.strata.product.deposit"/>
+<listEntry value="com.opengamma.strata.product.deposit.type"/>
+<listEntry value="com.opengamma.strata.product.dsf"/>
+<listEntry value="com.opengamma.strata.product.fra"/>
+<listEntry value="com.opengamma.strata.product.fra.type"/>
+<listEntry value="com.opengamma.strata.product.fx"/>
+<listEntry value="com.opengamma.strata.product.fx.type"/>
+<listEntry value="com.opengamma.strata.product.fxopt"/>
+<listEntry value="com.opengamma.strata.product.fxopt.type"/>
+<listEntry value="com.opengamma.strata.product.index"/>
+<listEntry value="com.opengamma.strata.product.index.type"/>
+<listEntry value="com.opengamma.strata.product.option"/>
+<listEntry value="com.opengamma.strata.product.payment"/>
+<listEntry value="com.opengamma.strata.product.rate"/>
+<listEntry value="com.opengamma.strata.product.swap"/>
+<listEntry value="com.opengamma.strata.product.swap.type"/>
+<listEntry value="com.opengamma.strata.product.swaption"/>
+<listEntry value="com.opengamma.strata.product.swaption.type"/>
+</listAttribute>
+<mapAttribute key="org.testng.eclipse.PARAMETERS"/>
+<stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>
+<stringAttribute key="org.testng.eclipse.PROTOCOL" value="object"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="5"/>
+<booleanAttribute key="org.testng.eclipse.VERBOSE" value="false"/>
+</launchConfiguration>

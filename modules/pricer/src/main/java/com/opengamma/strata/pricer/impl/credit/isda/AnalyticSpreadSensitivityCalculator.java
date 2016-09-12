@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
+import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
 
 /**
  *
@@ -184,19 +184,13 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.notNull(yieldCurve, "yieldCurve");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    double[] temp = new double[n];
-    double[][] res = new double[n][n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i);
-      for (int j = 0; j < n; j++) {
-        res[j][i] = _pricer.parSpreadCreditSensitivity(bucketCDSs[i], yieldCurve, creditCurve, j);
-      }
-    }
-    DoubleMatrix1D vLambda = new DoubleMatrix1D(temp);
-    DoubleMatrix2D jacT = new DoubleMatrix2D(res);
-    LUDecompositionResult luRes = decomp.evaluate(jacT);
-    DoubleMatrix1D vS = luRes.solve(vLambda);
-    return vS.getData();
+    DoubleArray vLambda = DoubleArray.of(n,
+        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
+    DoubleMatrix jacT = DoubleMatrix.of(n, n,
+        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
+    LUDecompositionResult luRes = decomp.apply(jacT);
+    DoubleArray vS = luRes.solve(vLambda);
+    return vS.toArray();
   }
 
   public double[][] bucketedCS01FromCreditCurve(
@@ -215,16 +209,12 @@ public class AnalyticSpreadSensitivityCalculator {
     ArgChecker.isTrue(m == cdsCoupon.length, m + " CDSs but " + cdsCoupon.length + " coupons");
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
-    DoubleMatrix2D jacT = new DoubleMatrix2D(n, n);
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        jacT.getData()[j][i] = _pricer.parSpreadCreditSensitivity(bucketCDSs[i], yieldCurve, creditCurve, j);
-      }
-    }
+    DoubleMatrix jacT = DoubleMatrix.of(n, n,
+        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
 
     double[] vLambda = new double[n];
     double[][] res = new double[m][];
-    LUDecompositionResult luRes = decomp.evaluate(jacT);
+    LUDecompositionResult luRes = decomp.apply(jacT);
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
         vLambda[j] = _pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, cdsCoupon[i], j);

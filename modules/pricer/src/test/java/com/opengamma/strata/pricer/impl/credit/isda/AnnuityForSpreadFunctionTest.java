@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * 
@@ -72,7 +73,7 @@ public class AnnuityForSpreadFunctionTest {
         ImmDateLogic.getNextIMMDate(TRADE_DATE).plus(TENOR),
         true,
         interval,
-        CdsStubType.FRONTSHORT,
+        StubConvention.SHORT_INITIAL,
         true,
         0.4);
     final AnnuityForSpreadContPemiumApproxFunction contPrem = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
@@ -81,9 +82,9 @@ public class AnnuityForSpreadFunctionTest {
 
     final double spread = 100 * 1.e-4;
 
-    final double integralWithTriangle = contPrem.evaluate(spread);
-    final double sumWithCalibrate = isda.evaluate(spread);
-    final double sumWithTriangle = approx.evaluate(spread);
+    final double integralWithTriangle = contPrem.apply(spread);
+    final double sumWithCalibrate = isda.apply(spread);
+    final double sumWithTriangle = approx.apply(spread);
     final double ref = sumWithCalibrate * 1.e-3;
     assertEquals(sumWithCalibrate, integralWithTriangle, ref);
     assertEquals(sumWithCalibrate, sumWithTriangle, ref);
@@ -105,7 +106,7 @@ public class AnnuityForSpreadFunctionTest {
         ImmDateLogic.getNextIMMDate(TRADE_DATE).plus(tenor),
         true,
         interval,
-        CdsStubType.FRONTSHORT,
+        StubConvention.SHORT_INITIAL,
         true,
         0.4);
     final AnnuityForSpreadContPemiumApproxFunction contPrem = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
@@ -114,9 +115,9 @@ public class AnnuityForSpreadFunctionTest {
 
     final double spread = 100 * 1.e-4;
 
-    final double integralWithTriangle = contPrem.evaluate(spread);
-    final double sumWithCalibrate = isda.evaluate(spread);
-    final double sumWithTriangle = approx.evaluate(spread);
+    final double integralWithTriangle = contPrem.apply(spread);
+    final double sumWithCalibrate = isda.apply(spread);
+    final double sumWithTriangle = approx.apply(spread);
     final double ref = sumWithCalibrate * 1.e-2;
     assertEquals(sumWithCalibrate, integralWithTriangle, ref);
     assertEquals(sumWithCalibrate, sumWithTriangle, ref);

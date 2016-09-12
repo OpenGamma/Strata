@@ -14,56 +14,67 @@ public enum FailureReason {
 
   /**
    * There were multiple failures of different types.
-   * When a function is called it may produce zero to many errors.
+   * <p>
+   * An operation may produce zero to many errors.
    * If there is one error then that reason is used.
    * If there are many errors then the overall reason is "multiple".
    */
   MULTIPLE,
   /**
-   * There was an exception thrown during the function call.
-   * Where possible, more specific reason codes should be used.
+   * An error occurred.
+   * <p>
+   * Where possible, a more specific reason code should be used.
    */
   ERROR,
   /**
-   * There was no applicable calculation to be performed.
-   * This is used to indicate a result that was not or could not be calculated,
-   * but where calculation was not desired or applicable. This might occur in a
-   * grid of results where not every column is applicable for a specific row.
+   * The input was invalid.
+   * <p>
+   * One or more input parameters was invalid.
+   */
+  INVALID,
+  /**
+   * A parsing error occurred.
+   * <p>
+   * This is used when an error occurred during parsing.
+   * Typically, this refers to parsing a file, such as CSV or XML.
+   */
+  PARSING,
+  /**
+   * The operation requested was not applicable.
+   * <p>
+   * This is used when the particular combination of inputs is not applicable,
+   * but given a different combination a result could have been calculated.
+   * For example, this might occur in a grid of results where the calculation
+   * requested for a column is not applicable for every row.
    */
   NOT_APPLICABLE,
   /**
-   * The input was invalid.
-   * This is used if no configured function matched the specified input object.
+   * The operation requested is unsupported.
+   * <p>
+   * The operation failed because it is not supported.
    */
-  INVALID_INPUT,
+  UNSUPPORTED,
   /**
-   * No value was provided for a non-nullable argument.
-   * When running a function, values must be available for all parameters.
-   * This reason indicates that a value was missing.
-   */
-  MISSING_ARGUMENT,
-  /**
-   * Some data required for the function was missing.
-   * When running a function, all the necessary data must be available.
-   * This reason indicates that a piece of data was missing.
+   * The operation failed because data was missing.
+   * <p>
+   * One or more pieces of data that the operation required were missing.
    */
   MISSING_DATA,
   /**
-   * Some aspect of the calculation in the function has failed.
+   * Currency conversion failed.
+   * <p>
+   * This is used to indicate that the operation failed during currency conversion, perhaps due to missing FX rates.
+   */
+  CURRENCY_CONVERSION,
+  /**
+   * The operation could not be performed.
+   * <p>
+   * This is used to indicate that a calculation failed.
    */
   CALCULATION_FAILED,
   /**
-   * Some data required for the function has been requested but not received and
-   * therefore the function could not be successfully completed.
-   * If the function is retried the calculation may succeed.
-   */
-  PENDING_DATA,
-  /**
-   * The user has insufficient permissions to view the result.
-   */
-  PERMISSION_DENIED,
-  /**
    * Failure occurred for some other reason.
+   * <p>
    * This reason should only be used when no other type is applicable.
    * If using this reason, please consider raising an issue to get another
    * more descriptive reason added.

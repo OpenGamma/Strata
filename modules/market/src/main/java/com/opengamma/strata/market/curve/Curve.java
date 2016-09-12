@@ -5,7 +5,19 @@
  */
 package com.opengamma.strata.market.curve;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.time.Period;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve that maps a {@code double} x-value to a {@code double} y-value.
@@ -18,7 +30,7 @@ import java.time.Period;
  * 
  * @see InterpolatedNodalCurve
  */
-public interface Curve {
+public interface Curve extends ParameterizedData {
 
   /**
    * Gets the curve metadata.
@@ -30,12 +42,22 @@ public interface Curve {
    * The metadata could be used to describe each parameter in terms of a {@link Period}.
    * <p>
    * The metadata includes an optional list of parameter metadata.
-   * If parameter metadata is not known, the list will be empty.
-   * Otherwise, the size of the parameter metadata list will match the number of parameters of this curve.
+   * If parameter metadata is present, the size of the list will match the number of parameters of this curve.
    * 
    * @return the metadata
    */
   public abstract CurveMetadata getMetadata();
+
+  /**
+   * Returns a new curve with the specified metadata.
+   * <p>
+   * This allows the metadata of the curve to be changed while retaining all other information.
+   * If parameter metadata is present, the size of the list must match the number of parameters of this curve.
+   * 
+   * @param metadata  the new metadata for the curve
+   * @return the new curve
+   */
+  public abstract Curve withMetadata(CurveMetadata metadata);
 
   /**
    * Gets the curve name.
@@ -46,14 +68,18 @@ public interface Curve {
     return getMetadata().getCurveName();
   }
 
-  /**
-   * Gets the number of parameters in the curve.
-   * <p>
-   * This returns the number of parameters that are used to define the curve.
-   * 
-   * @return the number of parameters
-   */
-  public abstract int getParameterCount();
+  @Override
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getMetadata().getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public abstract Curve withParameter(int parameterIndex, double newValue);
+
+  @Override
+  default Curve withPerturbation(ParameterPerturbation perturbation) {
+    return (Curve) ParameterizedData.super.withPerturbation(perturbation);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -74,7 +100,7 @@ public interface Curve {
    * @return the sensitivity
    * @throws RuntimeException if the sensitivity cannot be calculated
    */
-  public abstract double[] yValueParameterSensitivity(double x);
+  public abstract UnitParameterSensitivity yValueParameterSensitivity(double x);
 
   /**
    * Computes the first derivative of the curve.
@@ -86,5 +112,39 @@ public interface Curve {
    * @throws RuntimeException if the derivative cannot be calculated
    */
   public abstract double firstDerivative(double x);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a parameter sensitivity instance for this curve when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #yValueParameterSensitivity(double)} should be used and manipulated.
+   * However, it can be useful to create a {@link UnitParameterSensitivity} from pre-computed sensitivity values.
+   * 
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the curve
+   * @return the sensitivity
+   */
+  public default UnitParameterSensitivity createParameterSensitivity(DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return UnitParameterSensitivity.of(getName(), paramMeta, sensitivities);
+  }
+
+  /**
+   * Creates a parameter sensitivity instance for this curve when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #yValueParameterSensitivity(double)} should be used and manipulated.
+   * However, it can be useful to create a {@link CurrencyParameterSensitivity} from pre-computed sensitivity values.
+   * 
+   * @param currency  the currency
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the curve
+   * @return the sensitivity
+   */
+  public default CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return CurrencyParameterSensitivity.of(getName(), paramMeta, currency, sensitivities);
+  }
 
 }

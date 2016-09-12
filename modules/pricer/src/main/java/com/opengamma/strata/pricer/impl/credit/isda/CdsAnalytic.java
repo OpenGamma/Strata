@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -65,8 +66,7 @@ public class CdsAnalytic {
    *  any default after this date does not trigger a payment. (the protection ends at end of day)
    * @param payAccOnDefault  is the accrued premium paid in the event of a default
    * @param paymentInterval  the nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType  the stub type Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType  the stub convention
    * @param protectStart  if protectStart = true, then protections starts at the beginning of the day, otherwise it is at the end.
    * @param recoveryRate  the recovery rate
    */
@@ -78,7 +78,7 @@ public class CdsAnalytic {
       LocalDate endDate,
       boolean payAccOnDefault,
       Period paymentInterval,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       double recoveryRate) {
 
@@ -108,8 +108,7 @@ public class CdsAnalytic {
    *  any default after this date does not trigger a payment. (the protection ends at end of day)
    * @param payAccOnDefault  is the accrued premium paid in the event of a default
    * @param paymentInterval  the nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType  the stub type Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType  the stub convention
    * @param protectStart  if protectStart = true, then protections starts at the beginning of the day, otherwise it is at the end.
    * @param recoveryRate  the recovery rate
    * @param businessdayAdjustmentConvention  how are adjustments for non-business days made
@@ -124,7 +123,7 @@ public class CdsAnalytic {
       LocalDate endDate,
       boolean payAccOnDefault,
       Period paymentInterval,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       double recoveryRate,
       BusinessDayConvention businessdayAdjustmentConvention,
@@ -152,8 +151,7 @@ public class CdsAnalytic {
    *  any default after this date does not trigger a payment. (the protection ends at end of day)
    * @param payAccOnDefault  is the accrued premium paid in the event of a default
    * @param paymentInterval  the nominal step between premium payments (e.g. 3 months, 6 months).
-   * @param stubType  the stub type Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * @param stubType  the stub convention
    * @param protectStart  if protectStart = true, then protections starts at the beginning of the day, otherwise it is at the end.
    * @param recoveryRate  the recovery rate
    * @param businessdayAdjustmentConvention How are adjustments for non-business days made
@@ -169,7 +167,7 @@ public class CdsAnalytic {
       LocalDate endDate,
       boolean payAccOnDefault,
       Period paymentInterval,
-      CdsStubType stubType,
+      StubConvention stubType,
       boolean protectStart,
       double recoveryRate,
       BusinessDayConvention businessdayAdjustmentConvention,
@@ -256,8 +254,8 @@ public class CdsAnalytic {
 
   /**
    * Year fraction (according to curve DCC) from trade date to accrual start date.
-   * This will be negative for spot starting CDS, but will be positive for forward starting CDS.   
-   * @return accrual start year-fraction. 
+   * This will be negative for spot starting CDS, but will be positive for forward starting CDS.
+   * @return accrual start year-fraction.
    */
   public double getAccStart() {
     return _accStart;
@@ -275,7 +273,7 @@ public class CdsAnalytic {
   }
 
   /**
-   *  Year fraction (according to curve DCC) from trade date to the maturity of the CDS. 
+   *  Year fraction (according to curve DCC) from trade date to the maturity of the CDS.
    * @return the protectionEnd
    */
   public double getProtectionEnd() {
@@ -284,7 +282,7 @@ public class CdsAnalytic {
 
   /**
    * Get all the coupons on the premium leg.
-   * @return the coupons. 
+   * @return the coupons.
    */
   public CdsCoupon[] getCoupons() {
     return _coupons;

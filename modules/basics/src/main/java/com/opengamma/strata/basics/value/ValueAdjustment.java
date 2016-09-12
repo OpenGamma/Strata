@@ -67,7 +67,7 @@ public final class ValueAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a value adjustment that replaces the base value.
+   * Obtains an instance that replaces the base value.
    * <p>
    * The base value is ignored when calculating the result.
    * 
@@ -79,7 +79,7 @@ public final class ValueAdjustment
   }
 
   /**
-   * Obtains a value adjustment specifying an amount to add to the base value.
+   * Obtains an instance specifying an amount to add to the base value.
    * <p>
    * The result will be {@code (baseValue + deltaAmount)}.
    * 
@@ -91,7 +91,7 @@ public final class ValueAdjustment
   }
 
   /**
-   * Obtains a value adjustment specifying a multiplication factor, adding it to the base value.
+   * Obtains an instance specifying a multiplication factor, adding it to the base value.
    * <p>
    * The result will be {@code (baseValue + baseValue * modifyingValue)}.
    * 
@@ -105,7 +105,7 @@ public final class ValueAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a value adjustment specifying a multiplication factor to apply to the base value.
+   * Obtains an instance specifying a multiplication factor to apply to the base value.
    * <p>
    * The result will be {@code (baseValue * modifyingValue)}.
    * 
@@ -227,8 +227,8 @@ public final class ValueAdjustment
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ValueAdjustment other = (ValueAdjustment) obj;
-      return JodaBeanUtils.equal(getModifyingValue(), other.getModifyingValue()) &&
-          JodaBeanUtils.equal(getType(), other.getType());
+      return JodaBeanUtils.equal(modifyingValue, other.modifyingValue) &&
+          JodaBeanUtils.equal(type, other.type);
     }
     return false;
   }
@@ -236,8 +236,8 @@ public final class ValueAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getModifyingValue());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(modifyingValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(type);
     return hash;
   }
 

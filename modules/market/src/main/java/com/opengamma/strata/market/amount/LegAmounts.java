@@ -135,7 +135,7 @@ public final class LegAmounts
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       LegAmounts other = (LegAmounts) obj;
-      return JodaBeanUtils.equal(getAmounts(), other.getAmounts());
+      return JodaBeanUtils.equal(amounts, other.amounts);
     }
     return false;
   }
@@ -143,7 +143,7 @@ public final class LegAmounts
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(amounts);
     return hash;
   }
 
@@ -151,7 +151,7 @@ public final class LegAmounts
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("LegAmounts{");
-    buf.append("amounts").append('=').append(JodaBeanUtils.toString(getAmounts()));
+    buf.append("amounts").append('=').append(JodaBeanUtils.toString(amounts));
     buf.append('}');
     return buf.toString();
   }

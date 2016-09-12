@@ -13,6 +13,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
+import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -53,6 +55,48 @@ public class GuavateTest {
     Optional<String> empty = Optional.empty();
     List<String> test2 = Guavate.stream(empty).collect(Collectors.toList());
     assertEquals(test2, ImmutableList.of());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_zipWithIndex() {
+    Stream<String> base = Stream.of("a", "b", "c");
+    List<ObjIntPair<String>> test = Guavate.zipWithIndex(base).collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of(ObjIntPair.of("a", 0), ObjIntPair.of("b", 1), ObjIntPair.of("c", 2)));
+  }
+
+  public void test_zipWithIndex_empty() {
+    Stream<String> base = Stream.of();
+    List<ObjIntPair<String>> test = Guavate.zipWithIndex(base).collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_zip() {
+    Stream<String> base1 = Stream.of("a", "b", "c");
+    Stream<Integer> base2 = Stream.of(1, 2, 3);
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2), Pair.of("c", 3)));
+  }
+
+  public void test_zip_firstLonger() {
+    Stream<String> base1 = Stream.of("a", "b", "c");
+    Stream<Integer> base2 = Stream.of(1, 2);
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
+  }
+
+  public void test_zip_secondLonger() {
+    Stream<String> base1 = Stream.of("a", "b");
+    Stream<Integer> base2 = Stream.of(1, 2, 3);
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
+  }
+
+  public void test_zip_empty() {
+    Stream<String> base1 = Stream.of();
+    Stream<Integer> base2 = Stream.of();
+    List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of());
   }
 
   //-------------------------------------------------------------------------
@@ -124,6 +168,14 @@ public class GuavateTest {
   public void test_toImmutableMap_key_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     list.stream().collect(Guavate.toImmutableMap(s -> s.length()));
+  }
+
+  public void test_toImmutableMap_mergeFn() {
+    List<String> list = Arrays.asList("a", "b", "b", "b", "c", "a");
+    Map<String, Integer> result = list.stream()
+        .collect(Guavate.toImmutableMap(s -> s, s -> 1, (s1, s2) -> s1 + s2));
+    Map<String, Integer> expected = ImmutableMap.of("a", 2, "b", 3, "c", 1);
+    assertEquals(result, expected);
   }
 
   public void test_toImmutableMap_keyValue() {
@@ -207,7 +259,6 @@ public class GuavateTest {
   //-------------------------------------------------------------------------
 
   public void test_mapEntriesToImmutableMap() {
-
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
     Map<String, Integer> expected = ImmutableMap.of("a", 1, "c", 3, "e", 5);
     ImmutableMap<String, Integer> output =
@@ -219,14 +270,13 @@ public class GuavateTest {
   }
 
   public void test_pairsToImmutableMap() {
-
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
     Map<String, Double> expected = ImmutableMap.of("A", 1.0, "B", 4.0, "C", 9.0, "D", 16.0);
 
     ImmutableMap<String, Double> output =
         input.entrySet()
             .stream()
-            .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
+            .map(e -> Pair.of(e.getKey().toUpperCase(Locale.ENGLISH), Math.pow(e.getValue(), 2)))
             .collect(pairsToImmutableMap());
     assertEquals(output, expected);
   }

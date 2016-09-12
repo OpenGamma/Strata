@@ -179,15 +179,15 @@ public final class XmlElement
   }
 
   /**
-   * Gets an attribute by name, or empty if not found.
+   * Finds an attribute by name, or empty if not found.
    * <p>
    * This returns the value of the attribute with the specified name.
-   * An exception is thrown if the attribute does not exist.
+   * If the attribute is not found, optional empty is returned.
    * 
    * @param attrName  the attribute name to find
    * @return the attribute value, optional
    */
-  public Optional<String> getAttributeOptional(String attrName) {
+  public Optional<String> findAttribute(String attrName) {
     return Optional.ofNullable(attributes.get(attrName));
   }
 
@@ -257,23 +257,23 @@ public final class XmlElement
    * @throws IllegalArgumentException if there is more than one match or no matches
    */
   public XmlElement getChild(String childName) {
-    return getChildOptional(childName)
+    return findChild(childName)
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
             "Unknown element '{}' in element '{}'", childName, name)));
   }
 
   /**
-   * Gets the child element with the specified name, or empty if not found,
+   * Finds the child element with the specified name, or empty if not found,
    * throwing an exception if more than one.
    * <p>
    * This returns the child element with the specified name.
-   * An exception is thrown if there is more than one matching child.
+   * If the element is not found, optional empty is returned.
    * 
    * @param childName  the name to match
    * @return the child matching the name, optional
    * @throws IllegalArgumentException if there is more than one match
    */
-  public Optional<XmlElement> getChildOptional(String childName) {
+  public Optional<XmlElement> findChild(String childName) {
     return streamChildren(childName).reduce(ensureOnlyOne());
   }
 
