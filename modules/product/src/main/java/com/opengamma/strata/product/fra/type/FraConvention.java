@@ -101,11 +101,51 @@ public interface FraConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a trade based on this convention.
+   * Creates a trade based on this convention, using the index tenor to define the end of the FRA.
+   * <p>
+   * This returns a trade based on the specified period to start.
+   * For example, a '2 x 5' FRA has a period to the start date of 2 months.
+   * The period to the end, 5 months, is implied by adding the tenor of the index,
+   * 3 months, to the period to start.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * <p>
+   * The start date will be the trade date, plus spot offset, plus period to start, adjusted to a valid business day.
+   * The end date will be the trade date, plus spot offset, plus period to start, plus index tenor, adjusted to a valid business day.
+   * The adjustment of the start and end date occurs at trade creation.
+   * The payment date offset is also applied at trade creation.
+   * When the Fra is {@linkplain Fra#resolve(ReferenceData) resolved}, the start and end date
+   * are not adjusted again but the payment date is.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param periodToStart  the period between the spot date and the start date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default FraTrade createTrade(
+      LocalDate tradeDate,
+      Period periodToStart,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+    
+    Period periodToEnd = periodToStart.plus(getIndex().getTenor());
+    return createTrade(tradeDate, periodToStart, periodToEnd , buySell, notional, fixedRate, refData);
+  }
+
+  /**
+   * Creates a trade based on this convention, specifying the end of the FRA.
    * <p>
    * This returns a trade based on the specified periods.
    * For example, a '2 x 5' FRA has a period to the start date of 2 months and
-   * a period to the end date of 5 months
+   * a period to the end date of 5 months.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
