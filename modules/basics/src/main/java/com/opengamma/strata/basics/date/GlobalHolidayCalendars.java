@@ -131,6 +131,15 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar CATO = generateToronto();
   /**
+   * The holiday calendar for Copenhagen, Denmark, with code 'DKCO'.
+   * <p>
+   * This constant provides the calendar for Copenhagen holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar DKCO = generateCopenhagen();
+  /**
    * The holiday calendar for Oslo, Norway, with code 'NOOS'.
    * <p>
    * This constant provides the calendar for Oslo holidays.
@@ -654,6 +663,45 @@ final class GlobalHolidayCalendars {
   }
 
   //-------------------------------------------------------------------------
+  // generate DKCO
+  // data sources
+  // http://www.finansraadet.dk/Bankkunde/Pages/bankhelligdage.aspx
+  // web archive history of those pages
+  static ImmutableHolidayCalendar generateCopenhagen() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // maundy thursday
+      holidays.add(easter(year).minusDays(3));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // prayer day (Friday)
+      holidays.add(easter(year).plusDays(26));
+      // ascension (Thursday)
+      holidays.add(easter(year).plusDays(39));
+      // ascension + 1 (Friday)
+      holidays.add(easter(year).plusDays(40));
+      // whit monday
+      holidays.add(easter(year).plusDays(50));
+      // constitution
+      holidays.add(date(year, 6, 5));
+      // christmas eve
+      holidays.add(date(year, 12, 24));
+      // christmas
+      holidays.add(date(year, 12, 25));
+      // boxing
+      holidays.add(date(year, 12, 26));
+      // new years eve
+      holidays.add(date(year, 12, 31));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("DKCO"), holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
   // generate NOOS
   // data sources
   // http://www.oslobors.no/ob_eng/Oslo-Boers/About-Oslo-Boers/Opening-hours
@@ -691,6 +739,7 @@ final class GlobalHolidayCalendars {
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
   }
 
+  //-------------------------------------------------------------------------
   // http://www.rba.gov.au/schedules-events/bank-holidays/bank-holidays-2016.html
   // http://www.rba.gov.au/schedules-events/bank-holidays/bank-holidays-2017.html
   // web archive history of those pages

@@ -130,6 +130,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId CATO = HolidayCalendarId.of("CATO");
   /**
+   * An identifier for the holiday calendar of Copenhagen, Denmark, with code 'DKCO'.
+   * <p>
+   * This constant references the calendar for Copenhagen bank holidays.
+   */
+  public static final HolidayCalendarId DKCO = HolidayCalendarId.of("DKCO");
+  /**
    * An identifier for the holiday calendar of Oslo, Norway, with code 'NOOS'.
    * <p>
    * This constant references the calendar for Oslo bank holidays.
