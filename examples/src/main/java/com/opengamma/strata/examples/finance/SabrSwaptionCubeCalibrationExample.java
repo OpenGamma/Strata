@@ -31,10 +31,14 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.surface.ConstantSurface;
+import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.Surface;
+import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
@@ -72,7 +76,7 @@ public class SabrSwaptionCubeCalibrationExample {
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(BASE_DIR + GROUPS_FILE),
           ResourceLocator.of(BASE_DIR + SETTINGS_FILE),
-          ResourceLocator.of(BASE_DIR + NODES_FILE)).get(0);
+          ResourceLocator.of(BASE_DIR + NODES_FILE)).get(CurveGroupName.of("EUR-DSCONOIS-E3BS-E6IRS"));
   private static final Map<QuoteId, Double> MAP_MQ =
       QuotesCsvLoader.load(CALIBRATION_DATE, ImmutableList.of(ResourceLocator.of(BASE_DIR + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.of(CALIBRATION_DATE, MAP_MQ);
@@ -110,11 +114,17 @@ public class SabrSwaptionCubeCalibrationExample {
     }
     System.out.println("Start calibration");
     double beta = 0.50;
-    Surface betaSurface = ConstantSurface.of("Beta", beta);
+    SurfaceMetadata betaMetadata = DefaultSurfaceMetadata.builder()
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.SABR_BETA)
+        .surfaceName("Beta").build();
+    Surface betaSurface = ConstantSurface.of(betaMetadata, beta);
     double shift = 0.0300;
     Surface shiftSurface = ConstantSurface.of("Shift", shift);
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
         DEFINITION, CALIBRATION_TIME, data, MULTICURVE, betaSurface, shiftSurface);
+    System.out.println("End calibration");
     /* Graph calibration */
     int nbStrikesGraph = 50;
     double moneyMin = -0.0250;
