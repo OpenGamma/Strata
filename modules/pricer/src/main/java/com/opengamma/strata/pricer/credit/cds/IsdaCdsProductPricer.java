@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.util.Epsilon;
@@ -245,7 +246,7 @@ public class IsdaCdsProductPricer {
    * <p>
    * The recovery01 is defined as the present value sensitivity to the recovery rate.
    * Since the ISDA standard model requires the recovery rate to be constant throughout the lifetime of the CDS,  
-   * one currency amount is returned.
+   * one currency amount is returned by this method.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -335,25 +336,24 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       LocalDate effectiveStartDate) {
 
-    double[] integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
+    DoubleArray integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
         discountFactors.relativeYearFraction(effectiveStartDate),
         discountFactors.relativeYearFraction(cds.getProtectionEndDate()),
         discountFactors.getParameterKeys(),
         survivalProbabilities.getParameterKeys());
 
     double pv = 0d;
-    double ht0 = survivalProbabilities.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
-    double rt0 = discountFactors.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
+    double ht0 = survivalProbabilities.zeroRate(integrationSchedule.get(0)) * integrationSchedule.get(0);
+    double rt0 = discountFactors.zeroRate(integrationSchedule.get(0)) * integrationSchedule.get(0);
     double b0 = Math.exp(-ht0 - rt0);
-    int n = integrationSchedule.length;
+    int n = integrationSchedule.size();
     for (int i = 1; i < n; ++i) {
-      double ht1 = survivalProbabilities.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
-      double rt1 = discountFactors.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
+      double ht1 = survivalProbabilities.zeroRate(integrationSchedule.get(i)) * integrationSchedule.get(i);
+      double rt1 = discountFactors.zeroRate(integrationSchedule.get(i)) * integrationSchedule.get(i);
       double b1 = Math.exp(-ht1 - rt1);
       double dht = ht1 - ht0;
       double drt = rt1 - rt0;
       double dhrt = dht + drt;
-
       // The formula has been modified from ISDA (but is equivalent) to avoid log(exp(x)) and explicitly
       // calculating the time step - it also handles the limit
       double dPV = 0d;
@@ -362,7 +362,6 @@ public class IsdaCdsProductPricer {
       } else {
         dPV = (b0 - b1) * dht / dhrt;
       }
-
       pv += dPV;
       ht0 = ht1;
       rt0 = rt1;
@@ -395,12 +394,9 @@ public class IsdaCdsProductPricer {
     }
 
     if (cds.getPaymentOnDefault().isAccruedInterest()) {
-      //This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. For forward starting CDS (accStart > trade-date),
-      //and more than one coupon, the C code generates an extra integration point (a node at protection start and one the day before) - normally
-      //the second point could be ignored (since is doesn't correspond to a node of the curves, nor is it the start point), but the Markit fix is 
-      //mathematically incorrect, so this point affects the result.  
+      // This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. 
       LocalDate start = cds.getPeriodicPayments().size() == 1 ? effectiveStartDate : cds.getAccrualStartDate();
-      double[] integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
+      DoubleArray integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
           discountFactors.relativeYearFraction(start),
           discountFactors.relativeYearFraction(cds.getProtectionEndDate()),
           discountFactors.getParameterKeys(),
@@ -424,20 +420,20 @@ public class IsdaCdsProductPricer {
   private double singlePeriodAccrualOnDefault(
       CreditCouponPaymentPeriod coupon,
       LocalDate effectiveStartDate,
-      double[] integrationSchedule,
+      DoubleArray integrationSchedule,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities) {
 
     LocalDate start =
         coupon.getEffectiveStartDate().isBefore(effectiveStartDate) ? effectiveStartDate : coupon.getEffectiveStartDate();
     if (!start.isBefore(coupon.getEffectiveEndDate())) {
-      return 0d; //this coupon has already expired 
+      return 0d; // this coupon has already expired 
     }
 
-    double[] knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
+    DoubleArray knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
         discountFactors.relativeYearFraction(coupon.getEffectiveEndDate()), integrationSchedule);
 
-    double t = knots[0];
+    double t = knots.get(0);
     double ht0 = survivalProbabilities.zeroRate(t) * t;
     double rt0 = discountFactors.zeroRate(t) * t;
     double b0 = Math.exp(-rt0 - ht0);
@@ -445,14 +441,14 @@ public class IsdaCdsProductPricer {
     double effStart = discountFactors.relativeYearFraction(coupon.getEffectiveStartDate());
     double t0 = t - effStart + omega;
     double pv = 0d;
-    final int nItems = knots.length;
+    final int nItems = knots.size();
     for (int j = 1; j < nItems; ++j) {
-      t = knots[j];
+      t = knots.get(j);
       double ht1 = survivalProbabilities.zeroRate(t) * t;
       double rt1 = discountFactors.zeroRate(t) * t;
       double b1 = Math.exp(-rt1 - ht1);
 
-      double dt = knots[j] - knots[j - 1];
+      double dt = knots.get(j) - knots.get(j - 1);
 
       double dht = ht1 - ht0;
       double drt = rt1 - rt0;
@@ -495,12 +491,12 @@ public class IsdaCdsProductPricer {
       LocalDate effectiveStartDate,
       double recoveryRate) {
 
-    double[] integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
+    DoubleArray integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
         discountFactors.relativeYearFraction(effectiveStartDate),
         discountFactors.relativeYearFraction(cds.getProtectionEndDate()),
         discountFactors.getParameterKeys(),
         survivalProbabilities.getParameterKeys());
-    int n = integrationSchedule.length;
+    int n = integrationSchedule.size();
     double[] dht = new double[n - 1];
     double[] drt = new double[n - 1];
     double[] dhrt = new double[n - 1];
@@ -508,14 +504,14 @@ public class IsdaCdsProductPricer {
     double[] q = new double[n];
     // pv
     double pv = 0d;
-    double ht0 = survivalProbabilities.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
-    double rt0 = discountFactors.zeroRate(integrationSchedule[0]) * integrationSchedule[0];
+    double ht0 = survivalProbabilities.zeroRate(integrationSchedule.get(0)) * integrationSchedule.get(0);
+    double rt0 = discountFactors.zeroRate(integrationSchedule.get(0)) * integrationSchedule.get(0);
     p[0] = Math.exp(-rt0);
     q[0] = Math.exp(-ht0);
     double b0 = p[0] * q[0];
     for (int i = 1; i < n; ++i) {
-      double ht1 = survivalProbabilities.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
-      double rt1 = discountFactors.zeroRate(integrationSchedule[i]) * integrationSchedule[i];
+      double ht1 = survivalProbabilities.zeroRate(integrationSchedule.get(i)) * integrationSchedule.get(i);
+      double rt1 = discountFactors.zeroRate(integrationSchedule.get(i)) * integrationSchedule.get(i);
       p[i] = Math.exp(-rt1);
       q[i] = Math.exp(-ht1);
       double b1 = p[i] * q[i];
@@ -528,7 +524,7 @@ public class IsdaCdsProductPricer {
         dPv = dht[i - 1] * b0 * eps;
       } else {
         dPv = (b0 - b1) * dht[i - 1] / dhrt[i - 1];
-    }
+      }
       pv += dPv;
       ht0 = ht1;
       rt0 = rt1;
@@ -538,27 +534,27 @@ public class IsdaCdsProductPricer {
     // pv sensitivity
     double factor = (1d - recoveryRate) / df;
     double eps0 = computeExtendedEpsilon(-dhrt[0], p[1], q[1], p[0], q[0]);
-    PointSensitivityBuilder pvSensi = discountFactors.zeroRatePointSensitivity(integrationSchedule[0])
+    PointSensitivityBuilder pvSensi = discountFactors.zeroRatePointSensitivity(integrationSchedule.get(0))
         .multipliedBy(-dht[0] * q[0] * eps0 * factor);
-    pvSensi = pvSensi.combinedWith(survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[0])
+    pvSensi = pvSensi.combinedWith(survivalProbabilities.zeroRatePointSensitivity(integrationSchedule.get(0))
         .multipliedBy(factor * (drt[0] * p[0] * eps0 + p[0])));
     for (int i = 1; i < n - 1; ++i) {
       double epsp = computeExtendedEpsilon(-dhrt[i], p[i + 1], q[i + 1], p[i], q[i]);
       double epsm = computeExtendedEpsilon(dhrt[i - 1], p[i - 1], q[i - 1], p[i], q[i]);
-      PointSensitivityBuilder pSensi = discountFactors.zeroRatePointSensitivity(integrationSchedule[i])
+      PointSensitivityBuilder pSensi = discountFactors.zeroRatePointSensitivity(integrationSchedule.get(i))
           .multipliedBy(factor * (-dht[i] * q[i] * epsp - dht[i - 1] * q[i] * epsm));
-      PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[i])
+      PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(integrationSchedule.get(i))
           .multipliedBy(factor * (drt[i - 1] * p[i] * epsm + drt[i] * p[i] * epsp));
       pvSensi = pvSensi.combinedWith(pSensi).combinedWith(qSensi);
     }
     if (n > 1) {
       double epsLast = computeExtendedEpsilon(dhrt[n - 2], p[n - 2], q[n - 2], p[n - 1], q[n - 1]);
-      pvSensi = pvSensi.combinedWith(discountFactors.zeroRatePointSensitivity(integrationSchedule[n - 1])
+      pvSensi = pvSensi.combinedWith(discountFactors.zeroRatePointSensitivity(integrationSchedule.get(n - 1))
           .multipliedBy(-dht[n - 2] * q[n - 1] * epsLast * factor));
-      pvSensi = pvSensi.combinedWith(survivalProbabilities.zeroRatePointSensitivity(integrationSchedule[n - 1])
+      pvSensi = pvSensi.combinedWith(survivalProbabilities.zeroRatePointSensitivity(integrationSchedule.get(n - 1))
           .multipliedBy(factor * (drt[n - 2] * p[n - 1] * epsLast - p[n - 1])));
     }
-    
+
     PointSensitivityBuilder dfSensi =
         discountFactors.zeroRatePointSensitivity(referenceDate).multipliedBy(-pv * factor / df);
     return dfSensi.combinedWith(pvSensi);
@@ -594,12 +590,9 @@ public class IsdaCdsProductPricer {
     }
 
     if (cds.getPaymentOnDefault().isAccruedInterest()) {
-      //This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. For forward starting CDS (accStart > trade-date),
-      //and more than one coupon, the C code generates an extra integration point (a node at protection start and one the day before) - normally
-      //the second point could be ignored (since is doesn't correspond to a node of the curves, nor is it the start point), but the Markit fix is 
-      //mathematically incorrect, so this point affects the result.  
+      // This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. 
       LocalDate start = cds.getPeriodicPayments().size() == 1 ? effectiveStartDate : cds.getAccrualStartDate();
-      double[] integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
+      DoubleArray integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
           discountFactors.relativeYearFraction(start),
           discountFactors.relativeYearFraction(cds.getProtectionEndDate()),
           discountFactors.getParameterKeys(),
@@ -620,29 +613,29 @@ public class IsdaCdsProductPricer {
     return dfSensi.combinedWith(pvSensi);
   }
 
-  private  Pair<Double, PointSensitivityBuilder> singlePeriodAccrualOnDefaultSensitivity(
+  private Pair<Double, PointSensitivityBuilder> singlePeriodAccrualOnDefaultSensitivity(
       CreditCouponPaymentPeriod coupon,
       LocalDate effectiveStartDate,
-      double[] integrationSchedule,
+      DoubleArray integrationSchedule,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities) {
 
     LocalDate start =
         coupon.getEffectiveStartDate().isBefore(effectiveStartDate) ? effectiveStartDate : coupon.getEffectiveStartDate();
     if (!start.isBefore(coupon.getEffectiveEndDate())) {
-      return Pair.of(0d, PointSensitivityBuilder.none()) ; //this coupon has already expired 
+      return Pair.of(0d, PointSensitivityBuilder.none()); //this coupon has already expired 
     }
-    double[] knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
+    DoubleArray knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
         discountFactors.relativeYearFraction(coupon.getEffectiveEndDate()), integrationSchedule);
     // pv
     double pv = 0d;
-    final int nItems = knots.length;
+    final int nItems = knots.size();
     double[] dhrtBar = new double[nItems - 1];
     double[] dhtBar = new double[nItems - 1];
     double[] bBar = new double[nItems];
     double[] p = new double[nItems];
     double[] q = new double[nItems];
-    double t = knots[0];
+    double t = knots.get(0);
     double ht0 = survivalProbabilities.zeroRate(t) * t;
     double rt0 = discountFactors.zeroRate(t) * t;
     q[0] = Math.exp(-ht0);
@@ -651,13 +644,13 @@ public class IsdaCdsProductPricer {
     double effStart = discountFactors.relativeYearFraction(coupon.getEffectiveStartDate());
     double t0 = t - effStart + omega;
     for (int i = 1; i < nItems; ++i) {
-      t = knots[i];
+      t = knots.get(i);
       double ht1 = survivalProbabilities.zeroRate(t) * t;
       double rt1 = discountFactors.zeroRate(t) * t;
       q[i] = Math.exp(-ht1);
       p[i] = Math.exp(-rt1);
       double b1 = q[i] * p[i];
-      double dt = knots[i] - knots[i - 1];
+      double dt = knots.get(i) - knots.get(i - 1);
       double dht = ht1 - ht0;
       double drt = rt1 - rt0;
       double dhrt = dht + drt;
@@ -702,22 +695,22 @@ public class IsdaCdsProductPricer {
     double yfRatio = coupon.getYearFraction() /
         discountFactors.getDayCount().relativeYearFraction(coupon.getStartDate(), coupon.getEndDate());
     // pv sensitivity
-    PointSensitivityBuilder qSensiFirst = survivalProbabilities.zeroRatePointSensitivity(knots[0])
+    PointSensitivityBuilder qSensiFirst = survivalProbabilities.zeroRatePointSensitivity(knots.get(0))
         .multipliedBy(yfRatio * ((dhrtBar[0] + dhtBar[0]) / q[0] + bBar[0] * p[0]));
-    PointSensitivityBuilder pSensiFirst = discountFactors.zeroRatePointSensitivity(knots[0])
+    PointSensitivityBuilder pSensiFirst = discountFactors.zeroRatePointSensitivity(knots.get(0))
         .multipliedBy(yfRatio * (dhrtBar[0] / p[0] + bBar[0] * q[0]));
     PointSensitivityBuilder pvSensi = pSensiFirst.combinedWith(qSensiFirst);
     for (int i = 1; i < nItems - 1; ++i) {
-      PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(knots[i]).multipliedBy(
+      PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(knots.get(i)).multipliedBy(
           yfRatio * (-(dhrtBar[i - 1] + dhtBar[i - 1]) / q[i] + (dhrtBar[i] + dhtBar[i]) / q[i] + bBar[i] * p[i]));
-      PointSensitivityBuilder pSensi = discountFactors.zeroRatePointSensitivity(knots[i]).multipliedBy(
+      PointSensitivityBuilder pSensi = discountFactors.zeroRatePointSensitivity(knots.get(i)).multipliedBy(
           yfRatio * (-dhrtBar[i - 1] / p[i] + dhrtBar[i] / p[i] + bBar[i] * q[i]));
       pvSensi = pvSensi.combinedWith(pSensi).combinedWith(qSensi);
     }
     if (nItems > 1) {
-      PointSensitivityBuilder qSensiLast = survivalProbabilities.zeroRatePointSensitivity(knots[nItems - 1]).multipliedBy(
+      PointSensitivityBuilder qSensiLast = survivalProbabilities.zeroRatePointSensitivity(knots.get(nItems - 1)).multipliedBy(
           yfRatio * (-(dhrtBar[nItems - 2] + dhtBar[nItems - 2]) / q[nItems - 1] + bBar[nItems - 1] * p[nItems - 1]));
-      PointSensitivityBuilder pSensiLast = discountFactors.zeroRatePointSensitivity(knots[nItems - 1]).multipliedBy(
+      PointSensitivityBuilder pSensiLast = discountFactors.zeroRatePointSensitivity(knots.get(nItems - 1)).multipliedBy(
           yfRatio * (-dhrtBar[nItems - 2] / p[nItems - 1] + bBar[nItems - 1] * q[nItems - 1]));
       pvSensi = pvSensi.combinedWith(pSensiLast).combinedWith(qSensiLast);
     }

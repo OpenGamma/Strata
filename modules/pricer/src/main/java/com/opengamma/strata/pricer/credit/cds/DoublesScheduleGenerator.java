@@ -1,14 +1,39 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit.cds;
 
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
+/**
+ * The Doubles schedule generator.
+ * <p>
+ * This is a utility for combining and truncating ascending arrays of doubles.
+ * The main application of this class is {@code IsdaCdsProductPricer}.
+ */
 public class DoublesScheduleGenerator {
-
   private static final double TOL = 1d / 730d;
 
-  public static double[] getIntegrationsPoints(
+  /**
+   * Combines the discount curve nodes and credit curve nodes. 
+   * <p>
+   * The combined numbers are returned only if the values strictly between the specified start and end. 
+   * <p>
+   * The start and end values are added at the beginning and end of the list. 
+   * If two times are very close (defined as less than half a day - 1/730 years different) only the smaller value is kept 
+   * (with the exception of the end value which takes precedence). 
+   * 
+   * @param start  the first time in the list
+   * @param end  the last time in the list
+   * @param discountCurveNodes  the discount curve node set
+   * @param creditCurveNodes  the credit curve node
+   * @return the combined list between start and end
+   */
+  static DoubleArray getIntegrationsPoints(
       double start,
       double end,
       DoubleArray discountCurveNodes,
@@ -36,15 +61,8 @@ public class DoublesScheduleGenerator {
       pos++;
     }
     temp[pos] = end; // add the end point (this may replace the last entry in temp if that is not significantly different)
-
     int resLength = pos + 1;
-    if (resLength == n + 2) {
-      return temp; // everything was unique
-    }
-
-    double[] res = new double[resLength];
-    System.arraycopy(temp, 0, res, 0, resLength);
-    return res;
+    return DoubleArray.copyOf(temp, 0, resLength);
   }
 
   private static boolean different(double a, double b) {
@@ -85,27 +103,43 @@ public class DoublesScheduleGenerator {
     return trunc;
   }
 
-  public static double[] truncateSetInclusive(final double lower, final double upper, final double[] set) {
-    // this is private, so assume inputs are fine
-    final double[] temp = truncateSetExclusive(lower, upper, set);
-    final int n = temp.length;
+  /**
+   * Truncates an array of doubles. 
+   * <p>
+   * The number set is truncated so that it contains only the values between lower and upper, 
+   * plus the values of lower and higher (as the first and last entry respectively). 
+   * <p>
+   * If no values met this criteria an array just containing lower and upper is returned. 
+   * If the first (last) entry of set is too close to lower (upper), defined by TOL, 
+   * the first (last) entry of set is replaced by lower (upper).
+   * 
+   * @param lower  the lower value
+   * @param upper  the upper value
+   * @param set  the numbers must be sorted in ascending order
+   * @return the truncated array 
+   */
+  static DoubleArray truncateSetInclusive(double lower, double upper, DoubleArray set) {
+
+    double[] temp = truncateSetExclusive(lower, upper, set.toArray());
+    int n = temp.length;
     if (n == 0) {
-      return new double[] {lower, upper};
+      return DoubleArray.of(lower, upper);
     }
-    final boolean addLower = different(lower, temp[0]);
-    final boolean addUpper = different(upper, temp[n - 1]);
+    boolean addLower = different(lower, temp[0]);
+    boolean addUpper = different(upper, temp[n - 1]);
     if (!addLower && !addUpper) { // replace first and last entries of set
       temp[0] = lower;
       temp[n - 1] = upper;
-      return temp;
+      return DoubleArray.ofUnsafe(temp);
     }
 
-    final int m = n + (addLower ? 1 : 0) + (addUpper ? 1 : 0);
-    final double[] res = new double[m];
+    int m = n + (addLower ? 1 : 0) + (addUpper ? 1 : 0);
+    double[] res = new double[m];
     System.arraycopy(temp, 0, res, (addLower ? 1 : 0), n);
     res[0] = lower;
     res[m - 1] = upper;
 
-    return res;
+    return DoubleArray.ofUnsafe(res);
   }
+
 }
