@@ -1,8 +1,14 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit.cds;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.credit.cds.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.credit.cds.PriceType.DIRTY;
 import static org.testng.Assert.assertEquals;
@@ -18,6 +24,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -35,7 +42,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.cds.Cds;
@@ -43,11 +49,15 @@ import com.opengamma.strata.product.credit.cds.PaymentOnDefault;
 import com.opengamma.strata.product.credit.cds.ProtectionStartOfDay;
 import com.opengamma.strata.product.credit.cds.ResolvedCds;
 
+/**
+ * Test {@link IsdaCdsProductPricer}.
+ * <p>
+ * The numbers in the regression tests are from 2.x.
+ */
 @Test
 public class IsdaCdsProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 3);
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
@@ -74,12 +84,11 @@ public class IsdaCdsProductPricerTest {
   private static final IsdaCompliantZeroRateDiscountFactors YIELD_CRVE =
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_YC);
 
-  private static final DoubleArray TIME_CC = DoubleArray.ofUnsafe(new double[] {
-      1.2054794520547945, 1.7095890410958905, 2.712328767123288, 3.712328767123288, 4.712328767123288, 5.712328767123288,
-      7.715068493150685, 10.717808219178082});
-  private static final DoubleArray RATE_CC = DoubleArray.ofUnsafe(new double[] {
-      0.009950492020354761, 0.01203385973637765, 0.01418821591480718, 0.01684815168721049, 0.01974873350586718,
-      0.023084203422383043, 0.02696911931489543, 0.029605642651816415});
+  private static final DoubleArray TIME_CC = DoubleArray.ofUnsafe(new double[] {1.2054794520547945, 1.7095890410958905,
+      2.712328767123288, 3.712328767123288, 4.712328767123288, 5.712328767123288, 7.715068493150685, 10.717808219178082});
+  private static final DoubleArray RATE_CC = DoubleArray.ofUnsafe(new double[] {0.009950492020354761, 0.01203385973637765,
+      0.01418821591480718, 0.01684815168721049, 0.01974873350586718, 0.023084203422383043, 0.02696911931489543,
+      0.029605642651816415});
   private static final DefaultCurveMetadata METADATA_CC = DefaultCurveMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.ZERO_RATE)
@@ -99,40 +108,35 @@ public class IsdaCdsProductPricerTest {
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
       .build();
   
+  private static final double NOTIONAL = 1.0e7;
   private static final ResolvedCds PRODUCT_NEXTDAY =
-      Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, 1d, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M,
+      Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M,
           BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
           PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
-
   private static final ResolvedCds PRODUCT_BEFORE = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, 1d, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
+      BuySell.SELL, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
       PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
-
   private static final ResolvedCds PRODUCT_AFTER = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, 1d, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M,
+      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M,
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
       PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
 
   private static final DaysAdjustment SETTLE_DAY_ADJ_NS = DaysAdjustment.ofBusinessDays(5, CALENDAR);
   private static final DaysAdjustment STEPIN_DAY_ADJ_NS = DaysAdjustment.ofCalendarDays(7);
-
   private static final ResolvedCds PRODUCT_NS_TODAY = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, 1d, VALUATION_DATE, LocalDate.of(2021, 4, 25), Frequency.P4M,
+      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, LocalDate.of(2021, 4, 25), Frequency.P4M,
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_FINAL, 0.05, ACT_360,
       PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
-
   private static final ResolvedCds PRODUCT_NS_STEPIN = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, 1d, STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA), LocalDate.of(2019, 1, 26),
+      BuySell.SELL, LEGAL_ENTITY, USD, NOTIONAL, STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA), LocalDate.of(2019, 1, 26),
       Frequency.P6M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_INITIAL,
       0.05, ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS)
       .resolve(REF_DATA);
-
   private static final ResolvedCds PRODUCT_NS_BTW = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, 1d, VALUATION_DATE.plusDays(4), LocalDate.of(2026, 8, 2), Frequency.P12M,
+      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE.plusDays(4), LocalDate.of(2026, 8, 2), Frequency.P12M,
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_FINAL, 0.05, ACT_360,
       PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
-
 
   private static final double TOL = 1.0e-14;
   private static final double EPS = 1.0e-6;
@@ -142,6 +146,58 @@ public class IsdaCdsProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator CALC_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
+  //-------------------------------------------------------------------------
+  public void endedTest() {
+    LocalDate valuationDate = PRODUCT_NEXTDAY.getProtectionEndDate().plusDays(1);
+    CreditRatesProvider provider = createCreditRatesProvider(valuationDate);
+    double price = PRICER.price(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(price, 0d);
+    CurrencyAmount pv = PRICER.presentValue(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(pv, CurrencyAmount.zero(USD));
+    assertThrowsIllegalArg(() -> PRICER.parSpread(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
+    double protectionLeg = PRICER.protectionLeg(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
+    assertEquals(protectionLeg, 0d);
+    double riskyAnnuity = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(riskyAnnuity, 0d);
+    CurrencyAmount rpv01 = PRICER.rpv01(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(rpv01, CurrencyAmount.zero(USD));
+    CurrencyAmount recovery01 = PRICER.recovery01(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
+    assertEquals(recovery01, CurrencyAmount.zero(USD));
+    PointSensitivityBuilder sensi = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
+    assertEquals(sensi, PointSensitivityBuilder.none());
+  }
+
+  public void consistencyTest() {
+    double price = PRICER.price(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    CurrencyAmount rpv01 = PRICER.rpv01(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    CurrencyAmount recovery01 = PRICER.recovery01(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double spread = PRICER.parSpread(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    // the following methods are tested by regression tests
+    double protPv = PRICER.protectionLeg(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double annuity = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(price, protPv - PRODUCT_NEXTDAY.getFixedRate() * annuity, TOL);
+    assertEquals(rpv01.getCurrency(), USD);
+    assertEquals(rpv01.getAmount(), annuity * NOTIONAL, NOTIONAL * TOL);
+    assertEquals(recovery01.getCurrency(), USD);
+    assertEquals(recovery01.getAmount(), -protPv / (1d - RECOVERY_RATES.getRecoveryRate()) * NOTIONAL, NOTIONAL * TOL);
+    assertEquals(spread, protPv / annuity, TOL);
+  }
+
+  //-------------------------------------------------------------------------
   public void pvSensitivityTest() {
     PointSensitivityBuilder pointNext = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -149,7 +205,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expNext =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(PRODUCT_NEXTDAY,
             p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resNext, expNext, 5d * EPS);
+    equalWithRelativeTolerance(resNext, expNext, NOTIONAL * EPS);
 
     PointSensitivityBuilder pointBefore = PRICER.presentValueSensitivity(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -157,7 +213,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expBefore =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(PRODUCT_BEFORE,
             p, PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resBefore, expBefore, EPS * 10d);
+    equalWithRelativeTolerance(resBefore, expBefore, NOTIONAL * EPS);
 
     PointSensitivityBuilder pointAfter = PRICER.presentValueSensitivity(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -165,7 +221,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expAfter =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(PRODUCT_AFTER,
             p, PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resAfter, expAfter, EPS * 15d);
+    equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
   public void pvSensitivityFixTest() {
@@ -175,7 +231,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expNext =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_FIX.presentValue(PRODUCT_NEXTDAY,
             p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resNext, expNext, 5d * EPS);
+    equalWithRelativeTolerance(resNext, expNext, NOTIONAL * EPS);
 
     PointSensitivityBuilder pointBefore = PRICER_FIX.presentValueSensitivity(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -183,7 +239,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expBefore =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_FIX.presentValue(PRODUCT_BEFORE,
             p, PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resBefore, expBefore, EPS * 10d);
+    equalWithRelativeTolerance(resBefore, expBefore, NOTIONAL * EPS);
 
     PointSensitivityBuilder pointAfter = PRICER_FIX.presentValueSensitivity(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -191,7 +247,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expAfter =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_FIX.presentValue(PRODUCT_AFTER,
             p, PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resAfter, expAfter, EPS * 15d);
+    equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
   public void pvSensitivityCorrectTest() {
@@ -201,7 +257,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expNext =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_CORRECT.presentValue(PRODUCT_NEXTDAY,
             p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resNext, expNext, 5d * EPS);
+    equalWithRelativeTolerance(resNext, expNext, NOTIONAL * EPS);
 
     PointSensitivityBuilder pointBefore = PRICER_CORRECT.presentValueSensitivity(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -209,7 +265,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expBefore =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_CORRECT.presentValue(PRODUCT_BEFORE,
             p, PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resBefore, expBefore, EPS * 10d);
+    equalWithRelativeTolerance(resBefore, expBefore, NOTIONAL * EPS);
 
     PointSensitivityBuilder pointAfter = PRICER_CORRECT.presentValueSensitivity(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -217,7 +273,7 @@ public class IsdaCdsProductPricerTest {
     CurrencyParameterSensitivities expAfter =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_CORRECT.presentValue(PRODUCT_AFTER,
             p, PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
-    equalWithRelativeTolerance(resAfter, expAfter, EPS * 15d);
+    equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
   private void equalWithRelativeTolerance(CurrencyParameterSensitivities computed, CurrencyParameterSensitivities expected,
@@ -252,52 +308,32 @@ public class IsdaCdsProductPricerTest {
     }
   }
 
-  private static final DoubleArray RATE_CC_BUMP = DoubleArray.ofUnsafe(new double[] {
-      0.009950492020354761 + EPS, 0.01203385973637765, 0.01418821591480718, 0.01684815168721049, 0.01974873350586718,
-      0.023084203422383043, 0.02696911931489543, 0.029605642651816415});
-  private static final InterpolatedNodalCurve NODAL_CC_BUMP = InterpolatedNodalCurve.of(METADATA_CC, TIME_CC, RATE_CC_BUMP,
-      CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-  private static final CreditDiscountFactors CREDIT_CRVE_BUMP =
-      IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC_BUMP);
-  private static final CreditRatesProvider RATES_PROVIDER_BUMP = CreditRatesProvider.builder()
-      .valuationDate(VALUATION_DATE)
-      .creditCurves(
-          ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, CREDIT_CRVE_BUMP)))
-      .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
-      .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
-      .build();
-
-  public void test() {
-    PointSensitivityBuilder sensi1 = ZeroRateSensitivity.of(USD, 1, 1);
-    PointSensitivityBuilder sensi2 = sensi1.multipliedBy(23d);
-    PointSensitivityBuilder sensi3 = sensi1.combinedWith(sensi2);
-  }
-
+  //-------------------------------------------------------------------------
   public void cleanPvTest() {
     double resNext = PRICER.presentValue(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resNext, -0.20208402732565636, TOL);
+    assertEquals(resNext, -0.20208402732565636 * NOTIONAL, TOL * NOTIONAL);
     double resBefore = PRICER.presentValue(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resBefore, -0.26741962741508013, TOL);
+    assertEquals(resBefore, -0.26741962741508013 * (-NOTIONAL), TOL * NOTIONAL);
     double resAfter = PRICER.presentValue(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resAfter, -0.32651549808776237, TOL);
+    assertEquals(resAfter, -0.32651549808776237 * NOTIONAL, TOL * NOTIONAL);
     double resNsToday = PRICER.presentValue(PRODUCT_NS_TODAY, RATES_PROVIDER,
         PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resNsToday, -0.2101704800313836, TOL);
+    assertEquals(resNsToday, -0.2101704800313836 * NOTIONAL, TOL * NOTIONAL);
     double resNsStepin = PRICER.presentValue(PRODUCT_NS_STEPIN, RATES_PROVIDER,
         PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN,
         REF_DATA).getAmount();
-    assertEquals(resNsStepin, -0.1691072048424866, TOL);
+    assertEquals(resNsStepin, -0.1691072048424866 * (-NOTIONAL), TOL * NOTIONAL);
     double resNsBtw = PRICER.presentValue(PRODUCT_NS_BTW, RATES_PROVIDER,
         PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resNsBtw, -0.29068253160089597, TOL);
+    assertEquals(resNsBtw, -0.29068253160089597 * NOTIONAL, TOL * NOTIONAL);
   }
 
   public void cleanPvTruncationTest() {
@@ -305,22 +341,22 @@ public class IsdaCdsProductPricerTest {
     double resAccEndDate = PRICER.presentValue(PRODUCT_BEFORE, ratesAccEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesAccEndDate.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resAccEndDate, -0.26418577838510354, TOL);
+    assertEquals(resAccEndDate, -0.26418577838510354 * (-NOTIONAL), TOL * NOTIONAL);
     CreditRatesProvider ratesEffectiveEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 21));
     double resEffectiveEndDate = PRICER.presentValue(PRODUCT_BEFORE, ratesEffectiveEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesEffectiveEndDate.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resEffectiveEndDate, -0.26422628099362094, TOL);
+    assertEquals(resEffectiveEndDate, -0.26422628099362094 * (-NOTIONAL), TOL * NOTIONAL);
     CreditRatesProvider ratesProtectionEndDateOne = createCreditRatesProvider(LocalDate.of(2024, 9, 19));
     double resProtectionEndDateOne = PRICER.presentValue(PRODUCT_BEFORE, ratesProtectionEndDateOne,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDateOne.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resProtectionEndDateOne, -1.1814923847919301E-4, TOL);
+    assertEquals(resProtectionEndDateOne, -1.1814923847919301E-4 * (-NOTIONAL), TOL * NOTIONAL);
     CreditRatesProvider ratesProtectionEndDate = createCreditRatesProvider(LocalDate.of(2024, 9, 20));
     double resProtectionEndDate = PRICER.presentValue(PRODUCT_BEFORE, ratesProtectionEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resProtectionEndDate, 0d, TOL);
+    assertEquals(resProtectionEndDate, 0d, TOL * NOTIONAL);
   }
 
   public void protectionLegRegressionTest() {
@@ -382,6 +418,60 @@ public class IsdaCdsProductPricerTest {
     double resProtectionEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
     assertEquals(resProtectionEndDate, 0d, TOL);
+  }
+
+  public void epsilonTest() {
+    // Math.abs(dhrt) < 1e-5 is true
+    DoubleArray timeDsc = DoubleArray.of(0.5d, 1d, 3d, 5d, 10d, 20d);
+    DoubleArray rateDsc = DoubleArray.of(0.01, 0.03, 0.02, 0.01, 0.005, 0.005);
+    DoubleArray timeCrd = DoubleArray.of(0.5866887582723792, 1.352879628192491, 2.3701168800050576, 3.10563128282816,
+        11.326702860486112, 27.026366789997947);
+    DoubleArray rateCrd = DoubleArray.of(-0.010004517471216213, -0.030006261363849242, -0.020009969610648954,
+        -0.010001132580906982, -0.0050024950914495684, -0.0050025781457872075);
+    InterpolatedNodalCurve nodalYc = InterpolatedNodalCurve.of(METADATA_YC, timeDsc, rateDsc,
+        CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
+    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, nodalYc);
+    InterpolatedNodalCurve nodalCc = InterpolatedNodalCurve.of(METADATA_CC, timeCrd, rateCrd,
+        CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
+    CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, nodalCc);
+    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+        .valuationDate(VALUATION_DATE)
+        .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
+        .discountCurves(ImmutableMap.of(USD, yc))
+        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_RATES))
+        .build();
+    // pv
+    CurrencyAmount pv1 = PRICER.presentValue(PRODUCT_NEXTDAY, ratesProvider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    CurrencyAmount pv2 = PRICER_FIX.presentValue(PRODUCT_NEXTDAY, ratesProvider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    CurrencyAmount pv3 = PRICER_CORRECT.presentValue(PRODUCT_NEXTDAY, ratesProvider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(pv1.getAmount(), -0.3728276314104907 * NOTIONAL, NOTIONAL * TOL);
+    assertEquals(pv2.getAmount(), -0.3728585818359114 * NOTIONAL, NOTIONAL * TOL);
+    assertEquals(pv3.getAmount(), -0.3728305887124643 * NOTIONAL, NOTIONAL * TOL);
+    // sensitivity
+    PointSensitivityBuilder point1 = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, ratesProvider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities res1 = ratesProvider.parameterSensitivity(point1.build());
+    CurrencyParameterSensitivities exp1 =
+        CALC_FD.sensitivity(ratesProvider, p -> PRICER.presentValue(PRODUCT_NEXTDAY,
+            p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
+    equalWithRelativeTolerance(res1, exp1, NOTIONAL * EPS);
+    PointSensitivityBuilder point2 = PRICER_FIX.presentValueSensitivity(PRODUCT_NEXTDAY, ratesProvider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities res2 = ratesProvider.parameterSensitivity(point2.build());
+    CurrencyParameterSensitivities exp2 =
+        CALC_FD.sensitivity(ratesProvider, p -> PRICER_FIX.presentValue(PRODUCT_NEXTDAY,
+            p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
+    equalWithRelativeTolerance(res2, exp2, NOTIONAL * EPS);
+    PointSensitivityBuilder point3 = PRICER_CORRECT.presentValueSensitivity(PRODUCT_NEXTDAY, ratesProvider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities res3 = ratesProvider.parameterSensitivity(point3.build());
+    CurrencyParameterSensitivities exp3 =
+        CALC_FD.sensitivity(ratesProvider, p -> PRICER_CORRECT.presentValue(PRODUCT_NEXTDAY,
+            p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), CLEAN, REF_DATA));
+    equalWithRelativeTolerance(res3, exp3, NOTIONAL * EPS);
   }
 
   public void accruedInterestTest() {
