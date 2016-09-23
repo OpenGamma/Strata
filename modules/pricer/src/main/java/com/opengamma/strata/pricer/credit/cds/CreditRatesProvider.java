@@ -57,7 +57,7 @@ public final class CreditRatesProvider
    * <p>
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    */
-  @PropertyDefinition(validate = "notEmpty", get = "private")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves;
   /**
    * The discounting curves.
@@ -213,7 +213,7 @@ public final class CreditRatesProvider
       Map<Currency, CreditDiscountFactors> discountCurves,
       Map<StandardId, RecoveryRates> recoveryRateCurves) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
-    JodaBeanUtils.notEmpty(creditCurves, "creditCurves");
+    JodaBeanUtils.notNull(creditCurves, "creditCurves");
     JodaBeanUtils.notEmpty(discountCurves, "discountCurves");
     JodaBeanUtils.notEmpty(recoveryRateCurves, "recoveryRateCurves");
     this.valuationDate = valuationDate;
@@ -254,7 +254,7 @@ public final class CreditRatesProvider
    * Gets the credit curves.
    * <p>
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   private ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> getCreditCurves() {
     return creditCurves;
@@ -585,11 +585,11 @@ public final class CreditRatesProvider
      * Sets the credit curves.
      * <p>
      * The curve data, predicting the survival probability, associated with each legal entity and currency.
-     * @param creditCurves  the new value, not empty
+     * @param creditCurves  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder creditCurves(Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves) {
-      JodaBeanUtils.notEmpty(creditCurves, "creditCurves");
+      JodaBeanUtils.notNull(creditCurves, "creditCurves");
       this.creditCurves = creditCurves;
       return this;
     }
