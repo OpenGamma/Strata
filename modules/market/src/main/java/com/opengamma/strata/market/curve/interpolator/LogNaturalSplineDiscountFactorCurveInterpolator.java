@@ -114,7 +114,7 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
     }
 
     //-------------------------------------------------------------------------
-    private static DoubleArray evaluate(
+    private static double evaluate(
         double xValue,
         DoubleArray knots,
         DoubleMatrix coefMatrix,
@@ -124,16 +124,11 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
       // check for 1 less interval than knots 
       int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xValue);
       int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
-
-      DoubleArray resArray = DoubleArray.of(dimensions, i -> {
-        DoubleArray coefs = coefMatrix.row(dimensions * indicator + i);
-        double res = getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
-        return res;
-      });
-      return resArray;
+      DoubleArray coefs = coefMatrix.row(dimensions * indicator);
+      return getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
     }
 
-    private static DoubleArray differentiate(
+    private static double differentiate(
         double xValue,
         DoubleArray knots,
         DoubleMatrix coefMatrix,
@@ -210,18 +205,18 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
     //-------------------------------------------------------------------------
     @Override
     protected double doInterpolate(double xValue) {
-      DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
-      return Math.exp(resValue.get(0));
+      double resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
+      return Math.exp(resValue);
     }
 
     @Override
     protected double doFirstDerivative(double xValue) {
-      DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
+      double resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
       int nCoefs = poly.getOrder();
       int numberOfIntervals = poly.getNumberOfIntervals();
-      DoubleArray resDerivative = differentiate(xValue, knots, coefMatrix, dimensions, nKnots, nCoefs, numberOfIntervals);
+      double resDerivative = differentiate(xValue, knots, coefMatrix, dimensions, nKnots, nCoefs, numberOfIntervals);
 
-      return Math.exp(resValue.get(0)) * resDerivative.get(0);
+      return Math.exp(resValue) * resDerivative;
     }
 
     @Override
@@ -234,7 +229,7 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
       DoubleMatrix coefficientSensitivity = poly.getCoefficientSensitivity(interval);
       double[] resSense = nodeSensitivity(
           xValue, knots, coefMatrix, dimensions, nKnots, interval, coefficientSensitivity).toArray();
-      double resValue = Math.exp(evaluate(xValue, knots, coefMatrix, dimensions, nKnots).get(0));
+      double resValue = Math.exp(evaluate(xValue, knots, coefMatrix, dimensions, nKnots));
       double[] knotValues = getValues(logYValues);
       final int knotValuesLength = knotValues.length;
       double[] res = new double[knotValuesLength];

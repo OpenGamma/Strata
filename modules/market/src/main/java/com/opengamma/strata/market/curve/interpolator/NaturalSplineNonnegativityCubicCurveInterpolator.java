@@ -107,7 +107,7 @@ final class NaturalSplineNonnegativityCubicCurveInterpolator
     }
 
     //-------------------------------------------------------------------------
-    private static DoubleArray evaluate(
+    private static double evaluate(
         double xValue,
         DoubleArray knots,
         DoubleMatrix coefMatrix,
@@ -117,16 +117,11 @@ final class NaturalSplineNonnegativityCubicCurveInterpolator
       // check for 1 less interval than knots 
       int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xValue);
       int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
-
-      DoubleArray resArray = DoubleArray.of(dimensions, i -> {
-        DoubleArray coefs = coefMatrix.row(dimensions * indicator + i);
-        double res = getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
-        return res;
-      });
-      return resArray;
+      DoubleArray coefs = coefMatrix.row(dimensions * indicator);
+      return getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
     }
 
-    private static DoubleArray differentiate(
+    private static double differentiate(
         double xValue,
         DoubleArray knots,
         DoubleMatrix coefMatrix,
@@ -164,16 +159,14 @@ final class NaturalSplineNonnegativityCubicCurveInterpolator
     //-------------------------------------------------------------------------
     @Override
     protected double doInterpolate(double xValue) {
-      DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
-      return resValue.get(0);
+      return evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
     }
 
     @Override
     protected double doFirstDerivative(double xValue) {
       int nCoefs = poly.getOrder();
       int numberOfIntervals = poly.getNumberOfIntervals();
-      DoubleArray resValue = differentiate(xValue, knots, coefMatrix, dimensions, nKnots, nCoefs, numberOfIntervals);
-      return resValue.get(0);
+      return differentiate(xValue, knots, coefMatrix, dimensions, nKnots, nCoefs, numberOfIntervals);
     }
 
     @Override
