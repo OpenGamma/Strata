@@ -54,6 +54,7 @@ public class ResolvedFxVanillaOptionTest {
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrike(), STRIKE);
     assertEquals(test.getUnderlying(), FX);
+    assertEquals(test.getCurrencyPair(), FX.getCurrencyPair());
   }
 
   public void test_builder_inverseFx() {

@@ -52,6 +52,7 @@ public class FxVanillaOptionTest {
     assertEquals(test.getExpiryTime(), EXPIRY_TIME);
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getUnderlying(), FX);
+    assertEquals(test.getCurrencyPair(), FX.getCurrencyPair());
   }
 
   public void test_builder_earlyPaymentDate() {

@@ -16,8 +16,8 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
 /**
  * Pricing method for vanilla Forex option transactions with Vanna-Volga method.
  * <p>
- * The volatility provider must be an instance of {@code BlackVolatilitySmileFxProvider}. 
- * Each smile of the simle term structure consists of 3 data points, where the middle point corresponds to ATM volatility.
+ * The volatilities are expressed using {@code BlackFxOptionSmileVolatilities}. 
+ * Each smile of the term structure consists of 3 data points, where the middle point corresponds to ATM volatility.
  * <p>
  * Reference: The vanna-volga method for implied volatilities (2007), A. Castagna and F. Mercurio, Risk, 106-111, January 2007.
  * OG implementation: Vanna-volga method for Forex options, version 1.0, June 2012.
@@ -44,6 +44,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
     this.fxPricer = ArgChecker.notNull(fxPricer, "fxPricer");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the price of the foreign exchange vanilla option product.
    * <p>

@@ -97,9 +97,10 @@ public class BlackFxVanillaOptionTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivities pvSensiTrade = PRICER_TRADE.presentValueSensitivityRates(OPTION_TRADE, RATES_PROVIDER, VOLS);
-    PointSensitivities pvSensiProduct = PRICER_PRODUCT.presentValueSensitivityRates(OPTION_PRODUCT, RATES_PROVIDER,
-        VOLS);
+    PointSensitivities pvSensiTrade = PRICER_TRADE.presentValueSensitivityRatesStickyStrike(
+        OPTION_TRADE, RATES_PROVIDER, VOLS);
+    PointSensitivities pvSensiProduct = PRICER_PRODUCT.presentValueSensitivityRatesStickyStrike(
+        OPTION_PRODUCT, RATES_PROVIDER, VOLS);
     PointSensitivities pvSensiPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM, RATES_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct.combinedWith(pvSensiPremium));
   }
@@ -114,7 +115,7 @@ public class BlackFxVanillaOptionTradePricerTest {
 
   public void test_currencyExposure() {
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(OPTION_TRADE, RATES_PROVIDER, VOLS);
-    PointSensitivities point = PRICER_TRADE.presentValueSensitivityRates(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    PointSensitivities point = PRICER_TRADE.presentValueSensitivityRatesStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOLS);
     MultiCurrencyAmount pv = PRICER_TRADE.presentValue(OPTION_TRADE, RATES_PROVIDER, VOLS);
     MultiCurrencyAmount ceExpected = RATES_PROVIDER.currencyExposure(point).plus(pv);
     assertEquals(ceComputed.size(), 2);

@@ -56,6 +56,7 @@ public class ResolvedFxSingleBarrierOptionTest {
     assertEquals(test.getBarrier(), BARRIER);
     assertEquals(test.getRebate().get(), REBATE);
     assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
+    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
   }
 
   public void test_of_noRebate() {
