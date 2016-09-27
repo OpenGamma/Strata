@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,29 +14,29 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 
 /**
- * Pricer for FX vanilla option trades with a lognormal model.
+ * Pricer for FX vanilla option trades with a Vanna-Volga method.
  * <p>
- * This function provides the ability to price an {@link FxVanillaOptionTrade}.
+ * The volatilities are expressed using {@code BlackFxOptionSmileVolatilities}. 
+ * Each smile of the term structure consists of 3 data points, where the middle point corresponds to ATM volatility.
  */
-public class BlackFxVanillaOptionTradePricer {
+public class VannaVolgaFxVanillaOptionTradePricer {
 
   /**
    * Default implementation.
    */
-  public static final BlackFxVanillaOptionTradePricer DEFAULT = new BlackFxVanillaOptionTradePricer(
-      BlackFxVanillaOptionProductPricer.DEFAULT,
+  public static final VannaVolgaFxVanillaOptionTradePricer DEFAULT = new VannaVolgaFxVanillaOptionTradePricer(
+      VannaVolgaFxVanillaOptionProductPricer.DEFAULT,
       DiscountingPaymentPricer.DEFAULT);
 
   /**
    * Pricer for {@link ResolvedFxSingleBarrierOption}.
    */
-  private final BlackFxVanillaOptionProductPricer productPricer;
+  private final VannaVolgaFxVanillaOptionProductPricer productPricer;
   /**
    * Pricer for {@link Payment}.
    */
@@ -48,8 +48,8 @@ public class BlackFxVanillaOptionTradePricer {
    * @param productPricer  the pricer for {@link ResolvedFxVanillaOption}
    * @param paymentPricer  the pricer for {@link Payment}
    */
-  public BlackFxVanillaOptionTradePricer(
-      BlackFxVanillaOptionProductPricer productPricer,
+  public VannaVolgaFxVanillaOptionTradePricer(
+      VannaVolgaFxVanillaOptionProductPricer productPricer,
       DiscountingPaymentPricer paymentPricer) {
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
@@ -69,7 +69,7 @@ public class BlackFxVanillaOptionTradePricer {
   public MultiCurrencyAmount presentValue(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
+      BlackFxOptionSmileVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
     CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, volatilities);
@@ -91,38 +91,15 @@ public class BlackFxVanillaOptionTradePricer {
    * @param ratesProvider  the rates provider
    * @param volatilities  the Black volatility provider
    * @return the present value curve sensitivity of the trade
-   * @deprecated Use presentValueSensitivityRatesStickyStrike
-   */
-  @Deprecated
-  public PointSensitivities presentValueSensitivityRates(
-      ResolvedFxVanillaOptionTrade trade,
-      RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
-
-    return presentValueSensitivityRatesStickyStrike(trade, ratesProvider, volatilities);
-  }
-
-  /**
-   * Calculates the present value sensitivity of the FX vanilla option trade.
-   * <p>
-   * The present value sensitivity of the trade is the sensitivity of the present value to
-   * the underlying curves.
-   * <p>
-   * The volatility is fixed in this sensitivity computation.
-   * 
-   * @param trade  the option trade
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the Black volatility provider
-   * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivityRatesStickyStrike(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
+      BlackFxOptionSmileVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
     PointSensitivities pvcsProduct =
-        productPricer.presentValueSensitivityRatesStickyStrike(product, ratesProvider, volatilities);
+        productPricer.presentValueSensitivityRatesStickyStrike(product, ratesProvider, volatilities).build();
     Payment premium = trade.getPremium();
     PointSensitivities pvcsPremium = paymentPricer.presentValueSensitivity(premium, ratesProvider).build();
     return pvcsProduct.combinedWith(pvcsPremium);
@@ -142,7 +119,7 @@ public class BlackFxVanillaOptionTradePricer {
   public PointSensitivities presentValueSensitivityModelParamsVolatility(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
+      BlackFxOptionSmileVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
     return productPricer.presentValueSensitivityModelParamsVolatility(product, ratesProvider, volatilities).build();
@@ -160,7 +137,7 @@ public class BlackFxVanillaOptionTradePricer {
   public MultiCurrencyAmount currencyExposure(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
+      BlackFxOptionSmileVolatilities volatilities) {
 
     Payment premium = trade.getPremium();
     CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
