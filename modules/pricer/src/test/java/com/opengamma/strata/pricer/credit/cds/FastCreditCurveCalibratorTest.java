@@ -397,6 +397,8 @@ public class FastCreditCurveCalibratorTest {
 //      assertEquals(curveSimpleOriginal.getHazardRate(sampleTime[i]), curveFastOriginal.getHazardRate(sampleTime[i]), 1.e-6);
 //    }
 //
+
+//  
 //    /*
 //     * Flat hazard rate case
 //     */
