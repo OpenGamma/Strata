@@ -230,42 +230,38 @@ public final class CalculationTask implements ImmutableBean {
     String fnName = function.getClass().getSimpleName();
     String exMsg = ex.getMessage();
     Optional<String> id = function.identifier(target);
-    String targetMsg = id.map(v -> "for ID '" + v + "'").orElse("for target '" + target.toString() + "'");
+    String msg = id.map(v -> " for ID '" + v + "': " + exMsg).orElse(": " + exMsg + ": for target '" + target.toString() + "'");
     if (ex instanceof MarketDataNotFoundException) {
       failure = Result.failure(
           FailureReason.MISSING_DATA,
           ex,
-          "Missing market data when invoking function '{}' {}: {}",
+          "Missing market data when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          exMsg);
+          msg);
 
     } else if (ex instanceof ReferenceDataNotFoundException) {
       failure = Result.failure(
           FailureReason.MISSING_DATA,
           ex,
-          "Missing reference data when invoking function '{}' {}: {}",
+          "Missing reference data when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          exMsg);
+          msg);
 
     } else if (ex instanceof UnsupportedOperationException) {
       failure = Result.failure(
           FailureReason.UNSUPPORTED,
           ex,
-          "Unsupported operation when invoking function '{}' {}: {}",
+          "Unsupported operation when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          exMsg);
+          msg);
 
     } else {
       failure = Result.failure(
           FailureReason.CALCULATION_FAILED,
           ex,
-          "Error when invoking function '{}' {}: {}",
+          "Error when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          ex.toString());
+          msg);
     }
     return getMeasures().stream().collect(toImmutableMap(m -> m, m -> failure));
   }
