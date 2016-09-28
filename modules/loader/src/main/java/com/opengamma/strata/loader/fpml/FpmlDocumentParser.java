@@ -196,13 +196,13 @@ public final class FpmlDocumentParser {
 
   // intelligently finds the FpML root element
   private static XmlElement findFpmlRoot(XmlElement root) {
-    XmlElement fpmlRoot = isFpmlRoot(root);
+    XmlElement fpmlRoot = getFpmlRoot(root);
     if (fpmlRoot != null) {
       return fpmlRoot;
     }
     // try children of root element
     for (XmlElement el : root.getChildren()) {
-      fpmlRoot = isFpmlRoot(el);
+      fpmlRoot = getFpmlRoot(el);
       if (fpmlRoot != null) {
         return fpmlRoot;
       }
@@ -210,7 +210,7 @@ public final class FpmlDocumentParser {
     // try grandchildren of root element
     for (XmlElement el1 : root.getChildren()) {
       for (XmlElement el2 : el1.getChildren()) {
-        fpmlRoot = isFpmlRoot(el2);
+        fpmlRoot = getFpmlRoot(el2);
         if (fpmlRoot != null) {
           return fpmlRoot;
         }
@@ -220,7 +220,7 @@ public final class FpmlDocumentParser {
   }
 
   // simple check to see if this is an FpML root
-  private static XmlElement isFpmlRoot(XmlElement el) {
+  private static XmlElement getFpmlRoot(XmlElement el) {
     if (el.getChildren("party").size() > 0) {
       // party and trade are siblings (the common case)
       if (el.getChildren("trade").size() > 0) {
