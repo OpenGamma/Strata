@@ -40,7 +40,7 @@ public final class FailureItemsBuilder {
   }
 
   /**
-   * Adds a failure to the list.
+   * Adds a list of failures to the list.
    * 
    * @param failures  the failures to add
    * @return this, for chaining
