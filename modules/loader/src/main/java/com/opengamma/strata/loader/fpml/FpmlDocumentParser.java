@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.fpml;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -195,20 +196,23 @@ public final class FpmlDocumentParser {
 
   // intelligently finds the FpML root element
   private static XmlElement findFpmlRoot(XmlElement root) {
-    if (isFpmlRoot(root)) {
-      return root;
+    XmlElement fpmlRoot = getFpmlRoot(root);
+    if (fpmlRoot != null) {
+      return fpmlRoot;
     }
     // try children of root element
     for (XmlElement el : root.getChildren()) {
-      if (isFpmlRoot(el)) {
-        return el;
+      fpmlRoot = getFpmlRoot(el);
+      if (fpmlRoot != null) {
+        return fpmlRoot;
       }
     }
     // try grandchildren of root element
     for (XmlElement el1 : root.getChildren()) {
       for (XmlElement el2 : el1.getChildren()) {
-        if (isFpmlRoot(el2)) {
-          return el2;
+        fpmlRoot = getFpmlRoot(el2);
+        if (fpmlRoot != null) {
+          return fpmlRoot;
         }
       }
     }
@@ -216,8 +220,36 @@ public final class FpmlDocumentParser {
   }
 
   // simple check to see if this is an FpML root
-  private static boolean isFpmlRoot(XmlElement el) {
-    return el.getChildren("party").size() > 0 && el.getChildren("trade").size() > 0;
+  private static XmlElement getFpmlRoot(XmlElement el) {
+    if (el.getChildren("party").size() > 0) {
+      // party and trade are siblings (the common case)
+      if (el.getChildren("trade").size() > 0) {
+        return el;
+      }
+      // trade is within a child alongside party (the unusual case, within clearingStatus/clearingStatusItem)
+      for (XmlElement child : el.getChildren()) {
+        if (child.getChildren("trade").size() > 0) {
+          List<XmlElement> fakeChildren = new ArrayList<>();
+          fakeChildren.addAll(el.getChildren("party"));
+          fakeChildren.addAll(child.getChildren("trade"));
+          XmlElement fakeRoot = XmlElement.ofChildren(el.getName(), el.getAttributes(), fakeChildren);
+          return fakeRoot;
+        }
+      }
+      // trade is within a grandchild alongside party (the unusual case, within clearingConfirmed/clearing/cleared)
+      for (XmlElement child : el.getChildren()) {
+        for (XmlElement grandchild : child.getChildren()) {
+          if (grandchild.getChildren("trade").size() > 0) {
+            List<XmlElement> fakeChildren = new ArrayList<>();
+            fakeChildren.addAll(el.getChildren("party"));
+            fakeChildren.addAll(grandchild.getChildren("trade"));
+            XmlElement fakeRoot = XmlElement.ofChildren(el.getName(), el.getAttributes(), fakeChildren);
+            return fakeRoot;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   //-------------------------------------------------------------------------
