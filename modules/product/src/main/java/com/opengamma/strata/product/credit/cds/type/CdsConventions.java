@@ -24,18 +24,45 @@ public class CdsConventions {
 
   /**
    * EUR-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'EUTA'.
    */
   public static final CdsConvention EUR_STANDARD = CdsConvention.of(StandardCdsConventions.EUR_STANDARD.getName());
 
   /**
+   * EUR-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'EUTA' and 'GBLO'.
+   */
+  public static final CdsConvention EUR_GB_STANDARD = CdsConvention.of(StandardCdsConventions.EUR_GB_STANDARD.getName());
+
+  /**
    * GBP-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'GBLO'.
    */
   public static final CdsConvention GBP_STANDARD = CdsConvention.of(StandardCdsConventions.GBP_STANDARD.getName());
 
   /**
+   * GBP-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'GBLO' and 'USNY'.
+   */
+  public static final CdsConvention GBP_US_STANDARD = CdsConvention.of(StandardCdsConventions.GBP_US_STANDARD.getName());
+
+  /**
    * JPY-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'JPTO'.
    */
   public static final CdsConvention JPY_STANDARD = CdsConvention.of(StandardCdsConventions.JPY_STANDARD.getName());
+
+  /**
+   * JPY-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'JPTO', 'USNY' and 'GBLO'.
+   */
+  public static final CdsConvention JPY_US_GB_STANDARD = CdsConvention.of(StandardCdsConventions.JPY_US_GB_STANDARD.getName());
 
   //-------------------------------------------------------------------------
   /**

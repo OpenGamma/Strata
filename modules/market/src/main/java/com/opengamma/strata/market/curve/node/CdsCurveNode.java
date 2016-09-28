@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -29,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
@@ -45,20 +47,21 @@ import com.opengamma.strata.product.credit.cds.type.CdsTemplate;
 /**
  * A curve node whose instrument is a credit default swap.
  * <p>
- * The trade produced by the node will be a receiver (SELL) for a positive quantity
- * and a payer (BUY) for a negative quantity.
+ * The trade produced by the node will be a protection receiver (BUY) for a positive quantity
+ * and a protection payer (SELL) for a negative quantity.
  * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class CdsCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
-  //TODO java doc
-
+  /**
+   * The template for the CDS associated with this node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CdsTemplate template;
   /**
-   * The identifier of the market data value that provides the rate.
+   * The identifier of the market data value that provides the quoted value.
    */
   @PropertyDefinition(validate = "notNull")
   private final ObservableId observableId;
@@ -69,27 +72,98 @@ public final class CdsCurveNode
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
-
+  /**
+   * The legal entity identifier.
+   * <p>
+   * This identifier is used for the reference legal entity of the CDS.
+   */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
   /**
-   * The method by which the date of the node is calculated, defaulted to 'End'.
+   * The node date.
+   * <p>
+   * The node date must be end date.
+   * If this field is null, the end date is computed based on the semi-annual roll convention.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final Optional<LocalDate> endDate;
+  @PropertyDefinition(get = "optional")
+  private final LocalDate endDate;
   /**
-   * The date order rules, used to ensure that the dates in the curve are in order.
+   * The date order rules.
+   * <p>
+   * This is used to ensure that the dates in the curve are in order.
    * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveNodeDateOrder dateOrder;
-
+  /**
+   * The market quote convention.
+   * <p>
+   * The CDS is quoted in par spread, points upfront or quoted spread.
+   * See {@link CdsQuoteConvention} for detail.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CdsQuoteConvention quoteConvention;
+  /**
+   * The fixed coupon rate.
+   * <p>
+   * This must be represented in decimal form.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Double fixedRate;
 
-  @PropertyDefinition
-  private final Optional<Double> fixedRate;
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a curve node for a CDS quoted in par spread or quoted spread.
+   * 
+   * @param template  the template
+   * @param observableId  the observable ID
+   * @param legalEntityId  the legal entity ID
+   * @param quoteConvention  the quote convention
+   * @return the curve node
+   */
+  public static CdsCurveNode of(
+      CdsTemplate template,
+      ObservableId observableId,
+      StandardId legalEntityId,
+      CdsQuoteConvention quoteConvention) {
 
+    ArgChecker.isTrue(!quoteConvention.equals(CdsQuoteConvention.POINTS_UPFRONT),
+        "The fixed rate must be specifed for points upfront quote");
+    return builder()
+        .template(template)
+        .observableId(observableId)
+        .legalEntityId(legalEntityId)
+        .quoteConvention(quoteConvention)
+        .build();
+  }
+
+  /**
+   * Returns a curve node for a CDS quoted in points upfront.
+   * 
+   * @param template  the template
+   * @param observableId  the observable ID
+   * @param legalEntityId  the legal entity ID
+   * @param quoteConvention  the quote convention
+   * @param fixedRate  the fixed rate
+   * @return the curve node
+   */
+  public static CdsCurveNode of(
+      CdsTemplate template,
+      ObservableId observableId,
+      StandardId legalEntityId,
+      CdsQuoteConvention quoteConvention,
+      Double fixedRate) {
+
+    return builder()
+        .template(template)
+        .observableId(observableId)
+        .legalEntityId(legalEntityId)
+        .quoteConvention(quoteConvention)
+        .fixedRate(fixedRate)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.dateOrder = CurveNodeDateOrder.DEFAULT;
@@ -110,7 +184,7 @@ public final class CdsCurveNode
 
   @Override
   public LocalDate date(LocalDate valuationDate, ReferenceData refData) {
-    return endDate.orElse(calculateEnd(valuationDate, refData));
+    return getEndDate().orElse(calculateEnd(valuationDate, refData));
   }
 
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
@@ -126,10 +200,11 @@ public final class CdsCurveNode
 
   @Override
   public CdsTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
-    BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
+    BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
     double coupon = 0;
     if (quoteConvention.equals(CdsQuoteConvention.POINTS_UPFRONT)) {
-      coupon = fixedRate.orElseThrow(() -> new IllegalArgumentException("fixed rate must be provided for points upfront quote"));
+      coupon = getFixedRate().orElseThrow(
+          () -> new IllegalArgumentException("fixed rate must be provided for points upfront quote"));
     } else {
       coupon = marketData.getValue(observableId);
     }
@@ -178,15 +253,14 @@ public final class CdsCurveNode
       ObservableId observableId,
       String label,
       StandardId legalEntityId,
-      Optional<LocalDate> endDate,
+      LocalDate endDate,
       CurveNodeDateOrder dateOrder,
       CdsQuoteConvention quoteConvention,
-      Optional<Double> fixedRate) {
+      Double fixedRate) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(observableId, "observableId");
     JodaBeanUtils.notEmpty(label, "label");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-    JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(dateOrder, "dateOrder");
     JodaBeanUtils.notNull(quoteConvention, "quoteConvention");
     this.template = template;
@@ -216,7 +290,7 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template.
+   * Gets the template for the CDS associated with this node.
    * @return the value of the property, not null
    */
   public CdsTemplate getTemplate() {
@@ -225,7 +299,7 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the market data value that provides the rate.
+   * Gets the identifier of the market data value that provides the quoted value.
    * @return the value of the property, not null
    */
   public ObservableId getObservableId() {
@@ -246,7 +320,9 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the legalEntityId.
+   * Gets the legal entity identifier.
+   * <p>
+   * This identifier is used for the reference legal entity of the CDS.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {
@@ -255,16 +331,21 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method by which the date of the node is calculated, defaulted to 'End'.
-   * @return the value of the property, not null
+   * Gets the node date.
+   * <p>
+   * The node date must be end date.
+   * If this field is null, the end date is computed based on the semi-annual roll convention.
+   * @return the optional value of the property, not null
    */
   public Optional<LocalDate> getEndDate() {
-    return endDate;
+    return Optional.ofNullable(endDate);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date order rules, used to ensure that the dates in the curve are in order.
+   * Gets the date order rules.
+   * <p>
+   * This is used to ensure that the dates in the curve are in order.
    * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
    * @return the value of the property, not null
    */
@@ -275,7 +356,10 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quoteConvention.
+   * Gets the market quote convention.
+   * <p>
+   * The CDS is quoted in par spread, points upfront or quoted spread.
+   * See {@link CdsQuoteConvention} for detail.
    * @return the value of the property, not null
    */
   public CdsQuoteConvention getQuoteConvention() {
@@ -284,11 +368,13 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixedRate.
-   * @return the value of the property
+   * Gets the fixed coupon rate.
+   * <p>
+   * This must be represented in decimal form.
+   * @return the optional value of the property, not null
    */
-  public Optional<Double> getFixedRate() {
-    return fixedRate;
+  public OptionalDouble getFixedRate() {
+    return fixedRate != null ? OptionalDouble.of(fixedRate) : OptionalDouble.empty();
   }
 
   //-----------------------------------------------------------------------
@@ -382,9 +468,8 @@ public final class CdsCurveNode
     /**
      * The meta-property for the {@code endDate} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Optional<LocalDate>> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", CdsCurveNode.class, (Class) Optional.class);
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", CdsCurveNode.class, LocalDate.class);
     /**
      * The meta-property for the {@code dateOrder} property.
      */
@@ -398,9 +483,8 @@ public final class CdsCurveNode
     /**
      * The meta-property for the {@code fixedRate} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Optional<Double>> fixedRate = DirectMetaProperty.ofImmutable(
-        this, "fixedRate", CdsCurveNode.class, (Class) Optional.class);
+    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
+        this, "fixedRate", CdsCurveNode.class, Double.class);
     /**
      * The meta-properties.
      */
@@ -496,7 +580,7 @@ public final class CdsCurveNode
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Optional<LocalDate>> endDate() {
+    public MetaProperty<LocalDate> endDate() {
       return endDate;
     }
 
@@ -520,7 +604,7 @@ public final class CdsCurveNode
      * The meta-property for the {@code fixedRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Optional<Double>> fixedRate() {
+    public MetaProperty<Double> fixedRate() {
       return fixedRate;
     }
 
@@ -537,13 +621,13 @@ public final class CdsCurveNode
         case 866287159:  // legalEntityId
           return ((CdsCurveNode) bean).getLegalEntityId();
         case -1607727319:  // endDate
-          return ((CdsCurveNode) bean).getEndDate();
+          return ((CdsCurveNode) bean).endDate;
         case -263699392:  // dateOrder
           return ((CdsCurveNode) bean).getDateOrder();
         case 2049149709:  // quoteConvention
           return ((CdsCurveNode) bean).getQuoteConvention();
         case 747425396:  // fixedRate
-          return ((CdsCurveNode) bean).getFixedRate();
+          return ((CdsCurveNode) bean).fixedRate;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -569,10 +653,10 @@ public final class CdsCurveNode
     private ObservableId observableId;
     private String label;
     private StandardId legalEntityId;
-    private Optional<LocalDate> endDate;
+    private LocalDate endDate;
     private CurveNodeDateOrder dateOrder;
     private CdsQuoteConvention quoteConvention;
-    private Optional<Double> fixedRate;
+    private Double fixedRate;
 
     /**
      * Restricted constructor.
@@ -590,10 +674,10 @@ public final class CdsCurveNode
       this.observableId = beanToCopy.getObservableId();
       this.label = beanToCopy.getLabel();
       this.legalEntityId = beanToCopy.getLegalEntityId();
-      this.endDate = beanToCopy.getEndDate();
+      this.endDate = beanToCopy.endDate;
       this.dateOrder = beanToCopy.getDateOrder();
       this.quoteConvention = beanToCopy.getQuoteConvention();
-      this.fixedRate = beanToCopy.getFixedRate();
+      this.fixedRate = beanToCopy.fixedRate;
     }
 
     //-----------------------------------------------------------------------
@@ -621,7 +705,6 @@ public final class CdsCurveNode
       }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
@@ -638,7 +721,7 @@ public final class CdsCurveNode
           this.legalEntityId = (StandardId) newValue;
           break;
         case -1607727319:  // endDate
-          this.endDate = (Optional<LocalDate>) newValue;
+          this.endDate = (LocalDate) newValue;
           break;
         case -263699392:  // dateOrder
           this.dateOrder = (CurveNodeDateOrder) newValue;
@@ -647,7 +730,7 @@ public final class CdsCurveNode
           this.quoteConvention = (CdsQuoteConvention) newValue;
           break;
         case 747425396:  // fixedRate
-          this.fixedRate = (Optional<Double>) newValue;
+          this.fixedRate = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -695,7 +778,7 @@ public final class CdsCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template.
+     * Sets the template for the CDS associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
@@ -706,7 +789,7 @@ public final class CdsCurveNode
     }
 
     /**
-     * Sets the identifier of the market data value that provides the rate.
+     * Sets the identifier of the market data value that provides the quoted value.
      * @param observableId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -730,7 +813,9 @@ public final class CdsCurveNode
     }
 
     /**
-     * Sets the legalEntityId.
+     * Sets the legal entity identifier.
+     * <p>
+     * This identifier is used for the reference legal entity of the CDS.
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -741,18 +826,22 @@ public final class CdsCurveNode
     }
 
     /**
-     * Sets the method by which the date of the node is calculated, defaulted to 'End'.
-     * @param endDate  the new value, not null
+     * Sets the node date.
+     * <p>
+     * The node date must be end date.
+     * If this field is null, the end date is computed based on the semi-annual roll convention.
+     * @param endDate  the new value
      * @return this, for chaining, not null
      */
-    public Builder endDate(Optional<LocalDate> endDate) {
-      JodaBeanUtils.notNull(endDate, "endDate");
+    public Builder endDate(LocalDate endDate) {
       this.endDate = endDate;
       return this;
     }
 
     /**
-     * Sets the date order rules, used to ensure that the dates in the curve are in order.
+     * Sets the date order rules.
+     * <p>
+     * This is used to ensure that the dates in the curve are in order.
      * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
      * @param dateOrder  the new value, not null
      * @return this, for chaining, not null
@@ -764,7 +853,10 @@ public final class CdsCurveNode
     }
 
     /**
-     * Sets the quoteConvention.
+     * Sets the market quote convention.
+     * <p>
+     * The CDS is quoted in par spread, points upfront or quoted spread.
+     * See {@link CdsQuoteConvention} for detail.
      * @param quoteConvention  the new value, not null
      * @return this, for chaining, not null
      */
@@ -775,11 +867,13 @@ public final class CdsCurveNode
     }
 
     /**
-     * Sets the fixedRate.
+     * Sets the fixed coupon rate.
+     * <p>
+     * This must be represented in decimal form.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
-    public Builder fixedRate(Optional<Double> fixedRate) {
+    public Builder fixedRate(Double fixedRate) {
       this.fixedRate = fixedRate;
       return this;
     }

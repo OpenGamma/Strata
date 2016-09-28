@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.credit.cds.type;
 
 import java.io.Serializable;
@@ -27,21 +32,29 @@ import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.cds.CdsTrade;
 
+/**
+ * A template for creating credit default swap trades.
+ * <p>
+ * This defines almost all the data necessary to create a credit default swap {@link CdsTrade}.
+ * The legal entity ID, trade date, notional and fixed rate are required to complete the template and create the trade.
+ * As such, it is often possible to get a market quote for a trade based on the template.
+ * <p>
+ * A CDS is quoted in points-upfront, par spread, or quoted spread. 
+ * For the latter two cases, the market quotes are passed as the fixed rate.
+ */
 @BeanDefinition
 public final class CdsTemplate
     implements TradeTemplate, ImmutableBean, Serializable {
 
-  // TODO javadoc
-
   /**
-  * The tenor of the swap.
+  * The tenor of the credit default swap.
   * <p>
-  * This is the period from the first accrual date to the last accrual date.
+  * This is the period to the protection end.
   */
   @PropertyDefinition(validate = "notNull")
   private final Tenor tenor;
   /**
-  * The market convention of the swap.
+  * The market convention of the credit default swap.
   */
   @PropertyDefinition(validate = "notNull")
   private final CdsConvention convention;
@@ -50,9 +63,9 @@ public final class CdsTemplate
   /**
    * Obtains a template based on the specified tenor and convention.
    * <p>
-   * The swap will start on the spot date.
+   * The protection end will be calculated based on standard semi-annual roll convention.
    * 
-   * @param tenor  the tenor of the swap
+   * @param tenor  the tenor of the CDS
    * @param convention  the market convention
    * @return the template
    */
@@ -67,9 +80,10 @@ public final class CdsTemplate
    * This returns a trade based on the specified trade date.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the floating rate is received from the counterparty, with the fixed rate being paid.
-   * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * If buying the CDS, the protection is received from the counterparty on default, with the fixed coupon being paid.
+   * If selling the CDS, the protection is paid to the counterparty on default, with the fixed coupon being received.
    * 
+   * @param legalEntityId  the legal entity ID
    * @param tradeDate  the date of the trade
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
@@ -89,6 +103,25 @@ public final class CdsTemplate
     return convention.toTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData);
   }
 
+  /**
+   * Creates a trade based on this template.
+   * <p>
+   * This returns a trade based on the specified trade date.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the CDS, the protection is received from the counterparty on default, with the fixed coupon being paid.
+   * If selling the CDS, the protection is paid to the counterparty on default, with the fixed coupon being received.
+   * 
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the date of the trade
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @param upFrontFee  the reference data
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
   public CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
@@ -154,9 +187,9 @@ public final class CdsTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the tenor of the swap.
+   * Gets the tenor of the credit default swap.
    * <p>
-   * This is the period from the first accrual date to the last accrual date.
+   * This is the period to the protection end.
    * @return the value of the property, not null
    */
   public Tenor getTenor() {
@@ -165,7 +198,7 @@ public final class CdsTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market convention of the swap.
+   * Gets the market convention of the credit default swap.
    * @return the value of the property, not null
    */
   public CdsConvention getConvention() {
@@ -397,9 +430,9 @@ public final class CdsTemplate
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the tenor of the swap.
+     * Sets the tenor of the credit default swap.
      * <p>
-     * This is the period from the first accrual date to the last accrual date.
+     * This is the period to the protection end.
      * @param tenor  the new value, not null
      * @return this, for chaining, not null
      */
@@ -410,7 +443,7 @@ public final class CdsTemplate
     }
 
     /**
-     * Sets the market convention of the swap.
+     * Sets the market convention of the credit default swap.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */
