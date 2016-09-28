@@ -49,7 +49,6 @@ import com.opengamma.strata.product.credit.cds.type.CdsTemplate;
  * <p>
  * The trade produced by the node will be a protection receiver (BUY) for a positive quantity
  * and a protection payer (SELL) for a negative quantity.
- * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class CdsCurveNode

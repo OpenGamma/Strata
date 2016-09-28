@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 /**
  * Standardized credit default swap conventions.
  */
-public class CdsConventions {
+public final class CdsConventions {
 
   /**
    * The extended enum lookup from name to instance.

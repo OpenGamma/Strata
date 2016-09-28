@@ -8,6 +8,7 @@ package com.opengamma.strata.product.credit.cds.type;
 import java.time.LocalDate;
 
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -89,7 +90,37 @@ public interface CdsConvention
       ReferenceData refData) {
 
     LocalDate startDate = CdsImmDateLogic.getPrevIMMDate(tradeDate);
-    LocalDate roll = CdsImmDateLogic.getNextIndexRollDate(tradeDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(tradeDate);
+    LocalDate endDate = roll.plus(tenor).minusMonths(3);
+    return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
+  }
+
+  /**
+   * Creates a CDS trade based on the trade date, start date and the IMM date logic. 
+   * <p>
+   * The end date is computed from the start date with the standard semi-annual roll convention.
+   * 
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param startDate  the start date
+   * @param tenor  the tenor
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param refData  the reference data
+   * @return the CDS trade
+   */
+  public default CdsTrade toTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      LocalDate startDate,
+      Tenor tenor,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+
+    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(startDate);
     LocalDate endDate = roll.plus(tenor).minusMonths(3);
     return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
   }
@@ -175,7 +206,39 @@ public interface CdsConvention
       ReferenceData refData) {
 
     LocalDate startDate = CdsImmDateLogic.getPrevIMMDate(tradeDate);
-    LocalDate roll = CdsImmDateLogic.getNextIndexRollDate(tradeDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(tradeDate);
+    LocalDate endDate = roll.plus(tenor).minusMonths(3);
+    return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
+  }
+
+  /**
+   * Creates a CDS trade with upfront fee based on the trade date, start date and the IMM date logic. 
+   * <p>
+   * The end date is computed from the start date with the standard semi-annual roll convention.
+   * 
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param startDate  the start date
+   * @param tenor  the tenor
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param upFrontFee  the upFront fee
+   * @param refData  the reference data
+   * @return the CDS trade
+   */
+  public default CdsTrade toTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      LocalDate startDate,
+      Tenor tenor,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      AdjustablePayment upFrontFee,
+      ReferenceData refData) {
+
+    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(startDate);
     LocalDate endDate = roll.plus(tenor).minusMonths(3);
     return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
   }
@@ -237,5 +300,17 @@ public interface CdsConvention
       double notional,
       double fixedRate,
       AdjustablePayment upFrontFee);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this convention.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
 
 }
