@@ -18,6 +18,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -39,7 +40,9 @@ import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.credit.cds.CdsQuote;
 import com.opengamma.strata.product.credit.cds.CdsTrade;
+import com.opengamma.strata.product.credit.cds.CdsTradeForCalibration;
 import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.cds.type.CdsQuoteConvention;
 import com.opengamma.strata.product.credit.cds.type.CdsTemplate;
@@ -126,8 +129,6 @@ public final class CdsCurveNode
       StandardId legalEntityId,
       CdsQuoteConvention quoteConvention) {
 
-    ArgChecker.isTrue(!quoteConvention.equals(CdsQuoteConvention.POINTS_UPFRONT),
-        "The fixed rate must be specifed for points upfront quote");
     return builder()
         .template(template)
         .observableId(observableId)
@@ -175,6 +176,16 @@ public final class CdsCurveNode
     }
   }
 
+  @ImmutableValidator
+  private void validate() {
+    if (quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)) {
+      ArgChecker.isTrue(fixedRate == null, "The fixed rate must be empty for par spread quote");
+    } else {
+      ArgChecker.isTrue(fixedRate != null,
+          "The fixed rate must be specifed if quote convention is points upfront or quoted spread");
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public Set<ObservableId> requirements() {
@@ -198,21 +209,24 @@ public final class CdsCurveNode
   }
 
   @Override
-  public CdsTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
+  public CdsTradeForCalibration trade(double quantity, MarketData marketData, ReferenceData refData) {
     BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
-    double coupon = 0;
-    if (quoteConvention.equals(CdsQuoteConvention.POINTS_UPFRONT)) {
-      coupon = getFixedRate().orElseThrow(
-          () -> new IllegalArgumentException("fixed rate must be provided for points upfront quote"));
-    } else {
-      coupon = marketData.getValue(observableId);
+    LocalDate valuationDate = marketData.getValuationDate();
+    double quoteValue = marketData.getValue(observableId);
+    CdsQuote quote = CdsQuote.of(quoteConvention, quoteValue);
+    double notional = Math.abs(quantity);
+    if (quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)) {
+      return CdsTradeForCalibration.of(
+          template.createTrade(legalEntityId, valuationDate, buySell, notional, quoteValue, refData), quote);
     }
-    return template.createTrade(legalEntityId, marketData.getValuationDate(), buySell, Math.abs(quantity), coupon, refData);
+    double coupon = getFixedRate().getAsDouble(); // always success
+    return CdsTradeForCalibration.of(
+        template.createTrade(legalEntityId, valuationDate, buySell, notional, coupon, refData), quote);
   }
 
   @Override
   public ResolvedCdsTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
-    return trade(quantity, marketData, refData).resolve(refData);
+    return trade(quantity, marketData, refData).getTrade().resolve(refData);
   }
 
   @Override
@@ -270,6 +284,7 @@ public final class CdsCurveNode
     this.dateOrder = dateOrder;
     this.quoteConvention = quoteConvention;
     this.fixedRate = fixedRate;
+    validate();
   }
 
   @Override

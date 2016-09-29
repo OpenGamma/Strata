@@ -13,6 +13,7 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
@@ -64,6 +65,15 @@ public interface CdsConvention
    * @return days adjustment
    */
   public abstract DaysAdjustment getSettlementDateOffset();
+
+  /**
+   * Get the currency of the CDS.
+   * <p>
+   * The amounts of the notional are expressed in terms of this currency.
+   * 
+   * @return the currency
+   */
+  public abstract Currency getCurrency();
 
   //-------------------------------------------------------------------------
   /**

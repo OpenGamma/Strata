@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.cds.CdsTrade;
+import org.joda.beans.BeanBuilder;
 
 /**
  * A template for creating credit default swap trades.
@@ -42,7 +43,7 @@ import com.opengamma.strata.product.credit.cds.CdsTrade;
  * A CDS is quoted in points upfront, par spread, or quoted spread. 
  * For the latter two cases, the market quotes are passed as the fixed rate.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CdsTemplate
     implements TradeTemplate, ImmutableBean, Serializable {
 
@@ -78,7 +79,7 @@ public final class CdsTemplate
    * @return the template
    */
   public static CdsTemplate of(AccrualStart accrualStart, Tenor tenor, CdsConvention convention) {
-    return of(accrualStart, tenor, convention);
+    return new CdsTemplate(accrualStart, tenor, convention);
   }
 
   /**
@@ -179,14 +180,6 @@ public final class CdsTemplate
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CdsTemplate.Builder builder() {
-    return new CdsTemplate.Builder();
-  }
-
   private CdsTemplate(
       AccrualStart accrualStart,
       Tenor tenor,
@@ -246,14 +239,6 @@ public final class CdsTemplate
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -342,7 +327,7 @@ public final class CdsTemplate
     }
 
     @Override
-    public CdsTemplate.Builder builder() {
+    public BeanBuilder<? extends CdsTemplate> builder() {
       return new CdsTemplate.Builder();
     }
 
@@ -410,7 +395,7 @@ public final class CdsTemplate
   /**
    * The bean-builder for {@code CdsTemplate}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CdsTemplate> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CdsTemplate> {
 
     private AccrualStart accrualStart;
     private Tenor tenor;
@@ -420,16 +405,6 @@ public final class CdsTemplate
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CdsTemplate beanToCopy) {
-      this.accrualStart = beanToCopy.getAccrualStart();
-      this.tenor = beanToCopy.getTenor();
-      this.convention = beanToCopy.getConvention();
     }
 
     //-----------------------------------------------------------------------
@@ -495,44 +470,6 @@ public final class CdsTemplate
           accrualStart,
           tenor,
           convention);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the accrual start.
-     * <p>
-     * Whether the accrual start is the next day or the previous IMM date.
-     * @param accrualStart  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder accrualStart(AccrualStart accrualStart) {
-      JodaBeanUtils.notNull(accrualStart, "accrualStart");
-      this.accrualStart = accrualStart;
-      return this;
-    }
-
-    /**
-     * Sets the tenor of the credit default swap.
-     * <p>
-     * This is the period to the protection end.
-     * @param tenor  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder tenor(Tenor tenor) {
-      JodaBeanUtils.notNull(tenor, "tenor");
-      this.tenor = tenor;
-      return this;
-    }
-
-    /**
-     * Sets the market convention of the credit default swap.
-     * @param convention  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder convention(CdsConvention convention) {
-      JodaBeanUtils.notNull(convention, "convention");
-      this.convention = convention;
-      return this;
     }
 
     //-----------------------------------------------------------------------

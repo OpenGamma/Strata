@@ -59,7 +59,7 @@ public final class ImmutableCdsConvention
    * <p>
    * The amounts of the notional are expressed in terms of this currency.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
    * The day count convention applicable.
@@ -430,6 +430,7 @@ public final class ImmutableCdsConvention
    * The amounts of the notional are expressed in terms of this currency.
    * @return the value of the property, not null
    */
+  @Override
   public Currency getCurrency() {
     return currency;
   }

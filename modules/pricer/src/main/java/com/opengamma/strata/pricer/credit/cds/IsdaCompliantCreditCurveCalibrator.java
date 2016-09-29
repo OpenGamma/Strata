@@ -5,12 +5,9 @@ import java.time.LocalDate;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.pricer.impl.credit.isda.PointsUpFront;
-import com.opengamma.strata.product.credit.cds.CdsParSpread;
-import com.opengamma.strata.product.credit.cds.CdsPointsUpFront;
-import com.opengamma.strata.product.credit.cds.CdsQuoteConvention;
-import com.opengamma.strata.product.credit.cds.CdsQuotedSpread;
+import com.opengamma.strata.product.credit.cds.CdsQuote;
 import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
+import com.opengamma.strata.product.credit.cds.type.CdsQuoteConvention;
 
 public abstract class IsdaCompliantCreditCurveCalibrator {
 
@@ -56,19 +53,19 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    */
   public LegalEntitySurvivalProbabilities calibrate(
       ResolvedCdsTrade calibrationCDS, // TODO create and use CurveNode
-      CdsQuoteConvention marketQuote, // TODO use MarketData
+      CdsQuote marketQuote, // TODO use MarketData
       CreditRatesProvider ratesProvider,       // TODO should contain discount curve and recovery rate curve
       ReferenceData refData) { // TODO use MarketData 
     double puf;
     double coupon;
-    if (marketQuote instanceof CdsParSpread) { // TODO simplify
+    if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.PAR_SPREAD)) { // TODO simplify
       puf = 0.0;
-      coupon = marketQuote.getQuote();
-    } else if (marketQuote instanceof CdsQuotedSpread) {
+      coupon = marketQuote.getQuotedValue();
+    } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD)) {
       puf = 0.0;
-      coupon = marketQuote.getQuote();
-    } else if (marketQuote instanceof CdsPointsUpFront) {
-      puf = marketQuote.getQuote();
+      coupon = marketQuote.getQuotedValue();
+    } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)) {
+      puf = marketQuote.getQuotedValue();
       coupon = calibrationCDS.getProduct().getFixedRate();
     } else {
       throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
@@ -85,7 +82,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    * @return The credit curve 
    */
   public LegalEntitySurvivalProbabilities calibrate(ResolvedCdsTrade[] calibrationCDSs,
-      CdsQuoteConvention[] marketQuotes, CreditRatesProvider ratesProvider, LocalDate settlementDate,
+      CdsQuote[] marketQuotes, CreditRatesProvider ratesProvider, LocalDate settlementDate,
       ReferenceData refData) {
 //    ArgumentChecker.noNulls(marketQuotes, "marketQuotes");
     final int n = marketQuotes.length;
@@ -118,18 +115,18 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    * @param yieldCurve
    * @return The market quotes in the form required by the curve builder
    */
-  private double[] getStandardQuoteForm(ResolvedCdsTrade calibrationCDS, CdsQuoteConvention marketQuote,
+  private double[] getStandardQuoteForm(ResolvedCdsTrade calibrationCDS, CdsQuote marketQuote,
       CreditRatesProvider ratesProvider, LocalDate settlementDate,
       ReferenceData refData) {
     IsdaCdsProductPricer pricer = new IsdaCdsProductPricer(_formula);
 
     double[] res = new double[2];
-    if (marketQuote instanceof CdsParSpread) {
-      res[0] = marketQuote.getQuote();
-    } else if (marketQuote instanceof CdsQuotedSpread) {
+    if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.PAR_SPREAD)) {
+      res[0] = marketQuote.getQuotedValue();
+    } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD)) {
 //      CdsQuotedSpread temp = (CdsQuotedSpread) marketQuote;
 //      double coupon = temp.getCoupon();
-      double qSpread = marketQuote.getQuote();
+      double qSpread = marketQuote.getQuotedValue();
       LegalEntitySurvivalProbabilities cc =
           calibrate(new ResolvedCdsTrade[] {calibrationCDS}, new double[] {qSpread}, ratesProvider, new double[1], refData);
       CreditRatesProvider rates = ratesProvider.toBuilder()
@@ -139,10 +136,10 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       res[0] = calibrationCDS.getProduct().getFixedRate();
       res[1] = pricer.price(calibrationCDS.getProduct(), rates, calibrationCDS.getInfo().getSettlementDate().get(),
           PriceType.CLEAN, refData);
-    } else if (marketQuote instanceof PointsUpFront) {
+    } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)) {
 //      final PointsUpFront temp = (PointsUpFront) marketQuote;
       res[0] = calibrationCDS.getProduct().getFixedRate();
-      res[1] = marketQuote.getQuote();
+      res[1] = marketQuote.getQuotedValue();
     } else {
       throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
     }
