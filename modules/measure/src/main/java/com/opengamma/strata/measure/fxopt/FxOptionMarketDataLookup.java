@@ -144,7 +144,7 @@ public interface FxOptionMarketDataLookup extends CalculationParameter {
   /**
    * Obtains FX options volatilities based on the specified market data.
    * <p>
-   * This provides {@link FxOptionVolatilities} suitable for pricing a FX options.
+   * This provides {@link FxOptionVolatilities} suitable for pricing FX options.
    * Although this method can be used directly, it is typically invoked indirectly
    * via {@link FxOptionMarketData}:
    * <pre>

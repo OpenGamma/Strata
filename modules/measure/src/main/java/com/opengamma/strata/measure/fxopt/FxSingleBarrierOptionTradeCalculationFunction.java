@@ -51,7 +51,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
- * The "natural" currency is the base currency of the market convention pair of the optional FX.
+ * The "natural" currency is the market convention base currency of the underlying FX.
  */
 public class FxSingleBarrierOptionTradeCalculationFunction
     implements CalculationFunction<FxSingleBarrierOptionTrade> {

@@ -10,7 +10,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 /**
  * Market data for FX options, used for calculation across multiple scenarios.
  * <p>
- * This interface exposes the market data necessary for pricing a FX options.
+ * This interface exposes the market data necessary for pricing FX options.
  * <p>
  * Implementations of this interface must be immutable.
  */

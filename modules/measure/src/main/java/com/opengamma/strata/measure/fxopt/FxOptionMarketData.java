@@ -14,7 +14,7 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 /**
  * Market data for FX options.
  * <p>
- * This interface exposes the market data necessary for pricing a FX options.
+ * This interface exposes the market data necessary for pricing FX options.
  * <p>
  * Implementations of this interface must be immutable.
  */
