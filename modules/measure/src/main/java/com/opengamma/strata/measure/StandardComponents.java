@@ -26,6 +26,8 @@ import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunction;
+import com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionTradeCalculationFunction;
+import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
 import com.opengamma.strata.measure.security.GenericSecurityTradeCalculationFunction;
@@ -44,6 +46,8 @@ import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
+import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -72,8 +76,10 @@ public class StandardComponents {
       new DsfTradeCalculationFunction(),
       new FraTradeCalculationFunction(),
       new FxNdfTradeCalculationFunction(),
+      new FxSingleBarrierOptionTradeCalculationFunction(),
       new FxSingleTradeCalculationFunction(),
       new FxSwapTradeCalculationFunction(),
+      new FxVanillaOptionTradeCalculationFunction(),
       new GenericSecurityTradeCalculationFunction(),
       new IborCapFloorTradeCalculationFunction(),
       new IborFutureTradeCalculationFunction(),
@@ -157,6 +163,8 @@ public class StandardComponents {
    *  <li>FX spot and FX forward - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
    *  <li>FX swap - {@link FxSwapTrade}
+   *  <li>FX vanilla option - {@link FxVanillaOptionTrade}
+   *  <li>FX single barrier option - {@link FxSingleBarrierOptionTrade}
    *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>Rate Swap - {@link SwapTrade}
    *  <li>Swaption - {@link SwaptionTrade}
