@@ -16,6 +16,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertNotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -252,6 +253,51 @@ public class CalculationTaskTest {
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
     assertThat(result).hasValue(ScenarioArray.of("foo"));
+  }
+
+  /**
+   * Test executing a bad function that fails to return expected measure.
+   */
+  public void executeMissingMeasure() {
+    // function claims it supports 'PresentValueMultiCurrency' but fails to return it when asked
+    MeasureCheckFunction fn = new MeasureCheckFunction(ImmutableSet.of(TestingMeasures.PRESENT_VALUE), Optional.of("123"));
+    CalculationTaskCell cell0 = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell1 = CalculationTaskCell.of(0, 1, TestingMeasures.PRESENT_VALUE_MULTI_CCY, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell0, cell1);
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
+
+    CalculationResults calculationResults = task.execute(marketData, REF_DATA);
+    Result<?> result0 = calculationResults.getCells().get(0).getResult();
+    assertThat(result0)
+        .isSuccess()
+        .hasValue(ImmutableSet.of(TestingMeasures.PRESENT_VALUE, TestingMeasures.PRESENT_VALUE_MULTI_CCY));
+    Result<?> result1 = calculationResults.getCells().get(1).getResult();
+    assertThat(result1)
+        .isFailure(FailureReason.CALCULATION_FAILED)
+        .hasFailureMessageMatching(
+            "Function 'MeasureCheckFunction' did not return requested measure 'PresentValueMultiCurrency' for ID '123'");
+  }
+
+  /**
+   * Tests that executing a function filters the set of measures sent to function.
+   */
+  public void executeFilterMeasures() {
+    // function does not support 'ParRate', so it should not be asked for it
+    MeasureCheckFunction fn = new MeasureCheckFunction(ImmutableSet.of(TestingMeasures.PRESENT_VALUE), Optional.of("123"));
+    CalculationTaskCell cell0 = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell1 = CalculationTaskCell.of(0, 1, TestingMeasures.PAR_RATE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell0, cell1);
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
+
+    CalculationResults calculationResults = task.execute(marketData, REF_DATA);
+    Result<?> result0 = calculationResults.getCells().get(0).getResult();
+    assertThat(result0)
+        .isSuccess()
+        .hasValue(ImmutableSet.of(TestingMeasures.PRESENT_VALUE));  // ParRate not requested
+    Result<?> result1 = calculationResults.getCells().get(1).getResult();
+    assertThat(result1)
+        .isFailure(FailureReason.UNSUPPORTED)
+        .hasFailureMessageMatching("Measure 'ParRate' is not supported by function 'MeasureCheckFunction'");
   }
 
   /**
@@ -607,6 +653,67 @@ public class CalculationTaskTest {
       }
       ScenarioArray<Object> array = ScenarioArray.of(obj);
       return ImmutableMap.of(TestingMeasures.PRESENT_VALUE, Result.success(array));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Function that returns a value from a Supplier.
+   */
+  private static final class MeasureCheckFunction implements CalculationFunction<TestTarget> {
+
+    private final Set<Measure> resultMeasures;
+    private final Optional<String> id;
+
+    private MeasureCheckFunction(Set<Measure> resultMeasures, Optional<String> id) {
+      this.resultMeasures = resultMeasures;
+      this.id = id;
+    }
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
+
+    @Override
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public Optional<String> identifier(TestTarget target) {
+      return id;
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
+      return USD;
+    }
+
+    @Override
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        ReferenceData refData) {
+
+      return FunctionRequirements.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        ScenarioMarketData marketData,
+        ReferenceData refData) {
+
+      Map<Measure, Result<?>> map = new HashMap<>();
+      for (Measure measure : resultMeasures) {
+        map.put(measure, Result.success(measures));
+      }
+      return map;
     }
   }
 
