@@ -216,14 +216,16 @@ public enum StubConvention {
    * The rules are as follows:
    * <p>
    * If the input frequency is month-based, then the implied convention is based on
-   * the day-of-month of the initial date.
+   * the day-of-month of the initial date, where the initial date is the start date
+   * if rolling forwards or the end date otherwise.
    * If that date is on the 31st day, or if the 'preferEndOfMonth' flag is true and
    * the relevant date is at the end of the month, then the implied convention is 'EOM'.
    * For example, if the initial date of the sequence is 2014-06-20 and the periodic
    * frequency is 'P3M' (month-based), then the implied convention is 'Day20'.
    * <p>
    * If the input frequency is week-based, then the implied convention is based on
-   * the day-of-week of the initial date.
+   * the day-of-week of the initial date, where the initial date is the start date
+   * if rolling forwards or the end date otherwise.
    * For example, if the initial date of the sequence is 2014-06-20 and the periodic
    * frequency is 'P2W' (week-based), then the implied convention is 'DayFri',
    * because 2014-06-20 is a Friday.
@@ -241,12 +243,10 @@ public enum StubConvention {
     ArgChecker.notNull(start, "start");
     ArgChecker.notNull(end, "end");
     ArgChecker.notNull(frequency, "frequency");
-    if (isCalculateForwards()) {
-      return toRollConvention(start, frequency, preferEndOfMonth);
-    } else if (isCalculateBackwards()) {
+    if (isCalculateBackwards()) {
       return toRollConvention(end, frequency, preferEndOfMonth);
     } else {
-      return RollConventions.NONE;
+      return toRollConvention(start, frequency, preferEndOfMonth);
     }
   }
 
