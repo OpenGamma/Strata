@@ -389,9 +389,9 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public Schedule createSchedule(ReferenceData refData) {
-    List<LocalDate> unadj = generateUnadjustedDates();
-    List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     RollConvention rollConv = calculatedRollConvention();
+    List<LocalDate> unadj = generateUnadjustedDates(rollConv);
+    List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     List<SchedulePeriod> periods = new ArrayList<>();
     try {
       // for performance, handle silly errors using exceptions
@@ -432,7 +432,8 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createUnadjustedDates() {
-    List<LocalDate> unadj = generateUnadjustedDates();
+    RollConvention rollConv = calculatedRollConvention();
+    List<LocalDate> unadj = generateUnadjustedDates(rollConv);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
     if (deduplicated.size() < unadj.size()) {
@@ -442,31 +443,30 @@ public final class PeriodicSchedule
   }
 
   // creates the unadjusted dates, returning the mutable list
-  private List<LocalDate> generateUnadjustedDates() {
-    LocalDate effectiveStartDate = overrideStartDate != null ? overrideStartDate.getUnadjusted() : startDate;
+  private List<LocalDate> generateUnadjustedDates(RollConvention rollConv) {
+    LocalDate overriddenStartDate = overrideStartDate != null ? overrideStartDate.getUnadjusted() : startDate;
     LocalDate regStart = calculatedFirstRegularStartDate();
     LocalDate regEnd = calculatedLastRegularEndDate();
     boolean explicitInitialStub = !startDate.equals(regStart);
     boolean explicitFinalStub = !endDate.equals(regEnd);
     // handle case where whole period is stub
     if (regStart.equals(endDate) || regEnd.equals(startDate)) {
-      return ImmutableList.of(effectiveStartDate, endDate);
+      return ImmutableList.of(overriddenStartDate, endDate);
     }
     // handle TERM frequency
     if (frequency == Frequency.TERM) {
       if (explicitInitialStub || explicitFinalStub) {
         throw new ScheduleException(this, "Explict stubs must not be specified when using 'Term' frequency");
       }
-      return ImmutableList.of(effectiveStartDate, endDate);
+      return ImmutableList.of(overriddenStartDate, endDate);
     }
     // calculate base schedule excluding explicit stubs
-    RollConvention rollConv = calculatedRollConvention();
     StubConvention stubConv = generateImplicitStubConvention(explicitInitialStub, explicitFinalStub);
     return (stubConv.isCalculateBackwards() ?
         generateBackwards(
-            regStart, regEnd, rollConv, stubConv, explicitInitialStub, effectiveStartDate, explicitFinalStub, endDate) :
+            regStart, regEnd, rollConv, stubConv, explicitInitialStub, overriddenStartDate, explicitFinalStub, endDate) :
         generateForwards(
-            regStart, regEnd, rollConv, stubConv, explicitInitialStub, effectiveStartDate, explicitFinalStub, endDate));
+            regStart, regEnd, rollConv, stubConv, explicitInitialStub, overriddenStartDate, explicitFinalStub, endDate));
   }
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
@@ -623,7 +623,8 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createAdjustedDates(ReferenceData refData) {
-    List<LocalDate> unadj = generateUnadjustedDates();
+    RollConvention rollConv = calculatedRollConvention();
+    List<LocalDate> unadj = generateUnadjustedDates(rollConv);
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
@@ -648,13 +649,13 @@ public final class PeriodicSchedule
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the effective roll convention defining how to roll dates.
+   * Gets the applicable roll convention defining how to roll dates.
    * <p>
    * The schedule periods are determined at the high level by repeatedly adding
    * the frequency to the start date, or subtracting it from the end date.
    * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
    * <p>
-   * The effective roll convention is a non-null value.
+   * The applicable roll convention is a non-null value.
    * If the roll convention property is not present, this is determined from the
    * stub convention, dates and frequency, defaulting to 'None' if necessary.
    * 
@@ -681,7 +682,7 @@ public final class PeriodicSchedule
   /**
    * Calculates the applicable first regular start date.
    * <p>
-   * This will be either 'firstRegularStartDate' or 'startDate.unadjusted'.
+   * This will be either 'firstRegularStartDate' or 'startDate'.
    * 
    * @return the non-null start date of the first regular period
    */
@@ -692,7 +693,7 @@ public final class PeriodicSchedule
   /**
    * Calculates the applicable last regular end date.
    * <p>
-   * This will be either 'lastRegularEndDate' or 'endDate.unadjusted'.
+   * This will be either 'lastRegularEndDate' or 'endDate'.
    * 
    * @return the non-null end date of the last regular period
    */

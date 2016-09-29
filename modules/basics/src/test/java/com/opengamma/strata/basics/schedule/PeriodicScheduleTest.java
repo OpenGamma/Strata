@@ -18,6 +18,10 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_11;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_17;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_24;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_28;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_29;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_30;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_4;
 import static com.opengamma.strata.basics.schedule.RollConventions.EOM;
 import static com.opengamma.strata.basics.schedule.RollConventions.IMM;
@@ -37,6 +41,7 @@ import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
 import static java.time.Month.MAY;
 import static java.time.Month.NOVEMBER;
+import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
 import static org.testng.Assert.assertEquals;
 
@@ -61,10 +66,12 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 public class PeriodicScheduleTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final RollConvention ROLL_NONE = RollConventions.NONE;
   private static final StubConvention STUB_NONE = StubConvention.NONE;
   private static final StubConvention STUB_BOTH = StubConvention.BOTH;
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
-  private static final LocalDate NOV_30_2013 = date(2013, NOVEMBER, 30);
+  private static final LocalDate NOV_29_2013 = date(2013, NOVEMBER, 29);  // Fri
+  private static final LocalDate NOV_30_2013 = date(2013, NOVEMBER, 30);  // Sat
   private static final LocalDate FEB_28 = date(2014, FEBRUARY, 28);
   private static final LocalDate MAY_30 = date(2014, MAY, 30);
   private static final LocalDate MAY_31 = date(2014, MAY, 31);
@@ -83,8 +90,10 @@ public class PeriodicScheduleTest {
   private static final LocalDate AUG_18 = date(2014, AUGUST, 18);
   private static final LocalDate SEP_04 = date(2014, SEPTEMBER, 4);
   private static final LocalDate SEP_05 = date(2014, SEPTEMBER, 5);
+  private static final LocalDate SEP_11 = date(2014, SEPTEMBER, 11);
   private static final LocalDate SEP_17 = date(2014, SEPTEMBER, 17);
   private static final LocalDate SEP_18 = date(2014, SEPTEMBER, 18);
+  private static final LocalDate OCT_17 = date(2014, OCTOBER, 17);
 
   //-------------------------------------------------------------------------
   public void test_of_LocalDateEomFalse() {
@@ -205,189 +214,191 @@ public class PeriodicScheduleTest {
         // stub null
         {JUN_17, SEP_17, P1M, null, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
 
         // stub NONE
         {JUN_17, SEP_17, P1M, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, JUL_17, P1M, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_17, JUL_17),
-            ImmutableList.of(JUN_17, JUL_17)},
+            ImmutableList.of(JUN_17, JUL_17), DAY_17},
 
         // stub SHORT_INITIAL
         {JUN_04, SEP_17, P1M, SHORT_INITIAL, null, null, null,
             ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, SEP_17, P1M, SHORT_INITIAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, JUL_04, P1M, SHORT_INITIAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_04),
-            ImmutableList.of(JUN_17, JUL_04)},
+            ImmutableList.of(JUN_17, JUL_04), DAY_4},
         {date(2011, 6, 28), date(2011, 6, 30), P1M, SHORT_INITIAL, EOM, null, null,
             ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)),
-            ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30))},
+            ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)), EOM},
         {date(2014, 12, 12), date(2015, 8, 24), P3M, SHORT_INITIAL, null, null, null,
             ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 24), date(2015, 8, 24)),
-            ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24))},
+            ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24)), DAY_24},
         {date(2014, 12, 12), date(2015, 8, 24), P3M, SHORT_INITIAL, RollConventions.NONE, null, null,
             ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 24), date(2015, 8, 24)),
-            ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24))},
+            ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24)), DAY_24},
         {date(2014, 11, 24), date(2015, 8, 24), P3M, null, RollConventions.NONE, null, null,
             ImmutableList.of(date(2014, 11, 24), date(2015, 2, 24), date(2015, 5, 24), date(2015, 8, 24)),
-            ImmutableList.of(date(2014, 11, 24), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24))},
+            ImmutableList.of(date(2014, 11, 24), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24)), DAY_24},
 
         // stub LONG_INITIAL
         {JUN_04, SEP_17, P1M, LONG_INITIAL, null, null, null,
             ImmutableList.of(JUN_04, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_04, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_04, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, SEP_17, P1M, LONG_INITIAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, JUL_04, P1M, LONG_INITIAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_04),
-            ImmutableList.of(JUN_17, JUL_04)},
+            ImmutableList.of(JUN_17, JUL_04), DAY_4},
         {JUN_17, AUG_04, P1M, LONG_INITIAL, null, null, null,
             ImmutableList.of(JUN_17, AUG_04),
-            ImmutableList.of(JUN_17, AUG_04)},
+            ImmutableList.of(JUN_17, AUG_04), DAY_4},
 
         // stub SHORT_FINAL
         {JUN_04, SEP_17, P1M, SHORT_FINAL, null, null, null,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17),
-            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17)},
+            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17), DAY_4},
         {JUN_17, SEP_17, P1M, SHORT_FINAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, JUL_04, P1M, SHORT_FINAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_04),
-            ImmutableList.of(JUN_17, JUL_04)},
+            ImmutableList.of(JUN_17, JUL_04), DAY_17},
         {date(2011, 6, 28), date(2011, 6, 30), P1M, SHORT_FINAL, EOM, null, null,
             ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)),
-            ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30))},
+            ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)), DAY_28},
         {date(2014, 11, 29), date(2015, 9, 2), P3M, SHORT_FINAL, null, null, null,
             ImmutableList.of(date(2014, 11, 29), date(2015, 2, 28), date(2015, 5, 29), date(2015, 8, 29), date(2015, 9, 2)),
-            ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2))},
+            ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2)),
+            DAY_29},
         {date(2014, 11, 29), date(2015, 9, 2), P3M, SHORT_FINAL, RollConventions.NONE, null, null,
             ImmutableList.of(date(2014, 11, 29), date(2015, 2, 28), date(2015, 5, 29), date(2015, 8, 29), date(2015, 9, 2)),
-            ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2))},
+            ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2)),
+            DAY_29},
 
         // stub LONG_FINAL
         {JUN_04, SEP_17, P1M, LONG_FINAL, null, null, null,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17),
-            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17)},
+            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17), DAY_4},
         {JUN_17, SEP_17, P1M, LONG_FINAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, JUL_04, P1M, LONG_FINAL, null, null, null,
             ImmutableList.of(JUN_17, JUL_04),
-            ImmutableList.of(JUN_17, JUL_04)},
+            ImmutableList.of(JUN_17, JUL_04), DAY_17},
         {JUN_17, AUG_04, P1M, LONG_FINAL, null, null, null,
             ImmutableList.of(JUN_17, AUG_04),
-            ImmutableList.of(JUN_17, AUG_04)},
+            ImmutableList.of(JUN_17, AUG_04), DAY_17},
 
         // explicit initial stub
         {JUN_04, SEP_17, P1M, null, null, JUN_17, null,
             ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_04, SEP_17, P1M, SHORT_INITIAL, null, JUN_17, null,
             ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
         {JUN_17, SEP_17, P1M, null, null, JUN_17, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
 
         // explicit final stub
         {JUN_04, SEP_17, P1M, null, null, null, AUG_04,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17),
-            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17)},
+            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17), DAY_4},
         {JUN_04, SEP_17, P1M, SHORT_FINAL, null, null, AUG_04,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17),
-            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17)},
+            ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17), DAY_4},
         {JUN_17, SEP_17, P1M, null, null, null, AUG_17,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
 
         // explicit double stub
         {JUN_04, SEP_17, P1M, null, null, JUL_11, AUG_11,
             ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17),
-            ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17)},
-        {JUN_04, SEP_17, P1M, STUB_BOTH, null, JUL_11, AUG_11,
-            ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17),
-            ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17)},
+            ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17), DAY_11},
+        {JUN_04, OCT_17, P1M, STUB_BOTH, null, JUL_11, SEP_11,
+            ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_11, OCT_17),
+            ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_11, OCT_17), DAY_11},
         {JUN_17, SEP_17, P1M, null, null, JUN_17, SEP_17,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
+            ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
 
         // near end of month
         // EOM flag false, thus roll on 30th
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, null, null, null,
             ImmutableList.of(NOV_30_2013, FEB_28, MAY_30, AUG_30, NOV_30),
-            ImmutableList.of(date(2013, NOVEMBER, 29), FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
+            ImmutableList.of(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), DAY_30},
         // EOM flag true and is EOM, thus roll at EOM
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, EOM, null, null,
             ImmutableList.of(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
-            ImmutableList.of(date(2013, NOVEMBER, 29), FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
+            ImmutableList.of(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), EOM},
         // EOM flag true, but not EOM, thus roll on 30th (stub convention defined)
         {MAY_30, NOV_30, P3M, STUB_NONE, EOM, null, null,
             ImmutableList.of(MAY_30, AUG_30, NOV_30),
-            ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
+            ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), DAY_30},
         // EOM flag true, but not EOM, thus roll on 30th (no stub convention defined)
         {MAY_30, NOV_30, P3M, null, EOM, null, null,
             ImmutableList.of(MAY_30, AUG_30, NOV_30),
-            ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28))},
+            ImmutableList.of(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), DAY_30},
         // EOM flag true and is EOM, double stub, thus roll at EOM
         {date(2014, 1, 3), SEP_17, P3M, STUB_BOTH, EOM, FEB_28, AUG_31,
             ImmutableList.of(date(2014, 1, 3), FEB_28, MAY_31, AUG_31, SEP_17),
-            ImmutableList.of(date(2014, 1, 3), FEB_28, MAY_30, date(2014, AUGUST, 29), SEP_17)},
+            ImmutableList.of(date(2014, 1, 3), FEB_28, MAY_30, date(2014, AUGUST, 29), SEP_17), EOM},
 
         // TERM period
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_04, SEP_17),
-            ImmutableList.of(JUN_04, SEP_17)},
+            ImmutableList.of(JUN_04, SEP_17), ROLL_NONE},
         // TERM period defined as a stub and no regular periods
         {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, SEP_17, null,
             ImmutableList.of(JUN_04, SEP_17),
-            ImmutableList.of(JUN_04, SEP_17)},
+            ImmutableList.of(JUN_04, SEP_17), DAY_17},
         {JUN_04, SEP_17, P12M, SHORT_INITIAL, null, null, JUN_04,
             ImmutableList.of(JUN_04, SEP_17),
-            ImmutableList.of(JUN_04, SEP_17)},
+            ImmutableList.of(JUN_04, SEP_17), DAY_4},
         {date(2014, 9, 24), date(2016, 11, 24), Frequency.ofYears(2), SHORT_INITIAL, null, null, null,
             ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24)),
-            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24))},
+            ImmutableList.of(date(2014, 9, 24), date(2014, 11, 24), date(2016, 11, 24)), DAY_24},
 
         // IMM
         {date(2014, 9, 17), date(2014, 10, 15), P1M, STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)),
-            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15))},
+            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)), IMM},
         {date(2014, 9, 17), date(2014, 10, 15), TERM, STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)),
-            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15))},
+            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)), IMM},
         // IMM with stupid short period still works
         {date(2014, 9, 17), date(2014, 10, 15), Frequency.ofDays(2), STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)),
-            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15))},
+            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)), IMM},
         {date(2014, 9, 17), date(2014, 10, 1), Frequency.ofDays(2), STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1)),
-            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1))},
+            ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1)), IMM},
 
         // Day30 rolling with February
-        {date(2015, 1, 30), date(2015, 4, 30), P1M, STUB_NONE, RollConvention.ofDayOfMonth(30), null, null,
+        {date(2015, 1, 30), date(2015, 4, 30), P1M, STUB_NONE, DAY_30, null, null,
             ImmutableList.of(date(2015, 1, 30), date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
-            ImmutableList.of(date(2015, 1, 30), date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
-        {date(2015, 2, 28), date(2015, 4, 30), P1M, STUB_NONE, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 1, 30), date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30)), DAY_30},
+        {date(2015, 2, 28), date(2015, 4, 30), P1M, STUB_NONE, DAY_30, null, null,
             ImmutableList.of(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
-            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
-        {date(2015, 2, 28), date(2015, 4, 30), P1M, SHORT_INITIAL, RollConvention.ofDayOfMonth(30), null, null,
+            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30)), DAY_30},
+        {date(2015, 2, 28), date(2015, 4, 30), P1M, SHORT_INITIAL, DAY_30, null, null,
             ImmutableList.of(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
-            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30))},
+            ImmutableList.of(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30)), DAY_30},
     };
   }
 
   @Test(dataProvider = "generation")
   public void test_monthly_schedule(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -408,13 +419,13 @@ public class PeriodicScheduleTest {
       assertEquals(period.getEndDate(), adjusted.get(i + 1));
     }
     assertEquals(test.getFrequency(), freq);
-    assertEquals(test.getRollConvention(), defn.calculatedRollConvention());
+    assertEquals(test.getRollConvention(), expRoll);
   }
 
   @Test(dataProvider = "generation")
   public void test_monthly_schedule_withOverride(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -441,13 +452,13 @@ public class PeriodicScheduleTest {
       assertEquals(period.getEndDate(), adjusted.get(i + 1));
     }
     assertEquals(test.getFrequency(), freq);
-    assertEquals(test.getRollConvention(), defn.calculatedRollConvention());
+    assertEquals(test.getRollConvention(), expRoll);
   }
 
   @Test(dataProvider = "generation")
   public void test_monthly_unadjusted(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -465,7 +476,7 @@ public class PeriodicScheduleTest {
   @Test(dataProvider = "generation")
   public void test_monthly_unadjusted_withOverride(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -485,7 +496,7 @@ public class PeriodicScheduleTest {
   @Test(dataProvider = "generation")
   public void test_monthly_adjusted(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -503,7 +514,7 @@ public class PeriodicScheduleTest {
   @Test(dataProvider = "generation")
   public void test_monthly_adjusted_withOverride(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -811,7 +822,7 @@ public class PeriodicScheduleTest {
   @Test(dataProvider = "generation")
   public void coverage_equals(
       LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted, RollConvention expRoll) {
     PeriodicSchedule a1 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule a2 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule b = of(LocalDate.MIN, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null, null);
