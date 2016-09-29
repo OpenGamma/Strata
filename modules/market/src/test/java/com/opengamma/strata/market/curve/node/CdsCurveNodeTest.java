@@ -50,15 +50,11 @@ public class CdsCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-
-  private static final CdsTemplate TEMPLATE =
-      CdsTemplate.of(TENOR_10Y, CdsConventions.USD_STANDARD);
+  private static final CdsTemplate TEMPLATE = CdsTemplate.of(TENOR_10Y, CdsConventions.USD_STANDARD);
   private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "Cds1"));
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
-
-  private static final double TOLERANCE_DF = 1.0E-10;
 
   public void test_builder() {
     CdsCurveNode test = CdsCurveNode.builder()

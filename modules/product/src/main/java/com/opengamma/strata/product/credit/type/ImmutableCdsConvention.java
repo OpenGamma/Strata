@@ -93,7 +93,7 @@ public final class ImmutableCdsConvention
    * The start date property is an unadjusted date and as such might be a weekend or holiday.
    * The adjustment specified here is used to convert the start date to a valid business day.
    * <p>
-   * This will default to the {@code accrualDatesBusinessDayAdjustment} if not specified.
+   * This will default to the {@code businessDayAdjustment} if not specified.
    */
   @PropertyDefinition(get = "field")
   private final BusinessDayAdjustment startDateBusinessDayAdjustment;
@@ -1151,7 +1151,7 @@ public final class ImmutableCdsConvention
      * The start date property is an unadjusted date and as such might be a weekend or holiday.
      * The adjustment specified here is used to convert the start date to a valid business day.
      * <p>
-     * This will default to the {@code accrualDatesBusinessDayAdjustment} if not specified.
+     * This will default to the {@code businessDayAdjustment} if not specified.
      * @param startDateBusinessDayAdjustment  the new value
      * @return this, for chaining, not null
      */

@@ -68,7 +68,7 @@ public final class CdsCurveNode
   @PropertyDefinition(validate = "notNull")
   private final ObservableId observableId;
   /**
-   * The label to use for the node, defaulted.
+   * The label to use for the node.
    * <p>
    * When building, this will default based on the tenor if not specified.
    */
@@ -115,7 +115,9 @@ public final class CdsCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a CDS quoted in par spread or quoted spread.
+   * Returns a curve node without fixed rate.
+   * <p>
+   * This is typically used for a CDS quoted in par spread or quoted spread.
    * 
    * @param template  the template
    * @param observableId  the observable ID
@@ -138,7 +140,9 @@ public final class CdsCurveNode
   }
 
   /**
-   * Returns a curve node for a CDS quoted in points upfront.
+   * Returns a curve node with fixed rate.
+   * <p>
+   * This is typically used for a CDS quoted in points upfront.
    * 
    * @param template  the template
    * @param observableId  the observable ID
@@ -321,7 +325,7 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the label to use for the node, defaulted.
+   * Gets the label to use for the node.
    * <p>
    * When building, this will default based on the tenor if not specified.
    * @return the value of the property, not empty
@@ -813,7 +817,7 @@ public final class CdsCurveNode
     }
 
     /**
-     * Sets the label to use for the node, defaulted.
+     * Sets the label to use for the node.
      * <p>
      * When building, this will default based on the tenor if not specified.
      * @param label  the new value, not empty

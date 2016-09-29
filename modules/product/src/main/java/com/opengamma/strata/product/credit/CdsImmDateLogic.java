@@ -19,12 +19,12 @@ public class CdsImmDateLogic {
   private static final IntArray INDEX_ROLL_MONTHS = IntArray.of(3, 9);
 
   /**
-   * Checks if the given date is one of the semiannual Roll dates.
+   * Checks if the given date is one of the semiannual roll dates.
    * <p>
    * The semiannual roll dates are 20th March and September.
    * 
    * @param date  the date
-   * @return true is date is a roll date
+   * @return true is date is a roll date, false otherwise
    */
   public static boolean isSemiannualRollDate(LocalDate date) {
     if (date.getDayOfMonth() != IMM_DAY) {

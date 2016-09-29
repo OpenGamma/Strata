@@ -40,8 +40,7 @@ import com.opengamma.strata.product.credit.CdsTrade;
  * The legal entity ID, trade date, notional and fixed rate are required to complete the template and create the trade.
  * As such, it is often possible to get a market quote for a trade based on the template.
  * <p>
- * A CDS is quoted in points upfront, par spread, or quoted spread. 
- * For the latter two cases, the market quotes are passed as the fixed rate.
+ * A CDS is quoted in points par spread, upfront, or quoted spread. See {@link CdsQuoteConvention} for detail.
  */
 @BeanDefinition(builderScope = "private")
 public final class CdsTemplate
@@ -69,7 +68,7 @@ public final class CdsTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a template based on the specified tenor and convention.
+   * Obtains a template based on the specified accrual start, tenor and convention.
    * <p>
    * The protection end will be calculated based on standard semi-annual roll convention.
    * 
