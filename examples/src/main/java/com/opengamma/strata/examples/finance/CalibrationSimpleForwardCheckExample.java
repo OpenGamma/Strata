@@ -8,6 +8,7 @@ package com.opengamma.strata.examples.finance;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -74,22 +75,22 @@ public class CalibrationSimpleForwardCheckExample {
    * The location of the curve calibration groups file.
    */
   private static final ResourceLocator GROUPS_RESOURCE =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "curves/groups.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "curves/groups.csv"));
   /**
    * The location of the curve calibration settings file.
    */
   private static final ResourceLocator SETTINGS_RESOURCE =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "curves/settings-fwd.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "curves/settings-fwd.csv"));
   /**
    * The location of the curve calibration nodes file.
    */
   private static final ResourceLocator CALIBRATION_RESOURCE =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "curves/calibrations.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "curves/calibrations.csv"));
   /**
    * The location of the market quotes file.
    */
   private static final ResourceLocator QUOTES_RESOURCE =
-      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "quotes/quotes.csv");
+      ResourceLocator.ofFile(new File(PATH_CONFIG + "quotes/quotes.csv"));
 
   //-------------------------------------------------------------------------
   /**

@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.index;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +23,6 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
@@ -46,6 +46,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * 
  * <h4>Price</h4>
@@ -71,6 +72,7 @@ public class IborFutureTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, IborFutureMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations.DEFAULT::parSpread)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -90,6 +92,11 @@ public class IborFutureTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(IborFutureTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -161,7 +168,7 @@ public class IborFutureTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedIborFutureTrade trade,
         RatesScenarioMarketData marketData);
   }

@@ -234,12 +234,8 @@ public final class RatePeriodSwapLeg
     ImmutableList<NotionalPaymentPeriod> adjusted = paymentPeriods.stream()
         .map(pp -> pp.adjustPaymentDate(paymentDateAdjuster))
         .collect(toImmutableList());
-    return ResolvedSwapLeg.builder()
-        .type(type)
-        .payReceive(payReceive)
-        .paymentPeriods(adjusted)
-        .paymentEvents(createEvents(adjusted, paymentDateAdjuster, refData))
-        .build();
+    ImmutableList<SwapPaymentEvent> payEvents = createEvents(adjusted, paymentDateAdjuster, refData);
+    return new ResolvedSwapLeg(type, payReceive, adjusted, payEvents, currency);
   }
 
   // notional exchange events

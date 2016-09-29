@@ -17,6 +17,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -40,12 +41,16 @@ public class BulletPaymentTradeCalculationsTest {
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     Payment payment = RTRADE.getProduct().getPayment();
     CurrencyAmount expectedPv = pricer.presentValue(payment, provider);
+    CashFlows expectedCashFlows = pricer.cashFlows(payment, provider);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(payment, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(payment, provider);
 
     assertEquals(
         BulletPaymentTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
         CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertEquals(
+        BulletPaymentTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md),
+        ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
     assertEquals(
         BulletPaymentTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
         MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));

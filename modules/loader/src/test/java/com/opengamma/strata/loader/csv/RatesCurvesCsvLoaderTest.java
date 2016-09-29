@@ -171,7 +171,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Multiple curves with the same name: .*")
+      expectedExceptionsMessageRegExp = "Rates curve loader found multiple curves with the same name: .*")
   public void test_single_curve_multiple_Files() {
     RatesCurvesCsvLoader.load(
         CURVE_DATE,
@@ -222,7 +222,6 @@ public class RatesCurvesCsvLoaderTest {
     List<CurveGroup> curves3 = allGroups.get(CURVE_DATE_CURVES_3);
     assertEquals(curves3.size(), 1);
     CurveGroup group = curves3.get(0);
-
 
     // All curve points are set to 0 in test data to ensure these are really different curve instances
     Curve usdDisc = group.findDiscountCurve(Currency.USD).get();
@@ -390,10 +389,10 @@ public class RatesCurvesCsvLoaderTest {
     coverImmutableBean(LoadedCurveNode.of(CURVE_DATE, 1d, "Test"));
     LoadedCurveSettings.meta();
     LoadedCurveSettings settings1 = LoadedCurveSettings.of(
-        CurveName.of("Test"), ValueType.ZERO_RATE, DayCounts.ACT_365F,
+        CurveName.of("Test"), ValueType.YEAR_FRACTION, ValueType.ZERO_RATE, DayCounts.ACT_365F,
         CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
     LoadedCurveSettings settings2 = LoadedCurveSettings.of(
-        CurveName.of("Test2"), ValueType.DISCOUNT_FACTOR, DayCounts.ACT_ACT_ISDA,
+        CurveName.of("Test2"), ValueType.YEAR_FRACTION, ValueType.DISCOUNT_FACTOR, DayCounts.ACT_ACT_ISDA,
         CurveInterpolators.LOG_LINEAR, CurveExtrapolators.LINEAR, CurveExtrapolators.LINEAR);
     coverImmutableBean(settings1);
     coverBeanEquals(settings1, settings2);

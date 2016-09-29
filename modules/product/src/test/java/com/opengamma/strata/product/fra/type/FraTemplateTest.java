@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.product.fra.type;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -25,7 +24,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -39,7 +37,6 @@ public class FraTemplateTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FraConvention FRA_GBP_LIBOR_3M = FraConvention.of(GBP_LIBOR_3M);
   private static final double NOTIONAL_2M = 2_000_000d;
-  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
 
   //-------------------------------------------------------------------------
@@ -82,7 +79,6 @@ public class FraTemplateTest {
         .notional(NOTIONAL_2M)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
@@ -102,7 +98,6 @@ public class FraTemplateTest {
         .notional(NOTIONAL_2M)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .paymentDate(AdjustableDate.of(date(2015, 8, 7), PLUS_TWO_DAYS.getAdjustment()))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)

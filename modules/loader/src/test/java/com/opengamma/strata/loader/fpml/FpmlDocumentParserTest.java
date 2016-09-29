@@ -419,6 +419,14 @@ public class FpmlDocumentParserTest {
   }
 
   //-------------------------------------------------------------------------
+  public void fra_wrapper_clearingStatus() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex08-fra-wrapper-clearing-status.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertFra(trades, false);
+  }
+
+  //-------------------------------------------------------------------------
   public void vanillaSwap() {
     String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex01-vanilla-swap.xml";
     ByteSource resource = ResourceLocator.of(location).getByteSource();

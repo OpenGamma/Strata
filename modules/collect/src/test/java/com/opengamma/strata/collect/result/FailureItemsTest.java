@@ -15,46 +15,55 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Test {@link TolerantResult}.
+ * Test {@link FailureItems}.
  */
 @Test
-public class TolerantResultTest {
+public class FailureItemsTest {
 
   private static final FailureItem FAILURE1 = FailureItem.of(FailureReason.INVALID, "invalid");
   private static final FailureItem FAILURE2 = FailureItem.of(FailureReason.MISSING_DATA, "data");
 
   //-------------------------------------------------------------------------
-  public void test_of_array_noFailures() {
-    TolerantResult<String> test = TolerantResult.of("success");
-    assertEquals(test.hasFailures(), false);
-    assertEquals(test.getValue(), "success");
+  public void test_EMPTY() {
+    FailureItems test = FailureItems.EMPTY;
+    assertEquals(test.isEmpty(), true);
     assertEquals(test.getFailures(), ImmutableList.of());
   }
 
   public void test_of_array() {
-    TolerantResult<String> test = TolerantResult.of("success", FAILURE1, FAILURE2);
-    assertEquals(test.hasFailures(), true);
-    assertEquals(test.getValue(), "success");
+    FailureItems test = FailureItems.of(FAILURE1, FAILURE2);
+    assertEquals(test.isEmpty(), false);
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
   public void test_of_list() {
-    TolerantResult<String> test = TolerantResult.of("success", ImmutableList.of(FAILURE1, FAILURE2));
-    assertEquals(test.hasFailures(), true);
-    assertEquals(test.getValue(), "success");
+    FailureItems test = FailureItems.of(ImmutableList.of(FAILURE1, FAILURE2));
+    assertEquals(test.isEmpty(), false);
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  public void test_builder_add() {
+    FailureItems test = FailureItems.builder().addFailure(FAILURE1).addFailure(FAILURE2).build();
+    assertEquals(test.isEmpty(), false);
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  public void test_builder_addAll() {
+    FailureItems test = FailureItems.builder().addAllFailures(ImmutableList.of(FAILURE1, FAILURE2)).build();
+    assertEquals(test.isEmpty(), false);
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    TolerantResult<String> test = TolerantResult.of("success", FAILURE1, FAILURE2);
+    FailureItems test = FailureItems.of(FAILURE1, FAILURE2);
     coverImmutableBean(test);
-    TolerantResult<String> test2 = TolerantResult.of("test");
+    FailureItems test2 = FailureItems.EMPTY;
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    TolerantResult<String> test = TolerantResult.of("success", FAILURE1, FAILURE2);
+    FailureItems test = FailureItems.of(FAILURE1, FAILURE2);
     assertSerialization(test);
   }
 

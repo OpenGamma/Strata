@@ -61,6 +61,19 @@ public class FxSingleBarrierOptionTest {
     assertEquals(test.getBarrier(), BARRIER);
     assertEquals(test.getRebate().get(), REBATE);
     assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
+    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
+  }
+
+  public void test_builder() {
+    FxSingleBarrierOption test = FxSingleBarrierOption.builder()
+        .underlyingOption(VANILLA_OPTION)
+        .barrier(BARRIER)
+        .rebate(REBATE)
+        .build();
+    assertEquals(test.getBarrier(), BARRIER);
+    assertEquals(test.getRebate().get(), REBATE);
+    assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
+    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
   }
 
   public void test_of_noRebate() {

@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.data;
 
-import java.util.regex.Pattern;
-
 import org.joda.convert.FromString;
 
+import com.google.common.base.CharMatcher;
 import com.opengamma.strata.collect.TypedString;
 
 /**
@@ -24,10 +23,15 @@ public final class ObservableSource
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
-   * Pattern for checking the name.
+   * Matcher for checking the name.
    * It must only contains the characters A-Z, a-z, 0-9 and -.
    */
-  private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
+  private static final CharMatcher NAME_MATCHER =
+      CharMatcher.inRange('A', 'Z')
+          .or(CharMatcher.inRange('a', 'z'))
+          .or(CharMatcher.inRange('0', '9'))
+          .or(CharMatcher.is('-'))
+          .precomputed();
 
   //-------------------------------------------------------------------------
   /**
@@ -55,7 +59,7 @@ public final class ObservableSource
    * @param name  the name of the source
    */
   private ObservableSource(String name) {
-    super(name, NAME_PATTERN, "Source name must only contain the characters A-Z, a-z, 0-9 and -");
+    super(name, NAME_MATCHER, "Source name must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
 }

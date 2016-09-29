@@ -79,6 +79,12 @@ public final class ExplainKey<T>
    * The forecast value.
    */
   public static final ExplainKey<CurrencyAmount> FORECAST_VALUE = of("ForecastValue");
+  /**
+   * The flag to indicate that the period has completed.
+   * For example, a swap payment period that has already paid would have this set to true.
+   * This will generally never be set to false.
+   */
+  public static final ExplainKey<Boolean> COMPLETED = of("Completed");
 
   /**
    * The currency of the payment.
@@ -138,9 +144,13 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Double> ACCRUAL_YEAR_FRACTION = of("AccrualYearFraction");
   /**
-   * The number of days between the start and end dates.
+   * The number of accrual days between the start and end dates.
    */
   public static final ExplainKey<Integer> ACCRUAL_DAYS = of("AccrualDays");
+  /**
+   * The actual number of days between the start and end dates.
+   */
+  public static final ExplainKey<Integer> DAYS = of("Days");
 
   /**
    * The discount factor, typically derived from a curve.

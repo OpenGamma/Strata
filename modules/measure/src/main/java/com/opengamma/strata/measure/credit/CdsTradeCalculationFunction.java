@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.credit;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,7 +22,6 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.pricer.credit.IsdaIndexCreditCurveInputsId;
@@ -53,6 +53,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  *   <li>{@linkplain CreditMeasures#RECOVERY01 Recovery01}
  *   <li>{@linkplain CreditMeasures#JUMP_TO_DEFAULT Jump to Default}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the fee leg.
@@ -77,6 +78,7 @@ public class CdsTradeCalculationFunction
           .put(CreditMeasures.RECOVERY01, CdsMeasureCalculations::recovery01)
           .put(CreditMeasures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
           .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -96,6 +98,11 @@ public class CdsTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(CdsTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -183,7 +190,7 @@ public class CdsTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedCdsTrade trade,
         ScenarioMarketData marketData);
   }

@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.fx;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -19,7 +20,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -42,6 +42,7 @@ import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
  * </ul>
  * <p>
@@ -63,6 +64,7 @@ public class FxNdfTradeCalculationFunction
           .put(Measures.CURRENCY_EXPOSURE, FxNdfMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FxNdfMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.FORWARD_FX_RATE, FxNdfMeasureCalculations.DEFAULT::forwardFxRate)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -82,6 +84,11 @@ public class FxNdfTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(FxNdfTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -148,7 +155,7 @@ public class FxNdfTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedFxNdfTrade trade,
         RatesScenarioMarketData marketData);
   }

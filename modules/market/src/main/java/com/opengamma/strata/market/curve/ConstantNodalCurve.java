@@ -39,9 +39,11 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
  * This class defines a curve in terms of a single node point. 
  * The resulting curve is a constant curve with the y-value of the node point.
  * When queried, {@link #yValue(double)} always returns the constant value.
+ * The x-value is not significant in most use cases.
+ * See {@link ConstantCurve} for an alternative that does not have an x-value.
  * <p>
- * The {@link #getXValues()} method returns a single x-value of the node.
- * The {@link #getYValues()} method returns a single y-value of the node.
+ * The {@link #getXValues()} method returns the single x-value of the node.
+ * The {@link #getYValues()} method returns the single y-value of the node.
  * The sensitivity is 1 and the first derivative is 0.
  */
 @BeanDefinition
@@ -65,12 +67,16 @@ public final class ConstantNodalCurve
    */
   @PropertyDefinition(validate = "notNull")
   private final double yValue;
-
+  /**
+   * The parameter metadata.
+   */
   private transient final List<ParameterMetadata> parameterMetadata;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
    * Creates a constant nodal curve with metadata.
+   * <p>
+   * The curve is defined by a single x and y value.
    * 
    * @param metadata  the curve metadata
    * @param xValue  the x-value
@@ -83,13 +89,20 @@ public final class ConstantNodalCurve
 
   /**
    * Creates a constant nodal curve with metadata.
+   * <p>
+   * The curve is defined by a single x and y value.
    * 
    * @param metadata  the curve metadata
    * @param xValue  the x-value
    * @param yValue  the y-value
    * @return the curve
+   * @deprecated Use {@link #of(CurveMetadata, double, double)}
    */
+  @Deprecated
   public static ConstantNodalCurve of(CurveMetadata metadata, DoubleArray xValue, DoubleArray yValue) {
+    if (xValue.size() != 1 || yValue.size() != 1) {
+      throw new IllegalArgumentException("Length of x-values and y-values must be 1");
+    }
     return new ConstantNodalCurve(metadata, xValue.get(0), yValue.get(0));
   }
 
@@ -110,6 +123,11 @@ public final class ConstantNodalCurve
     this.xValue = xValue;
     this.yValue = yValue;
     this.parameterMetadata = ImmutableList.of(getParameterMetadata(0));
+  }
+
+  // resolve after deserialization
+  private Object readResolve() {
+    return new ConstantNodalCurve(metadata, xValue, yValue);
   }
 
   //-------------------------------------------------------------------------

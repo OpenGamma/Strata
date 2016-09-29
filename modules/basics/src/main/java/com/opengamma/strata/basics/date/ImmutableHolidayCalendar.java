@@ -346,7 +346,7 @@ public final class ImmutableHolidayCalendar
   public LocalDate nextSameOrLastInMonth(LocalDate date) {
     try {
       // day-of-month: no alteration as method is one-based and same is valid
-      return shiftNextSameLast(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+      return shiftNextSameLast(date);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
       return HolidayCalendar.super.nextSameOrLastInMonth(date);
@@ -356,7 +356,10 @@ public final class ImmutableHolidayCalendar
   // shift to a later working day, following nextOrSame semantics
   // falling back to the last business day-of-month to avoid crossing a month boundary
   // input day-of-month is one-based
-  private LocalDate shiftNextSameLast(int baseYear, int baseMonth, int baseDom) {
+  private LocalDate shiftNextSameLast(LocalDate baseDate) {
+    int baseYear = baseDate.getYear();
+    int baseMonth = baseDate.getMonthValue();
+    int baseDom = baseDate.getDayOfMonth();
     // find data for month
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
@@ -375,7 +378,7 @@ public final class ImmutableHolidayCalendar
       dom = baseDom + Integer.numberOfTrailingZeros(shifted);
     }
     // only one call to LocalDate to aid inlining
-    return LocalDate.of(baseYear, baseMonth, dom);
+    return baseDate.withDayOfMonth(dom);
   }
 
   //-------------------------------------------------------------------------

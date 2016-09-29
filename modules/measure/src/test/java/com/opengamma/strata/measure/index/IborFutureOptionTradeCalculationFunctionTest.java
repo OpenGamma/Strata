@@ -138,10 +138,12 @@ public class IborFutureOptionTradeCalculationFunctionTest {
     ResolvedIborFutureOptionTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, VOL_SIMPLE_MONEY_PRICE, SETTLEMENT_PRICE);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
+    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))));
+            Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(resolved));
   }
 
   //-------------------------------------------------------------------------

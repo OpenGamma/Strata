@@ -32,6 +32,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
@@ -96,12 +97,20 @@ public class BulletPaymentTradeCalculationFunctionTest {
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     Payment payment = RTRADE.getProduct().getPayment();
     CurrencyAmount expectedPv = pricer.presentValue(payment, provider);
+    CashFlows expectedCashFlows = pricer.cashFlows(payment, provider);
 
     Set<Measure> measures = ImmutableSet.of(
-        Measures.PRESENT_VALUE);
+        Measures.PRESENT_VALUE,
+        Measures.CASH_FLOWS,
+        Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))));
+            Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
+
   }
 
   public void test_pv01() {

@@ -221,11 +221,12 @@ public class DiscountingFraProductPricer {
     builder.put(ExplainKey.START_DATE, fra.getStartDate());
     builder.put(ExplainKey.END_DATE, fra.getEndDate());
     builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, fra.getYearFraction());
-    builder.put(ExplainKey.ACCRUAL_DAYS, (int) DAYS.between(fra.getStartDate(), fra.getEndDate()));
+    builder.put(ExplainKey.DAYS, (int) DAYS.between(fra.getStartDate(), fra.getEndDate()));
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     builder.put(ExplainKey.TRADE_NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {

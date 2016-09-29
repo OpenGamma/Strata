@@ -99,6 +99,9 @@ public class FraConventionTest {
     assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getDiscounting(), ISDA);
+    // ensure other factories match
+    assertEquals(FraConvention.of(GBP_LIBOR_3M), test);
+    assertEquals(FraConventions.of(GBP_LIBOR_3M), test);
   }
 
   //-------------------------------------------------------------------------
@@ -160,7 +163,27 @@ public class FraConventionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toTrade_periods() {
+  public void test_createTrade_period() {
+    FraConvention base = ImmutableFraConvention.builder()
+        .index(GBP_LIBOR_3M)
+        .spotDateOffset(NEXT_SAME_BUS_DAY)
+        .build();
+    LocalDate tradeDate = LocalDate.of(2015, 5, 5);
+    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(3), BUY, NOTIONAL_2M, 0.25d, REF_DATA);
+    Fra expected = Fra.builder()
+        .buySell(BUY)
+        .notional(NOTIONAL_2M)
+        .startDate(date(2015, 8, 5))
+        .endDate(date(2015, 11, 5))
+        .fixedRate(0.25d)
+        .index(GBP_LIBOR_3M)
+        .build();
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getProduct(), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createTrade_periods() {
     FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .spotDateOffset(NEXT_SAME_BUS_DAY)
@@ -172,7 +195,6 @@ public class FraConventionTest {
         .notional(NOTIONAL_2M)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
@@ -180,6 +202,49 @@ public class FraConventionTest {
     assertEquals(test.getProduct(), expected);
   }
 
+  public void test_createTrade_periods_adjust() {
+    FraConvention base = ImmutableFraConvention.builder()
+        .index(GBP_LIBOR_3M)
+        .spotDateOffset(NEXT_SAME_BUS_DAY)
+        .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW))
+        .build();
+    LocalDate tradeDate = LocalDate.of(2016, 8, 11);
+    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(1), Period.ofMonths(4), BUY, NOTIONAL_2M, 0.25d, REF_DATA);
+    Fra expected = Fra.builder()
+        .buySell(BUY)
+        .notional(NOTIONAL_2M)
+        .startDate(date(2016, 9, 12))
+        .endDate(date(2016, 12, 12))
+        .paymentDate(AdjustableDate.of(date(2016, 9, 12), BDA_FOLLOW))
+        .fixedRate(0.25d)
+        .index(GBP_LIBOR_3M)
+        .build();
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getProduct(), expected);
+  }
+
+  public void test_createTrade_periods_adjust_payOffset() {
+    FraConvention base = ImmutableFraConvention.builder()
+        .index(GBP_LIBOR_3M)
+        .spotDateOffset(NEXT_SAME_BUS_DAY)
+        .paymentDateOffset(PLUS_TWO_DAYS)
+        .build();
+    LocalDate tradeDate = LocalDate.of(2016, 8, 11);
+    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(1), Period.ofMonths(4), BUY, NOTIONAL_2M, 0.25d, REF_DATA);
+    Fra expected = Fra.builder()
+        .buySell(BUY)
+        .notional(NOTIONAL_2M)
+        .startDate(date(2016, 9, 12))
+        .endDate(date(2016, 12, 12))
+        .paymentDate(AdjustableDate.of(date(2016, 9, 14), PLUS_TWO_DAYS.getAdjustment()))
+        .fixedRate(0.25d)
+        .index(GBP_LIBOR_3M)
+        .build();
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getProduct(), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toTrade_dates() {
     FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
@@ -195,7 +260,6 @@ public class FraConventionTest {
         .notional(NOTIONAL_2M)
         .startDate(startDate)
         .endDate(endDate)
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .paymentDate(AdjustableDate.of(paymentDate))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
@@ -220,13 +284,16 @@ public class FraConventionTest {
         .notional(NOTIONAL_2M)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .paymentDate(AdjustableDate.of(paymentDate, PLUS_TWO_DAYS.getAdjustment()))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
     assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
+  }
+
+  public void test_unknownIndex() {
+    assertThrowsIllegalArg(() -> FraConvention.of("Rubbish"));
   }
 
   public void test_toTemplate_badDateOrder() {

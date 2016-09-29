@@ -212,6 +212,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     LocalDate paymentDate = period.getPaymentDate();
     explainBasics(period, builder, currency, paymentDate);
     if (paymentDate.isBefore(discountFactors.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
@@ -248,6 +249,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     LocalDate paymentDate = period.getPaymentDate();
     explainBasics(period, builder, currency, paymentDate);
     if (paymentDate.isBefore(discountFactors.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
@@ -268,8 +270,9 @@ public class DiscountingFixedCouponBondPaymentPeriodPricer {
     builder.put(ExplainKey.START_DATE, period.getStartDate());
     builder.put(ExplainKey.UNADJUSTED_START_DATE, period.getUnadjustedStartDate());
     builder.put(ExplainKey.END_DATE, period.getEndDate());
-    builder.put(ExplainKey.ACCRUAL_DAYS, (int) DAYS.between(period.getStartDate(), period.getEndDate()));
     builder.put(ExplainKey.UNADJUSTED_END_DATE, period.getUnadjustedEndDate());
+    builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, period.getYearFraction());
+    builder.put(ExplainKey.DAYS, (int) DAYS.between(period.getStartDate(), period.getEndDate()));
   }
 
 }

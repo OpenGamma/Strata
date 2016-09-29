@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.fra;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,7 +22,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
@@ -49,6 +49,7 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  *   <li>{@linkplain AdvancedMeasures#PV01_SEMI_PARALLEL_GAMMA_BUCKETED PV01 semi-parallel gamma bucketed}
  * </ul>
  */
@@ -71,6 +72,7 @@ public class FraTradeCalculationFunction
           .put(Measures.CASH_FLOWS, FraMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FraMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
           .build();
 
@@ -91,6 +93,11 @@ public class FraTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(FraTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -158,7 +165,7 @@ public class FraTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedFraTrade trade,
         RatesScenarioMarketData marketData);
   }

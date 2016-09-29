@@ -131,14 +131,17 @@ public class DsfTradeCalculationFunctionTest {
     Set<Measure> measures = ImmutableSet.of(
         Measures.UNIT_PRICE,
         Measures.PRESENT_VALUE,
-        Measures.CURRENCY_EXPOSURE);
+        Measures.CURRENCY_EXPOSURE,
+        Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.UNIT_PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure))));
+            Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   public void test_pv01() {

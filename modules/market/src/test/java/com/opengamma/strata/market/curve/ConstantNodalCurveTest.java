@@ -33,45 +33,47 @@ public class ConstantNodalCurveTest {
   private static final CurveMetadata METADATA_ENTRIES2 =
       Curves.zeroRates(CURVE_NAME, ACT_365F, ParameterMetadata.listOfEmpty(SIZE + 2));
   private static final CurveMetadata METADATA_NOPARAM = Curves.zeroRates(CURVE_NAME, ACT_365F);
-  private static final DoubleArray XVALUE = DoubleArray.of(2d);
-  private static final DoubleArray YVALUE = DoubleArray.of(7d);
-  private static final DoubleArray XVALUE_NEW = DoubleArray.of(3d);
-  private static final DoubleArray YVALUE_BUMPED = DoubleArray.of(5d);
+  private static final double XVALUE = 2d;
+  private static final DoubleArray XVALUE_ARRAY = DoubleArray.of(XVALUE);
+  private static final double YVALUE = 7d;
+  private static final DoubleArray YVALUE_ARRAY = DoubleArray.of(YVALUE);
+  private static final DoubleArray XVALUE_ARRAY_NEW = DoubleArray.of(3d);
+  private static final double YVALUE_BUMPED = 5d;
+  private static final DoubleArray YVALUE_BUMPED_ARRAY = DoubleArray.of(YVALUE_BUMPED);
 
   //-------------------------------------------------------------------------
   public void test_of_CurveMetadata() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
-    ConstantNodalCurve testRe = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE.get(0), YVALUE.get(0));
+    ConstantNodalCurve testRe = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
     assertThat(test).isEqualTo(testRe);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getParameter(0)).isEqualTo(YVALUE.get(0));
+    assertThat(test.getParameter(0)).isEqualTo(YVALUE);
     assertThrowsIllegalArg(() -> test.getParameter(1));
     assertThat(test.getParameterMetadata(0)).isSameAs(METADATA_ENTRIES.getParameterMetadata().get().get(0));
-    assertThat(test.withParameter(0, 2d)).isEqualTo(
-        ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE.with(0, 2d)));
+    assertThat(test.withParameter(0, 2d)).isEqualTo(ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, 2d));
     assertThrowsIllegalArg(() -> test.withParameter(1, 2d));
     assertThat(test.withPerturbation((i, v, m) -> v - 2d)).isEqualTo(
         ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE_BUMPED));
     assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
-    assertThat(test.getXValues()).isEqualTo(XVALUE);
-    assertThat(test.getYValues()).isEqualTo(YVALUE);
+    assertThat(test.getXValues()).isEqualTo(XVALUE_ARRAY);
+    assertThat(test.getYValues()).isEqualTo(YVALUE_ARRAY);
   }
 
   public void test_of_noCurveMetadata() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA_NOPARAM, XVALUE, YVALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getParameter(0)).isEqualTo(YVALUE.get(0));
-    assertThat(test.getParameterMetadata(0)).isEqualTo(SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUE.get(0)));
+    assertThat(test.getParameter(0)).isEqualTo(YVALUE);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUE));
   }
 
   //-------------------------------------------------------------------------
   public void test_withNode() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
-    SimpleCurveParameterMetadata param = SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUE.get(0));
-    ConstantNodalCurve test = base.withNode(XVALUE.get(0), 2d, param);
-    assertThat(test.getXValue()).isEqualTo(XVALUE.get(0));
+    SimpleCurveParameterMetadata param = SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUE);
+    ConstantNodalCurve test = base.withNode(XVALUE, 2d, param);
+    assertThat(test.getXValue()).isEqualTo(XVALUE);
     assertThat(test.getYValue()).isEqualTo(2d);
     assertThat(test.getParameterMetadata(0)).isEqualTo(param);
   }
@@ -84,7 +86,7 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_values() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    assertThat(test.yValue(10.2421)).isEqualTo(YVALUE.get(0));
+    assertThat(test.yValue(10.2421)).isEqualTo(YVALUE);
     assertThat(test.yValueParameterSensitivity(10.2421).getMarketDataName()).isEqualTo(CURVE_NAME);
     assertThat(test.yValueParameterSensitivity(10.2421).getSensitivity()).isEqualTo(DoubleArray.of(1d));
     assertThat(test.firstDerivative(10.2421)).isEqualTo(0d);
@@ -97,8 +99,8 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
-    assertThat(test.getXValues()).isEqualTo(XVALUE);
-    assertThat(test.getYValues()).isEqualTo(YVALUE);
+    assertThat(test.getXValues()).isEqualTo(XVALUE_ARRAY);
+    assertThat(test.getYValues()).isEqualTo(YVALUE_ARRAY);
   }
 
   public void test_withMetadata_badSize() {
@@ -109,12 +111,12 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withValues() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    ConstantNodalCurve test = base.withYValues(YVALUE_BUMPED);
+    ConstantNodalCurve test = base.withYValues(YVALUE_BUMPED_ARRAY);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUE);
-    assertThat(test.getYValues()).isEqualTo(YVALUE_BUMPED);
+    assertThat(test.getXValues()).isEqualTo(XVALUE_ARRAY);
+    assertThat(test.getYValues()).isEqualTo(YVALUE_BUMPED_ARRAY);
   }
 
   public void test_withValues_badSize() {
@@ -126,12 +128,12 @@ public class ConstantNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_withValuesXy() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    ConstantNodalCurve test = base.withValues(XVALUE_NEW, YVALUE_BUMPED);
+    ConstantNodalCurve test = base.withValues(XVALUE_ARRAY_NEW, YVALUE_BUMPED_ARRAY);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUE_NEW);
-    assertThat(test.getYValues()).isEqualTo(YVALUE_BUMPED);
+    assertThat(test.getXValues()).isEqualTo(XVALUE_ARRAY_NEW);
+    assertThat(test.getYValues()).isEqualTo(YVALUE_BUMPED_ARRAY);
   }
 
   public void test_withValuesXy_badSize() {

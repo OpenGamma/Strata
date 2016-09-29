@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.swaption;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -20,7 +21,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -45,6 +45,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
  * The "natural" currency is determined from the first swap leg.
@@ -64,6 +65,7 @@ public class SwaptionTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, SwaptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, SwaptionMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -83,6 +85,11 @@ public class SwaptionTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(SwaptionTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -152,7 +159,7 @@ public class SwaptionTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedSwaptionTrade trade,
         RatesScenarioMarketData ratesMarketData,
         SwaptionScenarioMarketData swaptionMarketData);

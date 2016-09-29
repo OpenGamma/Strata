@@ -6,11 +6,13 @@
 package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
@@ -101,7 +103,7 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
   }
 
-  public void test_AudAonia() {
+  public void test_audAonia() {
     OvernightIndex test = OvernightIndex.of("AUD-AONIA");
     assertEquals(test.getName(), "AUD-AONIA");
     assertEquals(test.getCurrency(), AUD);
@@ -111,6 +113,18 @@ public class OvernightIndexTest {
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-AONIA");
+  }
+
+  public void test_dkkOis() {
+    OvernightIndex test = OvernightIndex.of("DKK-TNR");
+    assertEquals(test.getName(), "DKK-TNR");
+    assertEquals(test.getCurrency(), DKK);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), DKCO);
+    assertEquals(test.getPublicationDateOffset(), 1);
+    assertEquals(test.getEffectiveDateOffset(), 1);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "DKK-TNR");
   }
 
   //-------------------------------------------------------------------------
@@ -123,6 +137,7 @@ public class OvernightIndexTest {
         {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
         {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},
         {OvernightIndices.AUD_AONIA, "AUD-AONIA"},
+        {OvernightIndices.DKK_TNR, "DKK-TNR"},
     };
   }
 

@@ -19,9 +19,11 @@ import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -140,10 +142,20 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     // If all inputs contain a single value then we only need to build a single curve group.
     boolean multipleValuationDates = valuationDates.isScenarioValue();
     boolean multipleValues = inputBoxes.stream().anyMatch(MarketDataBox::isScenarioValue);
+    Map<ObservableId, LocalDateDoubleTimeSeries> fixings = extractFixings(marketData);
 
     return multipleValues || multipleValuationDates ?
-        buildMultipleCurveGroups(configuredGroup, calibrator, valuationDates, inputBoxes, refData) :
-        buildSingleCurveGroup(configuredGroup, calibrator, valuationDates.getSingleValue(), inputBoxes, refData);
+        buildMultipleCurveGroups(configuredGroup, calibrator, valuationDates, inputBoxes, fixings, refData) :
+        buildSingleCurveGroup(configuredGroup, calibrator, valuationDates.getSingleValue(), inputBoxes, fixings, refData);
+  }
+
+  // extract the fixings from the input data
+  private Map<ObservableId, LocalDateDoubleTimeSeries> extractFixings(ScenarioMarketData marketData) {
+    Map<ObservableId, LocalDateDoubleTimeSeries> fixings = new HashMap<>();
+    for (ObservableId id : marketData.getTimeSeriesIds()) {
+      fixings.put(id, marketData.getTimeSeries(id));
+    }
+    return fixings;
   }
 
   // calibrates when there are multiple groups
@@ -152,6 +164,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveCalibrator calibrator,
       MarketDataBox<LocalDate> valuationDateBox,
       List<MarketDataBox<CurveInputs>> inputBoxes,
+      Map<ObservableId, LocalDateDoubleTimeSeries> fixings,
       ReferenceData refData) {
 
     int scenarioCount = scenarioCount(valuationDateBox, inputBoxes);
@@ -161,7 +174,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
       CurveGroupDefinition filteredGroup = configuredGroup.filtered(valuationDate, refData);
       List<CurveInputs> curveInputsList = inputsForScenario(inputBoxes, i);
-      MarketData inputs = inputsByKey(valuationDate, curveInputsList);
+      MarketData inputs = inputsByKey(valuationDate, curveInputsList, fixings);
       builder.add(buildGroup(filteredGroup, calibrator, inputs, refData));
     }
     ImmutableList<CurveGroup> curveGroups = builder.build();
@@ -180,11 +193,12 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveCalibrator calibrator,
       LocalDate valuationDate,
       List<MarketDataBox<CurveInputs>> inputBoxes,
+      Map<ObservableId, LocalDateDoubleTimeSeries> fixings,
       ReferenceData refData) {
 
     CurveGroupDefinition filteredGroup = configuredGroup.filtered(valuationDate, refData);
     List<CurveInputs> inputs = inputBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
-    MarketData inputValues = inputsByKey(valuationDate, inputs);
+    MarketData inputValues = inputsByKey(valuationDate, inputs, fixings);
     CurveGroup curveGroup = buildGroup(filteredGroup, calibrator, inputValues, refData);
     return MarketDataBox.ofSingleValue(curveGroup);
   }
@@ -194,9 +208,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    *
    * @param valuationDate  the valuation date
    * @param inputs  input data for the curve
+   * @param fixings  the fixings
    * @return the underlying quotes from the input data
    */
-  private static MarketData inputsByKey(LocalDate valuationDate, List<CurveInputs> inputs) {
+  private static MarketData inputsByKey(
+      LocalDate valuationDate,
+      List<CurveInputs> inputs,
+      Map<ObservableId, LocalDateDoubleTimeSeries> fixings) {
+
     Map<MarketDataId<?>, Object> marketDataMap = new HashMap<>();
 
     for (CurveInputs input : inputs) {
@@ -218,7 +237,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         }
       }
     }
-    return ImmutableMarketData.of(valuationDate, marketDataMap);
+    return ImmutableMarketData.builder(valuationDate).values(marketDataMap).timeSeries(fixings).build();
   }
 
   private CurveGroup buildGroup(

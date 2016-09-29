@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.toList;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import org.joda.beans.PropertyDefinition;
 import org.joda.convert.FromString;
@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.ReferenceDataId;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -53,8 +54,9 @@ public final class HolidayCalendarId
   private transient final int hashCode;
   /**
    * The resolver function.
+   * Implementations of this function must only call {@link ReferenceData#queryValueOrNull(ReferenceDataId)}.
    */
-  private transient final Function<ReferenceData, HolidayCalendar> resolver;
+  private transient final BiFunction<HolidayCalendarId, ReferenceData, HolidayCalendar> resolver;
 
   //-------------------------------------------------------------------------
   /**
@@ -91,10 +93,22 @@ public final class HolidayCalendarId
         .sorted(comparing(HolidayCalendarId::getName))
         .collect(toList());
     String normalizedName = Joiner.on('+').join(ids);
-    Function<ReferenceData, HolidayCalendar> resolver =
-        refData -> ids.stream()
-            .map(r -> refData.getValue(r))
-            .reduce(HolidayCalendars.NO_HOLIDAYS, HolidayCalendar::combinedWith);
+    BiFunction<HolidayCalendarId, ReferenceData, HolidayCalendar> resolver = (id, refData) -> {
+      HolidayCalendar cal = refData.queryValueOrNull(id);
+      if (cal != null) {
+        return cal;
+      }
+      cal = HolidayCalendars.NO_HOLIDAYS;
+      for (HolidayCalendarId splitId : ids) {
+        HolidayCalendar splitCal = refData.queryValueOrNull(splitId);
+        if (splitCal == null) {
+          throw new ReferenceDataNotFoundException(Messages.format(
+              "Reference data not found for '{}' of type 'HolidayCalendarId' when finding '{}'", splitId, id));
+        }
+        cal = cal.combinedWith(splitCal);
+      }
+      return cal;
+    };
     // cache under the normalized and non-normalized names
     HolidayCalendarId id = CACHE.computeIfAbsent(normalizedName, n -> new HolidayCalendarId(normalizedName, resolver));
     CACHE.putIfAbsent(name, id);
@@ -106,11 +120,14 @@ public final class HolidayCalendarId
   private HolidayCalendarId(String normalizedName) {
     this.name = normalizedName;
     this.hashCode = normalizedName.hashCode();
-    this.resolver = refData -> refData.getValue(this);
+    this.resolver = (id, refData) -> refData.queryValueOrNull(this);
   }
 
   // creates an identifier for a combined calendar
-  private HolidayCalendarId(String normalizedName, Function<ReferenceData, HolidayCalendar> resolver) {
+  private HolidayCalendarId(
+      String normalizedName,
+      BiFunction<HolidayCalendarId, ReferenceData, HolidayCalendar> resolver) {
+
     this.name = normalizedName;
     this.hashCode = normalizedName.hashCode();
     this.resolver = resolver;
@@ -163,7 +180,12 @@ public final class HolidayCalendarId
    */
   @Override
   public HolidayCalendar resolve(ReferenceData refData) {
-    return resolver.apply(refData);
+    return refData.getValue(this);
+  }
+
+  @Override
+  public HolidayCalendar queryValueOrNull(ReferenceData refData) {
+    return resolver.apply(this, refData);
   }
 
   //-------------------------------------------------------------------------
@@ -200,8 +222,15 @@ public final class HolidayCalendarId
    */
   @Override
   public boolean equals(Object obj) {
-    // cache permits fast equality check
-    return obj == this;
+    // could use (obj == this), but this code seems to be a little faster
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    HolidayCalendarId that = (HolidayCalendarId) obj;
+    return name.equals(that.name);
   }
 
   /**

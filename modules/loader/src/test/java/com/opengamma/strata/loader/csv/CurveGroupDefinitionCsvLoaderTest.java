@@ -37,7 +37,7 @@ public class CurveGroupDefinitionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_loadCurveGroupDefinition() {
-    List<CurveGroupDefinition> defns = CurveGroupDefinitionCsvLoader.loadCurveGroups(ResourceLocator.of(GROUPS_1));
+    List<CurveGroupDefinition> defns = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     assertEquals(defns.size(), 1);
     CurveGroupDefinition defn = defns.get(0);
     assertEquals(defn.getEntries().get(0), CurveGroupEntry.builder()
@@ -52,14 +52,15 @@ public class CurveGroupDefinitionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_writeCurveGroupDefinition() {
-    CurveGroupDefinition defn = CurveGroupDefinitionCsvLoader.loadCurveGroups(ResourceLocator.of(GROUPS_1)).get(0);
+    CurveGroupDefinition defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1)).get(0);
     Appendable underlying = new StringBuilder();
     CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(underlying, defn);
     String created = underlying.toString();
     String expected =
         "Group Name,Curve Type,Reference,Curve Name" + System.lineSeparator() +
             "Default,discount,USD,USD-Disc" + System.lineSeparator() +
-            "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator();
+            "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator() +
+            "Default,forward,US-CPI-U,USD-CPI" + System.lineSeparator();
     assertEquals(created, expected);
   }
 
@@ -80,11 +81,11 @@ public class CurveGroupDefinitionCsvLoaderTest {
   }
 
   public void test_test_writeCurveGroupDefinition_roundtrip() throws Exception {
-    List<CurveGroupDefinition> defn = CurveGroupDefinitionCsvLoader.loadCurveGroups(ResourceLocator.of(GROUPS_1));
+    List<CurveGroupDefinition> defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     File tempFile = File.createTempFile("TestCurveGroupLoading", "csv");
     tempFile.deleteOnExit();
     CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(tempFile, defn.get(0));
-    assertEquals(CurveGroupDefinitionCsvLoader.loadCurveGroups(ResourceLocator.ofFile(tempFile)), defn);
+    assertEquals(CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.ofFile(tempFile)), defn);
   }
 
   //-------------------------------------------------------------------------

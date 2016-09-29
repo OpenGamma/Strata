@@ -25,6 +25,7 @@ public class FailureItemTest {
     assertEquals(test.getStackTrace().contains(".Failure.of("), false);
     assertEquals(test.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"), true);
     assertEquals(test.getStackTrace().contains(".test_of_reasonMessage("), true);
+    assertEquals(test.toString(), "INVALID: my big bad failure");
   }
 
   //-------------------------------------------------------------------------
@@ -36,6 +37,7 @@ public class FailureItemTest {
     assertEquals(test.getCauseType().isPresent(), true);
     assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
     assertEquals(test.getStackTrace().contains(".test_of_reasonException("), true);
+    assertEquals(test.toString(), "INVALID: message: java.lang.IllegalArgumentException");
   }
 
   //-------------------------------------------------------------------------
@@ -47,6 +49,7 @@ public class FailureItemTest {
     assertEquals(test.getCauseType().isPresent(), true);
     assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
     assertEquals(test.getStackTrace().contains(".test_of_reasonMessageException("), true);
+    assertEquals(test.toString(), "INVALID: my failure: java.lang.IllegalArgumentException: message");
   }
 
   public void test_of_reasonMessageExceptionNestedException() {
@@ -58,6 +61,7 @@ public class FailureItemTest {
     assertEquals(test.getCauseType().isPresent(), true);
     assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
     assertEquals(test.getStackTrace().contains(".test_of_reasonMessageExceptionNestedException("), true);
+    assertEquals(test.toString(), "INVALID: my big bad failure: java.lang.IllegalArgumentException: message");
   }
 
 }

@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.basics;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -29,13 +31,21 @@ public interface ReferenceData {
    * For example, a {@link HolidayCalendar} can be looked up using a {@link HolidayCalendarId}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.
+   * <p>
+   * The resulting {@code ReferenceData} instance will include the {@linkplain #minimal() minimal}
+   * set of reference data that includes non-controversial identifiers that are essential for pricing.
+   * To exclude the minimal set of identifiers, use {@link ImmutableReferenceData#of(Map)}.
    *
    * @param values  the reference data values
    * @return the reference data instance containing the values in the map
    * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static ReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
-    return ImmutableReferenceData.of(values);
+    // hash map so that keys can overlap, with this instance taking priority
+    Map<ReferenceDataId<?>, Object> combined = new HashMap<>();
+    combined.putAll(StandardReferenceData.MINIMAL.getValues());
+    combined.putAll(values);
+    return ImmutableReferenceData.of(combined);
   }
 
   /**
@@ -47,7 +57,22 @@ public interface ReferenceData {
    * @return standard reference data
    */
   public static ReferenceData standard() {
-    return StandardReferenceData.INSTANCE;
+    return StandardReferenceData.STANDARD;
+  }
+
+  /**
+   * Obtains the minimal set of reference data.
+   * <p>
+   * The {@linkplain #standard() standard} reference data contains common holiday calendars
+   * and indices, but may not be suitable for production use. The minimal reference data contains
+   * just those identifiers that are needed by Strata, and that are non-controversial.
+   * These are {@link HolidayCalendars#NO_HOLIDAYS}, {@link HolidayCalendars#SAT_SUN},
+   * {@link HolidayCalendars#FRI_SAT} and {@link HolidayCalendars#THU_FRI}.
+   *
+   * @return minimal reference data
+   */
+  public static ReferenceData minimal() {
+    return StandardReferenceData.MINIMAL;
   }
 
   /**
@@ -98,6 +123,21 @@ public interface ReferenceData {
    * @return the reference data value, empty if not found
    */
   public abstract <T> Optional<T> findValue(ReferenceDataId<T> id);
+
+  /**
+   * Low-level method to query the reference data value associated with the specified identifier,
+   * returning null if not found.
+   * <p>
+   * This is a low-level method that obtains the reference data value, returning null instead of an error.
+   * Applications should use {@link #getValue(ReferenceDataId)} in preference to this method.
+   *
+   * @param <T>  the type of the reference data value
+   * @param id  the identifier to find
+   * @return the reference data value, null if not found
+   */
+  public default <T> T queryValueOrNull(ReferenceDataId<T> id) {
+    return findValue(id).orElse(null);
+  }
 
   //-------------------------------------------------------------------------
   /**

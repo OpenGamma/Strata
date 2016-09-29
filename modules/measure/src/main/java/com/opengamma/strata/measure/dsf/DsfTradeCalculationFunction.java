@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.dsf;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +23,6 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
@@ -46,6 +46,7 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the swap leg that is received.
@@ -74,6 +75,7 @@ public class DsfTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, DsfMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, DsfMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.CURRENCY_EXPOSURE, DsfMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -93,6 +95,11 @@ public class DsfTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(DsfTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -164,7 +171,7 @@ public class DsfTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedDsfTrade trade,
         RatesScenarioMarketData marketData);
   }

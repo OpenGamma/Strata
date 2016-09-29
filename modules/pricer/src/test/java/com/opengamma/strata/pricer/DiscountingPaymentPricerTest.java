@@ -18,8 +18,12 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.market.amount.CashFlow;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
@@ -113,6 +117,35 @@ public class DiscountingPaymentPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_explainPresentValue_provider() {
+    CurrencyAmount fvExpected = PRICER.forecastValue(PAYMENT, PROVIDER);
+    CurrencyAmount pvExpected = PRICER.presentValue(PAYMENT, PROVIDER);
+
+    ExplainMap explain = PRICER.explainPresentValue(PAYMENT, PROVIDER);
+    Currency currency = PAYMENT.getCurrency();
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Payment");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT.getDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DF, TOL);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fvExpected.getAmount(), TOL);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOL);
+  }
+
+  public void test_explainPresentValue_provider_ended() {
+    ExplainMap explain = PRICER.explainPresentValue(PAYMENT_PAST, PROVIDER);
+    Currency currency = PAYMENT_PAST.getCurrency();
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Payment");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PAST.getDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOL);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0, TOL);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_presentValueSensitivity_provider() {
     PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, PROVIDER).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
@@ -192,6 +225,16 @@ public class DiscountingPaymentPricerTest {
   public void test_forecastValue_provider_ended() {
     assertEquals(PRICER.forecastValue(PAYMENT_PAST, PROVIDER).getAmount(), 0d, 0d);
     assertEquals(PRICER.forecastValueAmount(PAYMENT_PAST, PROVIDER), 0d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cashFlow_provider() {
+    CashFlow expected = CashFlow.ofForecastValue(PAYMENT_DATE, USD, NOTIONAL_USD, DF);
+    assertEquals(PRICER.cashFlows(PAYMENT, PROVIDER), CashFlows.of(expected));
+  }
+
+  public void test_cashFlow_provider_ended() {
+    assertEquals(PRICER.cashFlows(PAYMENT_PAST, PROVIDER), CashFlows.NONE);
   }
 
   //-------------------------------------------------------------------------

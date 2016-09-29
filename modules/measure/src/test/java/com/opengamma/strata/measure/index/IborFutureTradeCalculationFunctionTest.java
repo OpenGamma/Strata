@@ -93,14 +93,17 @@ public class IborFutureTradeCalculationFunctionTest {
     Set<Measure> measures = ImmutableSet.of(
         Measures.UNIT_PRICE,
         Measures.PRESENT_VALUE,
-        Measures.PAR_SPREAD);
+        Measures.PAR_SPREAD,
+        Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.UNIT_PRICE, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedPrice))))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.PAR_SPREAD, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread))));
+            Measures.PAR_SPREAD, Result.success(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   //-------------------------------------------------------------------------

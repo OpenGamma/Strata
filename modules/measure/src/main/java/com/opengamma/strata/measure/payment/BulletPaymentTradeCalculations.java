@@ -12,9 +12,11 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
+import com.opengamma.strata.pricer.payment.DiscountingBulletPaymentTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
@@ -35,7 +37,7 @@ public class BulletPaymentTradeCalculations {
    * Default implementation.
    */
   public static final BulletPaymentTradeCalculations DEFAULT = new BulletPaymentTradeCalculations(
-      DiscountingPaymentPricer.DEFAULT);
+      DiscountingBulletPaymentTradePricer.DEFAULT);
 
   /**
    * Pricer for {@link ResolvedBulletPaymentTrade}.
@@ -48,10 +50,23 @@ public class BulletPaymentTradeCalculations {
    * In most cases, applications should use the {@link #DEFAULT} instance.
    * 
    * @param paymentPricer  the pricer for {@link Payment}
+   * @deprecated use constructor taking {@link DiscountingBulletPaymentTradePricer}
+   */
+  @Deprecated
+  public BulletPaymentTradeCalculations(DiscountingPaymentPricer paymentPricer) {
+    this(new DiscountingBulletPaymentTradePricer(paymentPricer));
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * In most cases, applications should use the {@link #DEFAULT} instance.
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedBulletPaymentTrade}
    */
   public BulletPaymentTradeCalculations(
-      DiscountingPaymentPricer paymentPricer) {
-    this.calc = new BulletPaymentMeasureCalculations(paymentPricer);
+      DiscountingBulletPaymentTradePricer tradePricer) {
+    this.calc = new BulletPaymentMeasureCalculations(tradePricer);
   }
 
   //-------------------------------------------------------------------------
@@ -247,6 +262,41 @@ public class BulletPaymentTradeCalculations {
       RatesProvider ratesProvider) {
 
     return calc.pv01MarketQuoteBucketed(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates cash flows across one or more scenarios.
+   * <p>
+   * The cash flows provide details about the payments of the trade.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the cash flows, one entry per scenario
+   */
+  public ScenarioArray<CashFlows> cashFlows(
+      ResolvedBulletPaymentTrade trade,
+      RatesMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.cashFlows(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates cash flows for a single set of market data.
+   * <p>
+   * The cash flows provide details about the payments of the trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the cash flows
+   */
+  public CashFlows cashFlows(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    return calc.cashFlows(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------

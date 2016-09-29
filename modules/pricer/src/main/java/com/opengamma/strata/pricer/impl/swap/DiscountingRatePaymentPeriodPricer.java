@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -400,6 +401,7 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, notional));
     builder.put(ExplainKey.TRADE_NOTIONAL, paymentPeriod.getNotionalAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
@@ -413,7 +415,8 @@ public class DiscountingRatePaymentPeriodPricer
       });
       for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
         builder.addListEntry(
-            ExplainKey.ACCRUAL_PERIODS, child -> explainPresentValue(accrualPeriod, currency, notional, provider, child));
+            ExplainKey.ACCRUAL_PERIODS,
+            child -> explainPresentValue(accrualPeriod, paymentPeriod.getDayCount(), currency, notional, provider, child));
       }
       builder.put(ExplainKey.COMPOUNDING, paymentPeriod.getCompoundingMethod());
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
@@ -425,6 +428,7 @@ public class DiscountingRatePaymentPeriodPricer
   // explain PV for an accrual period, ignoring compounding
   private void explainPresentValue(
       RateAccrualPeriod accrualPeriod,
+      DayCount dayCount,
       Currency currency,
       double notional,
       RatesProvider provider,
@@ -445,7 +449,8 @@ public class DiscountingRatePaymentPeriodPricer
     builder.put(ExplainKey.END_DATE, accrualPeriod.getEndDate());
     builder.put(ExplainKey.UNADJUSTED_END_DATE, accrualPeriod.getUnadjustedEndDate());
     builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, accrualPeriod.getYearFraction());
-    builder.put(ExplainKey.ACCRUAL_DAYS, (int) DAYS.between(accrualPeriod.getStartDate(), accrualPeriod.getEndDate()));
+    builder.put(ExplainKey.ACCRUAL_DAYS, dayCount.days(accrualPeriod.getStartDate(), accrualPeriod.getEndDate()));
+    builder.put(ExplainKey.DAYS, (int) DAYS.between(accrualPeriod.getStartDate(), accrualPeriod.getEndDate()));
     builder.put(ExplainKey.GEARING, accrualPeriod.getGearing());
     builder.put(ExplainKey.SPREAD, accrualPeriod.getSpread());
     builder.put(ExplainKey.PAY_OFF_RATE, accrualPeriod.getNegativeRateMethod().adjust(payOffRate));

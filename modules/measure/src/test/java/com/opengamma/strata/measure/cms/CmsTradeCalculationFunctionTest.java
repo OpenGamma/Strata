@@ -137,10 +137,12 @@ public class CmsTradeCalculationFunctionTest {
     ResolvedCmsTrade resolved = TRADE.resolve(REF_DATA);
     MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider, VOLS);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
+    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PRESENT_VALUE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv))));
+            Measures.PRESENT_VALUE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(TRADE.resolve(REF_DATA)));
   }
 
   //-------------------------------------------------------------------------

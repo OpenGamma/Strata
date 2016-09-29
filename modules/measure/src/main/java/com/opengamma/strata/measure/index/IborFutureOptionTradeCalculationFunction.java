@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.index;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +23,6 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
@@ -45,6 +45,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * 
  * <h4>Price</h4>
@@ -71,6 +72,7 @@ public class IborFutureOptionTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_SUM, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, IborFutureOptionMeasureCalculations.DEFAULT::unitPrice)
+          .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -90,6 +92,11 @@ public class IborFutureOptionTradeCalculationFunction
   @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
+  }
+
+  @Override
+  public Optional<String> identifier(IborFutureOptionTrade target) {
+    return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
@@ -167,7 +174,7 @@ public class IborFutureOptionTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedIborFutureOptionTrade trade,
         RatesScenarioMarketData ratesMarketData,
         IborFutureOptionScenarioMarketData optionMarketData);

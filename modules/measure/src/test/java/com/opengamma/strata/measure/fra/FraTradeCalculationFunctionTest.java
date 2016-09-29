@@ -102,7 +102,8 @@ public class FraTradeCalculationFunctionTest {
         Measures.PAR_SPREAD,
         Measures.CASH_FLOWS,
         Measures.CURRENCY_EXPOSURE,
-        Measures.CURRENT_CASH);
+        Measures.CURRENT_CASH,
+        Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
@@ -117,7 +118,9 @@ public class FraTradeCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure))))
         .containsEntry(
-            Measures.CURRENT_CASH, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash))));
+            Measures.CURRENT_CASH, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   public void test_pv01() {

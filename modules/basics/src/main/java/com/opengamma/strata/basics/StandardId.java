@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -27,9 +26,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.net.PercentEscaper;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * An immutable standard identifier for an item.
@@ -60,15 +61,26 @@ public final class StandardId
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
-   * The valid regex for schemes.
-   * One-to-many letters, numbers or selected special characters.
+   * Matcher for checking the scheme.
+   * It must only contains the characters A-Z, a-z, 0-9 and selected special characters.
    */
-  private static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z0-9:/+.=_-]+");
+  private static final CharMatcher SCHEME_MATCHER =
+      CharMatcher.inRange('A', 'Z')
+          .or(CharMatcher.inRange('a', 'z'))
+          .or(CharMatcher.inRange('0', '9'))
+          .or(CharMatcher.is(':'))
+          .or(CharMatcher.is('/'))
+          .or(CharMatcher.is('+'))
+          .or(CharMatcher.is('.'))
+          .or(CharMatcher.is('='))
+          .or(CharMatcher.is('_'))
+          .or(CharMatcher.is('-'))
+          .precomputed();
   /**
-   * The valid regex for values.
-   * One-to-many ASCII characters excluding square brackets, pipe and tilde.
+   * Matcher for checking the value.
+   * It must contain ASCII printable characters excluding curly brackets, pipe and tilde.
    */
-  private static final Pattern REGEX_VALUE = Pattern.compile("[!-z][ -z]*");
+  private static final CharMatcher VALUE_MATCHER = CharMatcher.inRange(' ', 'z').precomputed();
   /**
    * The escaper.
    */
@@ -100,6 +112,7 @@ public final class StandardId
    * If necessary, the scheme can be encoded using {@link StandardId#encodeScheme(String)}.
    * <p>
    * The value must be non-empty and match the regular expression '{@code [!-z][ -z]*}'.
+   * This includes all standard printable ASCII characters excluding curly brackets, pipe and tilde.
    *
    * @param scheme  the scheme of the identifier, not empty
    * @param value  the value of the identifier, not empty
@@ -149,14 +162,20 @@ public final class StandardId
    */
   @ImmutableConstructor
   private StandardId(String scheme, String value) {
-    this.scheme = ArgChecker.matches(REGEX_SCHEME, scheme, "scheme");
-    this.value = ArgChecker.matches(REGEX_VALUE, value, "value");
+    ArgChecker.matches(SCHEME_MATCHER, 1, Integer.MAX_VALUE, scheme, "scheme", "[A-Za-z0-9:/+.=_-]+");
+    ArgChecker.matches(VALUE_MATCHER, 1, Integer.MAX_VALUE, value, "value", "[!-z][ -z]+");
+    if (value.charAt(0) == ' ') {
+      throw new IllegalArgumentException(Messages.format(
+          "Invalid initial space in value '{}' must match regex '[!-z][ -z]*'", value));
+    }
+    this.scheme = scheme;
+    this.value = value;
     this.hashCode = scheme.hashCode() ^ value.hashCode();
   }
 
   // resolve after deserialization
   private Object readResolve() {
-    return of(scheme, value);
+    return new StandardId(scheme, value);
   }
 
   //-------------------------------------------------------------------------

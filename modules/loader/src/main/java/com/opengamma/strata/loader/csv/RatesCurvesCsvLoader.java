@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
@@ -35,8 +36,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -126,7 +129,8 @@ public final class RatesCurvesCsvLoader {
   private static final BiMap<String, ValueType> VALUE_TYPE_MAP = ImmutableBiMap.of(
       "zero", ValueType.ZERO_RATE,
       "df", ValueType.DISCOUNT_FACTOR,
-      "forward", ValueType.FORWARD_RATE);
+      "forward", ValueType.FORWARD_RATE,
+      "priceindex", ValueType.PRICE_INDEX);
 
   //-------------------------------------------------------------------------
   /**
@@ -143,24 +147,19 @@ public final class RatesCurvesCsvLoader {
    * @return the loaded curves, mapped by an identifying key
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static List<CurveGroup> load(
+  public static ImmutableList<CurveGroup> load(
       LocalDate marketDataDate,
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveValueResources) {
 
-    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
-    Multimap<LocalDate, Curve> allCurves = loadCurves(settingsResource, curveValueResources, marketDataDate);
-    Collection<Curve> curves = allCurves.get(marketDataDate);
-    Set<CurveName> curveNames = new HashSet<>();
-
-    // Ensure curve names are unique
-    for (Curve curve : curves) {
-      if (!curveNames.add(curve.getName())) {
-        throw new IllegalArgumentException("Multiple curves with the same name: " + curve.getName());
-      }
-    }
-    return curveGroups.stream().map(groupDef -> CurveGroup.ofCurves(groupDef, curves)).collect(toImmutableList());
+    Collection<CharSource> curveCharSources = curveValueResources.stream().map(r -> r.getCharSource()).collect(toList());
+    ListMultimap<LocalDate, CurveGroup> map = parse(
+        d -> marketDataDate.equals(d),
+        groupsResource.getCharSource(),
+        settingsResource.getCharSource(),
+        curveCharSources);
+    return ImmutableList.copyOf(map.get(marketDataDate));
   }
 
   /**
@@ -174,18 +173,45 @@ public final class RatesCurvesCsvLoader {
    * @return the loaded curves, mapped by date and identifier
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ListMultimap<LocalDate, CurveGroup> loadAllDates(
+  public static ImmutableListMultimap<LocalDate, CurveGroup> loadAllDates(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveValueResources) {
 
-    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
-    Multimap<LocalDate, Curve> curves = loadCurves(settingsResource, curveValueResources, null);
+    Collection<CharSource> curveCharSources = curveValueResources.stream().map(r -> r.getCharSource()).collect(toList());
+    return parse(d -> true, groupsResource.getCharSource(), settingsResource.getCharSource(), curveCharSources);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses one or more CSV format curve files for all available dates.
+   * <p>
+   * A predicate is specified that is used to filter the dates that are returned.
+   * This could match a single date, a set of dates or all dates.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   *
+   * @param datePredicate  the predicate used to select the dates
+   * @param groupsCharSource  the curve groups CSV character source
+   * @param settingsCharSource  the curve settings CSV character source
+   * @param curveValueCharSources  the CSV character sources for curves
+   * @return the loaded curves, mapped by date and identifier
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableListMultimap<LocalDate, CurveGroup> parse(
+      Predicate<LocalDate> datePredicate,
+      CharSource groupsCharSource,
+      CharSource settingsCharSource,
+      Collection<CharSource> curveValueCharSources) {
+
+    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    Map<LocalDate, Map<CurveName, Curve>> curves =
+        parseCurves(datePredicate, settingsCharSource, curveValueCharSources);
     ImmutableListMultimap.Builder<LocalDate, CurveGroup> builder = ImmutableListMultimap.builder();
 
     for (CurveGroupDefinition groupDefinition : curveGroups) {
-      for (Map.Entry<LocalDate, Collection<Curve>> entry : curves.asMap().entrySet()) {
-        CurveGroup curveGroup = CurveGroup.ofCurves(groupDefinition, entry.getValue());
+      for (Map.Entry<LocalDate, Map<CurveName, Curve>> entry : curves.entrySet()) {
+        CurveGroup curveGroup = CurveGroup.ofCurves(groupDefinition, entry.getValue().values());
         builder.put(entry.getKey(), curveGroup);
       }
     }
@@ -193,31 +219,39 @@ public final class RatesCurvesCsvLoader {
   }
 
   //-------------------------------------------------------------------------
-  // loads the curves, optionally specifying a date
-  private static Multimap<LocalDate, Curve> loadCurves(
-      ResourceLocator settingsResource,
-      Collection<ResourceLocator> curvesResources,
-      LocalDate curveDate) {
+  // loads the curves, filtering by date
+  private static Map<LocalDate, Map<CurveName, Curve>> parseCurves(
+      Predicate<LocalDate> datePredicate,
+      CharSource settingsResource,
+      Collection<CharSource> curvesResources) {
 
     // load curve settings
-    Map<CurveName, LoadedCurveSettings> settingsMap = loadCurveSettings(settingsResource);
+    Map<CurveName, LoadedCurveSettings> settingsMap = parseCurveSettings(settingsResource);
 
-    // load curves
-    // builder ensures keys can only be seen once
-    ImmutableMultimap.Builder<LocalDate, Curve> curvesBuilder = ImmutableMultimap.builder();
-    curvesBuilder.orderKeysBy(Comparator.naturalOrder());
-
-    for (ResourceLocator curvesResource : curvesResources) {
-      curvesBuilder.putAll(loadSingle(curvesResource, settingsMap, curveDate));
+    // load curves, ensuring curves only be seen once within a date
+    Map<LocalDate, Map<CurveName, Curve>> resultMap = new TreeMap<>();
+    for (CharSource curvesResource : curvesResources) {
+      Multimap<LocalDate, Curve> fileCurvesByDate = parseSingle(datePredicate, curvesResource, settingsMap);
+      // Ensure curve names are unique, with a good error message
+      for (LocalDate date : fileCurvesByDate.keySet()) {
+        Collection<Curve> fileCurves = fileCurvesByDate.get(date);
+        Map<CurveName, Curve> resultCurves = resultMap.computeIfAbsent(date, d -> new HashMap<>());
+        for (Curve fileCurve : fileCurves) {
+          if (resultCurves.put(fileCurve.getName(), fileCurve) != null) {
+            throw new IllegalArgumentException(
+                "Rates curve loader found multiple curves with the same name: " + fileCurve.getName());
+          }
+        }
+      }
     }
-    return curvesBuilder.build();
+    return resultMap;
   }
 
   //-------------------------------------------------------------------------
   // loads the curve settings CSV file
-  static Map<CurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
+  static Map<CurveName, LoadedCurveSettings> parseCurveSettings(CharSource settingsResource) {
     ImmutableMap.Builder<CurveName, LoadedCurveSettings> builder = ImmutableMap.builder();
-    CsvFile csv = CsvFile.of(settingsResource.getCharSource(), true);
+    CsvFile csv = CsvFile.of(settingsResource, true);
     for (CsvRow row : csv.rows()) {
       String curveNameStr = row.getField(SETTINGS_CURVE_NAME);
       String valueTypeStr = row.getField(SETTINGS_VALUE_TYPE);
@@ -226,20 +260,21 @@ public final class RatesCurvesCsvLoader {
       String leftExtrapolatorStr = row.getField(SETTINGS_LEFT_EXTRAPOLATOR);
       String rightExtrapolatorStr = row.getField(SETTINGS_RIGHT_EXTRAPOLATOR);
 
-      CurveName curveName = CurveName.of(curveNameStr);
-      ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
-      DayCount dayCount = DayCount.of(dayCountStr);
-      CurveInterpolator interpolator = CurveInterpolator.of(interpolatorStr);
-      CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorStr);
-      CurveExtrapolator rightExtrapolator = CurveExtrapolator.of(rightExtrapolatorStr);
-
       if (!VALUE_TYPE_MAP.containsKey(valueTypeStr.toLowerCase(Locale.ENGLISH))) {
         throw new IllegalArgumentException(
             Messages.format("Unsupported {} in curve settings: {}", SETTINGS_VALUE_TYPE, valueTypeStr));
       }
 
-      LoadedCurveSettings settings = LoadedCurveSettings.of(
-          curveName, valueType, dayCount, interpolator, leftExtrapolator, rightExtrapolator);
+      CurveName curveName = CurveName.of(curveNameStr);
+      ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
+      CurveInterpolator interpolator = CurveInterpolator.of(interpolatorStr);
+      CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorStr);
+      CurveExtrapolator rightExtrapolator = CurveExtrapolator.of(rightExtrapolatorStr);
+      LoadedCurveSettings settings = (valueType.equals(ValueType.PRICE_INDEX))
+          ? LoadedCurveSettings.of(curveName, ValueType.MONTHS, valueType, 
+              DayCounts.ONE_ONE, interpolator, leftExtrapolator, rightExtrapolator) // DayCount not used
+          : LoadedCurveSettings.of(curveName, ValueType.YEAR_FRACTION, valueType, 
+              DayCount.of(dayCountStr), interpolator, leftExtrapolator, rightExtrapolator);
       builder.put(curveName, settings);
     }
     return builder.build();
@@ -248,26 +283,26 @@ public final class RatesCurvesCsvLoader {
   //-------------------------------------------------------------------------
   // loads a single curves CSV file
   // requestedDate can be null, meaning load all dates
-  private static Multimap<LocalDate, Curve> loadSingle(
-      ResourceLocator curvesResource,
-      Map<CurveName, LoadedCurveSettings> settingsMap,
-      LocalDate requestedDate) {
+  private static Multimap<LocalDate, Curve> parseSingle(
+      Predicate<LocalDate> datePredicate,
+      CharSource curvesResource,
+      Map<CurveName, LoadedCurveSettings> settingsMap) {
 
-    CsvFile csv = CsvFile.of(curvesResource.getCharSource(), true);
+    CsvFile csv = CsvFile.of(curvesResource, true);
     Map<LoadedCurveKey, List<LoadedCurveNode>> allNodes = new HashMap<>();
     for (CsvRow row : csv.rows()) {
-      String valuationDateStr = row.getField(CURVE_DATE);
+      String dateStr = row.getField(CURVE_DATE);
       String curveNameStr = row.getField(CURVE_NAME);
       String pointDateStr = row.getField(CURVE_POINT_DATE);
       String pointValueStr = row.getField(CURVE_POINT_VALUE);
       String pointLabel = row.getField(CURVE_POINT_LABEL);
 
-      LocalDate valuationDate = LocalDate.parse(valuationDateStr);
-      if (requestedDate == null || valuationDate.equals(requestedDate)) {
+      LocalDate date = LocalDate.parse(dateStr);
+      if (datePredicate.test(date)) {
         LocalDate pointDate = LocalDate.parse(pointDateStr);
         double pointValue = Double.valueOf(pointValueStr);
 
-        LoadedCurveKey key = LoadedCurveKey.of(valuationDate, CurveName.of(curveNameStr));
+        LoadedCurveKey key = LoadedCurveKey.of(date, CurveName.of(curveNameStr));
         List<LoadedCurveNode> curveNodes = allNodes.computeIfAbsent(key, k -> new ArrayList<>());
         curveNodes.add(LoadedCurveNode.of(pointDate, pointValue, pointLabel));
       }

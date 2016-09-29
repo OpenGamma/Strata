@@ -125,6 +125,21 @@ public final class ResolvedSwapLeg
     this.currency = Iterables.getOnlyElement(currencies);
   }
 
+  // trusted constructor
+  ResolvedSwapLeg(
+      SwapLegType type,
+      PayReceive payReceive,
+      List<? extends SwapPaymentPeriod> paymentPeriods,
+      List<? extends SwapPaymentEvent> paymentEvents,
+      Currency currency) {
+
+    this.type = type;
+    this.payReceive = payReceive;
+    this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
+    this.paymentEvents = ImmutableList.copyOf(paymentEvents);
+    this.currency = currency;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the accrual start date of the leg.

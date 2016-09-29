@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
@@ -42,6 +43,38 @@ public class StandardIdTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyValue() {
     StandardId.of("Scheme", "");
+  }
+
+  @DataProvider(name = "factoryValid")
+  Object[][] data_factoryValid() {
+    return new Object[][] {
+        {"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "123"},
+        {"abcdefghijklmnopqrstuvwxyz", "123"},
+        {"0123456789:/+.=_-", "123"},
+        {"ABC", "! !\"$%%^&*()123abcxyzABCXYZ"},
+    };
+  }
+
+  @Test(dataProvider = "factoryValid")
+  public void test_factory_String_String_valid(String scheme, String value) {
+    StandardId.of(scheme, value);
+  }
+
+  @DataProvider(name = "factoryInvalid")
+  Object[][] data_factoryInvalid() {
+    return new Object[][] {
+        {"", ""},
+        {" ", "123"},
+        {"{", "123"},
+        {"ABC", " 123"},
+        {"ABC", "12}3"},
+        {"ABC", "12\u00003"},
+    };
+  }
+
+  @Test(dataProvider = "factoryInvalid", expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_String_String_invalid(String scheme, String value) {
+    StandardId.of(scheme, value);
   }
 
   //-------------------------------------------------------------------------
@@ -141,4 +174,9 @@ public class StandardIdTest {
   public void coverage() {
     coverImmutableBean(StandardId.of(SCHEME, "123"));
   }
+
+  public void test_serialization() {
+    assertSerialization(StandardId.of(SCHEME, "123"));
+  }
+
 }

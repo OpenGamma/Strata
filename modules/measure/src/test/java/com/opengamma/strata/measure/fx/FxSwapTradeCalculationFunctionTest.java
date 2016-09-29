@@ -103,7 +103,8 @@ public class FxSwapTradeCalculationFunctionTest {
         Measures.PAR_SPREAD,
         Measures.CURRENCY_EXPOSURE,
         Measures.CURRENT_CASH,
-        Measures.FORWARD_FX_RATE);
+        Measures.FORWARD_FX_RATE,
+        Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
@@ -112,7 +113,9 @@ public class FxSwapTradeCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExp))))
         .containsEntry(
-            Measures.CURRENT_CASH, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCash))));
+            Measures.CURRENT_CASH, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCash))))
+        .containsEntry(
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   public void test_pv01() {

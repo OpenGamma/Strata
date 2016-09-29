@@ -20,7 +20,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 
 /**
- * Pricer for foreign exchange vanilla option trades with a lognormal model.
+ * Pricer for FX vanilla option trades with a lognormal model.
  * <p>
  * This function provides the ability to price an {@link FxVanillaOptionTrade}.
  */
@@ -57,7 +57,7 @@ public class BlackFxVanillaOptionTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value of the foreign exchange vanilla option trade.
+   * Calculates the present value of the FX vanilla option trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
    * 
@@ -80,7 +80,30 @@ public class BlackFxVanillaOptionTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the foreign exchange vanilla option trade.
+   * Calculates the present value sensitivity of the FX vanilla option trade.
+   * <p>
+   * The present value sensitivity of the trade is the sensitivity of the present value to
+   * the underlying curves.
+   * <p>
+   * The volatility is fixed in this sensitivity computation.
+   * 
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the present value curve sensitivity of the trade
+   * @deprecated Use presentValueSensitivityRatesStickyStrike
+   */
+  @Deprecated
+  public PointSensitivities presentValueSensitivityRates(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    return presentValueSensitivityRatesStickyStrike(trade, ratesProvider, volatilities);
+  }
+
+  /**
+   * Calculates the present value sensitivity of the FX vanilla option trade.
    * <p>
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
@@ -92,14 +115,14 @@ public class BlackFxVanillaOptionTradePricer {
    * @param volatilities  the Black volatility provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivityRates(
+  public PointSensitivities presentValueSensitivityRatesStickyStrike(
       ResolvedFxVanillaOptionTrade trade,
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption product = trade.getProduct();
     PointSensitivities pvcsProduct =
-        productPricer.presentValueSensitivityRates(product, ratesProvider, volatilities);
+        productPricer.presentValueSensitivityRatesStickyStrike(product, ratesProvider, volatilities);
     Payment premium = trade.getPremium();
     PointSensitivities pvcsPremium = paymentPricer.presentValueSensitivity(premium, ratesProvider).build();
     return pvcsProduct.combinedWith(pvcsPremium);
@@ -127,7 +150,7 @@ public class BlackFxVanillaOptionTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the currency exposure of the foreign exchange vanilla option trade.
+   * Calculates the currency exposure of the FX vanilla option trade.
    * 
    * @param trade  the option trade
    * @param ratesProvider  the rates provider
@@ -145,8 +168,9 @@ public class BlackFxVanillaOptionTradePricer {
     return productPricer.currencyExposure(product, ratesProvider, volatilities).plus(pvPremium);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the current of the foreign exchange vanilla option trade.
+   * Calculates the current of the FX vanilla option trade.
    * 
    * @param trade  the option trade
    * @param valuationDate  the valuation date

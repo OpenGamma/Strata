@@ -91,9 +91,12 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 /**
  * Test for curve calibration with 2 curves in USD.
  * One curve is Discounting and Fed Fund forward and the other one is Libor 3M forward.
+ * The Forward 3M curve is calibrated in part to Ibor futures without convexity adjustment.
  */
 @Test
 public class CalibrationZeroRateUsd2OisFuturesIrsTest {
+  
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
 
@@ -101,15 +104,12 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
 
-  // reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   private static final String SCHEME = "CALIBRATION";
 
   /** Curve names */
   private static final String DSCON_NAME = "USD-DSCON-OIS";
   private static final CurveName DSCON_CURVE_NAME = CurveName.of(DSCON_NAME);
-  private static final String FWD3_NAME = "USD-LIBOR3M-FRAIRS";
+  private static final String FWD3_NAME = "USD-LIBOR3M-FUTIRS";
   private static final CurveName FWD3_CURVE_NAME = CurveName.of(FWD3_NAME);
   /** Curves associations to currencies and indices. */
   private static final Map<CurveName, Currency> DSC_NAMES = new HashMap<>();
@@ -390,7 +390,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
           + (endTime - startTime) + " ms.");
     }
     System.out.println("Avoiding hotspot: " + count);
-    // Previous run: 1050 ms for 100 calibrations (2 curves simultaneous - 35 nodes)
+    // Previous run: 665 ms for 100 calibrations (2 curves simultaneous - 35 nodes)
   }
 
 }

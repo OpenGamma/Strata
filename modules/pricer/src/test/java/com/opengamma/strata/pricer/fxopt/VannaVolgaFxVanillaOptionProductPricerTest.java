@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -39,6 +40,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
+import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 
 /**
  * Test {@link VannaVolgaFxVanillaOptionProductPricer}.
@@ -105,6 +107,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   private static final double TOL = 1.0e-13;
   private static final double FD_EPS = 1.0e-7;
   private static final VannaVolgaFxVanillaOptionProductPricer PRICER = VannaVolgaFxVanillaOptionProductPricer.DEFAULT;
+  private static final VannaVolgaFxVanillaOptionTradePricer TRADE_PRICER = VannaVolgaFxVanillaOptionTradePricer.DEFAULT;
   private static final DiscountingFxSingleProductPricer FX_PRICER = DiscountingFxSingleProductPricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(FD_EPS);
@@ -113,12 +116,17 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_price_presentValue() {
     for (int i = 0; i < NB_STRIKES; ++i) {
-      double computedPriceCall = PRICER.price(CALLS[i], RATES_PROVIDER, VOLS);
-      CurrencyAmount computedCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
+      ResolvedFxVanillaOption call = CALLS[i];
+      ResolvedFxVanillaOptionTrade callTrade = ResolvedFxVanillaOptionTrade.builder()
+          .product(call)
+          .premium(Payment.of(EUR, 0, VAL_DATE))
+          .build();
+      double computedPriceCall = PRICER.price(call, RATES_PROVIDER, VOLS);
+      CurrencyAmount computedCall = PRICER.presentValue(call, RATES_PROVIDER, VOLS);
       double timeToExpiry = VOLS.relativeTime(EXPIRY);
       FxRate forward = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER);
       double forwardRate = forward.fxRate(CURRENCY_PAIR);
-      double strikeRate = CALLS[i].getStrike();
+      double strikeRate = call.getStrike();
       SmileDeltaParameters smileAtTime = VOLS.getSmile().smileForExpiry(timeToExpiry);
       double[] strikes = smileAtTime.strike(forwardRate).toArray();
       double[] vols = smileAtTime.getVolatility().toArray();
@@ -133,19 +141,34 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
       expectedPriceCall *= df;
       assertEquals(computedPriceCall, expectedPriceCall, TOL);
       assertEquals(computedCall.getAmount(), expectedPriceCall * NOTIONAL, TOL * NOTIONAL);
+      // test against trade pricer
+      assertEquals(computedCall, TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER, VOLS).getAmount(USD));
     }
   }
 
   public void test_price_presentValue_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
-      double computedPriceCall = PRICER.price(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      CurrencyAmount computedCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
+      ResolvedFxVanillaOption call = CALLS[i];
+      ResolvedFxVanillaOptionTrade callTrade = ResolvedFxVanillaOptionTrade.builder()
+          .product(call)
+          .premium(Payment.of(EUR, 0, VOLS_AFTER.getValuationDate()))
+          .build();
+      double computedPriceCall = PRICER.price(call, RATES_PROVIDER_AFTER, VOLS_AFTER);
+      CurrencyAmount computedCall = PRICER.presentValue(call, RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPriceCall, 0d, TOL);
       assertEquals(computedCall.getAmount(), 0d, TOL);
-      double computedPricePut = PRICER.price(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      CurrencyAmount computedPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
+      ResolvedFxVanillaOption put = PUTS[i];
+      ResolvedFxVanillaOptionTrade putTrade = ResolvedFxVanillaOptionTrade.builder()
+          .product(put)
+          .premium(Payment.of(EUR, 0, VOLS_AFTER.getValuationDate()))
+          .build();
+      double computedPricePut = PRICER.price(put, RATES_PROVIDER_AFTER, VOLS_AFTER);
+      CurrencyAmount computedPut = PRICER.presentValue(put, RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPricePut, 0d, TOL);
       assertEquals(computedPut.getAmount(), 0d, TOL);
+      // test against trade pricer
+      assertEquals(computedCall, TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
+      assertEquals(computedPut, TRADE_PRICER.presentValue(putTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
     }
   }
 

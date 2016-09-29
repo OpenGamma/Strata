@@ -11,6 +11,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -226,37 +227,41 @@ public final class CalculationTask implements ImmutableBean {
   // handle the failure, extracted to aid inlining
   private Map<Measure, Result<?>> handleFailure(RuntimeException ex) {
     Result<?> failure;
+    String fnName = function.getClass().getSimpleName();
+    String exMsg = ex.getMessage();
+    Optional<String> id = function.identifier(target);
+    String msg = id.map(v -> " for ID '" + v + "': " + exMsg).orElse(": " + exMsg + ": for target '" + target.toString() + "'");
     if (ex instanceof MarketDataNotFoundException) {
       failure = Result.failure(
           FailureReason.MISSING_DATA,
           ex,
-          "Missing market data when invoking function '{}': {}",
-          function.getClass().getSimpleName(),
-          ex.getMessage());
+          "Missing market data when invoking function '{}'{}",
+          fnName,
+          msg);
 
     } else if (ex instanceof ReferenceDataNotFoundException) {
       failure = Result.failure(
           FailureReason.MISSING_DATA,
           ex,
-          "Missing reference data when invoking function '{}': {}",
-          function.getClass().getSimpleName(),
-          ex.getMessage());
+          "Missing reference data when invoking function '{}'{}",
+          fnName,
+          msg);
 
     } else if (ex instanceof UnsupportedOperationException) {
       failure = Result.failure(
           FailureReason.UNSUPPORTED,
           ex,
-          "Unsupported operation when invoking function '{}': {}",
-          function.getClass().getSimpleName(),
-          ex.getMessage());
+          "Unsupported operation when invoking function '{}'{}",
+          fnName,
+          msg);
 
     } else {
       failure = Result.failure(
           FailureReason.CALCULATION_FAILED,
           ex,
-          "Error when invoking function '{}': {}",
-          function.getClass().getSimpleName(),
-          ex.toString());
+          "Error when invoking function '{}'{}",
+          fnName,
+          msg);
     }
     return getMeasures().stream().collect(toImmutableMap(m -> m, m -> failure));
   }

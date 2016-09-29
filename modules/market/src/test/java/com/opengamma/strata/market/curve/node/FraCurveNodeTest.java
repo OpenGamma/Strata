@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.data.ImmutableMarketData;
@@ -59,6 +60,7 @@ public class FraCurveNodeTest {
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final DaysAdjustment OFFSET = DaysAdjustment.ofBusinessDays(0, GBLO);
   private static final Period PERIOD_TO_START = Period.ofMonths(2);
+  private static final Period PERIOD_TO_END = Period.ofMonths(5);
   private static final FraTemplate TEMPLATE = FraTemplate.of(PERIOD_TO_START, GBP_LIBOR_3M);
   private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
@@ -133,16 +135,18 @@ public class FraCurveNodeTest {
     double rate = 0.035;
     ImmutableMarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_ID, rate).build();
     FraTrade trade = node.trade(1d, marketData, REF_DATA);
-    LocalDate startDateExpected = OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_START);
-    LocalDate endDateExpected = startDateExpected.plusMonths(3);
+    LocalDate startDateExpected =
+        BDA_MOD_FOLLOW.adjust(OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_START), REF_DATA);
+    LocalDate endDateExpected =
+        BDA_MOD_FOLLOW.adjust(OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_END), REF_DATA);
     Fra productExpected = Fra.builder()
         .buySell(BuySell.SELL)
         .currency(GBP)
         .dayCount(ACT_365F)
         .startDate(startDateExpected)
         .endDate(endDateExpected)
+        .paymentDate(AdjustableDate.of(startDateExpected))
         .notional(1.0d)
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_3M)
         .fixedRate(rate + SPREAD)
         .build();

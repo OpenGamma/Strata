@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.joda.convert.ToString;
 
+import com.google.common.base.CharMatcher;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -63,6 +64,9 @@ public abstract class TypedString<T extends TypedString<T>>
 
   /**
    * Creates an instance, validating the name against a regex.
+   * <p>
+   * In most cases, a {@link CharMatcher} will be faster than a regex {@link Pattern},
+   * typically by over an order of magnitude.
    * 
    * @param name  the name, not empty
    * @param pattern  the regex pattern for validating the name
@@ -73,6 +77,26 @@ public abstract class TypedString<T extends TypedString<T>>
     ArgChecker.notNull(pattern, "pattern");
     ArgChecker.notEmpty(msg, "msg");
     if (pattern.matcher(name).matches() == false) {
+      throw new IllegalArgumentException(msg);
+    }
+    this.name = name;
+  }
+
+  /**
+   * Creates an instance, validating the name against a matcher.
+   * <p>
+   * In most cases, a {@link CharMatcher} will be faster than a regex {@link Pattern},
+   * typically by over an order of magnitude.
+   * 
+   * @param name  the name, not empty
+   * @param matcher  the matcher for validating the name
+   * @param msg  the message to use to explain validation failure
+   */
+  protected TypedString(String name, CharMatcher matcher, String msg) {
+    ArgChecker.notEmpty(name, "name");
+    ArgChecker.notNull(matcher, "pattern");
+    ArgChecker.notEmpty(msg, "msg");
+    if (matcher.matchesAllOf(name) == false) {
       throw new IllegalArgumentException(msg);
     }
     this.name = name;

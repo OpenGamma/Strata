@@ -81,6 +81,7 @@ public class DiscountingNotionalExchangePricer
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     builder.put(ExplainKey.TRADE_NOTIONAL, event.getPaymentAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {

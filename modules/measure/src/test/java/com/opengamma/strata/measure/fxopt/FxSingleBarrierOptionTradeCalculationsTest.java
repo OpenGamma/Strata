@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.swaption;
+package com.opengamma.strata.measure.fxopt;
 
+import static com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionMethod.BLACK;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -19,60 +20,59 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.measure.swaption.SwaptionMarketDataLookup;
-import com.opengamma.strata.measure.swaption.SwaptionTradeCalculationFunctionTest;
-import com.opengamma.strata.measure.swaption.SwaptionTradeCalculations;
+import com.opengamma.strata.pricer.fxopt.BlackFxOptionVolatilities;
+import com.opengamma.strata.pricer.fxopt.BlackFxSingleBarrierOptionTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
-import com.opengamma.strata.pricer.swaption.VolatilitySwaptionTradePricer;
-import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
+import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
 
 /**
- * Test {@link SwaptionTradeCalculations}.
+ * Test {@link FxSingleBarrierOptionTradeCalculations}.
  */
 @Test
-public class CmsTradeCalculationsTest {
+public class FxSingleBarrierOptionTradeCalculationsTest {
 
-  private static final ResolvedSwaptionTrade RTRADE = SwaptionTradeCalculationFunctionTest.RTRADE;
-  private static final RatesMarketDataLookup RATES_LOOKUP = SwaptionTradeCalculationFunctionTest.RATES_LOOKUP;
-  private static final SwaptionMarketDataLookup SWAPTION_LOOKUP = SwaptionTradeCalculationFunctionTest.SWAPTION_LOOKUP;
-  private static final SwaptionVolatilities VOLS =
-      SwaptionTradeCalculationFunctionTest.NORMAL_VOL_SWAPTION_PROVIDER_USD;
+  private static final ResolvedFxSingleBarrierOptionTrade RTRADE = FxSingleBarrierOptionTradeCalculationFunctionTest.RTRADE;
+  private static final RatesMarketDataLookup RATES_LOOKUP = FxSingleBarrierOptionTradeCalculationFunctionTest.RATES_LOOKUP;
+  private static final FxOptionMarketDataLookup FX_OPTION_LOOKUP =
+      FxSingleBarrierOptionTradeCalculationFunctionTest.FX_OPTION_LOOKUP;
+  private static final BlackFxOptionVolatilities VOLS = FxSingleBarrierOptionTradeCalculationFunctionTest.VOLS;
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
-    ScenarioMarketData md = SwaptionTradeCalculationFunctionTest.marketData();
+    ScenarioMarketData md = FxSingleBarrierOptionTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
-    VolatilitySwaptionTradePricer pricer = VolatilitySwaptionTradePricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS);
+    BlackFxSingleBarrierOptionTradePricer pricer = BlackFxSingleBarrierOptionTradePricer.DEFAULT;
+    MultiCurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, VOLS);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider.getValuationDate());
 
     assertEquals(
-        SwaptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+        FxSingleBarrierOptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
     assertEquals(
-        SwaptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
+        FxSingleBarrierOptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
         MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertEquals(
-        SwaptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
+        FxSingleBarrierOptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
         CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   public void test_pv01() {
-    ScenarioMarketData md = SwaptionTradeCalculationFunctionTest.marketData();
+    ScenarioMarketData md = FxSingleBarrierOptionTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
-    VolatilitySwaptionTradePricer pricer = VolatilitySwaptionTradePricer.DEFAULT;
+    BlackFxSingleBarrierOptionTradePricer pricer = BlackFxSingleBarrierOptionTradePricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivityRatesStickyStrike(RTRADE, provider, VOLS);
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
     assertEquals(
-        SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
+        FxSingleBarrierOptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(
+            RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
         MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertEquals(
-        SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
+        FxSingleBarrierOptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(
+            RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 

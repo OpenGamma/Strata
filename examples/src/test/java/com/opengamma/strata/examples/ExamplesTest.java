@@ -26,10 +26,15 @@ import com.opengamma.strata.examples.TermDepositPricingExample;
 import com.opengamma.strata.examples.finance.CalibrationCheckExample;
 import com.opengamma.strata.examples.finance.CalibrationEur3CheckExample;
 import com.opengamma.strata.examples.finance.CalibrationSimpleForwardCheckExample;
+import com.opengamma.strata.examples.finance.CalibrationUsdCpiExample;
+import com.opengamma.strata.examples.finance.CalibrationUsdFfsExample;
 import com.opengamma.strata.examples.finance.CalibrationXCcyCheckExample;
+import com.opengamma.strata.examples.finance.CdsScenarioExample;
 import com.opengamma.strata.examples.finance.CdsTradeExample;
 import com.opengamma.strata.examples.finance.CurveScenarioExample;
 import com.opengamma.strata.examples.finance.HistoricalScenarioExample;
+import com.opengamma.strata.examples.finance.SabrSwaptionCubeCalibrationExample;
+import com.opengamma.strata.examples.finance.SabrSwaptionCubePvRiskExample;
 import com.opengamma.strata.examples.finance.SwapPricingCcpExample;
 import com.opengamma.strata.examples.finance.SwapPricingWithCalibrationExample;
 import com.opengamma.strata.examples.finance.SwapTradeExample;
@@ -194,6 +199,43 @@ public class ExamplesTest {
     assertFalse(captured.contains("ERROR"));
     assertFalse(captured.contains("Exception"));
   }
+
+  public void test_calibration_usd_ffs() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationUsdFfsExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  public void test_calibration_cpi() throws Exception {
+    String captured = caputureSystemOut(() -> CalibrationUsdCpiExample.main(NO_ARGS));
+    assertTrue(captured.contains("Checked PV for all instruments used in the calibration set are near to zero"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  public void test_sabr_swaption_calibration() throws Exception {
+    String captured = caputureSystemOut(() -> SabrSwaptionCubeCalibrationExample.main(NO_ARGS));
+    assertTrue(captured.contains("End calibration"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  public void test_sabr_swaption_calibration_pv_risk() throws Exception {
+    String captured = caputureSystemOut(() -> SabrSwaptionCubePvRiskExample.main(NO_ARGS));
+    assertTrue(captured.contains("PV and risk time"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  public void test_cds_scenario() throws Exception {
+    String captured = caputureSystemOut(() -> CdsScenarioExample.main(NO_ARGS));
+    assertTrue(captured.contains("95% VaR"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+  
+  
 
   //-------------------------------------------------------------------------
   private String[] toolArgs(String name) {

@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CharSource;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
@@ -41,6 +43,7 @@ import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.FixedInflationSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
@@ -64,6 +67,8 @@ import com.opengamma.strata.product.index.type.IborFutureConvention;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
@@ -192,13 +197,34 @@ public final class RatesCalibrationCsvLoader {
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveNodeResources) {
 
+    Collection<CharSource> curveNodeCharSources = curveNodeResources.stream().map(r -> r.getCharSource()).collect(toList());
+    return parse(groupsResource.getCharSource(), settingsResource.getCharSource(), curveNodeCharSources);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses one or more CSV format curve calibration files.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param groupsCharSource  the curve groups CSV character source
+   * @param settingsCharSource  the curve settings CSV character source
+   * @param curveNodeCharSources  the CSV character sources for curve nodes
+   * @return the group definitions, mapped by name
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> parse(
+      CharSource groupsCharSource,
+      CharSource settingsCharSource,
+      Collection<CharSource> curveNodeCharSources) {
+
     // load curve groups and settings
-    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.loadCurveGroups(groupsResource);
-    Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.loadCurveSettings(settingsResource);
+    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.parseCurveSettings(settingsCharSource);
 
     // load curve definitions
-    List<NodalCurveDefinition> curveDefinitions = curveNodeResources.stream()
-        .flatMap(res -> loadSingle(res, settingsMap).stream())
+    List<NodalCurveDefinition> curveDefinitions = curveNodeCharSources.stream()
+        .flatMap(res -> parseSingle(res, settingsMap).stream())
         .collect(toImmutableList());
 
     // Add the curve definitions to the curve group definitions
@@ -210,11 +236,11 @@ public final class RatesCalibrationCsvLoader {
   //-------------------------------------------------------------------------
   // loads a single curves CSV file
   // requestedDate can be null, meaning load all dates
-  private static List<NodalCurveDefinition> loadSingle(
-      ResourceLocator resource,
+  private static List<NodalCurveDefinition> parseSingle(
+      CharSource resource,
       Map<CurveName, LoadedCurveSettings> settingsMap) {
 
-    CsvFile csv = CsvFile.of(resource.getCharSource(), true);
+    CsvFile csv = CsvFile.of(resource, true);
     Map<CurveName, List<CurveNode>> allNodes = new HashMap<>();
     for (CsvRow row : csv.rows()) {
       String curveNameStr = row.getField(CURVE_NAME);
@@ -342,6 +368,9 @@ public final class RatesCalibrationCsvLoader {
     }
     if ("FXS".equalsIgnoreCase(typeStr) || "FxSwap".equalsIgnoreCase(typeStr)) {
       return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
+    }
+    if ("INF".equalsIgnoreCase(typeStr) || "FixedInflationSwap".equalsIgnoreCase(typeStr)) {
+      return curveFixedInflationCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
     throw new IllegalArgumentException(Messages.format("Invalid curve node type: {}", typeStr));
   }
@@ -631,7 +660,7 @@ public final class RatesCalibrationCsvLoader {
     if (!DoubleMath.fuzzyEquals(spread, 0d, 1e-10d)) {
       throw new IllegalArgumentException("Additional spread must be zero for FX swaps");
     }
-    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YMD_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for FX swap: {}", timeStr));
     }
@@ -641,6 +670,32 @@ public final class RatesCalibrationCsvLoader {
     return FxSwapCurveNode.builder()
         .template(template)
         .farForwardPointsId(quoteId)
+        .label(label)
+        .date(date)
+        .dateOrder(order)
+        .build();
+  }
+
+  private static CurveNode curveFixedInflationCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteId quoteId,
+      double spread,
+      CurveNodeDate date,
+      CurveNodeDateOrder order) {
+
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException(Messages.format("Invalid time format for Fixed-Inflation swap: {}", timeStr));
+    }
+    Period periodToEnd = Period.parse("P" + matcher.group(1));
+    FixedInflationSwapConvention convention = FixedInflationSwapConvention.of(conventionStr);
+    FixedInflationSwapTemplate template = FixedInflationSwapTemplate.of(Tenor.of(periodToEnd), convention);
+    return FixedInflationSwapCurveNode.builder()
+        .template(template)
+        .rateId(quoteId)
+        .additionalSpread(spread)
         .label(label)
         .date(date)
         .dateOrder(order)
