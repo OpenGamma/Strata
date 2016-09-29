@@ -63,7 +63,7 @@ public final class Swap
    * The legs of a swap are essentially unordered, however it is more efficient
    * and closer to user expectation to treat them as being ordered.
    */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notEmpty", builderType = "List<? extends SwapLeg>")
   private final ImmutableList<SwapLeg> legs;
 
   //-------------------------------------------------------------------------
@@ -270,7 +270,7 @@ public final class Swap
   }
 
   private Swap(
-      List<SwapLeg> legs) {
+      List<? extends SwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
     this.legs = ImmutableList.copyOf(legs);
   }
@@ -467,7 +467,7 @@ public final class Swap
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Swap> {
 
-    private List<SwapLeg> legs = ImmutableList.of();
+    private List<? extends SwapLeg> legs = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -499,7 +499,7 @@ public final class Swap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
-          this.legs = (List<SwapLeg>) newValue;
+          this.legs = (List<? extends SwapLeg>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -547,7 +547,7 @@ public final class Swap
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder legs(List<SwapLeg> legs) {
+    public Builder legs(List<? extends SwapLeg> legs) {
       JodaBeanUtils.notEmpty(legs, "legs");
       this.legs = legs;
       return this;
