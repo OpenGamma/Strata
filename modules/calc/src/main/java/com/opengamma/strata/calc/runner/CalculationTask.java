@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
@@ -218,10 +220,52 @@ public final class CalculationTask implements ImmutableBean {
   // calculates the result
   private Map<Measure, Result<?>> calculate(ScenarioMarketData marketData, ReferenceData refData) {
     try {
-      return function.calculate(target, getMeasures(), parameters, marketData, refData);
+      Set<Measure> requestedMeasures = getMeasures();
+      Set<Measure> supportedMeasures = function.supportedMeasures();
+      Set<Measure> measures = Sets.intersection(requestedMeasures, supportedMeasures);
+      Map<Measure, Result<?>> map = function.calculate(target, measures, parameters, marketData, refData);
+      // check if result does not contain all requested measures
+      if (!map.keySet().containsAll(requestedMeasures)) {
+        return handleMissing(requestedMeasures, supportedMeasures, map);
+      }
+      return map;
+
     } catch (RuntimeException ex) {
       return handleFailure(ex);
     }
+  }
+
+  // populate the result with failures
+  private Map<Measure, Result<?>> handleMissing(
+      Set<Measure> requestedMeasures,
+      Set<Measure> supportedMeasures,
+      Map<Measure, Result<?>> calculatedResults) {
+
+    // need to add missing measures
+    Map<Measure, Result<?>> updated = new HashMap<>(calculatedResults);
+    String fnName = function.getClass().getSimpleName();
+    for (Measure requestedMeasure : requestedMeasures) {
+      if (!calculatedResults.containsKey(requestedMeasure)) {
+        if (supportedMeasures.contains(requestedMeasure)) {
+          String msg = function.identifier(target)
+              .map(v -> "for ID '" + v + "'")
+              .orElse("for target '" + target.toString() + "'");
+          updated.put(requestedMeasure, Result.failure(
+              FailureReason.CALCULATION_FAILED,
+              "Function '{}' did not return requested measure '{}' {}",
+              fnName,
+              requestedMeasure,
+              msg));
+        } else {
+          updated.put(requestedMeasure, Result.failure(
+              FailureReason.UNSUPPORTED,
+              "Measure '{}' is not supported by function '{}'",
+              requestedMeasure,
+              fnName));
+        }
+      }
+    }
+    return updated;
   }
 
   // handle the failure, extracted to aid inlining

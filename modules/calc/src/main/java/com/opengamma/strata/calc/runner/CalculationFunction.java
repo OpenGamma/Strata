@@ -103,6 +103,8 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * Determines the market data required by this function to perform its calculations.
    * <p>
    * Any market data needed by the {@code calculate} method should be specified.
+   * <p>
+   * The set of measures may include measures that are not supported by this function.
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to be calculated
