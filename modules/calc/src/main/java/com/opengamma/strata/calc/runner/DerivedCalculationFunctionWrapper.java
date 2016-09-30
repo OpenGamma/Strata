@@ -15,7 +15,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -128,7 +127,7 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
       return delegate.calculate(target, measures, parameters, marketData, refData);
     }
     // Add the measures required to calculate the derived measure to the measures requested by the caller
-    SetView<Measure> allRequiredMeasures = Sets.union(measures, derivedFunction.requiredMeasures());
+    Set<Measure> allRequiredMeasures = Sets.union(measures, derivedFunction.requiredMeasures());
     Set<Measure> requiredMeasures = Sets.difference(allRequiredMeasures, ImmutableSet.of(derivedMeasure));
     Map<Measure, Result<?>> delegateResults = delegate.calculate(target, requiredMeasures, parameters, marketData, refData);
 
