@@ -6,10 +6,15 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.basics.currency.Currency.CHF;
+
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.currency.Currency.PLN;
+import static com.opengamma.strata.basics.currency.Currency.SEK;
+import static com.opengamma.strata.basics.currency.Currency.DKK;
+import static com.opengamma.strata.basics.currency.Currency.NOK;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -19,6 +24,10 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.NOOS;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
@@ -154,7 +163,51 @@ final class StandardFixedIborSwapConventions {
           "JPY-FIXED-6M-LIBOR-6M",
           FixedRateSwapLegConvention.of(JPY, ACT_365F, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_JPTO)),
           IborRateSwapLegConvention.of(IborIndices.JPY_LIBOR_6M));
-
+  
+  //-------------------------------------------------------------------------
+  /**
+   * NOK(Nibor) vanilla fixed vs Nibor 6M swap.
+   * The fixed leg pays every 6 months with day count 'Act/360'.
+   */
+  public static final FixedIborSwapConvention NOK_FIXED_6M_NIBOR_6M =
+      ImmutableFixedIborSwapConvention.of(
+          "NOK-FIXED-6M-NIBOR-NORWAY-6M",
+          FixedRateSwapLegConvention.of(NOK, ACT_360, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, NOOS)),
+          IborRateSwapLegConvention.of(IborIndices.NOK_NIBOR_6M));
+  
+//-------------------------------------------------------------------------
+  /**
+   * SEK(Stibor) vanilla fixed vs Stibor 3M swap.
+   * The fixed leg pays every 6 months with day count 'Act/360'.
+   */
+  public static final FixedIborSwapConvention SEK_FIXED_6M_STIBOR_3M =
+      ImmutableFixedIborSwapConvention.of(
+          "SEK-FIXED-6M-STIBOR-SWEDEN-6M",
+          FixedRateSwapLegConvention.of(SEK, ACT_360, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SEST)),
+          IborRateSwapLegConvention.of(IborIndices.SEK_STIBOR_3M));
+  
+//-------------------------------------------------------------------------
+  /**
+   * DKK(Cibor) vanilla fixed vs Cibor 6M swap.
+   * The fixed leg pays every 6 months with day count 'Act/360'.
+   */
+  public static final FixedIborSwapConvention DKK_FIXED_6M_CIBOR_6M =
+      ImmutableFixedIborSwapConvention.of(
+          "DKK-FIXED-6M-CIBOR-DENMARK-6M",
+          FixedRateSwapLegConvention.of(DKK, ACT_360, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, DKCO)),
+          IborRateSwapLegConvention.of(IborIndices.DKK_CIBOR_6M));
+  
+//-------------------------------------------------------------------------
+  /**
+   * PLN(Wibor) vanilla fixed vs Wibor 6M swap.
+   * The fixed leg pays every 6 months with day count 'Act/365F'.
+   */
+  public static final FixedIborSwapConvention PLN_FIXED_6M_WIBOR_6M =
+      ImmutableFixedIborSwapConvention.of(
+          "PLN-FIXED-6M-WIBOR-POLAND-6M",
+          FixedRateSwapLegConvention.of(PLN, ACT_365F, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, PLWA)),
+          IborRateSwapLegConvention.of(IborIndices.PLN_WIBOR_6M));
+  
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.

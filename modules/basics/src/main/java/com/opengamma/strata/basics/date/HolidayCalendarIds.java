@@ -141,6 +141,18 @@ public final class HolidayCalendarIds {
    * This constant references the calendar for Oslo bank holidays.
    */
   public static final HolidayCalendarId NOOS = HolidayCalendarId.of("NOOS");
+  /**
+   * An identifier for the holiday calendar of Warsaw, Poland, with code 'PLWA'.
+   * <p>
+   * This constant references the calendar for Warsaw bank holidays.
+   */
+  public static final HolidayCalendarId PLWA = HolidayCalendarId.of("PLWA");
+  /**
+   * An identifier for the holiday calendar of Stockholm, Sweden, with code 'SEST'.
+   * <p>
+   * This constant references the calendar for Stockholm bank holidays.
+   */
+  public static final HolidayCalendarId SEST = HolidayCalendarId.of("SEST");
 
   //-------------------------------------------------------------------------
   /**
