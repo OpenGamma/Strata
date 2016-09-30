@@ -53,7 +53,7 @@ public class CdsTradeForCalibrationTest {
   private static final AdjustablePayment UPFRONT = AdjustablePayment.of(USD, NOTIONAL, LocalDate.of(2014, 1, 12));
   private static final CdsTrade TRADE = CdsTrade.builder()
       .product(PRODUCT)
-      .upFrontFee(UPFRONT)
+      .upfrontFee(UPFRONT)
       .info(TRADE_INFO)
       .build();
   private static final CdsQuote QUOTE1 = CdsQuote.of(CdsQuoteConvention.POINTS_UPFRONT, 0.95);

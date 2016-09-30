@@ -293,7 +293,7 @@ public final class ImmutableCdsConvention
       BuySell buySell,
       double notional,
       double fixedRate,
-      AdjustablePayment upFrontFee) {
+      AdjustablePayment upfrontFee) {
 
     Cds product = Cds.builder()
         .legalEntityId(legalEntityId)
@@ -321,7 +321,7 @@ public final class ImmutableCdsConvention
     return CdsTrade.builder()
         .info(tradeInfo)
         .product(product)
-        .upFrontFee(upFrontFee)
+        .upfrontFee(upfrontFee)
         .build();
   }
 

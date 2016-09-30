@@ -87,9 +87,9 @@ public class CdsTemplateTest {
         .build();
     assertEquals(test1.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test1.getProduct(), expected1);
-    assertEquals(test1.getUpFrontFee(), Optional.empty());
+    assertEquals(test1.getUpfrontFee(), Optional.empty());
     assertEquals(test2.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test2.getUpFrontFee(), Optional.empty());
+    assertEquals(test2.getUpfrontFee(), Optional.empty());
     assertEquals(test2.getProduct(), expected2);
   }
 
@@ -126,10 +126,10 @@ public class CdsTemplateTest {
             .build())
         .build();
     assertEquals(test1.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test1.getUpFrontFee(), Optional.of(payment1));
+    assertEquals(test1.getUpfrontFee(), Optional.of(payment1));
     assertEquals(test1.getProduct(), expected1);
     assertEquals(test2.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test2.getUpFrontFee(), Optional.of(payment2));
+    assertEquals(test2.getUpfrontFee(), Optional.of(payment2));
     assertEquals(test2.getProduct(), expected2);
   }
 

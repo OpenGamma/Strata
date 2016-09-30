@@ -161,7 +161,7 @@ public class CdsConventionTest {
     CdsTrade expectedWithUf = CdsTrade.builder()
         .info(info)
         .product(product)
-        .upFrontFee(upfront)
+        .upfrontFee(upfront)
         .build();
     CdsTrade test5 = base.toTrade(LEGAL_ENTITY, tradeDate, tenor, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
     assertEquals(test5, expectedWithUf);

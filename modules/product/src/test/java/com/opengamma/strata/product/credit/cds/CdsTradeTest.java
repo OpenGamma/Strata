@@ -57,12 +57,12 @@ public class CdsTradeTest {
   public void test_full_builder() {
     CdsTrade test = CdsTrade.builder()
         .product(PRODUCT)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpFrontFee().get(), UPFRONT);
+    assertEquals(test.getUpfrontFee().get(), UPFRONT);
   }
 
   public void test_min_builder() {
@@ -72,19 +72,19 @@ public class CdsTradeTest {
         .build();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertFalse(test.getUpFrontFee().isPresent());
+    assertFalse(test.getUpfrontFee().isPresent());
   }
 
   public void test_full_resolve() {
     ResolvedCdsTrade test = CdsTrade.builder()
         .product(PRODUCT)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build()
         .resolve(REF_DATA);
     assertEquals(test.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpFrontFee().get(), UPFRONT);
+    assertEquals(test.getUpfrontFee().get(), UPFRONT);
   }
 
   public void test_min_resolve() {
@@ -95,14 +95,14 @@ public class CdsTradeTest {
         .resolve(REF_DATA);
     assertEquals(test.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertFalse(test.getUpFrontFee().isPresent());
+    assertFalse(test.getUpfrontFee().isPresent());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     CdsTrade test1 = CdsTrade.builder()
         .product(PRODUCT)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
@@ -117,7 +117,7 @@ public class CdsTradeTest {
   public void test_serialization() {
     CdsTrade test = CdsTrade.builder()
         .product(PRODUCT)
-        .upFrontFee(UPFRONT)
+        .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build();
     assertSerialization(test);
