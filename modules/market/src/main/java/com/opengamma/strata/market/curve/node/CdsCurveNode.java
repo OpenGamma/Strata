@@ -40,9 +40,9 @@ import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.credit.CdsCalibrationTrade;
 import com.opengamma.strata.product.credit.CdsQuote;
 import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.credit.CdsTradeForCalibration;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
@@ -115,54 +115,70 @@ public final class CdsCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node without fixed rate.
-   * <p>
-   * This is typically used for a CDS quoted in par spread or quoted spread.
+   * Returns a curve node with par spread convention.
    * 
    * @param template  the template
    * @param observableId  the observable ID
    * @param legalEntityId  the legal entity ID
-   * @param quoteConvention  the quote convention
    * @return the curve node
    */
-  public static CdsCurveNode of(
+  public static CdsCurveNode ofParSpread(
       CdsTemplate template,
       ObservableId observableId,
-      StandardId legalEntityId,
-      CdsQuoteConvention quoteConvention) {
+      StandardId legalEntityId) {
 
     return builder()
         .template(template)
         .observableId(observableId)
         .legalEntityId(legalEntityId)
-        .quoteConvention(quoteConvention)
+        .quoteConvention(CdsQuoteConvention.PAR_SPREAD)
         .build();
   }
 
   /**
-   * Returns a curve node with fixed rate.
-   * <p>
-   * This is typically used for a CDS quoted in points upfront.
+   * Returns a curve node with points upfront convention.
    * 
    * @param template  the template
    * @param observableId  the observable ID
    * @param legalEntityId  the legal entity ID
-   * @param quoteConvention  the quote convention
    * @param fixedRate  the fixed rate
    * @return the curve node
    */
-  public static CdsCurveNode of(
+  public static CdsCurveNode ofPointsUpfront(
       CdsTemplate template,
       ObservableId observableId,
       StandardId legalEntityId,
-      CdsQuoteConvention quoteConvention,
       Double fixedRate) {
 
     return builder()
         .template(template)
         .observableId(observableId)
         .legalEntityId(legalEntityId)
-        .quoteConvention(quoteConvention)
+        .quoteConvention(CdsQuoteConvention.POINTS_UPFRONT)
+        .fixedRate(fixedRate)
+        .build();
+  }
+
+  /**
+   * Returns a curve node with quoted spread convention.
+   * 
+   * @param template  the template
+   * @param observableId  the observable ID
+   * @param legalEntityId  the legal entity ID
+   * @param fixedRate  the fixed rate
+   * @return the curve node
+   */
+  public static CdsCurveNode ofQuotedSpread(
+      CdsTemplate template,
+      ObservableId observableId,
+      StandardId legalEntityId,
+      Double fixedRate) {
+
+    return builder()
+        .template(template)
+        .observableId(observableId)
+        .legalEntityId(legalEntityId)
+        .quoteConvention(CdsQuoteConvention.QUOTED_SPREAD)
         .fixedRate(fixedRate)
         .build();
   }
@@ -213,24 +229,24 @@ public final class CdsCurveNode
   }
 
   @Override
-  public CdsTradeForCalibration trade(double quantity, MarketData marketData, ReferenceData refData) {
+  public CdsCalibrationTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
     LocalDate valuationDate = marketData.getValuationDate();
     double quoteValue = marketData.getValue(observableId);
     CdsQuote quote = CdsQuote.of(quoteConvention, quoteValue);
     double notional = Math.abs(quantity);
     if (quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)) {
-      return CdsTradeForCalibration.of(
+      return CdsCalibrationTrade.of(
           template.createTrade(legalEntityId, valuationDate, buySell, notional, quoteValue, refData), quote);
     }
     double coupon = getFixedRate().getAsDouble(); // always success
-    return CdsTradeForCalibration.of(
+    return CdsCalibrationTrade.of(
         template.createTrade(legalEntityId, valuationDate, buySell, notional, coupon, refData), quote);
   }
 
   @Override
   public ResolvedCdsTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
-    return trade(quantity, marketData, refData).getTrade().resolve(refData);
+    return trade(quantity, marketData, refData).getUnderlyingTrade().resolve(refData);
   }
 
   @Override

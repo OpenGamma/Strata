@@ -22,7 +22,6 @@ import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.credit.CdsImmDateLogic;
 import com.opengamma.strata.product.credit.CdsTrade;
 
 /**
@@ -90,7 +89,7 @@ public interface CdsConvention
    * @param refData  the reference data
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public default CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
       Tenor tenor,
@@ -99,10 +98,10 @@ public interface CdsConvention
       double fixedRate,
       ReferenceData refData) {
 
-    LocalDate startDate = CdsImmDateLogic.getPrevIMMDate(tradeDate);
-    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(tradeDate);
+    LocalDate startDate = CdsImmDateLogic.getPreviousImmDate(tradeDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(tradeDate);
     LocalDate endDate = roll.plus(tenor).minusMonths(3);
-    return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -120,7 +119,7 @@ public interface CdsConvention
    * @param refData  the reference data
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public default CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
       LocalDate startDate,
@@ -130,9 +129,9 @@ public interface CdsConvention
       double fixedRate,
       ReferenceData refData) {
 
-    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(startDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(startDate);
     LocalDate endDate = roll.plus(tenor).minusMonths(3);
-    return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -150,7 +149,7 @@ public interface CdsConvention
    * @param refData  the reference data
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public default CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
       LocalDate startDate,
@@ -205,7 +204,7 @@ public interface CdsConvention
    * @param refData  the reference data
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public default CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
       Tenor tenor,
@@ -215,10 +214,10 @@ public interface CdsConvention
       AdjustablePayment upFrontFee,
       ReferenceData refData) {
 
-    LocalDate startDate = CdsImmDateLogic.getPrevIMMDate(tradeDate);
-    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(tradeDate);
+    LocalDate startDate = CdsImmDateLogic.getPreviousImmDate(tradeDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(tradeDate);
     LocalDate endDate = roll.plus(tenor).minusMonths(3);
-    return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
   }
 
   /**
@@ -237,7 +236,7 @@ public interface CdsConvention
    * @param refData  the reference data
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public default CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
       LocalDate startDate,
@@ -248,9 +247,9 @@ public interface CdsConvention
       AdjustablePayment upFrontFee,
       ReferenceData refData) {
 
-    LocalDate roll = CdsImmDateLogic.getNextSemiannualRollDate(startDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(startDate);
     LocalDate endDate = roll.plus(tenor).minusMonths(3);
-    return toTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
   }
 
   /**
@@ -269,7 +268,7 @@ public interface CdsConvention
    * @param refData  the reference data
    * @return the CDS trade
    */
-  public default CdsTrade toTrade(
+  public default CdsTrade createTrade(
       StandardId legalEntityId,
       LocalDate tradeDate,
       LocalDate startDate,
@@ -297,8 +296,8 @@ public interface CdsConvention
    * @param endDate  the end date
    * @param buySell  buy or sell
    * @param notional  the notional
-   * @param upFrontFee  the upFront fee
    * @param fixedRate  the fixed rate
+   * @param upFrontFee  the upFront fee
    * @return the CDS trade
    */
   public abstract CdsTrade toTrade(

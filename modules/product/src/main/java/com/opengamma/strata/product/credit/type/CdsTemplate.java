@@ -122,8 +122,8 @@ public final class CdsTemplate
       ReferenceData refData) {
 
     return accrualStart.equals(AccrualStart.IMM_DATE)
-        ? convention.toTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData)
-        : convention.toTrade(legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, refData);
+        ? convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData)
+        : convention.createTrade(legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -155,8 +155,8 @@ public final class CdsTemplate
       ReferenceData refData) {
 
     return accrualStart.equals(AccrualStart.IMM_DATE)
-        ? convention.toTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, upFrontFee, refData)
-        : convention.toTrade(
+        ? convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, upFrontFee, refData)
+        : convention.createTrade(
             legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, upFrontFee, refData);
   }
 
