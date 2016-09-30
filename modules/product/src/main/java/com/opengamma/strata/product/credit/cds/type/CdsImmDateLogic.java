@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.credit.cds;
+package com.opengamma.strata.product.credit.cds.type;
 
 import java.time.LocalDate;
 
@@ -12,21 +12,21 @@ import com.opengamma.strata.collect.array.IntArray;
 /**
  * The IMM date logic for credit default swaps.
  */
-public class CdsImmDateLogic {
+final class CdsImmDateLogic {
 
   private static final int IMM_DAY = 20;
   private static final IntArray IMM_MONTHS = IntArray.of(3, 6, 9, 12);
   private static final IntArray INDEX_ROLL_MONTHS = IntArray.of(3, 9);
 
   /**
-   * Checks if the given date is one of the semiannual Roll dates.
+   * Checks if the given date is one of the semi-annual roll dates.
    * <p>
-   * The semiannual roll dates are 20th March and September.
+   * The semi-annual roll dates are 20th March and September.
    * 
    * @param date  the date
-   * @return true is date is a roll date
+   * @return true is date is a roll date, false otherwise
    */
-  public static boolean isSemiannualRollDate(LocalDate date) {
+  static boolean isSemiAnnualRollDate(LocalDate date) {
     if (date.getDayOfMonth() != IMM_DAY) {
       return false;
     }
@@ -44,7 +44,7 @@ public class CdsImmDateLogic {
    * @param date  a given date
    * @return the previous IMM date
    */
-  public static LocalDate getPrevIMMDate(LocalDate date) {
+  static LocalDate getPreviousImmDate(LocalDate date) {
 
     int day = date.getDayOfMonth();
     int month = date.getMonthValue();
@@ -70,21 +70,21 @@ public class CdsImmDateLogic {
   }
 
   /**
-   * Obtains the next semiannual roll date from the given date.
+   * Obtains the next semi-annual roll date from the given date.
    * <p>
-   * Semiannual roll dates are 20th March and September. 
+   * Semi-annual roll dates are 20th March and September. 
    * This returns the next roll date from the given date - 
    * if the date is a roll date the next roll date (i.e. 6 months on) is returned.
    * 
    * @param date  a given date
    * @return the next Index roll date
    */
-  public static LocalDate getNextSemiannualRollDate(LocalDate date) {
+  static LocalDate getNextSemiAnnualRollDate(LocalDate date) {
 
     int day = date.getDayOfMonth();
     int month = date.getMonthValue();
     int year = date.getYear();
-    if (isSemiannualRollDate(date)) { //on an index roll 
+    if (isSemiAnnualRollDate(date)) { //on an index roll 
       if (month == INDEX_ROLL_MONTHS.get(0)) {
         return LocalDate.of(year, INDEX_ROLL_MONTHS.get(1), IMM_DAY);
       } else {

@@ -33,10 +33,10 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.credit.cds.type.CdsQuoteConvention;
 
 /**
- * Test {@link CdsTradeForCalibration} and {@link CdsQuote}.
+ * Test {@link CdsCalibrationTrade} and {@link CdsQuote}.
  */
 @Test
-public class CdsTradeForCalibrationTest {
+public class CdsCalibrationTradeTest {
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
   private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
@@ -77,17 +77,17 @@ public class CdsTradeForCalibrationTest {
   }
 
   public void test_of_trade() {
-    CdsTradeForCalibration test = CdsTradeForCalibration.of(TRADE, QUOTE1);
-    assertEquals(test.getTrade(), TRADE);
+    CdsCalibrationTrade test = CdsCalibrationTrade.of(TRADE, QUOTE1);
+    assertEquals(test.getUnderlyingTrade(), TRADE);
     assertEquals(test.getQuote(), QUOTE1);
     assertEquals(test.getInfo(), TRADE.getInfo());
   }
 
   //-------------------------------------------------------------------------
   public void coverage_trade() {
-    CdsTradeForCalibration test1 = CdsTradeForCalibration.of(TRADE, QUOTE1);
+    CdsCalibrationTrade test1 = CdsCalibrationTrade.of(TRADE, QUOTE1);
     coverImmutableBean(test1);
-    CdsTradeForCalibration test2 = CdsTradeForCalibration.of(
+    CdsCalibrationTrade test2 = CdsCalibrationTrade.of(
         CdsTrade.builder()
             .product(PRODUCT)
             .info(TRADE_INFO)
@@ -97,7 +97,7 @@ public class CdsTradeForCalibrationTest {
   }
 
   public void test_serialization_trade() {
-    CdsTradeForCalibration test = CdsTradeForCalibration.of(TRADE, QUOTE1);
+    CdsCalibrationTrade test = CdsCalibrationTrade.of(TRADE, QUOTE1);
     assertSerialization(test);
   }
 

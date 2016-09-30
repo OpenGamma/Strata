@@ -5,10 +5,8 @@
  */
 package com.opengamma.strata.product.credit.cds.type;
 
-import com.opengamma.strata.product.credit.cds.CdsImmDateLogic;
-
 /**
- * The accrual start.
+ * The accrual start for credit default swaps.
  * <p>
  * The accrual start is the next day or the previous IMM date.
  */

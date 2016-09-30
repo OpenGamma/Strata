@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +32,6 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.cds.CdsTrade;
-import org.joda.beans.BeanBuilder;
 
 /**
  * A template for creating credit default swap trades.
@@ -123,8 +123,8 @@ public final class CdsTemplate
       ReferenceData refData) {
 
     return accrualStart.equals(AccrualStart.IMM_DATE)
-        ? convention.toTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData)
-        : convention.toTrade(legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, refData);
+        ? convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData)
+        : convention.createTrade(legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -156,8 +156,8 @@ public final class CdsTemplate
       ReferenceData refData) {
 
     return accrualStart.equals(AccrualStart.IMM_DATE)
-        ? convention.toTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, upFrontFee, refData)
-        : convention.toTrade(
+        ? convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, upFrontFee, refData)
+        : convention.createTrade(
             legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, upFrontFee, refData);
   }
 

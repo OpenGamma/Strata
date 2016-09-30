@@ -34,9 +34,9 @@ import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.product.credit.cds.CdsCalibrationTrade;
 import com.opengamma.strata.product.credit.cds.CdsQuote;
 import com.opengamma.strata.product.credit.cds.CdsTrade;
-import com.opengamma.strata.product.credit.cds.CdsTradeForCalibration;
 import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.cds.type.CdsConventions;
 import com.opengamma.strata.product.credit.cds.type.CdsQuoteConvention;
@@ -50,15 +50,11 @@ public class CdsCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-
-  private static final CdsTemplate TEMPLATE =
-      CdsTemplate.of(TENOR_10Y, CdsConventions.USD_STANDARD);
+  private static final CdsTemplate TEMPLATE = CdsTemplate.of(TENOR_10Y, CdsConventions.USD_STANDARD);
   private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "Cds1"));
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
-
-  private static final double TOLERANCE_DF = 1.0E-10;
 
   public void test_builder() {
     CdsCurveNode test = CdsCurveNode.builder()
@@ -77,8 +73,8 @@ public class CdsCurveNodeTest {
     assertEquals(test.getEndDate().get(), date(2025, 6, 20));
   }
 
-  public void test_of_noRate() {
-    CdsCurveNode test = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD, 0.01);
+  public void test_of_quotedSpread() {
+    CdsCurveNode test = CdsCurveNode.ofQuotedSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
     assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getObservableId(), QUOTE_ID);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -86,8 +82,8 @@ public class CdsCurveNodeTest {
     assertEquals(test.date(VAL_DATE, REF_DATA), date(2025, 6, 20));
   }
 
-  public void test_of_withRate() {
-    CdsCurveNode test = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.POINTS_UPFRONT, 0.01);
+  public void test_of_pardSpread() {
+    CdsCurveNode test = CdsCurveNode.ofParSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY);
     assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getObservableId(), QUOTE_ID);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -95,15 +91,25 @@ public class CdsCurveNodeTest {
     assertEquals(test.date(VAL_DATE, REF_DATA), date(2025, 6, 20));
   }
 
-  public void test_of_fail() {
+  public void test_of_pointsUpfront() {
+    CdsCurveNode test = CdsCurveNode.ofPointsUpfront(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
+    assertEquals(test.getLabel(), LABEL_AUTO);
+    assertEquals(test.getObservableId(), QUOTE_ID);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getEndDate(), Optional.empty());
+    assertEquals(test.date(VAL_DATE, REF_DATA), date(2025, 6, 20));
+  }
+
+  public void test_build_fail() {
     assertThrows(
-        () -> CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD),
+        () -> CdsCurveNode.builder().template(TEMPLATE).observableId(QUOTE_ID).legalEntityId(LEGAL_ENTITY)
+            .quoteConvention(CdsQuoteConvention.QUOTED_SPREAD).build(),
         IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_requirements() {
-    CdsCurveNode test = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD, 0.01);
+    CdsCurveNode test = CdsCurveNode.ofQuotedSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
     Set<ObservableId> set = test.requirements();
     Iterator<ObservableId> itr = set.iterator();
     assertEquals(itr.next(), QUOTE_ID);
@@ -112,30 +118,30 @@ public class CdsCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void test_trade() {
-    CdsCurveNode node = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD, 0.01);
+    CdsCurveNode node = CdsCurveNode.ofQuotedSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
     double rate = 0.0125;
     double quantity = -1234.56;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    CdsTradeForCalibration trade = node.trade(quantity, marketData, REF_DATA);
+    CdsCalibrationTrade trade = node.trade(quantity, marketData, REF_DATA);
     CdsTrade expected = TEMPLATE.createTrade(LEGAL_ENTITY, VAL_DATE, SELL, -quantity, 0.01, REF_DATA);
-    assertEquals(trade.getTrade(), expected);
+    assertEquals(trade.getUnderlyingTrade(), expected);
     assertEquals(trade.getQuote(), CdsQuote.of(CdsQuoteConvention.QUOTED_SPREAD, rate));
 
-    CdsCurveNode node1 = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.PAR_SPREAD);
+    CdsCurveNode node1 = CdsCurveNode.ofParSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY);
     CdsTrade expected1 = TEMPLATE.createTrade(LEGAL_ENTITY, VAL_DATE, SELL, -quantity, rate, REF_DATA);
     ResolvedCdsTrade resolved = node1.resolvedTrade(quantity, marketData, REF_DATA);
     assertEquals(resolved, expected1.resolve(REF_DATA));
   }
 
   public void test_trade_noMarketData() {
-    CdsCurveNode node = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.PAR_SPREAD);
+    CdsCurveNode node = CdsCurveNode.ofParSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY);
     MarketData marketData = MarketData.empty(VAL_DATE);
     assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_initialGuess() {
-    CdsCurveNode node = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.PAR_SPREAD);
+    CdsCurveNode node = CdsCurveNode.ofParSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY);
     double rate = 0.0125;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
     assertThrows(() -> node.initialGuess(marketData, ValueType.ZERO_RATE), IllegalArgumentException.class);
@@ -143,7 +149,7 @@ public class CdsCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void test_metadata() {
-    CdsCurveNode node = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD, 0.01);
+    CdsCurveNode node = CdsCurveNode.ofQuotedSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2024, 12, 20));
@@ -152,20 +158,19 @@ public class CdsCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CdsCurveNode test1 = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD, 0.01);
+    CdsCurveNode test1 = CdsCurveNode.ofQuotedSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
     coverImmutableBean(test1);
-    CdsCurveNode test2 = CdsCurveNode.of(
+    CdsCurveNode test2 = CdsCurveNode.ofPointsUpfront(
         CdsTemplate.of(TENOR_10Y, CdsConventions.EUR_GB_STANDARD),
         QuoteId.of(StandardId.of("OG-Ticker", "Cds2")),
         StandardId.of("OG", "DEF"),
-        CdsQuoteConvention.POINTS_UPFRONT,
         0.01);
     QuoteId.of(StandardId.of("OG-Ticker", "Deposit2"));
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    CdsCurveNode test = CdsCurveNode.of(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, CdsQuoteConvention.QUOTED_SPREAD, 0.01);
+    CdsCurveNode test = CdsCurveNode.ofQuotedSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY, 0.01);
     assertSerialization(test);
   }
 

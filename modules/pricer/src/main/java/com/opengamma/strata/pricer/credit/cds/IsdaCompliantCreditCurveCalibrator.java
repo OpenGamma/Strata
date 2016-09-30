@@ -16,8 +16,8 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.node.CdsCurveNode;
+import com.opengamma.strata.product.credit.cds.CdsCalibrationTrade;
 import com.opengamma.strata.product.credit.cds.CdsQuote;
-import com.opengamma.strata.product.credit.cds.CdsTradeForCalibration;
 import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.cds.type.CdsQuoteConvention;
 
@@ -127,8 +127,8 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntityId);
 
     for (int i = 0; i < nNodes; i++) {
-      CdsTradeForCalibration tradeCalibration = curveNode.get(i).trade(1d, marketData, refData);
-      trades[i] = tradeCalibration.getTrade().resolve(refData);
+      CdsCalibrationTrade tradeCalibration = curveNode.get(i).trade(1d, marketData, refData);
+      trades[i] = tradeCalibration.getUnderlyingTrade().resolve(refData);
       double[] temp =
           getStandardQuoteForm(trades[i], tradeCalibration.getQuote(), valuationDate, discountFactors, recoveryRates, refData);
       coupons[i] = temp[0];
