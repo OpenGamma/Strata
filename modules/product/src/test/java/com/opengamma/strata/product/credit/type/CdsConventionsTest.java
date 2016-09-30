@@ -103,13 +103,13 @@ public class CdsConventionsTest {
   @DataProvider(name = "string")
   static Object[][] data_string() {
     return new Object[][] {
-        {CdsConventions.EUR_GB_STANDARD, "EUR-GB-STANDARDIZED-CDS"},
-        {CdsConventions.EUR_STANDARD, "EUR-STANDARDIZED-CDS"},
-        {CdsConventions.GBP_STANDARD, "GBP-STANDARDIZED-CDS"},
-        {CdsConventions.GBP_US_STANDARD, "GBP-US-STANDARDIZED-CDS"},
-        {CdsConventions.JPY_STANDARD, "JPY-STANDARDIZED-CDS"},
-        {CdsConventions.JPY_US_GB_STANDARD, "JPY-US-GB-STANDARDIZED-CDS"},
-        {CdsConventions.USD_STANDARD, "USD-STANDARDIZED-CDS"}
+        {CdsConventions.EUR_GB_STANDARD, "EUR-GB-STANDARD"},
+        {CdsConventions.EUR_STANDARD, "EUR-STANDARD"},
+        {CdsConventions.GBP_STANDARD, "GBP-STANDARD"},
+        {CdsConventions.GBP_US_STANDARD, "GBP-US-STANDARD"},
+        {CdsConventions.JPY_STANDARD, "JPY-STANDARD"},
+        {CdsConventions.JPY_US_GB_STANDARD, "JPY-US-GB-STANDARD"},
+        {CdsConventions.USD_STANDARD, "USD-STANDARD"}
     };
   }
 
