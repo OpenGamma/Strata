@@ -90,6 +90,70 @@ public final class Curves {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates curve metadata for a curve providing forward rates.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata forwardRates(String name, DayCount dayCount) {
+    return forwardRates(CurveName.of(name), dayCount);
+  }
+
+  /**
+   * Creates curve metadata for a curve providing forward rates.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata forwardRates(CurveName name, DayCount dayCount) {
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  /**
+   * Creates curve metadata for a curve providing forward rates.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param parameterMetadata  the parameter metadata
+   * @return the curve metadata
+   */
+  @SuppressWarnings("unchecked")
+  public static CurveMetadata forwardRates(
+      CurveName name,
+      DayCount dayCount,
+      List<? extends ParameterMetadata> parameterMetadata) {
+
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(dayCount)
+        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates curve metadata for a curve providing discount factors.
    * <p>
    * The x-values represent year fractions relative to an unspecified base date

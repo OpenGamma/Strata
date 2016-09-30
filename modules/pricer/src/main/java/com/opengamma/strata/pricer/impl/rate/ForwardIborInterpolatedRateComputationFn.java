@@ -89,21 +89,11 @@ public class ForwardIborInterpolatedRateComputationFn
 
     IborIndexObservation obs1 = computation.getShortObservation();
     IborIndexObservation obs2 = computation.getLongObservation();
-    double rate1 = provider.iborIndexRates(obs1.getIndex()).rate(obs1);
-    double rate2 = provider.iborIndexRates(obs2.getIndex()).rate(obs2);
     DoublesPair weights = weights(obs1, obs2, endDate);
-    builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
-        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
-        .put(ExplainKey.FIXING_DATE, obs1.getFixingDate())
-        .put(ExplainKey.INDEX, obs1.getIndex())
-        .put(ExplainKey.INDEX_VALUE, rate1)
-        .put(ExplainKey.WEIGHT, weights.getFirst()));
-    builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
-        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
-        .put(ExplainKey.FIXING_DATE, obs2.getFixingDate())
-        .put(ExplainKey.INDEX, obs2.getIndex())
-        .put(ExplainKey.INDEX_VALUE, rate2)
-        .put(ExplainKey.WEIGHT, weights.getSecond()));
+    IborIndexRates rates1 = provider.iborIndexRates(obs1.getIndex());
+    IborIndexRates rates2 = provider.iborIndexRates(obs2.getIndex());
+    rates1.explainRate(obs1, builder, child -> child.put(ExplainKey.WEIGHT, weights.getFirst()));
+    rates2.explainRate(obs2, builder, child -> child.put(ExplainKey.WEIGHT, weights.getSecond()));
     double rate = rate(computation, startDate, endDate, provider);
     builder.put(ExplainKey.COMBINED_RATE, rate);
     return rate;

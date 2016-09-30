@@ -175,6 +175,11 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Double> INDEX_VALUE = of("IndexValue");
   /**
+   * The flag to indicate that the that the observed value is from a fixing time-series.
+   * This will generally never be set to false.
+   */
+  public static final ExplainKey<Boolean> FROM_FIXING_SERIES = of("FromFixingSeries");
+  /**
    * The weight of this observation.
    * Weighting applies when averaging more than one observation to produce the final rate.
    */

@@ -29,7 +29,9 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -41,6 +43,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
@@ -48,6 +51,7 @@ import com.opengamma.strata.pricer.rate.IborRateSensitivity;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleIborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fra.Fra;
@@ -618,6 +622,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explainObs.get(ExplainKey.INDEX).get(), floatingRate.getIndex());
     assertEquals(explainObs.get(ExplainKey.FIXING_DATE).get(), floatingRate.getFixingDate());
     assertEquals(explainObs.get(ExplainKey.INDEX_VALUE).get(), FORWARD_RATE, TOLERANCE);
+    assertEquals(explainObs.get(ExplainKey.FROM_FIXING_SERIES).isPresent(), false);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
     assertEquals(explain.get(ExplainKey.FIXED_RATE).get(), fraExp.getFixedRate(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);
@@ -636,17 +641,13 @@ public class DiscountingFraProductPricerTest {
   //-------------------------------------------------------------------------
   // creates a simple provider
   private SimpleRatesProvider createProvider(ResolvedFra fraExp) {
-    DiscountFactors mockDf = mock(DiscountFactors.class);
-    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    DiscountFactors mockDf = SimpleDiscountFactors.of(
+        GBP, VAL_DATE, ConstantCurve.of(Curves.discountFactors("DSC", DAY_COUNT), DISCOUNT_FACTOR));
+    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE, FORWARD_RATE);
+    IborIndexRates mockIbor = SimpleIborIndexRates.of(
+        GBP_LIBOR_3M, VAL_DATE, ConstantCurve.of(Curves.forwardRates("L3M", DAY_COUNT), FORWARD_RATE), timeSeries);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
     prov.setIborRates(mockIbor);
-
-    IborIndexObservation obs = ((IborRateComputation) fraExp.getFloatingRate()).getObservation();
-    IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
-    when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
-    when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);
-
-    when(mockDf.discountFactor(fraExp.getPaymentDate())).thenReturn(DISCOUNT_FACTOR);
     return prov;
   }
 

@@ -34,6 +34,7 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -85,6 +86,7 @@ public final class SimpleDiscountFactors
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must contain {@linkplain ValueType#YEAR_FRACTION year fractions}
    * against {@linkplain ValueType#DISCOUNT_FACTOR discount factors}, and the day count must be present.
+   * A suitable metadata instance for the curve can be created by {@link Curves#discountFactors(String, DayCount)}.
    * 
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid

@@ -64,6 +64,41 @@ public class CurvesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void forwardRates_string() {
+    CurveMetadata test = Curves.forwardRates(NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void forwardRates_curveName() {
+    CurveMetadata test = Curves.forwardRates(CURVE_NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void forwardRates_curveNameParams() {
+    CurveMetadata test = Curves.forwardRates(CURVE_NAME, ACT_360, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(ACT_360)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void discountFactors_string() {
     CurveMetadata test = Curves.discountFactors(NAME, ACT_360);
     CurveMetadata expected = DefaultCurveMetadata.builder()
