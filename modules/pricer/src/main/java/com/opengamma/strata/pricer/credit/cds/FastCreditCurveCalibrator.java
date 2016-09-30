@@ -127,7 +127,7 @@ public class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrato
       Function<Double, Double> func = pricer.getPointFunction(i, creditCurve);
 
       switch (getArbHanding()) {
-        case Ignore: {
+        case IGNORE: {
           try {
             double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], Double.NEGATIVE_INFINITY,
                 Double.POSITIVE_INFINITY);
@@ -143,7 +143,7 @@ public class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrato
           }
           break;
         }
-        case Fail: {
+        case FAIL: {
           final double minValue = i == 0 ? 0.0
               : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
           if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
@@ -162,7 +162,7 @@ public class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrato
           creditCurve = creditCurve.withParameter(i, zeroRate);
           break;
         }
-        case ZeroHazardRate: {
+        case ZERO_HAZARD_RATE: {
           final double minValue = i == 0 ? 0.0
               : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
           if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
@@ -184,6 +184,123 @@ public class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrato
     return LegalEntitySurvivalProbabilities.of(
         legalEntityId,
         IsdaCompliantZeroRateDiscountFactors.of(currency, yieldCurve.getValuationDate(), creditCurve));
+  }
+
+  @Override
+  public InterpolatedNodalCurve calibrate(ResolvedCdsTrade[] calibrationCDSs, double[] premiums,
+      double[] pointsUpfront, LocalDate valuationDate,
+      CreditDiscountFactors discountFactors, RecoveryRates recoveryRates, ReferenceData refData) {
+//    ArgumentChecker.noNulls(cds, "null CDSs");
+//    ArgumentChecker.notEmpty(premiums, "empty fractionalSpreads");
+//    ArgumentChecker.notEmpty(pointsUpfront, "empty pointsUpfront");
+//    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
+    int n = calibrationCDSs.length;
+//    ArgumentChecker.isTrue(n == premiums.length, "Number of CDSs does not match number of spreads");
+//    ArgumentChecker.isTrue(n == pointsUpfront.length, "Number of CDSs does not match number of pointsUpfront");
+//    final double proStart = cds[0].getEffectiveProtectionStart();
+//    for (int i = 1; i < n; i++) {
+//      ArgumentChecker.isTrue(proStart == cds[i].getEffectiveProtectionStart(), "all CDSs must has same protection start");
+//      ArgumentChecker.isTrue(cds[i].getProtectionEnd() > cds[i - 1].getProtectionEnd(), "protection end must be ascending");
+//    }
+
+    // use continuous premiums as initial guess
+    double[] guess = new double[n];
+    double[] t = new double[n];
+    double[] lgd = new double[n];
+    for (int i = 0; i < n; i++) {
+      LocalDate endDate = calibrationCDSs[i].getProduct().getProtectionEndDate();
+      t[i] = discountFactors.relativeYearFraction(endDate);
+      lgd[i] = 1d - recoveryRates.recoveryRate(endDate);
+      guess[i] = (premiums[i] + pointsUpfront[i] / t[i]) / lgd[i];
+    }
+
+    DoubleArray times = DoubleArray.ofUnsafe(t);
+    CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .curveName("credit") // TODO
+        .dayCount(DayCounts.ACT_365F) // TODO
+        .build();
+    InterpolatedNodalCurve creditCurve = InterpolatedNodalCurve.of(
+        baseMetadata,
+        times,
+        DoubleArray.ofUnsafe(guess),
+        CurveInterpolators.PRODUCT_LINEAR,
+        CurveExtrapolators.FLAT,
+        CurveExtrapolators.PRODUCT_LINEAR);
+
+    Currency currency = calibrationCDSs[0].getProduct().getCurrency(); // TODO must be common 
+    StandardId legalEntityId = calibrationCDSs[0].getProduct().getLegalEntityId();  // must be common
+
+    for (int i = 0; i < n; i++) {
+      ResolvedCds cds = calibrationCDSs[i].getProduct();
+      LocalDate stepinDate = cds.getStepinDateOffset().adjust(valuationDate, refData);
+      LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+      LocalDate settlementDate = calibrationCDSs[i].getInfo().getSettlementDate()
+          .orElse(cds.getSettlementDateOffset().adjust(valuationDate, refData));
+      double accrued = cds.accruedYearFraction(stepinDate);
+
+      Pricer pricer = new Pricer(
+          cds, discountFactors, times, premiums[i], pointsUpfront[i], lgd[i], stepinDate, effectiveStartDate, settlementDate,
+          accrued);
+      Function<Double, Double> func = pricer.getPointFunction(i, creditCurve);
+
+      switch (getArbHanding()) {
+        case IGNORE: {
+          try {
+            double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
+            double zeroRate = bracket[0] > bracket[1] ? ROOTFINDER.getRoot(func, bracket[1], bracket[0])
+                : ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
+            creditCurve = creditCurve.withParameter(i, zeroRate);
+          } catch (final MathException e) { //handling bracketing failure due to small survival probability
+            if (Math.abs(func.apply(creditCurve.getYValues().get(i - 1))) < 1.e-12) {
+              creditCurve = creditCurve.withParameter(i, creditCurve.getYValues().get(i - 1));
+            } else {
+              throw new MathException(e);
+            }
+          }
+          break;
+        }
+        case FAIL: {
+          final double minValue = i == 0 ? 0.0
+              : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
+          if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
+            final StringBuilder msg = new StringBuilder();
+            if (pointsUpfront[i] == 0.0) {
+              msg.append("The par spread of " + premiums[i] + " at index " + i);
+            } else {
+              msg.append("The premium of " + premiums[i] + "and points up-front of " + pointsUpfront[i] + " at index " + i);
+            }
+            msg.append(" is an arbitrage; cannot fit a curve with positive forward hazard rate. ");
+            throw new IllegalArgumentException(msg.toString());
+          }
+          guess[i] = Math.max(minValue, guess[i]);
+          double[] bracket = BRACKER.getBracketedPoints(func, guess[i], 1.2 * guess[i], minValue, Double.POSITIVE_INFINITY);
+          double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+          creditCurve = creditCurve.withParameter(i, zeroRate);
+          break;
+        }
+        case ZERO_HAZARD_RATE: {
+          final double minValue = i == 0 ? 0.0
+              : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
+          if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
+            creditCurve = creditCurve.withParameter(i, minValue);
+          } else {
+            guess[i] = Math.max(minValue, guess[i]);
+            final double[] bracket =
+                BRACKER.getBracketedPoints(func, guess[i], 1.2 * guess[i], minValue, Double.POSITIVE_INFINITY);
+            final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+            creditCurve = creditCurve.withParameter(i, zeroRate);
+          }
+          break;
+        }
+        default:
+          throw new IllegalArgumentException("unknow case " + getArbHanding());
+      }
+
+    }
+    return creditCurve;
   }
 
   /**
