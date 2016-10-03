@@ -26,6 +26,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 
@@ -253,6 +255,62 @@ public class ImmutableScenarioMarketDataBuilderTest {
         .build();
 
     assertThat(marketData1.combinedWith(marketData2)).isEqualTo(expected);
+  }
+
+  /**
+   * Tests the combinedWith method when the other set of market data is not an instance of ImmutableScenarioMarketData
+   */
+  public void test_combinedWithDifferentImpl() {
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2a = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1000)
+        .put(date(2011, 3, 9), 2000)
+        .put(date(2011, 3, 10), 3000)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries3 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 100)
+        .put(date(2011, 3, 9), 200)
+        .put(date(2011, 3, 10), 300)
+        .build();
+
+    MarketData marketData = ImmutableMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addTimeSeries(TEST_ID1, timeSeries1)
+        .addTimeSeries(TEST_ID2, timeSeries2)
+        .addValue(TEST_ID1, 1.1)
+        .addValue(TEST_ID2, 1.2)
+        .build();
+
+    RepeatedScenarioMarketData repeatedScenarioMarketData = RepeatedScenarioMarketData.of(3, marketData);
+
+    ImmutableScenarioMarketData immutableScenarioMarketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addTimeSeries(TEST_ID2, timeSeries2a)
+        .addTimeSeries(TEST_ID3, timeSeries3)
+        .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
+        .addBox(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
+        .build();
+
+    ScenarioMarketData combinedData = immutableScenarioMarketData.combinedWith(repeatedScenarioMarketData);
+    assertThat(combinedData.getScenarioCount()).isEqualTo(3);
+    assertThat(combinedData.getValue(TEST_ID1).getValue(0)).isEqualTo(1.1);
+    assertThat(combinedData.getValue(TEST_ID1).getValue(2)).isEqualTo(1.1);
+    assertThat(combinedData.getValue(TEST_ID1).getValue(3)).isEqualTo(1.1);
+    assertThat(combinedData.getValue(TEST_ID2)).isEqualTo(MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2));
+    assertThat(combinedData.getValue(TEST_ID3)).isEqualTo(MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2));
+    assertThat(combinedData.getTimeSeries(TEST_ID1)).isEqualTo(timeSeries1);
+    assertThat(combinedData.getTimeSeries(TEST_ID2)).isEqualTo(timeSeries2a);
+    assertThat(combinedData.getTimeSeries(TEST_ID3)).isEqualTo(timeSeries3);
   }
 
   //-------------------------------------------------------------------------
