@@ -210,6 +210,22 @@ public class MarketDataTest {
     assertThrowsIllegalArg(() -> test1.combinedWith(test2));
   }
 
+  /**
+   * Tests the combinedWith method when the MarketData instances are not both ImmutableMarketData.
+   */
+  public void test_combinedWith_differentTypes() {
+    Map<MarketDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    MarketData test1 = MarketData.of(VAL_DATE, dataMap1);
+    Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL1);
+    MarketData test2 = MarketData.of(VAL_DATE, dataMap2);
+    ExtendedMarketData<String> test3 = ExtendedMarketData.of(ID1, VAL3, test2);
+
+    MarketData test = test3.combinedWith(test1);
+    assertEquals(test.getValue(ID1), VAL3);
+    assertEquals(test.getValue(ID2), VAL2);
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
+  }
+
   //-------------------------------------------------------------------------
   public void test_withValue() {
     Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
