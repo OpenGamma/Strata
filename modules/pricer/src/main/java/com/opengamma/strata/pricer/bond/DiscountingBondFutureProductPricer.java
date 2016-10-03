@@ -90,7 +90,7 @@ public final class DiscountingBondFutureProductPricer {
    * @param discountingProvider  the discounting provider
    * @return the price of the product, in decimal form
    */
-  public double price(ResolvedBondFuture future, BondDiscountingProvider discountingProvider) {
+  public double price(ResolvedBondFuture future, LegalEntityDiscountingProvider discountingProvider) {
     ImmutableList<ResolvedFixedCouponBond> basket = future.getDeliveryBasket();
     int size = basket.size();
     double[] priceBonds = new double[size];
@@ -123,7 +123,7 @@ public final class DiscountingBondFutureProductPricer {
    */
   public double priceWithZSpread(
       ResolvedBondFuture future,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
@@ -153,7 +153,7 @@ public final class DiscountingBondFutureProductPricer {
    * @param discountingProvider  the discounting provider
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivity(ResolvedBondFuture future, BondDiscountingProvider discountingProvider) {
+  public PointSensitivities priceSensitivity(ResolvedBondFuture future, LegalEntityDiscountingProvider discountingProvider) {
     ImmutableList<ResolvedFixedCouponBond> basket = future.getDeliveryBasket();
     int size = basket.size();
     double[] priceBonds = new double[size];
@@ -194,7 +194,7 @@ public final class DiscountingBondFutureProductPricer {
    */
   public PointSensitivities priceSensitivityWithZSpread(
       ResolvedBondFuture future,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {

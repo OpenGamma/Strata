@@ -69,7 +69,7 @@ final class DefaultRatesMarketData
   //-------------------------------------------------------------------------
   @Override
   public RatesMarketData withMarketData(MarketData marketData) {
-    return DefaultRatesMarketData.of((DefaultRatesMarketDataLookup) lookup, marketData);
+    return DefaultRatesMarketData.of(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

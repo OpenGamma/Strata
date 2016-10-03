@@ -104,7 +104,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double price(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, discountingProvider);
@@ -128,7 +128,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double price(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -146,7 +146,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
 
   double price(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     ArgChecker.isTrue(volatilities instanceof BlackBondFutureVolatilities,
@@ -170,7 +170,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double deltaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, discountingProvider);
@@ -191,7 +191,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double deltaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -223,7 +223,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double gammaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, discountingProvider);
@@ -244,7 +244,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double gammaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -275,7 +275,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double theta(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, discountingProvider);
@@ -296,7 +296,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public double theta(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -327,7 +327,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public PointSensitivities priceSensitivityRatesStickyStrike(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
@@ -350,7 +350,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public PointSensitivities priceSensitivityRatesStickyStrike(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -362,7 +362,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
 
   PointSensitivities priceSensitivity(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     ArgChecker.isTrue(volatilities instanceof BlackBondFutureVolatilities,
@@ -384,7 +384,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public BondFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, discountingProvider);
@@ -403,7 +403,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    */
   public BondFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedBondFutureOption futureOption,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -421,7 +421,7 @@ public final class BlackBondFutureOptionMarginedProductPricer {
 
   //-------------------------------------------------------------------------
   // calculate the price of the underlying future
-  private double futurePrice(ResolvedBondFutureOption futureOption, BondDiscountingProvider discountingProvider) {
+  private double futurePrice(ResolvedBondFutureOption futureOption, LegalEntityDiscountingProvider discountingProvider) {
     ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     return futurePricer.price(future, discountingProvider);
   }

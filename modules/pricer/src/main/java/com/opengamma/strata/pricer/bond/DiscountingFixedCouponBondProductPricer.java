@@ -94,14 +94,14 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param provider  the discounting provider
    * @return the present value of the fixed coupon bond product
    */
-  public CurrencyAmount presentValue(ResolvedFixedCouponBond bond, BondDiscountingProvider provider) {
+  public CurrencyAmount presentValue(ResolvedFixedCouponBond bond, LegalEntityDiscountingProvider provider) {
     return presentValue(bond, provider, provider.getValuationDate());
   }
 
   // calculate the present value
   CurrencyAmount presentValue(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       LocalDate referenceDate) {
 
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
@@ -130,7 +130,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public CurrencyAmount presentValueWithZSpread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -142,7 +142,7 @@ public class DiscountingFixedCouponBondProductPricer {
   // calculate the present value
   CurrencyAmount presentValueWithZSpread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear,
@@ -172,7 +172,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double dirtyPriceFromCurves(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       ReferenceData refData) {
 
     LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
@@ -191,7 +191,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double dirtyPriceFromCurves(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       LocalDate settlementDate) {
 
     CurrencyAmount pv = presentValue(bond, provider, settlementDate);
@@ -220,7 +220,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double dirtyPriceFromCurvesWithZSpread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -248,7 +248,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double dirtyPriceFromCurvesWithZSpread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear,
@@ -311,7 +311,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double zSpreadFromCurvesAndDirtyPrice(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       ReferenceData refData,
       double dirtyPrice,
       CompoundedRateType compoundedRateType,
@@ -341,7 +341,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public PointSensitivityBuilder presentValueSensitivity(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider) {
+      LegalEntityDiscountingProvider provider) {
 
     return presentValueSensitivity(bond, provider, provider.getValuationDate());
   }
@@ -349,7 +349,7 @@ public class DiscountingFixedCouponBondProductPricer {
   // calculate the present value sensitivity
   PointSensitivityBuilder presentValueSensitivity(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       LocalDate referenceDate) {
 
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
@@ -377,7 +377,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public PointSensitivityBuilder presentValueSensitivityWithZSpread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -389,7 +389,7 @@ public class DiscountingFixedCouponBondProductPricer {
   // calculate the present value sensitivity
   PointSensitivityBuilder presentValueSensitivityWithZSpread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear,
@@ -418,7 +418,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public PointSensitivityBuilder dirtyPriceSensitivity(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       ReferenceData refData) {
 
     LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
@@ -428,7 +428,7 @@ public class DiscountingFixedCouponBondProductPricer {
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyPriceSensitivity(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       LocalDate referenceDate) {
 
     StandardId legalEntityId = bond.getLegalEntityId();
@@ -462,7 +462,7 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public PointSensitivityBuilder dirtyPriceSensitivityWithZspread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -475,7 +475,7 @@ public class DiscountingFixedCouponBondProductPricer {
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyPriceSensitivityWithZspread(
       ResolvedFixedCouponBond bond,
-      BondDiscountingProvider provider,
+      LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear,

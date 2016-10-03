@@ -23,6 +23,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -30,7 +31,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Computes the curve parameter sensitivity by finite difference.
  * <p>
- * This is based on an {@link ImmutableRatesProvider} or {@link LegalEntityDiscountingProvider}, 
+ * This is based on an {@link ImmutableRatesProvider} or {@link ImmutableLegalEntityDiscountingProvider}, 
  * and calculates the sensitivity by finite difference.
  */
 public class RatesFiniteDifferenceSensitivityCalculator {
@@ -123,19 +124,20 @@ public class RatesFiniteDifferenceSensitivityCalculator {
    */
   public CurrencyParameterSensitivities sensitivity(
       LegalEntityDiscountingProvider provider,
-      Function<LegalEntityDiscountingProvider, CurrencyAmount> valueFn) {
+      Function<ImmutableLegalEntityDiscountingProvider, CurrencyAmount> valueFn) {
 
-    CurrencyAmount valueInit = valueFn.apply(provider);
+    ImmutableLegalEntityDiscountingProvider immProv = provider.toImmutableLegalEntityDiscountingProvider();
+    CurrencyAmount valueInit = valueFn.apply(immProv);
     CurrencyParameterSensitivities discounting = sensitivity(
-        provider, valueFn, LegalEntityDiscountingProvider.meta().repoCurves(), valueInit);
+        immProv, valueFn, ImmutableLegalEntityDiscountingProvider.meta().repoCurves(), valueInit);
     CurrencyParameterSensitivities forward = sensitivity(
-        provider, valueFn, LegalEntityDiscountingProvider.meta().issuerCurves(), valueInit);
+        immProv, valueFn, ImmutableLegalEntityDiscountingProvider.meta().issuerCurves(), valueInit);
     return discounting.combinedWith(forward);
   }
 
   private <T> CurrencyParameterSensitivities sensitivity(
-      LegalEntityDiscountingProvider provider,
-      Function<LegalEntityDiscountingProvider, CurrencyAmount> valueFn,
+      ImmutableLegalEntityDiscountingProvider provider,
+      Function<ImmutableLegalEntityDiscountingProvider, CurrencyAmount> valueFn,
       MetaProperty<ImmutableMap<Pair<T, Currency>, DiscountFactors>> metaProperty,
       CurrencyAmount valueInit) {
 
@@ -150,7 +152,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<Pair<T, Currency>, DiscountFactors> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(key, createDiscountFactors(discountFactors, dscBumped));
-        LegalEntityDiscountingProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
+        ImmutableLegalEntityDiscountingProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }
       result = result.combinedWith(

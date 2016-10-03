@@ -74,7 +74,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public CurrencyAmount presentValue(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData) {
 
     validate(ratesProvider, discountingProvider);
@@ -107,7 +107,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public CurrencyAmount presentValueWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -143,7 +143,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public PointSensitivities presentValueSensitivity(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData) {
 
     validate(ratesProvider, discountingProvider);
@@ -174,7 +174,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public PointSensitivities presentValueSensitivityWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -205,7 +205,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public CurrencyAmount presentValueFromCleanPrice(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double cleanRealPrice) {
 
@@ -259,7 +259,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public CurrencyAmount presentValueFromCleanPriceWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double cleanRealPrice,
       double zSpread,
@@ -325,7 +325,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public PointSensitivities presentValueSensitivityFromCleanPrice(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double cleanRealPrice) {
 
@@ -382,7 +382,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public PointSensitivities presentValueSensitivityFromCleanPriceWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double cleanRealPrice,
       double zSpread,
@@ -451,7 +451,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public MultiCurrencyAmount currencyExposureFromCleanPrice(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double cleanRealPrice) {
 
@@ -472,7 +472,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public MultiCurrencyAmount currencyExposure(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData) {
 
     CurrencyAmount pv = presentValue(trade, ratesProvider, discountingProvider, refData);
@@ -495,7 +495,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public MultiCurrencyAmount currencyExposureFromCleanPriceWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double cleanRealPrice,
       double zSpread,
@@ -529,7 +529,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   public MultiCurrencyAmount currencyExposureWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -597,7 +597,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   private CurrencyAmount presentValueSettlement(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
     BondPaymentPeriod settlement = trade.getSettlement();
     ResolvedCapitalIndexedBond product = trade.getProduct();
@@ -609,7 +609,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   private CurrencyAmount presentValueFromProductPresentValue(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       CurrencyAmount productPresentValue) {
 
     CurrencyAmount pvProduct = productPresentValue.multipliedBy(trade.getQuantity());
@@ -648,7 +648,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   private PointSensitivityBuilder presentValueSensitivitySettlement(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
     BondPaymentPeriod settlement = trade.getSettlement();
     ResolvedCapitalIndexedBond product = trade.getProduct();
@@ -665,7 +665,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   private PointSensitivityBuilder presentValueSensitivityFromProductPresentValueSensitivity(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       PointSensitivityBuilder productPresnetValueSensitivity) {
 
     PointSensitivityBuilder sensiProduct = productPresnetValueSensitivity.multipliedBy(trade.getQuantity());
@@ -691,7 +691,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
-  private void validate(RatesProvider ratesProvider, BondDiscountingProvider discountingProvider) {
+  private void validate(RatesProvider ratesProvider, LegalEntityDiscountingProvider discountingProvider) {
     ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(discountingProvider.getValuationDate()),
         "the rates providers should be for the same date");
   }

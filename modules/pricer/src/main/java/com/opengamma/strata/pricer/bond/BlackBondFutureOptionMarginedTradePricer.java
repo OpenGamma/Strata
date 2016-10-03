@@ -61,7 +61,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public double price(
       ResolvedBondFutureOptionTrade trade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     return productPricer.price(trade.getProduct(), discountingProvider, volatilities);
@@ -114,7 +114,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public CurrencyAmount presentValue(
       ResolvedBondFutureOptionTrade trade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities,
       double lastOptionSettlementPrice) {
 
@@ -141,7 +141,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public CurrencyAmount presentValue(
       ResolvedBondFutureOptionTrade trade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice,
       double lastOptionSettlementPrice) {
@@ -164,7 +164,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public PointSensitivities presentValueSensitivityRates(
       ResolvedBondFutureOptionTrade trade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     ResolvedBondFutureOption product = trade.getProduct();
@@ -189,7 +189,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public BondFutureOptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedBondFutureOptionTrade futureOptionTrade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     ResolvedBondFuture future = futureOptionTrade.getProduct().getUnderlyingFuture();
@@ -213,7 +213,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public BondFutureOptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedBondFutureOptionTrade futureOptionTrade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -239,7 +239,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedBondFutureOptionTrade trade,
-      BondDiscountingProvider discountingProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities,
       double lastOptionSettlementPrice) {
 
