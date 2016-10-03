@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.framework.format;
+package com.opengamma.strata.collect.io;
 
 import java.util.List;
 
@@ -13,9 +13,10 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * An ASCII table generator.
  * <p>
- * Provides the ability to generate an ASCII table, typically used on the command line.
+ * Provides the ability to generate a simple ASCII table, typically used on the command line.
+ * All data is provided as strings, with formatting the responsibility of the caller.
  */
-final class AsciiTable {
+public final class AsciiTable {
 
   /**
    * Line separator.
@@ -24,23 +25,21 @@ final class AsciiTable {
 
   //-------------------------------------------------------------------------
   /**
-   * Restricted constructor.
-   */
-  private AsciiTable() {
-  }
-
-  /**
    * Generates the ASCII table.
+   * <p>
+   * The caller specifies the headers for each column and the alignment to use,
+   * plus the list of lists representing the data. All data is provided as strings,
+   * with formatting the responsibility of the caller.
    * 
-   * @param alignments  the table alignments
    * @param headers  the table headers
+   * @param alignments  the table alignments, must match the size of the headers
    * @param cells  the table cells, outer list of rows, inner list of columns
    * @return the table
    * @throws IllegalArgumentException if the number of columns specified is inconsistent
    */
-  static String generate(
-      List<AsciiTableAlignment> alignments,
+  public static String generate(
       List<String> headers,
+      List<AsciiTableAlignment> alignments,
       List<? extends List<String>> cells) {
 
     int colCount = alignments.size();
@@ -120,6 +119,13 @@ final class AsciiTable {
     } else {
       return Strings.padEnd(value, colLength, ' ');
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
+  private AsciiTable() {
   }
 
 }
