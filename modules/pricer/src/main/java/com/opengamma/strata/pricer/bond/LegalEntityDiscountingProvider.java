@@ -10,7 +10,9 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -30,6 +32,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -38,27 +42,32 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.SecurityId;
 
 /**
- * The discounting factors provider, used to calculate analytic measures.
+ * An immutable provider of data for bond pricing, based on repo and issuer discounting.
  * <p>
- * The primary usage of this provider is to price bonds issued by a legal entity.
- * This includes discount factors of repo curves and issuer curves.
+ * This used to price bonds issued by a legal entity.
+ * The data to do this includes discount factors of repo curves and issuer curves.
+ * If the bond is inflation linked, the price index data is obtained from {@link RatesProvider}.
+ * <p>
+ * Two types of discount factors are provided by this class.
+ * Repo curves are looked up using either the security ID of the bond, or the issuer (legal entity).
+ * Issuer curves are only looked up using the issuer (legal entity).
  */
 @BeanDefinition
 public final class LegalEntityDiscountingProvider
-    implements ImmutableBean, Serializable {
+    implements BondDiscountingProvider, ImmutableBean, Serializable {
 
   /**
    * The valuation date.
    * All curves and other data items in this provider are calibrated for this date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
-
   /**
    * The bond group map.
    * <p>
    * This map is used to convert the {@link StandardId} that identifies the bond to
-   * the associated bond group in order to lookup a repo curve.
+   * the associated bond group in order to lookup a repo curve. The ID may be the
+   * security ID or the issuer ID.
    * <p>
    * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(SecurityId, StandardId, Currency)}.
    */
@@ -70,7 +79,6 @@ public final class LegalEntityDiscountingProvider
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<Pair<BondGroup, Currency>, DiscountFactors> repoCurves;
-
   /**
    * The legal entity group map.
    * <p>
@@ -118,20 +126,20 @@ public final class LegalEntityDiscountingProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the discount factors of a repo curve for standard IDs and a currency.
+   * Gets the discount factors from a repo curve based on the security ID, issuer ID and currency.
    * <p>
-   * If the bond standard ID is matched in a BondGroup, the relevant DiscountFactors is returned, 
-   * if not the issuer standard ID is checked and the relevant DiscountFactors is returned; 
-   * if both the bond and the issuer ID are not in any BondGroup, an error is thrown.
+   * This searches first for a curve associated with the security iD and currency,
+   * and then for a curve associated with the issuer ID and currency.
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * 
    * @param securityId  the standard ID of security to get the discount factors for
    * @param issuerId  the standard ID of legal entity to get the discount factors for
    * @param currency  the currency to get the discount factors for
-   * @return the discount factors 
+   * @return the discount factors
    * @throws IllegalArgumentException if the discount factors are not available
    */
+  @Override
   public RepoCurveDiscountFactors repoCurveDiscountFactors(SecurityId securityId, StandardId issuerId, Currency currency) {
     BondGroup bondGroup = bondMap.get(securityId.getStandardId());
     if (bondGroup == null) {
@@ -154,15 +162,18 @@ public final class LegalEntityDiscountingProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the discount factors of an issuer curve for a standard ID and a currency.
+   * Gets the discount factors from an issuer based on the issuer ID and currency.
+   * <p>
+   * This searches for a curve associated with the issuer ID and currency.
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * 
    * @param issuerId  the standard ID to get the discount factors for
    * @param currency  the currency to get the discount factors for
-   * @return the discount factors 
+   * @return the discount factors
    * @throws IllegalArgumentException if the discount factors are not available
    */
+  @Override
   public IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId issuerId, Currency currency) {
     LegalEntityGroup legalEntityGroup = legalEntityMap.get(issuerId);
     if (legalEntityGroup == null) {
@@ -187,12 +198,13 @@ public final class LegalEntityDiscountingProvider
    * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * <p>
-   * The sensitivities handled here are {@link RepoCurveZeroRateSensitivity} and {@link IssuerCurveZeroRateSensitivity}. 
-   * For the other sensitivity objects, use {@link RatesProvider} instead.
+   * This method handles {@link RepoCurveZeroRateSensitivity} and {@link IssuerCurveZeroRateSensitivity}. 
+   * For other sensitivity objects, see {@link RatesProvider#parameterSensitivity(PointSensitivities)}.
    * 
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters
    */
+  @Override
   public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
     CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
@@ -207,6 +219,18 @@ public final class LegalEntityDiscountingProvider
       }
     }
     return sens;
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (name instanceof CurveName) {
+      return Stream.concat(repoCurves.values().stream(), issuerCurves.values().stream())
+          .map(df -> df.findData(name))
+          .filter(opt -> opt.isPresent())
+          .map(opt -> opt.get())
+          .findFirst();
+    }
+    return Optional.empty();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -276,6 +300,7 @@ public final class LegalEntityDiscountingProvider
    * All curves and other data items in this provider are calibrated for this date.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getValuationDate() {
     return valuationDate;
   }
@@ -285,7 +310,8 @@ public final class LegalEntityDiscountingProvider
    * Gets the bond group map.
    * <p>
    * This map is used to convert the {@link StandardId} that identifies the bond to
-   * the associated bond group in order to lookup a repo curve.
+   * the associated bond group in order to lookup a repo curve. The ID may be the
+   * security ID or the issuer ID.
    * <p>
    * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(SecurityId, StandardId, Currency)}.
    * @return the value of the property, not null
@@ -661,7 +687,8 @@ public final class LegalEntityDiscountingProvider
      * Sets the bond group map.
      * <p>
      * This map is used to convert the {@link StandardId} that identifies the bond to
-     * the associated bond group in order to lookup a repo curve.
+     * the associated bond group in order to lookup a repo curve. The ID may be the
+     * security ID or the issuer ID.
      * <p>
      * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(SecurityId, StandardId, Currency)}.
      * @param bondMap  the new value, not null

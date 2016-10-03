@@ -74,10 +74,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the present value of the fixed coupon bond trade
    */
-  public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
+  public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, BondDiscountingProvider provider) {
     LocalDate settlementDate = trade.getSettlementDate();
     CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), provider, settlementDate);
     return presentValueFromProductPresentValue(trade, provider, pvProduct);
@@ -95,7 +95,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -103,7 +103,7 @@ public class DiscountingFixedCouponBondTradePricer {
    */
   public CurrencyAmount presentValueWithZSpread(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -116,7 +116,7 @@ public class DiscountingFixedCouponBondTradePricer {
 
   private CurrencyAmount presentValueFromProductPresentValue(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       CurrencyAmount productPresentValue) {
     CurrencyAmount pvProduct = productPresentValue.multipliedBy(trade.getQuantity());
     CurrencyAmount pvPayment = presentValuePayment(trade, provider);
@@ -133,14 +133,14 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValueFromCleanPrice(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       ReferenceData refData,
       double cleanPrice) {
 
@@ -180,7 +180,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @param zSpread  the z-spread
@@ -190,7 +190,7 @@ public class DiscountingFixedCouponBondTradePricer {
    */
   public CurrencyAmount presentValueFromCleanPriceWithZSpread(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       ReferenceData refData,
       double cleanPrice,
       double zSpread,
@@ -244,12 +244,12 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider) {
+      BondDiscountingProvider provider) {
 
     LocalDate settlementDate = trade.getSettlementDate();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivity(
@@ -269,7 +269,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -277,7 +277,7 @@ public class DiscountingFixedCouponBondTradePricer {
    */
   public PointSensitivities presentValueSensitivityWithZSpread(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -290,7 +290,7 @@ public class DiscountingFixedCouponBondTradePricer {
 
   private PointSensitivityBuilder presentValueSensitivityFromProductPresentValueSensitivity(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       PointSensitivityBuilder productPresnetValueSensitivity) {
 
     PointSensitivityBuilder sensiProduct = productPresnetValueSensitivity.multipliedBy(trade.getQuantity());
@@ -303,10 +303,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * Calculates the currency exposure of the fixed coupon bond trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the currency exposure of the fixed coupon bond trade
    */
-  public MultiCurrencyAmount currencyExposure(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
+  public MultiCurrencyAmount currencyExposure(ResolvedFixedCouponBondTrade trade, BondDiscountingProvider provider) {
 
     return MultiCurrencyAmount.of(presentValue(trade, provider));
   }
@@ -315,7 +315,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Calculates the currency exposure of the fixed coupon bond trade with z-spread.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -323,7 +323,7 @@ public class DiscountingFixedCouponBondTradePricer {
    */
   public MultiCurrencyAmount currencyExposureWithZSpread(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider,
+      BondDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -367,7 +367,7 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
-  private CurrencyAmount presentValuePayment(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
+  private CurrencyAmount presentValuePayment(ResolvedFixedCouponBondTrade trade, BondDiscountingProvider provider) {
     ResolvedFixedCouponBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = provider.repoCurveDiscountFactors(
         product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
@@ -377,7 +377,7 @@ public class DiscountingFixedCouponBondTradePricer {
 
   private PointSensitivityBuilder presentValueSensitivityPayment(
       ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider) {
+      BondDiscountingProvider provider) {
 
     ResolvedFixedCouponBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = provider.repoCurveDiscountFactors(

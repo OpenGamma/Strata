@@ -16,6 +16,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -50,7 +51,7 @@ public class LegalEntityDiscountingProviderTest {
   private static final CurveMetadata METADATA_REPO = Curves.zeroRates(NAME_REPO, ACT_365F);
   private static final InterpolatedNodalCurve CURVE_REPO =
       InterpolatedNodalCurve.of(METADATA_REPO, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
-  private static final DiscountFactors DSC_FACTORS_REPO = ZeroRateDiscountFactors.of(GBP, DATE, CURVE_REPO);
+  private static final ZeroRateDiscountFactors DSC_FACTORS_REPO = ZeroRateDiscountFactors.of(GBP, DATE, CURVE_REPO);
   private static final BondGroup GROUP_REPO_SECURITY = BondGroup.of("ISSUER1 BND 5Y");
   private static final BondGroup GROUP_REPO_ISSUER = BondGroup.of("ISSUER1");
   private static final SecurityId ID_SECURITY = SecurityId.of("OG-Ticker", "Bond-5Y");
@@ -59,7 +60,7 @@ public class LegalEntityDiscountingProviderTest {
   private static final CurveMetadata METADATA_ISSUER = Curves.zeroRates(NAME_ISSUER, ACT_365F);
   private static final InterpolatedNodalCurve CURVE_ISSUER =
       InterpolatedNodalCurve.of(METADATA_ISSUER, DoubleArray.of(0, 15), DoubleArray.of(1, 2.5), INTERPOLATOR);
-  private static final DiscountFactors DSC_FACTORS_ISSUER = ZeroRateDiscountFactors.of(GBP, DATE, CURVE_ISSUER);
+  private static final ZeroRateDiscountFactors DSC_FACTORS_ISSUER = ZeroRateDiscountFactors.of(GBP, DATE, CURVE_ISSUER);
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("ISSUER1");
   private static final StandardId ID_ISSUER = StandardId.of("OG-Ticker", "Issuer-1");
 
@@ -230,6 +231,21 @@ public class LegalEntityDiscountingProviderTest {
         ZeroRateSensitivity.of(USD, DSC_FACTORS_ISSUER.relativeYearFraction(date(2018, 11, 24)), 25d);
     CurrencyParameterSensitivities computed = test.parameterSensitivity(sensi.build());
     assertEquals(computed, CurrencyParameterSensitivities.empty());
+  }
+
+  public void test_findData() {
+    LegalEntityDiscountingProvider test = LegalEntityDiscountingProvider.builder()
+        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
+            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
+        .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
+            Pair.<BondGroup, Currency>of(GROUP_REPO_ISSUER, GBP), DSC_FACTORS_REPO))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_ISSUER, GROUP_REPO_ISSUER))
+        .valuationDate(DATE)
+        .build();
+    assertEquals(test.findData(DSC_FACTORS_ISSUER.getCurve().getName()), Optional.of(DSC_FACTORS_ISSUER.getCurve()));
+    assertEquals(test.findData(DSC_FACTORS_REPO.getCurve().getName()), Optional.of(DSC_FACTORS_REPO.getCurve()));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
   }
 
   //-------------------------------------------------------------------------
