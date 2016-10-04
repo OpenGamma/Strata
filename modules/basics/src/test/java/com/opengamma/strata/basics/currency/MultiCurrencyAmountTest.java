@@ -330,6 +330,12 @@ public class MultiCurrencyAmountTest {
     MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
     MultiCurrencyAmount test = base.negated();
     assertMCA(test, CA1.negated(), CA2.negated());
+    assertEquals(
+        MultiCurrencyAmount.of(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.EUR)).negated(),
+        MultiCurrencyAmount.of(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.EUR)));
+    assertEquals(
+        MultiCurrencyAmount.of(CurrencyAmount.of(Currency.USD, -0d), CurrencyAmount.of(Currency.EUR, -0d)).negated(),
+        MultiCurrencyAmount.of(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.EUR)));
   }
 
   //-------------------------------------------------------------------------
