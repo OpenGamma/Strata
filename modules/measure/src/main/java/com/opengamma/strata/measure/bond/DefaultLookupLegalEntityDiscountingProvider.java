@@ -68,8 +68,8 @@ final class DefaultLookupLegalEntityDiscountingProvider
   /**
    * Obtains an instance based on a lookup and market data.
    * <p>
-   * The lookup provides the mapping from currency to discount curve, and from
-   * index to forward curve. The curves are in the market data.
+   * The lookup provides the mapping to repo and issuer curve IDs.
+   * The curves are in the market data.
    *
    * @param lookup  the lookup
    * @param marketData  the market data
