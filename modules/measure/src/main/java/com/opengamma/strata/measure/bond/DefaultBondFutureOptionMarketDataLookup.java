@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.index;
+package com.opengamma.strata.measure.bond;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -20,8 +20,6 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
@@ -29,106 +27,112 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.pricer.index.IborFutureOptionVolatilities;
-import com.opengamma.strata.pricer.index.IborFutureOptionVolatilitiesId;
+import com.opengamma.strata.pricer.bond.BondFutureVolatilities;
+import com.opengamma.strata.pricer.bond.BondFutureVolatilitiesId;
+import com.opengamma.strata.product.SecurityId;
 
 /**
- * The Ibor future option lookup, used to select volatilities for pricing.
+ * The bond future options lookup, used to select volatilities for pricing.
  * <p>
- * This provides Ibor future option volatilities by index.
+ * This provides bond future volatilities by security ID.
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
  * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
-final class DefaultIborFutureOptionMarketDataLookup
-    implements IborFutureOptionMarketDataLookup, ImmutableBean, Serializable {
+final class DefaultBondFutureOptionMarketDataLookup
+    implements BondFutureOptionMarketDataLookup, ImmutableBean, Serializable {
 
   /**
-   * The volatility identifiers, keyed by index.
+   * The volatility identifiers, keyed by security ID.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<IborIndex, IborFutureOptionVolatilitiesId> volatilityIds;
+  private final ImmutableMap<SecurityId, BondFutureVolatilitiesId> volatilityIds;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on a single mapping from index to volatility identifier.
+   * Obtains an instance based on a single mapping from security ID to volatility identifier.
    * <p>
-   * The lookup provides volatilities for the specified index.
+   * The lookup provides volatilities for the specified security ID.
    *
-   * @param index  the Ibor index
+   * @param securityId  the security ID
    * @param volatilityId  the volatility identifier
-   * @return the Ibor future option lookup containing the specified mapping
+   * @return the bond future options lookup containing the specified mapping
    */
-  public static DefaultIborFutureOptionMarketDataLookup of(IborIndex index, IborFutureOptionVolatilitiesId volatilityId) {
-    return new DefaultIborFutureOptionMarketDataLookup(ImmutableMap.of(index, volatilityId));
+  public static DefaultBondFutureOptionMarketDataLookup of(
+      SecurityId securityId,
+      BondFutureVolatilitiesId volatilityId) {
+
+    return new DefaultBondFutureOptionMarketDataLookup(ImmutableMap.of(securityId, volatilityId));
   }
 
   /**
    * Obtains an instance based on a map of volatility identifiers.
    * <p>
-   * The map is used to specify the appropriate volatilities to use for each index.
+   * The map is used to specify the appropriate volatilities to use for each security ID.
    *
-   * @param volatilityIds  the volatility identifiers, keyed by index
-   * @return the Ibor future option lookup containing the specified volatilities
+   * @param volatilityIds  the volatility identifiers, keyed by security ID
+   * @return the bond future options lookup containing the specified volatilities
    */
-  public static DefaultIborFutureOptionMarketDataLookup of(Map<IborIndex, IborFutureOptionVolatilitiesId> volatilityIds) {
-    return new DefaultIborFutureOptionMarketDataLookup(volatilityIds);
+  public static DefaultBondFutureOptionMarketDataLookup of(
+      Map<SecurityId, BondFutureVolatilitiesId> volatilityIds) {
+
+    return new DefaultBondFutureOptionMarketDataLookup(volatilityIds);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ImmutableSet<IborIndex> getVolatilityIndices() {
+  public ImmutableSet<SecurityId> getVolatilitySecurityIds() {
     return volatilityIds.keySet();
   }
 
   @Override
-  public ImmutableSet<MarketDataId<?>> getVolatilityIds(IborIndex index) {
-    IborFutureOptionVolatilitiesId id = volatilityIds.get(index);
+  public ImmutableSet<MarketDataId<?>> getVolatilityIds(SecurityId securityId) {
+    BondFutureVolatilitiesId id = volatilityIds.get(securityId);
     if (id == null) {
-      throw new IllegalArgumentException(msgIndexNotFound(index));
+      throw new IllegalArgumentException(msgSecurityNotFound(securityId));
     }
     return ImmutableSet.of(id);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(Set<IborIndex> indices) {
-    Set<IborFutureOptionVolatilitiesId> volIds = new HashSet<>();
-    for (Index index : indices) {
-      if (!volatilityIds.keySet().contains(index)) {
-        throw new IllegalArgumentException(msgIndexNotFound(index));
+  public FunctionRequirements requirements(Set<SecurityId> securityIds) {
+    Set<BondFutureVolatilitiesId> volIds = new HashSet<>();
+    for (SecurityId securityId : securityIds) {
+      if (!volatilityIds.keySet().contains(securityId)) {
+        throw new IllegalArgumentException(msgSecurityNotFound(securityId));
       }
-      volIds.add(volatilityIds.get(index));
+      volIds.add(volatilityIds.get(securityId));
     }
     return FunctionRequirements.builder().valueRequirements(volIds).build();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFutureOptionVolatilities volatilities(IborIndex index, MarketData marketData) {
-    IborFutureOptionVolatilitiesId volatilityId = volatilityIds.get(index);
+  public BondFutureVolatilities volatilities(SecurityId securityId, MarketData marketData) {
+    BondFutureVolatilitiesId volatilityId = volatilityIds.get(securityId);
     if (volatilityId == null) {
-      throw new IllegalArgumentException(msgIndexNotFound(index));
+      throw new IllegalArgumentException(msgSecurityNotFound(securityId));
     }
     return marketData.getValue(volatilityId);
   }
 
   //-------------------------------------------------------------------------
-  private String msgIndexNotFound(Index index) {
-    return Messages.format("IborFutureOption lookup has no volatilities defined for index '{}'", index);
+  private String msgSecurityNotFound(SecurityId securityId) {
+    return Messages.format("BondFutureOption lookup has no volatilities defined for security ID '{}'", securityId);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code DefaultIborFutureOptionMarketDataLookup}.
+   * The meta-bean for {@code DefaultBondFutureOptionMarketDataLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultIborFutureOptionMarketDataLookup.class);
+  private static MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionMarketDataLookup.class);
 
   /**
-   * The meta-bean for {@code DefaultIborFutureOptionMarketDataLookup}.
+   * The meta-bean for {@code DefaultBondFutureOptionMarketDataLookup}.
    * @return the meta-bean, not null
    */
   public static MetaBean meta() {
@@ -144,8 +148,8 @@ final class DefaultIborFutureOptionMarketDataLookup
    */
   private static final long serialVersionUID = 1L;
 
-  private DefaultIborFutureOptionMarketDataLookup(
-      Map<IborIndex, IborFutureOptionVolatilitiesId> volatilityIds) {
+  private DefaultBondFutureOptionMarketDataLookup(
+      Map<SecurityId, BondFutureVolatilitiesId> volatilityIds) {
     JodaBeanUtils.notNull(volatilityIds, "volatilityIds");
     this.volatilityIds = ImmutableMap.copyOf(volatilityIds);
   }
@@ -167,10 +171,10 @@ final class DefaultIborFutureOptionMarketDataLookup
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the volatility identifiers, keyed by index.
+   * Gets the volatility identifiers, keyed by security ID.
    * @return the value of the property, not null
    */
-  public ImmutableMap<IborIndex, IborFutureOptionVolatilitiesId> getVolatilityIds() {
+  public ImmutableMap<SecurityId, BondFutureVolatilitiesId> getVolatilityIds() {
     return volatilityIds;
   }
 
@@ -181,7 +185,7 @@ final class DefaultIborFutureOptionMarketDataLookup
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DefaultIborFutureOptionMarketDataLookup other = (DefaultIborFutureOptionMarketDataLookup) obj;
+      DefaultBondFutureOptionMarketDataLookup other = (DefaultBondFutureOptionMarketDataLookup) obj;
       return JodaBeanUtils.equal(volatilityIds, other.volatilityIds);
     }
     return false;
@@ -197,7 +201,7 @@ final class DefaultIborFutureOptionMarketDataLookup
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("DefaultIborFutureOptionMarketDataLookup{");
+    buf.append("DefaultBondFutureOptionMarketDataLookup{");
     buf.append("volatilityIds").append('=').append(JodaBeanUtils.toString(volatilityIds));
     buf.append('}');
     return buf.toString();
