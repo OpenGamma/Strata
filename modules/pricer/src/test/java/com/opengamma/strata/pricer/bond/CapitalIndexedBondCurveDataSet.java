@@ -38,16 +38,16 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  */
 public class CapitalIndexedBondCurveDataSet {
 
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
-  private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
-  private static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT BONDS");
+  public static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
+  public static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
+  public static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT BONDS");
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveName ISSUER_CURVE_NAME = CurveName.of("issuerCurve");
   private static final CurveName REPO_CURVE_NAME = CurveName.of("repoCurve");
 
-  private static final InterpolatedNodalCurve ISSUER_CURVE;
-  private static final InterpolatedNodalCurve REPO_CURVE;
-  private static final InterpolatedNodalCurve CPI_CURVE;
+  public static final InterpolatedNodalCurve ISSUER_CURVE;
+  public static final InterpolatedNodalCurve REPO_CURVE;
+  public static final InterpolatedNodalCurve CPI_CURVE;
   private static final InterpolatedNodalCurve RPI_CURVE;
   private static final InterpolatedNodalCurve CPIJ_CURVE;
   static {
