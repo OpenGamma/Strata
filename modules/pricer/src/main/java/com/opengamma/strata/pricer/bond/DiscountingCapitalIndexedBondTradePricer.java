@@ -68,14 +68,12 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
    * @return the present value of the bond trade
    */
   public CurrencyAmount presentValue(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
     validate(ratesProvider, discountingProvider);
     LocalDate settlementDate = trade.getSettlementDate();
@@ -98,7 +96,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -108,7 +105,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -137,14 +133,12 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
    * @return the present value sensitivity of the bond trade
    */
   public PointSensitivities presentValueSensitivity(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
     validate(ratesProvider, discountingProvider);
     LocalDate settlementDate = trade.getSettlementDate();
@@ -165,7 +159,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -175,7 +168,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -466,16 +458,14 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
    * @return the currency exposure of the trade
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
-    CurrencyAmount pv = presentValue(trade, ratesProvider, discountingProvider, refData);
+    CurrencyAmount pv = presentValue(trade, ratesProvider, discountingProvider);
     return MultiCurrencyAmount.of(pv);
   }
 
@@ -520,7 +510,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -530,7 +519,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -539,7 +527,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
         trade,
         ratesProvider,
         discountingProvider,
-        refData,
         zSpread,
         compoundedRateType,
         periodsPerYear);
@@ -694,6 +681,171 @@ public class DiscountingCapitalIndexedBondTradePricer {
   private void validate(RatesProvider ratesProvider, LegalEntityDiscountingProvider discountingProvider) {
     ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(discountingProvider.getValuationDate()),
         "the rates providers should be for the same date");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value of the bond trade.
+   * <p>
+   * The present value of the trade is the value on the valuation date.
+   * The result is expressed using the payment currency of the bond.
+   * <p>
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @return the present value of the bond trade
+   * @deprecated Use the method of the same name that does not take {@code ReferenceData}
+   */
+  @Deprecated
+  public CurrencyAmount presentValue(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
+      ReferenceData refData) {
+
+    return presentValue(trade, ratesProvider, discountingProvider);
+  }
+
+  /**
+   * Calculates the present value of the bond trade with z-spread.
+   * <p>
+   * The present value of the trade is the value on the valuation date.
+   * The result is expressed using the payment currency of the bond.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
+   * compounded rates of the discounting curve.
+   * <p>
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the present value of the bond trade
+   * @deprecated Use the method of the same name that does not take {@code ReferenceData}
+   */
+  @Deprecated
+  public CurrencyAmount presentValueWithZSpread(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
+      ReferenceData refData,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    return presentValueWithZSpread(trade, ratesProvider, discountingProvider, zSpread, compoundedRateType, periodsPerYear);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity of the bond trade.
+   * <p>
+   * The present value sensitivity of the trade is the sensitivity of the present value to
+   * the underlying curves.
+   * <p>
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @return the present value sensitivity of the bond trade
+   * @deprecated Use the method of the same name that does not take {@code ReferenceData}
+   */
+  @Deprecated
+  public PointSensitivities presentValueSensitivity(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
+      ReferenceData refData) {
+
+    return presentValueSensitivity(trade, ratesProvider, discountingProvider);
+  }
+
+  /**
+   * Calculates the present value sensitivity of the bond trade with z-spread.
+   * <p>
+   * The present value sensitivity of the trade is the sensitivity of the present value to
+   * the underlying curves.
+   * <p>
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the present value sensitivity of the bond trade
+   * @deprecated Use the method of the same name that does not take {@code ReferenceData}
+   */
+  @Deprecated
+  public PointSensitivities presentValueSensitivityWithZSpread(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
+      ReferenceData refData,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    return presentValueSensitivityWithZSpread(
+        trade, ratesProvider, discountingProvider, zSpread, compoundedRateType, periodsPerYear);
+  }
+
+  /**
+   * Calculates the currency exposure of the bond trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @return the currency exposure of the trade
+   * @deprecated Use the method of the same name that does not take {@code ReferenceData}
+   */
+  @Deprecated
+  public MultiCurrencyAmount currencyExposure(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
+      ReferenceData refData) {
+
+    return currencyExposure(trade, ratesProvider, discountingProvider);
+  }
+
+  /**
+   * Calculates the currency exposure of the bond trade with z-spread.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the currency exposure of the trade
+   * @deprecated Use the method of the same name that does not take {@code ReferenceData}
+   */
+  @Deprecated
+  public MultiCurrencyAmount currencyExposureWithZSpread(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
+      ReferenceData refData,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    return currencyExposureWithZSpread(
+        trade, ratesProvider, discountingProvider, zSpread, compoundedRateType, periodsPerYear);
   }
 
 }
