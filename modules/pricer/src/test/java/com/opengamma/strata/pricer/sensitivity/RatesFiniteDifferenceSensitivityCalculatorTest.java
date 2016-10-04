@@ -26,8 +26,8 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.bond.BondGroup;
-import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.RepoGroup;
+import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -165,7 +165,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   }
 
   // private function for testing. Returns the sum of rates multiplied by time
-  private CurrencyAmount fn(LegalEntityDiscountingProvider provider) {
+  private CurrencyAmount fn(ImmutableLegalEntityDiscountingProvider provider) {
     double result = 0.0;
     // issuer curve
     ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapLegal = provider.metaBean().issuerCurves()
@@ -175,8 +175,8 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
       result += sumProduct(curveInt);
     }
     // repo curve
-    ImmutableMap<Pair<BondGroup, Currency>, DiscountFactors> mapRepo = provider.metaBean().repoCurves().get(provider);
-    for (Entry<Pair<BondGroup, Currency>, DiscountFactors> entry : mapRepo.entrySet()) {
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapRepo = provider.metaBean().repoCurves().get(provider);
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapRepo.entrySet()) {
       InterpolatedNodalCurve curveInt = checkInterpolated(checkDiscountFactors(entry.getValue()));
       result += sumProduct(curveInt);
     }

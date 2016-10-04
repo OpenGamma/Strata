@@ -10,13 +10,13 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link BondGroup}.
+ * Test {@link RepoGroup}.
  */
 @Test
-public class BondGroupTest {
+public class RepoGroupTest {
 
   public void coverage() {
-    BondGroup test = BondGroup.of("Foo");
+    RepoGroup test = RepoGroup.of("Foo");
     assertEquals(test.toString(), "Foo");
   }
 

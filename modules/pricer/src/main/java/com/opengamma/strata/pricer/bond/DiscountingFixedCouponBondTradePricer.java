@@ -74,7 +74,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
@@ -95,7 +95,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -133,7 +133,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @return the present value of the fixed coupon bond trade
@@ -180,7 +180,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @param zSpread  the z-spread
@@ -244,7 +244,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
@@ -269,7 +269,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -303,7 +303,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Calculates the currency exposure of the fixed coupon bond trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the currency exposure of the fixed coupon bond trade
    */
   public MultiCurrencyAmount currencyExposure(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
@@ -315,7 +315,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Calculates the currency exposure of the fixed coupon bond trade with z-spread.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -386,7 +386,7 @@ public class DiscountingFixedCouponBondTradePricer {
     PointSensitivityBuilder pt = paymentPricer.presentValueSensitivity(
         upfrontPayment, discountFactors.getDiscountFactors());
     if (pt instanceof ZeroRateSensitivity) {
-      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getBondGroup());
+      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getRepoGroup());
     }
     return pt; // NoPointSensitivity
   }
