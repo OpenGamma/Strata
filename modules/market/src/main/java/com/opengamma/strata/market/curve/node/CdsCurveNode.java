@@ -38,6 +38,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.cds.CdsCalibrationTrade;
@@ -46,6 +47,8 @@ import com.opengamma.strata.product.credit.cds.CdsTrade;
 import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.cds.type.CdsQuoteConvention;
 import com.opengamma.strata.product.credit.cds.type.CdsTemplate;
+import com.opengamma.strata.product.credit.cds.type.DatesCdsTemplate;
+import com.opengamma.strata.product.credit.cds.type.TenorCdsTemplate;
 
 /**
  * A curve node whose instrument is a credit default swap.
@@ -192,8 +195,15 @@ public final class CdsCurveNode
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    if (builder.label == null && builder.template != null) {
-      builder.label = builder.template.getTenor().toString();
+    if (builder.template != null) {
+      if (builder.label == null) {
+        builder.label = builder.template instanceof TenorCdsTemplate
+            ? ((TenorCdsTemplate) builder.template).getTenor().toString()
+            : ((DatesCdsTemplate) builder.template).getEndDate().toString();
+      }
+      if (builder.endDate == null && builder.template instanceof DatesCdsTemplate) {
+        builder.endDate = ((DatesCdsTemplate) builder.template).getEndDate();
+      }
     }
   }
 
@@ -204,6 +214,9 @@ public final class CdsCurveNode
     } else {
       ArgChecker.isTrue(fixedRate != null,
           "The fixed rate must be specifed if quote convention is points upfront or quoted spread");
+    }
+    if (endDate != null && template instanceof DatesCdsTemplate) {
+      ArgChecker.isTrue(endDate.isEqual(((DatesCdsTemplate) template).getEndDate()), "endDate must be coherent to template");
     }
   }
 
@@ -226,7 +239,9 @@ public final class CdsCurveNode
   @Override
   public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date(valuationDate, refData);
-    return TenorDateParameterMetadata.of(nodeDate, template.getTenor(), label);
+    return template instanceof TenorCdsTemplate
+        ? TenorDateParameterMetadata.of(nodeDate, ((TenorCdsTemplate) template).getTenor(), label)
+        : LabelDateParameterMetadata.of(nodeDate, label);
   }
 
   @Override
