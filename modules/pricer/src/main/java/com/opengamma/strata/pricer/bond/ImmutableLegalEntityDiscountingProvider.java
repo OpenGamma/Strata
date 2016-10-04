@@ -125,20 +125,6 @@ public final class ImmutableLegalEntityDiscountingProvider
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the discount factors from a repo curve based on the security ID, issuer ID and currency.
-   * <p>
-   * This searches first for a curve associated with the security iD and currency,
-   * and then for a curve associated with the issuer ID and currency.
-   * <p>
-   * If the valuation date is on or after the specified date, the discount factor is 1.
-   * 
-   * @param securityId  the standard ID of security to get the discount factors for
-   * @param issuerId  the standard ID of legal entity to get the discount factors for
-   * @param currency  the currency to get the discount factors for
-   * @return the discount factors
-   * @throws IllegalArgumentException if the discount factors are not available
-   */
   @Override
   public RepoCurveDiscountFactors repoCurveDiscountFactors(SecurityId securityId, StandardId issuerId, Currency currency) {
     RepoGroup repoGroup = repoCurveGroups.get(securityId.getStandardId());
@@ -161,18 +147,6 @@ public final class ImmutableLegalEntityDiscountingProvider
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the discount factors from an issuer based on the issuer ID and currency.
-   * <p>
-   * This searches for a curve associated with the issuer ID and currency.
-   * <p>
-   * If the valuation date is on or after the specified date, the discount factor is 1.
-   * 
-   * @param issuerId  the standard ID to get the discount factors for
-   * @param currency  the currency to get the discount factors for
-   * @return the discount factors
-   * @throws IllegalArgumentException if the discount factors are not available
-   */
   @Override
   public IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId issuerId, Currency currency) {
     LegalEntityGroup legalEntityGroup = issuerCurveGroups.get(issuerId);
