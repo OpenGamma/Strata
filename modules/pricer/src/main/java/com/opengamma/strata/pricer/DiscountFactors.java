@@ -46,14 +46,14 @@ public interface DiscountFactors
    */
   public static DiscountFactors of(Currency currency, LocalDate valuationDate, Curve curve) {
     if (curve.getMetadata().getYValueType().equals(ValueType.DISCOUNT_FACTOR)) {
-      return SimpleDiscountFactors.of(currency, valuationDate, curve);
+      return CachedDiscountFactors.of(SimpleDiscountFactors.of(currency, valuationDate, curve));
     }
     if (curve.getMetadata().getYValueType().equals(ValueType.ZERO_RATE)) {
       Optional<Integer> frequencyOpt = curve.getMetadata().findInfo(CurveInfoType.COMPOUNDING_PER_YEAR);
       if (frequencyOpt.isPresent()) {
-        return ZeroRatePeriodicDiscountFactors.of(currency, valuationDate, curve);
+        return CachedDiscountFactors.of(ZeroRatePeriodicDiscountFactors.of(currency, valuationDate, curve));
       }
-      return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
+      return CachedDiscountFactors.of(ZeroRateDiscountFactors.of(currency, valuationDate, curve));
     }
     throw new IllegalArgumentException(Messages.format(
         "Unknown value type in discount curve, must be 'DiscountFactor' or 'ZeroRate' but was '{}'",
