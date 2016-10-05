@@ -125,6 +125,46 @@ public final class FixedIborSwapConventions {
 
   //-------------------------------------------------------------------------
   /**
+   * The 'DKK-FIXED-6M-CIBOR-6M' swap convention.
+   * <p>
+   * DKK vanilla fixed vs CIBOR 6M swap.
+   * The fixed leg pays every 6 months with day count 'Act/360'.
+   */
+  public static final FixedIborSwapConvention DKK_FIXED_6M_CIBOR_6M =
+      FixedIborSwapConvention.of(StandardFixedIborSwapConventions.DKK_FIXED_6M_CIBOR_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 'NOK-FIXED-6M-NIBOR-6M' swap convention.
+   * <p>
+   * NOK vanilla fixed vs NIBOR 6M swap.
+   * The fixed leg pays every 6 months with day count 'Act/360'.
+   */
+  public static final FixedIborSwapConvention NOK_FIXED_6M_NIBOR_6M =
+      FixedIborSwapConvention.of(StandardFixedIborSwapConventions.NOK_FIXED_6M_NIBOR_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 'PLN-FIXED-6M-WIBOR-6M' swap convention.
+   * <p>
+   * PLN vanilla fixed vs WIBOR 6M swap.
+   * The fixed leg pays every 6 months with day count 'Act/365F'.
+   */
+  public static final FixedIborSwapConvention PLN_FIXED_6M_WIBOR_6M =
+      FixedIborSwapConvention.of(StandardFixedIborSwapConventions.PLN_FIXED_6M_WIBOR_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 'SEK-FIXED-6M-STIBOR-6M' swap convention.
+   * <p>
+   * SEK vanilla fixed vs NIBOR 3M swap.
+   * The fixed leg pays every 6 months with day count 'Act/360'.
+   */
+  public static final FixedIborSwapConvention SEK_FIXED_6M_STIBOR_3M =
+      FixedIborSwapConvention.of(StandardFixedIborSwapConventions.SEK_FIXED_6M_STIBOR_3M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private FixedIborSwapConventions() {
