@@ -7,11 +7,11 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
-import static com.opengamma.strata.basics.currency.Currency.SEK;
-import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
+import static com.opengamma.strata.basics.currency.Currency.PLN;
+import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -23,9 +23,9 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
@@ -372,7 +372,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, PLWA));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, PLWA));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, PLWA)));
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, PLWA)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "PLN-WIBOR-3M");
   }
@@ -386,7 +386,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, SEST));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, SEST));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SEST)));
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, SEST)));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "SEK-STIBOR-3M");
   }

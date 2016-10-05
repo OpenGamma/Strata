@@ -487,7 +487,7 @@ public final class IborIndices {
    * The "Norwegian Interbank Offered Rate".
    */
   public static final IborIndex NOK_NIBOR_6M = IborIndex.of("NOK-NIBOR-6M");
-  
+
   //-------------------------------------------------------------------------
   /**
    * The 1 week WIBOR index.
@@ -519,8 +519,7 @@ public final class IborIndices {
    * The "Polish Interbank Offered Rate".
    */
   public static final IborIndex PLN_WIBOR_12M = IborIndex.of("PLN-WIBOR-12M");
-  
-  
+
   //-------------------------------------------------------------------------
   /**
    * The 1 WEEK STIBOR index.
@@ -552,18 +551,7 @@ public final class IborIndices {
    * The "Swedish Interbank Offered Rate".
    */
   public static final IborIndex SEK_STIBOR_6M = IborIndex.of("SEK-STIBOR-6M");
-  /**
-   * The 9 month STIBOR index.
-   * <p>
-   * The "Swedish Interbank Offered Rate".
-   */
-  public static final IborIndex SEK_STIBOR_9M = IborIndex.of("SEK-STIBOR-9M");
-  /**
-   * The 12 month STIBOR index.
-   * <p>
-   * The "Swedish Interbank Offered Rate".
-   */
-  public static final IborIndex SEK_STIBOR_12M = IborIndex.of("SEK-STIBOR-12M");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
