@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.date;
 
+import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -14,6 +15,7 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 import static java.time.temporal.TemporalAdjusters.firstInMonth;
 import static java.time.temporal.TemporalAdjusters.lastInMonth;
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.stream.Collectors.toSet;
 
 import java.time.LocalDate;
@@ -121,6 +123,16 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar JPTO = generateTokyo();
+
+  /**
+   * The holiday calendar for Sydney, Australia, with code 'AUSY'.
+   * <p>
+   * This constant provides the calendar for Sydney holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar AUSY = generateSydney();
   /**
    * The holiday calendar for Toronto, Canada, with code 'CATO'.
    * <p>
@@ -149,14 +161,23 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar NOOS = generateOslo();
   /**
-   * The holiday calendar for Sydney, Australia, with code 'AUSY'.
+   * The holiday calendar for Warsaw, Poland, with code 'PLWA'.
    * <p>
-   * This constant provides the calendar for Sydney holidays.
+   * This constant provides the calendar for Warsaw holidays.
    * <p>
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
    */
-  public static final HolidayCalendar AUSY = generateSydney();
+  public static final HolidayCalendar PLWA = generateWarsaw();
+  /**
+   * The holiday calendar for Stockholm, Sweden, with code 'SEST'.
+   * <p>
+   * This constant provides the calendar for Stockholm holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar SEST = generateStockholm();
 
   //-------------------------------------------------------------------------
   /**
@@ -737,6 +758,101 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // generate PLWA
+  // data sources#
+  // http://isap.sejm.gov.pl/DetailsServlet?id=WDU19510040028 and linked pages
+  // https://www.gpw.pl/dni_bez_sesji_en
+  // http://jollyday.sourceforge.net/data/pl.html
+  static ImmutableHolidayCalendar generateWarsaw() {
+    // holiday law dates from 1951, but don't know situation before then, so ignore 1951 date
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // epiphany
+      if (year < 1961 || year >= 2011) {
+        holidays.add(date(year, 1, 6));
+      }
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // state
+      holidays.add(date(year, 5, 1));
+      // constitution
+      if (year >= 1990) {
+        holidays.add(date(year, 5, 3));
+      }
+      // rebirth/national
+      if (year < 1990) {
+        holidays.add(date(year, 7, 22));
+      }
+      // corpus christi
+      holidays.add(easter(year).plusDays(60));
+      // assumption
+      if (year < 1961 || year >= 1989) {
+        holidays.add(date(year, 8, 15));
+      }
+      // all saints
+      holidays.add(date(year, 11, 1));
+      // independence
+      if (year >= 1990) {
+        holidays.add(date(year, 11, 11));
+      }
+      // christmas (exchange)
+      holidays.add(date(year, 12, 24));
+      // christmas
+      holidays.add(date(year, 12, 25));
+      // boxing
+      holidays.add(date(year, 12, 26));
+      // new years eve (exchange, rule based on sample data)
+      LocalDate nyeve = date(year, 12, 31);
+      if (nyeve.getDayOfWeek() == MONDAY || nyeve.getDayOfWeek() == THURSDAY || nyeve.getDayOfWeek() == FRIDAY) {
+        holidays.add(nyeve);
+      }
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("PLWA"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // generate SEST
+  // data sources - history of dates that STIBOR fixing occurred
+  // http://www.riksbank.se/en/Interest-and-exchange-rates/search-interest-rates-exchange-rates/?g5-SEDP1MSTIBOR=on&from=2016-01-01&to=2016-10-05&f=Day&cAverage=Average&s=Comma#search
+  static ImmutableHolidayCalendar generateStockholm() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // epiphany
+      holidays.add(date(year, 1, 6));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // labour
+      holidays.add(date(year, 5, 1));
+      // ascension
+      holidays.add(easter(year).plusDays(39));
+      // midsummer friday
+      holidays.add(date(year, 6, 19).with(nextOrSame(FRIDAY)));
+      // national
+      if (year > 2005) {
+        holidays.add(date(year, 6, 6));
+      }
+      // christmas
+      holidays.add(date(year, 12, 24));
+      // christmas
+      holidays.add(date(year, 12, 25));
+      // boxing
+      holidays.add(date(year, 12, 26));
+      // new years eve (fixings, rule based on sample data)
+      holidays.add(date(year, 12, 31));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("SEST"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------

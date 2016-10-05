@@ -84,7 +84,7 @@ public final class OvernightIndices {
   /**
    * The SIOR index for SEK.
    * <p>
-   * The "Swedish Overnight" index.
+   * The "STIBOR T/N" index.
    */
   public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
 
