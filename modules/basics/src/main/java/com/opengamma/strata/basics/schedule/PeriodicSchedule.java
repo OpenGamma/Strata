@@ -385,11 +385,15 @@ public final class PeriodicSchedule
    * If the stub convention is present, then it will be validated against the stub dates.
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * <p>
-   * There is special handling for the last business day of month.
-   * If the start date is the last business day of month, and the roll convention if 'EOM',
-   * and there is no first regular start date, and the start date adjustment is set to 'None',
-   * and applying {@code businessDayAdjustment} to the end of month yields the last business day,
-   * then the unadjusted start date is presumed to be the last day of the month.
+   * There is special handling for the last business day of month. If all the following
+   * conditions hold true, then the unadjusted start date is presumed to be the last day of the month.
+   * <ul>
+   * <li>the roll convention is 'EOM'
+   * <li>the start date is the last business day of month, using the calendar from {@code businessDayAdjustment}
+   * <li>the {@code firstRegularStartDate} property is null
+   * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
+   * <li>applying {@code businessDayAdjustment} to the last day of the month yields the last business day
+   * </ul>
    * 
    * @return the schedule
    * @param refData  the reference data, used to find the holiday calendars
@@ -468,11 +472,15 @@ public final class PeriodicSchedule
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * If the frequency is 'Term' explicit stub dates are disallowed, and the roll and stub convention are ignored.
    * <p>
-   * There is special handling for the last business day of month.
-   * If the start date is the last business day of month, and the roll convention if 'EOM',
-   * and there is no first regular start date, and the start date adjustment is set to 'None',
-   * and applying {@code businessDayAdjustment} to the end of month yields the last business day,
-   * then the unadjusted start date is presumed to be the last day of the month.
+   * There is special handling for the last business day of month. If all the following
+   * conditions hold true, then the unadjusted start date is presumed to be the last day of the month.
+   * <ul>
+   * <li>the roll convention is 'EOM'
+   * <li>the start date is the last business day of month, using the calendar from {@code businessDayAdjustment}
+   * <li>the {@code firstRegularStartDate} property is null
+   * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
+   * <li>applying {@code businessDayAdjustment} to the last day of the month yields the last business day
+   * </ul>
    * 
    * @param refData  the reference data, used to find the holiday calendars
    * @return the schedule of unadjusted dates
@@ -670,11 +678,15 @@ public final class PeriodicSchedule
    * If the stub convention is present, then it will be validated against the stub dates.
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * <p>
-   * There is special handling for the last business day of month.
-   * If the start date is the last business day of month, and the roll convention if 'EOM',
-   * and there is no first regular start date, and the start date adjustment is set to 'None',
-   * and applying {@code businessDayAdjustment} to the end of month yields the last business day,
-   * then the unadjusted start date is presumed to be the last day of the month.
+   * There is special handling for the last business day of month. If all the following
+   * conditions hold true, then the unadjusted start date is presumed to be the last day of the month.
+   * <ul>
+   * <li>the roll convention is 'EOM'
+   * <li>the start date is the last business day of month, using the calendar from {@code businessDayAdjustment}
+   * <li>the {@code firstRegularStartDate} property is null
+   * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
+   * <li>applying {@code businessDayAdjustment} to the last day of the month yields the last business day
+   * </ul>
    * 
    * @return the schedule of dates adjusted to valid business days
    * @param refData  the reference data, used to find the holiday calendar
