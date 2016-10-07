@@ -9,12 +9,13 @@ addons:
 cache:
   directories:
     - '$HOME/.m2/repository'
+before_install:
+  - echo "MAVEN_OPTS='-Xms512m -Xmx2g'" > ~/.mavenrc
 install:
   - mvn --version
 script:
-  - export MAVEN_OPTS="-Xms512m -Xmx1024m"
   - mvn install -e -B -Dstrict
-  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -Doss.jars -Dog-public-release.url="https://api.bintray.com/maven/opengamma/releases/Strata/;publish=1" --settings .github/deploy-settings.xml; fi
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -Doss.jars -Dog-public-release.url="https://api.bintray.com/maven/opengamma/releases/Strata/" --settings .github/deploy-settings.xml; fi
   - rm -rf $HOME/.m2/repository/com/opengamma/strata
 before_deploy:
   - export REPORT_TOOL_FILE=$(ls examples/target/strata-report-tool-*.zip)
