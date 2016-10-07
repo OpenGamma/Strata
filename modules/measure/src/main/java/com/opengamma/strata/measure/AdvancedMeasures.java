@@ -21,6 +21,11 @@ public final class AdvancedMeasures {
    */
   public static final Measure PV01_SEMI_PARALLEL_GAMMA_BUCKETED =
       Measure.of(StandardMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED.getName());
+  /**
+   * Measure representing the single-node bucketed gamma PV01 of the calculation target.
+   */
+  public static final Measure PV01_SINGLE_NODE_GAMMA_BUCKETED =
+      Measure.of(StandardMeasures.PV01_SINGLE_NODE_GAMMA_BUCKETED.getName());
 
   //-------------------------------------------------------------------------
   private AdvancedMeasures() {
