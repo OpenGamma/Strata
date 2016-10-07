@@ -15,7 +15,8 @@ The release process for Strata is as follows:
 1. Add Git tag (beginning with `v`):  
 `git tag -a v1.0.0 -m "Release v1.0.0"`
 
-1. Push the tag: `git push --follow-tags`
+1. Push the tag:  
+`git push --follow-tags`
 
 1. Travis will automatically detect the new tag and perform a build.
 Being a release tag, beginning with `v`, additional operations are triggered during the build which 
