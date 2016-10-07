@@ -35,9 +35,14 @@ import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
  * This is a bootstrapper for the credit curve that is consistent with ISDA 
  * in that it will produce the same curve from the same inputs (up to numerical round-off). 
  * <p>
- * The external pricer, {@link IsdaCdsProductPricer}, is used in the calibration.
+ * The external pricer, {@link IsdaCdsTradePricer}, is used in the calibration.
  */
 public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrator {
+
+  /**
+   * The default implementation.
+   */
+  public static final SimpleCreditCurveCalibrator DEFAULT = new SimpleCreditCurveCalibrator();
 
   /**
    * The root bracket finder.
@@ -51,7 +56,7 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
   /**
    * The CDS product pricer.
    */
-  private final IsdaCdsProductPricer pricer;
+  private final IsdaCdsTradePricer pricer;
 
   //-------------------------------------------------------------------------
   /**
@@ -61,7 +66,7 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
    */
   public SimpleCreditCurveCalibrator() {
     super();
-    pricer = IsdaCdsProductPricer.DEFAULT;
+    pricer = IsdaCdsTradePricer.DEFAULT;
   }
 
   /**
@@ -71,7 +76,7 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
    */
   public SimpleCreditCurveCalibrator(AccrualOnDefaultFormulae formula) {
     super(formula);
-    pricer = new IsdaCdsProductPricer(formula);
+    pricer = new IsdaCdsTradePricer(formula);
   }
 
   //-------------------------------------------------------------------------
@@ -121,7 +126,6 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
       double pointsUpfront, LocalDate valuationDate, NodalCurve creditCurve, CreditDiscountFactors discountFactors,
       RecoveryRates recoveryRates, ReferenceData refData) {
     ResolvedCds cdsProduct = cds.getProduct();
-    LocalDate settlementDate = cds.getInfo().getSettlementDate().get();
     Currency currency = cdsProduct.getCurrency();
     StandardId legalEntityId = cdsProduct.getLegalEntityId();
     Pair<StandardId, Currency> pair = Pair.of(legalEntityId, currency);
@@ -138,7 +142,7 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
             .creditCurves(ImmutableMap.of(pair, LegalEntitySurvivalProbabilities.of(
                 legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
             .build();
-        double price = pricer.price(cdsProduct, rates, flactionalSpread, settlementDate, PriceType.CLEAN, refData);
+        double price = pricer.price(cds, rates, flactionalSpread, PriceType.CLEAN, refData);
         return price - pointsUpfront;
       }
     };

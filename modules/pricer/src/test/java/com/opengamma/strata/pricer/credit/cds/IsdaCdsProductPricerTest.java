@@ -197,6 +197,17 @@ public class IsdaCdsProductPricerTest {
     assertEquals(spread, protPv / annuity, TOL);
   }
 
+  public void withCouponTest() {
+    double coupon = 0.15;
+    double price = PRICER.price(PRODUCT_NEXTDAY, RATES_PROVIDER, coupon,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    double protPv = PRICER.protectionLeg(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    double annuity = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
+    assertEquals(price, protPv - coupon * annuity, TOL);
+  }
+
   //-------------------------------------------------------------------------
   public void pvSensitivityTest() {
     PointSensitivityBuilder pointNext = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,

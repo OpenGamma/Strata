@@ -110,22 +110,13 @@ public class IsdaCdsProductPricer {
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
     ArgChecker.notNull(referenceDate, "referenceDate");
+    ArgChecker.notNull(priceType, "priceType");
     ArgChecker.notNull(refData, "refData");
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
-      return 0d;
-    }
-    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
-    double recoveryRate = recoveryRate(cds, ratesProvider);
-    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-    double protectionLeg =
-        protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
-    double rpv01 = riskyAnnuity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
-    return protectionLeg - rpv01 * cds.getFixedRate();
+    return price(cds, ratesProvider, cds.getFixedRate(), referenceDate, priceType, refData);
   }
 
-  public double price(
+  // internal price computation with specified coupon rate
+  double price(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       double flactionalSpread,
@@ -133,10 +124,6 @@ public class IsdaCdsProductPricer {
       PriceType priceType,
       ReferenceData refData) {
 
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(referenceDate, "referenceDate");
-    ArgChecker.notNull(refData, "refData");
     if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
       return 0d;
     }
@@ -203,6 +190,7 @@ public class IsdaCdsProductPricer {
 
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
+    ArgChecker.notNull(referenceDate, "referenceDate");
     ArgChecker.notNull(refData, "refData");
     if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
       return 0d;
@@ -233,6 +221,8 @@ public class IsdaCdsProductPricer {
 
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(ratesProvider, "ratesProvider");
+    ArgChecker.notNull(referenceDate, "referenceDate");
+    ArgChecker.notNull(priceType, "priceType");
     ArgChecker.notNull(refData, "refData");
     if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
       return 0d;

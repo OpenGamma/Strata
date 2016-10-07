@@ -41,6 +41,11 @@ import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
 public class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrator {
 
   /**
+   * The default implementation.
+   */
+  public static final FastCreditCurveCalibrator DEFAULT = new FastCreditCurveCalibrator();
+
+  /**
    * The omega value for the original ISDA accrual-on-default formula.
    */
   private static final double HALFDAY = 1d / 730d;
@@ -73,7 +78,7 @@ public class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrato
    * <p>
    * The arbitrage handling 'ignore' is used. 
    * 
-   * @param formula  the accrual on default formulae
+   * @param formula  the accrual-on-default formula
    */
   public FastCreditCurveCalibrator(AccrualOnDefaultFormulae formula) {
     super(formula);
