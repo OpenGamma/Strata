@@ -23,6 +23,14 @@ Being a release tag, beginning with `v`, additional operations are triggered dur
 will perform the deployment to Bintray and upload the build artifacts to the GitHub Releases page.
 Note that there will be a concurrent build for the earlier push to master which will behave normally.
 
+1. At GutHub, update the release with a proper description and release notes.
+
+1. At Bintray, publish the files.
+Edit the description of the version, adding the release date, description and VCS tag.
+Ensure the readme and release notes tags are correctly setup.
+
+1. Publish the version to Maven Central from Bintray using the password in 1password.
+
 1. Bump version of Strata to SNAPSHOT, e.g. 1.1.0-SNAPSHOT:  
 `mvn versions:set -DgenerateBackupPoms=false -DartifactId=* -DgroupId=com.opengamma.strata`
 
