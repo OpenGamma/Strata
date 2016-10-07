@@ -34,6 +34,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Computes the gamma-related values for the rates curve parameters.
@@ -112,24 +113,25 @@ public class CurveGammaCalculator {
    * @return the cross gamma
    */
   public CrossGammaParameterSensitivities calculateCrossGammaIntraCurve(
-      ImmutableRatesProvider ratesProvider,
+      RatesProvider ratesProvider,
       Function<ImmutableRatesProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
 
-    CurrencyParameterSensitivities baseDelta = sensitivitiesFn.apply(ratesProvider); // used to check target sensitivity exits
+    ImmutableRatesProvider immProv = ratesProvider.toImmutableRatesProvider();
+    CurrencyParameterSensitivities baseDelta = sensitivitiesFn.apply(immProv); // used to check target sensitivity exits
     CrossGammaParameterSensitivities result = CrossGammaParameterSensitivities.empty();
     // discount curve
-    for (Entry<Currency, Curve> entry : ratesProvider.getDiscountCurves().entrySet()) {
+    for (Entry<Currency, Curve> entry : immProv.getDiscountCurves().entrySet()) {
       Currency currency = entry.getKey();
       Curve curve = entry.getValue();
       if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
         NodalCurve nodalCurve = getNodalCurve(curve);
         CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-            nodalCurve, currency, c -> ratesProvider.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
+            nodalCurve, currency, c -> immProv.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
         result = result.combinedWith(gammaSingle);
       }
     }
     // forward curve
-    for (Entry<Index, Curve> entry : ratesProvider.getIndexCurves().entrySet()) {
+    for (Entry<Index, Curve> entry : immProv.getIndexCurves().entrySet()) {
       Index index = entry.getKey();
       if (index instanceof RateIndex || index instanceof PriceIndex) {
         Currency currency = getCurrency(index);
@@ -137,7 +139,7 @@ public class CurveGammaCalculator {
         if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
           NodalCurve nodalCurve = getNodalCurve(curve);
           CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-              nodalCurve, currency, c -> ratesProvider.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
+              nodalCurve, currency, c -> immProv.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
           result = result.combinedWith(gammaSingle);
         }
       }
@@ -160,26 +162,27 @@ public class CurveGammaCalculator {
    * @return the cross gamma
    */
   public CrossGammaParameterSensitivities calculateCrossGammaCrossCurve(
-      ImmutableRatesProvider ratesProvider,
+      RatesProvider ratesProvider,
       Function<ImmutableRatesProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
 
-    CurrencyParameterSensitivities baseDelta = sensitivitiesFn.apply(ratesProvider); // used to check target sensitivity exits.
+    ImmutableRatesProvider immProv = ratesProvider.toImmutableRatesProvider();
+    CurrencyParameterSensitivities baseDelta = sensitivitiesFn.apply(immProv); // used to check target sensitivity exits.
     CrossGammaParameterSensitivities result = CrossGammaParameterSensitivities.empty();
     for (CurrencyParameterSensitivity baseDeltaSingle : baseDelta.getSensitivities()) {
       CrossGammaParameterSensitivities resultInner = CrossGammaParameterSensitivities.empty();
       // discount curve
-      for (Entry<Currency, Curve> entry : ratesProvider.getDiscountCurves().entrySet()) {
+      for (Entry<Currency, Curve> entry : immProv.getDiscountCurves().entrySet()) {
         Currency currency = entry.getKey();
         Curve curve = entry.getValue();
         if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
           NodalCurve nodalCurve = getNodalCurve(curve);
           CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-              baseDeltaSingle, nodalCurve, c -> ratesProvider.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
+              baseDeltaSingle, nodalCurve, c -> immProv.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
           resultInner = resultInner.combinedWith(gammaSingle);
         }
       }
       // forward curve
-      for (Entry<Index, Curve> entry : ratesProvider.getIndexCurves().entrySet()) {
+      for (Entry<Index, Curve> entry : immProv.getIndexCurves().entrySet()) {
         Index index = entry.getKey();
         if (index instanceof RateIndex || index instanceof PriceIndex) {
           Currency currency = getCurrency(index);
@@ -187,7 +190,7 @@ public class CurveGammaCalculator {
           if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
             NodalCurve nodalCurve = getNodalCurve(curve);
             CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-                baseDeltaSingle, nodalCurve, c -> ratesProvider.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
+                baseDeltaSingle, nodalCurve, c -> immProv.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
             resultInner = resultInner.combinedWith(gammaSingle);
           }
         }

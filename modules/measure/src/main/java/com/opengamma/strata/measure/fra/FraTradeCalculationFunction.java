@@ -51,6 +51,7 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  *   <li>{@linkplain AdvancedMeasures#PV01_SEMI_PARALLEL_GAMMA_BUCKETED PV01 semi-parallel gamma bucketed}
+ *   <li>{@linkplain AdvancedMeasures#PV01_SINGLE_NODE_GAMMA_BUCKETED PV01 single node gamma bucketed}
  * </ul>
  */
 public class FraTradeCalculationFunction
@@ -74,6 +75,7 @@ public class FraTradeCalculationFunction
           .put(Measures.CURRENT_CASH, FraMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
+          .put(AdvancedMeasures.PV01_SINGLE_NODE_GAMMA_BUCKETED, FraMeasureCalculations.DEFAULT::pv01SingleNodeGammaBucketed)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
