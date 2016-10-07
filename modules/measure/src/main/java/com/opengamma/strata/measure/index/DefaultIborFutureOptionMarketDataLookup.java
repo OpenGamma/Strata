@@ -28,6 +28,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.index.IborFutureOptionVolatilities;
 import com.opengamma.strata.pricer.index.IborFutureOptionVolatilitiesId;
@@ -110,7 +111,7 @@ final class DefaultIborFutureOptionMarketDataLookup
   public IborFutureOptionVolatilities volatilities(IborIndex index, MarketData marketData) {
     IborFutureOptionVolatilitiesId volatilityId = volatilityIds.get(index);
     if (volatilityId == null) {
-      throw new IllegalArgumentException(msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(msgIndexNotFound(index));
     }
     return marketData.getValue(volatilityId);
   }

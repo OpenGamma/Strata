@@ -28,6 +28,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -98,7 +99,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
     if (repoGroup == null) {
       repoGroup = lookup.getRepoCurveGroups().get(issuerId);
       if (repoGroup == null) {
-        throw new IllegalArgumentException("Unable to find map for ID: " + securityId + ", " + issuerId);
+        throw new MarketDataNotFoundException("Unable to find repo curve mapping for ID: " + securityId + ", " + issuerId);
       }
     }
     return repoCurveDiscountFactors(repoGroup, currency);
@@ -108,7 +109,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
   private RepoCurveDiscountFactors repoCurveDiscountFactors(RepoGroup repoGroup, Currency currency) {
     CurveId curveId = lookup.getRepoCurves().get(Pair.of(repoGroup, currency));
     if (curveId == null) {
-      throw new IllegalArgumentException("Unable to find repo curve: " + repoGroup + ", " + currency);
+      throw new MarketDataNotFoundException("Unable to find repo curve: " + repoGroup + ", " + currency);
     }
     Curve curve = marketData.getValue(curveId);
     DiscountFactors df = DiscountFactors.of(currency, getValuationDate(), curve);
@@ -120,7 +121,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
   public IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId issuerId, Currency currency) {
     LegalEntityGroup legalEntityGroup = lookup.getIssuerCurveGroups().get(issuerId);
     if (legalEntityGroup == null) {
-      throw new IllegalArgumentException("Unable to find map for ID: " + issuerId);
+      throw new MarketDataNotFoundException("Unable to find issuer curve mapping for ID: " + issuerId);
     }
     return issuerCurveDiscountFactors(legalEntityGroup, currency);
   }
@@ -129,7 +130,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
   private IssuerCurveDiscountFactors issuerCurveDiscountFactors(LegalEntityGroup legalEntityGroup, Currency currency) {
     CurveId curveId = lookup.getIssuerCurves().get(Pair.of(legalEntityGroup, currency));
     if (curveId == null) {
-      throw new IllegalArgumentException("Unable to find issuer curve: " + legalEntityGroup + ", " + currency);
+      throw new MarketDataNotFoundException("Unable to find issuer curve: " + legalEntityGroup + ", " + currency);
     }
     Curve curve = marketData.getValue(curveId);
     DiscountFactors df = DiscountFactors.of(currency, getValuationDate(), curve);

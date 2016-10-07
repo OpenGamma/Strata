@@ -17,6 +17,7 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
@@ -158,6 +159,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @param index  the Ibor index
    * @param marketData  the complete set of market data for one scenario
    * @return the volatilities
+   * @throws MarketDataNotFoundException if the index is not found
    */
   public abstract SwaptionVolatilities volatilities(IborIndex index, MarketData marketData);
 

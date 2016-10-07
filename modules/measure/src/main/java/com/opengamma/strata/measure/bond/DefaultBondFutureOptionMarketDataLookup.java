@@ -26,6 +26,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilities;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilitiesId;
@@ -114,7 +115,7 @@ final class DefaultBondFutureOptionMarketDataLookup
   public BondFutureVolatilities volatilities(SecurityId securityId, MarketData marketData) {
     BondFutureVolatilitiesId volatilityId = volatilityIds.get(securityId);
     if (volatilityId == null) {
-      throw new IllegalArgumentException(msgSecurityNotFound(securityId));
+      throw new MarketDataNotFoundException(msgSecurityNotFound(securityId));
     }
     return marketData.getValue(volatilityId);
   }
