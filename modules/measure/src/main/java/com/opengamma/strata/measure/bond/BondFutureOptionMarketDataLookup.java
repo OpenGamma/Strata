@@ -16,6 +16,7 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilities;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilitiesId;
@@ -158,6 +159,7 @@ public interface BondFutureOptionMarketDataLookup extends CalculationParameter {
    * @param securityId  the security ID
    * @param marketData  the complete set of market data for one scenario
    * @return the volatilities
+   * @throws MarketDataNotFoundException if the security ID is not found
    */
   public abstract BondFutureVolatilities volatilities(SecurityId securityId, MarketData marketData);
 

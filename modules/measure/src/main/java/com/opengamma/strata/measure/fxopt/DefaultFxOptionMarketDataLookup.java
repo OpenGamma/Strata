@@ -26,6 +26,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesId;
@@ -108,7 +109,7 @@ final class DefaultFxOptionMarketDataLookup
   public FxOptionVolatilities volatilities(CurrencyPair currencyPair, MarketData marketData) {
     FxOptionVolatilitiesId volatilityId = volatilityIds.get(currencyPair);
     if (volatilityId == null) {
-      throw new IllegalArgumentException(msgPairNotFound(currencyPair));
+      throw new MarketDataNotFoundException(msgPairNotFound(currencyPair));
     }
     return marketData.getValue(volatilityId);
   }

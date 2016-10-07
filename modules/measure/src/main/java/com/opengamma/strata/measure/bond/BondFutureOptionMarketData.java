@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.bond;
 import java.time.LocalDate;
 
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilities;
 import com.opengamma.strata.product.SecurityId;
 
@@ -60,7 +61,7 @@ public interface BondFutureOptionMarketData {
    *
    * @param securityId  the security ID
    * @return the volatilities for the security ID
-   * @throws IllegalArgumentException if the security ID is not found
+   * @throws MarketDataNotFoundException if the security ID is not found
    */
   public abstract BondFutureVolatilities volatilities(SecurityId securityId);
 

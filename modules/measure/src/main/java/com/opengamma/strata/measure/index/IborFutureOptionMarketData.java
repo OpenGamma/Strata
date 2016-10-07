@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.pricer.index.IborFutureOptionVolatilities;
 
 /**
@@ -60,7 +61,7 @@ public interface IborFutureOptionMarketData {
    *
    * @param index  the Ibor index
    * @return the volatilities for the index
-   * @throws IllegalArgumentException if the index is not found
+   * @throws MarketDataNotFoundException if the index is not found
    */
   public abstract IborFutureOptionVolatilities volatilities(IborIndex index);
 
