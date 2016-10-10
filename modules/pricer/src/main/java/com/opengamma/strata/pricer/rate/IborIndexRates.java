@@ -193,7 +193,8 @@ public interface IborIndexRates
     child.put(ExplainKey.FIXING_DATE, fixingDate);
     child.put(ExplainKey.INDEX, observation.getIndex());
     child.put(ExplainKey.INDEX_VALUE, rate);
-    if (fixingDate.equals(getValuationDate()) && getFixings().containsDate(fixingDate)) {
+    if (fixingDate.isBefore(getValuationDate()) ||
+        (fixingDate.equals(getValuationDate()) && getFixings().containsDate(fixingDate))) {
       child.put(ExplainKey.FROM_FIXING_SERIES, true);
     }
     consumer.accept(child);
