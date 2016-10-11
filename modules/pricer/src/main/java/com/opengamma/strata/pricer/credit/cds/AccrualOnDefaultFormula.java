@@ -11,7 +11,7 @@ package com.opengamma.strata.pricer.credit.cds;
  * This specifies which formula is used in {@code IsdaCdsProductPricer} for computing the accrued payment on default. 
  * The formula is 'original ISDA', 'Markit fix' or 'correct'.
  */
-public enum AccrualOnDefaultFormulae {
+public enum AccrualOnDefaultFormula {
 
   /**
    * The formula in v1.8.1 and below.

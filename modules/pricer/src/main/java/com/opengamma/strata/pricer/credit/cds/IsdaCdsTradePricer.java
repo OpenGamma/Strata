@@ -53,7 +53,7 @@ public class IsdaCdsTradePricer {
    * 
    * @param formula  the accrual-on-default formula
    */
-  public IsdaCdsTradePricer(AccrualOnDefaultFormulae formula) {
+  public IsdaCdsTradePricer(AccrualOnDefaultFormula formula) {
     this.productPricer = new IsdaCdsProductPricer(formula);
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
   }

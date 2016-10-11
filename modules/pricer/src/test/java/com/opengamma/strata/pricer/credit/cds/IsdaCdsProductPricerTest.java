@@ -141,8 +141,8 @@ public class IsdaCdsProductPricerTest {
   private static final double TOL = 1.0e-14;
   private static final double EPS = 1.0e-6;
   private static final IsdaCdsProductPricer PRICER = IsdaCdsProductPricer.DEFAULT;
-  private static final IsdaCdsProductPricer PRICER_FIX = new IsdaCdsProductPricer(AccrualOnDefaultFormulae.MarkitFix);
-  private static final IsdaCdsProductPricer PRICER_CORRECT = new IsdaCdsProductPricer(AccrualOnDefaultFormulae.Correct);
+  private static final IsdaCdsProductPricer PRICER_FIX = new IsdaCdsProductPricer(AccrualOnDefaultFormula.MarkitFix);
+  private static final IsdaCdsProductPricer PRICER_CORRECT = new IsdaCdsProductPricer(AccrualOnDefaultFormula.Correct);
   private static final RatesFiniteDifferenceSensitivityCalculator CALC_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 

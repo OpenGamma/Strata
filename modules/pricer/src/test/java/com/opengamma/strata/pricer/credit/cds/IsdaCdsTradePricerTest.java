@@ -113,9 +113,9 @@ public class IsdaCdsTradePricerTest {
       .build();
 
   private static final IsdaCdsTradePricer PRICER = IsdaCdsTradePricer.DEFAULT;
-  private static final IsdaCdsTradePricer PRICER_MF = new IsdaCdsTradePricer(AccrualOnDefaultFormulae.MarkitFix);
+  private static final IsdaCdsTradePricer PRICER_MF = new IsdaCdsTradePricer(AccrualOnDefaultFormula.MarkitFix);
   private static final IsdaCdsProductPricer PRICER_PRODUCT = IsdaCdsProductPricer.DEFAULT;
-  private static final IsdaCdsProductPricer PRICER_PRODUCT_MF = new IsdaCdsProductPricer(AccrualOnDefaultFormulae.MarkitFix);
+  private static final IsdaCdsProductPricer PRICER_PRODUCT_MF = new IsdaCdsProductPricer(AccrualOnDefaultFormula.MarkitFix);
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
 
   private static final double TOL = 1.0e-15;

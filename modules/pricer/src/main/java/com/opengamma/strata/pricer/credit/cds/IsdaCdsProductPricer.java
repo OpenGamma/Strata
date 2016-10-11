@@ -36,7 +36,7 @@ public class IsdaCdsProductPricer {
   /**
    * Default implementation.
    */
-  public static final IsdaCdsProductPricer DEFAULT = new IsdaCdsProductPricer(AccrualOnDefaultFormulae.OriginalISDA);
+  public static final IsdaCdsProductPricer DEFAULT = new IsdaCdsProductPricer(AccrualOnDefaultFormula.OriginalISDA);
   /**
    * The small parameter.
    * <p>
@@ -47,7 +47,7 @@ public class IsdaCdsProductPricer {
   /**
    * The formula
    */
-  private final AccrualOnDefaultFormulae formula;
+  private final AccrualOnDefaultFormula formula;
   /**
    * The omega parameter.
    */
@@ -61,7 +61,7 @@ public class IsdaCdsProductPricer {
    * <p>
    * @param formula  the formula
    */
-  public IsdaCdsProductPricer(AccrualOnDefaultFormulae formula) {
+  public IsdaCdsProductPricer(AccrualOnDefaultFormula formula) {
     this.formula = ArgChecker.notNull(formula, "formula");
     this.omega = formula.getOmega();
   }
@@ -170,7 +170,7 @@ public class IsdaCdsProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the price of the protection leg, i.e., the protection leg present value per unit notional.
+   * Calculates the price of the protection leg, which is the protection leg present value per unit notional.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -195,7 +195,7 @@ public class IsdaCdsProductPricer {
   }
 
   /**
-   * Calculates the risky annuity, i.e., RPV01 per unit notional.
+   * Calculates the risky annuity, which is RPV01 per unit notional.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -525,7 +525,7 @@ public class IsdaCdsProductPricer {
       double dhrt = dht + drt;
 
       double tPV;
-      if (formula == AccrualOnDefaultFormulae.MarkitFix) {
+      if (formula == AccrualOnDefaultFormula.MarkitFix) {
         if (Math.abs(dhrt) < SMALL) {
           tPV = dht * dt * b0 * Epsilon.epsilonP(-dhrt);
         } else {
@@ -725,7 +725,7 @@ public class IsdaCdsProductPricer {
       double drt = rt1 - rt0;
       double dhrt = dht + drt;
       double tPv;
-      if (formula == AccrualOnDefaultFormulae.MarkitFix) {
+      if (formula == AccrualOnDefaultFormula.MarkitFix) {
         if (Math.abs(dhrt) < SMALL) {
           double eps = epsilonP(-dhrt);
           tPv = dht * dt * b0 * eps;
