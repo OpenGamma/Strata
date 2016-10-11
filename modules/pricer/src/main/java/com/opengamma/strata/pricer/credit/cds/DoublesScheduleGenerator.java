@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * This is a utility for combining and truncating ascending arrays of doubles.
  * The main application of this class is {@code IsdaCdsProductPricer}.
  */
-public class DoublesScheduleGenerator {
+final class DoublesScheduleGenerator {
   private static final double TOL = 1d / 730d;
 
   /**
@@ -69,8 +69,8 @@ public class DoublesScheduleGenerator {
     return Math.abs(a - b) > TOL;
   }
 
+  // the resulting array can be modified
   private static double[] truncateSetExclusive(double lower, double upper, double[] set) {
-    // this is private, so assume inputs are fine
 
     int n = set.length;
     if (upper < set[0] || lower > set[n - 1]) {

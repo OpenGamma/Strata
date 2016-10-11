@@ -16,14 +16,31 @@ public enum AccrualOnDefaultFormulae {
   /**
    * The formula in v1.8.1 and below.
    */
-  ORIGINAL_ISDA,
+  OriginalISDA,
+
   /**
    * The correction proposed by Markit (v 1.8.2).
    */
-  MARKIT_FIX,
+  MarkitFix,
+
   /**
    * The mathematically correct formula .
    */
-  CORRECT;
+  Correct;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the omega value. 
+   * <p>
+   * The omega value is used in {@link IsdaCdsProductPricer}.
+   * 
+   * @return the omega value
+   */
+  public double getOmega() {
+    if (this == OriginalISDA) {
+      return 1d / 730d;
+    } else {
+      return 0d;
+    }
+  }
 }

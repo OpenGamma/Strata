@@ -84,7 +84,7 @@ public class CdsTradeTest {
         .resolve(REF_DATA);
     assertEquals(test.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpfrontFee().get(), UPFRONT);
+    assertEquals(test.getUpfrontFee().get(), UPFRONT.resolve(REF_DATA));
   }
 
   public void test_min_resolve() {

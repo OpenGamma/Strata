@@ -19,6 +19,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.util.Epsilon;
+import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.product.credit.CreditCouponPaymentPeriod;
 import com.opengamma.strata.product.credit.ResolvedCds;
 
@@ -26,19 +27,27 @@ import com.opengamma.strata.product.credit.ResolvedCds;
  * Pricer for single-name credit default swaps (CDS) based on ISDA standard model. 
  * <p>
  * The implementation is based on the ISDA model versions 1.8.2.
+ * <p>
+ * A CDS product is priced based on {@code referenceDate}.
+ * This is typically valuation date, or settlement date if the product is associated with a {@code Trade}. 
  */
 public class IsdaCdsProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final IsdaCdsProductPricer DEFAULT = new IsdaCdsProductPricer(AccrualOnDefaultFormulae.ORIGINAL_ISDA);
+  public static final IsdaCdsProductPricer DEFAULT = new IsdaCdsProductPricer(AccrualOnDefaultFormulae.OriginalISDA);
+  /**
+   * The small parameter.
+   * <p>
+   * An approximation formula is used if a certain variable is smaller than this parameter.
+   */
+  private static final double SMALL = 1.0e-5;
 
   /**
    * The formula
    */
   private final AccrualOnDefaultFormulae formula;
-
   /**
    * The omega parameter.
    */
@@ -54,14 +63,55 @@ public class IsdaCdsProductPricer {
    */
   public IsdaCdsProductPricer(AccrualOnDefaultFormulae formula) {
     this.formula = ArgChecker.notNull(formula, "formula");
-    if (formula == AccrualOnDefaultFormulae.ORIGINAL_ISDA) {
-      omega = 1d / 730d;
-    } else {
-      omega = 0d;
-    }
+    this.omega = formula.getOmega();
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Calculates the price of the CDS product, which is the present value per unit notional. 
+   * <p>
+   * This is coherent with {@link #presentValue(ResolvedCds, CreditRatesProvider, LocalDate, PriceType, ReferenceData)}.
+   * 
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param priceType  the price type
+   * @param refData  the reference data
+   * @return the price
+   */
+  public double price(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      PriceType priceType,
+      ReferenceData refData) {
+
+    return price(cds, ratesProvider, cds.getFixedRate(), referenceDate, priceType, refData);
+  }
+
+  // internal price computation with specified coupon rate
+  double price(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      double flactionalSpread,
+      LocalDate referenceDate,
+      PriceType priceType,
+      ReferenceData refData) {
+
+    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+      return 0d;
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    double protectionLeg =
+        protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
+    double rpv01 = riskyAnnuity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
+    return protectionLeg - rpv01 * flactionalSpread;
+  }
+
   /**
    * Calculates the present value of the CDS product.
    * <p>
@@ -89,43 +139,6 @@ public class IsdaCdsProductPricer {
   }
 
   /**
-   * Calculates the price of the CDS product, i.e., the present value per unit notional. 
-   * <p>
-   * This is coherent with {@link #presentValue(ResolvedCds, CreditRatesProvider, LocalDate, PriceType, ReferenceData)}.
-   * 
-   * @param cds  the product
-   * @param ratesProvider  the rates provider
-   * @param referenceDate  the reference date
-   * @param priceType  the price type
-   * @param refData  the reference data
-   * @return the price
-   */
-  public double price(
-      ResolvedCds cds,
-      CreditRatesProvider ratesProvider,
-      LocalDate referenceDate,
-      PriceType priceType,
-      ReferenceData refData) {
-
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(referenceDate, "referenceDate");
-    ArgChecker.notNull(refData, "refData");
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
-      return 0d;
-    }
-    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
-    double recoveryRate = recoveryRate(cds, ratesProvider);
-    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-    double protectionLeg =
-        protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
-    double rpv01 = riskyAnnuity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
-    return protectionLeg - rpv01 * cds.getFixedRate();
-  }
-
-  /**
    * Calculates the par spread of the CDS product.
    * <p>
    * The par spread is a coupon rate such that the clean PV is 0. 
@@ -143,13 +156,9 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(referenceDate, "referenceDate");
-    ArgChecker.notNull(refData, "refData");
     ArgChecker.isTrue(cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate()), "CDS already expired");
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     double recoveryRate = recoveryRate(cds, ratesProvider);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
     double protectionLeg =
@@ -175,14 +184,11 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(refData, "refData");
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+    if (isExpired(cds, ratesProvider)) {
       return 0d;
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     double recoveryRate = recoveryRate(cds, ratesProvider);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
     return protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
@@ -205,14 +211,11 @@ public class IsdaCdsProductPricer {
       PriceType priceType,
       ReferenceData refData) {
 
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(refData, "refData");
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+    if (isExpired(cds, ratesProvider)) {
       return 0d;
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
     return riskyAnnuity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
   }
@@ -260,21 +263,51 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(referenceDate, "referenceDate");
-    ArgChecker.notNull(refData, "refData");
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+    if (isExpired(cds, ratesProvider)) {
       return CurrencyAmount.of(cds.getCurrency(), 0d);
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
-    recoveryRate(cds, ratesProvider); // for validation
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    validateRecoveryRates(cds, ratesProvider);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
     double protectionFull =
         protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
 
     return CurrencyAmount.of(cds.getCurrency(), -cds.getBuySell().normalize(cds.getNotional()) * protectionFull);
+  }
+
+  /**
+   * Calculates the price sensitivity of the product. 
+   * <p>
+   * The price sensitivity of the product is the sensitivity of price to the underlying curves.
+   * 
+   * @param cds  the product 
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder priceSensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+
+    PointSensitivityBuilder protectionLegSensi =
+        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
+    PointSensitivityBuilder riskyAnnuitySensi =
+        riskyAnnuitySensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
+            .multipliedBy(-cds.getFixedRate());
+
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }
 
   /**
@@ -294,15 +327,11 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ArgChecker.notNull(cds, "cds");
-    ArgChecker.notNull(ratesProvider, "ratesProvider");
-    ArgChecker.notNull(referenceDate, "referenceDate");
-    ArgChecker.notNull(refData, "refData");
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+    if (isExpired(cds, ratesProvider)) {
       return PointSensitivityBuilder.none();
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.getEffectiveStartDate(stepinDate);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     double recoveryRate = recoveryRate(cds, ratesProvider);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
 
@@ -317,8 +346,48 @@ public class IsdaCdsProductPricer {
     return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }
 
+  /**
+   * Calculates the par spread sensitivity of the product.
+   * <p>
+   * The par spread sensitivity of the product is the sensitivity of par spread to the underlying curves.
+   * The resulting sensitivity is based on the currency of the CDS product.
+   * 
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the par spread
+   */
+  public PointSensitivityBuilder parSpreadSensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    ArgChecker.isTrue(cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate()), "CDS already expired");
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    double protectionLeg =
+        protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
+    double riskyAnnuityInv = 1d /
+        riskyAnnuity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, PriceType.CLEAN);
+
+    PointSensitivityBuilder protectionLegSensi =
+        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
+            .multipliedBy(riskyAnnuityInv);
+    PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
+            .multipliedBy(-protectionLeg * riskyAnnuityInv * riskyAnnuityInv);
+
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+  }
+
   //-------------------------------------------------------------------------
-  private double protectionLeg(ResolvedCds cds,
+  // computes protection leg pv per unit notional
+  private double protectionLeg(
+      ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
       LocalDate referenceDate,
@@ -329,6 +398,7 @@ public class IsdaCdsProductPricer {
     return (1d - recoveryRate) * protectionFull;
   }
 
+  // computes protection leg pv per unit notional, without loss-given-default rate multiplied
   private double protectionFull(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
@@ -357,7 +427,7 @@ public class IsdaCdsProductPricer {
       // The formula has been modified from ISDA (but is equivalent) to avoid log(exp(x)) and explicitly
       // calculating the time step - it also handles the limit
       double dPV = 0d;
-      if (Math.abs(dhrt) < 1e-5) {
+      if (Math.abs(dhrt) < SMALL) {
         dPV = dht * b0 * epsilon(-dhrt);
       } else {
         dPV = (b0 - b1) * dht / dhrt;
@@ -367,14 +437,13 @@ public class IsdaCdsProductPricer {
       rt0 = rt1;
       b0 = b1;
     }
-
     // roll to the cash settle date
     double df = discountFactors.discountFactor(referenceDate);
-    pv /= df;
 
-    return pv;
+    return pv / df;
   }
 
+  // computes risky annuity
   private double riskyAnnuity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
@@ -417,6 +486,7 @@ public class IsdaCdsProductPricer {
     return pv;
   }
 
+  // computes accrual-on-default pv per unit notional for a single payment period
   private double singlePeriodAccrualOnDefault(
       CreditCouponPaymentPeriod coupon,
       LocalDate effectiveStartDate,
@@ -433,17 +503,17 @@ public class IsdaCdsProductPricer {
     DoubleArray knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
         discountFactors.relativeYearFraction(coupon.getEffectiveEndDate()), integrationSchedule);
 
-    double t = knots.get(0);
-    double ht0 = survivalProbabilities.zeroRate(t) * t;
-    double rt0 = discountFactors.zeroRate(t) * t;
+    double t0Knot = knots.get(0);
+    double ht0 = survivalProbabilities.zeroRate(t0Knot) * t0Knot;
+    double rt0 = discountFactors.zeroRate(t0Knot) * t0Knot;
     double b0 = Math.exp(-rt0 - ht0);
 
     double effStart = discountFactors.relativeYearFraction(coupon.getEffectiveStartDate());
-    double t0 = t - effStart + omega;
+    double t0 = t0Knot - effStart + omega;
     double pv = 0d;
     final int nItems = knots.size();
     for (int j = 1; j < nItems; ++j) {
-      t = knots.get(j);
+      double t = knots.get(j);
       double ht1 = survivalProbabilities.zeroRate(t) * t;
       double rt1 = discountFactors.zeroRate(t) * t;
       double b1 = Math.exp(-rt1 - ht1);
@@ -455,15 +525,15 @@ public class IsdaCdsProductPricer {
       double dhrt = dht + drt;
 
       double tPV;
-      if (formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
-        if (Math.abs(dhrt) < 1e-5) {
+      if (formula == AccrualOnDefaultFormulae.MarkitFix) {
+        if (Math.abs(dhrt) < SMALL) {
           tPV = dht * dt * b0 * Epsilon.epsilonP(-dhrt);
         } else {
           tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
         }
       } else {
         double t1 = t - effStart + omega;
-        if (Math.abs(dhrt) < 1e-5) {
+        if (Math.abs(dhrt) < SMALL) {
           tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * Epsilon.epsilonP(-dhrt));
         } else {
           tPV = dht / dhrt * (t0 * b0 - t1 * b1 + dt / dhrt * (b0 - b1));
@@ -519,7 +589,7 @@ public class IsdaCdsProductPricer {
       drt[i - 1] = rt1 - rt0;
       dhrt[i - 1] = dht[i - 1] + drt[i - 1];
       double dPv = 0d;
-      if (Math.abs(dhrt[i - 1]) < 1e-5) {
+      if (Math.abs(dhrt[i - 1]) < SMALL) {
         double eps = epsilon(-dhrt[i - 1]);
         dPv = dht[i - 1] * b0 * eps;
       } else {
@@ -561,7 +631,7 @@ public class IsdaCdsProductPricer {
   }
 
   private double computeExtendedEpsilon(double dhrt, double pn, double qn, double pd, double qd) {
-    if (Math.abs(dhrt) < 1e-5) {
+    if (Math.abs(dhrt) < SMALL) {
       return -0.5 - dhrt / 6d - dhrt * dhrt / 24d;
     }
     return (1d - (pn * qn / (pd * qd) - 1d) / dhrt) / dhrt;
@@ -655,8 +725,8 @@ public class IsdaCdsProductPricer {
       double drt = rt1 - rt0;
       double dhrt = dht + drt;
       double tPv;
-      if (formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
-        if (Math.abs(dhrt) < 1e-5) {
+      if (formula == AccrualOnDefaultFormulae.MarkitFix) {
+        if (Math.abs(dhrt) < SMALL) {
           double eps = epsilonP(-dhrt);
           tPv = dht * dt * b0 * eps;
           dhtBar[i - 1] = dt * b0 * eps;
@@ -671,7 +741,7 @@ public class IsdaCdsProductPricer {
         }
       } else {
         double t1 = t - effStart + omega;
-        if (Math.abs(dhrt) < 1e-5) {
+        if (Math.abs(dhrt) < SMALL) {
           double eps = epsilon(-dhrt);
           double epsp = epsilonP(-dhrt);
           tPv = dht * b0 * (t0 * eps + dt * epsp);
@@ -719,21 +789,31 @@ public class IsdaCdsProductPricer {
   }
 
   //-------------------------------------------------------------------------
+  private boolean isExpired(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+    return !cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate());
+  }
+
   private double recoveryRate(ResolvedCds cds, CreditRatesProvider ratesProvider) {
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
     ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
     return recoveryRates.recoveryRate(cds.getProtectionEndDate());
   }
 
+  private void validateRecoveryRates(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+    RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
+    ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
+  }
+
   private Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> reduceDiscountFactors(
-      ResolvedCds cds, CreditRatesProvider ratesProvider) {
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider) {
+
     Currency currency = cds.getCurrency();
     CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
-    ArgChecker.isTrue(discountFactors instanceof IsdaCompliantZeroRateDiscountFactors,
-        "discount factors must be IsdaCompliantZeroRateDiscountFactors");
+    ArgChecker.isTrue(discountFactors.isIsdaCompliant(), "discount factors must be IsdaCompliantZeroRateDiscountFactors");
     LegalEntitySurvivalProbabilities survivalProbabilities =
         ratesProvider.survivalProbabilities(cds.getLegalEntityId(), currency);
-    ArgChecker.isTrue(survivalProbabilities.getSurvivalProbabilities() instanceof IsdaCompliantZeroRateDiscountFactors,
+    ArgChecker.isTrue(survivalProbabilities.getSurvivalProbabilities().isIsdaCompliant(),
         "survival probabilities must be IsdaCompliantZeroRateDiscountFactors");
     ArgChecker.isTrue(discountFactors.getDayCount().equals(survivalProbabilities.getSurvivalProbabilities().getDayCount()),
         "day count conventions of discounting curve and credit curve must be the same");

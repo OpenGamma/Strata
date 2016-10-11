@@ -13,7 +13,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
@@ -62,11 +61,16 @@ public interface CreditDiscountFactors
   public abstract DoubleArray getParameterKeys();
 
   //-------------------------------------------------------------------------
-  @Override
-  public abstract CreditDiscountFactors withParameter(int parameterIndex, double newValue);
-
-  @Override
-  public abstract CreditDiscountFactors withPerturbation(ParameterPerturbation perturbation);
+  /**
+   * Checks if the instance is based on an ISDA compliant curve.
+   * <p>
+   * This returns 'false' by default, and should be overridden when needed.
+   * 
+   * @return true if this is an ISDA compliant curve, false otherwise
+   */
+  public default boolean isIsdaCompliant() {
+    return false;
+  }
 
   //-------------------------------------------------------------------------
   /**
