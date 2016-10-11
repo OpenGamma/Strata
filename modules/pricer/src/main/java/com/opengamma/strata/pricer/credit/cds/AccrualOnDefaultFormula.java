@@ -5,6 +5,13 @@
  */
 package com.opengamma.strata.pricer.credit.cds;
 
+import java.util.Locale;
+
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.opengamma.strata.collect.ArgChecker;
+
 /**
  * The formula for accrual on default.
  * <p>
@@ -16,17 +23,50 @@ public enum AccrualOnDefaultFormula {
   /**
    * The formula in v1.8.1 and below.
    */
-  OriginalISDA,
+  ORIGINAL_ISDA("Original-ISDA"),
 
   /**
    * The correction proposed by Markit (v 1.8.2).
    */
-  MarkitFix,
+  MARKIT_FIX("Markit-Fix"),
 
   /**
    * The mathematically correct formula .
    */
-  Correct;
+  CORRECT("Correct");
+
+  // name
+  private final String name;
+
+  // create
+  private AccrualOnDefaultFormula(String name) {
+    this.name = name;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from the specified unique name.
+   * 
+   * @param uniqueName  the unique name
+   * @return the type
+   * @throws IllegalArgumentException if the name is not known
+   */
+  @FromString
+  public static AccrualOnDefaultFormula of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return valueOf(uniqueName.replace('-', '_').toUpperCase(Locale.ENGLISH));
+  }
+
+  /**
+   * Returns the formatted unique name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return name;
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -37,7 +77,7 @@ public enum AccrualOnDefaultFormula {
    * @return the omega value
    */
   public double getOmega() {
-    if (this == OriginalISDA) {
+    if (this == ORIGINAL_ISDA) {
       return 1d / 730d;
     } else {
       return 0d;

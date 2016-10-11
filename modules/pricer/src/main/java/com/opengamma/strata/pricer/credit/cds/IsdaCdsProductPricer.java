@@ -36,7 +36,7 @@ public class IsdaCdsProductPricer {
   /**
    * Default implementation.
    */
-  public static final IsdaCdsProductPricer DEFAULT = new IsdaCdsProductPricer(AccrualOnDefaultFormula.OriginalISDA);
+  public static final IsdaCdsProductPricer DEFAULT = new IsdaCdsProductPricer(AccrualOnDefaultFormula.ORIGINAL_ISDA);
   /**
    * The small parameter.
    * <p>
@@ -525,7 +525,7 @@ public class IsdaCdsProductPricer {
       double dhrt = dht + drt;
 
       double tPV;
-      if (formula == AccrualOnDefaultFormula.MarkitFix) {
+      if (formula == AccrualOnDefaultFormula.MARKIT_FIX) {
         if (Math.abs(dhrt) < SMALL) {
           tPV = dht * dt * b0 * Epsilon.epsilonP(-dhrt);
         } else {
@@ -725,7 +725,7 @@ public class IsdaCdsProductPricer {
       double drt = rt1 - rt0;
       double dhrt = dht + drt;
       double tPv;
-      if (formula == AccrualOnDefaultFormula.MarkitFix) {
+      if (formula == AccrualOnDefaultFormula.MARKIT_FIX) {
         if (Math.abs(dhrt) < SMALL) {
           double eps = epsilonP(-dhrt);
           tPv = dht * dt * b0 * eps;
