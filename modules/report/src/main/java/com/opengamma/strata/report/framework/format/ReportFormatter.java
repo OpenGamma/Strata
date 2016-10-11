@@ -17,6 +17,8 @@ import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Unchecked;
+import com.opengamma.strata.collect.io.AsciiTable;
+import com.opengamma.strata.collect.io.AsciiTableAlignment;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.report.Report;
 
@@ -76,7 +78,7 @@ public abstract class ReportFormatter<R extends Report> {
         .collect(toImmutableList());
     List<String> headers = report.getColumnHeaders();
     ImmutableList<ImmutableList<String>> cells = formatAsciiTable(report);
-    String asciiTable = AsciiTable.generate(alignments, headers, cells);
+    String asciiTable = AsciiTable.generate(headers, alignments, cells);
     PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
     pw.println(asciiTable);
     pw.flush();

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 
 /**
@@ -60,7 +61,7 @@ public interface FxOptionMarketData {
    *
    * @param currencyPair  the currency pair
    * @return the volatilities for the currency pair
-   * @throws IllegalArgumentException if the currency pair is not found
+   * @throws MarketDataNotFoundException if the currency pair is not found
    */
   public abstract FxOptionVolatilities volatilities(CurrencyPair currencyPair);
 

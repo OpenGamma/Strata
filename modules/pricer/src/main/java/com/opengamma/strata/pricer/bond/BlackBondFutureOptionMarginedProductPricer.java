@@ -98,17 +98,17 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * For example, a price of 1.32% is represented in Strata by 0.0132.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price of the product, in decimal form
    */
   public double price(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
-    double futurePrice = futurePrice(futureOption, ratesProvider);
-    return price(futureOption, ratesProvider, volatilities, futurePrice);
+    double futurePrice = futurePrice(futureOption, discountingProvider);
+    return price(futureOption, discountingProvider, volatilities, futurePrice);
   }
 
   /**
@@ -121,14 +121,14 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * For example, a price of 1.32% is represented in Strata by 0.0132.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @return the price of the product, in decimal form
    */
   public double price(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -146,12 +146,12 @@ public final class BlackBondFutureOptionMarginedProductPricer {
 
   double price(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     ArgChecker.isTrue(volatilities instanceof BlackBondFutureVolatilities,
         "Provider must be of type BlackVolatilityBondFutureProvider");
-    return price(futureOption, ratesProvider, (BlackBondFutureVolatilities) volatilities);
+    return price(futureOption, discountingProvider, (BlackBondFutureVolatilities) volatilities);
   }
 
   //-------------------------------------------------------------------------
@@ -164,17 +164,17 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * This calculates the underlying future price using the future pricer.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price curve sensitivity of the product
    */
   public double deltaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
-    double futurePrice = futurePrice(futureOption, ratesProvider);
-    return deltaStickyStrike(futureOption, ratesProvider, volatilities, futurePrice);
+    double futurePrice = futurePrice(futureOption, discountingProvider);
+    return deltaStickyStrike(futureOption, discountingProvider, volatilities, futurePrice);
   }
 
   /**
@@ -184,14 +184,14 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public double deltaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -217,17 +217,17 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * This calculates the underlying future price using the future pricer.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price curve sensitivity of the product
    */
   public double gammaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
-    double futurePrice = futurePrice(futureOption, ratesProvider);
-    return gammaStickyStrike(futureOption, ratesProvider, volatilities, futurePrice);
+    double futurePrice = futurePrice(futureOption, discountingProvider);
+    return gammaStickyStrike(futureOption, discountingProvider, volatilities, futurePrice);
   }
 
   /**
@@ -237,14 +237,14 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public double gammaStickyStrike(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -269,17 +269,17 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * This calculates the underlying future price using the future pricer.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price curve sensitivity of the product
    */
   public double theta(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
-    double futurePrice = futurePrice(futureOption, ratesProvider);
-    return theta(futureOption, ratesProvider, volatilities, futurePrice);
+    double futurePrice = futurePrice(futureOption, discountingProvider);
+    return theta(futureOption, discountingProvider, volatilities, futurePrice);
   }
 
   /**
@@ -289,14 +289,14 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public double theta(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -321,19 +321,19 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * This calculates the underlying future price using the future pricer.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivityRatesStickyStrike(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    double futurePrice = futurePrice(futureOption, ratesProvider);
-    return priceSensitivityRatesStickyStrike(futureOption, ratesProvider, volatilities, futurePrice);
+    double futurePrice = futurePrice(futureOption, discountingProvider);
+    return priceSensitivityRatesStickyStrike(futureOption, discountingProvider, volatilities, futurePrice);
   }
 
   /**
@@ -343,32 +343,32 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivityRatesStickyStrike(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
-    double delta = deltaStickyStrike(futureOption, ratesProvider, volatilities, futurePrice);
+    double delta = deltaStickyStrike(futureOption, discountingProvider, volatilities, futurePrice);
     PointSensitivities futurePriceSensitivity =
-        futurePricer.priceSensitivity(futureOption.getUnderlyingFuture(), ratesProvider);
+        futurePricer.priceSensitivity(futureOption.getUnderlyingFuture(), discountingProvider);
     return futurePriceSensitivity.multipliedBy(delta);
   }
 
   PointSensitivities priceSensitivity(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     ArgChecker.isTrue(volatilities instanceof BlackBondFutureVolatilities,
         "Provider must be of type BlackVolatilityBondFutureProvider");
     return priceSensitivityRatesStickyStrike(
-        futureOption, ratesProvider, (BlackBondFutureVolatilities) volatilities);
+        futureOption, discountingProvider, (BlackBondFutureVolatilities) volatilities);
   }
 
   //-------------------------------------------------------------------------
@@ -378,17 +378,17 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * This calculates the underlying future price using the future pricer.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the sensitivity
    */
   public BondFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
-    double futurePrice = futurePrice(futureOption, ratesProvider);
-    return priceSensitivityModelParamsVolatility(futureOption, ratesProvider, volatilities, futurePrice);
+    double futurePrice = futurePrice(futureOption, discountingProvider);
+    return priceSensitivityModelParamsVolatility(futureOption, discountingProvider, volatilities, futurePrice);
   }
 
   /**
@@ -396,14 +396,14 @@ public final class BlackBondFutureOptionMarginedProductPricer {
    * based on the price of the underlying future.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the underlying future price
    * @return the sensitivity
    */
   public BondFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedBondFutureOption futureOption,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
@@ -421,9 +421,9 @@ public final class BlackBondFutureOptionMarginedProductPricer {
 
   //-------------------------------------------------------------------------
   // calculate the price of the underlying future
-  private double futurePrice(ResolvedBondFutureOption futureOption, LegalEntityDiscountingProvider ratesProvider) {
+  private double futurePrice(ResolvedBondFutureOption futureOption, LegalEntityDiscountingProvider discountingProvider) {
     ResolvedBondFuture future = futureOption.getUnderlyingFuture();
-    return futurePricer.price(future, ratesProvider);
+    return futurePricer.price(future, discountingProvider);
   }
 
 }

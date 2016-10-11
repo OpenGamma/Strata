@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -50,14 +51,14 @@ public final class ImmutableMarketData
    * The market data values.
    */
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, ?>")
-  private final Map<MarketDataId<?>, Object> values;
+  private final ImmutableMap<MarketDataId<?>, Object> values;
   /**
    * The time-series.
    * <p>
    * If a request is made for a time-series that is not in the map, an empty series will be returned.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
+  private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   //-------------------------------------------------------------------------
   /**
@@ -114,6 +115,39 @@ public final class ImmutableMarketData
   public boolean containsValue(MarketDataId<?> id) {
     // overridden for performance
     return values.containsKey(id);
+  }
+
+  /**
+   * Combines this set of market data with another.
+   * <p>
+   * The result combines both sets of market data.
+   * Values are taken from this set of market data if available, otherwise they are taken
+   * from the other set.
+   * <p>
+   * The valuation dates of the sets of market data must be the same.
+   *
+   * @param other  the other market data
+   * @return the combined market data
+   */
+  public ImmutableMarketData combinedWith(ImmutableMarketData other) {
+    Map<MarketDataId<?>, Object> combinedValues = new HashMap<>(other.values);
+    combinedValues.putAll(values);
+    HashMap<ObservableId, LocalDateDoubleTimeSeries> combinedTimeSeries = new HashMap<>(other.timeSeries);
+    combinedTimeSeries.putAll(timeSeries);
+
+    if (!valuationDate.equals(other.valuationDate)) {
+      throw new IllegalArgumentException("Unable to combine market data instances with different valuation dates");
+    }
+    return new ImmutableMarketData(valuationDate, combinedValues, combinedTimeSeries);
+  }
+
+  @Override
+  public MarketData combinedWith(MarketData other) {
+    if (!(other instanceof ImmutableMarketData)) {
+      return MarketData.super.combinedWith(other);
+    } else {
+      return combinedWith((ImmutableMarketData) other);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -238,7 +272,7 @@ public final class ImmutableMarketData
    * Gets the market data values.
    * @return the value of the property, not null
    */
-  public Map<MarketDataId<?>, Object> getValues() {
+  public ImmutableMap<MarketDataId<?>, Object> getValues() {
     return values;
   }
 
@@ -249,7 +283,7 @@ public final class ImmutableMarketData
    * If a request is made for a time-series that is not in the map, an empty series will be returned.
    * @return the value of the property, not null
    */
-  public Map<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
+  public ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -307,14 +341,14 @@ public final class ImmutableMarketData
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<MarketDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
-        this, "values", ImmutableMarketData.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
+        this, "values", ImmutableMarketData.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", ImmutableMarketData.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
+        this, "timeSeries", ImmutableMarketData.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -371,7 +405,7 @@ public final class ImmutableMarketData
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<MarketDataId<?>, Object>> values() {
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Object>> values() {
       return values;
     }
 
@@ -379,7 +413,7 @@ public final class ImmutableMarketData
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
+    public MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
       return timeSeries;
     }
 

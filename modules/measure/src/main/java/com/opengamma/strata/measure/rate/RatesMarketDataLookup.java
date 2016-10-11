@@ -241,6 +241,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * 
    * @param currencies  the currencies, for which discount factors will be needed
    * @return the requirements
+   * @throws IllegalArgumentException if unable to create requirements
    */
   public default FunctionRequirements requirements(Set<Currency> currencies) {
     return requirements(currencies, ImmutableSet.of());
@@ -252,6 +253,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @param currency  the currency, for which discount factors are needed
    * @param indices  the indices, for which forward curves and time-series will be needed
    * @return the requirements
+   * @throws IllegalArgumentException if unable to create requirements
    */
   public default FunctionRequirements requirements(Currency currency, Index... indices) {
     return requirements(ImmutableSet.of(currency), ImmutableSet.copyOf(indices));
@@ -263,6 +265,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @param currencies  the currencies, for which discount factors will be needed
    * @param indices  the indices, for which forward curves and time-series will be needed
    * @return the requirements
+   * @throws IllegalArgumentException if unable to create requirements
    */
   public abstract FunctionRequirements requirements(Set<Currency> currencies, Set<? extends Index> indices);
 

@@ -263,14 +263,15 @@ public final class CurrencyAmount
   /**
    * Returns a copy of this {@code CurrencyAmount} with the amount negated.
    * <p>
-   * This takes this amount and negates it.
+   * This takes this amount and negates it. If the amount is 0.0 or -0.0 the negated amount is 0.0.
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
    * @return an amount based on this with the amount negated
    */
   public CurrencyAmount negated() {
-    return new CurrencyAmount(currency, -amount);
+    // Zero is treated as a special case to avoid creating -0.0 which produces surprising equality behaviour
+    return new CurrencyAmount(currency, amount == 0d ? 0d : -amount);
   }
 
   /**

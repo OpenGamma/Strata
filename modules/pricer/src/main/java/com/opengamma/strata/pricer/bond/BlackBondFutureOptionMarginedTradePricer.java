@@ -55,16 +55,16 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * The price of the trade is the price on the valuation date.
    * 
    * @param trade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price of the product, in decimal form
    */
   public double price(
       ResolvedBondFutureOptionTrade trade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
-    return productPricer.price(trade.getProduct(), ratesProvider, volatilities);
+    return productPricer.price(trade.getProduct(), discountingProvider, volatilities);
   }
 
   //-------------------------------------------------------------------------
@@ -107,19 +107,19 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param lastOptionSettlementPrice  the last settlement price used for margining for the option, in decimal form
    * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedBondFutureOptionTrade trade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities,
       double lastOptionSettlementPrice) {
 
-    double price = price(trade, ratesProvider, volatilities);
-    return presentValue(trade, ratesProvider.getValuationDate(), price, lastOptionSettlementPrice);
+    double price = price(trade, discountingProvider, volatilities);
+    return presentValue(trade, discountingProvider.getValuationDate(), price, lastOptionSettlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -133,7 +133,7 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @param lastOptionSettlementPrice  the last settlement price used for margining for the option, in decimal form
@@ -141,13 +141,13 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   public CurrencyAmount presentValue(
       ResolvedBondFutureOptionTrade trade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice,
       double lastOptionSettlementPrice) {
 
-    double optionPrice = productPricer.price(trade.getProduct(), ratesProvider, volatilities, futurePrice);
-    return presentValue(trade, ratesProvider.getValuationDate(), optionPrice, lastOptionSettlementPrice);
+    double optionPrice = productPricer.price(trade.getProduct(), discountingProvider, volatilities, futurePrice);
+    return presentValue(trade, discountingProvider.getValuationDate(), optionPrice, lastOptionSettlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -158,17 +158,17 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * the underlying curves.
    * 
    * @param trade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivityRates(
       ResolvedBondFutureOptionTrade trade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities) {
 
     ResolvedBondFutureOption product = trade.getProduct();
-    PointSensitivities priceSensi = productPricer.priceSensitivity(product, ratesProvider, volatilities);
+    PointSensitivities priceSensi = productPricer.priceSensitivity(product, discountingProvider, volatilities);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
@@ -183,18 +183,18 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * This calculates the underlying future price using the future pricer.
    * 
    * @param futureOptionTrade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @return the price sensitivity
    */
   public BondFutureOptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedBondFutureOptionTrade futureOptionTrade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities) {
 
     ResolvedBondFuture future = futureOptionTrade.getProduct().getUnderlyingFuture();
-    double futurePrice = productPricer.getFuturePricer().price(future, ratesProvider);
-    return presentValueSensitivityModelParamsVolatility(futureOptionTrade, ratesProvider, volatilities, futurePrice);
+    double futurePrice = productPricer.getFuturePricer().price(future, discountingProvider);
+    return presentValueSensitivityModelParamsVolatility(futureOptionTrade, discountingProvider, volatilities, futurePrice);
   }
 
   //-------------------------------------------------------------------------
@@ -206,20 +206,20 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * The volatility is associated with the expiry/delay/strike/future price key combination.
    * 
    * @param futureOptionTrade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future
    * @return the price sensitivity
    */
   public BondFutureOptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedBondFutureOptionTrade futureOptionTrade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BlackBondFutureVolatilities volatilities,
       double futurePrice) {
 
     ResolvedBondFutureOption product = futureOptionTrade.getProduct();
     BondFutureOptionSensitivity priceSensitivity =
-        productPricer.priceSensitivityModelParamsVolatility(product, ratesProvider, volatilities, futurePrice);
+        productPricer.priceSensitivityModelParamsVolatility(product, discountingProvider, volatilities, futurePrice);
     double factor = productPricer.marginIndex(product, 1) * futureOptionTrade.getQuantity();
     return priceSensitivity.multipliedBy(factor);
   }
@@ -232,19 +232,19 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param ratesProvider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param volatilities  the volatilities
    * @param lastOptionSettlementPrice  the last settlement price used for margining for the option, in decimal form
    * @return the currency exposure of the bond future option trade
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedBondFutureOptionTrade trade,
-      LegalEntityDiscountingProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider,
       BondFutureVolatilities volatilities,
       double lastOptionSettlementPrice) {
 
-    double price = price(trade, ratesProvider, volatilities);
-    return currencyExposure(trade, ratesProvider.getValuationDate(), price, lastOptionSettlementPrice);
+    double price = price(trade, discountingProvider, volatilities);
+    return currencyExposure(trade, discountingProvider.getValuationDate(), price, lastOptionSettlementPrice);
   }
 
   /**

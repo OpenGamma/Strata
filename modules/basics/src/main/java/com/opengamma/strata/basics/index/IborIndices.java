@@ -490,6 +490,70 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 week WIBOR index.
+   * <p>
+   * The "Polish Interbank Offered Rate".
+   */
+  public static final IborIndex PLN_WIBOR_1W = IborIndex.of("PLN-WIBOR-1W");
+  /**
+   * The 1 month WIBOR index.
+   * <p>
+   * The "Polish Interbank Offered Rate".
+   */
+  public static final IborIndex PLN_WIBOR_1M = IborIndex.of("PLN-WIBOR-1M");
+  /**
+   * The 3 month WIBOR index.
+   * <p>
+   * The "Polish Interbank Offered Rate".
+   */
+  public static final IborIndex PLN_WIBOR_3M = IborIndex.of("PLN-WIBOR-3M");
+  /**
+   * The 6 month WIBOR index.
+   * <p>
+   * The "Polish Interbank Offered Rate".
+   */
+  public static final IborIndex PLN_WIBOR_6M = IborIndex.of("PLN-WIBOR-6M");
+  /**
+   * The 12 month WIBOR index.
+   * <p>
+   * The "Polish Interbank Offered Rate".
+   */
+  public static final IborIndex PLN_WIBOR_12M = IborIndex.of("PLN-WIBOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 1 WEEK STIBOR index.
+   * <p>
+   * The "Swedish Interbank Offered Rate".
+   */
+  public static final IborIndex SEK_STIBOR_1W = IborIndex.of("SEK-STIBOR-1W");
+  /**
+   * The 1 month STIBOR index.
+   * <p>
+   * The "Swedish Interbank Offered Rate".
+   */
+  public static final IborIndex SEK_STIBOR_1M = IborIndex.of("SEK-STIBOR-1M");
+  /**
+   * The 2 month STIBOR index.
+   * <p>
+   * The "Swedish Interbank Offered Rate".
+   */
+  public static final IborIndex SEK_STIBOR_2M = IborIndex.of("SEK-STIBOR-2M");
+  /**
+   * The 3 month STIBOR index.
+   * <p>
+   * The "Swedish Interbank Offered Rate".
+   */
+  public static final IborIndex SEK_STIBOR_3M = IborIndex.of("SEK-STIBOR-3M");
+  /**
+   * The 6 month STIBOR index.
+   * <p>
+   * The "Swedish Interbank Offered Rate".
+   */
+  public static final IborIndex SEK_STIBOR_6M = IborIndex.of("SEK-STIBOR-6M");
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private IborIndices() {

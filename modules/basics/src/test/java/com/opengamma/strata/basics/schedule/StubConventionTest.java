@@ -113,8 +113,8 @@ public class StubConventionTest {
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
 
-        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, RollConventions.NONE},
-        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, RollConventions.NONE},
+        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
+        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
     };
   }
 

@@ -17,6 +17,7 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesId;
@@ -158,6 +159,7 @@ public interface FxOptionMarketDataLookup extends CalculationParameter {
    * @param currencyPair  the currency pair
    * @param marketData  the complete set of market data for one scenario
    * @return the volatilities
+   * @throws MarketDataNotFoundException if the currency pair is not found
    */
   public abstract FxOptionVolatilities volatilities(CurrencyPair currencyPair, MarketData marketData);
 

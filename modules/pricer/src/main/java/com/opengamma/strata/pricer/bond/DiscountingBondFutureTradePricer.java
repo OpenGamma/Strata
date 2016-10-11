@@ -83,11 +83,11 @@ public final class DiscountingBondFutureTradePricer {
    * For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @return the price of the trade, in decimal form
    */
-  public double price(ResolvedBondFutureTrade trade, LegalEntityDiscountingProvider provider) {
-    return productPricer.price(trade.getProduct(), provider);
+  public double price(ResolvedBondFutureTrade trade, LegalEntityDiscountingProvider discountingProvider) {
+    return productPricer.price(trade.getProduct(), discountingProvider);
   }
 
   /**
@@ -99,7 +99,7 @@ public final class DiscountingBondFutureTradePricer {
    * of the issuer discounting curve.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
@@ -107,12 +107,12 @@ public final class DiscountingBondFutureTradePricer {
    */
   public double priceWithZSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    return productPricer.priceWithZSpread(trade.getProduct(), provider, zSpread, compoundedRateType, periodPerYear);
+    return productPricer.priceWithZSpread(trade.getProduct(), discountingProvider, zSpread, compoundedRateType, periodPerYear);
   }
 
   //-------------------------------------------------------------------------
@@ -125,17 +125,17 @@ public final class DiscountingBondFutureTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double lastSettlementPrice) {
 
-    double price = price(trade, provider);
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastSettlementPrice);
+    double price = price(trade, discountingProvider);
+    double referencePrice = referencePrice(trade, discountingProvider.getValuationDate(), lastSettlementPrice);
     return presentValue(trade, price, referencePrice);
   }
 
@@ -151,7 +151,7 @@ public final class DiscountingBondFutureTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
@@ -160,14 +160,14 @@ public final class DiscountingBondFutureTradePricer {
    */
   public CurrencyAmount presentValueWithZSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double lastSettlementPrice,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double price = priceWithZSpread(trade, provider, zSpread, compoundedRateType, periodPerYear);
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastSettlementPrice);
+    double price = priceWithZSpread(trade, discountingProvider, zSpread, compoundedRateType, periodPerYear);
+    double referencePrice = referencePrice(trade, discountingProvider.getValuationDate(), lastSettlementPrice);
     return presentValue(trade, price, referencePrice);
   }
 
@@ -179,15 +179,15 @@ public final class DiscountingBondFutureTradePricer {
    * the underlying curves.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
     ResolvedBondFuture product = trade.getProduct();
-    PointSensitivities priceSensi = productPricer.priceSensitivity(product, provider);
+    PointSensitivities priceSensi = productPricer.priceSensitivity(product, discountingProvider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
@@ -202,7 +202,7 @@ public final class DiscountingBondFutureTradePricer {
    * of the issuer discounting curve.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
@@ -210,14 +210,14 @@ public final class DiscountingBondFutureTradePricer {
    */
   public PointSensitivities presentValueSensitivityWithZSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
     ResolvedBondFuture product = trade.getProduct();
     PointSensitivities priceSensi =
-        productPricer.priceSensitivityWithZSpread(product, provider, zSpread, compoundedRateType, periodPerYear);
+        productPricer.priceSensitivityWithZSpread(product, discountingProvider, zSpread, compoundedRateType, periodPerYear);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
@@ -233,17 +233,17 @@ public final class DiscountingBondFutureTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the par spread
    */
   public double parSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double lastSettlementPrice) {
 
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastSettlementPrice);
-    return price(trade, provider) - referencePrice;
+    double referencePrice = referencePrice(trade, discountingProvider.getValuationDate(), lastSettlementPrice);
+    return price(trade, discountingProvider) - referencePrice;
   }
 
   /**
@@ -259,7 +259,7 @@ public final class DiscountingBondFutureTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
@@ -268,14 +268,14 @@ public final class DiscountingBondFutureTradePricer {
    */
   public double parSpreadWithZSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double lastSettlementPrice,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastSettlementPrice);
-    return priceWithZSpread(trade, provider, zSpread, compoundedRateType, periodPerYear) - referencePrice;
+    double referencePrice = referencePrice(trade, discountingProvider.getValuationDate(), lastSettlementPrice);
+    return priceWithZSpread(trade, discountingProvider, zSpread, compoundedRateType, periodPerYear) - referencePrice;
   }
 
   //-------------------------------------------------------------------------
@@ -286,14 +286,14 @@ public final class DiscountingBondFutureTradePricer {
    * the underlying curves.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @return the par spread curve sensitivity of the trade
    */
   public PointSensitivities parSpreadSensitivity(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider) {
+      LegalEntityDiscountingProvider discountingProvider) {
 
-    return productPricer.priceSensitivity(trade.getProduct(), provider);
+    return productPricer.priceSensitivity(trade.getProduct(), discountingProvider);
   }
 
   /**
@@ -306,7 +306,7 @@ public final class DiscountingBondFutureTradePricer {
    * of the issuer discounting curve.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
@@ -314,13 +314,13 @@ public final class DiscountingBondFutureTradePricer {
    */
   public PointSensitivities parSpreadSensitivityWithZSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
     return productPricer.priceSensitivityWithZSpread(
-        trade.getProduct(), provider, zSpread, compoundedRateType, periodPerYear);
+        trade.getProduct(), discountingProvider, zSpread, compoundedRateType, periodPerYear);
   }
 
   //-------------------------------------------------------------------------
@@ -331,17 +331,17 @@ public final class DiscountingBondFutureTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the currency exposure of the bond future trade
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double lastSettlementPrice) {
 
-    double price = price(trade, provider);
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastSettlementPrice);
+    double price = price(trade, discountingProvider);
+    double referencePrice = referencePrice(trade, discountingProvider.getValuationDate(), lastSettlementPrice);
     return MultiCurrencyAmount.of(presentValue(trade, price, referencePrice));
   }
 
@@ -355,7 +355,7 @@ public final class DiscountingBondFutureTradePricer {
    * last settlement price, or the trade price if traded on the valuation date.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
@@ -364,14 +364,14 @@ public final class DiscountingBondFutureTradePricer {
    */
   public MultiCurrencyAmount currencyExposureWithZSpread(
       ResolvedBondFutureTrade trade,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double lastSettlementPrice,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double price = priceWithZSpread(trade, provider, zSpread, compoundedRateType, periodPerYear);
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastSettlementPrice);
+    double price = priceWithZSpread(trade, discountingProvider, zSpread, compoundedRateType, periodPerYear);
+    double referencePrice = referencePrice(trade, discountingProvider.getValuationDate(), lastSettlementPrice);
     return MultiCurrencyAmount.of(presentValue(trade, price, referencePrice));
   }
 

@@ -57,13 +57,12 @@ public final class RepoCurveZeroRateSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The bond group.
+   * The repo group.
    * <p>
-   * This defines the bond group that the discount factors are for.
-   * The bond group typically represents the legal entity and bond security.
+   * This defines the group that the discount factors are for.
    */
   @PropertyDefinition(validate = "notNull")
-  private final BondGroup bondGroup;
+  private final RepoGroup repoGroup;
   /**
    * The value of the sensitivity.
    */
@@ -72,49 +71,49 @@ public final class RepoCurveZeroRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the curve currency, date, bond group and value.
+   * Obtains an instance from the curve currency, date, group and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
    * @param currency  the currency of the curve and sensitivity
    * @param yearFraction  the year fraction that was looked up on the curve
-   * @param bondGroup  the bond group
+   * @param repoGroup  the group
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static RepoCurveZeroRateSensitivity of(
       Currency currency,
       double yearFraction,
-      BondGroup bondGroup,
+      RepoGroup repoGroup,
       double sensitivity) {
 
-    return of(currency, yearFraction, currency, bondGroup, sensitivity);
+    return of(currency, yearFraction, currency, repoGroup, sensitivity);
   }
 
   /**
-   * Obtains an instance from zero rate sensitivity and bond group.
+   * Obtains an instance from zero rate sensitivity and group.
    * 
    * @param zeroRateSensitivity  the zero rate sensitivity
-   * @param bondGroup  the bond group
+   * @param repoGroup  the group
    * @return the point sensitivity object
    */
-  public static RepoCurveZeroRateSensitivity of(ZeroRateSensitivity zeroRateSensitivity, BondGroup bondGroup) {
+  public static RepoCurveZeroRateSensitivity of(ZeroRateSensitivity zeroRateSensitivity, RepoGroup repoGroup) {
     return of(
         zeroRateSensitivity.getCurveCurrency(),
         zeroRateSensitivity.getYearFraction(),
         zeroRateSensitivity.getCurrency(),
-        bondGroup,
+        repoGroup,
         zeroRateSensitivity.getSensitivity());
   }
 
   /**
    * Obtains an instance from the curve currency, date, sensitivity currency,
-   * bond group and value.
+   * group and value.
    * 
    * @param curveCurrency  the currency of the curve
    * @param yearFraction  the year fraction that was looked up on the curve
    * @param sensitivityCurrency  the currency of the sensitivity
-   * @param bondGroup  the bond group
+   * @param repoGroup  the group
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
@@ -122,10 +121,10 @@ public final class RepoCurveZeroRateSensitivity
       Currency curveCurrency,
       double yearFraction,
       Currency sensitivityCurrency,
-      BondGroup bondGroup,
+      RepoGroup repoGroup,
       double sensitivity) {
 
-    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, sensitivityCurrency, bondGroup, sensitivity);
+    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, sensitivityCurrency, repoGroup, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -134,12 +133,12 @@ public final class RepoCurveZeroRateSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, bondGroup, sensitivity);
+    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, repoGroup, sensitivity);
   }
 
   @Override
   public RepoCurveZeroRateSensitivity withSensitivity(double sensitivity) {
-    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, bondGroup, sensitivity);
+    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, repoGroup, sensitivity);
   }
 
   @Override
@@ -150,7 +149,7 @@ public final class RepoCurveZeroRateSensitivity
           .compare(curveCurrency, otherZero.curveCurrency)
           .compare(currency, otherZero.currency)
           .compare(yearFraction, otherZero.yearFraction)
-          .compare(bondGroup, otherZero.bondGroup)
+          .compare(repoGroup, otherZero.repoGroup)
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
@@ -164,13 +163,13 @@ public final class RepoCurveZeroRateSensitivity
   //-------------------------------------------------------------------------
   @Override
   public RepoCurveZeroRateSensitivity multipliedBy(double factor) {
-    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, bondGroup, sensitivity * factor);
+    return new RepoCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, repoGroup, sensitivity * factor);
   }
 
   @Override
   public RepoCurveZeroRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new RepoCurveZeroRateSensitivity(
-        curveCurrency, yearFraction, currency, bondGroup, operator.applyAsDouble(sensitivity));
+        curveCurrency, yearFraction, currency, repoGroup, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -191,7 +190,7 @@ public final class RepoCurveZeroRateSensitivity
   /**
    * Obtains the underlying {@code ZeroRateSensitivity}. 
    * <p>
-   * This creates the zero rate sensitivity object by omitting the bond group.
+   * This creates the zero rate sensitivity object by omitting the repo group.
    * 
    * @return the point sensitivity object
    */
@@ -222,15 +221,15 @@ public final class RepoCurveZeroRateSensitivity
       Currency curveCurrency,
       double yearFraction,
       Currency currency,
-      BondGroup bondGroup,
+      RepoGroup repoGroup,
       double sensitivity) {
     JodaBeanUtils.notNull(curveCurrency, "curveCurrency");
     JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(bondGroup, "bondGroup");
+    JodaBeanUtils.notNull(repoGroup, "repoGroup");
     this.curveCurrency = curveCurrency;
     this.yearFraction = yearFraction;
     this.currency = currency;
-    this.bondGroup = bondGroup;
+    this.repoGroup = repoGroup;
     this.sensitivity = sensitivity;
   }
 
@@ -279,14 +278,13 @@ public final class RepoCurveZeroRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bond group.
+   * Gets the repo group.
    * <p>
-   * This defines the bond group that the discount factors are for.
-   * The bond group typically represents the legal entity and bond security.
+   * This defines the group that the discount factors are for.
    * @return the value of the property, not null
    */
-  public BondGroup getBondGroup() {
-    return bondGroup;
+  public RepoGroup getRepoGroup() {
+    return repoGroup;
   }
 
   //-----------------------------------------------------------------------
@@ -310,7 +308,7 @@ public final class RepoCurveZeroRateSensitivity
       return JodaBeanUtils.equal(curveCurrency, other.curveCurrency) &&
           JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
           JodaBeanUtils.equal(currency, other.currency) &&
-          JodaBeanUtils.equal(bondGroup, other.bondGroup) &&
+          JodaBeanUtils.equal(repoGroup, other.repoGroup) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
     return false;
@@ -322,7 +320,7 @@ public final class RepoCurveZeroRateSensitivity
     hash = hash * 31 + JodaBeanUtils.hashCode(curveCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(bondGroup);
+    hash = hash * 31 + JodaBeanUtils.hashCode(repoGroup);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
   }
@@ -334,7 +332,7 @@ public final class RepoCurveZeroRateSensitivity
     buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
     buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("bondGroup").append('=').append(bondGroup).append(',').append(' ');
+    buf.append("repoGroup").append('=').append(repoGroup).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();
@@ -366,10 +364,10 @@ public final class RepoCurveZeroRateSensitivity
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", RepoCurveZeroRateSensitivity.class, Currency.class);
     /**
-     * The meta-property for the {@code bondGroup} property.
+     * The meta-property for the {@code repoGroup} property.
      */
-    private final MetaProperty<BondGroup> bondGroup = DirectMetaProperty.ofImmutable(
-        this, "bondGroup", RepoCurveZeroRateSensitivity.class, BondGroup.class);
+    private final MetaProperty<RepoGroup> repoGroup = DirectMetaProperty.ofImmutable(
+        this, "repoGroup", RepoCurveZeroRateSensitivity.class, RepoGroup.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
@@ -383,7 +381,7 @@ public final class RepoCurveZeroRateSensitivity
         "curveCurrency",
         "yearFraction",
         "currency",
-        "bondGroup",
+        "repoGroup",
         "sensitivity");
 
     /**
@@ -401,8 +399,8 @@ public final class RepoCurveZeroRateSensitivity
           return yearFraction;
         case 575402001:  // currency
           return currency;
-        case 914689404:  // bondGroup
-          return bondGroup;
+        case -393084371:  // repoGroup
+          return repoGroup;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -450,11 +448,11 @@ public final class RepoCurveZeroRateSensitivity
     }
 
     /**
-     * The meta-property for the {@code bondGroup} property.
+     * The meta-property for the {@code repoGroup} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BondGroup> bondGroup() {
-      return bondGroup;
+    public MetaProperty<RepoGroup> repoGroup() {
+      return repoGroup;
     }
 
     /**
@@ -475,8 +473,8 @@ public final class RepoCurveZeroRateSensitivity
           return ((RepoCurveZeroRateSensitivity) bean).getYearFraction();
         case 575402001:  // currency
           return ((RepoCurveZeroRateSensitivity) bean).getCurrency();
-        case 914689404:  // bondGroup
-          return ((RepoCurveZeroRateSensitivity) bean).getBondGroup();
+        case -393084371:  // repoGroup
+          return ((RepoCurveZeroRateSensitivity) bean).getRepoGroup();
         case 564403871:  // sensitivity
           return ((RepoCurveZeroRateSensitivity) bean).getSensitivity();
       }
@@ -503,7 +501,7 @@ public final class RepoCurveZeroRateSensitivity
     private Currency curveCurrency;
     private double yearFraction;
     private Currency currency;
-    private BondGroup bondGroup;
+    private RepoGroup repoGroup;
     private double sensitivity;
 
     /**
@@ -522,8 +520,8 @@ public final class RepoCurveZeroRateSensitivity
           return yearFraction;
         case 575402001:  // currency
           return currency;
-        case 914689404:  // bondGroup
-          return bondGroup;
+        case -393084371:  // repoGroup
+          return repoGroup;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -543,8 +541,8 @@ public final class RepoCurveZeroRateSensitivity
         case 575402001:  // currency
           this.currency = (Currency) newValue;
           break;
-        case 914689404:  // bondGroup
-          this.bondGroup = (BondGroup) newValue;
+        case -393084371:  // repoGroup
+          this.repoGroup = (RepoGroup) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (Double) newValue;
@@ -585,7 +583,7 @@ public final class RepoCurveZeroRateSensitivity
           curveCurrency,
           yearFraction,
           currency,
-          bondGroup,
+          repoGroup,
           sensitivity);
     }
 
@@ -597,7 +595,7 @@ public final class RepoCurveZeroRateSensitivity
       buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("bondGroup").append('=').append(JodaBeanUtils.toString(bondGroup)).append(',').append(' ');
+      buf.append("repoGroup").append('=').append(JodaBeanUtils.toString(repoGroup)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();

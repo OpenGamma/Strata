@@ -24,7 +24,7 @@ The JAR files are available in [Maven Central](http://search.maven.org/#search%7
 <dependency>
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-measure</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 

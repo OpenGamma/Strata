@@ -75,6 +75,18 @@ public final class OvernightIndices {
    * The "Norwegian Overnight Weighted Average" index.
    */
   public static final OvernightIndex NOK_NOWA = OvernightIndex.of("NOK-NOWA");
+  /**
+   * The PLONIA index for PLN.
+   * <p>
+   * The "Polish Overnight" index.
+   */
+  public static final OvernightIndex PLN_POLONIA = OvernightIndex.of("PLN-POLONIA");
+  /**
+   * The SIOR index for SEK.
+   * <p>
+   * The "STIBOR T/N" index.
+   */
+  public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
 
   //-------------------------------------------------------------------------
   /**

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.report.framework.format;
+package com.opengamma.strata.collect.io;
 
 import static org.testng.Assert.assertEquals;
 
@@ -25,7 +25,7 @@ public class AsciiTableTest {
     List<AsciiTableAlignment> alignments = ImmutableList.of(AsciiTableAlignment.LEFT, AsciiTableAlignment.RIGHT);
     List<String> headers = ImmutableList.of("Alpha", "Beta");
     List<List<String>> cells = ImmutableList.of(ImmutableList.of("12", "23"), ImmutableList.of("12345", ""));
-    String test = AsciiTable.generate(alignments, headers, cells);
+    String test = AsciiTable.generate(headers, alignments, cells);
     String expected = "" +
         "+-------+------+" + LINE_SEPARATOR +
         "| Alpha | Beta |" + LINE_SEPARATOR +
@@ -40,7 +40,7 @@ public class AsciiTableTest {
     List<AsciiTableAlignment> alignments = ImmutableList.of(AsciiTableAlignment.LEFT, AsciiTableAlignment.RIGHT);
     List<String> headers = ImmutableList.of("A", "B");
     List<List<String>> cells = ImmutableList.of(ImmutableList.of("12", "23"), ImmutableList.of("12345", ""));
-    String test = AsciiTable.generate(alignments, headers, cells);
+    String test = AsciiTable.generate(headers, alignments, cells);
     String expected = "" +
         "+-------+----+" + LINE_SEPARATOR +
         "| A     |  B |" + LINE_SEPARATOR +

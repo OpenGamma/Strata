@@ -54,5 +54,7 @@ final class StandardMeasures {
   //-------------------------------------------------------------------------
   // semi-parallel gamma bucketed PV01
   public static final Measure PV01_SEMI_PARALLEL_GAMMA_BUCKETED = ImmutableMeasure.of("PV01SemiParallelGammaBucketed");
+  // single-node gamma bucketed PV01
+  public static final Measure PV01_SINGLE_NODE_GAMMA_BUCKETED = ImmutableMeasure.of("PV01SingleNodeGammaBucketed");
 
 }

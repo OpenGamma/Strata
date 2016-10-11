@@ -6,6 +6,7 @@
 package com.opengamma.strata.measure.index;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.index.IborFutureOptionVolatilities;
 import com.opengamma.strata.pricer.index.IborFutureOptionVolatilitiesId;
@@ -94,14 +96,14 @@ final class DefaultIborFutureOptionMarketDataLookup
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(Set<IborIndex> indices) {
+    Set<IborFutureOptionVolatilitiesId> volIds = new HashSet<>();
     for (Index index : indices) {
       if (!volatilityIds.keySet().contains(index)) {
         throw new IllegalArgumentException(msgIndexNotFound(index));
       }
+      volIds.add(volatilityIds.get(index));
     }
-    return FunctionRequirements.builder()
-        .valueRequirements(ImmutableSet.copyOf(volatilityIds.values()))
-        .build();
+    return FunctionRequirements.builder().valueRequirements(volIds).build();
   }
 
   //-------------------------------------------------------------------------
@@ -109,7 +111,7 @@ final class DefaultIborFutureOptionMarketDataLookup
   public IborFutureOptionVolatilities volatilities(IborIndex index, MarketData marketData) {
     IborFutureOptionVolatilitiesId volatilityId = volatilityIds.get(index);
     if (volatilityId == null) {
-      throw new IllegalArgumentException(msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(msgIndexNotFound(index));
     }
     return marketData.getValue(volatilityId);
   }

@@ -65,13 +65,8 @@ public class ForwardIborRateComputationFn
       RatesProvider provider,
       ExplainMapBuilder builder) {
 
-    double rate = rate(computation, startDate, endDate, provider);
-    LocalDate fixingDate = computation.getFixingDate();
-    builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
-        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
-        .put(ExplainKey.FIXING_DATE, fixingDate)
-        .put(ExplainKey.INDEX, computation.getIndex())
-        .put(ExplainKey.INDEX_VALUE, rate));
+    IborIndexRates rates = provider.iborIndexRates(computation.getIndex());
+    double rate = rates.explainRate(computation.getObservation(), builder, child -> {});
     builder.put(ExplainKey.COMBINED_RATE, rate);
     return rate;
   }

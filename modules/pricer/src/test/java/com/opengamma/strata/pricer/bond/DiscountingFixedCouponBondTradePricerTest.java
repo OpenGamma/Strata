@@ -187,7 +187,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static final CurveMetadata METADATA_REPO = Curves.zeroRates(NAME_REPO, ACT_365F);
   private static final InterpolatedNodalCurve CURVE_REPO = InterpolatedNodalCurve.of(
       METADATA_REPO, DoubleArray.of(0.1, 2.0, 10.0), DoubleArray.of(0.05, 0.06, 0.09), INTERPOLATOR);
-  private static final BondGroup GROUP_REPO = BondGroup.of("GOVT1 BOND1");
+  private static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT1 BOND1");
   private static final CurveName NAME_ISSUER = CurveName.of("TestIssuerCurve");
   private static final CurveMetadata METADATA_ISSUER = Curves.zeroRates(NAME_ISSUER, ACT_365F);
   private static final InterpolatedNodalCurve CURVE_ISSUER = InterpolatedNodalCurve.of(
@@ -1091,13 +1091,13 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static LegalEntityDiscountingProvider createRatesProvider(LocalDate valuationDate) {
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(EUR, valuationDate, CURVE_REPO);
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(EUR, valuationDate, CURVE_ISSUER);
-    LegalEntityDiscountingProvider provider = LegalEntityDiscountingProvider.builder()
+    LegalEntityDiscountingProvider provider = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
             Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, EUR), dscIssuer))
-        .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-            Pair.<BondGroup, Currency>of(GROUP_REPO, EUR), dscRepo))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(SECURITY_ID, GROUP_REPO))
+        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
+            Pair.<RepoGroup, Currency>of(GROUP_REPO, EUR), dscRepo))
+        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(SECURITY_ID, GROUP_REPO))
         .valuationDate(valuationDate)
         .build();
     return provider;

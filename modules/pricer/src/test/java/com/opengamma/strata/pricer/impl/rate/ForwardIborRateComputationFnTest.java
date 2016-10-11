@@ -17,6 +17,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -40,11 +41,11 @@ public class ForwardIborRateComputationFnTest {
   private static final IborRateSensitivity SENSITIVITY = IborRateSensitivity.of(GBP_LIBOR_3M_COMP.getObservation(), 1d);
 
   public void test_rate() {
-    IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
+    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(FIXING_DATE, RATE);
+    IborIndexRates mockIbor = new TestingIborIndexRates(
+        GBP_LIBOR_3M, FIXING_DATE, LocalDateDoubleTimeSeries.empty(), timeSeries);
     prov.setIborRates(mockIbor);
-
-    when(mockIbor.rate(GBP_LIBOR_3M_COMP.getObservation())).thenReturn(RATE);
 
     ForwardIborRateComputationFn obsFn = ForwardIborRateComputationFn.DEFAULT;
     assertEquals(obsFn.rate(GBP_LIBOR_3M_COMP, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), RATE);
@@ -59,6 +60,7 @@ public class ForwardIborRateComputationFnTest {
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATE));
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.INDEX_VALUE), Optional.of(RATE));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.FROM_FIXING_SERIES), Optional.of(true));
     assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(RATE));
   }
 

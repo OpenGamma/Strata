@@ -122,11 +122,13 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
       ReferenceData refData) {
 
     // The caller didn't ask for the derived measure so just return the measures calculated by the delegate
-    if (!measures.contains(derivedFunction.measure())) {
+    Measure derivedMeasure = derivedFunction.measure();
+    if (!measures.contains(derivedMeasure)) {
       return delegate.calculate(target, measures, parameters, marketData, refData);
     }
     // Add the measures required to calculate the derived measure to the measures requested by the caller
-    Set<Measure> requiredMeasures = Sets.union(measures, derivedFunction.requiredMeasures());
+    Set<Measure> allRequiredMeasures = Sets.union(measures, derivedFunction.requiredMeasures());
+    Set<Measure> requiredMeasures = Sets.difference(allRequiredMeasures, ImmutableSet.of(derivedMeasure));
     Map<Measure, Result<?>> delegateResults = delegate.calculate(target, requiredMeasures, parameters, marketData, refData);
 
     // Calculate the derived measure
@@ -137,11 +139,11 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
     // that don't support that measure.
     Map<Measure, Result<?>> requestedResults = MapStream.of(delegateResults)
         .filterKeys(measures::contains)
-        .filterKeys(measure -> !measure.equals(derivedFunction.measure()))
+        .filterKeys(measure -> !measure.equals(derivedMeasure))
         .toMap();
 
     return ImmutableMap.<Measure, Result<?>>builder()
-        .put(derivedFunction.measure(), result)
+        .put(derivedMeasure, result)
         .putAll(requestedResults)
         .build();
   }

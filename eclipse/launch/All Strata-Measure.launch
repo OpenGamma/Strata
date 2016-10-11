@@ -16,6 +16,7 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.measure"/>
+<listEntry value="com.opengamma.strata.measure.bond"/>
 <listEntry value="com.opengamma.strata.measure.calc"/>
 <listEntry value="com.opengamma.strata.measure.capfloor"/>
 <listEntry value="com.opengamma.strata.measure.cms"/>
