@@ -53,11 +53,6 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
    */
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
 
-  /**
-   * The CDS product pricer.
-   */
-  private final IsdaCdsTradePricer pricer;
-
   //-------------------------------------------------------------------------
   /**
    * Constructs a default credit curve builder. 
@@ -66,7 +61,6 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
    */
   public SimpleCreditCurveCalibrator() {
     super();
-    pricer = IsdaCdsTradePricer.DEFAULT;
   }
 
   /**
@@ -76,7 +70,6 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
    */
   public SimpleCreditCurveCalibrator(AccrualOnDefaultFormulae formula) {
     super(formula);
-    pricer = new IsdaCdsTradePricer(formula);
   }
 
   //-------------------------------------------------------------------------
@@ -142,7 +135,7 @@ public class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibra
             .creditCurves(ImmutableMap.of(pair, LegalEntitySurvivalProbabilities.of(
                 legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
             .build();
-        double price = pricer.price(cds, rates, flactionalSpread, PriceType.CLEAN, refData);
+        double price = getTradePricer().price(cds, rates, flactionalSpread, PriceType.CLEAN, refData);
         return price - pointsUpfront;
       }
     };

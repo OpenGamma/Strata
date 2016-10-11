@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.credit.cds;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
@@ -73,9 +72,9 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   private static final ResolvedCdsTrade[][] EXP_NODE_CDS;
   private static final CdsCurveNode[][] NODE_CDS;
   private static final ImmutableMarketData[] CDS_MARKET_DATA;
-  private static final CreditRatesProvider[] YIELD_CURVES;
+  protected static final CreditRatesProvider[] YIELD_CURVES;
   private static final double[][] SPREADS;
-  private static final BusinessDayAdjustment BUS_ADJ = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, DEFAULT_CALENDAR);
+  private static final BusinessDayAdjustment BUS_ADJ = BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR);
   private static final DaysAdjustment ADJ_2D = DaysAdjustment.ofBusinessDays(2, DEFAULT_CALENDAR);
   private static final DaysAdjustment ADJ_3D = DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR);
   private static final TermDepositConvention TERM_2 = ImmutableTermDepositConvention.builder()
@@ -114,7 +113,6 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     int nMoneyMarket = 6;
     int nSwaps = 15;
     int nInstruments = nMoneyMarket + nSwaps;
-    List<CurveNode> types2 = new ArrayList(nInstruments);
     List<CurveNode> types3 = new ArrayList(nInstruments);
     int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
     int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 25, 30};
@@ -122,13 +120,10 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap11Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
     for (int i = 0; i < nMoneyMarket; i++) {
       Period period = Period.ofMonths(mmMonths[i]);
-      types2.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_2), QuoteId.of(StandardId.of("OG", idValues[i]))));
       types3.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
     }
     for (int i = nMoneyMarket; i < nInstruments; i++) {
       Period period = Period.ofYears(swapYears[i - nMoneyMarket]);
-      types2.add(FixedIborSwapCurveNode.of(
-          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_2), QuoteId.of(StandardId.of("OG", idValues[i]))));
       types3.add(FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Tenor.of(period), SWAP_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
     }
@@ -140,8 +135,8 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       builder0.addValue(QuoteId.of(StandardId.of("OG", idValues[j])), rates[j]);
     }
     ImmutableMarketData quotes0 = builder0.build();
-    IsdaCompliantZeroRateDiscountFactors hc0 =
-        IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(types3, ACT_365F, CurveName.of("yield"), EUR, quotes0, REF_DATA);
+    IsdaCompliantZeroRateDiscountFactors hc0 = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types3, tradeDate0, ACT_365F, CurveName.of("yield"), EUR, quotes0, REF_DATA);
     YIELD_CURVES[0] = CreditRatesProvider.builder()
         .valuationDate(tradeDate0)
         .discountCurves(ImmutableMap.of(EUR, hc0))
@@ -173,14 +168,15 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     CDS_MARKET_DATA[0] = builderCredit0.build();
     // case1
     LocalDate tradeDate1 = LocalDate.of(2011, 3, 21);
+    LocalDate snapDate1 = LocalDate.of(2011, 3, 18);
     LocalDate effDate1 = LocalDate.of(2011, 3, 20); //note this is a Sunday - for a standard CDS this would roll to the Monday.
-    ImmutableMarketDataBuilder builder1 = ImmutableMarketData.builder(tradeDate1);
+    ImmutableMarketDataBuilder builder1 = ImmutableMarketData.builder(snapDate1);
     for (int j = 0; j < nInstruments; j++) {
       builder1.addValue(QuoteId.of(StandardId.of("OG", idValues[j])), rates[j]);
     }
     ImmutableMarketData quotes1 = builder1.build();
-    IsdaCompliantZeroRateDiscountFactors hc1 =
-        IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(types2, ACT_365F, CurveName.of("yield"), EUR, quotes1, REF_DATA);
+    IsdaCompliantZeroRateDiscountFactors hc1 = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types3, tradeDate1, ACT_365F, CurveName.of("yield"), EUR, quotes1, REF_DATA);
     YIELD_CURVES[1] = CreditRatesProvider.builder()
         .valuationDate(tradeDate1)
         .discountCurves(ImmutableMap.of(EUR, hc1))
@@ -219,13 +215,14 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     CDS_MARKET_DATA[1] = builderCredit1.build();
     // case2
     LocalDate tradeDate2 = LocalDate.of(2011, 5, 30);
-    ImmutableMarketDataBuilder builder2 = ImmutableMarketData.builder(tradeDate2);
+    LocalDate snapDate2 = LocalDate.of(2011, 5, 29);
+    ImmutableMarketDataBuilder builder2 = ImmutableMarketData.builder(snapDate2);
     for (int j = 0; j < nInstruments; j++) {
       builder2.addValue(QuoteId.of(StandardId.of("OG", idValues[j])), rates[j]);
     }
     ImmutableMarketData quotes2 = builder2.build();
-    IsdaCompliantZeroRateDiscountFactors hc2 =
-        IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(types2, ACT_365F, CurveName.of("yield"), EUR, quotes2, REF_DATA);
+    IsdaCompliantZeroRateDiscountFactors hc2 = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types3, tradeDate2, ACT_365F, CurveName.of("yield"), EUR, quotes2, REF_DATA);
     YIELD_CURVES[2] = CreditRatesProvider.builder()
         .valuationDate(tradeDate2)
         .discountCurves(ImmutableMap.of(EUR, hc2))
@@ -264,14 +261,15 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     CDS_MARKET_DATA[2] = builderCredit2.build();
     // case3
     LocalDate tradeDate3 = LocalDate.of(2011, 5, 30);
+    LocalDate snapDate3 = LocalDate.of(2011, 5, 29);
     LocalDate effDate3 = LocalDate.of(2011, 7, 31);
-    ImmutableMarketDataBuilder builder3 = ImmutableMarketData.builder(tradeDate3);
+    ImmutableMarketDataBuilder builder3 = ImmutableMarketData.builder(snapDate3);
     for (int j = 0; j < nInstruments; j++) {
       builder3.addValue(QuoteId.of(StandardId.of("OG", idValues[j])), rates[j]);
     }
     ImmutableMarketData quotes3 = builder3.build();
-    IsdaCompliantZeroRateDiscountFactors hc3 =
-        IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(types2, ACT_365F, CurveName.of("yield"), EUR, quotes3, REF_DATA);
+    IsdaCompliantZeroRateDiscountFactors hc3 = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types3, tradeDate3, ACT_365F, CurveName.of("yield"), EUR, quotes3, REF_DATA);
     YIELD_CURVES[3] = CreditRatesProvider.builder()
         .valuationDate(tradeDate3)
         .discountCurves(ImmutableMap.of(EUR, hc3))
@@ -315,13 +313,14 @@ public class IsdaCompliantCreditCurveCalibratorBase {
 
     // case4: designed to trip the low rates/low spreads branch
     LocalDate tradeDate4 = LocalDate.of(2014, 1, 14);
-    ImmutableMarketDataBuilder builder4 = ImmutableMarketData.builder(tradeDate4);
+    LocalDate snapDate4 = LocalDate.of(2014, 1, 13);
+    ImmutableMarketDataBuilder builder4 = ImmutableMarketData.builder(snapDate4);
     for (int j = 0; j < rates.length; j++) {
       builder4.addValue(QuoteId.of(StandardId.of("OG", idValues[j])), rates[j] / 1000d);
     }
     ImmutableMarketData quotes4 = builder4.build();
-    IsdaCompliantZeroRateDiscountFactors hc4 =
-        IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(types2, ACT_365F, CurveName.of("yield"), EUR, quotes4, REF_DATA);
+    IsdaCompliantZeroRateDiscountFactors hc4 = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types3, tradeDate4, ACT_365F, CurveName.of("yield"), EUR, quotes4, REF_DATA);
     YIELD_CURVES[4] = CreditRatesProvider.builder()
         .valuationDate(tradeDate4)
         .discountCurves(ImmutableMap.of(EUR, hc4))

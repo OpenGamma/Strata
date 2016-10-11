@@ -117,6 +117,52 @@ public class IsdaCdsTradePricer {
     return productPricer.parSpread(product, ratesProvider, settlementDate, refData);
   }
 
+  /**
+   * Calculates the price sensitivity of the underlying product. 
+   * <p>
+   * The price sensitivity of the product is the sensitivity of price to the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder priceSensitivity(
+      ResolvedCdsTrade trade,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    ResolvedCds product = trade.getProduct();
+    LocalDate settlementDate = trade.getInfo().getSettlementDate()
+        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
+    PointSensitivityBuilder priceSensiProduct =
+        productPricer.priceSensitivity(product, ratesProvider, settlementDate, refData);
+    return priceSensiProduct;
+  }
+
+  /**
+   * Calculates the par spread sensitivity of the underling product.
+   * <p>
+   * The par spread sensitivity of the product is the sensitivity of par spread to the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder parSpreadSensitivity(
+      ResolvedCdsTrade trade,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    ResolvedCds product = trade.getProduct();
+    LocalDate settlementDate = trade.getInfo().getSettlementDate()
+        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
+    PointSensitivityBuilder spreadSensiProduct =
+        productPricer.parSpreadSensitivity(product, ratesProvider, settlementDate, refData);
+    return spreadSensiProduct;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the trade.

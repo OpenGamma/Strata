@@ -8,18 +8,29 @@ package com.opengamma.strata.pricer.credit.cds;
 import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveParameterSize;
+import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsCurveNode;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
+import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.product.credit.cds.CdsCalibrationTrade;
 import com.opengamma.strata.product.credit.cds.CdsQuote;
 import com.opengamma.strata.product.credit.cds.ResolvedCdsTrade;
@@ -47,6 +58,10 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    * Default pricing formula.
    */
   private static final AccrualOnDefaultFormulae DEFAULT_FORMULA = AccrualOnDefaultFormulae.ORIGINAL_ISDA;
+  /**
+   * The matrix algebra used for matrix inversion.
+   */
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
 
   /**
    * The arbitrage handling.
@@ -56,6 +71,10 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    * The pricing formula.
    */
   private final AccrualOnDefaultFormulae formula;
+  /**
+   * The trade pricer.
+   */
+  private final IsdaCdsTradePricer tradePricer;
 
   //-------------------------------------------------------------------------
   protected IsdaCompliantCreditCurveCalibrator() {
@@ -69,6 +88,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
   protected IsdaCompliantCreditCurveCalibrator(AccrualOnDefaultFormulae formula, ArbitrageHandling arbHandling) {
     this.arbHandling = ArgChecker.notNull(arbHandling, "arbHandling");
     this.formula = ArgChecker.notNull(formula, "formula");
+    this.tradePricer = new IsdaCdsTradePricer(formula);
   }
 
   //-------------------------------------------------------------------------
@@ -78,6 +98,10 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
 
   protected AccrualOnDefaultFormulae getAccOnDefaultFormula() {
     return formula;
+  }
+
+  protected IsdaCdsTradePricer getTradePricer() {
+    return tradePricer;
   }
 
   //-------------------------------------------------------------------------
@@ -112,15 +136,20 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
         curveNode.stream().map(n -> n.getTemplate().getConvention().getCurrency()).collect(Collectors.toSet()).iterator();
     Currency currency = currencies.next();
     ArgChecker.isFalse(currencies.hasNext(), "currency must be common to curve nodes");
+    Iterator<CdsQuoteConvention> quoteConventions =
+        curveNode.stream().map(n -> n.getQuoteConvention()).collect(Collectors.toSet()).iterator();
+    CdsQuoteConvention quoteConvention = quoteConventions.next();
+    ArgChecker.isFalse(quoteConventions.hasNext(), "quote convention must be common to curve nodes");
     LocalDate valuationDate = marketData.getValuationDate();
     ArgChecker.isTrue(valuationDate.equals(marketData.getValuationDate()),
         "ratesProvider and marketDate must be based on the same valuation date");
     CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntityId);
-
+    // calibrate
     int nNodes = curveNode.size();
     double[] coupons = new double[nNodes];
     double[] pufs = new double[nNodes];
+    double[][] diag = new double[nNodes][nNodes];
     ResolvedCdsTrade[] trades = new ResolvedCdsTrade[nNodes];
     for (int i = 0; i < nNodes; i++) {
       CdsCalibrationTrade tradeCalibration = curveNode.get(i).trade(1d, marketData, refData);
@@ -129,12 +158,55 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
           getStandardQuoteForm(trades[i], tradeCalibration.getQuote(), valuationDate, discountFactors, recoveryRates, refData);
       coupons[i] = temp[0];
       pufs[i] = temp[1];
+      diag[i][i] = temp[2];
     }
+    NodalCurve nodalCurve = calibrate(trades, coupons, pufs, name, valuationDate, discountFactors, recoveryRates, refData);
+    // jacobian
+    LegalEntitySurvivalProbabilities creditCurve = LegalEntitySurvivalProbabilities.of(
+        legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));
+    CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
+        .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), creditCurve))
+        .build();
+    Function<ResolvedCdsTrade, DoubleArray> sensiFunc = quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)
+        ? getParSpreadSensitivityFunction(ratesProviderNew, refData)
+        : getPointsUpfrontSensitivityFunction(ratesProviderNew, refData);
+    DoubleMatrix sensi = DoubleMatrix.ofArrayObjects(
+        nNodes,
+        nNodes,
+        i -> sensiFunc.apply(trades[i]));
+    sensi = (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(diag), sensi);
+    JacobianCalibrationMatrix jacobian =
+        JacobianCalibrationMatrix.of(ImmutableList.of(CurveParameterSize.of(name, nNodes)), MATRIX_ALGEBRA.getInverse(sensi));
+    nodalCurve = nodalCurve.withMetadata(nodalCurve.getMetadata().withInfo(CurveInfoType.JACOBIAN, jacobian));
 
-    NodalCurve nodalCurve =
-        calibrate(trades, coupons, pufs, name, valuationDate, discountFactors, recoveryRates, refData);
     return LegalEntitySurvivalProbabilities.of(
         legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));
+  }
+
+  private Function<ResolvedCdsTrade, DoubleArray> getPointsUpfrontSensitivityFunction(CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    Function<ResolvedCdsTrade, DoubleArray> func = new Function<ResolvedCdsTrade, DoubleArray>() {
+      @Override
+      public DoubleArray apply(ResolvedCdsTrade trade) {
+        PointSensitivityBuilder point = tradePricer.priceSensitivity(trade, ratesProvider, refData);
+        return ratesProvider.parameterSensitivity(point.build()).getSensitivities().get(0).getSensitivity();
+      }
+    };
+    return func;
+  }
+
+  private Function<ResolvedCdsTrade, DoubleArray> getParSpreadSensitivityFunction(CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    Function<ResolvedCdsTrade, DoubleArray> func = new Function<ResolvedCdsTrade, DoubleArray>() {
+      @Override
+      public DoubleArray apply(ResolvedCdsTrade trade) {
+        PointSensitivityBuilder point = tradePricer.parSpreadSensitivity(trade, ratesProvider, refData);
+        return ratesProvider.parameterSensitivity(point.build()).getSensitivities().get(0).getSensitivity();
+      }
+    };
+    return func;
   }
 
   abstract NodalCurve calibrate(ResolvedCdsTrade[] calibrationCDSs, double[] flactionalSpreads,
@@ -143,15 +215,16 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
 
   private double[] getStandardQuoteForm(ResolvedCdsTrade calibrationCDS, CdsQuote marketQuote, LocalDate valuationDate,
       CreditDiscountFactors discountFactors, RecoveryRates recoveryRates, ReferenceData refData) {
-    IsdaCdsProductPricer pricer = new IsdaCdsProductPricer(formula);
 
-    double[] res = new double[2];
+    double[] res = new double[3];
     if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.PAR_SPREAD)) {
       res[0] = marketQuote.getQuotedValue();
+      res[2] = 1d;
     } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD)) {
       double qSpread = marketQuote.getQuotedValue();
+      CurveName curveName = CurveName.of("quoteConvertCurve");
       NodalCurve tempCreditCurve =
-          calibrate(new ResolvedCdsTrade[] {calibrationCDS}, new double[] {qSpread}, new double[1], CurveName.of("temp"),
+          calibrate(new ResolvedCdsTrade[] {calibrationCDS}, new double[] {qSpread}, new double[1], curveName,
               valuationDate, discountFactors, recoveryRates, refData);
       Currency currency = calibrationCDS.getProduct().getCurrency();
       StandardId legalEntityId = calibrationCDS.getProduct().getLegalEntityId();
@@ -167,11 +240,17 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
                       IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
           .build();
       res[0] = calibrationCDS.getProduct().getFixedRate();
-      res[1] = pricer.price(calibrationCDS.getProduct(), rates, calibrationCDS.getInfo().getSettlementDate().get(),
-          PriceType.CLEAN, refData);
+      res[1] = tradePricer.price(calibrationCDS, rates, PriceType.CLEAN, refData);
+      CurrencyParameterSensitivities pufSensi =
+          rates.parameterSensitivity(tradePricer.priceSensitivity(calibrationCDS, rates, refData).build());
+      CurrencyParameterSensitivities spSensi =
+          rates.parameterSensitivity(tradePricer.parSpreadSensitivity(calibrationCDS, rates, refData).build());
+      res[2] = spSensi.getSensitivity(curveName, currency).getSensitivity().get(0) /
+          pufSensi.getSensitivity(curveName, currency).getSensitivity().get(0);
     } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)) {
       res[0] = calibrationCDS.getProduct().getFixedRate();
       res[1] = marketQuote.getQuotedValue();
+      res[2] = 1d;
     } else {
       throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
     }
