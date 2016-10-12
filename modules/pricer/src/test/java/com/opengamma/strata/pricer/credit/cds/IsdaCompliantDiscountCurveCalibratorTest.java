@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.credit.cds;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -25,13 +26,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
@@ -63,39 +64,52 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
 
   private static final TermDepositConvention TERM_0 = ImmutableTermDepositConvention.builder()
       .businessDayAdjustment(BUS_ADJ)
-      .currency(Currency.USD)
+      .currency(USD)
       .dayCount(ACT_360)
       .name("standar_usd")
       .spotDateOffset(ADJ_0D)
       .build();
   private static final FixedRateSwapLegConvention FIXED_LEG = FixedRateSwapLegConvention.of(
-      Currency.USD, THIRTY_U_360, Frequency.P6M, BUS_ADJ);
+      USD, THIRTY_U_360, Frequency.P6M, BUS_ADJ);
   private static final IborRateSwapLegConvention FLOATING_LEG = IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M);
   private static final FixedIborSwapConvention SWAP_0 =
       ImmutableFixedIborSwapConvention.of("standar_usd", FIXED_LEG, FLOATING_LEG, ADJ_0D);
   private static final TermDepositConvention TERM_3 = ImmutableTermDepositConvention.builder()
       .businessDayAdjustment(BUS_ADJ)
-      .currency(Currency.USD)
+      .currency(USD)
       .dayCount(ACT_360)
       .name("standar_usd")
       .spotDateOffset(ADJ_3D)
       .build();
   private static final FixedIborSwapConvention SWAP_3 =
       ImmutableFixedIborSwapConvention.of("standar_usd", FIXED_LEG, FLOATING_LEG, ADJ_3D);
-  private static final IsdaCompliantDiscountCurveCalibrator CALIBRATOR = IsdaCompliantDiscountCurveCalibrator.DEFAULT;
+  private static final int[] MM_MONTHS = new int[] {1, 2, 3, 6, 9, 12};
+  private static final int[] SWAP_YEARS = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+  private static final int NUM_MM = MM_MONTHS.length;
+  private static final int NUM_SWAP = SWAP_YEARS.length;
+  private static final int NUM_TOTAL = NUM_MM + NUM_SWAP;
+  private static final String[] ID_VALUES = new String[] {
+      "mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y", "swap6Y", "swap7Y",
+      "swap8Y", "swap9Y", "swap10Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
 
-  private static final double[] SAMPLE_TIMES =
-      new double[] {0.0767123287671233, 0.167123287671233, 0.249315068493151, 0.498630136986301, 0.747945205479452,
-          0.997260273972603, 1.4958904109589, 1.99452054794521, 2.5013698630137, 3.0027397260274, 3.5041095890411,
-          4.0027397260274, 4.5041095890411, 5.0027397260274, 5.5041095890411, 6.0027397260274, 6.5013698630137,
-          7, 7.50684931506849, 8.00547945205479, 8.50684931506849, 9.00547945205479, 9.50684931506849, 10.0054794520548,
-          10.5068493150685, 11.0082191780822, 11.5068493150685, 12.0054794520548, 12.5041095890411, 13.0027397260274,
-          13.5095890410959, 14.0082191780822, 14.5095890410959, 15.0109589041096, 15.5123287671233, 16.0109589041096,
-          16.5123287671233, 17.0109589041096, 17.5095890410959, 18.0082191780822, 18.5068493150685, 19.013698630137,
-          19.5150684931507, 20.013698630137, 20.5150684931507, 21.013698630137, 21.5150684931507, 22.013698630137,
-          22.5150684931507, 23.013698630137, 23.5123287671233, 24.0109589041096, 24.5178082191781, 25.0164383561644,
-          25.5178082191781, 26.0164383561644, 26.5178082191781, 27.0191780821918, 27.5205479452055, 28.0191780821918,
-          28.5178082191781, 29.0164383561644, 29.5150684931507, 30.013698630137};
+  private static final IsdaCompliantDiscountCurveCalibrator CALIBRATOR = IsdaCompliantDiscountCurveCalibrator.DEFAULT;
+  private static final double[] RATES = new double[] {
+      0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332,
+      0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421,
+      0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753, 0.0529297239911766, 0.0562025436376854,
+      0.0589772202773522, 0.0607471217692999};
+  private static final double[] SAMPLE_TIMES = new double[] {
+      0.0767123287671233, 0.167123287671233, 0.249315068493151, 0.498630136986301, 0.747945205479452, 0.997260273972603,
+      1.4958904109589, 1.99452054794521, 2.5013698630137, 3.0027397260274, 3.5041095890411, 4.0027397260274, 4.5041095890411,
+      5.0027397260274, 5.5041095890411, 6.0027397260274, 6.5013698630137, 7, 7.50684931506849, 8.00547945205479,
+      8.50684931506849, 9.00547945205479, 9.50684931506849, 10.0054794520548, 10.5068493150685, 11.0082191780822,
+      11.5068493150685, 12.0054794520548, 12.5041095890411, 13.0027397260274, 13.5095890410959, 14.0082191780822,
+      14.5095890410959, 15.0109589041096, 15.5123287671233, 16.0109589041096, 16.5123287671233, 17.0109589041096,
+      17.5095890410959, 18.0082191780822, 18.5068493150685, 19.013698630137, 19.5150684931507, 20.013698630137,
+      20.5150684931507, 21.013698630137, 21.5150684931507, 22.013698630137, 22.5150684931507, 23.013698630137,
+      23.5123287671233, 24.0109589041096, 24.5178082191781, 25.0164383561644, 25.5178082191781, 26.0164383561644,
+      26.5178082191781, 27.0191780821918, 27.5205479452055, 28.0191780821918, 28.5178082191781, 29.0164383561644,
+      29.5150684931507, 30.013698630137};
   private static final double TOL = 1.0e-10;
 
   public void regressionTest1() {
@@ -112,47 +126,30 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         0.0659667431709796, 0.0663851731522577, 0.0668735344788778, 0.0673405584796377, 0.0677924400667054, 0.0682275513575991,
         0.0686468089170376, 0.0690488939824011, 0.0694369182384849, 0.06981160656508, 0.0701736348572483, 0.0705236340943412};
     LocalDate spotDate = LocalDate.of(2013, 5, 31);
-    int nMoneyMarket = 6;
-    int nSwaps = 14;
-    int nInstruments = nMoneyMarket + nSwaps;
-    List<CurveNode> types = new ArrayList(nInstruments);
-    int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
-    int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
-    String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
-        "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
-    for (int i = 0; i < nMoneyMarket; i++) {
-      Period period = Period.ofMonths(mmMonths[i]);
-      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_0), QuoteId.of(StandardId.of("OG", idValues[i]))));
+    List<CurveNode> types = new ArrayList(NUM_TOTAL);
+    for (int i = 0; i < NUM_MM; i++) {
+      Period period = Period.ofMonths(MM_MONTHS[i]);
+      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_0), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
-    for (int i = nMoneyMarket; i < nInstruments; i++) {
-      Period period = Period.ofYears(swapYears[i - nMoneyMarket]);
+    for (int i = NUM_MM; i < NUM_TOTAL; i++) {
+      Period period = Period.ofYears(SWAP_YEARS[i - NUM_MM]);
       types.add(FixedIborSwapCurveNode.of(
-          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_0), QuoteId.of(StandardId.of("OG", idValues[i]))));
+          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_0), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
-    double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
-        0.0162809551414651, 0.020583125112332, 0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048,
-        0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
-        0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999};
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(spotDate);
-    for (int i = 0; i < rates.length; i++) {
-      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
+    for (int i = 0; i < RATES.length; i++) {
+      builder.addValue(QuoteId.of(StandardId.of("OG", ID_VALUES[i])), RATES[i]);
     }
     ImmutableMarketData quotes = builder.build();
-    IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-        types, spotDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-    int nCurvePoints = hc.getParameterCount();
-    assertEquals(nInstruments, nCurvePoints);
-    int nSamplePoints = SAMPLE_TIMES.length;
-    for (int i = 0; i < nSamplePoints; i++) {
-      double time = SAMPLE_TIMES[i];
-      double zr = hc.getCurve().yValue(time);
-      assertEquals(zeroRates[i], zr, TOL);
-    }
+    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, spotDate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), NUM_TOTAL);
+    testZeroRates(yc, SAMPLE_TIMES, zeroRates);
   }
 
   public void regressionTest2() {
     // date from ISDA excel
-    double[] sampleTimes = new double[] {0.0876712328767123, 0.167123287671233, 0.252054794520548, 0.495890410958904,
+    double[] times = new double[] {0.0876712328767123, 0.167123287671233, 0.252054794520548, 0.495890410958904,
         0.747945205479452, 1, 1.4958904109589, 2.00547945205479, 2.5041095890411, 3.0027397260274, 3.5013698630137,
         4.0027397260274, 4.4986301369863, 5.0027397260274, 5.4986301369863, 6.0027397260274, 6.5013698630137, 7.01095890410959,
         7.5013698630137, 8.00821917808219, 8.50684931506849, 9.00547945205479, 9.5041095890411, 10.0054794520548,
@@ -185,7 +182,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         0.02525, 0.02696, 0.02825, 0.02931, 0.03017, 0.03092, 0.0316, 0.03231, 0.03367, 0.03419, 0.03411, 0.03412};
     String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
         "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap11Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
-    FixedRateSwapLegConvention fixedLeg = FixedRateSwapLegConvention.of(Currency.USD, ACT_360, Frequency.P6M, BUS_ADJ);
+    FixedRateSwapLegConvention fixedLeg = FixedRateSwapLegConvention.of(USD, ACT_360, Frequency.P6M, BUS_ADJ);
     FixedIborSwapConvention swap0 = ImmutableFixedIborSwapConvention.of("standard_usd", fixedLeg, FLOATING_LEG, ADJ_0D);
     for (int i = 0; i < nMoneyMarket; i++) {
       Period period = Period.ofMonths(mmMonths[i]);
@@ -201,16 +198,10 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
     }
     ImmutableMarketData quotes = builder.build();
-    IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-        types, spotDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-    int nCurvePoints = hc.getParameterCount();
-    assertEquals(nInstruments, nCurvePoints);
-    int nSamplePoints = sampleTimes.length;
-    for (int i = 0; i < nSamplePoints; i++) {
-      double time = sampleTimes[i];
-      double zr = hc.getCurve().yValue(time);
-      assertEquals(zeroRates[i], zr, TOL);
-    }
+    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, spotDate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), nInstruments);
+    testZeroRates(yc, times, zeroRates);
   }
 
   public void offsetTest() {
@@ -243,38 +234,25 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         0.0489164313924592, 0.0490295826139708};
     LocalDate valuationDate = LocalDate.of(2013, 5, 29); // spot date is LocalDate.of(2013, 5, 31);
     LocalDate snapDate = LocalDate.of(2013, 5, 28);
-    int nMoneyMarket = 6;
-    int nSwaps = 14;
-    int nInstruments = nMoneyMarket + nSwaps;
-    List<CurveNode> types = new ArrayList(nInstruments);
-    int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
-    int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
-    String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
-        "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
-    for (int i = 0; i < nMoneyMarket; i++) {
-      Period period = Period.ofMonths(mmMonths[i]);
-      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
+    List<CurveNode> types = new ArrayList(NUM_TOTAL);
+    for (int i = 0; i < NUM_MM; i++) {
+      Period period = Period.ofMonths(MM_MONTHS[i]);
+      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_3), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
-    for (int i = nMoneyMarket; i < nInstruments; i++) {
-      Period period = Period.ofYears(swapYears[i - nMoneyMarket]);
+    for (int i = NUM_MM; i < NUM_TOTAL; i++) {
+      Period period = Period.ofYears(SWAP_YEARS[i - NUM_MM]);
       types.add(FixedIborSwapCurveNode.of(
-          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
+          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_3), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
-    double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
-        0.0162809551414651, 0.020583125112332, 0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048,
-        0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
-        0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999};
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(snapDate);
-    for (int i = 0; i < rates.length; i++) {
-      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
+    for (int i = 0; i < RATES.length; i++) {
+      builder.addValue(QuoteId.of(StandardId.of("OG", ID_VALUES[i])), RATES[i]);
     }
     ImmutableMarketData quotes = builder.build();
     DayCount curveDCC = ACT_365F;
     IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-        types, valuationDate, curveDCC, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-
-    int nCurvePoints = yc.getParameterCount();
-    assertEquals(nInstruments, nCurvePoints);
+        types, valuationDate, curveDCC, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), NUM_TOTAL);
     int nSamplePoints = zeroRates.length;
     double[] times = new double[nSamplePoints];
     times[0] = 0.0;
@@ -284,10 +262,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       tDate = valuationDate.plusDays(25 * (i - 1) + 1);
       times[i] = curveDCC.relativeYearFraction(valuationDate, tDate);
     }
-    for (int i = 0; i < nSamplePoints; i++) {
-      double zr = yc.getCurve().yValue(times[i]);
-      assertEquals(zeroRates[i], zr, TOL);
-    }
+    testZeroRates(yc, times, zeroRates);
   }
 
   public void differentSpotDatesTest() {
@@ -411,22 +386,16 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     double[] rates = new double[] {0.00445, 0.009488, 0.012337, 0.017762, 0.01935, 0.020838, 0.01652, 0.02018, 0.023033,
         0.02525, 0.02696, 0.02825, 0.02931, 0.03017, 0.03092, 0.0316, 0.03231, 0.03367, 0.03419, 0.03411, 0.03412,};
-    int nSamplePoints = sampleTimes.length;
     for (int k = 0; k < nDates; ++k) {
       ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(spotDate[k]);
       for (int i = 0; i < rates.length; i++) {
         builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
       }
       ImmutableMarketData quotes = builder.build();
-      IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT
-          .calibrate(types, spotDate[k], ACT_365F, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-      int nCurvePoints = hc.getParameterCount();
-      assertEquals(nInstruments, nCurvePoints);
-      for (int i = 0; i < nSamplePoints; i++) {
-        double time = sampleTimes[k][i];
-        double zr = hc.getCurve().yValue(time);
-        assertEquals(zeroRates[k][i], zr, TOL);
-      }
+      IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT
+          .calibrate(types, spotDate[k], ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+      assertEquals(yc.getParameterCount(), nInstruments);
+      testZeroRates(yc, sampleTimes[k], zeroRates[k]);
     }
   }
 
@@ -435,6 +404,10 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     int nMoneyMarket = 6;
     int nSwaps = 15;
     int nInstruments = nMoneyMarket + nSwaps;
+    int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
+    int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 25, 30};
+    String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
+        "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap11Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
     double[] rates = new double[] {0.00445, 0.009488, 0.012337, 0.017762, 0.01935, 0.020838, 0.01652, 0.02018, 0.023033,
         0.02525, 0.02696, 0.02825, 0.02931, 0.03017, 0.03092, 0.0316, 0.03231, 0.03367, 0.03419, 0.03411, 0.03412,};
     DayCount[] moneyMarketDCC = new DayCount[] {THIRTY_U_360, ACT_ACT_ISDA, ACT_360};
@@ -479,7 +452,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
             0.0351079678932113, 0.0350797250576823, 0.035053079675205, 0.0350274964895541, 0.0350149676071521,
             0.0350028541063757, 0.0349912611565855, 0.0349799757789108, 0.0349692778673166, 0.0349587907773192,
             0.0349488364497969, 0.0349389615071325, 0.034929780183562, 0.0349206063118399}};
-    double[] sampleTimes = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904,
+    double[] times = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904,
         0.747945205479452, 1.00547945205479, 1.4958904109589, 2.0027397260274, 2.5013698630137, 3.0027397260274,
         3.4986301369863, 4.0027397260274, 4.4986301369863, 5.0027397260274, 5.4986301369863, 6.0027397260274,
         6.5013698630137, 7.00821917808219, 7.50684931506849, 8.00547945205479, 8.5041095890411, 9.00547945205479,
@@ -490,21 +463,17 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         21.5095890410959, 22.013698630137, 22.5123287671233, 23.0219178082192, 23.5123287671233, 24.0191780821918,
         24.5178082191781, 25.0164383561644, 25.5150684931507, 26.0164383561644, 26.5150684931507, 27.0191780821918,
         27.5150684931507, 28.0191780821918, 28.5150684931507, 29.0246575342466, 29.5150684931507, 30.0219178082192};
-    for (int ii = 0; ii < 3; ++ii) {
+    for (int j = 0; j < 3; ++j) {
       List<CurveNode> types = new ArrayList(nInstruments);
-      int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
-      int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 25, 30};
       TermDepositConvention term0 = ImmutableTermDepositConvention.builder()
           .businessDayAdjustment(BUS_ADJ)
-          .currency(Currency.USD)
-          .dayCount(moneyMarketDCC[ii])
+          .currency(USD)
+          .dayCount(moneyMarketDCC[j])
           .name("standar_usd")
           .spotDateOffset(ADJ_0D)
           .build();
-      FixedRateSwapLegConvention fixedLeg = FixedRateSwapLegConvention.of(Currency.USD, swapDCC[ii], Frequency.P6M, BUS_ADJ);
+      FixedRateSwapLegConvention fixedLeg = FixedRateSwapLegConvention.of(USD, swapDCC[j], Frequency.P6M, BUS_ADJ);
       FixedIborSwapConvention swap0 = ImmutableFixedIborSwapConvention.of("standard_usd", fixedLeg, FLOATING_LEG, ADJ_0D);
-      String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
-          "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap11Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
       for (int i = 0; i < nMoneyMarket; i++) {
         Period period = Period.ofMonths(mmMonths[i]);
         types.add(TermDepositCurveNode.of(
@@ -520,16 +489,10 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
       }
       ImmutableMarketData quotes = builder.build();
-      IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-          types, spotDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-      int nCurvePoints = hc.getParameterCount();
-      assertEquals(nInstruments, nCurvePoints);
-      int nSamplePoints = sampleTimes.length;
-      for (int i = 0; i < nSamplePoints; i++) {
-        double time = sampleTimes[i];
-        double zr = hc.getCurve().yValue(time);
-        assertEquals(zeroRates[ii][i], zr, TOL);
-      }
+      IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+          types, spotDate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+      assertEquals(yc.getParameterCount(), nInstruments);
+      testZeroRates(yc, times, zeroRates[j]);
     }
   }
 
@@ -610,21 +573,19 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       builder2.addValue(QuoteId.of(StandardId.of("OG", idValues2[i])), rates2[i]);
     }
     ImmutableMarketData quotes2 = builder2.build();
-    IsdaCompliantZeroRateDiscountFactors hc1 =
-        CALIBRATOR.calibrate(types1, spotDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes1, REF_DATA);
-    int nCurvePoints1 = hc1.getParameterCount();
-    assertEquals(nInstruments1, nCurvePoints1);
-    IsdaCompliantZeroRateDiscountFactors hc2 =
-        CALIBRATOR.calibrate(types2, spotDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes2, REF_DATA);
-    int nCurvePoints2 = hc2.getParameterCount();
-    assertEquals(nInstruments2, nCurvePoints2);
+    IsdaCompliantZeroRateDiscountFactors yc1 =
+        CALIBRATOR.calibrate(types1, spotDate, ACT_365F, CurveName.of("yield"), USD, quotes1, REF_DATA);
+    assertEquals(yc1.getParameterCount(), nInstruments1);
+    IsdaCompliantZeroRateDiscountFactors yc2 =
+        CALIBRATOR.calibrate(types2, spotDate, ACT_365F, CurveName.of("yield"), USD, quotes2, REF_DATA);
+    assertEquals(yc2.getParameterCount(), nInstruments2);
     double ref1 = 0.0;
     double ref2 = 0.0;
     int nSamplePoints = sampleTimes.length;
     for (int i = 0; i < nSamplePoints; i++) {
       double time = sampleTimes[i];
-      double zr1 = hc1.getCurve().yValue(time);
-      double zr2 = hc2.getCurve().yValue(time);
+      double zr1 = yc1.getCurve().yValue(time);
+      double zr2 = yc2.getCurve().yValue(time);
       if (time < 1.) {
         assertEquals(zeroRates[i], zr2, TOL);
         if (i > 0) {
@@ -640,7 +601,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
 
   public void anotherConventionTest() {
     // date from ISDA excel
-    double[] sampleTimes = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904,
+    double[] times = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904,
         0.747945205479452, 1.00547945205479, 1.4958904109589, 2.0027397260274, 2.5013698630137, 3.0027397260274, 3.4986301369863,
         4.0027397260274, 4.4986301369863, 5.0027397260274, 5.4986301369863, 6.0027397260274, 6.5013698630137, 7.00821917808219,
         7.50684931506849, 8.00547945205479, 8.5041095890411, 9.00547945205479, 9.5013698630137, 10.0054794520548,
@@ -674,12 +635,12 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     BusinessDayAdjustment busAdj = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     TermDepositConvention term0 = ImmutableTermDepositConvention.builder()
         .businessDayAdjustment(busAdj)
-        .currency(Currency.USD)
+        .currency(USD)
         .dayCount(ACT_360)
         .name("standar_usd")
         .spotDateOffset(ADJ_0D)
         .build();
-    FixedRateSwapLegConvention fixedLeg = FixedRateSwapLegConvention.of(Currency.USD, ACT_360, Frequency.P6M, busAdj);
+    FixedRateSwapLegConvention fixedLeg = FixedRateSwapLegConvention.of(USD, ACT_360, Frequency.P6M, busAdj);
     FixedIborSwapConvention swap0 = ImmutableFixedIborSwapConvention.of("standard_usd", fixedLeg, FLOATING_LEG, ADJ_0D);
     String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
         "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap11Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
@@ -698,16 +659,10 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
     }
     ImmutableMarketData quotes = builder.build();
-    IsdaCompliantZeroRateDiscountFactors hc =
-        CALIBRATOR.calibrate(types, spotDate, ACT_365F, CurveName.of("test"), Currency.USD, quotes, REF_DATA);
-    int nCurvePoints = hc.getParameterCount();
-    assertEquals(nInstruments, nCurvePoints);
-    int nSamplePoints = sampleTimes.length;
-    for (int i = 0; i < nSamplePoints; i++) {
-      double time = sampleTimes[i];
-      double zr = hc.zeroRate(time);
-      assertEquals(zeroRates[i], zr, TOL);
-    }
+    IsdaCompliantZeroRateDiscountFactors yc =
+        CALIBRATOR.calibrate(types, spotDate, ACT_365F, CurveName.of("test"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), nInstruments);
+    testZeroRates(yc, times, zeroRates);
   }
 
   public void negativeRatesTest() {
@@ -723,38 +678,18 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         0.03424571865533365, 0.034693621774103636, 0.03512305340117343, 0.035530737532750656, 0.03592245502892328,
         0.03629510394570572, 0.036651947198807336, 0.03699396948612518, 0.03732737190748109, 0.037642184746061194,
         0.03796035404268169, 0.03826492785153772, 0.038559626402149924, 0.03884338805664329, 0.03911681056075889,
-        0.03937903387185762, 0.039632087302541336, 0.039876443589539956, 0.040112543523761486, 0.0403407986039386,
-        0.010087974088676337, 0.010087974088676337, 0.010087974088676337, 0.010087974088676337, 0.010087974088676337,
-        0.010087974088676347, 0.025023916871786102, 0.03249188826334116, 0.037031564191394764, 0.040014370394980396,
-        0.042143613603638455, 0.043732181959459715, 0.044974847742655547, 0.04596368331470032, 0.046777310890392165,
-        0.0474516903799703, 0.048022625228079215, 0.048512221412895906, 0.04894322962079566, 0.04931399219873278,
-        0.04964296845438076, 0.04993381597035878, 0.05019549998291769, 0.050429742876353094, 0.0506428560184085,
-        0.05083655666419901, 0.05101245731439732, 0.05117374640898808, 0.05132217195615749, 0.05145921383304254,
-        0.05158814688757879, 0.05170588467560495, 0.05181611030825588, 0.05191897281231579, 0.05201518613296244,
-        0.05210489731836933, 0.0521896385888013, 0.052268962444584066, 0.052343768402775714, 0.05241443175199401,
-        0.05248128733524406, 0.052545651210461786, 0.05260602993777339, 0.05266307834229664, 0.052717644115469024,
-        0.052769329228207186, 0.05281888285069453, 0.052865926953356714, 0.05291112860992654, 0.05295412987620159,
-        0.052995307271476395, 0.05303477442349697, 0.0530732468989338, 0.053109574257176176, 0.05314466978617466,
-        0.05317823193261876, 0.05321070588679645, 0.053241974662792325, 0.053272104128483135, 0.053300999512499274,
-        0.05332888443251486, 0.053355810981188204, 0.053381827730946, 0.05340698002639876};
+        0.03937903387185762, 0.039632087302541336, 0.039876443589539956, 0.040112543523761486, 0.0403407986039386};
     LocalDate valuationDate = LocalDate.of(2013, 5, 31);
     LocalDate snapDate = LocalDate.of(2013, 5, 30);
-    int nMoneyMarket = 6;
-    int nSwaps = 14;
-    int nInstruments = nMoneyMarket + nSwaps;
-    List<CurveNode> types = new ArrayList(nInstruments);
-    int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
-    int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
-    String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
-        "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
-    for (int i = 0; i < nMoneyMarket; i++) {
-      Period period = Period.ofMonths(mmMonths[i]);
-      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
+    List<CurveNode> types = new ArrayList(NUM_TOTAL);
+    for (int i = 0; i < NUM_MM; i++) {
+      Period period = Period.ofMonths(MM_MONTHS[i]);
+      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_3), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
-    for (int i = nMoneyMarket; i < nInstruments; i++) {
-      Period period = Period.ofYears(swapYears[i - nMoneyMarket]);
+    for (int i = NUM_MM; i < NUM_TOTAL; i++) {
+      Period period = Period.ofYears(SWAP_YEARS[i - NUM_MM]);
       types.add(FixedIborSwapCurveNode.of(
-          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
+          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_3), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
     double[] rates = new double[] {-0.021599444492987032, -0.018630709435992193, -0.0147382201561887, -0.011414874109274902,
         -0.008719044858534902, -0.004416874887668003, -0.0022630781789788022, 1.978805237613998E-4, 0.002322381546769399,
@@ -763,19 +698,13 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         0.0357471217692999};
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(snapDate);
     for (int i = 0; i < rates.length; i++) {
-      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
+      builder.addValue(QuoteId.of(StandardId.of("OG", ID_VALUES[i])), rates[i]);
     }
     ImmutableMarketData quotes = builder.build();
-    IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-        types, valuationDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-    int nCurvePoints = hc.getParameterCount();
-    assertEquals(nInstruments, nCurvePoints);
-    int nSamplePoints = SAMPLE_TIMES.length;
-    for (int i = 0; i < nSamplePoints; i++) {
-      double time = SAMPLE_TIMES[i];
-      double zr = hc.getCurve().yValue(time);
-      assertEquals(zeroRates[i], zr, TOL);
-    }
+    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, valuationDate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), NUM_TOTAL);
+    testZeroRates(yc, SAMPLE_TIMES, zeroRates);
   }
 
   public void twoNodesTest() {
@@ -815,16 +744,56 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
     }
     ImmutableMarketData quotes = builder.build();
-    IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-        types, spotDate, ACT_365F, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
-    int nCurvePoints = hc.getParameterCount();
-    assertEquals(nInstruments, nCurvePoints);
-    int nSamplePoints = SAMPLE_TIMES.length;
-    for (int i = 0; i < nSamplePoints; i++) {
-      double time = SAMPLE_TIMES[i];
-      double zr = hc.getCurve().yValue(time);
-      assertEquals(zeroRates[i], zr, 1e-14);
+    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, spotDate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), nInstruments);
+    testZeroRates(yc, SAMPLE_TIMES, zeroRates);
+  }
+
+  public void trimTest() {
+    double[] zeroRates = new double[] {
+        0.02464736121066336, 0.02464736121066336, 0.02464736121066336, 0.02464736121066336, 0.02464736121066336,
+        0.0254821899695377, 0.027012709360807307, 0.0280465361894362, 0.029204804280939065, 0.03065455883987807,
+        0.03299403689049641, 0.03532199174463788, 0.0382845734201572, 0.03986838271110048, 0.03962107761768301,
+        0.04071080003825178, 0.04425486701530056, 0.0469132799835707, 0.04837517686541788, 0.04980581252668033,
+        0.05144370269491186, 0.05268349729599413, 0.05336397055959266, 0.05397308696915879, 0.054527258367984804,
+        0.0551895053187965, 0.05612436552456688, 0.056981569611008094, 0.05777040772736503, 0.05849874498524033,
+        0.05918398623795018, 0.05978996352520596, 0.06031410776220924, 0.060803238896320895, 0.061260751875172076,
+        0.061687345941315155, 0.06209030709894273, 0.06246750740041058, 0.06282322422359113, 0.06315924213856569,
+        0.0634771533886919, 0.06387996886524806, 0.06447264699351102, 0.0650326346434449, 0.0655682527617952,
+        0.06607559429151351, 0.0665620130938324, 0.06702379842706312, 0.06746749829294346, 0.06788959910797566,
+        0.06829379678892818, 0.06870706799798204, 0.0691725839476467, 0.06961214403518971, 0.07003679902099998,
+        0.07044290011788337, 0.07083583411671632, 0.07121418549097279, 0.0715787512402439, 0.07192838463342886,
+        0.07226579143855355, 0.07259160197542544, 0.07290640396914115, 0.0732107460883053};
+    LocalDate snapDate = LocalDate.of(2012, 4, 4);
+    // between curve nodes
+    LocalDate valuationDate = LocalDate.of(2013, 5, 31);
+    List<CurveNode> types = new ArrayList(NUM_TOTAL);
+    for (int i = 0; i < NUM_MM; i++) {
+      Period period = Period.ofMonths(MM_MONTHS[i]);
+      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_0), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
     }
+    for (int i = NUM_MM; i < NUM_TOTAL; i++) {
+      Period period = Period.ofYears(SWAP_YEARS[i - NUM_MM]);
+      types.add(FixedIborSwapCurveNode.of(
+          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_0), QuoteId.of(StandardId.of("OG", ID_VALUES[i]))));
+    }
+    ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(snapDate);
+    for (int i = 0; i < RATES.length; i++) {
+      builder.addValue(QuoteId.of(StandardId.of("OG", ID_VALUES[i])), RATES[i]);
+    }
+    ImmutableMarketData quotes = builder.build();
+    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, valuationDate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(yc.getParameterCount(), 14);
+    testZeroRates(yc, SAMPLE_TIMES, zeroRates);
+    // after last curve node
+    LocalDate valuationDateLate = LocalDate.of(2042, 6, 12);
+    double zeroRateSingle = 0.09122545844959826;
+    IsdaCompliantZeroRateDiscountFactors ycSingle = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, valuationDateLate, ACT_365F, CurveName.of("yield"), USD, quotes, REF_DATA);
+    assertEquals(ycSingle.getParameterCount(), 1);
+    testZeroRates(ycSingle, SAMPLE_TIMES, DoubleArray.filled(SAMPLE_TIMES.length, zeroRateSingle).toArray());
   }
 
   //-------------------------------------------------------------------------
@@ -859,7 +828,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     assertThrowsIllegalArg(
-        () -> CALIBRATOR.calibrate(types, valuationDate, ACT_365F, CurveName.of("test"), Currency.USD, quotes, REF_DATA));
+        () -> CALIBRATOR.calibrate(types, valuationDate, ACT_365F, CurveName.of("test"), USD, quotes, REF_DATA));
   }
 
   public void oneNodeTest() {
@@ -888,7 +857,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     assertThrowsIllegalArg(
-        () -> CALIBRATOR.calibrate(types, valuationDate, ACT_365F, CurveName.of("test"), Currency.USD, quotes, REF_DATA));
+        () -> CALIBRATOR.calibrate(types, valuationDate, ACT_365F, CurveName.of("test"), USD, quotes, REF_DATA));
   }
 
   public void moneyMarketAfterSwapTest() {
@@ -921,6 +890,16 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     builder.addValue(QuoteId.of(StandardId.of("OG", idValues[nInstruments])), rates[nInstruments]);
     ImmutableMarketData quotes = builder.build();
     assertThrowsIllegalArg(
-        () -> CALIBRATOR.calibrate(types, valuationDate, ACT_365F, CurveName.of("test"), Currency.USD, quotes, REF_DATA));
+        () -> CALIBRATOR.calibrate(types, valuationDate, ACT_365F, CurveName.of("test"), USD, quotes, REF_DATA));
   }
+
+  //-------------------------------------------------------------------------
+  private void testZeroRates(IsdaCompliantZeroRateDiscountFactors yc, double[] times, double[] zeroRates) {
+    int nSamplePoints = times.length;
+    for (int i = 0; i < nSamplePoints; i++) {
+      double zr = yc.getCurve().yValue(times[i]);
+      assertEquals(zeroRates[i], zr, TOL);
+    }
+  }
+
 }
