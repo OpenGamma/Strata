@@ -90,19 +90,86 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       ImmutableFixedIborSwapConvention.of("standar_usd", FIXED_LEG, FLOATING_LEG, ADJ_3D);
   private static final IsdaCompliantDiscountCurveCalibrator CALIBRATOR = IsdaCompliantDiscountCurveCalibrator.DEFAULT;
 
-  private static final double[] SAMPLE_TIMES =
-      new double[] {0.0767123287671233, 0.167123287671233, 0.249315068493151, 0.498630136986301, 0.747945205479452,
-          0.997260273972603, 1.4958904109589, 1.99452054794521, 2.5013698630137, 3.0027397260274, 3.5041095890411,
-          4.0027397260274, 4.5041095890411, 5.0027397260274, 5.5041095890411, 6.0027397260274, 6.5013698630137,
-          7, 7.50684931506849, 8.00547945205479, 8.50684931506849, 9.00547945205479, 9.50684931506849, 10.0054794520548,
-          10.5068493150685, 11.0082191780822, 11.5068493150685, 12.0054794520548, 12.5041095890411, 13.0027397260274,
-          13.5095890410959, 14.0082191780822, 14.5095890410959, 15.0109589041096, 15.5123287671233, 16.0109589041096,
-          16.5123287671233, 17.0109589041096, 17.5095890410959, 18.0082191780822, 18.5068493150685, 19.013698630137,
-          19.5150684931507, 20.013698630137, 20.5150684931507, 21.013698630137, 21.5150684931507, 22.013698630137,
-          22.5150684931507, 23.013698630137, 23.5123287671233, 24.0109589041096, 24.5178082191781, 25.0164383561644,
-          25.5178082191781, 26.0164383561644, 26.5178082191781, 27.0191780821918, 27.5205479452055, 28.0191780821918,
-          28.5178082191781, 29.0164383561644, 29.5150684931507, 30.013698630137};
+  private static final double[] RATES = new double[] {
+      0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332,
+      0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421,
+      0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753, 0.0529297239911766, 0.0562025436376854,
+      0.0589772202773522, 0.0607471217692999};
+  private static final double[] SAMPLE_TIMES = new double[] {
+      0.0767123287671233, 0.167123287671233, 0.249315068493151, 0.498630136986301, 0.747945205479452, 0.997260273972603,
+      1.4958904109589, 1.99452054794521, 2.5013698630137, 3.0027397260274, 3.5041095890411, 4.0027397260274, 4.5041095890411,
+      5.0027397260274, 5.5041095890411, 6.0027397260274, 6.5013698630137, 7, 7.50684931506849, 8.00547945205479, 8.50684931506849,
+      9.00547945205479, 9.50684931506849, 10.0054794520548, 10.5068493150685, 11.0082191780822, 11.5068493150685,
+      12.0054794520548, 12.5041095890411, 13.0027397260274, 13.5095890410959, 14.0082191780822, 14.5095890410959,
+      15.0109589041096, 15.5123287671233, 16.0109589041096, 16.5123287671233, 17.0109589041096, 17.5095890410959,
+      18.0082191780822, 18.5068493150685, 19.013698630137, 19.5150684931507, 20.013698630137, 20.5150684931507, 21.013698630137,
+      21.5150684931507, 22.013698630137, 22.5150684931507, 23.013698630137, 23.5123287671233, 24.0109589041096, 24.5178082191781,
+      25.0164383561644, 25.5178082191781, 26.0164383561644, 26.5178082191781, 27.0191780821918, 27.5205479452055,
+      28.0191780821918, 28.5178082191781, 29.0164383561644, 29.5150684931507, 30.013698630137};
   private static final double TOL = 1.0e-10;
+
+  public void trimTest() {
+    double[] zeroRates = new double[] {
+        0.02464736121066336, 0.02464736121066336, 0.02464736121066336, 0.02464736121066336, 0.02464736121066336,
+        0.0254821899695377, 0.027012709360807307, 0.0280465361894362, 0.029204804280939065, 0.03065455883987807,
+        0.03299403689049641, 0.03532199174463788, 0.0382845734201572, 0.03986838271110048, 0.03962107761768301,
+        0.04071080003825178, 0.04425486701530056, 0.0469132799835707, 0.04837517686541788, 0.04980581252668033,
+        0.05144370269491186, 0.05268349729599413, 0.05336397055959266, 0.05397308696915879, 0.054527258367984804,
+        0.0551895053187965, 0.05612436552456688, 0.056981569611008094, 0.05777040772736503, 0.05849874498524033,
+        0.05918398623795018, 0.05978996352520596, 0.06031410776220924, 0.060803238896320895, 0.061260751875172076,
+        0.061687345941315155, 0.06209030709894273, 0.06246750740041058, 0.06282322422359113, 0.06315924213856569,
+        0.0634771533886919, 0.06387996886524806, 0.06447264699351102, 0.0650326346434449, 0.0655682527617952,
+        0.06607559429151351, 0.0665620130938324, 0.06702379842706312, 0.06746749829294346, 0.06788959910797566,
+        0.06829379678892818, 0.06870706799798204, 0.0691725839476467, 0.06961214403518971, 0.07003679902099998,
+        0.07044290011788337, 0.07083583411671632, 0.07121418549097279, 0.0715787512402439, 0.07192838463342886,
+        0.07226579143855355, 0.07259160197542544, 0.07290640396914115, 0.0732107460883053};
+    LocalDate snapDate = LocalDate.of(2012, 4, 4);
+    LocalDate valuationDate = LocalDate.of(2013, 5, 31);
+    int nMoneyMarket = 6;
+    int nSwaps = 14;
+    int nInstruments = nMoneyMarket + nSwaps;
+    List<CurveNode> types = new ArrayList(nInstruments);
+    int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
+    int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+    String[] idValues = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M", "swap2Y", "swap3Y", "swap4Y", "swap5Y",
+        "swap6Y", "swap7Y", "swap8Y", "swap9Y", "swap10Y", "swap12Y", "swap15Y", "swap20Y", "swap25Y", "swap30Y"};
+    for (int i = 0; i < nMoneyMarket; i++) {
+      Period period = Period.ofMonths(mmMonths[i]);
+      types.add(TermDepositCurveNode.of(TermDepositTemplate.of(period, TERM_0), QuoteId.of(StandardId.of("OG", idValues[i]))));
+    }
+    for (int i = nMoneyMarket; i < nInstruments; i++) {
+      Period period = Period.ofYears(swapYears[i - nMoneyMarket]);
+      types.add(FixedIborSwapCurveNode.of(
+          FixedIborSwapTemplate.of(Tenor.of(period), SWAP_0), QuoteId.of(StandardId.of("OG", idValues[i]))));
+    }
+    ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(snapDate);
+    for (int i = 0; i < RATES.length; i++) {
+      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), RATES[i]);
+    }
+    ImmutableMarketData quotes = builder.build();
+    DayCount curveDCC = ACT365;
+    IsdaCompliantZeroRateDiscountFactors hc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, valuationDate, curveDCC, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
+    int nCurvePoints = hc.getParameterCount();
+    assertEquals(nCurvePoints, 14);
+    int nSamplePoints = SAMPLE_TIMES.length;
+    for (int i = 0; i < nSamplePoints; i++) {
+      double time = SAMPLE_TIMES[i];
+      double zr = hc.getCurve().yValue(time);
+      assertEquals(zeroRates[i], zr, TOL);
+    }
+    // after last node
+    LocalDate valuationDateLate = LocalDate.of(2042, 6, 12);
+    double zeroRateSingle = 0.09122545844959826;
+    IsdaCompliantZeroRateDiscountFactors ycSingle = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
+        types, valuationDateLate, curveDCC, CurveName.of("yield"), Currency.USD, quotes, REF_DATA);
+    assertEquals(ycSingle.getParameterCount(), 1);
+    for (int i = 0; i < nSamplePoints; i++) {
+      double time = SAMPLE_TIMES[i];
+      double zr = ycSingle.getCurve().yValue(time);
+      assertEquals(zeroRateSingle, zr, TOL);
+    }
+  }
 
   public void regressionTest1() {
     // date from ISDA excel
@@ -135,13 +202,9 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       types.add(FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Tenor.of(period), SWAP_0), QuoteId.of(StandardId.of("OG", idValues[i]))));
     }
-    double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
-        0.0162809551414651, 0.020583125112332, 0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048,
-        0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
-        0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999};
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(spotDate);
-    for (int i = 0; i < rates.length; i++) {
-      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
+    for (int i = 0; i < RATES.length; i++) {
+      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), RATES[i]);
     }
     ImmutableMarketData quotes = builder.build();
     DayCount curveDCC = ACT365;
@@ -204,13 +267,9 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       types.add(FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Tenor.of(period), SWAP_3), QuoteId.of(StandardId.of("OG", idValues[i]))));
     }
-    double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
-        0.0162809551414651, 0.020583125112332, 0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048,
-        0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
-        0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999};
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(snapDate);
-    for (int i = 0; i < rates.length; i++) {
-      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), rates[i]);
+    for (int i = 0; i < RATES.length; i++) {
+      builder.addValue(QuoteId.of(StandardId.of("OG", idValues[i])), RATES[i]);
     }
     ImmutableMarketData quotes = builder.build();
     DayCount curveDCC = ACT365;
