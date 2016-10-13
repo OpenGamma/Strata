@@ -296,7 +296,7 @@ final class SwapMeasureCalculations {
     CrossGammaParameterSensitivities crossGamma = CROSS_GAMMA.calculateCrossGammaIntraCurve(
         ratesProvider,
         p -> p.parameterSensitivity(tradePricer.presentValueSensitivity(trade, p)));
-    return crossGamma.diagonal();
+    return crossGamma.diagonal().multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
