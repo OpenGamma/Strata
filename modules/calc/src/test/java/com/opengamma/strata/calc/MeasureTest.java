@@ -11,7 +11,9 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
+import org.joda.convert.StringConvert;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -33,6 +35,12 @@ public class MeasureTest {
 
   public void test_of_lookup_null() {
     assertThrowsRuntime(() -> Measure.of(null));
+  }
+  
+  //-------------------------------------------------------------------------
+
+  public void test_isConvertible() {
+    assertTrue(StringConvert.INSTANCE.isConvertible(Measure.class));
   }
 
   //-------------------------------------------------------------------------

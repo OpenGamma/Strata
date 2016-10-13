@@ -6,6 +6,7 @@
 package com.opengamma.strata.calc;
 
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -36,6 +37,18 @@ public interface Measure extends Named {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this measure.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
 
   //-------------------------------------------------------------------------
   /**
