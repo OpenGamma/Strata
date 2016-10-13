@@ -66,24 +66,16 @@ import com.opengamma.strata.product.swap.type.ImmutableFixedIborSwapConvention;
  */
 public class IsdaCompliantCreditCurveCalibratorBase {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final HolidayCalendarId DEFAULT_CALENDAR = HolidayCalendarIds.SAT_SUN;
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
+  protected static final ReferenceData REF_DATA = ReferenceData.standard();
+  protected static final HolidayCalendarId DEFAULT_CALENDAR = HolidayCalendarIds.SAT_SUN;
+  protected static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
   private static final ResolvedCdsTrade[][] EXP_NODE_CDS;
   private static final CdsCurveNode[][] NODE_CDS;
   private static final ImmutableMarketData[] CDS_MARKET_DATA;
   protected static final CreditRatesProvider[] YIELD_CURVES;
   private static final double[][] SPREADS;
-  private static final BusinessDayAdjustment BUS_ADJ = BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR);
-  private static final DaysAdjustment ADJ_2D = DaysAdjustment.ofBusinessDays(2, DEFAULT_CALENDAR);
+  protected static final BusinessDayAdjustment BUS_ADJ = BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR);
   private static final DaysAdjustment ADJ_3D = DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR);
-  private static final TermDepositConvention TERM_2 = ImmutableTermDepositConvention.builder()
-      .businessDayAdjustment(BUS_ADJ)
-      .currency(EUR)
-      .dayCount(ACT_360)
-      .name("standar_eur")
-      .spotDateOffset(ADJ_2D)
-      .build();
   private static final TermDepositConvention TERM_3 = ImmutableTermDepositConvention.builder()
       .businessDayAdjustment(BUS_ADJ)
       .currency(EUR)
@@ -94,11 +86,9 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   private static final FixedRateSwapLegConvention FIXED_LEG =
       FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.P12M, BUS_ADJ);
   private static final IborRateSwapLegConvention FLOATING_LEG = IborRateSwapLegConvention.of(IborIndices.EUR_LIBOR_3M);
-  private static final FixedIborSwapConvention SWAP_2 =
-      ImmutableFixedIborSwapConvention.of("standar_eur", FIXED_LEG, FLOATING_LEG, ADJ_2D);
   private static final FixedIborSwapConvention SWAP_3 =
       ImmutableFixedIborSwapConvention.of("standar_eur", FIXED_LEG, FLOATING_LEG, ADJ_3D);
-  private static final DaysAdjustment CDS_SETTLE_STD = DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR);
+  protected static final DaysAdjustment CDS_SETTLE_STD = DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR);
 
   static {
     int nCases = 5;
