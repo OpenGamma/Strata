@@ -35,6 +35,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.node.CdsCurveNode;
@@ -398,6 +399,45 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         double price1 = pricer.price(cdsFromNode.getProduct(), provider1, SPREADS[i][j],
             cdsFromNode.getInfo().getSettlementDate().get(), PriceType.CLEAN, REF_DATA);
         assertEquals(price1, 0.0, 5e-16);
+      }
+    }
+  }
+
+  protected void testJacobian(
+      IsdaCompliantCreditCurveCalibrator builder,
+      LegalEntitySurvivalProbabilities curve,
+      CreditRatesProvider ratesProvider,
+      List<CdsCurveNode> nodes,
+      double[] quotes,
+      double quoteScale,
+      double eps) {
+
+    LocalDate valuationDate = curve.getValuationDate();
+    int nNode = nodes.size();
+    IsdaCompliantZeroRateDiscountFactors df = (IsdaCompliantZeroRateDiscountFactors) curve.getSurvivalProbabilities();
+    CurveName name = df.getCurve().getName();
+    int nCurveNode = df.getParameterCount();
+    for (int i = 0; i < nCurveNode; ++i) {
+      double[] quotesUp = Arrays.copyOf(quotes, nNode);
+      double[] quotesDw = Arrays.copyOf(quotes, nNode);
+      quotesUp[i] += eps / quoteScale;
+      quotesDw[i] -= eps / quoteScale;
+      ImmutableMarketDataBuilder builderCreditUp = ImmutableMarketData.builder(valuationDate);
+      ImmutableMarketDataBuilder builderCreditDw = ImmutableMarketData.builder(valuationDate);
+      for (int j = 0; j < nNode; ++j) {
+        builderCreditUp.addValue(nodes.get(j).getObservableId(), quotesUp[j] * quoteScale);
+        builderCreditDw.addValue(nodes.get(j).getObservableId(), quotesDw[j] * quoteScale);
+      }
+      ImmutableMarketData marketDataUp = builderCreditUp.build();
+      ImmutableMarketData marketDataDw = builderCreditDw.build();
+      IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) builder
+          .calibrate(nodes, name, marketDataUp, ratesProvider, REF_DATA).getSurvivalProbabilities();
+      IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) builder
+          .calibrate(nodes, name, marketDataDw, ratesProvider, REF_DATA).getSurvivalProbabilities();
+      for (int j = 0; j < nNode; ++j) {
+        double computed = df.getCurve().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix().get(j, i);
+        double expected = 0.5 * (ccUp.getCurve().getYValues().get(j) - ccDw.getCurve().getYValues().get(j)) / eps;
+        assertEquals(computed, expected, eps * 10d);
       }
     }
   }

@@ -48,16 +48,75 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
   private static final double ONE_BP = 1.0e-4;
   private static final double ONE_PC = 1.0e-2;
   private static final double TOL = 1e-14;
+  private static final double EPS = 1.0e-5;
 
   public void regression_consistency_test() {
     testCalibrationAgainstISDA(BUILDER_ISDA, TOL);
     testCalibrationAgainstISDA(BUILDER_MARKIT, TOL);
   }
 
-  // TODO puf test, spread test  buildCurveFromPillarsTest in ParVsQuotedSpreadTest
-  // test in PUFCreditCurveCalibrationTest
-
-
+  public void parSpreadTest() {
+    LocalDate valuationDate = LocalDate.of(2013, 2, 27);
+    DoubleArray ycTime = DoubleArray.ofUnsafe(new double[] {
+        0.09041095890410959, 0.1726027397260274, 0.26301369863013696, 0.5123287671232877, 0.7616438356164383, 1.010958904109589,
+        2.008219178082192, 3.008219178082192, 4.008219178082192, 5.008219178082192, 6.008219178082192, 7.013698630136987,
+        8.01095890410959, 9.01095890410959, 10.01095890410959, 12.01917808219178, 15.016438356164384, 20.01917808219178,
+        25.021917808219175, 30.027397260273972});
+    DoubleArray ycRate = DoubleArray.ofUnsafe(new double[] {
+        0.0020651105531615476, 0.0024506037920717797, 0.0028872269869485313, 0.004599628230463427, 0.006160809466806469,
+        0.0075703969168129295, 0.003965128877560435, 0.005059104202201957, 0.0069669135253734825, 0.009361825469323602,
+        0.011916895611422482, 0.014311922779901886, 0.016519187063048578, 0.018512121993907647, 0.020289623737560873,
+        0.02329885162861984, 0.026399509889410745, 0.029087919732133784, 0.03037740056662963, 0.03110021763406523});
+    IsdaCompliantZeroRateDiscountFactors yc =
+        IsdaCompliantZeroRateDiscountFactors.of(EUR, valuationDate, CurveName.of("yc_usd"), ycTime, ycRate, ACT_365F);
+    double[] timeNodeExp = new double[] {
+        0.5616438356164384, 1.0575342465753426, 2.0575342465753423, 3.0602739726027397, 4.06027397260274, 5.06027397260274,
+        6.06027397260274, 7.063013698630137, 8.063013698630137, 9.063013698630137, 10.063013698630137};
+    double[] rateNodeExp = new double[] {
+        0.00876054089781935, 0.011037345646850688, 0.015955126945240167, 0.020617953392829177, 0.025787811343896218,
+        0.030329992053915133, 0.03313419899444371, 0.03528129159875671, 0.03675340516560903, 0.037946169956317416,
+        0.038951101800190346};
+    double[] rateNodeExpMf = new double[] {
+        0.008754510260229803, 0.011030502992814844, 0.01594817866773906, 0.02060947097554756, 0.025776720596175737,
+        0.030316032527460755, 0.03311839631615255, 0.03526404051997617, 0.03673513322394772, 0.03792689865945585,
+        0.03893107891569398};
+    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .discountCurves(ImmutableMap.of(EUR, yc))
+        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25)))
+        .creditCurves(ImmutableMap.of())
+        .build();
+    LocalDate startDate = LocalDate.of(2012, 12, 20);
+    LocalDate[] pillarDates = new LocalDate[] {
+        LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 3, 20),
+        LocalDate.of(2017, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2019, 3, 20), LocalDate.of(2020, 3, 20),
+        LocalDate.of(2021, 3, 20), LocalDate.of(2022, 3, 20), LocalDate.of(2023, 3, 20)};
+    int nPillars = pillarDates.length;
+    ImmutableMarketDataBuilder builderCredit = ImmutableMarketData.builder(valuationDate);
+    List<CdsCurveNode> nodes = new ArrayList<>(nPillars);
+    double[] quotes = new double[] {
+        0.006485, 0.008163, 0.011763, 0.015136, 0.018787, 0.021905, 0.023797, 0.025211, 0.02617, 0.026928, 0.027549};
+    for (int i = 0; i < nPillars; ++i) {
+      CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
+      CdsTemplate temp = DatesCdsTemplate.of(startDate, pillarDates[i], conv);
+      QuoteId id = QuoteId.of(StandardId.of("OG", pillarDates[i].toString()));
+      nodes.add(CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY));
+      builderCredit.addValue(id, quotes[i]);
+    }
+    ImmutableMarketData marketData = builderCredit.build();
+    LegalEntitySurvivalProbabilities cc =
+        BUILDER_ISDA.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, REF_DATA);
+    NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
+    testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
+    LegalEntitySurvivalProbabilities ccMf =
+        BUILDER_MARKIT.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, REF_DATA);
+    NodalCurve resCurveMf = ((IsdaCompliantZeroRateDiscountFactors) ccMf.getSurvivalProbabilities()).getCurve();
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getXValues().toArray(), timeNodeExp, TOL));
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getYValues().toArray(), rateNodeExpMf, TOL));
+    testJacobian(BUILDER_MARKIT, ccMf, ratesProvider, nodes, quotes, 1d, EPS);
+  }
 
   public void quotedSpreadTest() {
     LocalDate valuationDate = LocalDate.of(2013, 2, 27);
@@ -73,7 +132,6 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         0.02329885162861984, 0.026399509889410745, 0.029087919732133784, 0.03037740056662963, 0.03110021763406523});
     IsdaCompliantZeroRateDiscountFactors yc =
         IsdaCompliantZeroRateDiscountFactors.of(EUR, valuationDate, CurveName.of("yc_usd"), ycTime, ycRate, ACT_365F);
-
     double[] timeNodeExp = new double[] {
         0.5616438356164384, 1.0575342465753426, 2.0575342465753423, 3.0602739726027397, 4.06027397260274, 5.06027397260274,
         6.06027397260274, 7.063013698630137, 8.063013698630137, 9.063013698630137, 10.063013698630137};
@@ -81,6 +139,10 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         0.008760540897819375, 0.011038924154511172, 0.015948190247157847, 0.02057127880414737, 0.02563420636849379,
         0.030015477161325396, 0.03269880289798303, 0.03473789476853553, 0.03613718351565995, 0.03726728206325338,
         0.03821628558505742};
+    double[] rateNodeExpMf = new double[] {
+        0.008754510260229767, 0.011032176237293093, 0.01594092142956685, 0.02056170591864977, 0.02562102500142847,
+        0.029998725498341292, 0.03268003643439498, 0.0347176862923525, 0.03611609798069609, 0.037245360881562876,
+        0.0381937470380447};
     CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, yc))
@@ -111,6 +173,13 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
+    testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
+    LegalEntitySurvivalProbabilities ccMf =
+        BUILDER_MARKIT.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, REF_DATA);
+    NodalCurve resCurveMf = ((IsdaCompliantZeroRateDiscountFactors) ccMf.getSurvivalProbabilities()).getCurve();
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getXValues().toArray(), timeNodeExp, TOL));
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getYValues().toArray(), rateNodeExpMf, TOL));
+    testJacobian(BUILDER_MARKIT, ccMf, ratesProvider, nodes, quotes, 1d, EPS);
   }
 
   public void pufTest() {
@@ -144,6 +213,10 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         0.1717088423125347, 0.1727906445582425, 0.17407566745397665, 0.17547300248653266, 0.17679395545074758,
         0.17769841457372118, 0.1788064602071617, 0.18001498257267778, 0.18123747758791092, 0.18253661761388457,
         0.18406319235262744, 0.18582983758830868, 0.18750386499176422};
+    double[] rateNodeExpMf = new double[] {
+        0.008754510260229767, 0.011032176237293093, 0.01594092142956685, 0.02056170591864977, 0.02562102500142847,
+        0.029998725498341292, 0.03268003643439498, 0.0347176862923525, 0.03611609798069609, 0.037245360881562876,
+        0.0381937470380447};
     CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, yc))
@@ -180,6 +253,13 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
+    testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, ONE_PC, EPS);
+    LegalEntitySurvivalProbabilities ccMf =
+        BUILDER_MARKIT.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, REF_DATA);
+    NodalCurve resCurveMf = ((IsdaCompliantZeroRateDiscountFactors) ccMf.getSurvivalProbabilities()).getCurve();
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getXValues().toArray(), timeNodeExp, TOL));
+    assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getYValues().toArray(), rateNodeExpMf, TOL));
+    testJacobian(BUILDER_MARKIT, ccMf, ratesProvider, nodes, quotes, ONE_PC, EPS);
   }
 
 }

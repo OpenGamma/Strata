@@ -237,7 +237,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
       double fixedRate) {
     int nNode = curve.getParameterCount();
     double[] sensi = new double[nNode];
-    sensi[index] = curve.getParameter(index) * (1d + fixedRate * termDepositYearFraction) / termDepositYearFraction;
+    sensi[index] = curve.getXValues().get(index) * (1d + fixedRate * termDepositYearFraction) / termDepositYearFraction;
     return DoubleArray.ofUnsafe(sensi);
   }
 
@@ -401,13 +401,13 @@ public final class IsdaCompliantDiscountCurveCalibrator {
       CurveMetadata metadata = curve.getMetadata().withParameterMetadata(parameterMetadata);
       double[][] transf = new double[nNode][nNode];
       for (int i = 0; i < nNode; ++i) {
-        transf[i][0] = shift / time.get(i);
+        transf[i][0] = -shift / time.get(i);
         transf[i][i] += curve.getXValues().get(i) / time.get(i);
       }
-      DoubleMatrix sensiTransf =
-          (DoubleMatrix) MATRIX_ALGEBRA.multiply(sensitivity, MATRIX_ALGEBRA.getInverse(DoubleMatrix.ofUnsafe(transf)));
+      DoubleMatrix jacobianMatrix =
+          (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(transf), MATRIX_ALGEBRA.getInverse(sensitivity));
       JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
-          ImmutableList.of(CurveParameterSize.of(curve.getName(), nNode)), MATRIX_ALGEBRA.getInverse(sensiTransf));
+          ImmutableList.of(CurveParameterSize.of(curve.getName(), nNode)), jacobianMatrix);
       return curve.withValues(time, rate).withMetadata(metadata.withInfo(CurveInfoType.JACOBIAN, jacobian));
     }
     if (shift >= curve.getXValues().get(nNode - 1)) {
@@ -416,13 +416,13 @@ public final class IsdaCompliantDiscountCurveCalibrator {
       double interval = curve.getXValues().get(nNode - 1) - curve.getXValues().get(nNode - 2);
       double rate = (curve.getYValues().get(nNode - 1) * curve.getXValues().get(nNode - 1) -
           curve.getYValues().get(nNode - 2) * curve.getXValues().get(nNode - 2)) / interval;
-      double[] transf = new double[nNode];
-      transf[nNode - 2] = -interval / curve.getXValues().get(nNode - 2);
-      transf[nNode - 1] = interval / curve.getXValues().get(nNode - 1);
-      DoubleMatrix sensiTransf =
-          (DoubleMatrix) MATRIX_ALGEBRA.multiply(sensitivity, DoubleArray.ofUnsafe(transf));
+      double[][] transf = new double[1][nNode];
+      transf[0][nNode - 2] = -curve.getXValues().get(nNode - 2) / interval;
+      transf[0][nNode - 1] = curve.getXValues().get(nNode - 1) / interval;
+      DoubleMatrix jacobianMatrix =
+          (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(transf), MATRIX_ALGEBRA.getInverse(sensitivity));
       JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
-          ImmutableList.of(CurveParameterSize.of(curve.getName(), nNode)), MATRIX_ALGEBRA.getInverse(sensiTransf));
+          ImmutableList.of(CurveParameterSize.of(curve.getName(), nNode)), jacobianMatrix);
       return ConstantNodalCurve.of(curve.getMetadata().withInfo(CurveInfoType.JACOBIAN, jacobian), time, rate);
     }
     //offset greater than (or equal to) t value of 1st knot, so at least one knot must be removed  
@@ -446,12 +446,12 @@ public final class IsdaCompliantDiscountCurveCalibrator {
     for (int i = 0; i < m; ++i) {
       transf[i][index - 1] -= tt1 / (time.get(i) * interval);
       transf[i][index] -= tt2 / (time.get(i) * interval);
-      transf[i][i + index] = curve.getXValues().get(i + index) / time.get(i);
+      transf[i][i + index] += curve.getXValues().get(i + index) / time.get(i);
     }
-    DoubleMatrix sensiTransf =
-        (DoubleMatrix) MATRIX_ALGEBRA.multiply(sensitivity, MATRIX_ALGEBRA.getInverse(DoubleMatrix.ofUnsafe(transf)));
+    DoubleMatrix jacobianMatrix =
+        (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(transf), MATRIX_ALGEBRA.getInverse(sensitivity));
     JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
-        ImmutableList.of(CurveParameterSize.of(curve.getName(), nNode)), MATRIX_ALGEBRA.getInverse(sensiTransf));
+        ImmutableList.of(CurveParameterSize.of(curve.getName(), nNode)), jacobianMatrix);
     return curve.withValues(time, rate).withMetadata(metadata.withInfo(CurveInfoType.JACOBIAN, jacobian));
   }
 
