@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.pricer.credit.cds;
 
-import java.util.Locale;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -23,15 +22,15 @@ public enum AccrualOnDefaultFormula {
   /**
    * The formula in v1.8.1 and below.
    */
-  ORIGINAL_ISDA("Original-ISDA"),
+  ORIGINAL_ISDA("OriginalISDA"),
 
   /**
    * The correction proposed by Markit (v 1.8.2).
    */
-  MARKIT_FIX("Markit-Fix"),
+  MARKIT_FIX("MarkitFix"),
 
   /**
-   * The mathematically correct formula .
+   * The mathematically correct formula.
    */
   CORRECT("Correct");
 
@@ -54,7 +53,11 @@ public enum AccrualOnDefaultFormula {
   @FromString
   public static AccrualOnDefaultFormula of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.replace('-', '_').toUpperCase(Locale.ENGLISH));
+    String str = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName);
+    if (str.endsWith("I_S_D_A")) {
+      str = "ORIGINAL_ISDA";
+    }
+    return valueOf(str);
   }
 
   /**

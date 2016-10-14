@@ -23,8 +23,8 @@ public class AccrualOnDefaultFormulaTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {AccrualOnDefaultFormula.ORIGINAL_ISDA, "Original-ISDA"},
-        {AccrualOnDefaultFormula.MARKIT_FIX, "Markit-Fix"},
+        {AccrualOnDefaultFormula.ORIGINAL_ISDA, "OriginalISDA"},
+        {AccrualOnDefaultFormula.MARKIT_FIX, "MarkitFix"},
         {AccrualOnDefaultFormula.CORRECT, "Correct"},
     };
   }
