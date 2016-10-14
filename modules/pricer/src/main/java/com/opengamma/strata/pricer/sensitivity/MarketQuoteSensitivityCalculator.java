@@ -89,6 +89,7 @@ public class MarketQuoteSensitivityCalculator {
   /**
    * Calculates the market quote sensitivities from parameter sensitivity.
    * <p>
+   * This calculates the market quote sensitivities of credit derivatives.
    * The input parameter sensitivities must be computed based on the credit rates provider.
    * 
    * @param paramSensitivities  the curve parameter sensitivities
