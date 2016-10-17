@@ -19,6 +19,11 @@ import com.opengamma.strata.basics.index.IborIndices;
  * Market standard cross-currency Ibor-Ibor swap conventions.
  * <p>
  * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
+ * <p>
+ * For the cross currency swap convention we have used the following approach to the naming: the first part
+ * of the name refers to the leg on which the spread is paid and the second leg is the flat leg. 
+ * For example, the EUR_xxx_USD_xxx name should be interpreted as the cross-currency swap with the spread above Ibor
+ * paid on the EUR leg and a flat USD Ibor leg. 
  */
 final class StandardXCcyIborIborSwapConventions {
 
