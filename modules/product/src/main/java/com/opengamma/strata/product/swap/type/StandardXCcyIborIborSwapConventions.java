@@ -25,6 +25,7 @@ final class StandardXCcyIborIborSwapConventions {
   // Join calendar with the main currencies
   private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
+  private static final HolidayCalendarId EUTA_GBLO = EUTA.combinedWith(GBLO);
 
   /**
    * EUR EURIBOR 3M v USD LIBOR 3M.
@@ -64,6 +65,26 @@ final class StandardXCcyIborIborSwapConventions {
               .notionalExchange(true)
               .build())
           .spotDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USNY))
+          .build();
+
+  /**
+   * GBP LIBOR 3M v EUR EURIBOR 3M.
+   * The spread is on the GBP leg.
+   */
+  public static final XCcyIborIborSwapConvention GBP_LIBOR_3M_EUR_EURIBOR_3M =
+      ImmutableXCcyIborIborSwapConvention.builder()
+          .name("GBP-LIBOR-3M-EUR-EURIBOR-3M")
+          .spreadLeg(IborRateSwapLegConvention.builder()
+              .index(IborIndices.GBP_LIBOR_3M)
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_GBLO))
+              .notionalExchange(true)
+              .build())
+          .flatLeg(IborRateSwapLegConvention.builder()
+              .index(IborIndices.EUR_EURIBOR_3M)
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_GBLO))
+              .notionalExchange(true)
+              .build())
+          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_GBLO))
           .build();
 
   //-------------------------------------------------------------------------
