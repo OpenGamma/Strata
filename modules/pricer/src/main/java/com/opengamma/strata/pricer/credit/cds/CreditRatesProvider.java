@@ -30,10 +30,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
@@ -182,6 +184,34 @@ public final class CreditRatesProvider
       }
     }
     return sens;
+  }
+
+  /**
+   * Computes the parameter sensitivity for a specific credit curve.
+   * <p>
+   * The credit curve is specified by {@code legalEntityId} and {@code currency}.
+   * 
+   * @param pointSensitivities  the point sensitivity
+   * @param legalEntityId  the legal entity
+   * @param currency  the currency
+   * @return the sensitivity to the curve parameters
+   */
+  public CurrencyParameterSensitivity singleCreditCurveParameterSensitivity(
+      PointSensitivities pointSensitivities,
+      StandardId legalEntityId,
+      Currency currency) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof CreditCurveZeroRateSensitivity) {
+        CreditCurveZeroRateSensitivity pt = (CreditCurveZeroRateSensitivity) point;
+        if (pt.getLegalEntityId().equals(legalEntityId) && pt.getCurrency().equals(currency)) {
+          LegalEntitySurvivalProbabilities factors = survivalProbabilities(pt.getLegalEntityId(), pt.getCurveCurrency());
+          sens = sens.combinedWith(factors.parameterSensitivity(pt));
+        }
+      }
+    }
+    ArgChecker.isTrue(sens.size() == 1, "sensitivity must be unique");
+    return sens.getSensitivities().get(0);
   }
 
   //-------------------------------------------------------------------------
