@@ -29,7 +29,7 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.product.TradeInfo;
@@ -149,23 +149,25 @@ public class IsdaCdsTradePricerTest {
   }
 
   public void test_priceSensitivity() {
-    PointSensitivityBuilder computed = PRICER.priceSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expected = PRICER_PRODUCT.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    PointSensitivityBuilder computedMf = PRICER_MF.priceSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expectedMf =
-        PRICER_PRODUCT_MF.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    assertTrue(computed.build().equalWithTolerance(expected.build(), TOL));
-    assertTrue(computedMf.build().equalWithTolerance(expectedMf.build(), TOL));
+    PointSensitivities computed = PRICER.priceSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expected =
+        PRICER_PRODUCT.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
+    PointSensitivities computedMf = PRICER_MF.priceSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expectedMf =
+        PRICER_PRODUCT_MF.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
+    assertTrue(computed.equalWithTolerance(expected, TOL));
+    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
   }
 
   public void test_parSpreadSensitivity() {
-    PointSensitivityBuilder computed = PRICER.parSpreadSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expected = PRICER_PRODUCT.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    PointSensitivityBuilder computedMf = PRICER_MF.parSpreadSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expectedMf =
-        PRICER_PRODUCT_MF.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    assertTrue(computed.build().equalWithTolerance(expected.build(), TOL));
-    assertTrue(computedMf.build().equalWithTolerance(expectedMf.build(), TOL));
+    PointSensitivities computed = PRICER.parSpreadSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expected =
+        PRICER_PRODUCT.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
+    PointSensitivities computedMf = PRICER_MF.parSpreadSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expectedMf =
+        PRICER_PRODUCT_MF.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
+    assertTrue(computed.equalWithTolerance(expected, TOL));
+    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
   }
 
   //-------------------------------------------------------------------------
@@ -181,14 +183,14 @@ public class IsdaCdsTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder computed = PRICER.presentValueSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expected = PRICER_PRODUCT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, VALUATION_DATE, REF_DATA)
-        .combinedWith(PRICER_PAYMENT.presentValueSensitivity(UPFRONT, YIELD_CRVE.toDiscountFactors()));
-    PointSensitivityBuilder computedMf = PRICER_MF.presentValueSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expectedMf =
-        PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, VALUATION_DATE, REF_DATA);
-    assertTrue(computed.build().equalWithTolerance(expected.build(), TOL));
-    assertTrue(computedMf.build().equalWithTolerance(expectedMf.build(), TOL));
+    PointSensitivities computed = PRICER.presentValueSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expected = PRICER_PRODUCT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, VALUATION_DATE, REF_DATA)
+        .combinedWith(PRICER_PAYMENT.presentValueSensitivity(UPFRONT, YIELD_CRVE.toDiscountFactors())).build();
+    PointSensitivities computedMf = PRICER_MF.presentValueSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expectedMf =
+        PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, VALUATION_DATE, REF_DATA).build();
+    assertTrue(computed.equalWithTolerance(expected, TOL));
+    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
   }
 
   //-------------------------------------------------------------------------
@@ -221,14 +223,15 @@ public class IsdaCdsTradePricerTest {
   }
 
   public void test_presentValueOnSettleSensitivity() {
-    PointSensitivityBuilder computed = PRICER.presentValueOnSettleSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expected = PRICER_PRODUCT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    PointSensitivityBuilder computedMf =
+    PointSensitivities computed = PRICER.presentValueOnSettleSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
+    PointSensitivities expected =
+        PRICER_PRODUCT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
+    PointSensitivities computedMf =
         PRICER_MF.presentValueOnSettleSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
-    PointSensitivityBuilder expectedMf =
-        PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    assertTrue(computed.build().equalWithTolerance(expected.build(), TOL));
-    assertTrue(computedMf.build().equalWithTolerance(expectedMf.build(), TOL));
+    PointSensitivities expectedMf =
+        PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
+    assertTrue(computed.equalWithTolerance(expected, TOL));
+    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
   }
 
 }

@@ -56,7 +56,7 @@ public final class ConstantRecoveryRates
   /**
    * The recovery rate.
    * <p>
-   * The recovery rate is represented in decimal form, and must be between 0 and 1.
+   * The recovery rate is represented in decimal form, and must be between 0 and 1 inclusive.
    */
   @PropertyDefinition
   private final double recoveryRate;
@@ -190,7 +190,7 @@ public final class ConstantRecoveryRates
   /**
    * Gets the recovery rate.
    * <p>
-   * The recovery rate is represented in decimal form, and must be between 0 and 1.
+   * The recovery rate is represented in decimal form, and must be between 0 and 1 inclusive.
    * @return the value of the property
    */
   public double getRecoveryRate() {

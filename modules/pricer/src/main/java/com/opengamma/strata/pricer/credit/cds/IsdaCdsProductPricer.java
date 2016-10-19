@@ -93,7 +93,7 @@ public class IsdaCdsProductPricer {
   double price(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
-      double flactionalSpread,
+      double fractionalSpread,
       LocalDate referenceDate,
       PriceType priceType,
       ReferenceData refData) {
@@ -109,9 +109,44 @@ public class IsdaCdsProductPricer {
         protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
     double rpv01 = riskyAnnuity(
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
-    return protectionLeg - rpv01 * flactionalSpread;
+    return protectionLeg - rpv01 * fractionalSpread;
   }
 
+  /**
+   * Calculates the price sensitivity of the product. 
+   * <p>
+   * The price sensitivity of the product is the sensitivity of price to the underlying curves.
+   * 
+   * @param cds  the product 
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder priceSensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+
+    PointSensitivityBuilder protectionLegSensi =
+        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
+    PointSensitivityBuilder riskyAnnuitySensi =
+        riskyAnnuitySensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
+            .multipliedBy(-cds.getFixedRate());
+
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the CDS product.
    * <p>
@@ -138,6 +173,43 @@ public class IsdaCdsProductPricer {
     return CurrencyAmount.of(cds.getCurrency(), cds.getBuySell().normalize(cds.getNotional()) * price);
   }
 
+  /**
+   * Calculates the present value sensitivity of the product. 
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of present value to the underlying curves.
+   * 
+   * @param cds  the product 
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder presentValueSensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    if (isExpired(cds, ratesProvider)) {
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+
+    double signedNotional = cds.getBuySell().normalize(cds.getNotional());
+    PointSensitivityBuilder protectionLegSensi =
+        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
+            .multipliedBy(signedNotional);
+    PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
+        .multipliedBy(-cds.getFixedRate() * signedNotional);
+
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the par spread of the CDS product.
    * <p>
@@ -168,6 +240,44 @@ public class IsdaCdsProductPricer {
     return protectionLeg / riskyAnnuity;
   }
 
+  /**
+   * Calculates the par spread sensitivity of the product.
+   * <p>
+   * The par spread sensitivity of the product is the sensitivity of par spread to the underlying curves.
+   * The resulting sensitivity is based on the currency of the CDS product.
+   * 
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the par spread
+   */
+  public PointSensitivityBuilder parSpreadSensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    ArgChecker.isTrue(cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate()), "CDS already expired");
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    double protectionLeg =
+        protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
+    double riskyAnnuityInv = 1d /
+        riskyAnnuity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, PriceType.CLEAN);
+
+    PointSensitivityBuilder protectionLegSensi =
+        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
+            .multipliedBy(riskyAnnuityInv);
+    PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
+        .multipliedBy(-protectionLeg * riskyAnnuityInv * riskyAnnuityInv);
+
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the price of the protection leg, which is the protection leg present value per unit notional.
@@ -194,6 +304,7 @@ public class IsdaCdsProductPricer {
     return protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the risky annuity, which is RPV01 per unit notional.
    * 
@@ -244,6 +355,7 @@ public class IsdaCdsProductPricer {
     return CurrencyAmount.of(cds.getCurrency(), cds.getBuySell().normalize(cds.getNotional()) * riskyAnnuity);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the recovery01 of the CDS product.
    * <p>
@@ -274,114 +386,6 @@ public class IsdaCdsProductPricer {
         protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
 
     return CurrencyAmount.of(cds.getCurrency(), -cds.getBuySell().normalize(cds.getNotional()) * protectionFull);
-  }
-
-  /**
-   * Calculates the price sensitivity of the product. 
-   * <p>
-   * The price sensitivity of the product is the sensitivity of price to the underlying curves.
-   * 
-   * @param cds  the product 
-   * @param ratesProvider  the rates provider
-   * @param referenceDate  the reference date
-   * @param refData  the reference data
-   * @return the present value sensitivity
-   */
-  public PointSensitivityBuilder priceSensitivity(
-      ResolvedCds cds,
-      CreditRatesProvider ratesProvider,
-      LocalDate referenceDate,
-      ReferenceData refData) {
-
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
-      return PointSensitivityBuilder.none();
-    }
-    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
-    double recoveryRate = recoveryRate(cds, ratesProvider);
-    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-
-    PointSensitivityBuilder protectionLegSensi =
-        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
-    PointSensitivityBuilder riskyAnnuitySensi =
-        riskyAnnuitySensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
-            .multipliedBy(-cds.getFixedRate());
-
-    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
-  }
-
-  /**
-   * Calculates the present value sensitivity of the product. 
-   * <p>
-   * The present value sensitivity of the product is the sensitivity of present value to the underlying curves.
-   * 
-   * @param cds  the product 
-   * @param ratesProvider  the rates provider
-   * @param referenceDate  the reference date
-   * @param refData  the reference data
-   * @return the present value sensitivity
-   */
-  public PointSensitivityBuilder presentValueSensitivity(
-      ResolvedCds cds,
-      CreditRatesProvider ratesProvider,
-      LocalDate referenceDate,
-      ReferenceData refData) {
-
-    if (isExpired(cds, ratesProvider)) {
-      return PointSensitivityBuilder.none();
-    }
-    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
-    double recoveryRate = recoveryRate(cds, ratesProvider);
-    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-
-    double signedNotional = cds.getBuySell().normalize(cds.getNotional());
-    PointSensitivityBuilder protectionLegSensi =
-        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
-            .multipliedBy(signedNotional);
-    PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
-            .multipliedBy(-cds.getFixedRate() * signedNotional);
-
-    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
-  }
-
-  /**
-   * Calculates the par spread sensitivity of the product.
-   * <p>
-   * The par spread sensitivity of the product is the sensitivity of par spread to the underlying curves.
-   * The resulting sensitivity is based on the currency of the CDS product.
-   * 
-   * @param cds  the product
-   * @param ratesProvider  the rates provider
-   * @param referenceDate  the reference date
-   * @param refData  the reference data
-   * @return the par spread
-   */
-  public PointSensitivityBuilder parSpreadSensitivity(
-      ResolvedCds cds,
-      CreditRatesProvider ratesProvider,
-      LocalDate referenceDate,
-      ReferenceData refData) {
-
-    ArgChecker.isTrue(cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate()), "CDS already expired");
-    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
-    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
-    double recoveryRate = recoveryRate(cds, ratesProvider);
-    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-    double protectionLeg =
-        protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
-    double riskyAnnuityInv = 1d /
-        riskyAnnuity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, PriceType.CLEAN);
-
-    PointSensitivityBuilder protectionLegSensi =
-        protectionLegSensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
-            .multipliedBy(riskyAnnuityInv);
-    PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
-            .multipliedBy(-protectionLeg * riskyAnnuityInv * riskyAnnuityInv);
-
-    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }
 
   //-------------------------------------------------------------------------

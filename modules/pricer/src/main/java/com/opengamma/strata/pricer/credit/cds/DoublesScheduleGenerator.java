@@ -16,6 +16,10 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * The main application of this class is {@code IsdaCdsProductPricer}.
  */
 final class DoublesScheduleGenerator {
+
+  /**
+   * The tolerance.
+   */
   private static final double TOL = 1d / 730d;
 
   /**

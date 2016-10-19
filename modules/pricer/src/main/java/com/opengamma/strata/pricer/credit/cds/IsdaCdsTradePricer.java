@@ -10,10 +10,10 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
-import com.opengamma.strata.product.credit.ResolvedCds;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
 /**
@@ -62,11 +62,10 @@ public class IsdaCdsTradePricer {
   /**
    * Calculates the price of the underlying product, which is the present value per unit notional. 
    * <p>
-   * This is coherent to {@link #presentValueOnSettle(ResolvedCds, CreditRatesProvider, PriceType, ReferenceData)}.
+   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
-   * @param referenceDate  the reference date
    * @param priceType  the price type
    * @param refData  the reference data
    * @return the price
@@ -84,38 +83,12 @@ public class IsdaCdsTradePricer {
   double price(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
-      double flactionalSpread,
+      double fractionalSpread,
       PriceType priceType,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    return productPricer.price(product, ratesProvider, flactionalSpread, settlementDate, priceType, refData);
-  }
-
-  /**
-   * Calculates the par spread of the underlying product.
-   * <p>
-   * The par spread is a coupon rate such that the clean price is 0. 
-   * The result is represented in decimal form. 
-   * <p>
-   * This is coherent to {@link #price(ResolvedCds, CreditRatesProvider, PriceType, ReferenceData)}.
-   * 
-   * @param trade  the trade
-   * @param ratesProvider  the rates provider
-   * @param refData  the reference data
-   * @return the par spread
-   */
-  public double parSpread(
-      ResolvedCdsTrade trade,
-      CreditRatesProvider ratesProvider,
-      ReferenceData refData) {
-
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    return productPricer.parSpread(product, ratesProvider, settlementDate, refData);
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.price(trade.getProduct(), ratesProvider, fractionalSpread, settlementDate, priceType, refData);
   }
 
   /**
@@ -128,17 +101,36 @@ public class IsdaCdsTradePricer {
    * @param refData  the reference data
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder priceSensitivity(
+  public PointSensitivities priceSensitivity(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    PointSensitivityBuilder priceSensiProduct =
-        productPricer.priceSensitivity(product, ratesProvider, settlementDate, refData);
-    return priceSensiProduct;
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.priceSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the par spread of the underlying product.
+   * <p>
+   * The par spread is a coupon rate such that the clean price is 0. 
+   * The result is represented in decimal form. 
+   * <p>
+   * This is coherent to {@link #price(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the par spread
+   */
+  public double parSpread(
+      ResolvedCdsTrade trade,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.parSpread(trade.getProduct(), ratesProvider, settlementDate, refData);
   }
 
   /**
@@ -151,17 +143,13 @@ public class IsdaCdsTradePricer {
    * @param refData  the reference data
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder parSpreadSensitivity(
+  public PointSensitivities parSpreadSensitivity(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    PointSensitivityBuilder spreadSensiProduct =
-        productPricer.parSpreadSensitivity(product, ratesProvider, settlementDate, refData);
-    return spreadSensiProduct;
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.parSpreadSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData).build();
   }
 
   //-------------------------------------------------------------------------
@@ -182,9 +170,8 @@ public class IsdaCdsTradePricer {
       PriceType priceType,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
     CurrencyAmount pvProduct = productPricer.presentValue(
-        product, ratesProvider, ratesProvider.getValuationDate(), priceType, refData);
+        trade.getProduct(), ratesProvider, ratesProvider.getValuationDate(), priceType, refData);
     if (!trade.getUpfrontFee().isPresent()) {
       return pvProduct;
     }
@@ -204,21 +191,20 @@ public class IsdaCdsTradePricer {
    * @param refData  the reference data
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivities presentValueSensitivity(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    PointSensitivityBuilder pvSensiProduct =
-        productPricer.presentValueSensitivity(product, ratesProvider, ratesProvider.getValuationDate(), refData);
+    PointSensitivityBuilder pvSensiProduct = productPricer.presentValueSensitivity(
+        trade.getProduct(), ratesProvider, ratesProvider.getValuationDate(), refData);
     if (!trade.getUpfrontFee().isPresent()) {
-      return pvSensiProduct;
+      return pvSensiProduct.build();
     }
     Payment upfront = trade.getUpfrontFee().get();
     PointSensitivityBuilder pvUpfront = upfrontPricer.presentValueSensitivity(
         upfront, ratesProvider.discountFactors(upfront.getCurrency()).toDiscountFactors());
-    return pvSensiProduct.combinedWith(pvUpfront);
+    return pvSensiProduct.combinedWith(pvUpfront).build();
   }
 
   //-------------------------------------------------------------------------
@@ -239,13 +225,33 @@ public class IsdaCdsTradePricer {
       PriceType priceType,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, settlementDate, priceType, refData);
-    return pvProduct;
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.presentValue(trade.getProduct(), ratesProvider, settlementDate, priceType, refData);
   }
 
+  /**
+   * Calculates the present value sensitivity of the underlying product. 
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of present value to the underlying curves.
+   * The present value sensitivity is computed based on the settlement date rather than the valuation date.
+   * <p>
+   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the present value sensitivity
+   */
+  public PointSensitivities presentValueOnSettleSensitivity(
+      ResolvedCdsTrade trade,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.presentValueSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData).build();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the risky PV01 of the underlying product. 
    * <p>
@@ -265,12 +271,11 @@ public class IsdaCdsTradePricer {
       PriceType priceType,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    return productPricer.rpv01(product, ratesProvider, settlementDate, priceType, refData);
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.rpv01(trade.getProduct(), ratesProvider, settlementDate, priceType, refData);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the recovery01 of the underlying product.
    * <p>
@@ -290,36 +295,18 @@ public class IsdaCdsTradePricer {
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    return productPricer.recovery01(product, ratesProvider, settlementDate, refData);
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.recovery01(trade.getProduct(), ratesProvider, settlementDate, refData);
   }
 
-  /**
-   * Calculates the present value sensitivity of the underlying product. 
-   * <p>
-   * The present value sensitivity of the product is the sensitivity of present value to the underlying curves.
-   * The present value sensitivity is computed based on the settlement date rather than the valuation date.
-   * <p>
-   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
-   * 
-   * @param trade  the trade
-   * @param ratesProvider  the rates provider
-   * @param refData  the reference data
-   * @return the present value sensitivity
-   */
-  public PointSensitivityBuilder presentValueOnSettleSensitivity(
+  //-------------------------------------------------------------------------
+  private LocalDate calculateSettlementDate(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
-    ResolvedCds product = trade.getProduct();
-    LocalDate settlementDate = trade.getInfo().getSettlementDate()
-        .orElse(product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
-    PointSensitivityBuilder pvSensiProduct =
-        productPricer.presentValueSensitivity(product, ratesProvider, settlementDate, refData);
-    return pvSensiProduct;
+    return trade.getInfo().getSettlementDate()
+        .orElse(trade.getProduct().getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
   }
 
 }
