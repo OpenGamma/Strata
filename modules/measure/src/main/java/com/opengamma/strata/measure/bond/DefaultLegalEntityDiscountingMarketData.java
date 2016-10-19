@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.bond;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -27,7 +28,7 @@ import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultLegalEntityDiscountingMarketData
-    implements LegalEntityDiscountingMarketData, ImmutableBean {
+    implements LegalEntityDiscountingMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -96,6 +97,11 @@ final class DefaultLegalEntityDiscountingMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

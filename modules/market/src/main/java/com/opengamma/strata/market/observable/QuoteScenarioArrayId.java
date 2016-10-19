@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.observable;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -34,7 +35,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketDataId;
  */
 @BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class QuoteScenarioArrayId
-    implements ScenarioMarketDataId<Double, QuoteScenarioArray>, ImmutableBean {
+    implements ScenarioMarketDataId<Double, QuoteScenarioArray>, ImmutableBean, Serializable {
 
   /** The market data key identifying the quote. */
   @PropertyDefinition(validate = "notNull")
@@ -89,6 +90,11 @@ public final class QuoteScenarioArrayId
   static {
     JodaBeanUtils.registerMetaBean(QuoteScenarioArrayId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The cached hash code, using the racy single-check idiom.

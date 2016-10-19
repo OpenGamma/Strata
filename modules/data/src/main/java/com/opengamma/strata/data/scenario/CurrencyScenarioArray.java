@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -42,7 +43,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class CurrencyScenarioArray
-    implements ScenarioArray<CurrencyAmount>, ScenarioFxConvertible<CurrencyScenarioArray>, ImmutableBean {
+    implements ScenarioArray<CurrencyAmount>, ScenarioFxConvertible<CurrencyScenarioArray>, ImmutableBean, Serializable {
 
   /**
    * The currency amounts, one per scenario.
@@ -156,6 +157,11 @@ public final class CurrencyScenarioArray
   static {
     JodaBeanUtils.registerMetaBean(CurrencyScenarioArray.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private CurrencyScenarioArray(
       CurrencyAmountArray amounts) {

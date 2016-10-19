@@ -78,11 +78,16 @@ final class Business252DayCount implements NamedLookup<DayCount> {
     private static final long serialVersionUID = 1L;
 
     private final String name;
-    private final HolidayCalendar calendar;
+    private transient final HolidayCalendar calendar;
 
     Bus252(String name, HolidayCalendar calendar) {
       this.name = name;
       this.calendar = calendar;
+    }
+
+    // resolve instance
+    private Object readResolve() {
+      return DayCount.of(name);
     }
 
     @Override

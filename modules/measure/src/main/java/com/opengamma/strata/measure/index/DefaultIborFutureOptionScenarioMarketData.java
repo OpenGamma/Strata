@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.index;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -26,7 +27,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  */
 @BeanDefinition(style = "light")
 final class DefaultIborFutureOptionScenarioMarketData
-    implements IborFutureOptionScenarioMarketData, ImmutableBean {
+    implements IborFutureOptionScenarioMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -101,6 +102,11 @@ final class DefaultIborFutureOptionScenarioMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

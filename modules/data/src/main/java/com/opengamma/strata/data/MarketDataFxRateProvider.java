@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data;
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition(style = "light")
 public final class MarketDataFxRateProvider
-    implements FxRateProvider, ImmutableBean {
+    implements FxRateProvider, ImmutableBean, Serializable {
 
   /**
    * The market data that provides the FX rates.
@@ -174,6 +175,11 @@ public final class MarketDataFxRateProvider
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private MarketDataFxRateProvider(
       MarketData marketData,

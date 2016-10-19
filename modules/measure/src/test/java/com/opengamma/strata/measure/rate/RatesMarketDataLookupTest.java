@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
@@ -40,6 +41,7 @@ import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataFxRateProvider;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -234,6 +236,12 @@ public class RatesMarketDataLookupTest {
     DefaultRatesMarketDataLookup test =
         DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     assertSerialization(test);
+    Curve curve = ConstantCurve.of(Curves.discountFactors("DSC", ACT_360), 0.99);
+    Map<? extends MarketDataId<?>, ?> valuesMap = ImmutableMap.of(
+        CURVE_ID_DSC, curve, CURVE_ID_FWD, curve);
+    MarketData md = MarketData.of(date(2016, 6, 30), valuesMap);
+    assertSerialization(test.marketDataView(md));
+    assertSerialization(test.ratesProvider(md));
   }
 
 }

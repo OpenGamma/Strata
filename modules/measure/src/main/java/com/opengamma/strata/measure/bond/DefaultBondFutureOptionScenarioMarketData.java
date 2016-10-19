@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.bond;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
@@ -27,7 +28,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  */
 @BeanDefinition(style = "light")
 final class DefaultBondFutureOptionScenarioMarketData
-    implements BondFutureOptionScenarioMarketData, ImmutableBean {
+    implements BondFutureOptionScenarioMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -113,6 +114,11 @@ final class DefaultBondFutureOptionScenarioMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

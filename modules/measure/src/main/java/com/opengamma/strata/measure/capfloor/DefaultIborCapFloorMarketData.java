@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.capfloor;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -28,7 +29,7 @@ import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilities;
  */
 @BeanDefinition(style = "light")
 final class DefaultIborCapFloorMarketData
-    implements IborCapFloorMarketData, ImmutableBean {
+    implements IborCapFloorMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -98,6 +99,11 @@ final class DefaultIborCapFloorMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

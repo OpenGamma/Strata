@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.param;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -54,7 +55,7 @@ import com.opengamma.strata.market.curve.Curve;
  */
 @BeanDefinition(builderScope = "private")
 public final class CrossGammaParameterSensitivity
-    implements FxConvertible<CrossGammaParameterSensitivity>, ImmutableBean {
+    implements FxConvertible<CrossGammaParameterSensitivity>, ImmutableBean, Serializable {
 
   /**
    * The market data name.
@@ -370,6 +371,11 @@ public final class CrossGammaParameterSensitivity
   static {
     JodaBeanUtils.registerMetaBean(CrossGammaParameterSensitivity.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private CrossGammaParameterSensitivity(
       MarketDataName<?> marketDataName,

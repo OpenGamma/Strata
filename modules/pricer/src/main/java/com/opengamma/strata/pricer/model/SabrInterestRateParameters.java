@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.model;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -41,7 +42,7 @@ import com.opengamma.strata.market.surface.Surfaces;
  */
 @BeanDefinition(style = "light")
 public final class SabrInterestRateParameters
-    implements ParameterizedData, ImmutableBean {
+    implements ParameterizedData, ImmutableBean, Serializable {
 
   /**
    * A surface used to apply no shift.
@@ -393,6 +394,11 @@ public final class SabrInterestRateParameters
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

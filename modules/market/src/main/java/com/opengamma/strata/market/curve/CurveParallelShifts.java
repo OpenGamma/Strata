@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -42,7 +43,7 @@ import com.opengamma.strata.market.ShiftType;
  */
 @BeanDefinition(builderScope = "private")
 public final class CurveParallelShifts
-    implements ScenarioPerturbation<Curve>, ImmutableBean {
+    implements ScenarioPerturbation<Curve>, ImmutableBean, Serializable {
 
   /** Logger. */
   private static final Logger log = LoggerFactory.getLogger(CurveParallelShifts.class);
@@ -113,6 +114,11 @@ public final class CurveParallelShifts
   static {
     JodaBeanUtils.registerMetaBean(CurveParallelShifts.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private CurveParallelShifts(
       ShiftType shiftType,

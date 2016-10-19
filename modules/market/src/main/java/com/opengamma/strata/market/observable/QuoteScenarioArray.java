@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.observable;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -41,7 +42,7 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class QuoteScenarioArray
-    implements ScenarioArray<Double>, ImmutableBean {
+    implements ScenarioArray<Double>, ImmutableBean, Serializable {
 
   /**
    * The values of the quotes.
@@ -89,6 +90,11 @@ public final class QuoteScenarioArray
   static {
     JodaBeanUtils.registerMetaBean(QuoteScenarioArray.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private QuoteScenarioArray(
       DoubleArray quotes) {

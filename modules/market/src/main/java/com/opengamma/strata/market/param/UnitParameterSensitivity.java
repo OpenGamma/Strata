@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.param;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -45,7 +46,7 @@ import com.opengamma.strata.market.surface.Surface;
  */
 @BeanDefinition(builderScope = "private")
 public final class UnitParameterSensitivity
-    implements ImmutableBean {
+    implements ImmutableBean, Serializable {
 
   /**
    * The market data name.
@@ -225,6 +226,11 @@ public final class UnitParameterSensitivity
   static {
     JodaBeanUtils.registerMetaBean(UnitParameterSensitivity.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private UnitParameterSensitivity(
       MarketDataName<?> marketDataName,
