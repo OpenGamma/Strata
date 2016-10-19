@@ -80,7 +80,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
 
   //------------------------------------------------------------------------
   /**
-   * Parses the specified source as a CSV file.
+   * Parses the specified source as a CSV file, using a comma as the separator.
    * <p>
    * This method opens the CSV file for reading.
    * The caller is responsible for closing it by calling {@link #close()}.
@@ -107,7 +107,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    * @param source  the file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
-   * @return the TSV file
+   * @return the CSV file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
@@ -119,10 +119,25 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   }
 
   /**
-   * Parses the specified reader as a CSV file where the separator is specified and might not be a comma.
+   * Parses the specified reader as a CSV file, using a comma as the separator.
    * <p>
-   * This factory method takes a {@link Reader}.
-   * Callers are encouraged to use {@link CharSource} instead of {@code Reader} where possible.
+   * This factory method allows the separator to be controlled.
+   * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * <p>
+   * The caller is responsible for closing the reader, such as by calling {@link #close()}.
+   * 
+   * @param reader  the file reader
+   * @param headerRow  whether the source has a header row, an empty source must still contain the header
+   * @return the CSV file
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public static CsvIterator of(Reader reader, boolean headerRow) {
+    return of(reader, headerRow, ',');
+  }
+
+  /**
+   * Parses the specified reader as a CSV file where the separator is specified and might not be a comma.
    * <p>
    * This factory method allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
@@ -132,7 +147,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    * @param reader  the file reader
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
-   * @return the TSV file
+   * @return the CSV file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
