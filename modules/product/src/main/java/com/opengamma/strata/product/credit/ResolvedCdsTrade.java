@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 
@@ -67,7 +68,7 @@ public final class ResolvedCdsTrade
    * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
    */
   @PropertyDefinition(get = "optional")
-  private final AdjustablePayment upfrontFee;
+  private final Payment upfrontFee;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -105,7 +106,7 @@ public final class ResolvedCdsTrade
   private ResolvedCdsTrade(
       TradeInfo info,
       ResolvedCds product,
-      AdjustablePayment upfrontFee) {
+      Payment upfrontFee) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
@@ -162,7 +163,7 @@ public final class ResolvedCdsTrade
    * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
    * @return the optional value of the property, not null
    */
-  public Optional<AdjustablePayment> getUpfrontFee() {
+  public Optional<Payment> getUpfrontFee() {
     return Optional.ofNullable(upfrontFee);
   }
 
@@ -232,8 +233,8 @@ public final class ResolvedCdsTrade
     /**
      * The meta-property for the {@code upfrontFee} property.
      */
-    private final MetaProperty<AdjustablePayment> upfrontFee = DirectMetaProperty.ofImmutable(
-        this, "upfrontFee", ResolvedCdsTrade.class, AdjustablePayment.class);
+    private final MetaProperty<Payment> upfrontFee = DirectMetaProperty.ofImmutable(
+        this, "upfrontFee", ResolvedCdsTrade.class, Payment.class);
     /**
      * The meta-properties.
      */
@@ -298,7 +299,7 @@ public final class ResolvedCdsTrade
      * The meta-property for the {@code upfrontFee} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<AdjustablePayment> upfrontFee() {
+    public MetaProperty<Payment> upfrontFee() {
       return upfrontFee;
     }
 
@@ -335,7 +336,7 @@ public final class ResolvedCdsTrade
 
     private TradeInfo info;
     private ResolvedCds product;
-    private AdjustablePayment upfrontFee;
+    private Payment upfrontFee;
 
     /**
      * Restricted constructor.
@@ -379,7 +380,7 @@ public final class ResolvedCdsTrade
           this.product = (ResolvedCds) newValue;
           break;
         case 963468344:  // upfrontFee
-          this.upfrontFee = (AdjustablePayment) newValue;
+          this.upfrontFee = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -456,7 +457,7 @@ public final class ResolvedCdsTrade
      * @param upfrontFee  the new value
      * @return this, for chaining, not null
      */
-    public Builder upfrontFee(AdjustablePayment upfrontFee) {
+    public Builder upfrontFee(Payment upfrontFee) {
       this.upfrontFee = upfrontFee;
       return this;
     }

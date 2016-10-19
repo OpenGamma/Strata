@@ -73,7 +73,7 @@ public final class CdsTrade
     return ResolvedCdsTrade.builder()
         .info(info)
         .product(product.resolve(refData))
-        .upfrontFee(upfrontFee != null ? upfrontFee : null)
+        .upfrontFee(upfrontFee != null ? upfrontFee.resolve(refData) : null)
         .build();
   }
 

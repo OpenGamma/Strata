@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
@@ -52,7 +52,7 @@ public class ResolvedCdsTradeTest {
   private static final ResolvedCds PRODUCT = Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, BUSS_ADJ,
       SHORT_INITIAL, COUPON, ACT_360, ACCRUED_PREMIUM, BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.of(LocalDate.of(2014, 1, 9));
-  private static final AdjustablePayment UPFRONT = AdjustablePayment.of(USD, NOTIONAL, LocalDate.of(2014, 1, 12));
+  private static final Payment UPFRONT = Payment.of(USD, NOTIONAL, LocalDate.of(2014, 1, 12));
 
   public void test_builder_full() {
     ResolvedCdsTrade test = ResolvedCdsTrade.builder()

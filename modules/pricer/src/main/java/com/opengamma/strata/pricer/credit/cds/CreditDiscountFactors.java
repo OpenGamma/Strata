@@ -70,6 +70,18 @@ public interface CreditDiscountFactors
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if the instance is based on an ISDA compliant curve.
+   * <p>
+   * This returns 'false' by default, and should be overridden when needed.
+   * 
+   * @return true if this is an ISDA compliant curve, false otherwise
+   */
+  public default boolean isIsdaCompliant() {
+    return false;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the relative time between the valuation date and the specified date.
    * <p>
    * The {@code double} value returned from this method is used as the input to other methods.

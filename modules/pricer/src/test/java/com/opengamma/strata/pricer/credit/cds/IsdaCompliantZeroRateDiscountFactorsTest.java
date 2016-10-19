@@ -81,6 +81,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
     assertEquals(test.findData(CONST_CURVE.getName()), Optional.of(CONST_CURVE));
     assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     assertEquals(test.toDiscountFactors(), ZeroRateDiscountFactors.of(USD, VALUATION, CONST_CURVE));
+    assertEquals(test.isIsdaCompliant(), true);
   }
 
   public void test_of() {
@@ -98,6 +99,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
     assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
     assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     assertEquals(test.toDiscountFactors(), ZeroRateDiscountFactors.of(USD, VALUATION, CURVE));
+    assertEquals(test.isIsdaCompliant(), true);
   }
 
   public void test_ofValue() {

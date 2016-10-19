@@ -155,9 +155,9 @@ public class ResolvedCdsTest {
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
     LocalDate date1 = LocalDate.of(2016, 3, 22);
-    assertEquals(test1.getEffectiveStartDate(date1), date1.minusDays(1));
+    assertEquals(test1.calculateEffectiveStartDate(date1), date1.minusDays(1));
     LocalDate date2 = LocalDate.of(2013, 9, 22);
-    assertEquals(test1.getEffectiveStartDate(date2), START_DATE.minusDays(1));
+    assertEquals(test1.calculateEffectiveStartDate(date2), START_DATE.minusDays(1));
     ResolvedCds test2 = ResolvedCds.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
@@ -170,9 +170,9 @@ public class ResolvedCdsTest {
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
     LocalDate date3 = LocalDate.of(2016, 3, 22);
-    assertEquals(test2.getEffectiveStartDate(date3), date3);
+    assertEquals(test2.calculateEffectiveStartDate(date3), date3);
     LocalDate date4 = LocalDate.of(2013, 9, 22);
-    assertEquals(test2.getEffectiveStartDate(date4), START_DATE);
+    assertEquals(test2.calculateEffectiveStartDate(date4), START_DATE);
   }
 
   //-------------------------------------------------------------------------

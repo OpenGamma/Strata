@@ -124,7 +124,7 @@ public final class ResolvedCds
    * @param stepinDate  the step-in date
    * @return the effective start date
    */
-  public LocalDate getEffectiveStartDate(LocalDate stepinDate) {
+  public LocalDate calculateEffectiveStartDate(LocalDate stepinDate) {
     LocalDate startDate = stepinDate.isAfter(getAccrualStartDate()) ? stepinDate : getAccrualStartDate();
     return protectionStart.isBeginning() ? startDate.minusDays(1) : startDate;
   }
