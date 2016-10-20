@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +62,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultLookupRatesProvider
-    implements RatesProvider, ImmutableBean {
+    implements RatesProvider, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -276,6 +277,11 @@ final class DefaultLookupRatesProvider
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

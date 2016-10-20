@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +35,7 @@ import com.opengamma.strata.data.ObservableId;
  */
 @BeanDefinition(style = "light")
 final class SingleScenarioMarketData
-    implements ImmutableBean, MarketData {
+    implements ImmutableBean, MarketData, Serializable {
 
   /**
    * The set of market data for all scenarios.
@@ -128,6 +129,11 @@ final class SingleScenarioMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private SingleScenarioMarketData(
       ScenarioMarketData marketData,

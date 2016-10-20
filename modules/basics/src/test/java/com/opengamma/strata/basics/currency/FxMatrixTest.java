@@ -17,6 +17,7 @@ import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.FxMatrix.entriesToFxMatrix;
 import static com.opengamma.strata.basics.currency.FxMatrix.pairsToFxMatrix;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -577,17 +578,22 @@ public class FxMatrixTest {
   }
   
   public void testSerializeDeserialize() {
-    cycleBean(FxMatrix.empty());
-    cycleBean(FxMatrix.builder()
+    FxMatrix test1 = FxMatrix.builder()
         .addRate(GBP, USD, 1.6)
         .addRate(EUR, USD, 1.4)
         .addRate(EUR, CHF, 1.2)
-        .build());
-    cycleBean(FxMatrix.builder()
+        .build();
+    FxMatrix test2 = FxMatrix.builder()
         .addRate(GBP, USD, 1.7)
         .addRate(EUR, USD, 1.5)
         .addRate(EUR, CHF, 1.3)
-        .build());
+        .build();
+    cycleBean(FxMatrix.empty());
+    cycleBean(test1);
+    cycleBean(test2);
+    assertSerialization(FxMatrix.empty());
+    assertSerialization(test1);
+    assertSerialization(test2);
   }
   
   private void cycleBean(Bean bean) {

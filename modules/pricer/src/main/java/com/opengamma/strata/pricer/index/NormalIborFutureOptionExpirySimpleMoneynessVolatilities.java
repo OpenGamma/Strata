@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.index;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -52,7 +53,7 @@ import com.opengamma.strata.market.surface.Surfaces;
  */
 @BeanDefinition
 public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
-    implements NormalIborFutureOptionVolatilities, ImmutableBean {
+    implements NormalIborFutureOptionVolatilities, ImmutableBean, Serializable {
 
   /**
    * The index of the underlying future.
@@ -227,6 +228,11 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
   static {
     JodaBeanUtils.registerMetaBean(NormalIborFutureOptionExpirySimpleMoneynessVolatilities.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.bond;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,7 @@ import com.opengamma.strata.product.SecurityId;
  */
 @BeanDefinition(style = "light")
 final class DefaultLookupLegalEntityDiscountingProvider
-    implements LegalEntityDiscountingProvider, ImmutableBean {
+    implements LegalEntityDiscountingProvider, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -217,6 +218,11 @@ final class DefaultLookupLegalEntityDiscountingProvider
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

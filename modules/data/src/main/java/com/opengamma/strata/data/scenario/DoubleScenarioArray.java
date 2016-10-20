@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -36,7 +37,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class DoubleScenarioArray
-    implements ScenarioArray<Double>, ImmutableBean {
+    implements ScenarioArray<Double>, ImmutableBean, Serializable {
 
   /**
    * The calculated values, one per scenario.
@@ -109,6 +110,11 @@ public final class DoubleScenarioArray
   static {
     JodaBeanUtils.registerMetaBean(DoubleScenarioArray.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private DoubleScenarioArray(
       DoubleArray values) {

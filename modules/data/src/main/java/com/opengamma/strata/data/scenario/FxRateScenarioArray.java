@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -44,7 +45,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * @see FxRate
  */
 @BeanDefinition(builderScope = "private")
-public final class FxRateScenarioArray implements ScenarioArray<FxRate>, ImmutableBean {
+public final class FxRateScenarioArray
+    implements ScenarioArray<FxRate>, ImmutableBean, Serializable {
 
   /**
    * The currency pair.
@@ -219,6 +221,11 @@ public final class FxRateScenarioArray implements ScenarioArray<FxRate>, Immutab
   static {
     JodaBeanUtils.registerMetaBean(FxRateScenarioArray.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private FxRateScenarioArray(
       CurrencyPair pair,

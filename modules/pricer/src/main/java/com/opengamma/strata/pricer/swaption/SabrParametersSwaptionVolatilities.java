@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -54,7 +55,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  */
 @BeanDefinition
 public final class SabrParametersSwaptionVolatilities
-    implements SabrSwaptionVolatilities, ImmutableBean {
+    implements SabrSwaptionVolatilities, ImmutableBean, Serializable {
   // To represent the data sensitivities (dataSensitivityAlpha, ...), DoubleMatrix does not work as the
   // number of raw data can be different for each element of the list.
 
@@ -340,6 +341,11 @@ public final class SabrParametersSwaptionVolatilities
   static {
     JodaBeanUtils.registerMetaBean(SabrParametersSwaptionVolatilities.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
