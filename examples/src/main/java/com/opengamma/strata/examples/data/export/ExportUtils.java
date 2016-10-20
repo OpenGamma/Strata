@@ -5,8 +5,11 @@
  */
 package com.opengamma.strata.examples.data.export;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -108,7 +111,7 @@ public class ExportUtils {
   public static void export(
       String string,
       String fileName) {
-    try (FileWriter writer = new FileWriter(fileName)) {
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8)) {
       writer.append(string);
       writer.close();
     } catch (final IOException e) {
