@@ -255,8 +255,18 @@ public final class ResourceConfig {
           result.add(ResourceLocator.ofClasspathUrl(urls.get(0)));
           break;
         default:
-          log.severe("More than one file found on the classpath: " + name + ": " + urls);
-          throw new IllegalStateException("More than one file found on the classpath: " + name + ": " + urls);
+          // handle case where Strata is on the classpath more than once
+          // only accept this if the data being read is the same in all URLs
+          ResourceLocator baseResource = ResourceLocator.ofClasspathUrl(urls.get(0));
+          for (int i = 1; i < urls.size(); i++) {
+            ResourceLocator otherResource = ResourceLocator.ofClasspathUrl(urls.get(i));
+            if (!baseResource.getByteSource().contentEquals(otherResource.getByteSource())) {
+              log.severe("More than one file found on the classpath: " + name + ": " + urls);
+              throw new IllegalStateException("More than one file found on the classpath: " + name + ": " + urls);
+            }
+          }
+          result.add(baseResource);
+          break;
       }
     }
     if (result.isEmpty()) {
