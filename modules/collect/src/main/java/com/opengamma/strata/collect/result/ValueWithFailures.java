@@ -33,15 +33,15 @@ import com.google.common.collect.ImmutableList;
  * This is often referred to as partial success or partial failure.
  * The class stores the value, of any object type, and a list of failures that may be empty.
  * <p>
- * The success result must be able to handle the case where everything fails.
- * In most cases, the success result will be a collection type, such as {@link List}
- * or {@link Map}, which can be empty if operation failed completely.
+ * The success value must be able to handle the case where everything fails.
+ * In most cases, the success value will be a collection type, such as {@link List}
+ * or {@link Map}, which can be empty if the operation failed completely.
  * <p>
  * The classic example is loading rows from a file, when some rows are valid and some are invalid.
  * The partial result would contain the successful rows, with the list of failures containing an
  * entry for each row that failed to parse.
  *
- * @param <T> the type of the underlying success result, typically a collection type
+ * @param <T> the type of the underlying success value, typically a collection type
  */
 @BeanDefinition(builderScope = "private")
 public final class ValueWithFailures<T>
@@ -77,7 +77,7 @@ public final class ValueWithFailures<T>
    * @param <T>  the type of the success value
    * @param successValue  the success value
    * @param failures  the failures
-   * @return an instance result wrapping the value and failures
+   * @return an instance wrapping the value and failures
    */
   public static <T> ValueWithFailures<T> of(T successValue, List<FailureItem> failures) {
     return new ValueWithFailures<>(successValue, failures);
@@ -87,7 +87,7 @@ public final class ValueWithFailures<T>
   /**
    * Checks if there are any failures.
    *
-   * @return true if the result has any failures
+   * @return true if there are any failures
    */
   public boolean hasFailures() {
     return !failures.isEmpty();
