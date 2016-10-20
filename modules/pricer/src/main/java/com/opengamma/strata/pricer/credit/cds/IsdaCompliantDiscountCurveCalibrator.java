@@ -52,8 +52,7 @@ import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
  * <p>
  * The curve is defined using two or more {@linkplain CurveNode nodes}.
  * Each node primarily defines enough information to produce a reference trade.
- * Calibration involves pricing, and re-pricing, these trades to find the best fit
- * using a root finder.
+ * Calibration involves pricing, and re-pricing, these trades to find the best fit using a root finder.
  * <p>
  * Once calibrated, the curves are then available for use.
  * Each node in the curve definition becomes a parameter in the matching output curve.
@@ -64,6 +63,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
    * Default implementation.
    */
   public static final IsdaCompliantDiscountCurveCalibrator DEFAULT = new IsdaCompliantDiscountCurveCalibrator();
+
   /**
    * The matrix algebra used for matrix inversion.
    */
@@ -76,7 +76,6 @@ public final class IsdaCompliantDiscountCurveCalibrator {
    * The root finder.
    */
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder();
-
 
   //-------------------------------------------------------------------------
   /**
@@ -191,62 +190,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
         currency, curveValuationDate, withShift(curve, parameterMetadata, sensi, computeJacobian, offset));
   }
 
-  private DoubleMatrix quoteValueSensitivity(
-      int nTermDeposit,
-      double[] termDepositYearFraction,
-      BasicFixedLeg[] swapLeg,
-      double[] rates,
-      InterpolatedNodalCurve curve,
-      boolean computejacobian) {
-
-    if (computejacobian) {
-      int nNode = curve.getParameterCount();
-      DoubleMatrix sensiDeposit = DoubleMatrix.ofArrayObjects(nTermDeposit, nNode,
-          i -> sensitivityDeposit(curve, termDepositYearFraction[i], i, rates[i]));
-      DoubleMatrix sensiSwap = DoubleMatrix.ofArrayObjects(nNode - nTermDeposit, nNode,
-          i -> sensitivitySwap(swapLeg[i + nTermDeposit], curve, rates[i + nTermDeposit]));
-      double[][] sensiTotal = new double[nNode][];
-      for (int i = 0; i < nTermDeposit; ++i) {
-        sensiTotal[i] = sensiDeposit.rowArray(i);
-      }
-      for (int i = nTermDeposit; i < nNode; ++i) {
-        sensiTotal[i] = sensiSwap.rowArray(i - nTermDeposit);
-      }
-      return DoubleMatrix.ofUnsafe(sensiTotal);
-    }
-    return DoubleMatrix.EMPTY;
-  }
-
-  private DoubleArray sensitivityDeposit(InterpolatedNodalCurve curve, double termDepositYearFraction, int index,
-      double fixedRate) {
-    int nNode = curve.getParameterCount();
-    double[] sensi = new double[nNode];
-    sensi[index] = curve.getXValues().get(index) * (1d + fixedRate * termDepositYearFraction) / termDepositYearFraction;
-    return DoubleArray.ofUnsafe(sensi);
-  }
-
-  private DoubleArray sensitivitySwap(BasicFixedLeg swap, NodalCurve curve, double swapRate) {
-    int nPayments = swap.getNumPayments();
-    double annuity = 0d;
-    UnitParameterSensitivities sensi = UnitParameterSensitivities.empty();
-    for (int i = 0; i < nPayments - 1; i++) {
-      double t = swap.getPaymentTime(i);
-      double df = Math.exp(-curve.yValue(t) * t);
-      annuity += swap.getYearFraction(i) * df;
-      sensi = sensi.combinedWith(curve.yValueParameterSensitivity(t).multipliedBy(-df * t * swap.getYearFraction(i) * swapRate));
-    }
-    int lastIndex = nPayments - 1;
-    double t = swap.getPaymentTime(lastIndex);
-    double df = Math.exp(-curve.yValue(t) * t);
-    annuity += swap.getYearFraction(lastIndex) * df;
-    sensi = sensi.combinedWith(
-        curve.yValueParameterSensitivity(t).multipliedBy(-df * t * (1d + swap.getYearFraction(lastIndex) * swapRate)));
-    sensi = sensi.multipliedBy(-1d / annuity);
-    ArgChecker.isTrue(sensi.size() == 1);
-
-    return sensi.getSensitivities().get(0).getSensitivity();
-  }
-
+  //-------------------------------------------------------------------------
   private InterpolatedNodalCurve fitSwap(int curveIndex, BasicFixedLeg swap, InterpolatedNodalCurve curve, double swapRate) {
     int nPayments = swap.getNumPayments();
     int nNodes = curve.getParameterCount();
@@ -316,9 +260,65 @@ public final class IsdaCompliantDiscountCurveCalibrator {
     return curve.withParameter(curveIndex, r);
   }
 
-  /**
-   * crude swap fixed leg description.
-   */
+  //-------------------------------------------------------------------------
+  // market quote sensitivity calculators
+  private DoubleMatrix quoteValueSensitivity(
+      int nTermDeposit,
+      double[] termDepositYearFraction,
+      BasicFixedLeg[] swapLeg,
+      double[] rates,
+      InterpolatedNodalCurve curve,
+      boolean computejacobian) {
+
+    if (computejacobian) {
+      int nNode = curve.getParameterCount();
+      DoubleMatrix sensiDeposit = DoubleMatrix.ofArrayObjects(nTermDeposit, nNode,
+          i -> sensitivityDeposit(curve, termDepositYearFraction[i], i, rates[i]));
+      DoubleMatrix sensiSwap = DoubleMatrix.ofArrayObjects(nNode - nTermDeposit, nNode,
+          i -> sensitivitySwap(swapLeg[i + nTermDeposit], curve, rates[i + nTermDeposit]));
+      double[][] sensiTotal = new double[nNode][];
+      for (int i = 0; i < nTermDeposit; ++i) {
+        sensiTotal[i] = sensiDeposit.rowArray(i);
+      }
+      for (int i = nTermDeposit; i < nNode; ++i) {
+        sensiTotal[i] = sensiSwap.rowArray(i - nTermDeposit);
+      }
+      return DoubleMatrix.ofUnsafe(sensiTotal);
+    }
+    return DoubleMatrix.EMPTY;
+  }
+
+  private DoubleArray sensitivityDeposit(InterpolatedNodalCurve curve, double termDepositYearFraction, int index,
+      double fixedRate) {
+    int nNode = curve.getParameterCount();
+    double[] sensi = new double[nNode];
+    sensi[index] = curve.getXValues().get(index) * (1d + fixedRate * termDepositYearFraction) / termDepositYearFraction;
+    return DoubleArray.ofUnsafe(sensi);
+  }
+
+  private DoubleArray sensitivitySwap(BasicFixedLeg swap, NodalCurve curve, double swapRate) {
+    int nPayments = swap.getNumPayments();
+    double annuity = 0d;
+    UnitParameterSensitivities sensi = UnitParameterSensitivities.empty();
+    for (int i = 0; i < nPayments - 1; i++) {
+      double t = swap.getPaymentTime(i);
+      double df = Math.exp(-curve.yValue(t) * t);
+      annuity += swap.getYearFraction(i) * df;
+      sensi = sensi.combinedWith(curve.yValueParameterSensitivity(t).multipliedBy(-df * t * swap.getYearFraction(i) * swapRate));
+    }
+    int lastIndex = nPayments - 1;
+    double t = swap.getPaymentTime(lastIndex);
+    double df = Math.exp(-curve.yValue(t) * t);
+    annuity += swap.getYearFraction(lastIndex) * df;
+    sensi = sensi.combinedWith(
+        curve.yValueParameterSensitivity(t).multipliedBy(-df * t * (1d + swap.getYearFraction(lastIndex) * swapRate)));
+    sensi = sensi.multipliedBy(-1d / annuity);
+    ArgChecker.isTrue(sensi.size() == 1);
+    return sensi.getSensitivities().get(0).getSensitivity();
+  }
+
+  //-------------------------------------------------------------------------
+  /* crude swap fixed leg description */
   private final class BasicFixedLeg {
     private final int nPayment;
     private final double[] swapPaymentTime;
@@ -370,6 +370,8 @@ public final class IsdaCompliantDiscountCurveCalibrator {
 
   }
 
+  //-------------------------------------------------------------------------
+  // shift the curve 
   private NodalCurve withShift(
       InterpolatedNodalCurve curve,
       List<ParameterMetadata> parameterMetadata,

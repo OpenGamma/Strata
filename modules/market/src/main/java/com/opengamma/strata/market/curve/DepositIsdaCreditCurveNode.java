@@ -83,7 +83,7 @@ public final class DepositIsdaCreditCurveNode
   /**
    * Returns a curve node for a term deposit.
    * <p>
-   * @code label} will be created using {@code tenor}.
+   * {@code label} will be created using {@code tenor}.
    * 
    * @param observableId  the observable ID
    * @param spotDateOffset  the spot date offset

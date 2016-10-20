@@ -36,7 +36,7 @@ import com.opengamma.strata.data.ObservableId;
  * An ISDA compliant curve node whose instrument is a standard Fixed-Ibor interest rate swap.
  * <p>
  * This node contains the information on the fixed leg of the swap. 
- * It is assumed that the fixed leg is not compounded, the common business day adjustment is applied to start date, 
+ * It is assumed that the compounding not involved, the common business day adjustment is applied to start date, 
  * end date and accrual schedule, and the fixed rate is paid on the end date of each payment period. 
  * <p>
  * {@code observableId} is used to access the market data value of the swap par rate. 
@@ -44,6 +44,7 @@ import com.opengamma.strata.data.ObservableId;
 @BeanDefinition
 public final class SwapIsdaCreditCurveNode
     implements IsdaCreditCurveNode, ImmutableBean, Serializable {
+
   /**
    * The label to use for the node, defaulted.
    * <p>

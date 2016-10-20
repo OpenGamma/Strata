@@ -15,7 +15,7 @@ import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 /**
  * A node specifying how to calibrate an ISDA compliant curve.
  * <p>
- * A curve node is associated with an instrument and provides a method to provide the information for pricing.
+ * A curve node is associated with an instrument and provide the information of the instrument for pricing.
  */
 public interface IsdaCreditCurveNode {
 
@@ -56,6 +56,8 @@ public interface IsdaCreditCurveNode {
 
   /**
    * Returns metadata for the node from the node date. 
+   * <p>
+   * The node date must be computed by {@link #getNodeDate(LocalDate, ReferenceData)}.
    *
    * @param nodeDate  the node date used when calibrating the curve
    * @return metadata for the node
