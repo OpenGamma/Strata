@@ -259,7 +259,7 @@ public final class ResourceConfig {
           // only accept this if the data being read is the same in all URLs
           ResourceLocator baseResource = ResourceLocator.ofClasspathUrl(urls.get(0));
           for (int i = 1; i < urls.size(); i++) {
-            ResourceLocator otherResource = ResourceLocator.ofClasspathUrl(urls.get(1));
+            ResourceLocator otherResource = ResourceLocator.ofClasspathUrl(urls.get(i));
             if (!baseResource.getByteSource().contentEquals(otherResource.getByteSource())) {
               log.severe("More than one file found on the classpath: " + name + ": " + urls);
               throw new IllegalStateException("More than one file found on the classpath: " + name + ": " + urls);
