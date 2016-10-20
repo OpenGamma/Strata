@@ -11,6 +11,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -301,6 +302,13 @@ public class CsvFileTest {
     List<String> headers = Arrays.asList("1", "2");
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b"));
     assertThrowsIllegalArg(() -> CsvFile.of(headers, rows));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_of_empty_no_header_reader() {
+    CsvFile csvFile = CsvFile.of(new StringReader(""), false, ',');
+    assertEquals(csvFile.headers().size(), 0);
+    assertEquals(csvFile.rowCount(), 0);
   }
 
   //-------------------------------------------------------------------------

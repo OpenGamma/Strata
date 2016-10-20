@@ -12,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -201,6 +202,14 @@ public class CsvIteratorTest {
       assertEquals(row1.fieldCount(), 2);
       assertEquals(row1.field(0), "r21");
       assertEquals(row1.field(1), "r22");
+      assertEquals(csvFile.hasNext(), false);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_of_empty_no_header_reader() {
+    try (CsvIterator csvFile = CsvIterator.of(new StringReader(""), false, ',')) {
+      assertEquals(csvFile.headers().size(), 0);
       assertEquals(csvFile.hasNext(), false);
     }
   }
