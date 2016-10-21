@@ -26,7 +26,7 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.node.CdsCurveNode;
+import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
@@ -93,14 +93,14 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         LocalDate.of(2021, 3, 20), LocalDate.of(2022, 3, 20), LocalDate.of(2023, 3, 20)};
     int nPillars = pillarDates.length;
     ImmutableMarketDataBuilder builderCredit = ImmutableMarketData.builder(valuationDate);
-    List<CdsCurveNode> nodes = new ArrayList<>(nPillars);
+    List<CdsIsdaCreditCurveNode> nodes = new ArrayList<>(nPillars);
     double[] quotes = new double[] {
         0.006485, 0.008163, 0.011763, 0.015136, 0.018787, 0.021905, 0.023797, 0.025211, 0.02617, 0.026928, 0.027549};
     for (int i = 0; i < nPillars; ++i) {
       CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
       CdsTemplate temp = DatesCdsTemplate.of(startDate, pillarDates[i], conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", pillarDates[i].toString()));
-      nodes.add(CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY));
+      nodes.add(CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY));
       builderCredit.addValue(id, quotes[i]);
     }
     ImmutableMarketData marketData = builderCredit.build();
@@ -157,14 +157,14 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     double coupon = 100d * ONE_BP;
     int nPillars = pillarDates.length;
     ImmutableMarketDataBuilder builderCredit = ImmutableMarketData.builder(valuationDate);
-    List<CdsCurveNode> nodes = new ArrayList<>(nPillars);
+    List<CdsIsdaCreditCurveNode> nodes = new ArrayList<>(nPillars);
     double[] quotes = new double[] {
         0.006485, 0.008163, 0.011763, 0.015136, 0.018787, 0.021905, 0.023797, 0.025211, 0.02617, 0.026928, 0.027549};
     for (int i = 0; i < nPillars; ++i) {
       CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
       CdsTemplate temp = DatesCdsTemplate.of(startDate, pillarDates[i], conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", pillarDates[i].toString()));
-      nodes.add(CdsCurveNode.ofQuotedSpread(temp, id, LEGAL_ENTITY, coupon));
+      nodes.add(CdsIsdaCreditCurveNode.ofQuotedSpread(temp, id, LEGAL_ENTITY, coupon));
       builderCredit.addValue(id, quotes[i]);
     }
     ImmutableMarketData marketData = builderCredit.build();
@@ -239,7 +239,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     int nPillars = maturityString.length;
     double coupon = 500d * ONE_BP;
     ImmutableMarketDataBuilder builderCredit = ImmutableMarketData.builder(valuationDate);
-    List<CdsCurveNode> nodes = new ArrayList<>(nPillars);
+    List<CdsIsdaCreditCurveNode> nodes = new ArrayList<>(nPillars);
     double[] quotes = new double[] {
         0.32, 0.69, 1.32, 1.79, 2.36, 3.01, 3.7, 4.39, 5.02, 5.93, 6.85, 7.76, 8.67, 9.6, 10.53, 11.45, 12.33, 13.29, 14.26, 15.2,
         16.11, 16.62, 17.12, 17.62, 18.09, 18.55, 19, 19.44, 19.87, 20.33, 20.79, 21.24, 21.67, 22.04, 22.41, 22.77, 23.12, 23.46,
@@ -249,7 +249,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
       CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
       CdsTemplate temp = DatesCdsTemplate.of(startDate, pillarDate, conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", pillarDate.toString()));
-      nodes.add(CdsCurveNode.ofPointsUpfront(temp, id, LEGAL_ENTITY, coupon));
+      nodes.add(CdsIsdaCreditCurveNode.ofPointsUpfront(temp, id, LEGAL_ENTITY, coupon));
       builderCredit.addValue(id, quotes[i] * ONE_PC);
     }
     ImmutableMarketData marketData = builderCredit.build();

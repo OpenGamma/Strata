@@ -26,7 +26,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.node.CdsCurveNode;
+import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
@@ -124,7 +124,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    * @return the ISDA compliant credit curve
    */
   public LegalEntitySurvivalProbabilities calibrate(
-      List<CdsCurveNode> curveNode,
+      List<CdsIsdaCreditCurveNode> curveNode,
       CurveName name,
       MarketData marketData,
       CreditRatesProvider ratesProvider,
@@ -132,7 +132,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       ReferenceData refData) {
 
     Iterator<StandardId> legalEntities =
-        curveNode.stream().map(CdsCurveNode::getLegalEntityId).collect(Collectors.toSet()).iterator();
+        curveNode.stream().map(CdsIsdaCreditCurveNode::getLegalEntityId).collect(Collectors.toSet()).iterator();
     StandardId legalEntityId = legalEntities.next();
     ArgChecker.isFalse(legalEntities.hasNext(), "legal entity must be common to curve nodes");
     Iterator<Currency> currencies =

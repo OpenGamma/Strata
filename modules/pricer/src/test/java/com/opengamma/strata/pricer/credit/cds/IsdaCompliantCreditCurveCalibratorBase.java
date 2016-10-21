@@ -39,7 +39,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DepositIsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.IsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.SwapIsdaCreditCurveNode;
-import com.opengamma.strata.market.curve.node.CdsCurveNode;
+import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.product.TradeInfo;
@@ -63,7 +63,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   protected static final HolidayCalendarId DEFAULT_CALENDAR = HolidayCalendarIds.SAT_SUN;
   protected static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
   private static final ResolvedCdsTrade[][] EXP_NODE_CDS;
-  private static final CdsCurveNode[][] NODE_CDS;
+  private static final CdsIsdaCreditCurveNode[][] NODE_CDS;
   private static final ImmutableMarketData[] CDS_MARKET_DATA;
   protected static final CreditRatesProvider[] YIELD_CURVES;
   private static final double[][] SPREADS;
@@ -100,7 +100,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     }
     DSC_NODES = dscNodeBuilder.build();
     EXP_NODE_CDS = new ResolvedCdsTrade[NUM_TESTS][];
-    NODE_CDS = new CdsCurveNode[NUM_TESTS][];
+    NODE_CDS = new CdsIsdaCreditCurveNode[NUM_TESTS][];
     CDS_MARKET_DATA = new ImmutableMarketData[NUM_TESTS];
     SPREADS = new double[NUM_TESTS][];
     YIELD_CURVES = new CreditRatesProvider[NUM_TESTS];
@@ -112,7 +112,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10)};
     int nTenors = tenors.length;
     EXP_NODE_CDS[0] = new ResolvedCdsTrade[nTenors];
-    NODE_CDS[0] = new CdsCurveNode[nTenors];
+    NODE_CDS[0] = new CdsIsdaCreditCurveNode[nTenors];
     ImmutableMarketDataBuilder builderCredit0 = ImmutableMarketData.builder(tradeDate0);
     SPREADS[0] = new double[] {
         0.00886315689995649, 0.00886315689995649, 0.0133044689825873, 0.0171490070952563, 0.0183903639181293, 0.0194721890639724};
@@ -127,7 +127,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
       CdsTemplate temp = DatesCdsTemplate.of(startDate0, LocalDate.of(2011, 6, 20).plus(tenors[i]), conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", tenors[i].toString()));
-      NODE_CDS[0][i] = CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
+      NODE_CDS[0][i] = CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
       builderCredit0.addValue(id, SPREADS[0][i]);
     }
     CDS_MARKET_DATA[0] = builderCredit0.build();
@@ -139,7 +139,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     tenors = new Period[] {
         Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10)};
     nTenors = tenors.length;
-    NODE_CDS[1] = new CdsCurveNode[nTenors];
+    NODE_CDS[1] = new CdsIsdaCreditCurveNode[nTenors];
     ImmutableMarketDataBuilder builderCredit1 = ImmutableMarketData.builder(tradeDate1);
     EXP_NODE_CDS[1] = new ResolvedCdsTrade[nTenors];
     SPREADS[1] = new double[] {0.027, 0.018, 0.012, 0.009, 0.007, 0.006};
@@ -162,7 +162,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           .build();
       CdsTemplate temp = DatesCdsTemplate.of(effDate1, LocalDate.of(2011, 6, 20).plus(tenors[i]), conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", tenors[i].toString()));
-      NODE_CDS[1][i] = CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
+      NODE_CDS[1][i] = CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
       builderCredit1.addValue(id, SPREADS[1][i]);
     }
     CDS_MARKET_DATA[1] = builderCredit1.build();
@@ -174,7 +174,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         LocalDate.of(2011, 6, 20), LocalDate.of(2012, 5, 30), LocalDate.of(2014, 6, 20), LocalDate.of(2016, 6, 20),
         LocalDate.of(2018, 6, 20)};
     int nMatDates2 = matDates2.length;
-    NODE_CDS[2] = new CdsCurveNode[nMatDates2];
+    NODE_CDS[2] = new CdsIsdaCreditCurveNode[nMatDates2];
     ImmutableMarketDataBuilder builderCredit2 = ImmutableMarketData.builder(tradeDate2);
     EXP_NODE_CDS[2] = new ResolvedCdsTrade[nMatDates2];
     SPREADS[2] = new double[] {0.05, 0.05, 0.05, 0.05, 0.05};
@@ -197,7 +197,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           .build();
       CdsTemplate temp = DatesCdsTemplate.of(tradeDate2.plusDays(1), matDates2[i], conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", matDates2[i].toString()));
-      NODE_CDS[2][i] = CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
+      NODE_CDS[2][i] = CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
       builderCredit2.addValue(id, SPREADS[2][i]);
     }
     CDS_MARKET_DATA[2] = builderCredit2.build();
@@ -210,7 +210,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         LocalDate.of(2011, 11, 30), LocalDate.of(2012, 5, 30), LocalDate.of(2014, 5, 30), LocalDate.of(2016, 5, 30),
         LocalDate.of(2018, 5, 30), LocalDate.of(2021, 5, 30)};
     int nMatDates3 = matDates3.length;
-    NODE_CDS[3] = new CdsCurveNode[nMatDates3];
+    NODE_CDS[3] = new CdsIsdaCreditCurveNode[nMatDates3];
     ImmutableMarketDataBuilder builderCredit3 = ImmutableMarketData.builder(tradeDate3);
     EXP_NODE_CDS[3] = new ResolvedCdsTrade[nMatDates3];
     SPREADS[3] = new double[] {0.07, 0.06, 0.05, 0.055, 0.06, 0.065};
@@ -237,7 +237,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           .build();
       CdsTemplate temp = DatesCdsTemplate.of(effDate3, matDates3[i], conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", matDates3[i].toString()));
-      NODE_CDS[3][i] = CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
+      NODE_CDS[3][i] = CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
       builderCredit3.addValue(id, SPREADS[3][i]);
     }
     CDS_MARKET_DATA[3] = builderCredit3.build();
@@ -246,7 +246,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     LocalDate snapDate4 = LocalDate.of(2014, 1, 13);
     YIELD_CURVES[4] = createRatesProvider(tradeDate4, snapDate4, 1d / 1000d, 0.4);
     int nSpreads4 = 6;
-    NODE_CDS[4] = new CdsCurveNode[nSpreads4];
+    NODE_CDS[4] = new CdsIsdaCreditCurveNode[nSpreads4];
     ImmutableMarketDataBuilder builderCredit4 = ImmutableMarketData.builder(tradeDate4);
     SPREADS[4] = new double[nSpreads4];
     Arrays.fill(SPREADS[4], 1.0e-4);
@@ -262,7 +262,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
       CdsTemplate temp = DatesCdsTemplate.of(LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20).plus(tenors[i]), conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", tenors[i].toString()));
-      NODE_CDS[4][i] = CdsCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
+      NODE_CDS[4][i] = CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);
       builderCredit4.addValue(id, SPREADS[4][i]);
     }
     CDS_MARKET_DATA[4] = builderCredit4.build();
@@ -344,7 +344,8 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       }
       int m = expectedCds.length;
       for (int j = 0; j < m; j++) {
-        ResolvedCdsTrade cdsFromNode = NODE_CDS[i][j].resolvedTrade(1d, CDS_MARKET_DATA[i], REF_DATA);
+        ResolvedCdsTrade cdsFromNode =
+            NODE_CDS[i][j].trade(1d, CDS_MARKET_DATA[i], REF_DATA).getUnderlyingTrade().resolve(REF_DATA);
         assertEquals(cdsFromNode.getProduct(), expectedCds[j].getProduct());
         double price1 = pricer.price(cdsFromNode.getProduct(), provider, SPREADS[i][j],
             cdsFromNode.getInfo().getSettlementDate().get(), PriceType.CLEAN, REF_DATA);
@@ -357,7 +358,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       IsdaCompliantCreditCurveCalibrator builder,
       LegalEntitySurvivalProbabilities curve,
       CreditRatesProvider ratesProvider,
-      List<CdsCurveNode> nodes,
+      List<CdsIsdaCreditCurveNode> nodes,
       double[] quotes,
       double quoteScale,
       double eps) {

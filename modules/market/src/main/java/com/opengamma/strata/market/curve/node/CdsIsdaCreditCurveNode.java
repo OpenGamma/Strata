@@ -9,14 +9,12 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
@@ -28,15 +26,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.CurveNodeDateOrder;
+import com.opengamma.strata.market.curve.IsdaCreditCurveNode;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
@@ -44,21 +39,20 @@ import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.CdsCalibrationTrade;
 import com.opengamma.strata.product.credit.CdsQuote;
 import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.DatesCdsTemplate;
 import com.opengamma.strata.product.credit.type.TenorCdsTemplate;
 
 /**
- * A curve node whose instrument is a credit default swap.
+ * An ISDA compliant curve node whose instrument is a credit default swap.
  * <p>
  * The trade produced by the node will be a protection receiver (BUY) for a positive quantity
  * and a protection payer (SELL) for a negative quantity.
  */
 @BeanDefinition
-public final class CdsCurveNode
-    implements CurveNode, ImmutableBean, Serializable {
+public final class CdsIsdaCreditCurveNode
+    implements IsdaCreditCurveNode, ImmutableBean, Serializable {
 
   /**
    * The template for the CDS associated with this node.
@@ -66,17 +60,17 @@ public final class CdsCurveNode
   @PropertyDefinition(validate = "notNull")
   private final CdsTemplate template;
   /**
-   * The identifier of the market data value that provides the quoted value.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ObservableId observableId;
-  /**
    * The label to use for the node.
    * <p>
-   * When building, this will default based on the tenor if not specified.
+   * When building, this will default based on {@code template} if not specified.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
+  /**
+   * The identifier of the market data value that provides the quoted value.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ObservableId observableId;
   /**
    * The legal entity identifier.
    * <p>
@@ -84,22 +78,6 @@ public final class CdsCurveNode
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
-  /**
-   * The node date.
-   * <p>
-   * The node date must be end date.
-   * If this field is null, the end date is computed based on the semi-annual roll convention.
-   */
-  @PropertyDefinition(get = "optional")
-  private final LocalDate endDate;
-  /**
-   * The date order rules.
-   * <p>
-   * This is used to ensure that the dates in the curve are in order.
-   * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final CurveNodeDateOrder dateOrder;
   /**
    * The market quote convention.
    * <p>
@@ -125,7 +103,7 @@ public final class CdsCurveNode
    * @param legalEntityId  the legal entity ID
    * @return the curve node
    */
-  public static CdsCurveNode ofParSpread(
+  public static CdsIsdaCreditCurveNode ofParSpread(
       CdsTemplate template,
       ObservableId observableId,
       StandardId legalEntityId) {
@@ -147,7 +125,7 @@ public final class CdsCurveNode
    * @param fixedRate  the fixed rate
    * @return the curve node
    */
-  public static CdsCurveNode ofPointsUpfront(
+  public static CdsIsdaCreditCurveNode ofPointsUpfront(
       CdsTemplate template,
       ObservableId observableId,
       StandardId legalEntityId,
@@ -171,7 +149,7 @@ public final class CdsCurveNode
    * @param fixedRate  the fixed rate
    * @return the curve node
    */
-  public static CdsCurveNode ofQuotedSpread(
+  public static CdsIsdaCreditCurveNode ofQuotedSpread(
       CdsTemplate template,
       ObservableId observableId,
       StandardId legalEntityId,
@@ -187,11 +165,6 @@ public final class CdsCurveNode
   }
 
   //-------------------------------------------------------------------------
-  @ImmutableDefaults
-  private static void applyDefaults(Builder builder) {
-    builder.dateOrder = CurveNodeDateOrder.DEFAULT;
-  }
-
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.template != null) {
@@ -199,9 +172,6 @@ public final class CdsCurveNode
         builder.label = builder.template instanceof TenorCdsTemplate
             ? ((TenorCdsTemplate) builder.template).getTenor().toString()
             : ((DatesCdsTemplate) builder.template).getEndDate().toString();
-      }
-      if (builder.endDate == null && builder.template instanceof DatesCdsTemplate) {
-        builder.endDate = ((DatesCdsTemplate) builder.template).getEndDate();
       }
     }
   }
@@ -214,36 +184,36 @@ public final class CdsCurveNode
       ArgChecker.isTrue(fixedRate != null,
           "The fixed rate must be specifed if quote convention is points upfront or quoted spread");
     }
-    if (endDate != null && template instanceof DatesCdsTemplate) {
-      ArgChecker.isTrue(endDate.isEqual(((DatesCdsTemplate) template).getEndDate()), "endDate must be coherent to template");
-    }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableId> requirements() {
-    return ImmutableSet.of(observableId);
-  }
-
-  @Override
-  public LocalDate date(LocalDate valuationDate, ReferenceData refData) {
-    return getEndDate().orElse(calculateEnd(valuationDate, refData));
-  }
-
-  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    CdsTrade trade = template.createTrade(legalEntityId, valuationDate, BuySell.BUY, 1, 1, refData);
+  public LocalDate getNodeDate(LocalDate tradeDate, ReferenceData refData) {
+    CdsTrade trade = template.createTrade(legalEntityId, tradeDate, BuySell.BUY, 1, 1, refData);
     return trade.getProduct().resolve(refData).getProtectionEndDate();
   }
 
   @Override
-  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
-    LocalDate nodeDate = date(valuationDate, refData);
+  public DatedParameterMetadata metadata(LocalDate nodeDate) {
     return template instanceof TenorCdsTemplate
         ? TenorDateParameterMetadata.of(nodeDate, ((TenorCdsTemplate) template).getTenor(), label)
         : LabelDateParameterMetadata.of(nodeDate, label);
   }
 
-  @Override
+  /**
+   * Creates a trade representing the CDS at the node.
+   * <p>
+   * This uses the observed market data to build the CDS trade that the node represents.
+   * The resulting trade is not resolved.
+   * The notional of the trade is taken from the 'quantity' variable.
+   * The quantity is signed and will affect whether the trade is Buy or Sell.
+   * The valuation date is defined by the market data.
+   *
+   * @param quantity  the quantity or notional of the trade
+   * @param marketData  the market data required to build a trade for the instrument, including the valuation date
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return a trade representing the instrument at the node
+   */
   public CdsCalibrationTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
     LocalDate valuationDate = marketData.getValuationDate();
@@ -259,28 +229,18 @@ public final class CdsCurveNode
         template.createTrade(legalEntityId, valuationDate, buySell, notional, coupon, refData), quote);
   }
 
-  @Override
-  public ResolvedCdsTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
-    return trade(quantity, marketData, refData).getUnderlyingTrade().resolve(refData);
-  }
-
-  @Override
-  public double initialGuess(MarketData marketData, ValueType valueType) {
-    throw new IllegalArgumentException("Initial guess must be computed in calibrator");
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CdsCurveNode}.
+   * The meta-bean for {@code CdsIsdaCreditCurveNode}.
    * @return the meta-bean, not null
    */
-  public static CdsCurveNode.Meta meta() {
-    return CdsCurveNode.Meta.INSTANCE;
+  public static CdsIsdaCreditCurveNode.Meta meta() {
+    return CdsIsdaCreditCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CdsCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CdsIsdaCreditCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -292,39 +252,34 @@ public final class CdsCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static CdsCurveNode.Builder builder() {
-    return new CdsCurveNode.Builder();
+  public static CdsIsdaCreditCurveNode.Builder builder() {
+    return new CdsIsdaCreditCurveNode.Builder();
   }
 
-  private CdsCurveNode(
+  private CdsIsdaCreditCurveNode(
       CdsTemplate template,
-      ObservableId observableId,
       String label,
+      ObservableId observableId,
       StandardId legalEntityId,
-      LocalDate endDate,
-      CurveNodeDateOrder dateOrder,
       CdsQuoteConvention quoteConvention,
       Double fixedRate) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(observableId, "observableId");
     JodaBeanUtils.notEmpty(label, "label");
+    JodaBeanUtils.notNull(observableId, "observableId");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-    JodaBeanUtils.notNull(dateOrder, "dateOrder");
     JodaBeanUtils.notNull(quoteConvention, "quoteConvention");
     this.template = template;
-    this.observableId = observableId;
     this.label = label;
+    this.observableId = observableId;
     this.legalEntityId = legalEntityId;
-    this.endDate = endDate;
-    this.dateOrder = dateOrder;
     this.quoteConvention = quoteConvention;
     this.fixedRate = fixedRate;
     validate();
   }
 
   @Override
-  public CdsCurveNode.Meta metaBean() {
-    return CdsCurveNode.Meta.INSTANCE;
+  public CdsIsdaCreditCurveNode.Meta metaBean() {
+    return CdsIsdaCreditCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -348,23 +303,24 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the market data value that provides the quoted value.
-   * @return the value of the property, not null
-   */
-  public ObservableId getObservableId() {
-    return observableId;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the label to use for the node.
    * <p>
-   * When building, this will default based on the tenor if not specified.
+   * When building, this will default based on {@code template} if not specified.
    * @return the value of the property, not empty
    */
   @Override
   public String getLabel() {
     return label;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier of the market data value that provides the quoted value.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ObservableId getObservableId() {
+    return observableId;
   }
 
   //-----------------------------------------------------------------------
@@ -376,31 +332,6 @@ public final class CdsCurveNode
    */
   public StandardId getLegalEntityId() {
     return legalEntityId;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the node date.
-   * <p>
-   * The node date must be end date.
-   * If this field is null, the end date is computed based on the semi-annual roll convention.
-   * @return the optional value of the property, not null
-   */
-  public Optional<LocalDate> getEndDate() {
-    return Optional.ofNullable(endDate);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date order rules.
-   * <p>
-   * This is used to ensure that the dates in the curve are in order.
-   * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
-   * @return the value of the property, not null
-   */
-  @Override
-  public CurveNodeDateOrder getDateOrder() {
-    return dateOrder;
   }
 
   //-----------------------------------------------------------------------
@@ -441,13 +372,11 @@ public final class CdsCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CdsCurveNode other = (CdsCurveNode) obj;
+      CdsIsdaCreditCurveNode other = (CdsIsdaCreditCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(observableId, other.observableId) &&
           JodaBeanUtils.equal(label, other.label) &&
+          JodaBeanUtils.equal(observableId, other.observableId) &&
           JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
-          JodaBeanUtils.equal(endDate, other.endDate) &&
-          JodaBeanUtils.equal(dateOrder, other.dateOrder) &&
           JodaBeanUtils.equal(quoteConvention, other.quoteConvention) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate);
     }
@@ -458,11 +387,9 @@ public final class CdsCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(observableId);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observableId);
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(dateOrder);
     hash = hash * 31 + JodaBeanUtils.hashCode(quoteConvention);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     return hash;
@@ -470,14 +397,12 @@ public final class CdsCurveNode
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
-    buf.append("CdsCurveNode{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("CdsIsdaCreditCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("observableId").append('=').append(observableId).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
+    buf.append("observableId").append('=').append(observableId).append(',').append(' ');
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("dateOrder").append('=').append(dateOrder).append(',').append(' ');
     buf.append("quoteConvention").append('=').append(quoteConvention).append(',').append(' ');
     buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
     buf.append('}');
@@ -486,7 +411,7 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CdsCurveNode}.
+   * The meta-bean for {@code CdsIsdaCreditCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -498,53 +423,41 @@ public final class CdsCurveNode
      * The meta-property for the {@code template} property.
      */
     private final MetaProperty<CdsTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", CdsCurveNode.class, CdsTemplate.class);
-    /**
-     * The meta-property for the {@code observableId} property.
-     */
-    private final MetaProperty<ObservableId> observableId = DirectMetaProperty.ofImmutable(
-        this, "observableId", CdsCurveNode.class, ObservableId.class);
+        this, "template", CdsIsdaCreditCurveNode.class, CdsTemplate.class);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", CdsCurveNode.class, String.class);
+        this, "label", CdsIsdaCreditCurveNode.class, String.class);
+    /**
+     * The meta-property for the {@code observableId} property.
+     */
+    private final MetaProperty<ObservableId> observableId = DirectMetaProperty.ofImmutable(
+        this, "observableId", CdsIsdaCreditCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
     private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", CdsCurveNode.class, StandardId.class);
-    /**
-     * The meta-property for the {@code endDate} property.
-     */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", CdsCurveNode.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code dateOrder} property.
-     */
-    private final MetaProperty<CurveNodeDateOrder> dateOrder = DirectMetaProperty.ofImmutable(
-        this, "dateOrder", CdsCurveNode.class, CurveNodeDateOrder.class);
+        this, "legalEntityId", CdsIsdaCreditCurveNode.class, StandardId.class);
     /**
      * The meta-property for the {@code quoteConvention} property.
      */
     private final MetaProperty<CdsQuoteConvention> quoteConvention = DirectMetaProperty.ofImmutable(
-        this, "quoteConvention", CdsCurveNode.class, CdsQuoteConvention.class);
+        this, "quoteConvention", CdsIsdaCreditCurveNode.class, CdsQuoteConvention.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
     private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
-        this, "fixedRate", CdsCurveNode.class, Double.class);
+        this, "fixedRate", CdsIsdaCreditCurveNode.class, Double.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "observableId",
         "label",
+        "observableId",
         "legalEntityId",
-        "endDate",
-        "dateOrder",
         "quoteConvention",
         "fixedRate");
 
@@ -559,16 +472,12 @@ public final class CdsCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -518800962:  // observableId
-          return observableId;
         case 102727412:  // label
           return label;
+        case -518800962:  // observableId
+          return observableId;
         case 866287159:  // legalEntityId
           return legalEntityId;
-        case -1607727319:  // endDate
-          return endDate;
-        case -263699392:  // dateOrder
-          return dateOrder;
         case 2049149709:  // quoteConvention
           return quoteConvention;
         case 747425396:  // fixedRate
@@ -578,13 +487,13 @@ public final class CdsCurveNode
     }
 
     @Override
-    public CdsCurveNode.Builder builder() {
-      return new CdsCurveNode.Builder();
+    public CdsIsdaCreditCurveNode.Builder builder() {
+      return new CdsIsdaCreditCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends CdsCurveNode> beanType() {
-      return CdsCurveNode.class;
+    public Class<? extends CdsIsdaCreditCurveNode> beanType() {
+      return CdsIsdaCreditCurveNode.class;
     }
 
     @Override
@@ -602,14 +511,6 @@ public final class CdsCurveNode
     }
 
     /**
-     * The meta-property for the {@code observableId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ObservableId> observableId() {
-      return observableId;
-    }
-
-    /**
      * The meta-property for the {@code label} property.
      * @return the meta-property, not null
      */
@@ -618,27 +519,19 @@ public final class CdsCurveNode
     }
 
     /**
+     * The meta-property for the {@code observableId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ObservableId> observableId() {
+      return observableId;
+    }
+
+    /**
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
     public MetaProperty<StandardId> legalEntityId() {
       return legalEntityId;
-    }
-
-    /**
-     * The meta-property for the {@code endDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> endDate() {
-      return endDate;
-    }
-
-    /**
-     * The meta-property for the {@code dateOrder} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CurveNodeDateOrder> dateOrder() {
-      return dateOrder;
     }
 
     /**
@@ -662,21 +555,17 @@ public final class CdsCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((CdsCurveNode) bean).getTemplate();
-        case -518800962:  // observableId
-          return ((CdsCurveNode) bean).getObservableId();
+          return ((CdsIsdaCreditCurveNode) bean).getTemplate();
         case 102727412:  // label
-          return ((CdsCurveNode) bean).getLabel();
+          return ((CdsIsdaCreditCurveNode) bean).getLabel();
+        case -518800962:  // observableId
+          return ((CdsIsdaCreditCurveNode) bean).getObservableId();
         case 866287159:  // legalEntityId
-          return ((CdsCurveNode) bean).getLegalEntityId();
-        case -1607727319:  // endDate
-          return ((CdsCurveNode) bean).endDate;
-        case -263699392:  // dateOrder
-          return ((CdsCurveNode) bean).getDateOrder();
+          return ((CdsIsdaCreditCurveNode) bean).getLegalEntityId();
         case 2049149709:  // quoteConvention
-          return ((CdsCurveNode) bean).getQuoteConvention();
+          return ((CdsIsdaCreditCurveNode) bean).getQuoteConvention();
         case 747425396:  // fixedRate
-          return ((CdsCurveNode) bean).fixedRate;
+          return ((CdsIsdaCreditCurveNode) bean).fixedRate;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -694,16 +583,14 @@ public final class CdsCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CdsCurveNode}.
+   * The bean-builder for {@code CdsIsdaCreditCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CdsCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CdsIsdaCreditCurveNode> {
 
     private CdsTemplate template;
-    private ObservableId observableId;
     private String label;
+    private ObservableId observableId;
     private StandardId legalEntityId;
-    private LocalDate endDate;
-    private CurveNodeDateOrder dateOrder;
     private CdsQuoteConvention quoteConvention;
     private Double fixedRate;
 
@@ -711,20 +598,17 @@ public final class CdsCurveNode
      * Restricted constructor.
      */
     private Builder() {
-      applyDefaults(this);
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(CdsCurveNode beanToCopy) {
+    private Builder(CdsIsdaCreditCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.observableId = beanToCopy.getObservableId();
       this.label = beanToCopy.getLabel();
+      this.observableId = beanToCopy.getObservableId();
       this.legalEntityId = beanToCopy.getLegalEntityId();
-      this.endDate = beanToCopy.endDate;
-      this.dateOrder = beanToCopy.getDateOrder();
       this.quoteConvention = beanToCopy.getQuoteConvention();
       this.fixedRate = beanToCopy.fixedRate;
     }
@@ -735,16 +619,12 @@ public final class CdsCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -518800962:  // observableId
-          return observableId;
         case 102727412:  // label
           return label;
+        case -518800962:  // observableId
+          return observableId;
         case 866287159:  // legalEntityId
           return legalEntityId;
-        case -1607727319:  // endDate
-          return endDate;
-        case -263699392:  // dateOrder
-          return dateOrder;
         case 2049149709:  // quoteConvention
           return quoteConvention;
         case 747425396:  // fixedRate
@@ -760,20 +640,14 @@ public final class CdsCurveNode
         case -1321546630:  // template
           this.template = (CdsTemplate) newValue;
           break;
-        case -518800962:  // observableId
-          this.observableId = (ObservableId) newValue;
-          break;
         case 102727412:  // label
           this.label = (String) newValue;
           break;
+        case -518800962:  // observableId
+          this.observableId = (ObservableId) newValue;
+          break;
         case 866287159:  // legalEntityId
           this.legalEntityId = (StandardId) newValue;
-          break;
-        case -1607727319:  // endDate
-          this.endDate = (LocalDate) newValue;
-          break;
-        case -263699392:  // dateOrder
-          this.dateOrder = (CurveNodeDateOrder) newValue;
           break;
         case 2049149709:  // quoteConvention
           this.quoteConvention = (CdsQuoteConvention) newValue;
@@ -812,15 +686,13 @@ public final class CdsCurveNode
     }
 
     @Override
-    public CdsCurveNode build() {
+    public CdsIsdaCreditCurveNode build() {
       preBuild(this);
-      return new CdsCurveNode(
+      return new CdsIsdaCreditCurveNode(
           template,
-          observableId,
           label,
+          observableId,
           legalEntityId,
-          endDate,
-          dateOrder,
           quoteConvention,
           fixedRate);
     }
@@ -838,6 +710,19 @@ public final class CdsCurveNode
     }
 
     /**
+     * Sets the label to use for the node.
+     * <p>
+     * When building, this will default based on {@code template} if not specified.
+     * @param label  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      JodaBeanUtils.notEmpty(label, "label");
+      this.label = label;
+      return this;
+    }
+
+    /**
      * Sets the identifier of the market data value that provides the quoted value.
      * @param observableId  the new value, not null
      * @return this, for chaining, not null
@@ -845,19 +730,6 @@ public final class CdsCurveNode
     public Builder observableId(ObservableId observableId) {
       JodaBeanUtils.notNull(observableId, "observableId");
       this.observableId = observableId;
-      return this;
-    }
-
-    /**
-     * Sets the label to use for the node.
-     * <p>
-     * When building, this will default based on the tenor if not specified.
-     * @param label  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder label(String label) {
-      JodaBeanUtils.notEmpty(label, "label");
-      this.label = label;
       return this;
     }
 
@@ -871,33 +743,6 @@ public final class CdsCurveNode
     public Builder legalEntityId(StandardId legalEntityId) {
       JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
       this.legalEntityId = legalEntityId;
-      return this;
-    }
-
-    /**
-     * Sets the node date.
-     * <p>
-     * The node date must be end date.
-     * If this field is null, the end date is computed based on the semi-annual roll convention.
-     * @param endDate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder endDate(LocalDate endDate) {
-      this.endDate = endDate;
-      return this;
-    }
-
-    /**
-     * Sets the date order rules.
-     * <p>
-     * This is used to ensure that the dates in the curve are in order.
-     * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
-     * @param dateOrder  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder dateOrder(CurveNodeDateOrder dateOrder) {
-      JodaBeanUtils.notNull(dateOrder, "dateOrder");
-      this.dateOrder = dateOrder;
       return this;
     }
 
@@ -930,14 +775,12 @@ public final class CdsCurveNode
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
-      buf.append("CdsCurveNode.Builder{");
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("CdsIsdaCreditCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("observableId").append('=').append(JodaBeanUtils.toString(observableId)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+      buf.append("observableId").append('=').append(JodaBeanUtils.toString(observableId)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-      buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("dateOrder").append('=').append(JodaBeanUtils.toString(dateOrder)).append(',').append(' ');
       buf.append("quoteConvention").append('=').append(JodaBeanUtils.toString(quoteConvention)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
       buf.append('}');
@@ -948,5 +791,4 @@ public final class CdsCurveNode
 
   ///CLOVER:ON
   //-------------------------- AUTOGENERATED END --------------------------
-
 }

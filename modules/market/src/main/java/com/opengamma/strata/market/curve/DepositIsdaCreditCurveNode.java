@@ -55,7 +55,7 @@ public final class DepositIsdaCreditCurveNode
   /**
    * The period between the start date and the end date.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final Tenor tenor;
   /**
    * The offset of the start date from the trade date.
@@ -213,7 +213,6 @@ public final class DepositIsdaCreditCurveNode
    * Gets the period between the start date and the end date.
    * @return the value of the property, not null
    */
-  @Override
   public Tenor getTenor() {
     return tenor;
   }

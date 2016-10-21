@@ -8,9 +8,9 @@ package com.opengamma.strata.market.curve;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 
 /**
  * A node specifying how to calibrate an ISDA compliant curve.
@@ -36,13 +36,6 @@ public interface IsdaCreditCurveNode {
   public abstract ObservableId getObservableId();
 
   /**
-   * Get the tenor of the node.
-   * 
-   * @return the tenor
-   */
-  public abstract Tenor getTenor();
-
-  /**
    * Gets the date of this node within the curve.
    * <p>
    * Each curve node has an associated date which defines the x-value in the curve. 
@@ -62,8 +55,8 @@ public interface IsdaCreditCurveNode {
    * @param nodeDate  the node date used when calibrating the curve
    * @return metadata for the node
    */
-  public default TenorDateParameterMetadata metadata(LocalDate nodeDate) {
-    return TenorDateParameterMetadata.of(nodeDate, getTenor(), getLabel());
+  public default DatedParameterMetadata metadata(LocalDate nodeDate) {
+    return LabelDateParameterMetadata.of(nodeDate, getLabel());
   }
 
 }
