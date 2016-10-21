@@ -11,7 +11,7 @@ To achieve this, the system manages market data, such as quotes, curves and surf
 If desired, calculations can run for scenarios, where the market data is manipulated to simulate
 potential future changes, such as a rise or fall in interest rates.
 
-The interface, `CalculationEngine` provides the main API.
+The interface, `CalculationRunner` provides the main API.
 
 
 ### Source code

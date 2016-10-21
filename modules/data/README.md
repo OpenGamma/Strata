@@ -4,7 +4,7 @@ This directory contains the `strata-data` module.
 
 ### Overview
 
-This module provides basic types to represent market data.
+This module provides market data containers.
 
 
 ### Source code
