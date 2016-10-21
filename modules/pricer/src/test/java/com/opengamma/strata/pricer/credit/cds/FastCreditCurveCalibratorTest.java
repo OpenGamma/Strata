@@ -228,17 +228,18 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         .creditCurves(ImmutableMap.of())
         .build();
     LocalDate startDate = LocalDate.of(2013, 3, 20);
-    LocalDate[] pillarDate = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20),
-        LocalDate.of(2014, 3, 20), LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20), LocalDate.of(2014, 12, 20),
-        LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20),
-        LocalDate.of(2016, 3, 20), LocalDate.of(2016, 6, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2016, 12, 20),
-        LocalDate.of(2017, 3, 20), LocalDate.of(2017, 6, 20), LocalDate.of(2017, 9, 20), LocalDate.of(2017, 12, 20),
-        LocalDate.of(2018, 3, 20), LocalDate.of(2018, 6, 20), LocalDate.of(2018, 9, 20), LocalDate.of(2018, 12, 20),
-        LocalDate.of(2019, 3, 20), LocalDate.of(2019, 6, 20), LocalDate.of(2019, 9, 20), LocalDate.of(2019, 12, 20),
-        LocalDate.of(2020, 3, 20), LocalDate.of(2020, 6, 20), LocalDate.of(2020, 9, 20), LocalDate.of(2020, 12, 20),
-        LocalDate.of(2021, 3, 20), LocalDate.of(2021, 6, 20), LocalDate.of(2021, 9, 20), LocalDate.of(2021, 12, 20),
-        LocalDate.of(2022, 3, 20), LocalDate.of(2022, 6, 20), LocalDate.of(2022, 9, 20), LocalDate.of(2022, 12, 20),
-        LocalDate.of(2023, 3, 20), LocalDate.of(2023, 6, 20)};
+    LocalDate[] pillarDate = new LocalDate[] {
+        LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20),
+        LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20), LocalDate.of(2014, 12, 20), LocalDate.of(2015, 3, 20),
+        LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20), LocalDate.of(2016, 3, 20),
+        LocalDate.of(2016, 6, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2016, 12, 20), LocalDate.of(2017, 3, 20),
+        LocalDate.of(2017, 6, 20), LocalDate.of(2017, 9, 20), LocalDate.of(2017, 12, 20), LocalDate.of(2018, 3, 20),
+        LocalDate.of(2018, 6, 20), LocalDate.of(2018, 9, 20), LocalDate.of(2018, 12, 20), LocalDate.of(2019, 3, 20),
+        LocalDate.of(2019, 6, 20), LocalDate.of(2019, 9, 20), LocalDate.of(2019, 12, 20), LocalDate.of(2020, 3, 20),
+        LocalDate.of(2020, 6, 20), LocalDate.of(2020, 9, 20), LocalDate.of(2020, 12, 20), LocalDate.of(2021, 3, 20),
+        LocalDate.of(2021, 6, 20), LocalDate.of(2021, 9, 20), LocalDate.of(2021, 12, 20), LocalDate.of(2022, 3, 20),
+        LocalDate.of(2022, 6, 20), LocalDate.of(2022, 9, 20), LocalDate.of(2022, 12, 20), LocalDate.of(2023, 3, 20),
+        LocalDate.of(2023, 6, 20)};
     int nPillars = pillarDate.length;
     double coupon = 500d * ONE_BP;
     ImmutableMarketDataBuilder builderCredit = ImmutableMarketData.builder(valuationDate);
