@@ -30,10 +30,10 @@ import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsTrade;
 
 /**
- * Test {@link CdsTemplate}.
+ * Test {@link TenorCdsTemplate}.
  */
 @Test
-public class CdsTemplateTest {
+public class TenorCdsTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_2M = 2_000_000d;
@@ -43,14 +43,14 @@ public class CdsTemplateTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    CdsTemplate test = CdsTemplate.of(TENOR_10Y, CONV1);
+    TenorCdsTemplate test = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     assertEquals(test.getAccrualStart(), AccrualStart.IMM_DATE);
     assertEquals(test.getTenor(), TENOR_10Y);
     assertEquals(test.getConvention(), CONV1);
   }
 
   public void test_of_accStart() {
-    CdsTemplate test = CdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_10Y, CONV2);
+    TenorCdsTemplate test = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_10Y, CONV2);
     assertEquals(test.getAccrualStart(), AccrualStart.NEXT_DAY);
     assertEquals(test.getTenor(), TENOR_10Y);
     assertEquals(test.getConvention(), CONV2);
@@ -58,8 +58,8 @@ public class CdsTemplateTest {
 
   //-------------------------------------------------------------------------
   public void test_createTrade() {
-    CdsTemplate base1 = CdsTemplate.of(TENOR_10Y, CONV1);
-    CdsTemplate base2 = CdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_2Y, CONV2);
+    TenorCdsTemplate base1 = TenorCdsTemplate.of(TENOR_10Y, CONV1);
+    TenorCdsTemplate base2 = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_2Y, CONV2);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate1 = date(2015, 3, 20);
     LocalDate endDate1 = date(2025, 6, 20);
@@ -94,8 +94,8 @@ public class CdsTemplateTest {
   }
 
   public void test_createTrade_withFee() {
-    CdsTemplate base1 = CdsTemplate.of(TENOR_10Y, CONV1);
-    CdsTemplate base2 = CdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_2Y, CONV2);
+    TenorCdsTemplate base1 = TenorCdsTemplate.of(TENOR_10Y, CONV1);
+    TenorCdsTemplate base2 = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_2Y, CONV2);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     AdjustablePayment payment1 =
         AdjustablePayment.of(EUR, NOTIONAL_2M, CONV1.getSettlementDateOffset().adjust(tradeDate, REF_DATA));
@@ -135,14 +135,14 @@ public class CdsTemplateTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CdsTemplate test1 = CdsTemplate.of(TENOR_10Y, CONV1);
+    TenorCdsTemplate test1 = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     coverImmutableBean(test1);
-    CdsTemplate test2 = CdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_10Y, CONV2);
+    TenorCdsTemplate test2 = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_10Y, CONV2);
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    CdsTemplate test = CdsTemplate.of(TENOR_10Y, CONV1);
+    TenorCdsTemplate test = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     assertSerialization(test);
   }
 
