@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -229,14 +228,19 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         .creditCurves(ImmutableMap.of())
         .build();
     LocalDate startDate = LocalDate.of(2013, 3, 20);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    String[] maturityString = new String[] {"20/06/2013", "20/09/2013", "20/12/2013", "20/03/2014", "20/06/2014", "20/09/2014",
-        "20/12/2014", "20/03/2015", "20/06/2015", "20/09/2015", "20/12/2015", "20/03/2016", "20/06/2016", "20/09/2016",
-        "20/12/2016", "20/03/2017", "20/06/2017", "20/09/2017", "20/12/2017", "20/03/2018", "20/06/2018", "20/09/2018",
-        "20/12/2018", "20/03/2019", "20/06/2019", "20/09/2019", "20/12/2019", "20/03/2020", "20/06/2020", "20/09/2020",
-        "20/12/2020", "20/03/2021", "20/06/2021", "20/09/2021", "20/12/2021", "20/03/2022", "20/06/2022",
-        "20/09/2022", "20/12/2022", "20/03/2023", "20/06/2023"};
-    int nPillars = maturityString.length;
+    LocalDate[] pillarDate = new LocalDate[] {
+        LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20),
+        LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20), LocalDate.of(2014, 12, 20), LocalDate.of(2015, 3, 20),
+        LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20), LocalDate.of(2016, 3, 20),
+        LocalDate.of(2016, 6, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2016, 12, 20), LocalDate.of(2017, 3, 20),
+        LocalDate.of(2017, 6, 20), LocalDate.of(2017, 9, 20), LocalDate.of(2017, 12, 20), LocalDate.of(2018, 3, 20),
+        LocalDate.of(2018, 6, 20), LocalDate.of(2018, 9, 20), LocalDate.of(2018, 12, 20), LocalDate.of(2019, 3, 20),
+        LocalDate.of(2019, 6, 20), LocalDate.of(2019, 9, 20), LocalDate.of(2019, 12, 20), LocalDate.of(2020, 3, 20),
+        LocalDate.of(2020, 6, 20), LocalDate.of(2020, 9, 20), LocalDate.of(2020, 12, 20), LocalDate.of(2021, 3, 20),
+        LocalDate.of(2021, 6, 20), LocalDate.of(2021, 9, 20), LocalDate.of(2021, 12, 20), LocalDate.of(2022, 3, 20),
+        LocalDate.of(2022, 6, 20), LocalDate.of(2022, 9, 20), LocalDate.of(2022, 12, 20), LocalDate.of(2023, 3, 20),
+        LocalDate.of(2023, 6, 20)};
+    int nPillars = pillarDate.length;
     double coupon = 500d * ONE_BP;
     ImmutableMarketDataBuilder builderCredit = ImmutableMarketData.builder(valuationDate);
     List<CdsCurveNode> nodes = new ArrayList<>(nPillars);
@@ -245,10 +249,9 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         16.11, 16.62, 17.12, 17.62, 18.09, 18.55, 19, 19.44, 19.87, 20.33, 20.79, 21.24, 21.67, 22.04, 22.41, 22.77, 23.12, 23.46,
         23.8, 24.14, 24.46};
     for (int i = 0; i < nPillars; ++i) {
-      LocalDate pillarDate = LocalDate.parse(maturityString[i], formatter);
       CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
-      CdsTemplate temp = DatesCdsTemplate.of(startDate, pillarDate, conv);
-      QuoteId id = QuoteId.of(StandardId.of("OG", pillarDate.toString()));
+      CdsTemplate temp = DatesCdsTemplate.of(startDate, pillarDate[i], conv);
+      QuoteId id = QuoteId.of(StandardId.of("OG", pillarDate[i].toString()));
       nodes.add(CdsCurveNode.ofPointsUpfront(temp, id, LEGAL_ENTITY, coupon));
       builderCredit.addValue(id, quotes[i] * ONE_PC);
     }
