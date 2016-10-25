@@ -21,7 +21,6 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
-import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
@@ -60,8 +59,10 @@ public class DiscountFactorsDecoratedForward
   /** The forward rate. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
-  /** The discount factor to forward date. */
+  /** The discount factor at the forward date. */
   private final double discountFactorForwardDate;  // cached, not a property
+  /** The relative year fraction to the forward date. */
+  private final double yearFractionForwardDate;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -84,6 +85,7 @@ public class DiscountFactorsDecoratedForward
     this.underlying = ArgChecker.notNull(underlying, "underlying");
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuation date");
     this.discountFactorForwardDate = underlying.discountFactor(valuationDate);
+    this.yearFractionForwardDate = underlying.relativeYearFraction(valuationDate);
   }
 
   @Override
@@ -113,13 +115,13 @@ public class DiscountFactorsDecoratedForward
 
   @Override
   public double relativeYearFraction(LocalDate date) {
-    return underlying.relativeYearFraction(date) - underlying.relativeYearFraction(valuationDate); 
+    return underlying.relativeYearFraction(date) - yearFractionForwardDate; 
     // Rely on additive relative year fraction
   }
 
   @Override
   public double discountFactor(double yearFraction) {
-    return underlying.discountFactor(yearFraction + underlying.relativeYearFraction(valuationDate)) 
+    return underlying.discountFactor(yearFraction + yearFractionForwardDate) 
         / discountFactorForwardDate;
   }
 
@@ -141,50 +143,38 @@ public class DiscountFactorsDecoratedForward
   }
 
   @Override
-  public double discountFactorWithSpread(LocalDate date, double zSpread, CompoundedRateType compoundedRateType, int periodsPerYear) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(LocalDate date, Currency sensitivityCurrency, double zSpread, CompoundedRateType compoundedRateType, int periodsPerYear) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public <T> Optional<T> findData(MarketDataName<T> name) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public double discountFactorWithSpread(double yearFraction, double zSpread, CompoundedRateType compoundedRateType,
-      int periodsPerYear) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(double yearFraction, Currency sensitivityCurrency, double zSpread,
-      CompoundedRateType compoundedRateType, int periodsPerYear) {
-    throw new UnsupportedOperationException("Not implemented");
+    double discountFactor = discountFactor(yearFraction);
+    return ZeroRateSensitivity
+        .of(underlying.getCurrency(), yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSensitivity) {
-    throw new UnsupportedOperationException("Not implemented");
+    double yearFraction = pointSensitivity.getYearFraction();
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return CurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
+    }
+    double dfForward = discountFactor(yearFraction);
+    double n = pointSensitivity.getSensitivity() / (-yearFraction * dfForward);
+    ZeroRateSensitivity ptsTimeShifted =
+        ZeroRateSensitivity.of(pointSensitivity.getCurveCurrency(), pointSensitivity.getYearFraction() + yearFractionForwardDate,
+            pointSensitivity.getCurrency(), -(yearFraction + yearFractionForwardDate) * dfForward);
+    ZeroRateSensitivity ptsForward =
+        ZeroRateSensitivity.of(pointSensitivity.getCurveCurrency(), yearFractionForwardDate,
+            pointSensitivity.getCurrency(), yearFractionForwardDate * dfForward);
+    return  (underlying.parameterSensitivity(ptsTimeShifted)
+        .combinedWith(underlying.parameterSensitivity(ptsForward))).multipliedBy(n);
   }
 
   @Override
   public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
-    throw new UnsupportedOperationException("Not implemented");
+    return underlying.createParameterSensitivity(currency, sensitivities);
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    return underlying.findData(name);
   }
     
   //------------------------- AUTOGENERATED START -------------------------

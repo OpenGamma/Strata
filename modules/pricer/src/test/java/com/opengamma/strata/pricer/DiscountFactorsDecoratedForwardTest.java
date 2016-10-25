@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static org.testng.Assert.assertEquals;
 
@@ -22,6 +23,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 
 /**
  * Tests {@link DiscountFactorsDecoratedForward}.
@@ -35,14 +37,16 @@ public class DiscountFactorsDecoratedForwardTest {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final CurveName NAME = CurveName.of("TestCurve");
+  private static final DoubleArray TIMES = DoubleArray.of(0, 0.25, 0.50, 1.0, 2.0, 10);
+  private static final DoubleArray ZC = DoubleArray.of(0.01, 0.02, 0.01, 0.02, 0.01, 0.02);
   private static final InterpolatedNodalCurve CURVE_ZERO = InterpolatedNodalCurve.of(
-      Curves.zeroRates(NAME, ACT_365F), DoubleArray.of(0, 0.25, 0.50, 1.0, 2.0, 10),
-      DoubleArray.of(0.01, 0.02, 0.01, 0.02, 0.01, 0.02),
+      Curves.zeroRates(NAME, ACT_365F), TIMES, ZC,
       INTERPOLATOR, EXTRAPOLATOR_FLAT, EXTRAPOLATOR_FLAT);
   private static final DiscountFactors DF_START = DiscountFactors.of(GBP, DATE_VAL, CURVE_ZERO);
   private static final DiscountFactorsDecoratedForward DF_FWD = DiscountFactorsDecoratedForward.of(DF_START, DATE_FWD);
 
   private static final double TOLERANCE = 1.0E-8;
+  private static final double TOLERANCE_DELTA = 1.0E-6;
 
   public void date_ccy_param() {
     assertEquals(DF_FWD.getValuationDate(), DATE_FWD);
@@ -88,6 +92,50 @@ public class DiscountFactorsDecoratedForwardTest {
     int paramIndex = 2;
     DiscountFactors dfWithParam = DF_FWD.withParameter(paramIndex, newParam);
     assertEquals(dfWithParam.getParameter(paramIndex), newParam, TOLERANCE);
+  }
+
+  public void zero_rate_sensitivity() {
+    int nbDate = 10;
+    Period step = Period.ofMonths(5);
+    for (int i = 0; i < nbDate; i++) {
+      LocalDate testDate = DATE_FWD.plus(step.multipliedBy(i));
+      ZeroRateSensitivity zrsComputed = DF_FWD.zeroRatePointSensitivity(testDate);
+      double t = DF_FWD.relativeYearFraction(testDate);
+      double df = DF_FWD.discountFactor(testDate);
+      assertEquals(zrsComputed.getSensitivity(), -t * df, TOLERANCE);
+      assertEquals(zrsComputed.getYearFraction(), t, TOLERANCE);
+    }
+  }
+
+  // Compare parameter sensitivity to a finite difference computation.
+  public void parameter_sensitivity() {
+    double sensiFactor = 123.456;
+    final double shift = 1.0E-4;
+    int nbDate = 10;
+    Period step = Period.ofMonths(5);
+    for (int i = 0; i < nbDate; i++) {
+      LocalDate testDate = DATE_FWD.plus(step.multipliedBy(i));
+      ZeroRateSensitivity zrsComputed = DF_FWD.zeroRatePointSensitivity(testDate, USD).multipliedBy(sensiFactor);
+      CurrencyParameterSensitivities psComputed = DF_FWD.parameterSensitivity(zrsComputed);
+      if (i == 0) {
+        assertEquals(psComputed.size(), 0); // No sensitivity at valuation date
+      } else {
+        DoubleArray psComputedArray = psComputed.getSensitivities().get(0).getSensitivity();
+        for (int loopparam = 0; loopparam < ZC.size(); loopparam++) {
+          double[] dfMP = new double[2];
+          for (int j = 0; j < 2; j++) {
+            final int loopparam2 = loopparam;
+            final int j2 = j;
+            DiscountFactors dfShifted = DF_FWD
+                .withPerturbation((idx, value, meta) -> (idx == loopparam2) ? value + (-1 + 2 * j2) * shift : value);
+            DiscountFactorsDecoratedForward dfFwd = DiscountFactorsDecoratedForward.of(dfShifted, DATE_FWD);
+            dfMP[j] = dfFwd.discountFactor(testDate);
+          }
+          double sensiExpected = sensiFactor * (dfMP[1] - dfMP[0]) / (2 * shift);
+          assertEquals(psComputedArray.get(loopparam), sensiExpected, Math.abs(TOLERANCE_DELTA * sensiExpected));
+        }
+      }
+    }
   }
 
 }

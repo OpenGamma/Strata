@@ -162,7 +162,7 @@ public class RatesProviderDecoratedForward
 
   @Override
   public <T> Optional<T> findData(MarketDataName<T> name) {
-    throw new UnsupportedOperationException("Not implemented");
+    return underlying.findData(name);
   }
 
   @Override
