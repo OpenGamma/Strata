@@ -38,6 +38,11 @@ public class CurveInfoTypeTest {
     assertEquals(test.toString(), "PVSensitivityToMarketQuote");
   }
 
+  public void test_CDS_INDEX_FACTOR() {
+    CurveInfoType<Double> test = CurveInfoType.CDS_INDEX_FACTOR;
+    assertEquals(test.toString(), "CdsIndexFactor");
+  }
+
   public void coverage() {
     CurveInfoType<String> test = CurveInfoType.of("Foo");
     assertEquals(test.toString(), "Foo");

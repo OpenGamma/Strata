@@ -129,7 +129,7 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+    if (isExpired(cds, ratesProvider)) {
       return PointSensitivityBuilder.none();
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
@@ -403,7 +403,7 @@ public class IsdaCdsProductPricer {
   }
 
   // computes protection leg pv per unit notional, without loss-given-default rate multiplied
-  private double protectionFull(
+  double protectionFull(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -448,7 +448,7 @@ public class IsdaCdsProductPricer {
   }
 
   // computes risky annuity
-  private double riskyAnnuity(
+  double riskyAnnuity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -557,7 +557,7 @@ public class IsdaCdsProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  private PointSensitivityBuilder protectionLegSensitivity(
+  PointSensitivityBuilder protectionLegSensitivity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -641,7 +641,7 @@ public class IsdaCdsProductPricer {
     return (1d - (pn * qn / (pd * qd) - 1d) / dhrt) / dhrt;
   }
 
-  private PointSensitivityBuilder riskyAnnuitySensitivity(
+  PointSensitivityBuilder riskyAnnuitySensitivity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -797,13 +797,13 @@ public class IsdaCdsProductPricer {
     return !cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate());
   }
 
-  private double recoveryRate(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+  double recoveryRate(ResolvedCds cds, CreditRatesProvider ratesProvider) {
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
     ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
     return recoveryRates.recoveryRate(cds.getProtectionEndDate());
   }
 
-  private void validateRecoveryRates(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+  void validateRecoveryRates(ResolvedCds cds, CreditRatesProvider ratesProvider) {
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
     ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
   }
