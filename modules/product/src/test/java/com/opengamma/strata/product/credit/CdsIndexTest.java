@@ -74,7 +74,7 @@ public class CdsIndexTest {
         .dayCount(ACT_365F)
         .fixedRate(COUPON)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .notional(NOTIONAL)
         .paymentOnDefault(PaymentOnDefault.NONE)
         .protectionStart(ProtectionStartOfDay.NONE)
@@ -87,7 +87,7 @@ public class CdsIndexTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getFixedRate(), COUPON);
     assertEquals(test.getCdsIndexId(), INDEX_ID);
-    assertEquals(test.getReferenceEntityIds(), LEGAL_ENTITIES);
+    assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.NONE);
     assertEquals(test.getProtectionStart(), ProtectionStartOfDay.NONE);
@@ -113,7 +113,7 @@ public class CdsIndexTest {
     assertEquals(PRODUCT.getDayCount(), ACT_360);
     assertEquals(PRODUCT.getFixedRate(), COUPON);
     assertEquals(PRODUCT.getCdsIndexId(), INDEX_ID);
-    assertEquals(PRODUCT.getReferenceEntityIds(), LEGAL_ENTITIES);
+    assertEquals(PRODUCT.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(PRODUCT.getNotional(), NOTIONAL);
     assertEquals(PRODUCT.getPaymentOnDefault(), ACCRUED_PREMIUM);
     assertEquals(PRODUCT.getProtectionStart(), BEGINNING);
@@ -166,7 +166,7 @@ public class CdsIndexTest {
     ResolvedCdsIndex expected = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .dayCount(ACT_360)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .periodicPayments(payments)
