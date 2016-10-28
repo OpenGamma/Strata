@@ -70,7 +70,7 @@ public final class ResolvedCdsIndex
    * This identifiers are used for the reference legal entities of the CDS index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<StandardId> referenceEntityIds;
+  private final ImmutableList<StandardId> legalEntityIds;
   /**
    * The periodic payments based on the fixed rate.
    * <p>
@@ -248,7 +248,7 @@ public final class ResolvedCdsIndex
   private ResolvedCdsIndex(
       BuySell buySell,
       StandardId cdsIndexId,
-      List<StandardId> referenceEntityIds,
+      List<StandardId> legalEntityIds,
       List<CreditCouponPaymentPeriod> periodicPayments,
       LocalDate protectionEndDate,
       DayCount dayCount,
@@ -258,7 +258,7 @@ public final class ResolvedCdsIndex
       DaysAdjustment settlementDateOffset) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(cdsIndexId, "cdsIndexId");
-    JodaBeanUtils.notNull(referenceEntityIds, "referenceEntityIds");
+    JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
     JodaBeanUtils.notEmpty(periodicPayments, "periodicPayments");
     JodaBeanUtils.notNull(protectionEndDate, "protectionEndDate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
@@ -268,7 +268,7 @@ public final class ResolvedCdsIndex
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
     this.buySell = buySell;
     this.cdsIndexId = cdsIndexId;
-    this.referenceEntityIds = ImmutableList.copyOf(referenceEntityIds);
+    this.legalEntityIds = ImmutableList.copyOf(legalEntityIds);
     this.periodicPayments = ImmutableList.copyOf(periodicPayments);
     this.protectionEndDate = protectionEndDate;
     this.dayCount = dayCount;
@@ -325,8 +325,8 @@ public final class ResolvedCdsIndex
    * This identifiers are used for the reference legal entities of the CDS index.
    * @return the value of the property, not null
    */
-  public ImmutableList<StandardId> getReferenceEntityIds() {
-    return referenceEntityIds;
+  public ImmutableList<StandardId> getLegalEntityIds() {
+    return legalEntityIds;
   }
 
   //-----------------------------------------------------------------------
@@ -427,7 +427,7 @@ public final class ResolvedCdsIndex
       ResolvedCdsIndex other = (ResolvedCdsIndex) obj;
       return JodaBeanUtils.equal(buySell, other.buySell) &&
           JodaBeanUtils.equal(cdsIndexId, other.cdsIndexId) &&
-          JodaBeanUtils.equal(referenceEntityIds, other.referenceEntityIds) &&
+          JodaBeanUtils.equal(legalEntityIds, other.legalEntityIds) &&
           JodaBeanUtils.equal(periodicPayments, other.periodicPayments) &&
           JodaBeanUtils.equal(protectionEndDate, other.protectionEndDate) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
@@ -444,7 +444,7 @@ public final class ResolvedCdsIndex
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(buySell);
     hash = hash * 31 + JodaBeanUtils.hashCode(cdsIndexId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEntityIds);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityIds);
     hash = hash * 31 + JodaBeanUtils.hashCode(periodicPayments);
     hash = hash * 31 + JodaBeanUtils.hashCode(protectionEndDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
@@ -461,7 +461,7 @@ public final class ResolvedCdsIndex
     buf.append("ResolvedCdsIndex{");
     buf.append("buySell").append('=').append(buySell).append(',').append(' ');
     buf.append("cdsIndexId").append('=').append(cdsIndexId).append(',').append(' ');
-    buf.append("referenceEntityIds").append('=').append(referenceEntityIds).append(',').append(' ');
+    buf.append("legalEntityIds").append('=').append(legalEntityIds).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(periodicPayments).append(',').append(' ');
     buf.append("protectionEndDate").append('=').append(protectionEndDate).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
@@ -494,11 +494,11 @@ public final class ResolvedCdsIndex
     private final MetaProperty<StandardId> cdsIndexId = DirectMetaProperty.ofImmutable(
         this, "cdsIndexId", ResolvedCdsIndex.class, StandardId.class);
     /**
-     * The meta-property for the {@code referenceEntityIds} property.
+     * The meta-property for the {@code legalEntityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<StandardId>> referenceEntityIds = DirectMetaProperty.ofImmutable(
-        this, "referenceEntityIds", ResolvedCdsIndex.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<StandardId>> legalEntityIds = DirectMetaProperty.ofImmutable(
+        this, "legalEntityIds", ResolvedCdsIndex.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code periodicPayments} property.
      */
@@ -542,7 +542,7 @@ public final class ResolvedCdsIndex
         this, null,
         "buySell",
         "cdsIndexId",
-        "referenceEntityIds",
+        "legalEntityIds",
         "periodicPayments",
         "protectionEndDate",
         "dayCount",
@@ -564,8 +564,8 @@ public final class ResolvedCdsIndex
           return buySell;
         case -464117509:  // cdsIndexId
           return cdsIndexId;
-        case -315789110:  // referenceEntityIds
-          return referenceEntityIds;
+        case 1085098268:  // legalEntityIds
+          return legalEntityIds;
         case -367345944:  // periodicPayments
           return periodicPayments;
         case -1193325040:  // protectionEndDate
@@ -617,11 +617,11 @@ public final class ResolvedCdsIndex
     }
 
     /**
-     * The meta-property for the {@code referenceEntityIds} property.
+     * The meta-property for the {@code legalEntityIds} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<StandardId>> referenceEntityIds() {
-      return referenceEntityIds;
+    public MetaProperty<ImmutableList<StandardId>> legalEntityIds() {
+      return legalEntityIds;
     }
 
     /**
@@ -688,8 +688,8 @@ public final class ResolvedCdsIndex
           return ((ResolvedCdsIndex) bean).getBuySell();
         case -464117509:  // cdsIndexId
           return ((ResolvedCdsIndex) bean).getCdsIndexId();
-        case -315789110:  // referenceEntityIds
-          return ((ResolvedCdsIndex) bean).getReferenceEntityIds();
+        case 1085098268:  // legalEntityIds
+          return ((ResolvedCdsIndex) bean).getLegalEntityIds();
         case -367345944:  // periodicPayments
           return ((ResolvedCdsIndex) bean).getPeriodicPayments();
         case -1193325040:  // protectionEndDate
@@ -727,7 +727,7 @@ public final class ResolvedCdsIndex
 
     private BuySell buySell;
     private StandardId cdsIndexId;
-    private List<StandardId> referenceEntityIds = ImmutableList.of();
+    private List<StandardId> legalEntityIds = ImmutableList.of();
     private List<CreditCouponPaymentPeriod> periodicPayments = ImmutableList.of();
     private LocalDate protectionEndDate;
     private DayCount dayCount;
@@ -749,7 +749,7 @@ public final class ResolvedCdsIndex
     private Builder(ResolvedCdsIndex beanToCopy) {
       this.buySell = beanToCopy.getBuySell();
       this.cdsIndexId = beanToCopy.getCdsIndexId();
-      this.referenceEntityIds = beanToCopy.getReferenceEntityIds();
+      this.legalEntityIds = beanToCopy.getLegalEntityIds();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
       this.protectionEndDate = beanToCopy.getProtectionEndDate();
       this.dayCount = beanToCopy.getDayCount();
@@ -767,8 +767,8 @@ public final class ResolvedCdsIndex
           return buySell;
         case -464117509:  // cdsIndexId
           return cdsIndexId;
-        case -315789110:  // referenceEntityIds
-          return referenceEntityIds;
+        case 1085098268:  // legalEntityIds
+          return legalEntityIds;
         case -367345944:  // periodicPayments
           return periodicPayments;
         case -1193325040:  // protectionEndDate
@@ -798,8 +798,8 @@ public final class ResolvedCdsIndex
         case -464117509:  // cdsIndexId
           this.cdsIndexId = (StandardId) newValue;
           break;
-        case -315789110:  // referenceEntityIds
-          this.referenceEntityIds = (List<StandardId>) newValue;
+        case 1085098268:  // legalEntityIds
+          this.legalEntityIds = (List<StandardId>) newValue;
           break;
         case -367345944:  // periodicPayments
           this.periodicPayments = (List<CreditCouponPaymentPeriod>) newValue;
@@ -857,7 +857,7 @@ public final class ResolvedCdsIndex
       return new ResolvedCdsIndex(
           buySell,
           cdsIndexId,
-          referenceEntityIds,
+          legalEntityIds,
           periodicPayments,
           protectionEndDate,
           dayCount,
@@ -901,23 +901,23 @@ public final class ResolvedCdsIndex
      * Sets the legal entity identifiers.
      * <p>
      * This identifiers are used for the reference legal entities of the CDS index.
-     * @param referenceEntityIds  the new value, not null
+     * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEntityIds(List<StandardId> referenceEntityIds) {
-      JodaBeanUtils.notNull(referenceEntityIds, "referenceEntityIds");
-      this.referenceEntityIds = referenceEntityIds;
+    public Builder legalEntityIds(List<StandardId> legalEntityIds) {
+      JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
+      this.legalEntityIds = legalEntityIds;
       return this;
     }
 
     /**
-     * Sets the {@code referenceEntityIds} property in the builder
+     * Sets the {@code legalEntityIds} property in the builder
      * from an array of objects.
-     * @param referenceEntityIds  the new value, not null
+     * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEntityIds(StandardId... referenceEntityIds) {
-      return referenceEntityIds(ImmutableList.copyOf(referenceEntityIds));
+    public Builder legalEntityIds(StandardId... legalEntityIds) {
+      return legalEntityIds(ImmutableList.copyOf(legalEntityIds));
     }
 
     /**
@@ -1031,7 +1031,7 @@ public final class ResolvedCdsIndex
       buf.append("ResolvedCdsIndex.Builder{");
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("cdsIndexId").append('=').append(JodaBeanUtils.toString(cdsIndexId)).append(',').append(' ');
-      buf.append("referenceEntityIds").append('=').append(JodaBeanUtils.toString(referenceEntityIds)).append(',').append(' ');
+      buf.append("legalEntityIds").append('=').append(JodaBeanUtils.toString(legalEntityIds)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments)).append(',').append(' ');
       buf.append("protectionEndDate").append('=').append(JodaBeanUtils.toString(protectionEndDate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');

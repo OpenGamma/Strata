@@ -92,7 +92,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BUY)
         .dayCount(ACT_360)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .periodicPayments(PAYMENTS)
@@ -107,7 +107,7 @@ public class ResolvedCdsIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getFixedRate(), COUPON);
     assertEquals(test.getCdsIndexId(), INDEX_ID);
-    assertEquals(test.getReferenceEntityIds(), LEGAL_ENTITIES);
+    assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getPaymentOnDefault(), ACCRUED_PREMIUM);
     assertEquals(test.getPeriodicPayments(), PAYMENTS);
@@ -123,7 +123,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BUY)
         .dayCount(ACT_360)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .periodicPayments(PAYMENTS)
@@ -153,7 +153,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BUY)
         .dayCount(ACT_360)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .periodicPayments(PAYMENTS)
@@ -169,7 +169,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BUY)
         .dayCount(ACT_360)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(ProtectionStartOfDay.NONE)
         .periodicPayments(PAYMENTS)
@@ -189,7 +189,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BUY)
         .dayCount(ACT_360)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .periodicPayments(PAYMENTS)
@@ -202,7 +202,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BuySell.SELL)
         .dayCount(DayCounts.ACT_365F)
         .cdsIndexId(StandardId.of("OG", "AA-INDEX"))
-        .referenceEntityIds(ImmutableList.of(StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2")))
+        .legalEntityIds(ImmutableList.of(StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2")))
         .paymentOnDefault(PaymentOnDefault.NONE)
         .protectionStart(ProtectionStartOfDay.NONE)
         .periodicPayments(PAYMENTS.get(0))
@@ -218,7 +218,7 @@ public class ResolvedCdsIndexTest {
         .buySell(BUY)
         .dayCount(ACT_360)
         .cdsIndexId(INDEX_ID)
-        .referenceEntityIds(LEGAL_ENTITIES)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .periodicPayments(PAYMENTS)

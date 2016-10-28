@@ -78,7 +78,7 @@ public final class CdsIndex
    * This identifiers are used for the reference legal entities of the CDS index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<StandardId> referenceEntityIds;
+  private final ImmutableList<StandardId> legalEntityIds;
   /**
    * The currency of the CDS index.
    * <p>
@@ -154,7 +154,7 @@ public final class CdsIndex
    * 
    * @param buySell  buy or sell
    * @param cdsIndexId  the CDS index ID
-   * @param referenceEntityIds  the legal entity IDs
+   * @param legalEntityIds  the legal entity IDs
    * @param currency  the currency
    * @param notional  the notional 
    * @param startDate  the start date
@@ -173,7 +173,7 @@ public final class CdsIndex
   public static CdsIndex of(
       BuySell buySell,
       StandardId cdsIndexId,
-      List<StandardId> referenceEntityIds,
+      List<StandardId> legalEntityIds,
       Currency currency,
       double notional,
       LocalDate startDate,
@@ -198,7 +198,7 @@ public final class CdsIndex
         .rollConvention(RollConventions.NONE)
         .stubConvention(stubConvention)
         .build();
-    return new CdsIndex(buySell, cdsIndexId, referenceEntityIds, currency, notional, accrualSchedule, fixedRate, dayCount,
+    return new CdsIndex(buySell, cdsIndexId, legalEntityIds, currency, notional, accrualSchedule, fixedRate, dayCount,
         paymentOnDefault, protectStart, stepinDateOffset, settlementDateOffset);
   }
 
@@ -207,7 +207,7 @@ public final class CdsIndex
    * 
    * @param buySell  buy or sell
    * @param cdsIndexId  the CDS index ID
-   * @param referenceEntityIds  the legal entity IDs
+   * @param legalEntityIds  the legal entity IDs
    * @param currency  the currency
    * @param notional  the notional
    * @param startDate  the start date
@@ -219,7 +219,7 @@ public final class CdsIndex
   public static CdsIndex of(
       BuySell buySell,
       StandardId cdsIndexId,
-      List<StandardId> referenceEntityIds,
+      List<StandardId> legalEntityIds,
       Currency currency,
       double notional,
       LocalDate startDate,
@@ -227,7 +227,7 @@ public final class CdsIndex
       HolidayCalendarId calendar,
       double fixedRate) {
 
-    return of(buySell, cdsIndexId, referenceEntityIds, currency, notional, startDate, endDate, Frequency.P3M,
+    return of(buySell, cdsIndexId, legalEntityIds, currency, notional, startDate, endDate, Frequency.P3M,
         BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, calendar), StubConvention.SHORT_INITIAL,
         fixedRate, DayCounts.ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING,
         DaysAdjustment.ofCalendarDays(1), DaysAdjustment.ofBusinessDays(3, calendar));
@@ -276,7 +276,7 @@ public final class CdsIndex
     return ResolvedCdsIndex.builder()
         .buySell(buySell)
         .cdsIndexId(cdsIndexId)
-        .referenceEntityIds(referenceEntityIds)
+        .legalEntityIds(legalEntityIds)
         .protectionStart(protectionStart)
         .paymentOnDefault(paymentOnDefault)
         .periodicPayments(periodicPayments)
@@ -317,7 +317,7 @@ public final class CdsIndex
   private CdsIndex(
       BuySell buySell,
       StandardId cdsIndexId,
-      List<StandardId> referenceEntityIds,
+      List<StandardId> legalEntityIds,
       Currency currency,
       double notional,
       PeriodicSchedule accrualSchedule,
@@ -329,7 +329,7 @@ public final class CdsIndex
       DaysAdjustment settlementDateOffset) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(cdsIndexId, "cdsIndexId");
-    JodaBeanUtils.notNull(referenceEntityIds, "referenceEntityIds");
+    JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
@@ -341,7 +341,7 @@ public final class CdsIndex
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
     this.buySell = buySell;
     this.cdsIndexId = cdsIndexId;
-    this.referenceEntityIds = ImmutableList.copyOf(referenceEntityIds);
+    this.legalEntityIds = ImmutableList.copyOf(legalEntityIds);
     this.currency = currency;
     this.notional = notional;
     this.accrualSchedule = accrualSchedule;
@@ -400,8 +400,8 @@ public final class CdsIndex
    * This identifiers are used for the reference legal entities of the CDS index.
    * @return the value of the property, not null
    */
-  public ImmutableList<StandardId> getReferenceEntityIds() {
-    return referenceEntityIds;
+  public ImmutableList<StandardId> getLegalEntityIds() {
+    return legalEntityIds;
   }
 
   //-----------------------------------------------------------------------
@@ -523,7 +523,7 @@ public final class CdsIndex
       CdsIndex other = (CdsIndex) obj;
       return JodaBeanUtils.equal(buySell, other.buySell) &&
           JodaBeanUtils.equal(cdsIndexId, other.cdsIndexId) &&
-          JodaBeanUtils.equal(referenceEntityIds, other.referenceEntityIds) &&
+          JodaBeanUtils.equal(legalEntityIds, other.legalEntityIds) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
@@ -542,7 +542,7 @@ public final class CdsIndex
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(buySell);
     hash = hash * 31 + JodaBeanUtils.hashCode(cdsIndexId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEntityIds);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityIds);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
@@ -561,7 +561,7 @@ public final class CdsIndex
     buf.append("CdsIndex{");
     buf.append("buySell").append('=').append(buySell).append(',').append(' ');
     buf.append("cdsIndexId").append('=').append(cdsIndexId).append(',').append(' ');
-    buf.append("referenceEntityIds").append('=').append(referenceEntityIds).append(',').append(' ');
+    buf.append("legalEntityIds").append('=').append(legalEntityIds).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
@@ -596,11 +596,11 @@ public final class CdsIndex
     private final MetaProperty<StandardId> cdsIndexId = DirectMetaProperty.ofImmutable(
         this, "cdsIndexId", CdsIndex.class, StandardId.class);
     /**
-     * The meta-property for the {@code referenceEntityIds} property.
+     * The meta-property for the {@code legalEntityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<StandardId>> referenceEntityIds = DirectMetaProperty.ofImmutable(
-        this, "referenceEntityIds", CdsIndex.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<StandardId>> legalEntityIds = DirectMetaProperty.ofImmutable(
+        this, "legalEntityIds", CdsIndex.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -653,7 +653,7 @@ public final class CdsIndex
         this, null,
         "buySell",
         "cdsIndexId",
-        "referenceEntityIds",
+        "legalEntityIds",
         "currency",
         "notional",
         "accrualSchedule",
@@ -677,8 +677,8 @@ public final class CdsIndex
           return buySell;
         case -464117509:  // cdsIndexId
           return cdsIndexId;
-        case -315789110:  // referenceEntityIds
-          return referenceEntityIds;
+        case 1085098268:  // legalEntityIds
+          return legalEntityIds;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
@@ -734,11 +734,11 @@ public final class CdsIndex
     }
 
     /**
-     * The meta-property for the {@code referenceEntityIds} property.
+     * The meta-property for the {@code legalEntityIds} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<StandardId>> referenceEntityIds() {
-      return referenceEntityIds;
+    public MetaProperty<ImmutableList<StandardId>> legalEntityIds() {
+      return legalEntityIds;
     }
 
     /**
@@ -821,8 +821,8 @@ public final class CdsIndex
           return ((CdsIndex) bean).getBuySell();
         case -464117509:  // cdsIndexId
           return ((CdsIndex) bean).getCdsIndexId();
-        case -315789110:  // referenceEntityIds
-          return ((CdsIndex) bean).getReferenceEntityIds();
+        case 1085098268:  // legalEntityIds
+          return ((CdsIndex) bean).getLegalEntityIds();
         case 575402001:  // currency
           return ((CdsIndex) bean).getCurrency();
         case 1585636160:  // notional
@@ -864,7 +864,7 @@ public final class CdsIndex
 
     private BuySell buySell;
     private StandardId cdsIndexId;
-    private List<StandardId> referenceEntityIds = ImmutableList.of();
+    private List<StandardId> legalEntityIds = ImmutableList.of();
     private Currency currency;
     private double notional;
     private PeriodicSchedule accrualSchedule;
@@ -888,7 +888,7 @@ public final class CdsIndex
     private Builder(CdsIndex beanToCopy) {
       this.buySell = beanToCopy.getBuySell();
       this.cdsIndexId = beanToCopy.getCdsIndexId();
-      this.referenceEntityIds = beanToCopy.getReferenceEntityIds();
+      this.legalEntityIds = beanToCopy.getLegalEntityIds();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
       this.accrualSchedule = beanToCopy.getAccrualSchedule();
@@ -908,8 +908,8 @@ public final class CdsIndex
           return buySell;
         case -464117509:  // cdsIndexId
           return cdsIndexId;
-        case -315789110:  // referenceEntityIds
-          return referenceEntityIds;
+        case 1085098268:  // legalEntityIds
+          return legalEntityIds;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
@@ -943,8 +943,8 @@ public final class CdsIndex
         case -464117509:  // cdsIndexId
           this.cdsIndexId = (StandardId) newValue;
           break;
-        case -315789110:  // referenceEntityIds
-          this.referenceEntityIds = (List<StandardId>) newValue;
+        case 1085098268:  // legalEntityIds
+          this.legalEntityIds = (List<StandardId>) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -1008,7 +1008,7 @@ public final class CdsIndex
       return new CdsIndex(
           buySell,
           cdsIndexId,
-          referenceEntityIds,
+          legalEntityIds,
           currency,
           notional,
           accrualSchedule,
@@ -1054,23 +1054,23 @@ public final class CdsIndex
      * Sets the legal entity identifiers.
      * <p>
      * This identifiers are used for the reference legal entities of the CDS index.
-     * @param referenceEntityIds  the new value, not null
+     * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEntityIds(List<StandardId> referenceEntityIds) {
-      JodaBeanUtils.notNull(referenceEntityIds, "referenceEntityIds");
-      this.referenceEntityIds = referenceEntityIds;
+    public Builder legalEntityIds(List<StandardId> legalEntityIds) {
+      JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
+      this.legalEntityIds = legalEntityIds;
       return this;
     }
 
     /**
-     * Sets the {@code referenceEntityIds} property in the builder
+     * Sets the {@code legalEntityIds} property in the builder
      * from an array of objects.
-     * @param referenceEntityIds  the new value, not null
+     * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEntityIds(StandardId... referenceEntityIds) {
-      return referenceEntityIds(ImmutableList.copyOf(referenceEntityIds));
+    public Builder legalEntityIds(StandardId... legalEntityIds) {
+      return legalEntityIds(ImmutableList.copyOf(legalEntityIds));
     }
 
     /**
@@ -1199,7 +1199,7 @@ public final class CdsIndex
       buf.append("CdsIndex.Builder{");
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("cdsIndexId").append('=').append(JodaBeanUtils.toString(cdsIndexId)).append(',').append(' ');
-      buf.append("referenceEntityIds").append('=').append(JodaBeanUtils.toString(referenceEntityIds)).append(',').append(' ');
+      buf.append("legalEntityIds").append('=').append(JodaBeanUtils.toString(legalEntityIds)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
