@@ -795,18 +795,8 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
   private double[] makeBumpedSpreads(double[] spreads, double amount, ShiftType shiftType) {
     int n = spreads.length;
     double[] res = new double[n];
-
-    if (shiftType == ShiftType.ABSOLUTE) {
-      for (int i = 0; i < n; i++) {
-        res[i] = spreads[i] + amount;
-      }
-    } else if (shiftType == ShiftType.RELATIVE) {
-      double a = 1 + amount;
-      for (int i = 0; i < n; i++) {
-        res[i] = spreads[i] * a;
-      }
-    } else {
-      throw new IllegalArgumentException("ShiftType " + shiftType + " is not supported");
+    for (int i = 0; i < n; i++) {
+      res[i] = shiftType.applyShift(spreads[i], amount);
     }
     return res;
   }
@@ -885,17 +875,8 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     int n = spreads.length;
     double[] res = new double[n];
     System.arraycopy(spreads, 0, res, 0, n);
-
-    switch (shiftType) {
-      case ABSOLUTE:
-        res[index] += amount;
-        break;
-      case RELATIVE:
-        res[index] += res[index] * amount;
-        break;
-      default:
-        throw new IllegalArgumentException("ShiftType " + shiftType + " is not supported");
-    }
+    res[index] = shiftType.applyShift(res[index], amount);
     return res;
   }
+
 }
