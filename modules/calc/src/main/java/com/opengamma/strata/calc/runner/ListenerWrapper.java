@@ -40,6 +40,9 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
   /** Protects the queue and the executing flag. */
   private final Lock lock = new ReentrantLock();
 
+  /** This lock is never contended; it is used to guarantee the listener state is visible to all threads. */
+  private final Lock listenerLock = new ReentrantLock();
+
   /** The total number of tasks to be executed. */
   private final int tasksExpected;
 
@@ -52,13 +55,6 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
    * all queued results are delivered.
    */
   private boolean executing;
-
-  /**
-   * Flags whether the calculations are complete.
-   * This is set when the number of results received equals {@link #tasksExpected}.
-   * This causes a call to {@link CalculationListener#calculationsComplete()}.
-   */
-  private boolean complete;
 
   /** The number of task results that have been received. */
   private int tasksReceived;
@@ -95,11 +91,15 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
    */
   @Override
   public void accept(CalculationResults result) {
-    // This is mutated while protected by the lock and accessed while not protected.
-    // This is safe because the executing flag ensures the thread that accesses the
-    // variable while unlocked is the same thread that set its value while guarded by the lock.
     CalculationResults nextResult;
 
+    // Multiple calculation threads can try to acquire this lock at the same time.
+    // The thread which acquires the lock will set the executing flag and proceed into
+    // the body of the method.
+    // If another thread acquires the lock while the first thread is executing it will
+    // add an item to the queue and return.
+    // The lock also ensures the state of the executing flag and the queue are visible
+    // to any thread acquiring the lock.
     lock.lock();
     try {
       if (executing) {
@@ -117,29 +117,50 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
     } finally {
       lock.unlock();
     }
+
+    // The logic in the block above guarantees that there will never be more than one thread in the
+    // rest of the method below this point.
+
     // Loop until the nextResult and all the results from the queue have been delivered
     for (;;) {
+      // The logic above means this lock is never contended; the executing flag means
+      // only one thread will ever be in this loop at any given time.
+      // This lock is required to ensure any state changes in the listener are visible to all threads
+      listenerLock.lock();
       try {
-        // Invoke the listener while not protected by the lock. This allows other threads
+        // Invoke the listener while not protected by lock. This allows other threads
         // to queue results while this thread is delivering them to the listener.
         for (CalculationResult cell : nextResult.getCells()) {
           listener.resultReceived(nextResult.getTarget(), cell);
         }
       } catch (RuntimeException e) {
         log.warn("Exception invoking listener.resultReceived", e);
+      } finally {
+        listenerLock.unlock();
       }
+
+      // The following code must be executed whilst holding the lock to guarantee any changes
+      // to the executing flag and to the state of the queue are visible to all threads
       lock.lock();
       try {
         if (++tasksReceived == tasksExpected) {
-          // The expected number of results have been received. Set the complete
-          // flag to trigger a call to listener.calculationsComplete after unlocking
-          complete = true;
-          break;
+          // The expected number of results have been received, inform the listener.
+          // The listener lock must be acquired to ensure any state changes in the listener are
+          // visible to all threads
+          listenerLock.lock();
+          try {
+            listener.calculationsComplete();
+          } catch (RuntimeException e) {
+            log.warn("Exception invoking listener.calculationsComplete", e);
+          } finally {
+            listenerLock.unlock();
+          }
+          return;
         } else if (queue.isEmpty()) {
           // There are no more results to deliver. Unset the executing flag and return.
           // This allows the next calling thread to deliver results.
           executing = false;
-          break;
+          return;
         } else {
           // There are results on the queue. This means another thread called accept(),
           // added a result to the queue and returned while this thread was invoking the listener.
@@ -148,13 +169,6 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
         }
       } finally {
         lock.unlock();
-      }
-    }
-    if (complete) {
-      try {
-        listener.calculationsComplete();
-      } catch (RuntimeException e) {
-        log.warn("Exception invoking listener.calculationsComplete", e);
       }
     }
   }
