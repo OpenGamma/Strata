@@ -34,7 +34,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -385,14 +384,15 @@ public final class PeriodicSchedule
    * If the stub convention is present, then it will be validated against the stub dates.
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * <p>
-   * There is special handling for the last business day of month. If all the following
-   * conditions hold true, then the unadjusted start date is presumed to be the last day of the month.
+   * There is special handling for pre-adjusted start dates to avoid creating incorrect stubs.
+   * If all the following conditions hold true, then the unadjusted start date is treated
+   * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
-   * <li>the roll convention is 'EOM'
-   * <li>the start date is the last business day of month, using the calendar from {@code businessDayAdjustment}
-   * <li>the {@code firstRegularStartDate} property is null
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
-   * <li>applying {@code businessDayAdjustment} to the last day of the month yields the last business day
+   * <li>the {@code firstRegularStartDate} property is null
+   * <li>the roll convention is numeric or 'EOM'
+   * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
+   *  yields the specified start date
    * </ul>
    * 
    * @return the schedule
@@ -472,14 +472,15 @@ public final class PeriodicSchedule
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * If the frequency is 'Term' explicit stub dates are disallowed, and the roll and stub convention are ignored.
    * <p>
-   * There is special handling for the last business day of month. If all the following
-   * conditions hold true, then the unadjusted start date is presumed to be the last day of the month.
+   * There is special handling for pre-adjusted start dates to avoid creating incorrect stubs.
+   * If all the following conditions hold true, then the unadjusted start date is treated
+   * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
-   * <li>the roll convention is 'EOM'
-   * <li>the start date is the last business day of month, using the calendar from {@code businessDayAdjustment}
-   * <li>the {@code firstRegularStartDate} property is null
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
-   * <li>applying {@code businessDayAdjustment} to the last day of the month yields the last business day
+   * <li>the {@code firstRegularStartDate} property is null
+   * <li>the roll convention is numeric or 'EOM'
+   * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
+   *  yields the specified start date
    * </ul>
    * 
    * @param refData  the reference data, used to find the holiday calendars
@@ -678,14 +679,15 @@ public final class PeriodicSchedule
    * If the stub convention is present, then it will be validated against the stub dates.
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * <p>
-   * There is special handling for the last business day of month. If all the following
-   * conditions hold true, then the unadjusted start date is presumed to be the last day of the month.
+   * There is special handling for pre-adjusted start dates to avoid creating incorrect stubs.
+   * If all the following conditions hold true, then the unadjusted start date is treated
+   * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
-   * <li>the roll convention is 'EOM'
-   * <li>the start date is the last business day of month, using the calendar from {@code businessDayAdjustment}
-   * <li>the {@code firstRegularStartDate} property is null
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
-   * <li>applying {@code businessDayAdjustment} to the last day of the month yields the last business day
+   * <li>the {@code firstRegularStartDate} property is null
+   * <li>the roll convention is numeric or 'EOM'
+   * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
+   *  yields the specified start date
    * </ul>
    * 
    * @return the schedule of dates adjusted to valid business days
@@ -770,27 +772,33 @@ public final class PeriodicSchedule
 
   // calculates the applicable start date
   // applies rule to handle misuse of EOM to mean last business day for startDate
+  // and similar rule for numeric roll conventions
+  // http://www.fpml.org/forums/topic/can-a-roll-convention-imply-a-stub/#post-7659
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
-    // special case where EOM acts like last business day of month
     // only allow when firstRegularStartDate not used and start date adjustment is NONE
-    if (rollConvention == RollConventions.EOM &&
+    if (rollConvention != null &&
         firstRegularStartDate == null &&
-        startDateBusinessDayAdjustment != null &&
-        startDateBusinessDayAdjustment.equals(BusinessDayAdjustment.NONE) &&
-        refData != null) {
-      int lengthOfMonth = startDate.lengthOfMonth();
-      // startDate is already at EOM, then nothing to do
-      if (startDate.getDayOfMonth() != lengthOfMonth) {
-        HolidayCalendar cal = businessDayAdjustment.getCalendar().resolve(refData);
-        LocalDate lastBusDayDate = cal.lastBusinessDayOfMonth(startDate);
-        if (startDate.equals(lastBusDayDate)) {
-          // check that end of month unadjusted date will adjust correctly back to the last business day
-          LocalDate eomUnadjDate = startDate.withDayOfMonth(lengthOfMonth);
-          LocalDate adjDate = businessDayAdjustment.getConvention().adjust(eomUnadjDate, cal);
-          if (adjDate.equals(lastBusDayDate)) {
-            return eomUnadjDate;
-          }
-        }
+        refData != null &&
+        BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
+
+      int rollDom = rollConvention.getDayOfMonth();
+      if (rollDom > 0) {
+        return calculatedUnadjustedStartDate(rollDom, refData);
+      }
+    }
+    return startDate;
+  }
+
+  // calculates the applicable start date based on the roll day-of-month
+  private LocalDate calculatedUnadjustedStartDate(int rollDom, ReferenceData refData) {
+    int lengthOfMonth = startDate.lengthOfMonth();
+    int actualDom = Math.min(rollDom, lengthOfMonth);
+    // startDate is already the expected day, then nothing to do
+    if (startDate.getDayOfMonth() != actualDom) {
+      LocalDate rollImpliedDate = startDate.withDayOfMonth(actualDom);
+      LocalDate adjDate = businessDayAdjustment.adjust(rollImpliedDate, refData);
+      if (adjDate.equals(startDate)) {
+        return rollImpliedDate;
       }
     }
     return startDate;

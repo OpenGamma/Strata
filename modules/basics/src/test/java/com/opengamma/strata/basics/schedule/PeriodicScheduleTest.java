@@ -361,6 +361,15 @@ public class PeriodicScheduleTest {
             ImmutableList.of(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
             ImmutableList.of(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), EOM},
 
+        // pre-adjusted start date, no change needed
+        {JUL_17, OCT_17, P1M, null, DAY_17, null, null, BDA_NONE,
+            ImmutableList.of(JUL_17, AUG_17, SEP_17, OCT_17),
+            ImmutableList.of(JUL_17, AUG_18, SEP_17, OCT_17), DAY_17},
+        // pre-adjusted start date, change needed
+        {AUG_18, OCT_17, P1M, null, DAY_17, null, null, BDA_NONE,
+            ImmutableList.of(AUG_17, SEP_17, OCT_17),
+            ImmutableList.of(AUG_18, SEP_17, OCT_17), DAY_17},
+
         // TERM period
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null, null,
             ImmutableList.of(JUN_04, SEP_17),

@@ -85,6 +85,11 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
     }
 
     @Override
+    public int getDayOfMonth() {
+      return day;
+    }
+
+    @Override
     public LocalDate adjust(LocalDate date) {
       ArgChecker.notNull(date, "date");
       if (day >= 29 && date.getMonthValue() == 2) {

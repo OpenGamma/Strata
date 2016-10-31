@@ -33,6 +33,11 @@ enum StandardRollConventions implements RollConvention {
       ArgChecker.notNull(date, "date");
       return date.withDayOfMonth(date.lengthOfMonth());
     }
+
+    @Override
+    public int getDayOfMonth() {
+      return 31;
+    }
   },
 
   // 3rd Wednesday
