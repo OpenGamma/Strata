@@ -33,6 +33,13 @@ enum StandardRollConventions implements RollConvention {
       ArgChecker.notNull(date, "date");
       return date.withDayOfMonth(date.lengthOfMonth());
     }
+
+    @Override
+    public int getDayOfMonth() {
+      // EOM is equivalent to 31 in FpML in most cases
+      // because roll conventions 30 and 29 also have to adjust to end of February
+      return 31;
+    }
   },
 
   // 3rd Wednesday
