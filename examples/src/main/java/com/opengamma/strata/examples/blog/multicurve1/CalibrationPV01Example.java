@@ -49,7 +49,7 @@ public class CalibrationPV01Example {
   // Configuration with discounting curve using OIS up to final maturity; Libor forward curve using IRS.
   private static final String CONFIG_STR = "GBP-DSCONOIS-L6MIRS-FRTB";
   private static final CurveGroupName CONFIG_NAME = CurveGroupName.of(CONFIG_STR);
-  
+
   /* Swap description. */
   private static final Period SWAP_TENOR = Period.ofYears(7);
   private static final Period SWAP_PERIOD_TO_START = Period.ofMonths(3);
@@ -59,24 +59,24 @@ public class CalibrationPV01Example {
   /* Path to files */
   private static final String PATH_CONFIG = "src/main/resources/example-calibration/curves/";
   private static final String PATH_QUOTES = "src/main/resources/example-calibration/quotes/";
-  private static final String PATH_RESULTS = "src/main/resources/output/";
+  private static final String PATH_RESULTS = "target/example-output/";
   /* Files utilities */
   private static final String SUFFIX_CSV = ".csv";
   private static final String GROUPS_SUFFIX = "-group";
   private static final String NODES_SUFFIX = "-nodes";
   private static final String SETTINGS_SUFFIX = "-settings";
-  
-  private static final ResourceLocator GROUP_RESOURCE = 
+
+  private static final ResourceLocator GROUP_RESOURCE =
       ResourceLocator.of(PATH_CONFIG + CONFIG_STR + "/" + CONFIG_STR + GROUPS_SUFFIX + SUFFIX_CSV);
-  private static final ResourceLocator SETTINGS_RESOURCE = 
+  private static final ResourceLocator SETTINGS_RESOURCE =
       ResourceLocator.of(PATH_CONFIG + CONFIG_STR + "/" + CONFIG_STR + SETTINGS_SUFFIX + SUFFIX_CSV);
-  private static final ResourceLocator NODES_RESOURCE = 
+  private static final ResourceLocator NODES_RESOURCE =
       ResourceLocator.of(PATH_CONFIG + CONFIG_STR + "/" + CONFIG_STR + NODES_SUFFIX + SUFFIX_CSV);
 
   /* Raw data */
   private static final String QUOTES_FILE = PATH_QUOTES + "MARKET-QUOTES-GBP-20160801.csv";
   private static final Map<QuoteId, Double> MAP_MQ = QuotesCsvLoader.load(VALUATION_DATE, ResourceLocator.of(QUOTES_FILE));
-  private static final ImmutableMarketData MARKET_QUOTES = 
+  private static final ImmutableMarketData MARKET_QUOTES =
       ImmutableMarketData.builder(VALUATION_DATE).values(MAP_MQ).build();
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
@@ -84,7 +84,7 @@ public class CalibrationPV01Example {
 
   private static final DiscountingSwapTradePricer PRICER_SWAP = DiscountingSwapTradePricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
-  
+
   private static final double BP1 = 1.0E-4; // Scaling by 1 bp.
 
   public static void main(String[] arg) {
@@ -112,7 +112,7 @@ public class CalibrationPV01Example {
     ExportUtils.export(pv, PATH_RESULTS + CONFIG_STR + "-pv" + SUFFIX_CSV);
 
     System.out.println("Calibration and export finished: " + CONFIG_STR);
-    
+
   }
 
 }
