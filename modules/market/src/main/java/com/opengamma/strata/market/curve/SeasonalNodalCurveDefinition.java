@@ -1,0 +1,667 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.market.curve;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Set;
+import java.util.function.DoubleBinaryOperator;
+
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ValueType;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+
+@BeanDefinition
+public final class SeasonalNodalCurveDefinition
+    implements NodalCurveDefinition, ImmutableBean, Serializable {
+  
+  /** The list used when there is no seasonality. It consists of 12 entries, all of value 1. */
+  public static final DoubleArray NO_SEASONALITY = DoubleArray.filled(12, 1d);
+  /** The default adjustment operator: Multiplicative. */
+  public static final DoubleBinaryOperator DEFAULT_SEASON_FUNCTION = (v, a) -> v * a; 
+  /** The default adjustment derivative operator: Multiplicative.  */
+  public static final DoubleBinaryOperator DEFAULT_SEASON_DERIVATIVE = (v, a) -> a;
+  
+  /**
+   * The curve name.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final NodalCurveDefinition curveWithoutFixingDefinition;  
+  /**
+   * Last fixing date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final YearMonth lastFixingMonth;
+  /**
+   * Last fixing value.
+   */
+  @PropertyDefinition
+  private final double lastFixingValue;
+  /**
+   * Month on month. 
+   * Default to array of 1.0 (no seasonality in multiplicative).
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DoubleArray seasonalityMonthOnMonth;
+  /**
+   * The function applied to the unadjusted value and the adjustment. (value, monthly adjustment) -> adjustedValue.
+   * Default to multiplicative: (v, a) -> v * a;
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DoubleBinaryOperator adjustmentFunction;
+  /**
+   * The derivative with respect to the first variable of the adjustment function.
+   * Default to multiplicative: (v, a) -> a;
+   */
+  @PropertyDefinition
+  private final DoubleBinaryOperator adjustmentDerivative;
+
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  @ImmutableConstructor
+  private SeasonalNodalCurveDefinition(
+      NodalCurveDefinition curveWithoutFixing,
+      YearMonth lastFixingMonth,
+      double lastFixingValue,
+      DoubleArray seasonality,
+      DoubleBinaryOperator adjustmentFunction,
+      DoubleBinaryOperator adjustmentDerivative) {
+    this.curveWithoutFixingDefinition = curveWithoutFixing;
+    this.lastFixingMonth = lastFixingMonth;
+    this.lastFixingValue = lastFixingValue;
+    if (seasonality == null) {
+      this.seasonalityMonthOnMonth = NO_SEASONALITY;
+    } else {
+      this.seasonalityMonthOnMonth = seasonality;
+    }
+    if (adjustmentFunction == null) {
+      this.adjustmentFunction = DEFAULT_SEASON_FUNCTION;
+    } else {
+      this.adjustmentFunction = adjustmentFunction;
+    }
+    if (adjustmentDerivative == null) {
+      this.adjustmentDerivative = DEFAULT_SEASON_DERIVATIVE;
+    } else {
+      this.adjustmentDerivative = adjustmentDerivative;
+    }
+  }
+
+  @Override
+  public CurveName getName() {
+    return curveWithoutFixingDefinition.getName();
+  }
+
+  @Override
+  public ValueType getYValueType() {
+    return curveWithoutFixingDefinition.getYValueType();
+  }
+
+  @Override
+  public ImmutableList<CurveNode> getNodes() {
+    return curveWithoutFixingDefinition.getNodes();
+  }
+
+  @Override
+  public NodalCurveDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
+    return curveWithoutFixingDefinition.filtered(valuationDate, refData);
+  }
+
+  @Override
+  public CurveMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+    return curveWithoutFixingDefinition.metadata(valuationDate, refData);
+  }
+
+  @Override
+  public NodalCurve curve(LocalDate valuationDate, CurveMetadata metadata, DoubleArray parameters) {
+    NodalCurve curveWithoutFixing = curveWithoutFixingDefinition.curve(valuationDate, metadata, parameters);
+    return SeasonalNodalCurve.of(curveWithoutFixing, valuationDate, lastFixingMonth, lastFixingValue, 
+        seasonalityMonthOnMonth, adjustmentFunction, adjustmentDerivative);
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code SeasonalNodalCurveDefinition}.
+   * @return the meta-bean, not null
+   */
+  public static SeasonalNodalCurveDefinition.Meta meta() {
+    return SeasonalNodalCurveDefinition.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(SeasonalNodalCurveDefinition.Meta.INSTANCE);
+  }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static SeasonalNodalCurveDefinition.Builder builder() {
+    return new SeasonalNodalCurveDefinition.Builder();
+  }
+
+  @Override
+  public SeasonalNodalCurveDefinition.Meta metaBean() {
+    return SeasonalNodalCurveDefinition.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the curve name.
+   * @return the value of the property, not null
+   */
+  public NodalCurveDefinition getCurveWithoutFixingDefinition() {
+    return curveWithoutFixingDefinition;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets last fixing date.
+   * @return the value of the property, not null
+   */
+  public YearMonth getLastFixingMonth() {
+    return lastFixingMonth;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets last fixing value.
+   * @return the value of the property
+   */
+  public double getLastFixingValue() {
+    return lastFixingValue;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets month on month.
+   * Default to array of 1.0 (no seasonality in multiplicative).
+   * @return the value of the property, not null
+   */
+  public DoubleArray getSeasonalityMonthOnMonth() {
+    return seasonalityMonthOnMonth;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the function applied to the unadjusted value and the adjustment. (value, monthly adjustment) -> adjustedValue.
+   * Default to multiplicative: (v, a) -> v * a;
+   * @return the value of the property, not null
+   */
+  public DoubleBinaryOperator getAdjustmentFunction() {
+    return adjustmentFunction;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the derivative with respect to the first variable of the adjustment function.
+   * Default to multiplicative: (v, a) -> a;
+   * @return the value of the property
+   */
+  public DoubleBinaryOperator getAdjustmentDerivative() {
+    return adjustmentDerivative;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SeasonalNodalCurveDefinition other = (SeasonalNodalCurveDefinition) obj;
+      return JodaBeanUtils.equal(curveWithoutFixingDefinition, other.curveWithoutFixingDefinition) &&
+          JodaBeanUtils.equal(lastFixingMonth, other.lastFixingMonth) &&
+          JodaBeanUtils.equal(lastFixingValue, other.lastFixingValue) &&
+          JodaBeanUtils.equal(seasonalityMonthOnMonth, other.seasonalityMonthOnMonth) &&
+          JodaBeanUtils.equal(adjustmentFunction, other.adjustmentFunction) &&
+          JodaBeanUtils.equal(adjustmentDerivative, other.adjustmentDerivative);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveWithoutFixingDefinition);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastFixingMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastFixingValue);
+    hash = hash * 31 + JodaBeanUtils.hashCode(seasonalityMonthOnMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjustmentFunction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjustmentDerivative);
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("SeasonalNodalCurveDefinition{");
+    buf.append("curveWithoutFixingDefinition").append('=').append(curveWithoutFixingDefinition).append(',').append(' ');
+    buf.append("lastFixingMonth").append('=').append(lastFixingMonth).append(',').append(' ');
+    buf.append("lastFixingValue").append('=').append(lastFixingValue).append(',').append(' ');
+    buf.append("seasonalityMonthOnMonth").append('=').append(seasonalityMonthOnMonth).append(',').append(' ');
+    buf.append("adjustmentFunction").append('=').append(adjustmentFunction).append(',').append(' ');
+    buf.append("adjustmentDerivative").append('=').append(JodaBeanUtils.toString(adjustmentDerivative));
+    buf.append('}');
+    return buf.toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code SeasonalNodalCurveDefinition}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code curveWithoutFixingDefinition} property.
+     */
+    private final MetaProperty<NodalCurveDefinition> curveWithoutFixingDefinition = DirectMetaProperty.ofImmutable(
+        this, "curveWithoutFixingDefinition", SeasonalNodalCurveDefinition.class, NodalCurveDefinition.class);
+    /**
+     * The meta-property for the {@code lastFixingMonth} property.
+     */
+    private final MetaProperty<YearMonth> lastFixingMonth = DirectMetaProperty.ofImmutable(
+        this, "lastFixingMonth", SeasonalNodalCurveDefinition.class, YearMonth.class);
+    /**
+     * The meta-property for the {@code lastFixingValue} property.
+     */
+    private final MetaProperty<Double> lastFixingValue = DirectMetaProperty.ofImmutable(
+        this, "lastFixingValue", SeasonalNodalCurveDefinition.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code seasonalityMonthOnMonth} property.
+     */
+    private final MetaProperty<DoubleArray> seasonalityMonthOnMonth = DirectMetaProperty.ofImmutable(
+        this, "seasonalityMonthOnMonth", SeasonalNodalCurveDefinition.class, DoubleArray.class);
+    /**
+     * The meta-property for the {@code adjustmentFunction} property.
+     */
+    private final MetaProperty<DoubleBinaryOperator> adjustmentFunction = DirectMetaProperty.ofImmutable(
+        this, "adjustmentFunction", SeasonalNodalCurveDefinition.class, DoubleBinaryOperator.class);
+    /**
+     * The meta-property for the {@code adjustmentDerivative} property.
+     */
+    private final MetaProperty<DoubleBinaryOperator> adjustmentDerivative = DirectMetaProperty.ofImmutable(
+        this, "adjustmentDerivative", SeasonalNodalCurveDefinition.class, DoubleBinaryOperator.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "curveWithoutFixingDefinition",
+        "lastFixingMonth",
+        "lastFixingValue",
+        "seasonalityMonthOnMonth",
+        "adjustmentFunction",
+        "adjustmentDerivative");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -249814055:  // curveWithoutFixingDefinition
+          return curveWithoutFixingDefinition;
+        case -1842439587:  // lastFixingMonth
+          return lastFixingMonth;
+        case -1834546866:  // lastFixingValue
+          return lastFixingValue;
+        case -731183871:  // seasonalityMonthOnMonth
+          return seasonalityMonthOnMonth;
+        case -2132277147:  // adjustmentFunction
+          return adjustmentFunction;
+        case -1710031148:  // adjustmentDerivative
+          return adjustmentDerivative;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public SeasonalNodalCurveDefinition.Builder builder() {
+      return new SeasonalNodalCurveDefinition.Builder();
+    }
+
+    @Override
+    public Class<? extends SeasonalNodalCurveDefinition> beanType() {
+      return SeasonalNodalCurveDefinition.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code curveWithoutFixingDefinition} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<NodalCurveDefinition> curveWithoutFixingDefinition() {
+      return curveWithoutFixingDefinition;
+    }
+
+    /**
+     * The meta-property for the {@code lastFixingMonth} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<YearMonth> lastFixingMonth() {
+      return lastFixingMonth;
+    }
+
+    /**
+     * The meta-property for the {@code lastFixingValue} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> lastFixingValue() {
+      return lastFixingValue;
+    }
+
+    /**
+     * The meta-property for the {@code seasonalityMonthOnMonth} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DoubleArray> seasonalityMonthOnMonth() {
+      return seasonalityMonthOnMonth;
+    }
+
+    /**
+     * The meta-property for the {@code adjustmentFunction} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DoubleBinaryOperator> adjustmentFunction() {
+      return adjustmentFunction;
+    }
+
+    /**
+     * The meta-property for the {@code adjustmentDerivative} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DoubleBinaryOperator> adjustmentDerivative() {
+      return adjustmentDerivative;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -249814055:  // curveWithoutFixingDefinition
+          return ((SeasonalNodalCurveDefinition) bean).getCurveWithoutFixingDefinition();
+        case -1842439587:  // lastFixingMonth
+          return ((SeasonalNodalCurveDefinition) bean).getLastFixingMonth();
+        case -1834546866:  // lastFixingValue
+          return ((SeasonalNodalCurveDefinition) bean).getLastFixingValue();
+        case -731183871:  // seasonalityMonthOnMonth
+          return ((SeasonalNodalCurveDefinition) bean).getSeasonalityMonthOnMonth();
+        case -2132277147:  // adjustmentFunction
+          return ((SeasonalNodalCurveDefinition) bean).getAdjustmentFunction();
+        case -1710031148:  // adjustmentDerivative
+          return ((SeasonalNodalCurveDefinition) bean).getAdjustmentDerivative();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code SeasonalNodalCurveDefinition}.
+   */
+  public static final class Builder extends DirectFieldsBeanBuilder<SeasonalNodalCurveDefinition> {
+
+    private NodalCurveDefinition curveWithoutFixingDefinition;
+    private YearMonth lastFixingMonth;
+    private double lastFixingValue;
+    private DoubleArray seasonalityMonthOnMonth;
+    private DoubleBinaryOperator adjustmentFunction;
+    private DoubleBinaryOperator adjustmentDerivative;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(SeasonalNodalCurveDefinition beanToCopy) {
+      this.curveWithoutFixingDefinition = beanToCopy.getCurveWithoutFixingDefinition();
+      this.lastFixingMonth = beanToCopy.getLastFixingMonth();
+      this.lastFixingValue = beanToCopy.getLastFixingValue();
+      this.seasonalityMonthOnMonth = beanToCopy.getSeasonalityMonthOnMonth();
+      this.adjustmentFunction = beanToCopy.getAdjustmentFunction();
+      this.adjustmentDerivative = beanToCopy.getAdjustmentDerivative();
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -249814055:  // curveWithoutFixingDefinition
+          return curveWithoutFixingDefinition;
+        case -1842439587:  // lastFixingMonth
+          return lastFixingMonth;
+        case -1834546866:  // lastFixingValue
+          return lastFixingValue;
+        case -731183871:  // seasonalityMonthOnMonth
+          return seasonalityMonthOnMonth;
+        case -2132277147:  // adjustmentFunction
+          return adjustmentFunction;
+        case -1710031148:  // adjustmentDerivative
+          return adjustmentDerivative;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case -249814055:  // curveWithoutFixingDefinition
+          this.curveWithoutFixingDefinition = (NodalCurveDefinition) newValue;
+          break;
+        case -1842439587:  // lastFixingMonth
+          this.lastFixingMonth = (YearMonth) newValue;
+          break;
+        case -1834546866:  // lastFixingValue
+          this.lastFixingValue = (Double) newValue;
+          break;
+        case -731183871:  // seasonalityMonthOnMonth
+          this.seasonalityMonthOnMonth = (DoubleArray) newValue;
+          break;
+        case -2132277147:  // adjustmentFunction
+          this.adjustmentFunction = (DoubleBinaryOperator) newValue;
+          break;
+        case -1710031148:  // adjustmentDerivative
+          this.adjustmentDerivative = (DoubleBinaryOperator) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.setString(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public SeasonalNodalCurveDefinition build() {
+      return new SeasonalNodalCurveDefinition(
+          curveWithoutFixingDefinition,
+          lastFixingMonth,
+          lastFixingValue,
+          seasonalityMonthOnMonth,
+          adjustmentFunction,
+          adjustmentDerivative);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the curve name.
+     * @param curveWithoutFixingDefinition  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder curveWithoutFixingDefinition(NodalCurveDefinition curveWithoutFixingDefinition) {
+      JodaBeanUtils.notNull(curveWithoutFixingDefinition, "curveWithoutFixingDefinition");
+      this.curveWithoutFixingDefinition = curveWithoutFixingDefinition;
+      return this;
+    }
+
+    /**
+     * Sets last fixing date.
+     * @param lastFixingMonth  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder lastFixingMonth(YearMonth lastFixingMonth) {
+      JodaBeanUtils.notNull(lastFixingMonth, "lastFixingMonth");
+      this.lastFixingMonth = lastFixingMonth;
+      return this;
+    }
+
+    /**
+     * Sets last fixing value.
+     * @param lastFixingValue  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder lastFixingValue(double lastFixingValue) {
+      this.lastFixingValue = lastFixingValue;
+      return this;
+    }
+
+    /**
+     * Sets month on month.
+     * Default to array of 1.0 (no seasonality in multiplicative).
+     * @param seasonalityMonthOnMonth  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder seasonalityMonthOnMonth(DoubleArray seasonalityMonthOnMonth) {
+      JodaBeanUtils.notNull(seasonalityMonthOnMonth, "seasonalityMonthOnMonth");
+      this.seasonalityMonthOnMonth = seasonalityMonthOnMonth;
+      return this;
+    }
+
+    /**
+     * Sets the function applied to the unadjusted value and the adjustment. (value, monthly adjustment) -> adjustedValue.
+     * Default to multiplicative: (v, a) -> v * a;
+     * @param adjustmentFunction  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder adjustmentFunction(DoubleBinaryOperator adjustmentFunction) {
+      JodaBeanUtils.notNull(adjustmentFunction, "adjustmentFunction");
+      this.adjustmentFunction = adjustmentFunction;
+      return this;
+    }
+
+    /**
+     * Sets the derivative with respect to the first variable of the adjustment function.
+     * Default to multiplicative: (v, a) -> a;
+     * @param adjustmentDerivative  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder adjustmentDerivative(DoubleBinaryOperator adjustmentDerivative) {
+      this.adjustmentDerivative = adjustmentDerivative;
+      return this;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("SeasonalNodalCurveDefinition.Builder{");
+      buf.append("curveWithoutFixingDefinition").append('=').append(JodaBeanUtils.toString(curveWithoutFixingDefinition)).append(',').append(' ');
+      buf.append("lastFixingMonth").append('=').append(JodaBeanUtils.toString(lastFixingMonth)).append(',').append(' ');
+      buf.append("lastFixingValue").append('=').append(JodaBeanUtils.toString(lastFixingValue)).append(',').append(' ');
+      buf.append("seasonalityMonthOnMonth").append('=').append(JodaBeanUtils.toString(seasonalityMonthOnMonth)).append(',').append(' ');
+      buf.append("adjustmentFunction").append('=').append(JodaBeanUtils.toString(adjustmentFunction)).append(',').append(' ');
+      buf.append("adjustmentDerivative").append('=').append(JodaBeanUtils.toString(adjustmentDerivative));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
+}

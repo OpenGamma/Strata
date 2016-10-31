@@ -1,0 +1,167 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.market.curve;
+
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static org.testng.Assert.assertEquals;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.function.DoubleBinaryOperator;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.ParameterMetadata;
+
+
+@Test
+public class SeasonalNodalCurveTest {
+
+  private static final LocalDate VAL_DATE_1 = LocalDate.of(2016, 1, 1);
+  private static final LocalDate VAL_DATE_2 = LocalDate.of(2016, 10, 21);
+  
+  private static final DoubleArray TIMES = DoubleArray.of(9.0, 21.0, 57.0, 117.0);
+  private static final DoubleArray VALUES = DoubleArray.of(240.500, 245.000, 265.000, 286.000);
+  private static final DoubleArray VALUES2 = DoubleArray.of(243.500, 248.000, 268.000, 289.000);
+  private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
+  private static final CurveName NAME = CurveName.of("USD-HICP");
+  private static final CurveMetadata METADATA = Curves.prices(NAME);
+  private static final InterpolatedNodalCurve CURVE_NOFIX = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE2_NOFIX = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
+  
+  private static final YearMonth LAST_FIX_MONTH_1 = YearMonth.of(2015, 11);
+  private static final YearMonth LAST_FIX_MONTH_2 = YearMonth.of(2016, 7);
+  private static final double LAST_FIX_VALUE = 240.00;
+  
+  private static final DoubleArray SEASONALITY_MULTIPLICATIVE = DoubleArray.of(
+      1.002754153722096, 1.001058905136103, 1.006398754528882, 1.000862459308375,
+      0.998885402944655, 0.995571243121412, 1.001419845026233, 1.001663068058397,
+      0.999147014890734, 0.998377467899150, 0.999570726482709, 0.994346721844999);
+  private static final DoubleArray SEASONALITY_ADDITIVE = DoubleArray.of(
+      1.0, 1.5, 1.0, -0.5,
+      -0.5, -1.0, -1.5, 0.0,
+      0.5, 1.0, 1.0, -2.5);
+
+  private static final double NB_MONTHS_1 = YearMonth.from(VAL_DATE_1).until(LAST_FIX_MONTH_1, MONTHS);
+//  private static final NodalCurve EXTENDED_CURVE_1 = CURVE_NOFIX.withNode(NB_MONTHS_1, LAST_FIX_VALUE, ParameterMetadata.empty());
+//  private static final DoubleArray SEASONALITY_MUlTIPLICATIVE_COMP_1 =
+//      seasonalityCompounded(VAL_DATE_1, LAST_FIX_MONTH_1, SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a);
+//  private static final SeasonalNodalCurve CURVE_FIX_1 =
+//      SeasonalNodalCurve.of(EXTENDED_CURVE_1, SEASONALITY_MUlTIPLICATIVE_COMP_1, (v, a) -> v * a);
+
+  private static final double NB_MONTHS_2 = YearMonth.from(VAL_DATE_2).until(LAST_FIX_MONTH_2, MONTHS);
+  private static final NodalCurve EXTENDED_CURVE_2 = CURVE_NOFIX.withNode(NB_MONTHS_2, LAST_FIX_VALUE, ParameterMetadata.empty());
+  private static final DoubleArray SEASONALITY_MULTIPLICATIVE_COMP_2 =
+      seasonalityCompounded(VAL_DATE_2, LAST_FIX_MONTH_2, SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a);
+//  private static final SeasonalNodalCurve CURVE_FIX_2 =
+//      SeasonalNodalCurve.of(EXTENDED_CURVE_2, SEASONALITY_MULTIPLICATIVE_COMP_2, (v, a) -> v * a);
+  
+  private static final YearMonth[] TEST_MONTHS = new YearMonth[] {
+      YearMonth.of(2016, 7), YearMonth.of(2016, 8), YearMonth.of(2016, 9), YearMonth.of(2016, 10), 
+      YearMonth.of(2017, 1), YearMonth.of(2017, 6), YearMonth.of(2017, 7), YearMonth.of(2017, 8), 
+      YearMonth.of(2018, 9), YearMonth.of(2025, 12)};
+  
+  private static final double TOLERANCE_TIME = 1.0E-10;
+  private static final double TOLERANCE_VALUE = 1.0E-10;
+  
+  public void of_construction_multiplicative_1() {
+    SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
+        SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a, (v, a) -> a);
+    assertEquals(curveComputed.getCurve().getXValues().get(0), NB_MONTHS_1, TOLERANCE_TIME);
+    assertEquals(curveComputed.getCurve().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
+    assertEquals(curveComputed.yValue(NB_MONTHS_1), LAST_FIX_VALUE, TOLERANCE_TIME);
+  }
+  
+  public void of_construction_multiplicative_2() {
+    SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
+        SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a, (v, a) -> a);
+    assertEquals(curveComputed.getCurve().getXValues().get(0), NB_MONTHS_2, TOLERANCE_TIME);
+    assertEquals(curveComputed.getCurve().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
+    assertEquals(curveComputed.yValue(NB_MONTHS_2), LAST_FIX_VALUE, TOLERANCE_TIME);
+  }
+  
+  public void of_construction_additive_1() {
+    SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
+        SEASONALITY_ADDITIVE, (v, a) -> v + a, (v, a) -> 1.0d);
+    assertEquals(curveComputed.getCurve().getXValues().get(0), NB_MONTHS_1, TOLERANCE_TIME);
+    assertEquals(curveComputed.getCurve().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
+    assertEquals(curveComputed.yValue(NB_MONTHS_1), LAST_FIX_VALUE, TOLERANCE_TIME);
+  }
+
+  public void value_multiplicative() {
+    SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
+        SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a, (v, a) -> a);
+    for (int i = 1; i < TEST_MONTHS.length; i++) {
+      double nbMonths = YearMonth.from(VAL_DATE_2).until(TEST_MONTHS[i], MONTHS);
+      double valueComputed = curveComputed.yValue(nbMonths);
+      int x = (int) ((nbMonths + 12) % 12);
+      double valueNoAdj = EXTENDED_CURVE_2.yValue(nbMonths);
+      double adj = SEASONALITY_MULTIPLICATIVE_COMP_2.get(x);
+      double valueExpected = valueNoAdj * adj;
+      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
+    }
+  }  
+
+  public void value_additive() {
+    SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
+        SEASONALITY_ADDITIVE, (v, a) -> v + a, (v, a) -> 1.0d);
+    for (int i = 1; i < TEST_MONTHS.length; i++) {
+      double nbMonths = YearMonth.from(VAL_DATE_2).until(TEST_MONTHS[i], MONTHS);
+      double valueComputed = curveComputed.yValue(nbMonths);
+      int x = (int) ((nbMonths + 12) % 12);
+      double valueNoAdj = EXTENDED_CURVE_2.yValue(nbMonths);
+      DoubleArray seasonalityAdditiveCompounded =
+          seasonalityCompounded(VAL_DATE_2, LAST_FIX_MONTH_2, SEASONALITY_ADDITIVE, (v, a) -> v + a);
+      double adj = seasonalityAdditiveCompounded.get(x);
+      double valueExpected = valueNoAdj + adj;
+      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
+    }
+  }
+  
+  public void parameter_sensitivity_multiplicative() {
+    // TODO
+  }
+
+  private static DoubleArray seasonalityCompounded(
+      LocalDate valDate, YearMonth fixingMonth, DoubleArray seasonality,
+      DoubleBinaryOperator adjustmentFunction) {
+    double nbMonths = YearMonth.from(valDate).until(fixingMonth, MONTHS);
+    double[] seasonalityCompoundedArray = new double[12];
+    int lastMonthIndex = fixingMonth.getMonth().getValue() - 2;
+    seasonalityCompoundedArray[(int) ((nbMonths + 12 + 1) % 12)] =
+        seasonality.get((lastMonthIndex + 1) % 12);
+    for (int i = 1; i < 12; i++) {
+      int j = (int) ((nbMonths + 12 + 1 + i) % 12);
+      seasonalityCompoundedArray[j] = adjustmentFunction.applyAsDouble(
+          seasonalityCompoundedArray[(j - 1 + 12) % 12], seasonality.get((lastMonthIndex + 1 + i) % 12));
+    }
+    return DoubleArray.ofUnsafe(seasonalityCompoundedArray);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    SeasonalNodalCurve test = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
+        SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a, (v, a) -> a);
+    coverImmutableBean(test);
+    SeasonalNodalCurve test2 = SeasonalNodalCurve
+        .of(CURVE2_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE + 1.0d,
+            SEASONALITY_ADDITIVE, (v, a) -> v + a, (v, a) -> 1.0d);
+    coverBeanEquals(test, test2);
+  }
+
+//  public void test_serialization() {
+//    SeasonalNodalCurve test = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
+//        SEASONALITY_MULTIPLICATIVE, (v, a) -> v * a, (v, a) -> a);
+//    assertSerialization(test);
+//  }
+  
+}

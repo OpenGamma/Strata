@@ -18,6 +18,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.SeasonalNodalCurveDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -217,7 +219,7 @@ public class CalibrationInflationUsdTest {
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
           .extrapolatorRight(EXTRAPOLATOR_FLAT)
           .nodes(DSC_NODES).build();
-  private static final InterpolatedNodalCurveDefinition CPI_CURVE_DEFN =
+  private static final InterpolatedNodalCurveDefinition CPI_CURVE_UNDER_DEFN =
       InterpolatedNodalCurveDefinition.builder()
           .name(CPI_CURVE_NAME)
           .xValueType(ValueType.MONTHS)
@@ -227,6 +229,11 @@ public class CalibrationInflationUsdTest {
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
           .extrapolatorRight(EXTRAPOLATOR_EXP)
           .nodes(CPI_NODES).build();
+  private static final SeasonalNodalCurveDefinition CPI_CURVE_DEFN =
+      SeasonalNodalCurveDefinition.builder()
+      .curveWithoutFixingDefinition(CPI_CURVE_UNDER_DEFN)
+      .lastFixingMonth(YearMonth.of(2015, 6))
+      .lastFixingValue(123.4).build();
   private static final CurveGroupDefinition CURVE_GROUP_CONFIG =
       CurveGroupDefinition.builder()
           .name(CURVE_GROUP_NAME)
