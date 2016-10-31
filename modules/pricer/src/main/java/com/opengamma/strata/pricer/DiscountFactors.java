@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.pricer;
 
+import static com.opengamma.strata.pricer.SimpleDiscountFactors.EFFECTIVE_ZERO;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.MarketDataView;
@@ -166,11 +169,25 @@ public interface DiscountFactors
    * @return the discount factor
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double discountFactorWithSpread(
+  public default double discountFactorWithSpread(
       double yearFraction,
       double zSpread,
       CompoundedRateType compoundedRateType,
-      int periodsPerYear);
+      int periodsPerYear) {
+    
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return 1d;
+    }
+    double df = discountFactor(yearFraction);
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
+      ArgChecker.notNegativeOrZero(periodsPerYear, "periodPerYear");
+      double ratePeriodicAnnualPlusOne =
+          Math.pow(df, -1.0 / periodsPerYear / yearFraction) + zSpread / periodsPerYear;
+      return Math.pow(ratePeriodicAnnualPlusOne, -periodsPerYear * yearFraction);
+    } else {
+      return df * Math.exp(-zSpread * yearFraction);
+    }
+  }
 
   /**
    * Gets the continuously compounded zero rate for the specified date.
@@ -384,12 +401,27 @@ public interface DiscountFactors
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+  public default ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
       double yearFraction,
       Currency sensitivityCurrency,
       double zSpread,
       CompoundedRateType compoundedRateType,
-      int periodsPerYear);
+      int periodsPerYear) {
+
+    ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return sensi;
+    }
+    double factor;
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
+      double df = discountFactor(yearFraction);
+      double dfRoot = Math.pow(df, -1d / periodsPerYear / yearFraction);
+      factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodsPerYear, periodsPerYear * yearFraction + 1d);
+    } else {
+      factor = Math.exp(-zSpread * yearFraction);
+    }
+    return sensi.multipliedBy(factor);
+  }
 
   //-------------------------------------------------------------------------
   /**

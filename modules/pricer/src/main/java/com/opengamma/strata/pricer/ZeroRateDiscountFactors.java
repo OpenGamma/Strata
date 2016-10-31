@@ -55,11 +55,6 @@ public final class ZeroRateDiscountFactors
     implements DiscountFactors, ImmutableBean, Serializable {
 
   /**
-   * Year fraction used as an effective zero.
-   */
-  private static final double EFFECTIVE_ZERO = 1e-10;
-
-  /**
    * The currency that the discount factors are for.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -167,27 +162,6 @@ public final class ZeroRateDiscountFactors
   }
 
   @Override
-  public double discountFactorWithSpread(
-      double yearFraction,
-      double zSpread,
-      CompoundedRateType compoundedRateType,
-      int periodPerYear) {
-
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return 1d;
-    }
-    double df = discountFactor(yearFraction);
-    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
-      ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
-      double ratePeriodicAnnualPlusOne =
-          Math.pow(df, -1.0 / periodPerYear / yearFraction) + zSpread / periodPerYear;
-      return Math.pow(ratePeriodicAnnualPlusOne, -periodPerYear * yearFraction);
-    } else {
-      return df * Math.exp(-zSpread * yearFraction);
-    }
-  }
-
-  @Override
   public double zeroRate(double yearFraction) {
     return curve.yValue(yearFraction);
   }
@@ -197,29 +171,6 @@ public final class ZeroRateDiscountFactors
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     double discountFactor = discountFactor(yearFraction);
     return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
-      double yearFraction,
-      Currency sensitivityCurrency,
-      double zSpread,
-      CompoundedRateType compoundedRateType,
-      int periodPerYear) {
-
-    ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return sensi;
-    }
-    double factor;
-    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
-      double df = discountFactor(yearFraction);
-      double dfRoot = Math.pow(df, -1d / periodPerYear / yearFraction);
-      factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodPerYear, periodPerYear * yearFraction + 1d);
-    } else {
-      factor = Math.exp(-zSpread * yearFraction);
-    }
-    return sensi.multipliedBy(factor);
   }
 
   @Override
