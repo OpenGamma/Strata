@@ -56,7 +56,7 @@ public enum ShiftType {
   },
 
   /**
-   * An scaled shift where the value is multiplied by the shift.
+   * A scaled shift where the value is multiplied by the shift.
    * <p>
    * {@code shiftedValue = (value * shiftAmount)}
    */
