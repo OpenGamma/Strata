@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.credit;
 
 import java.io.Serializable;
@@ -32,13 +37,13 @@ public final class CdsIndexCalibrationTrade
     implements Trade, ImmutableBean, Serializable {
 
   /**
-  * The underlying CDS index trade.
-  */
+   * The underlying CDS index trade.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CdsIndexTrade underlyingTrade;
   /**
-  * The CDS index quote.
-  */
+   * The CDS index quote.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CdsQuote quote;
 

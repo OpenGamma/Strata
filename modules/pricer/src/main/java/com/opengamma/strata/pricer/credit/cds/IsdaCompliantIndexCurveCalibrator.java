@@ -29,8 +29,8 @@ import com.opengamma.strata.market.observable.LegalEntityInformationId;
  * All of the curve nodes must be based on a common single names and currency.
  * <p>
  * Calibration involves pricing, and re-pricing, these trades to find the best fit using a root finder, 
- * where the pricing is based on {@link IsdaHomogenousCdsIndexTradePricer}, thus 
- * the calibration is completed by a calibrator for single name CDS trades, {@link IsdaCompliantCreditCurveCalibrator}.
+ * where the pricing is based on {@link IsdaHomogenousCdsIndexTradePricer}, thus the calibration is 
+ * completed by using a calibrator for single name CDS trades, {@link IsdaCompliantCreditCurveCalibrator}.
  * <p>
  * Relevant discount curve and recovery rate curve are required to complete the calibration.
  */
@@ -109,13 +109,13 @@ public class IsdaCompliantIndexCurveCalibrator {
   }
 
   private double computeIndexFactor(CdsIndexIsdaCreditCurveNode node, MarketData marketData) {
-    double numDefaulted = node.getReferenceEntityIds().stream()
+    double numDefaulted = node.getLegalEntityIds().stream()
         .map(s -> marketData.getValue(LegalEntityInformationId.of(s)))
         .map(LegalEntityInformation.class::cast)
-        .filter(LegalEntityInformation::isIsDefaulted)
+        .filter(LegalEntityInformation::isDefaulted)
         .collect(Collectors.toList())
         .size();
-    double numTotal = node.getReferenceEntityIds().size();
+    double numTotal = node.getLegalEntityIds().size();
     return (numTotal - numDefaulted) / numTotal;
   }
 

@@ -35,7 +35,7 @@ public final class LegalEntityInformation
     implements ImmutableBean, Serializable {
 
   /**
-   * The legal entity ID. 
+   * The legal entity identifier. 
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
@@ -45,7 +45,7 @@ public final class LegalEntityInformation
    * True if defaulted, false otherwise.
    */
   @PropertyDefinition(validate = "notNull")
-  private final boolean isDefaulted;
+  private final boolean defaulted;
 
   //-------------------------------------------------------------------------
   /**
@@ -89,11 +89,11 @@ public final class LegalEntityInformation
 
   private LegalEntityInformation(
       StandardId legalEntityId,
-      boolean isDefaulted) {
+      boolean defaulted) {
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-    JodaBeanUtils.notNull(isDefaulted, "isDefaulted");
+    JodaBeanUtils.notNull(defaulted, "defaulted");
     this.legalEntityId = legalEntityId;
-    this.isDefaulted = isDefaulted;
+    this.defaulted = defaulted;
   }
 
   @Override
@@ -113,7 +113,7 @@ public final class LegalEntityInformation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the legal entity ID.
+   * Gets the legal entity identifier.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {
@@ -127,8 +127,8 @@ public final class LegalEntityInformation
    * True if defaulted, false otherwise.
    * @return the value of the property, not null
    */
-  public boolean isIsDefaulted() {
-    return isDefaulted;
+  public boolean isDefaulted() {
+    return defaulted;
   }
 
   //-----------------------------------------------------------------------
@@ -140,7 +140,7 @@ public final class LegalEntityInformation
     if (obj != null && obj.getClass() == this.getClass()) {
       LegalEntityInformation other = (LegalEntityInformation) obj;
       return JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
-          (isDefaulted == other.isDefaulted);
+          (defaulted == other.defaulted);
     }
     return false;
   }
@@ -149,7 +149,7 @@ public final class LegalEntityInformation
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(isDefaulted);
+    hash = hash * 31 + JodaBeanUtils.hashCode(defaulted);
     return hash;
   }
 
@@ -158,7 +158,7 @@ public final class LegalEntityInformation
     StringBuilder buf = new StringBuilder(96);
     buf.append("LegalEntityInformation{");
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("isDefaulted").append('=').append(JodaBeanUtils.toString(isDefaulted));
+    buf.append("defaulted").append('=').append(JodaBeanUtils.toString(defaulted));
     buf.append('}');
     return buf.toString();
   }
@@ -179,17 +179,17 @@ public final class LegalEntityInformation
     private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
         this, "legalEntityId", LegalEntityInformation.class, StandardId.class);
     /**
-     * The meta-property for the {@code isDefaulted} property.
+     * The meta-property for the {@code defaulted} property.
      */
-    private final MetaProperty<Boolean> isDefaulted = DirectMetaProperty.ofImmutable(
-        this, "isDefaulted", LegalEntityInformation.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> defaulted = DirectMetaProperty.ofImmutable(
+        this, "defaulted", LegalEntityInformation.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "legalEntityId",
-        "isDefaulted");
+        "defaulted");
 
     /**
      * Restricted constructor.
@@ -202,8 +202,8 @@ public final class LegalEntityInformation
       switch (propertyName.hashCode()) {
         case 866287159:  // legalEntityId
           return legalEntityId;
-        case -323708778:  // isDefaulted
-          return isDefaulted;
+        case -1502128480:  // defaulted
+          return defaulted;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -233,11 +233,11 @@ public final class LegalEntityInformation
     }
 
     /**
-     * The meta-property for the {@code isDefaulted} property.
+     * The meta-property for the {@code defaulted} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> isDefaulted() {
-      return isDefaulted;
+    public MetaProperty<Boolean> defaulted() {
+      return defaulted;
     }
 
     //-----------------------------------------------------------------------
@@ -246,8 +246,8 @@ public final class LegalEntityInformation
       switch (propertyName.hashCode()) {
         case 866287159:  // legalEntityId
           return ((LegalEntityInformation) bean).getLegalEntityId();
-        case -323708778:  // isDefaulted
-          return ((LegalEntityInformation) bean).isIsDefaulted();
+        case -1502128480:  // defaulted
+          return ((LegalEntityInformation) bean).isDefaulted();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -270,7 +270,7 @@ public final class LegalEntityInformation
   private static final class Builder extends DirectFieldsBeanBuilder<LegalEntityInformation> {
 
     private StandardId legalEntityId;
-    private boolean isDefaulted;
+    private boolean defaulted;
 
     /**
      * Restricted constructor.
@@ -284,8 +284,8 @@ public final class LegalEntityInformation
       switch (propertyName.hashCode()) {
         case 866287159:  // legalEntityId
           return legalEntityId;
-        case -323708778:  // isDefaulted
-          return isDefaulted;
+        case -1502128480:  // defaulted
+          return defaulted;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -297,8 +297,8 @@ public final class LegalEntityInformation
         case 866287159:  // legalEntityId
           this.legalEntityId = (StandardId) newValue;
           break;
-        case -323708778:  // isDefaulted
-          this.isDefaulted = (Boolean) newValue;
+        case -1502128480:  // defaulted
+          this.defaulted = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -334,7 +334,7 @@ public final class LegalEntityInformation
     public LegalEntityInformation build() {
       return new LegalEntityInformation(
           legalEntityId,
-          isDefaulted);
+          defaulted);
     }
 
     //-----------------------------------------------------------------------
@@ -343,7 +343,7 @@ public final class LegalEntityInformation
       StringBuilder buf = new StringBuilder(96);
       buf.append("LegalEntityInformation.Builder{");
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-      buf.append("isDefaulted").append('=').append(JodaBeanUtils.toString(isDefaulted));
+      buf.append("defaulted").append('=').append(JodaBeanUtils.toString(defaulted));
       buf.append('}');
       return buf.toString();
     }

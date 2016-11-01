@@ -16,6 +16,8 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.curve.IsdaCreditCurveNode;
@@ -43,6 +46,7 @@ import com.opengamma.strata.product.credit.CdsQuote;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
+import com.opengamma.strata.product.credit.type.DatesCdsTemplate;
 import com.opengamma.strata.product.credit.type.TenorCdsTemplate;
 
 /**
@@ -85,7 +89,7 @@ public final class CdsIndexIsdaCreditCurveNode
    * This identifiers are used for the reference legal entities of the CDS index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<StandardId> referenceEntityIds;
+  private final ImmutableList<StandardId> legalEntityIds;
   /**
    * The market quote convention.
    * <p>
@@ -101,6 +105,107 @@ public final class CdsIndexIsdaCreditCurveNode
    */
   @PropertyDefinition(get = "optional")
   private final Double fixedRate;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a curve node with par spread convention.
+   * 
+   * @param template  the template
+   * @param observableId  the observable ID
+   * @param cdsIndexId  the CDS index ID
+   * @param legalEntityIds  the legal entity IDs
+   * @return the curve node
+   */
+  public static CdsIndexIsdaCreditCurveNode ofParSpread(
+      CdsTemplate template,
+      ObservableId observableId,
+      StandardId cdsIndexId,
+      List<StandardId> legalEntityIds) {
+
+    return builder()
+        .template(template)
+        .observableId(observableId)
+        .cdsIndexId(cdsIndexId)
+        .legalEntityIds(legalEntityIds)
+        .quoteConvention(CdsQuoteConvention.PAR_SPREAD)
+        .build();
+  }
+
+  /**
+   * Returns a curve node with points upfront convention.
+   * 
+   * @param template  the template
+   * @param observableId  the observable ID
+   * @param cdsIndexId  the CDS index ID
+   * @param legalEntityIds  the legal entity IDs
+   * @param fixedRate  the fixed rate
+   * @return the curve node
+   */
+  public static CdsIndexIsdaCreditCurveNode ofPointsUpfront(
+      CdsTemplate template,
+      ObservableId observableId,
+      StandardId cdsIndexId,
+      List<StandardId> legalEntityIds,
+      Double fixedRate) {
+
+    return builder()
+        .template(template)
+        .observableId(observableId)
+        .cdsIndexId(cdsIndexId)
+        .legalEntityIds(legalEntityIds)
+        .quoteConvention(CdsQuoteConvention.POINTS_UPFRONT)
+        .fixedRate(fixedRate)
+        .build();
+  }
+
+  /**
+   * Returns a curve node with quoted spread convention.
+   * 
+   * @param template  the template
+   * @param observableId  the observable ID
+   * @param cdsIndexId  the CDS index ID
+   * @param legalEntityIds  the legal entity IDs
+   * @param fixedRate  the fixed rate
+   * @return the curve node
+   */
+  public static CdsIndexIsdaCreditCurveNode ofQuotedSpread(
+      CdsTemplate template,
+      ObservableId observableId,
+      StandardId cdsIndexId,
+      List<StandardId> legalEntityIds,
+      Double fixedRate) {
+
+    return builder()
+        .template(template)
+        .observableId(observableId)
+        .cdsIndexId(cdsIndexId)
+        .legalEntityIds(legalEntityIds)
+        .quoteConvention(CdsQuoteConvention.QUOTED_SPREAD)
+        .fixedRate(fixedRate)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.template != null) {
+      if (builder.label == null) {
+        builder.label = builder.template instanceof TenorCdsTemplate
+            ? ((TenorCdsTemplate) builder.template).getTenor().toString()
+            : ((DatesCdsTemplate) builder.template).getEndDate().toString();
+      }
+    }
+  }
+
+  @ImmutableValidator
+  private void validate() {
+    if (quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)) {
+      ArgChecker.isTrue(fixedRate == null, "The fixed rate must be empty for par spread quote");
+    } else {
+      ArgChecker.isTrue(fixedRate != null,
+          "The fixed rate must be specifed if quote convention is points upfront or quoted spread");
+    }
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -151,14 +256,14 @@ public final class CdsIndexIsdaCreditCurveNode
             .currency(cdsProduct.getCurrency())
             .notional(cdsProduct.getNotional())
             .cdsIndexId(cdsIndexId)
-            .referenceEntityIds(referenceEntityIds)
+            .legalEntityIds(legalEntityIds)
             .dayCount(cdsProduct.getDayCount())
             .accrualSchedule(cdsProduct.getAccrualSchedule())
             .fixedRate(cdsProduct.getFixedRate())
             .paymentOnDefault(cdsProduct.getPaymentOnDefault())
             .protectionStart(cdsProduct.getProtectionStart())
             .settlementDateOffset(cdsProduct.getSettlementDateOffset())
-            .stepinDateOffset(cdsProduct.getSettlementDateOffset())
+            .stepinDateOffset(cdsProduct.getStepinDateOffset())
             .build())
         .build();
     return CdsIndexCalibrationTrade.of(cdsIndex, quote);
@@ -196,22 +301,23 @@ public final class CdsIndexIsdaCreditCurveNode
       String label,
       ObservableId observableId,
       StandardId cdsIndexId,
-      List<StandardId> referenceEntityIds,
+      List<StandardId> legalEntityIds,
       CdsQuoteConvention quoteConvention,
       Double fixedRate) {
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notEmpty(label, "label");
     JodaBeanUtils.notNull(observableId, "observableId");
     JodaBeanUtils.notNull(cdsIndexId, "cdsIndexId");
-    JodaBeanUtils.notNull(referenceEntityIds, "referenceEntityIds");
+    JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
     JodaBeanUtils.notNull(quoteConvention, "quoteConvention");
     this.template = template;
     this.label = label;
     this.observableId = observableId;
     this.cdsIndexId = cdsIndexId;
-    this.referenceEntityIds = ImmutableList.copyOf(referenceEntityIds);
+    this.legalEntityIds = ImmutableList.copyOf(legalEntityIds);
     this.quoteConvention = quoteConvention;
     this.fixedRate = fixedRate;
+    validate();
   }
 
   @Override
@@ -278,8 +384,8 @@ public final class CdsIndexIsdaCreditCurveNode
    * This identifiers are used for the reference legal entities of the CDS index.
    * @return the value of the property, not null
    */
-  public ImmutableList<StandardId> getReferenceEntityIds() {
-    return referenceEntityIds;
+  public ImmutableList<StandardId> getLegalEntityIds() {
+    return legalEntityIds;
   }
 
   //-----------------------------------------------------------------------
@@ -325,7 +431,7 @@ public final class CdsIndexIsdaCreditCurveNode
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(observableId, other.observableId) &&
           JodaBeanUtils.equal(cdsIndexId, other.cdsIndexId) &&
-          JodaBeanUtils.equal(referenceEntityIds, other.referenceEntityIds) &&
+          JodaBeanUtils.equal(legalEntityIds, other.legalEntityIds) &&
           JodaBeanUtils.equal(quoteConvention, other.quoteConvention) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate);
     }
@@ -339,7 +445,7 @@ public final class CdsIndexIsdaCreditCurveNode
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(observableId);
     hash = hash * 31 + JodaBeanUtils.hashCode(cdsIndexId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEntityIds);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityIds);
     hash = hash * 31 + JodaBeanUtils.hashCode(quoteConvention);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     return hash;
@@ -353,7 +459,7 @@ public final class CdsIndexIsdaCreditCurveNode
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("observableId").append('=').append(observableId).append(',').append(' ');
     buf.append("cdsIndexId").append('=').append(cdsIndexId).append(',').append(' ');
-    buf.append("referenceEntityIds").append('=').append(referenceEntityIds).append(',').append(' ');
+    buf.append("legalEntityIds").append('=').append(legalEntityIds).append(',').append(' ');
     buf.append("quoteConvention").append('=').append(quoteConvention).append(',').append(' ');
     buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
     buf.append('}');
@@ -391,11 +497,11 @@ public final class CdsIndexIsdaCreditCurveNode
     private final MetaProperty<StandardId> cdsIndexId = DirectMetaProperty.ofImmutable(
         this, "cdsIndexId", CdsIndexIsdaCreditCurveNode.class, StandardId.class);
     /**
-     * The meta-property for the {@code referenceEntityIds} property.
+     * The meta-property for the {@code legalEntityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<StandardId>> referenceEntityIds = DirectMetaProperty.ofImmutable(
-        this, "referenceEntityIds", CdsIndexIsdaCreditCurveNode.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<StandardId>> legalEntityIds = DirectMetaProperty.ofImmutable(
+        this, "legalEntityIds", CdsIndexIsdaCreditCurveNode.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code quoteConvention} property.
      */
@@ -415,7 +521,7 @@ public final class CdsIndexIsdaCreditCurveNode
         "label",
         "observableId",
         "cdsIndexId",
-        "referenceEntityIds",
+        "legalEntityIds",
         "quoteConvention",
         "fixedRate");
 
@@ -436,8 +542,8 @@ public final class CdsIndexIsdaCreditCurveNode
           return observableId;
         case -464117509:  // cdsIndexId
           return cdsIndexId;
-        case -315789110:  // referenceEntityIds
-          return referenceEntityIds;
+        case 1085098268:  // legalEntityIds
+          return legalEntityIds;
         case 2049149709:  // quoteConvention
           return quoteConvention;
         case 747425396:  // fixedRate
@@ -495,11 +601,11 @@ public final class CdsIndexIsdaCreditCurveNode
     }
 
     /**
-     * The meta-property for the {@code referenceEntityIds} property.
+     * The meta-property for the {@code legalEntityIds} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<StandardId>> referenceEntityIds() {
-      return referenceEntityIds;
+    public MetaProperty<ImmutableList<StandardId>> legalEntityIds() {
+      return legalEntityIds;
     }
 
     /**
@@ -530,8 +636,8 @@ public final class CdsIndexIsdaCreditCurveNode
           return ((CdsIndexIsdaCreditCurveNode) bean).getObservableId();
         case -464117509:  // cdsIndexId
           return ((CdsIndexIsdaCreditCurveNode) bean).getCdsIndexId();
-        case -315789110:  // referenceEntityIds
-          return ((CdsIndexIsdaCreditCurveNode) bean).getReferenceEntityIds();
+        case 1085098268:  // legalEntityIds
+          return ((CdsIndexIsdaCreditCurveNode) bean).getLegalEntityIds();
         case 2049149709:  // quoteConvention
           return ((CdsIndexIsdaCreditCurveNode) bean).getQuoteConvention();
         case 747425396:  // fixedRate
@@ -561,7 +667,7 @@ public final class CdsIndexIsdaCreditCurveNode
     private String label;
     private ObservableId observableId;
     private StandardId cdsIndexId;
-    private List<StandardId> referenceEntityIds = ImmutableList.of();
+    private List<StandardId> legalEntityIds = ImmutableList.of();
     private CdsQuoteConvention quoteConvention;
     private Double fixedRate;
 
@@ -580,7 +686,7 @@ public final class CdsIndexIsdaCreditCurveNode
       this.label = beanToCopy.getLabel();
       this.observableId = beanToCopy.getObservableId();
       this.cdsIndexId = beanToCopy.getCdsIndexId();
-      this.referenceEntityIds = beanToCopy.getReferenceEntityIds();
+      this.legalEntityIds = beanToCopy.getLegalEntityIds();
       this.quoteConvention = beanToCopy.getQuoteConvention();
       this.fixedRate = beanToCopy.fixedRate;
     }
@@ -597,8 +703,8 @@ public final class CdsIndexIsdaCreditCurveNode
           return observableId;
         case -464117509:  // cdsIndexId
           return cdsIndexId;
-        case -315789110:  // referenceEntityIds
-          return referenceEntityIds;
+        case 1085098268:  // legalEntityIds
+          return legalEntityIds;
         case 2049149709:  // quoteConvention
           return quoteConvention;
         case 747425396:  // fixedRate
@@ -624,8 +730,8 @@ public final class CdsIndexIsdaCreditCurveNode
         case -464117509:  // cdsIndexId
           this.cdsIndexId = (StandardId) newValue;
           break;
-        case -315789110:  // referenceEntityIds
-          this.referenceEntityIds = (List<StandardId>) newValue;
+        case 1085098268:  // legalEntityIds
+          this.legalEntityIds = (List<StandardId>) newValue;
           break;
         case 2049149709:  // quoteConvention
           this.quoteConvention = (CdsQuoteConvention) newValue;
@@ -665,12 +771,13 @@ public final class CdsIndexIsdaCreditCurveNode
 
     @Override
     public CdsIndexIsdaCreditCurveNode build() {
+      preBuild(this);
       return new CdsIndexIsdaCreditCurveNode(
           template,
           label,
           observableId,
           cdsIndexId,
-          referenceEntityIds,
+          legalEntityIds,
           quoteConvention,
           fixedRate);
     }
@@ -728,23 +835,23 @@ public final class CdsIndexIsdaCreditCurveNode
      * Sets the legal entity identifiers.
      * <p>
      * This identifiers are used for the reference legal entities of the CDS index.
-     * @param referenceEntityIds  the new value, not null
+     * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEntityIds(List<StandardId> referenceEntityIds) {
-      JodaBeanUtils.notNull(referenceEntityIds, "referenceEntityIds");
-      this.referenceEntityIds = referenceEntityIds;
+    public Builder legalEntityIds(List<StandardId> legalEntityIds) {
+      JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
+      this.legalEntityIds = legalEntityIds;
       return this;
     }
 
     /**
-     * Sets the {@code referenceEntityIds} property in the builder
+     * Sets the {@code legalEntityIds} property in the builder
      * from an array of objects.
-     * @param referenceEntityIds  the new value, not null
+     * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEntityIds(StandardId... referenceEntityIds) {
-      return referenceEntityIds(ImmutableList.copyOf(referenceEntityIds));
+    public Builder legalEntityIds(StandardId... legalEntityIds) {
+      return legalEntityIds(ImmutableList.copyOf(legalEntityIds));
     }
 
     /**
@@ -782,7 +889,7 @@ public final class CdsIndexIsdaCreditCurveNode
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("observableId").append('=').append(JodaBeanUtils.toString(observableId)).append(',').append(' ');
       buf.append("cdsIndexId").append('=').append(JodaBeanUtils.toString(cdsIndexId)).append(',').append(' ');
-      buf.append("referenceEntityIds").append('=').append(JodaBeanUtils.toString(referenceEntityIds)).append(',').append(' ');
+      buf.append("legalEntityIds").append('=').append(JodaBeanUtils.toString(legalEntityIds)).append(',').append(' ');
       buf.append("quoteConvention").append('=').append(JodaBeanUtils.toString(quoteConvention)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
       buf.append('}');
