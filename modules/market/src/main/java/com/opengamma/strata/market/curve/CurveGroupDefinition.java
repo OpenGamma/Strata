@@ -342,7 +342,7 @@ public final class CurveGroupDefinition
         computePvSensitivityToMarketQuote);
   }
   
-  public CurveGroupDefinition bind(Map<Index, LocalDateDoubleTimeSeries> tsMap) {
+  public CurveGroupDefinition bind(Map<Index, LocalDateDoubleTimeSeries> tsMap, LocalDate valuationDate) {
     ImmutableList.Builder<NodalCurveDefinition> boundCurveDefinitions = ImmutableList.builder();
     for (CurveGroupEntry entry : entries) {
       CurveName name = entry.getCurveName();
@@ -358,9 +358,10 @@ public final class CurveGroupDefinition
         Index index = indices.iterator().next();
         LocalDateDoubleTimeSeries ts = tsMap.get(index);
         ArgChecker.notNull(ts, "time series required for index " + index.toString());
-        LocalDate lastFixingDate = ts.getLatestDate();
-        YearMonth lastFixingMonth = YearMonth.of(lastFixingDate.getYear(), lastFixingDate.getMonth());
-        double lastFixingValue = ts.getLatestValue();
+        // Retrieve last fixing for months in the past
+        LocalDateDoubleTimeSeries tsPast = ts.subSeries(ts.getEarliestDate(), valuationDate);
+        YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
+        double lastFixingValue = tsPast.getLatestValue();
         SeasonalNodalCurveDefinition.Builder builder = SeasonalNodalCurveDefinition.builder()
             .curveWithoutFixingDefinition(curveDef)
             .lastFixingMonth(lastFixingMonth)

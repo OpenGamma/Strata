@@ -239,7 +239,7 @@ public final class CurveCalibrator {
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
-      CurveGroupDefinition groupDefnBound = groupDefn.bind(knownData.getTimeSeries());
+      CurveGroupDefinition groupDefnBound = groupDefn.bind(knownData.getTimeSeries(), knownData.getValuationDate());
       // combine all data in the group into flat lists
       ImmutableList<ResolvedTrade> trades = groupDefnBound.resolvedTrades(marketData, refData);
       ImmutableList<Double> initialGuesses = groupDefnBound.initialGuesses(marketData);

@@ -34,9 +34,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * Specific for inflation. Monthly + start value.
+ * Curve specifically designed for inflation with features for seasonality and initial point.
  * <p>
- * The correct month has to be done before this object is constructed.
+ * The curve details with the initial point and the total seasonal adjustment for each month can be directly provided.
+ * Alternatively, the curve without the initial point and the seasonality as a month-on-month can be provided and the 
+ * final curve computed from there.
  */
 @BeanDefinition
 public class SeasonalNodalCurve
@@ -66,6 +68,14 @@ public class SeasonalNodalCurve
   private final double xFixing;  // cached, not a property
   private final double yFixing;  // cached, not a property
   
+  /**
+   * Create an instance from the curve with initial point and total seasonal adjustment.
+   * 
+   * @param curve  the curve with initial fixing
+   * @param seasonality  the total seasonal adjustment for each month, with the first element the January adjustment
+   * @param adjustmentType  the adjustment type
+   * @return the seasonal curve instance
+   */
   public static SeasonalNodalCurve of(
       NodalCurve curve, 
       DoubleArray seasonality, 
@@ -74,6 +84,20 @@ public class SeasonalNodalCurve
     return new SeasonalNodalCurve(curve, seasonality, adjustmentType);
   }
   
+  /**
+   * Create an instance from a curve without initial fixing point and month-on-month seasonal adjustment.
+   * <p>
+   * The total adjustment is computed by accumulation of the monthly adjustment, starting with no adjustment for the 
+   * last fixing month.
+   * 
+   * @param curveWithoutFixing  the curve without the fixing
+   * @param valuationDate  the valuation date of the curve
+   * @param lastMonth  the last month for which the fixing is known
+   * @param lastFixingValue  the value of the last fixing
+   * @param seasonalityDefinition  the seasonality definition, which is made of month-on-month adjustment 
+   * and the adjustment type
+   * @return the seasonal curve instance
+   */
   public static SeasonalNodalCurve of(
       NodalCurve curveWithoutFixing, 
       LocalDate valuationDate,
@@ -81,6 +105,8 @@ public class SeasonalNodalCurve
       double lastFixingValue,
       SeasonalityDefinition seasonalityDefinition) {
 
+    ArgChecker.isTrue(lastMonth.isBefore(YearMonth.from(valuationDate)), 
+        "Last fixing month must be before valuation date");
     double nbMonth = YearMonth.from(valuationDate).until(lastMonth, MONTHS);
     DoubleArray x = curveWithoutFixing.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
