@@ -70,6 +70,11 @@ public class ResolvedCdsIndexTradeTest {
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getUpfrontFee().get(), UPFRONT);
+
+    ResolvedCdsTrade singleName = test.toSingleNameCds();
+    assertEquals(singleName.getProduct(), PRODUCT.toSingleNameCds());
+    assertEquals(singleName.getInfo(), TRADE_INFO);
+    assertEquals(singleName.getUpfrontFee().get(), UPFRONT);
   }
 
   public void test_builder_min() {
@@ -80,6 +85,11 @@ public class ResolvedCdsIndexTradeTest {
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertFalse(test.getUpfrontFee().isPresent());
+
+    ResolvedCdsTrade singleName = test.toSingleNameCds();
+    assertEquals(singleName.getProduct(), PRODUCT.toSingleNameCds());
+    assertEquals(singleName.getInfo(), TRADE_INFO);
+    assertFalse(singleName.getUpfrontFee().isPresent());
   }
 
   //-------------------------------------------------------------------------

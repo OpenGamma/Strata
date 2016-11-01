@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
 import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
 import static org.testng.Assert.assertEquals;
@@ -181,6 +182,34 @@ public class ResolvedCdsIndexTest {
     assertEquals(test2.calculateEffectiveStartDate(date3), date3);
     LocalDate date4 = LocalDate.of(2013, 9, 22);
     assertEquals(test2.calculateEffectiveStartDate(date4), START_DATE);
+  }
+
+  public void test_totoSingleNameCds() {
+    ResolvedCdsIndex base = ResolvedCdsIndex.builder()
+        .buySell(BUY)
+        .dayCount(ACT_360)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
+        .paymentOnDefault(ACCRUED_PREMIUM)
+        .protectionStart(BEGINNING)
+        .periodicPayments(PAYMENTS)
+        .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
+        .settlementDateOffset(SETTLE_DAY_ADJ)
+        .stepinDateOffset(STEPIN_DAY_ADJ)
+        .build();
+    ResolvedCds test = base.toSingleNameCds();
+    ResolvedCds expected = ResolvedCds.builder()
+        .buySell(SELL)
+        .dayCount(ACT_360)
+        .legalEntityId(INDEX_ID)
+        .paymentOnDefault(ACCRUED_PREMIUM)
+        .protectionStart(BEGINNING)
+        .periodicPayments(PAYMENTS)
+        .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
+        .settlementDateOffset(SETTLE_DAY_ADJ)
+        .stepinDateOffset(STEPIN_DAY_ADJ)
+        .build();
+    assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
