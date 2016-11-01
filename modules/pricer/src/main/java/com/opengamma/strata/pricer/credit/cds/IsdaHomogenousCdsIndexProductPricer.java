@@ -15,7 +15,6 @@ import com.opengamma.strata.collect.tuple.Triple;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.common.PriceType;
-import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.ResolvedCds;
 import com.opengamma.strata.product.credit.ResolvedCdsIndex;
 
@@ -70,7 +69,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
       PriceType priceType,
       ReferenceData refData) {
 
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     return underlyingPricer.price(cds, ratesProvider, referenceDate, priceType, refData);
   }
 
@@ -91,7 +90,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     return underlyingPricer.priceSensitivity(cds, ratesProvider, referenceDate, refData);
   }
 
@@ -121,7 +120,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
     if (isExpired(cdsIndex, ratesProvider)) {
       return CurrencyAmount.of(cdsIndex.getCurrency(), 0d);
     }
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     double recoveryRate = underlyingPricer.recoveryRate(cds, ratesProvider);
@@ -154,7 +153,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
     if (isExpired(cdsIndex, ratesProvider)) {
       return PointSensitivityBuilder.none();
     }
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     double recoveryRate = underlyingPricer.recoveryRate(cds, ratesProvider);
@@ -190,7 +189,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     return underlyingPricer.parSpread(cds, ratesProvider, referenceDate, refData);
   }
 
@@ -212,7 +211,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     return underlyingPricer.parSpreadSensitivity(cds, ratesProvider, referenceDate, refData);
   }
 
@@ -239,7 +238,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
     if (isExpired(cdsIndex, ratesProvider)) {
       return CurrencyAmount.of(cdsIndex.getCurrency(), 0d);
     }
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
@@ -271,7 +270,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
     if (isExpired(cdsIndex, ratesProvider)) {
       return CurrencyAmount.of(cdsIndex.getCurrency(), 0d);
     }
-    ResolvedCds cds = toSingleNameCds(cdsIndex);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     underlyingPricer.validateRecoveryRates(cds, ratesProvider);
@@ -283,20 +282,6 @@ public class IsdaHomogenousCdsIndexProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  private ResolvedCds toSingleNameCds(ResolvedCdsIndex index) {
-    return ResolvedCds.builder()
-        .buySell(index.getBuySell().isBuy() ? BuySell.SELL : BuySell.BUY)
-        .dayCount(index.getDayCount())
-        .legalEntityId(index.getCdsIndexId())
-        .paymentOnDefault(index.getPaymentOnDefault())
-        .periodicPayments(index.getPeriodicPayments())
-        .protectionEndDate(index.getProtectionEndDate())
-        .protectionStart(index.getProtectionStart())
-        .stepinDateOffset(index.getStepinDateOffset())
-        .settlementDateOffset(index.getSettlementDateOffset())
-        .build();
-  }
-
   boolean isExpired(ResolvedCdsIndex index, CreditRatesProvider ratesProvider) {
     return !index.getProtectionEndDate().isAfter(ratesProvider.getValuationDate());
   }
