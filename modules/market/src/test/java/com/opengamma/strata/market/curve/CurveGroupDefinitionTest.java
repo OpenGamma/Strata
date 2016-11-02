@@ -273,7 +273,7 @@ public class CurveGroupDefinitionTest {
     Map<Index, LocalDateDoubleTimeSeries> map = ImmutableMap.of(GB_RPI,
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
-    CurveGroupDefinition testBound = test.bind(map, valuationDate);
+    CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
@@ -287,7 +287,6 @@ public class CurveGroupDefinitionTest {
     assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
   }
 
-  //-------------------------------------------------------------------------
   public void test_bind_after_last_fixing() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -304,7 +303,7 @@ public class CurveGroupDefinitionTest {
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, lastFixingValue).put(otherFixingDate, lastFixingValue - 1.0)
             .put(other2FixingDate, lastFixingValue - 2.0).build());
-    CurveGroupDefinition testBound = test.bind(map, valuationDate);
+    CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
@@ -316,6 +315,37 @@ public class CurveGroupDefinitionTest {
     assertEquals(seasonDef.getName(), CURVE_NAME_I);
     assertEquals(seasonDef.getSeasonalityDefinition(), SEASONALITY_ADDITIVE_DEF);
     assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
+  }
+
+  public void test_bind_no_seasonality() {
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addForwardCurve(CURVE_DEFN_I, GB_RPI)
+        .build();
+    LocalDate valuationDate = LocalDate.of(2015, 11, 10);
+    LocalDate lastFixingDate = LocalDate.of(2015, 10, 31);
+    LocalDate otherFixingDate = LocalDate.of(2015, 9, 30);
+    double lastFixingValue = 234.56;
+    Map<Index, LocalDateDoubleTimeSeries> map = ImmutableMap.of(GB_RPI,
+        LocalDateDoubleTimeSeries.builder()
+            .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
+    CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
+    List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
+    assertEquals(list.size(), 2);
+    assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
+    assertTrue(list.get(1) instanceof SeasonalNodalCurveDefinition);
+    SeasonalNodalCurveDefinition seasonDef = (SeasonalNodalCurveDefinition) list.get(1);
+    assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
+    assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(lastFixingDate));
+    assertEquals(seasonDef.getLastFixingValue(), lastFixingValue);
+    assertEquals(seasonDef.getName(), CURVE_NAME_I);
+    assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
+    // Check the default
+    assertTrue(
+        seasonDef.getSeasonalityDefinition().getSeasonalityMonthOnMonth()
+            .equalWithTolerance(DoubleArray.filled(12, 1d), 1.0E-10));
+    assertEquals(seasonDef.getSeasonalityDefinition().getAdjustmentType(), ShiftType.SCALED);
   }
 
   //-------------------------------------------------------------------------

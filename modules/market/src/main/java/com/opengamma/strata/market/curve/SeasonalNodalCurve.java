@@ -32,6 +32,7 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Curve specifically designed for inflation with features for seasonality and initial point.
@@ -40,7 +41,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * Alternatively, the curve without the initial point and the seasonality as a month-on-month can be provided and the 
  * final curve computed from there.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public class SeasonalNodalCurve
     implements NodalCurve, ImmutableBean, Serializable {
 
@@ -49,7 +50,7 @@ public class SeasonalNodalCurve
    * With fixed initial value. Not a parameter.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalCurve curve;
+  private final NodalCurve underlying;
   /**
    * Describes the seasonal adjustments.
    * The array has a dimension of 12, one element for each month.
@@ -69,7 +70,11 @@ public class SeasonalNodalCurve
   private final double yFixing;  // cached, not a property
   
   /**
-   * Create an instance from the curve with initial point and total seasonal adjustment.
+   * Create an instance of the curve.
+   * <p>
+   * The seasonal adjustment is the total adjustment for each month, starting with January. 
+   * See the other 'of' method for month-on-month adjustments and the adjustment starting point.
+   * No extra point is added to represent the last fixing. See the other 'of' method to deal with this.
    * 
    * @param curve  the curve with initial fixing
    * @param seasonality  the total seasonal adjustment for each month, with the first element the January adjustment
@@ -112,16 +117,18 @@ public class SeasonalNodalCurve
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
     NodalCurve extendedCurve = curveWithoutFixing.withNode(nbMonth, lastFixingValue, ParameterMetadata.empty());
     double[] seasonalityCompoundedArray = new double[12];
-    int lastMonthIndex = lastMonth.getMonth().getValue() - 2;
+    int lastMonthIndex = lastMonth.getMonth().getValue() - 1;
     seasonalityCompoundedArray[(int) ((nbMonth + 12 + 1) % 12)] = 
-        seasonalityDefinition.getSeasonalityMonthOnMonth().get((lastMonthIndex + 1) % 12);
+        seasonalityDefinition.getSeasonalityMonthOnMonth().get(lastMonthIndex % 12);
     for (int i = 1; i < 12; i++) {
       int j = (int) ((nbMonth + 12 + 1 + i) % 12);
       seasonalityCompoundedArray[j] = seasonalityDefinition.getAdjustmentType()
           .applyShift(seasonalityCompoundedArray[(j - 1 + 12) % 12], 
-              seasonalityDefinition.getSeasonalityMonthOnMonth().get((lastMonthIndex + 1 + i) % 12));
+              seasonalityDefinition.getSeasonalityMonthOnMonth().get((lastMonthIndex + i) % 12));
     }
-    return new SeasonalNodalCurve(extendedCurve, DoubleArray.ofUnsafe(seasonalityCompoundedArray), 
+    return new SeasonalNodalCurve(
+        extendedCurve, 
+        DoubleArray.ofUnsafe(seasonalityCompoundedArray), 
         seasonalityDefinition.getAdjustmentType());
   }
 
@@ -132,7 +139,7 @@ public class SeasonalNodalCurve
       NodalCurve curve, 
       DoubleArray seasonality, 
       ShiftType adjustmentType) {
-    this.curve = curve;
+    this.underlying = curve;
     this.seasonality = seasonality;
     this.xFixing = curve.getXValues().get(0);
     this.yFixing = curve.getYValues().get(0);
@@ -144,45 +151,45 @@ public class SeasonalNodalCurve
 
   @Override
   public CurveMetadata getMetadata() {
-    return curve.getMetadata();
+    return underlying.getMetadata();
   }
 
   @Override
   public double yValue(double x) {
     int i = seasonalityIndex(x);
     double adjustment = seasonality.get(i);
-    return adjustmentType.applyShift(curve.yValue(x), adjustment);
+    return adjustmentType.applyShift(underlying.yValue(x), adjustment);
   }
   
   // The index on the seasonality vector associated to a time (nb months).
   private int seasonalityIndex(double x) {
     long xLong = Math.round(x);
-    return (int) ((xLong + 12) % 12); // Shift by 12 has java compute the remainder of negative numbers as negative
+    return (int) (((xLong % 12) + 12) % 12); // Shift by 12 has java compute the remainder of negative numbers as negative
   }
 
   @Override
   public int getParameterCount() {
-    return curve.getParameterCount() - 1;
+    return underlying.getParameterCount() - 1;
   }
 
   @Override
   public double getParameter(int parameterIndex) {
-    return curve.getParameter(parameterIndex + 1);
+    return underlying.getParameter(parameterIndex + 1);
   }
 
   @Override
   public ParameterMetadata getParameterMetadata(int parameterIndex) {
-    return curve.getParameterMetadata(parameterIndex + 1);
+    return underlying.getParameterMetadata(parameterIndex + 1);
   }
 
   @Override
   public DoubleArray getXValues() {
-    return curve.getXValues().subArray(1);
+    return underlying.getXValues().subArray(1);
   }
 
   @Override
   public DoubleArray getYValues() {
-    return curve.getYValues().subArray(1);
+    return underlying.getYValues().subArray(1);
   }
 
   @Override
@@ -190,17 +197,19 @@ public class SeasonalNodalCurve
     int i = seasonalityIndex(x);
     double adjustment = seasonality.get(i);
     double derivativeFactor = 0.0;
-    if(adjustmentType.equals(ShiftType.ABSOLUTE)) {
+    if (adjustmentType.equals(ShiftType.ABSOLUTE)) {
       derivativeFactor = 1.0;
     } else if (adjustmentType.equals(ShiftType.SCALED)) {
       derivativeFactor = adjustment;
     } else {
       throw new IllegalArgumentException("ShiftType " + adjustmentType + " is not supported for sensitivities");
     }
-    UnitParameterSensitivity u = curve.yValueParameterSensitivity(x);
-    UnitParameterSensitivity u2 = 
-        UnitParameterSensitivity.of(u.getMarketDataName(), 
-            u.getParameterMetadata().subList(1, u.getParameterMetadata().size()), u.getSensitivity().subArray(1));
+    UnitParameterSensitivity u = underlying.yValueParameterSensitivity(x);
+    UnitParameterSensitivity u2 =
+        UnitParameterSensitivity.of(
+            u.getMarketDataName(),
+            u.getParameterMetadata().subList(1, u.getParameterMetadata().size()),
+            u.getSensitivity().subArray(1));
     return u2.multipliedBy(derivativeFactor);
   }
 
@@ -210,32 +219,32 @@ public class SeasonalNodalCurve
   }
 
   @Override
-  public NodalCurve withMetadata(CurveMetadata metadata) {
-    return new SeasonalNodalCurve(curve.withMetadata(metadata), seasonality, adjustmentType);
+  public SeasonalNodalCurve withMetadata(CurveMetadata metadata) {
+    return new SeasonalNodalCurve(underlying.withMetadata(metadata), seasonality, adjustmentType);
   }
 
   @Override
-  public NodalCurve withYValues(DoubleArray values) {
+  public SeasonalNodalCurve withYValues(DoubleArray values) {
     DoubleArray yExtended = DoubleArray.of(yFixing).concat(values);
-    return new SeasonalNodalCurve(curve.withYValues(yExtended), seasonality, adjustmentType);
+    return new SeasonalNodalCurve(underlying.withYValues(yExtended), seasonality, adjustmentType);
   }
 
   @Override
-  public NodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
+  public SeasonalNodalCurve withValues(DoubleArray xValues, DoubleArray yValues) {
     DoubleArray xExtended = DoubleArray.of(xFixing).concat(xValues);
     DoubleArray yExtended = DoubleArray.of(yFixing).concat(yValues);
-    return new SeasonalNodalCurve(curve.withValues(xExtended, yExtended), seasonality, adjustmentType);
+    return new SeasonalNodalCurve(underlying.withValues(xExtended, yExtended), seasonality, adjustmentType);
   }
 
   @Override
-  public NodalCurve withParameter(int parameterIndex, double newValue) {
-    return new SeasonalNodalCurve(curve.withParameter(parameterIndex + 1, newValue), seasonality, adjustmentType);
+  public SeasonalNodalCurve withParameter(int parameterIndex, double newValue) {
+    return new SeasonalNodalCurve(underlying.withParameter(parameterIndex + 1, newValue), seasonality, adjustmentType);
   }
 
   @Override
-  public NodalCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
+  public SeasonalNodalCurve withNode(double x, double y, ParameterMetadata paramMetadata) {
     ArgChecker.isTrue(xFixing < x, "node can be added only after the fixing anchor");
-    return new SeasonalNodalCurve(curve.withNode(x, y, paramMetadata), seasonality, adjustmentType);
+    return new SeasonalNodalCurve(underlying.withNode(x, y, paramMetadata), seasonality, adjustmentType);
   }
   
   //------------------------- AUTOGENERATED START -------------------------
@@ -256,14 +265,6 @@ public class SeasonalNodalCurve
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static SeasonalNodalCurve.Builder builder() {
-    return new SeasonalNodalCurve.Builder();
-  }
 
   @Override
   public SeasonalNodalCurve.Meta metaBean() {
@@ -286,8 +287,8 @@ public class SeasonalNodalCurve
    * With fixed initial value. Not a parameter.
    * @return the value of the property, not null
    */
-  public NodalCurve getCurve() {
-    return curve;
+  public NodalCurve getUnderlying() {
+    return underlying;
   }
 
   //-----------------------------------------------------------------------
@@ -313,14 +314,6 @@ public class SeasonalNodalCurve
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -328,7 +321,7 @@ public class SeasonalNodalCurve
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SeasonalNodalCurve other = (SeasonalNodalCurve) obj;
-      return JodaBeanUtils.equal(curve, other.curve) &&
+      return JodaBeanUtils.equal(underlying, other.underlying) &&
           JodaBeanUtils.equal(seasonality, other.seasonality) &&
           JodaBeanUtils.equal(adjustmentType, other.adjustmentType);
     }
@@ -338,7 +331,7 @@ public class SeasonalNodalCurve
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(curve);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
     hash = hash * 31 + JodaBeanUtils.hashCode(seasonality);
     hash = hash * 31 + JodaBeanUtils.hashCode(adjustmentType);
     return hash;
@@ -358,7 +351,7 @@ public class SeasonalNodalCurve
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
     buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality)).append(',').append(' ');
     buf.append("adjustmentType").append('=').append(JodaBeanUtils.toString(adjustmentType)).append(',').append(' ');
   }
@@ -374,10 +367,10 @@ public class SeasonalNodalCurve
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curve} property.
+     * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<NodalCurve> curve = DirectMetaProperty.ofImmutable(
-        this, "curve", SeasonalNodalCurve.class, NodalCurve.class);
+    private final MetaProperty<NodalCurve> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", SeasonalNodalCurve.class, NodalCurve.class);
     /**
      * The meta-property for the {@code seasonality} property.
      */
@@ -393,7 +386,7 @@ public class SeasonalNodalCurve
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curve",
+        "underlying",
         "seasonality",
         "adjustmentType");
 
@@ -406,8 +399,8 @@ public class SeasonalNodalCurve
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return curve;
+        case -1770633379:  // underlying
+          return underlying;
         case -857898080:  // seasonality
           return seasonality;
         case -1002343865:  // adjustmentType
@@ -417,7 +410,7 @@ public class SeasonalNodalCurve
     }
 
     @Override
-    public SeasonalNodalCurve.Builder builder() {
+    public BeanBuilder<? extends SeasonalNodalCurve> builder() {
       return new SeasonalNodalCurve.Builder();
     }
 
@@ -433,11 +426,11 @@ public class SeasonalNodalCurve
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curve} property.
+     * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<NodalCurve> curve() {
-      return curve;
+    public final MetaProperty<NodalCurve> underlying() {
+      return underlying;
     }
 
     /**
@@ -460,8 +453,8 @@ public class SeasonalNodalCurve
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return ((SeasonalNodalCurve) bean).getCurve();
+        case -1770633379:  // underlying
+          return ((SeasonalNodalCurve) bean).getUnderlying();
         case -857898080:  // seasonality
           return ((SeasonalNodalCurve) bean).getSeasonality();
         case -1002343865:  // adjustmentType
@@ -485,9 +478,9 @@ public class SeasonalNodalCurve
   /**
    * The bean-builder for {@code SeasonalNodalCurve}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<SeasonalNodalCurve> {
+  private static class Builder extends DirectFieldsBeanBuilder<SeasonalNodalCurve> {
 
-    private NodalCurve curve;
+    private NodalCurve underlying;
     private DoubleArray seasonality;
     private ShiftType adjustmentType;
 
@@ -497,22 +490,12 @@ public class SeasonalNodalCurve
     protected Builder() {
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    protected Builder(SeasonalNodalCurve beanToCopy) {
-      this.curve = beanToCopy.getCurve();
-      this.seasonality = beanToCopy.getSeasonality();
-      this.adjustmentType = beanToCopy.getAdjustmentType();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return curve;
+        case -1770633379:  // underlying
+          return underlying;
         case -857898080:  // seasonality
           return seasonality;
         case -1002343865:  // adjustmentType
@@ -525,8 +508,8 @@ public class SeasonalNodalCurve
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          this.curve = (NodalCurve) newValue;
+        case -1770633379:  // underlying
+          this.underlying = (NodalCurve) newValue;
           break;
         case -857898080:  // seasonality
           this.seasonality = (DoubleArray) newValue;
@@ -567,48 +550,9 @@ public class SeasonalNodalCurve
     @Override
     public SeasonalNodalCurve build() {
       return new SeasonalNodalCurve(
-          curve,
+          underlying,
           seasonality,
           adjustmentType);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the underlying curve, before the adjustment.
-     * With fixed initial value. Not a parameter.
-     * @param curve  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curve(NodalCurve curve) {
-      JodaBeanUtils.notNull(curve, "curve");
-      this.curve = curve;
-      return this;
-    }
-
-    /**
-     * Sets describes the seasonal adjustments.
-     * The array has a dimension of 12, one element for each month.
-     * The adjustments are described as a perturbation to the existing values.
-     * No adjustment to the fixing value.
-     * @param seasonality  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder seasonality(DoubleArray seasonality) {
-      JodaBeanUtils.notNull(seasonality, "seasonality");
-      this.seasonality = seasonality;
-      return this;
-    }
-
-    /**
-     * Sets the shift type applied to the unadjusted value and the adjustment.
-     * (value, seasonality) -> adjustmentType.applyShift(value, seasonality).
-     * @param adjustmentType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder adjustmentType(ShiftType adjustmentType) {
-      JodaBeanUtils.notNull(adjustmentType, "adjustmentType");
-      this.adjustmentType = adjustmentType;
-      return this;
     }
 
     //-----------------------------------------------------------------------
@@ -626,7 +570,7 @@ public class SeasonalNodalCurve
     }
 
     protected void toString(StringBuilder buf) {
-      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
+      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
       buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality)).append(',').append(' ');
       buf.append("adjustmentType").append('=').append(JodaBeanUtils.toString(adjustmentType)).append(',').append(' ');
     }

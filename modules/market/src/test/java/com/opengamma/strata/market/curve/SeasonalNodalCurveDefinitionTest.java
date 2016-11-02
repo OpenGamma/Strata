@@ -60,17 +60,14 @@ public class SeasonalNodalCurveDefinitionTest {
       1.0, 1.5, 1.0, -0.5,
       -0.5, -1.0, -1.5, 0.0,
       0.5, 1.0, 1.0, -2.5);
-  private static final SeasonalityDefinition SEASONALITY_DEF = SeasonalityDefinition.builder()
-      .seasonalityMonthOnMonth(SEASONALITY_ADDITIVE).adjustmentType(ShiftType.ABSOLUTE).build();
+  private static final SeasonalityDefinition SEASONALITY_DEF = 
+      SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.ABSOLUTE);
   private static final YearMonth LAST_FIX_MONTH = YearMonth.of(2015, 7);
   private static final double LAST_FIX_VALUE = 240.0d;
 
   public void test_builder() {
-    SeasonalNodalCurveDefinition test = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(UNDERLYING_DEF)
-        .lastFixingMonth(LAST_FIX_MONTH)
-        .lastFixingValue(LAST_FIX_VALUE)
-        .seasonalityDefinition(SEASONALITY_DEF).build();
+    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+        UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertEquals(test.getCurveWithoutFixingDefinition(), UNDERLYING_DEF);
     assertEquals(test.getLastFixingMonth(), LAST_FIX_MONTH);
     assertEquals(test.getLastFixingValue(), LAST_FIX_VALUE);
@@ -79,11 +76,8 @@ public class SeasonalNodalCurveDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_metadata() {
-    SeasonalNodalCurveDefinition test = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(UNDERLYING_DEF)
-        .lastFixingMonth(LAST_FIX_MONTH)
-        .lastFixingValue(LAST_FIX_VALUE)
-        .seasonalityDefinition(SEASONALITY_DEF).build();
+    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+        UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     DefaultCurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
@@ -96,11 +90,8 @@ public class SeasonalNodalCurveDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_curve() {
-    SeasonalNodalCurveDefinition test = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(UNDERLYING_DEF)
-        .lastFixingMonth(LAST_FIX_MONTH)
-        .lastFixingValue(LAST_FIX_VALUE)
-        .seasonalityDefinition(SEASONALITY_DEF).build();
+    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+        UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     DefaultCurveMetadata metadata = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
@@ -126,21 +117,15 @@ public class SeasonalNodalCurveDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_toCurveParameterSize() {
-    SeasonalNodalCurveDefinition test = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(UNDERLYING_DEF)
-        .lastFixingMonth(LAST_FIX_MONTH)
-        .lastFixingValue(LAST_FIX_VALUE)
-        .seasonalityDefinition(SEASONALITY_DEF).build();
+    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+        UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    SeasonalNodalCurveDefinition test = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(UNDERLYING_DEF)
-        .lastFixingMonth(LAST_FIX_MONTH)
-        .lastFixingValue(LAST_FIX_VALUE)
-        .seasonalityDefinition(SEASONALITY_DEF).build();
+    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+        UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     coverImmutableBean(test);
     InterpolatedNodalCurveDefinition underlyingDef2 = InterpolatedNodalCurveDefinition.builder()
         .name(CurveName.of("foo"))
@@ -152,23 +137,17 @@ public class SeasonalNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    SeasonalityDefinition seasonalityDef2 = SeasonalityDefinition.builder()
-        .seasonalityMonthOnMonth(SEASONALITY_ADDITIVE).adjustmentType(ShiftType.SCALED).build();
-    SeasonalNodalCurveDefinition test2 = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(underlyingDef2)
-        .lastFixingMonth(LAST_FIX_MONTH.plus(Period.ofMonths(1)))
-        .lastFixingValue(LAST_FIX_VALUE + 1.0d)
-        .seasonalityDefinition(seasonalityDef2).build();
+    SeasonalityDefinition seasonalityDef2 =
+        SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.SCALED);
+    SeasonalNodalCurveDefinition test2 = new SeasonalNodalCurveDefinition(
+        underlyingDef2, LAST_FIX_MONTH.plus(Period.ofMonths(1)), LAST_FIX_VALUE + 1.0d, seasonalityDef2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    SeasonalNodalCurveDefinition test = SeasonalNodalCurveDefinition.builder()
-        .curveWithoutFixingDefinition(UNDERLYING_DEF)
-        .lastFixingMonth(LAST_FIX_MONTH)
-        .lastFixingValue(LAST_FIX_VALUE)
-        .seasonalityDefinition(SEASONALITY_DEF).build();
+    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+        UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertSerialization(test);
   }
-  
+
 }

@@ -64,6 +64,7 @@ public final class SimplePriceIndexValues
   /**
    * The list used when there is no seasonality.
    * It consists of 12 entries, all of value 1.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link SeasonalNodalCurve}.
    */
   @Deprecated
   public static final DoubleArray NO_SEASONALITY = DoubleArray.filled(12, 1d);
@@ -164,7 +165,7 @@ public final class SimplePriceIndexValues
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
     
-    ArgChecker.isFalse(curve instanceof SeasonalNodalCurve, "curve shoudl not be adjusted twice for seasonality");
+    ArgChecker.isFalse(curve instanceof SeasonalNodalCurve, "curve should not be adjusted twice for seasonality");
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(fixings.getLatestDate());
     double nbMonth = YearMonth.from(valuationDate).until(lastMonth, MONTHS);

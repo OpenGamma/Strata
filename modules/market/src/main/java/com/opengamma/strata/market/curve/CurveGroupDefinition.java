@@ -78,7 +78,9 @@ public final class CurveGroupDefinition
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<NodalCurveDefinition> curveDefinitions;
   /**
-   * Definitions which specify which seasonality should be used some some price index curves.
+   * Definitions which specify which seasonality should be used for some price index curves.
+   * <p>
+   * If a curve linked to a price index does not have an entry in the map, no seasonality is used for that curve.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<CurveName, SeasonalityDefinition> seasonalityDefinitions;
@@ -342,7 +344,20 @@ public final class CurveGroupDefinition
         computePvSensitivityToMarketQuote);
   }
   
-  public CurveGroupDefinition bind(Map<Index, LocalDateDoubleTimeSeries> tsMap, LocalDate valuationDate) {
+  /**
+   * Create a new group definition by binding the curves definitions linked to a price index with the related time series.
+   * <p>
+   * Curve related to price index are better described when a starting point is added with the last 
+   * fixing in the time series. The method review the different {@link CurveGroupEntry}. 
+   * For each of them linked to a price index, it first checks that if is linked to a unique index
+   * and then create a new entry of the type {@link SeasonalNodalCurveDefinition} with the 
+   * last fixing month equal to the last element in the time series which is in the past.
+   * 
+   * @param valuationDate the valuation date 
+   * @param tsMap the map of index to time series
+   * @return the new instance
+   */
+  public CurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
     ImmutableList.Builder<NodalCurveDefinition> boundCurveDefinitions = ImmutableList.builder();
     for (CurveGroupEntry entry : entries) {
       CurveName name = entry.getCurveName();
@@ -360,17 +375,12 @@ public final class CurveGroupDefinition
         ArgChecker.notNull(ts, "time series required for index " + index.toString());
         // Retrieve last fixing for months in the past
         LocalDateDoubleTimeSeries tsPast = ts.subSeries(ts.getEarliestDate(), valuationDate);
+        ArgChecker.isFalse(ts.isEmpty(), "time series must contain at least one element " + index.toString());
         YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
         double lastFixingValue = tsPast.getLatestValue();
-        SeasonalNodalCurveDefinition.Builder builder = SeasonalNodalCurveDefinition.builder()
-            .curveWithoutFixingDefinition(curveDef)
-            .lastFixingMonth(lastFixingMonth)
-            .lastFixingValue(lastFixingValue);
-        SeasonalityDefinition s = seasonalityDefinitions.get(name);
-        if (s != null) {
-          builder.seasonalityDefinition(s);
-        }
-        boundCurveDefinitions.add(builder.build());
+        SeasonalNodalCurveDefinition seasonalCurveDef = new SeasonalNodalCurveDefinition(
+            curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
+        boundCurveDefinitions.add(seasonalCurveDef);
       } else {
         boundCurveDefinitions.add(curveDef);
       }
@@ -444,7 +454,9 @@ public final class CurveGroupDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets definitions which specify which seasonality should be used some some price index curves.
+   * Gets definitions which specify which seasonality should be used for some price index curves.
+   * <p>
+   * If a curve linked to a price index does not have an entry in the map, no seasonality is used for that curve.
    * @return the value of the property, not null
    */
   public ImmutableMap<CurveName, SeasonalityDefinition> getSeasonalityDefinitions() {

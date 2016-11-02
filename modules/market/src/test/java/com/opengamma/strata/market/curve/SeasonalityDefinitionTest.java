@@ -28,9 +28,7 @@ public class SeasonalityDefinitionTest {
   private static final ShiftType ADDITIVE = ShiftType.ABSOLUTE;
 
   public void test_builder1() {
-    SeasonalityDefinition test = SeasonalityDefinition.builder()
-        .seasonalityMonthOnMonth(SEASONALITY_ADDITIVE)
-        .adjustmentType(ADDITIVE).build();
+    SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
     assertEquals(test.getSeasonalityMonthOnMonth(), SEASONALITY_ADDITIVE);
     assertEquals(test.getAdjustmentType(), ADDITIVE);
   }
@@ -43,24 +41,18 @@ public class SeasonalityDefinitionTest {
   
   //-------------------------------------------------------------------------
   public void coverage() {
-    SeasonalityDefinition test = SeasonalityDefinition.builder()
-        .seasonalityMonthOnMonth(SEASONALITY_ADDITIVE)
-        .adjustmentType(ADDITIVE).build();
+    SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
     coverImmutableBean(test);
     DoubleArray seasonalityMultiplicative = DoubleArray.of(
         1.0, 1.0, 1.1d, 1.0,
         1.0, 1.0, 1.0d / 1.1d, 1.0,
         1.0, 1.0, 1.0, 1.0);
-    SeasonalityDefinition test2 = SeasonalityDefinition.builder()
-        .seasonalityMonthOnMonth(seasonalityMultiplicative)
-        .adjustmentType(ShiftType.SCALED).build();
+    SeasonalityDefinition test2 = SeasonalityDefinition.of(seasonalityMultiplicative, ShiftType.SCALED);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    SeasonalityDefinition test = SeasonalityDefinition.builder()
-        .seasonalityMonthOnMonth(SEASONALITY_ADDITIVE)
-        .adjustmentType(ADDITIVE).build();
+    SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
     assertSerialization(test);
   }
 
