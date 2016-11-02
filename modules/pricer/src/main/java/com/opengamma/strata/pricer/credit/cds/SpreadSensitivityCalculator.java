@@ -15,8 +15,11 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.product.credit.ResolvedCds;
+import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
 /**
@@ -43,7 +46,7 @@ abstract class SpreadSensitivityCalculator {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes parallel CS01. 
+   * Computes parallel CS01 for CDS. 
    * <p>
    * The relevant credit curve must be stored in {@code RatesProvider}.
    * 
@@ -60,7 +63,7 @@ abstract class SpreadSensitivityCalculator {
       ReferenceData refData);
 
   /**
-   * Computes bucketed CS01.
+   * Computes bucketed CS01 for CDS.
    * <p>
    * The relevant credit curve must be stored in {@code RatesProvider}.
    * 
@@ -80,6 +83,62 @@ abstract class SpreadSensitivityCalculator {
     return CurrencyParameterSensitivity.of(CurveName.of("impliedSpreads"), trade.getProduct().getCurrency(), sensiValue);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Computes parallel CS01 for CDS index using a single credit curve. 
+   * <p>
+   * This is coherent to the pricer {@link IsdaHomogenousCdsIndexTradePricer}.
+   * The relevant credit curve must be stored in {@code RatesProvider}.
+   * 
+   * @param trade  the trade
+   * @param bucketCdsIndex  the CDS index bucket
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the parallel CS01
+   */
+  public CurrencyAmount parallelCs01(
+      ResolvedCdsIndexTrade trade,
+      List<ResolvedCdsIndexTrade> bucketCdsIndex,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    ResolvedCdsTrade cdsTrade = trade.toSingleNameCds();
+    List<ResolvedCdsTrade> bucketCds = bucketCdsIndex.stream()
+        .map(ResolvedCdsIndexTrade::toSingleNameCds)
+        .collect(Collectors.toList());
+    CurrencyAmount cs01Cds = parallelCs01(cdsTrade, bucketCds, ratesProvider, refData);
+    double indexFactor = getIndexFactor(cdsTrade.getProduct(), ratesProvider);
+    return cs01Cds.multipliedBy(indexFactor);
+  }
+
+  /**
+   * Computes bucketed CS01 for CDS index using a single credit curve.
+   * <p>
+   * This is coherent to the pricer {@link IsdaHomogenousCdsIndexTradePricer}.
+   * The relevant credit curve must be stored in {@code RatesProvider}.
+   * 
+   * @param trade  the trade
+   * @param bucketCdsIndex  the CDS index bucket
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the bucketed CS01
+   */
+  public CurrencyParameterSensitivity bucketedCs01(
+      ResolvedCdsIndexTrade trade,
+      List<ResolvedCdsIndexTrade> bucketCdsIndex,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    ResolvedCdsTrade cdsTrade = trade.toSingleNameCds();
+    List<ResolvedCdsTrade> bucketCds = bucketCdsIndex.stream()
+        .map(ResolvedCdsIndexTrade::toSingleNameCds)
+        .collect(Collectors.toList());
+    CurrencyParameterSensitivity bucketedCs01 = bucketedCs01(cdsTrade, bucketCds, ratesProvider, refData);
+    double indexFactor = getIndexFactor(cdsTrade.getProduct(), ratesProvider);
+    return bucketedCs01.multipliedBy(indexFactor);
+  }
+
+  //-------------------------------------------------------------------------
   // internal bucketed CS01 computation
   abstract DoubleArray computedBucketedCs01(
       ResolvedCdsTrade trade,
@@ -106,6 +165,15 @@ abstract class SpreadSensitivityCalculator {
       impSp[i] = pricer.parSpread(bucketCds.get(i), ratesProvider, refData);
     }
     return impSp;
+  }
+
+  private double getIndexFactor(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+    LegalEntitySurvivalProbabilities survivalProbabilities =
+        ratesProvider.survivalProbabilities(cds.getLegalEntityId(), cds.getCurrency());
+    // instance is checked in pricer
+    double indexFactor = ((IsdaCompliantZeroRateDiscountFactors) survivalProbabilities.getSurvivalProbabilities())
+        .getCurve().getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
+    return indexFactor;
   }
 
 }
