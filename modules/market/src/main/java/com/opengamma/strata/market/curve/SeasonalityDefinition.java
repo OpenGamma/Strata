@@ -6,42 +6,46 @@
 package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.ShiftType;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.BeanBuilder;
+
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ShiftType;
 
 /**
- * Provides the definition of seasonality for price index curve.
+ * Provides the definition of seasonality for a price index curve.
  * <p>
  * The seasonality is describe by a adjustment type and the month on month adjustments.
  * The adjustment type is usually {@link ShiftType#SCALED} (multiplicative) or {@link ShiftType#ABSOLUTE} (additive).
- * The month on month adjustment is an array of length 12 with the first element the adjustment from January to February,
- * the second element the adjustment from February to March, etc. to the 12th element the adjustment from 
- * December to January.
+ * The month on month adjustment is an array of length 12 with the first element being the
+ * adjustment from January to February, the second element being the adjustment from February to March,
+ * and so on to the 12th element being the adjustment from  December to January.
  */
 @BeanDefinition(builderScope = "private")
 public final class SeasonalityDefinition
     implements ImmutableBean, Serializable {
 
   /**
-   * The month on month adjustment. 
+   * The month on month adjustment.
+   * <p>
+   * This is an array of length 12, with the first element being the adjustment from
+   * January to February, the second element being the adjustment from February to March,
+   * and so on to the 12th element being the adjustment from December to January.
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray seasonalityMonthOnMonth;
@@ -51,9 +55,10 @@ public final class SeasonalityDefinition
    */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType adjustmentType;
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Create an instance of the seasonality.
+   * Obtains an instance of the seasonality.
    * 
    * @param seasonalityMonthOnMonth  the month-on-month seasonality
    * @param adjustmentType  the adjustment type
@@ -110,6 +115,10 @@ public final class SeasonalityDefinition
   //-----------------------------------------------------------------------
   /**
    * Gets the month on month adjustment.
+   * <p>
+   * This is an array of length 12, with the first element being the adjustment from
+   * January to February, the second element being the adjustment from February to March,
+   * and so on to the 12th element being the adjustment from December to January.
    * @return the value of the property, not null
    */
   public DoubleArray getSeasonalityMonthOnMonth() {

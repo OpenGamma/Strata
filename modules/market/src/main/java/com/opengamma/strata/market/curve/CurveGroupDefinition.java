@@ -131,7 +131,7 @@ public final class CurveGroupDefinition
 
     return new CurveGroupDefinition(name, entries, curveDefinitions, ImmutableMap.of(), true, false);
   }
-  
+
   /**
    * Returns a curve group definition with the specified name and containing the specified entries and seasonality.
    * <p>
@@ -212,7 +212,52 @@ public final class CurveGroupDefinition
     List<NodalCurveDefinition> filtered = curveDefinitions.stream()
         .map(ncd -> ncd.filtered(valuationDate, refData))
         .collect(toImmutableList());
-    return new CurveGroupDefinition(name, entries, filtered, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+    return new CurveGroupDefinition(
+        name, entries, filtered, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a definition that is bound to a time-series.
+   * <p>
+   * Curves related to a price index are better described when a starting point is added
+   * with the last fixing in the time series. This method finds price index curves, and ensures
+   * that they are unique (not used for any other index or discounting). Each price index
+   * curve is then bound to the matching time-series with the last fixing month equal to
+   * the last element in the time series which is in the past.
+   * 
+   * @param valuationDate  the valuation date 
+   * @param tsMap  the map of index to time series
+   * @return the new instance
+   */
+  public CurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
+    ImmutableList.Builder<NodalCurveDefinition> boundCurveDefinitions = ImmutableList.builder();
+    for (CurveGroupEntry entry : entries) {
+      CurveName name = entry.getCurveName();
+      NodalCurveDefinition curveDef = curveDefinitionsByName.get(name);
+      Set<Index> indices = entry.getIndices();
+      boolean containsPriceIndex = indices.stream().anyMatch(i -> i instanceof PriceIndex);
+      if (containsPriceIndex) {
+        // check only one curve for Price Index and find time-series last value
+        ArgChecker.isTrue(indices.size() == 1, "Price index curve must not relate to another index or discounting: " + name);
+        Index index = indices.iterator().next();
+        LocalDateDoubleTimeSeries ts = tsMap.get(index);
+        ArgChecker.notNull(ts, "Price index curve must have associated time-series: " + index.toString());
+        // retrieve last fixing for months before the valuation date
+        LocalDateDoubleTimeSeries tsPast = ts.subSeries(ts.getEarliestDate(), valuationDate);
+        ArgChecker.isFalse(ts.isEmpty(),
+            "Price index curve must have associated time-series with at least one element in the past:" + index.toString());
+        YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
+        double lastFixingValue = tsPast.getLatestValue();
+        SeasonalNodalCurveDefinition seasonalCurveDef = new SeasonalNodalCurveDefinition(
+            curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
+        boundCurveDefinitions.add(seasonalCurveDef);
+      } else {
+        // no price index
+        boundCurveDefinitions.add(curveDef);
+      }
+    }
+    return this.withCurveDefinitions(boundCurveDefinitions.build());
   }
 
   //-------------------------------------------------------------------------
@@ -321,7 +366,8 @@ public final class CurveGroupDefinition
     Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
     List<NodalCurveDefinition> filteredDefinitions =
         curveDefinitions.stream().filter(def -> curveNames.contains(def.getName())).collect(toImmutableList());
-    return new CurveGroupDefinition(name, entries, filteredDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+    return new CurveGroupDefinition(
+        name, entries, filteredDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
   /**
@@ -331,7 +377,8 @@ public final class CurveGroupDefinition
    * @return a copy of this curve group definition with a different name
    */
   public CurveGroupDefinition withName(CurveGroupName name) {
-    return new CurveGroupDefinition(name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+    return new CurveGroupDefinition(
+        name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
   public CurveGroupDefinitionBuilder toBuilder() {
@@ -342,50 +389,6 @@ public final class CurveGroupDefinition
         seasonalityDefinitions,
         computeJacobian,
         computePvSensitivityToMarketQuote);
-  }
-  
-  /**
-   * Create a new group definition by binding the curves definitions linked to a price index with the related time series.
-   * <p>
-   * Curve related to price index are better described when a starting point is added with the last 
-   * fixing in the time series. The method review the different {@link CurveGroupEntry}. 
-   * For each of them linked to a price index, it first checks that if is linked to a unique index
-   * and then create a new entry of the type {@link SeasonalNodalCurveDefinition} with the 
-   * last fixing month equal to the last element in the time series which is in the past.
-   * 
-   * @param valuationDate the valuation date 
-   * @param tsMap the map of index to time series
-   * @return the new instance
-   */
-  public CurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
-    ImmutableList.Builder<NodalCurveDefinition> boundCurveDefinitions = ImmutableList.builder();
-    for (CurveGroupEntry entry : entries) {
-      CurveName name = entry.getCurveName();
-      NodalCurveDefinition curveDef = curveDefinitionsByName.get(name);
-      Set<Index> indices = entry.getIndices();
-      boolean containPriceIndex = false;
-      for (Index index : indices) {
-        containPriceIndex = containPriceIndex || (index instanceof PriceIndex);
-      }
-      if (containPriceIndex) { // Check only one curve for Price Index and associate to TS last value
-        ArgChecker.isTrue(indices.size() == 1, 
-            "curve group entry with price index should have only on index associated: " + name);
-        Index index = indices.iterator().next();
-        LocalDateDoubleTimeSeries ts = tsMap.get(index);
-        ArgChecker.notNull(ts, "time series required for index " + index.toString());
-        // Retrieve last fixing for months in the past
-        LocalDateDoubleTimeSeries tsPast = ts.subSeries(ts.getEarliestDate(), valuationDate);
-        ArgChecker.isFalse(ts.isEmpty(), "time series must contain at least one element " + index.toString());
-        YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
-        double lastFixingValue = tsPast.getLatestValue();
-        SeasonalNodalCurveDefinition seasonalCurveDef = new SeasonalNodalCurveDefinition(
-            curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
-        boundCurveDefinitions.add(seasonalCurveDef);
-      } else {
-        boundCurveDefinitions.add(curveDef);
-      }
-    }
-    return this.withCurveDefinitions(boundCurveDefinitions.build());
   }
 
   //------------------------- AUTOGENERATED START -------------------------

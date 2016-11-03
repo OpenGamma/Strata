@@ -57,7 +57,7 @@ public final class CurveCalibrator {
   /**
    * The standard curve calibrator.
    */
-  private static final CurveCalibrator STANDARD = 
+  private static final CurveCalibrator STANDARD =
       CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   /**
    * The matrix algebra used for matrix inversion.

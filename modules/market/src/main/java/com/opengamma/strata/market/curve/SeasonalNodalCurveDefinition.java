@@ -8,47 +8,52 @@ package com.opengamma.strata.market.curve;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.BeanBuilder;
 
 /**
  * Provides the definition of how to calibrate a curve including seasonality for inflation.
+ * <p>
+ * This allows a "normal" curve definition to be combined with the last fixing,
+ * optionally adding seasonality.
  */
-@BeanDefinition(builderScope = "private", metaScope = "package")
+@BeanDefinition(builderScope = "private", metaScope = "private")
 final class SeasonalNodalCurveDefinition
     implements NodalCurveDefinition, ImmutableBean, Serializable {
 
-  /** The list used when there is no seasonality. It consists of 12 entries, all of value 1. */
-  public static final DoubleArray NO_SEASONALITY = DoubleArray.filled(12, 1d);
-  /** The default adjustment operator: Multiplicative. */
-  public static final ShiftType DEFAULT_SEASON_SHIFTTYPE = ShiftType.SCALED; 
-  
+  /**
+   * The no seasonality definition.
+   */
+  private static final SeasonalityDefinition NO_SEASONALITY_DEFINITION =
+      SeasonalityDefinition.of(DoubleArray.filled(12, 1d), ShiftType.SCALED);
+
   /**
    * The curve name.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalCurveDefinition curveWithoutFixingDefinition;  
+  private final NodalCurveDefinition curveWithoutFixingDefinition;
   /**
    * Last fixing date.
    */
@@ -73,11 +78,12 @@ final class SeasonalNodalCurveDefinition
       YearMonth lastFixingMonth,
       double lastFixingValue,
       SeasonalityDefinition seasonalityDefinition) {
+
     this.curveWithoutFixingDefinition = curveWithoutFixing;
     this.lastFixingMonth = lastFixingMonth;
     this.lastFixingValue = lastFixingValue;
     if (seasonalityDefinition == null) {
-      this.seasonalityDefinition = SeasonalityDefinition.of(NO_SEASONALITY, DEFAULT_SEASON_SHIFTTYPE);
+      this.seasonalityDefinition = NO_SEASONALITY_DEFINITION;
     } else {
       this.seasonalityDefinition = seasonalityDefinition;
     }
@@ -121,7 +127,7 @@ final class SeasonalNodalCurveDefinition
    * The meta-bean for {@code SeasonalNodalCurveDefinition}.
    * @return the meta-bean, not null
    */
-  public static SeasonalNodalCurveDefinition.Meta meta() {
+  public static MetaBean meta() {
     return SeasonalNodalCurveDefinition.Meta.INSTANCE;
   }
 
@@ -135,7 +141,7 @@ final class SeasonalNodalCurveDefinition
   private static final long serialVersionUID = 1L;
 
   @Override
-  public SeasonalNodalCurveDefinition.Meta metaBean() {
+  public MetaBean metaBean() {
     return SeasonalNodalCurveDefinition.Meta.INSTANCE;
   }
 
@@ -227,7 +233,7 @@ final class SeasonalNodalCurveDefinition
   /**
    * The meta-bean for {@code SeasonalNodalCurveDefinition}.
    */
-  static final class Meta extends DirectMetaBean {
+  private static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -297,39 +303,6 @@ final class SeasonalNodalCurveDefinition
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code curveWithoutFixingDefinition} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NodalCurveDefinition> curveWithoutFixingDefinition() {
-      return curveWithoutFixingDefinition;
-    }
-
-    /**
-     * The meta-property for the {@code lastFixingMonth} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<YearMonth> lastFixingMonth() {
-      return lastFixingMonth;
-    }
-
-    /**
-     * The meta-property for the {@code lastFixingValue} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> lastFixingValue() {
-      return lastFixingValue;
-    }
-
-    /**
-     * The meta-property for the {@code seasonalityDefinition} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<SeasonalityDefinition> seasonalityDefinition() {
-      return seasonalityDefinition;
     }
 
     //-----------------------------------------------------------------------
@@ -422,7 +395,7 @@ final class SeasonalNodalCurveDefinition
 
     @Override
     public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
+      setString(SeasonalNodalCurveDefinition.Meta.INSTANCE.metaProperty(propertyName), value);
       return this;
     }
 

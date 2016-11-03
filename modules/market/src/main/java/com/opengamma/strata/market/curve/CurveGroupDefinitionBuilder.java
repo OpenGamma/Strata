@@ -259,7 +259,7 @@ public final class CurveGroupDefinitionBuilder {
         .build();
     return mergeEntry(entry);
   }
-  
+
   /**
    * Adds a seasonality to the curve group definition.
    * 

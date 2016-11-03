@@ -39,7 +39,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.SeasonalNodalCurve;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
@@ -55,7 +54,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link PriceIndex}, such as 'US-CPI-U'.
  * <p>
  * This implementation is based on an underlying forward curve.
- * Seasonality is included in the curve.
+ * Seasonality is included in the curve, see {@link SeasonalNodalCurve}.
  */
 @BeanDefinition(builderScope = "private")
 public final class SimplePriceIndexValues
@@ -110,7 +109,6 @@ public final class SimplePriceIndexValues
   /**
    * Obtains an instance based on a curve with no seasonality adjustment.
    * <p>
-   * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
    * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
@@ -134,11 +132,10 @@ public final class SimplePriceIndexValues
 
     return new SimplePriceIndexValues(index, valuationDate, curve, fixings, NO_SEASONALITY);
   }
-  
+
   /**
    * Obtains an instance based on a curve with seasonality adjustment.
    * <p>
-   * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
    * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
@@ -164,15 +161,15 @@ public final class SimplePriceIndexValues
       NodalCurve curve,
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
-    
+
     ArgChecker.isFalse(curve instanceof SeasonalNodalCurve, "curve should not be adjusted twice for seasonality");
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(fixings.getLatestDate());
     double nbMonth = YearMonth.from(valuationDate).until(lastMonth, MONTHS);
     DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
-    SeasonalNodalCurve seasonalCurve = SeasonalNodalCurve
-        .of(curve, valuationDate, lastMonth, nbMonth, SeasonalityDefinition.of(seasonality, ShiftType.SCALED));
+    SeasonalNodalCurve seasonalCurve = SeasonalNodalCurve.of(
+        curve, valuationDate, lastMonth, nbMonth, SeasonalityDefinition.of(seasonality, ShiftType.SCALED));
     return new SimplePriceIndexValues(index, valuationDate, seasonalCurve, fixings, seasonality);
   }
 

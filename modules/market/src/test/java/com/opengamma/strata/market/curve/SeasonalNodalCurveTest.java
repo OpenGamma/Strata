@@ -24,13 +24,15 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
-
+/**
+ * Test {@link SeasonalNodalCurve}.
+ */
 @Test
 public class SeasonalNodalCurveTest {
 
   private static final LocalDate VAL_DATE_1 = LocalDate.of(2016, 1, 1);
   private static final LocalDate VAL_DATE_2 = LocalDate.of(2016, 10, 21);
-  
+
   private static final DoubleArray TIMES = DoubleArray.of(9.0, 21.0, 57.0, 117.0);
   private static final DoubleArray VALUES = DoubleArray.of(240.500, 245.000, 265.000, 286.000);
   private static final DoubleArray VALUES2 = DoubleArray.of(243.500, 248.000, 268.000, 289.000);
@@ -39,7 +41,7 @@ public class SeasonalNodalCurveTest {
   private static final CurveMetadata METADATA = Curves.prices(NAME);
   private static final InterpolatedNodalCurve CURVE_NOFIX = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2_NOFIX = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
-  
+
   private static final YearMonth LAST_FIX_MONTH_1 = YearMonth.of(2015, 11);
   private static final YearMonth LAST_FIX_MONTH_2 = YearMonth.of(2016, 7);
   private static final double LAST_FIX_VALUE = 240.00;
@@ -79,7 +81,7 @@ public class SeasonalNodalCurveTest {
     assertEquals(curveComputed.getUnderlying().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
     assertEquals(curveComputed.yValue(NB_MONTHS_1), LAST_FIX_VALUE, TOLERANCE_TIME);
   }
-  
+
   public void of_construction_multiplicative_2() {
     SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);
@@ -87,7 +89,7 @@ public class SeasonalNodalCurveTest {
     assertEquals(curveComputed.getUnderlying().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
     assertEquals(curveComputed.yValue(NB_MONTHS_2), LAST_FIX_VALUE, TOLERANCE_TIME);
   }
-  
+
   public void of_construction_additive_1() {
     SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
         SEASONALITY_ADDITIVE_DEF);
@@ -108,7 +110,7 @@ public class SeasonalNodalCurveTest {
       double valueExpected = valueNoAdj * adj;
       assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
     }
-  }  
+  }
 
   public void value_additive() {
     SeasonalNodalCurve curveComputed = SeasonalNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
@@ -202,5 +204,5 @@ public class SeasonalNodalCurveTest {
         SEASONALITY_MULTIPLICATIVE_DEF);
     assertSerialization(test);
   }
-  
+
 }

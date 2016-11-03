@@ -10,15 +10,15 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
-import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
+import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -62,9 +62,9 @@ public class CurveGroupDefinitionTest {
   private static final ObservableId GBP_LIBOR_3M_ID = QuoteId.of(StandardId.of("OG", "Ticker3"));
   private static final DummyFraCurveNode NODE1 = DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
   private static final DummyFraCurveNode NODE2 = DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_3M, GBP_LIBOR_3M_ID);
-  private static final FixedInflationSwapCurveNode NODE_I1 = 
+  private static final FixedInflationSwapCurveNode NODE_I1 =
       FixedInflationSwapCurveNode.of(FixedInflationSwapTemplate.of(Tenor.TENOR_5Y, GBP_FIXED_ZC_GB_RPI), GBP_LIBOR_1M_ID);
-  private static final FixedInflationSwapCurveNode NODE_I2 = 
+  private static final FixedInflationSwapCurveNode NODE_I2 =
       FixedInflationSwapCurveNode.of(FixedInflationSwapTemplate.of(Tenor.TENOR_10Y, GBP_FIXED_ZC_GB_RPI), GBP_LIBOR_1M_ID);
   private static final CurveNodeDateOrder DROP_THIS_2D = CurveNodeDateOrder.of(2, DROP_THIS);
   private static final CurveName CURVE_NAME1 = CurveName.of("Test");
@@ -110,7 +110,7 @@ public class CurveGroupDefinitionTest {
       1.0, 1.5, 1.0, -0.5,
       -0.5, -1.0, -1.5, 0.0,
       0.5, 1.0, 1.0, -2.5);
-  private static final SeasonalityDefinition SEASONALITY_ADDITIVE_DEF = 
+  private static final SeasonalityDefinition SEASONALITY_ADDITIVE_DEF =
       SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.SCALED);
 
   public void test_builder1() {
@@ -342,9 +342,8 @@ public class CurveGroupDefinitionTest {
     assertEquals(seasonDef.getName(), CURVE_NAME_I);
     assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
     // Check the default
-    assertTrue(
-        seasonDef.getSeasonalityDefinition().getSeasonalityMonthOnMonth()
-            .equalWithTolerance(DoubleArray.filled(12, 1d), 1.0E-10));
+    assertTrue(seasonDef.getSeasonalityDefinition().getSeasonalityMonthOnMonth()
+        .equalWithTolerance(DoubleArray.filled(12, 1d), 1.0E-10));
     assertEquals(seasonDef.getSeasonalityDefinition().getAdjustmentType(), ShiftType.SCALED);
   }
 

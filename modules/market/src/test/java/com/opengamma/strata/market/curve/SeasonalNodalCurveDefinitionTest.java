@@ -6,12 +6,12 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
-import static org.testng.Assert.assertEquals;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
+import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -40,7 +40,7 @@ public class SeasonalNodalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 9, 9);
-  
+
   private static final CurveName CURVE_NAME = CurveName.of("Test");
   private static final QuoteId TICKER = QuoteId.of(StandardId.of("OG", "Ticker"));
   private static final ImmutableList<FixedInflationSwapCurveNode> NODES = ImmutableList.of(
@@ -60,7 +60,7 @@ public class SeasonalNodalCurveDefinitionTest {
       1.0, 1.5, 1.0, -0.5,
       -0.5, -1.0, -1.5, 0.0,
       0.5, 1.0, 1.0, -2.5);
-  private static final SeasonalityDefinition SEASONALITY_DEF = 
+  private static final SeasonalityDefinition SEASONALITY_DEF =
       SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.ABSOLUTE);
   private static final YearMonth LAST_FIX_MONTH = YearMonth.of(2015, 7);
   private static final double LAST_FIX_VALUE = 240.0d;
