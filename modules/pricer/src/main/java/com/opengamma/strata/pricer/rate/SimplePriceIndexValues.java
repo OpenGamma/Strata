@@ -37,9 +37,11 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.InflationNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -52,7 +54,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link PriceIndex}, such as 'US-CPI-U'.
  * <p>
  * This implementation is based on an underlying forward curve.
- * Seasonality may be specified here, however it is normally included in the curve.
+ * Seasonality is included in the curve, see {@link InflationNodalCurve}.
  */
 @BeanDefinition(builderScope = "private")
 public final class SimplePriceIndexValues
@@ -61,7 +63,9 @@ public final class SimplePriceIndexValues
   /**
    * The list used when there is no seasonality.
    * It consists of 12 entries, all of value 1.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
    */
+  @Deprecated
   public static final DoubleArray NO_SEASONALITY = DoubleArray.filled(12, 1d);
 
   /**
@@ -95,20 +99,16 @@ public final class SimplePriceIndexValues
    * The array has a dimension of 12, one element for each month, starting from January.
    * The adjustments are multiplicative. For each month, the price index is the one obtained
    * from the interpolated part of the curve multiplied by the seasonal adjustment.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
    */
+  @Deprecated
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray seasonality;
-  /**
-   * The underlying extended curve.
-   * This has an additional curve node at the start equal to the last point in the time-series.
-   */
-  private final NodalCurve extendedCurve;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance based on a curve with no seasonality adjustment.
    * <p>
-   * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
    * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
@@ -136,7 +136,6 @@ public final class SimplePriceIndexValues
   /**
    * Obtains an instance based on a curve with seasonality adjustment.
    * <p>
-   * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
    * Each x-value on the curve is the number of months between the valuation month and the estimation month.
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
@@ -153,7 +152,9 @@ public final class SimplePriceIndexValues
    * @param seasonality  the seasonality adjustment, size 12, index zero is January,
    *   where the value 1 means no seasonality adjustment
    * @return the values instance
+   * @deprecated the seasonality should not be added at this level anymore but in the nodal curve
    */
+  @Deprecated
   public static SimplePriceIndexValues of(
       PriceIndex index,
       LocalDate valuationDate,
@@ -161,7 +162,15 @@ public final class SimplePriceIndexValues
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
 
-    return new SimplePriceIndexValues(index, valuationDate, curve, fixings, seasonality);
+    ArgChecker.isFalse(curve instanceof InflationNodalCurve, "Curve cannot be adjusted twice for seasonality");
+    // add the latest element of the time series as the first node on the curve
+    YearMonth lastMonth = YearMonth.from(fixings.getLatestDate());
+    double nbMonth = YearMonth.from(valuationDate).until(lastMonth, MONTHS);
+    DoubleArray x = curve.getXValues();
+    ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
+    InflationNodalCurve seasonalCurve = InflationNodalCurve.of(
+        curve, valuationDate, lastMonth, nbMonth, SeasonalityDefinition.of(seasonality, ShiftType.SCALED));
+    return new SimplePriceIndexValues(index, valuationDate, seasonalCurve, fixings, seasonality);
   }
 
   @ImmutableConstructor
@@ -171,26 +180,15 @@ public final class SimplePriceIndexValues
       NodalCurve curve,
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(valuationDate, "valuationDate");
-    ArgChecker.notNull(fixings, "fixings");
+
     ArgChecker.isFalse(fixings.isEmpty(), "Fixings must not be empty");
-    ArgChecker.notNull(curve, "curve");
-    ArgChecker.notNull(seasonality, "seasonality");
-    ArgChecker.isTrue(seasonality.size() == 12, "Seasonality list must contain 12 entries");
     curve.getMetadata().getXValueType().checkEquals(ValueType.MONTHS, "Incorrect x-value type for price curve");
     curve.getMetadata().getYValueType().checkEquals(ValueType.PRICE_INDEX, "Incorrect y-value type for price curve");
-    this.index = index;
-    this.valuationDate = valuationDate;
-    this.fixings = fixings;
-    this.curve = curve;
-    this.seasonality = seasonality;
-    // add the latest element of the time series as the first node on the curve
-    YearMonth lastMonth = YearMonth.from(fixings.getLatestDate());
-    double nbMonth = numberOfMonths(lastMonth);
-    DoubleArray x = curve.getXValues();
-    ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
-    this.extendedCurve = curve.withNode(nbMonth, fixings.getLatestValue(), ParameterMetadata.empty());
+    this.index = ArgChecker.notNull(index, "index");
+    this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
+    this.fixings = ArgChecker.notNull(fixings, "fixings");
+    this.curve = ArgChecker.notNull(curve, "curve");
+    this.seasonality = ArgChecker.notNull(seasonality, "seasonality");
   }
 
   //-------------------------------------------------------------------------
@@ -238,10 +236,7 @@ public final class SimplePriceIndexValues
     }
     // otherwise, return the estimate from the curve.
     double nbMonth = numberOfMonths(fixingMonth);
-    double value = extendedCurve.yValue(nbMonth);
-    int month0 = fixingMonth.getMonthValue() - 1; // seasonality list start at 0 and months start at 1
-    double adjustment = seasonality.get(month0);
-    return value * adjustment;
+    return curve.yValue(nbMonth);
   }
 
   //-------------------------------------------------------------------------
@@ -268,13 +263,7 @@ public final class SimplePriceIndexValues
       return UnitParameterSensitivities.empty();
     }
     double nbMonth = numberOfMonths(month);
-    int month0 = month.getMonthValue() - 1;
-    double adjustment = seasonality.get(month0);
-    DoubleArray unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth).getSensitivity();
-    // remove first element which is to the last fixing and multiply by seasonality
-    DoubleArray adjustedSensitivity = unadjustedSensitivity.subArray(1).multipliedBy(adjustment);
-    return UnitParameterSensitivities.of(
-        curve.yValueParameterSensitivity(nbMonth).withSensitivity(adjustedSensitivity));
+    return UnitParameterSensitivities.of(curve.yValueParameterSensitivity(nbMonth));
   }
 
   @Override
@@ -284,7 +273,7 @@ public final class SimplePriceIndexValues
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new instance with a different curve.
+   * Returns a new instance with a different curve. The new curve must include fixing.
    * 
    * @param curve  the new curve
    * @return the new instance
@@ -382,8 +371,10 @@ public final class SimplePriceIndexValues
    * The array has a dimension of 12, one element for each month, starting from January.
    * The adjustments are multiplicative. For each month, the price index is the one obtained
    * from the interpolated part of the curve multiplied by the seasonal adjustment.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
    * @return the value of the property, not null
    */
+  @Deprecated
   public DoubleArray getSeasonality() {
     return seasonality;
   }
@@ -548,8 +539,10 @@ public final class SimplePriceIndexValues
 
     /**
      * The meta-property for the {@code seasonality} property.
+     * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
      * @return the meta-property, not null
      */
+    @Deprecated
     public MetaProperty<DoubleArray> seasonality() {
       return seasonality;
     }

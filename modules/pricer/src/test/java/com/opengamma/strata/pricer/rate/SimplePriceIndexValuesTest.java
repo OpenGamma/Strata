@@ -13,28 +13,29 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.curve.InflationNodalCurve;
+import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -71,12 +72,14 @@ public class SimplePriceIndexValuesTest {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveName NAME = CurveName.of("USD-HICP");
   private static final CurveMetadata METADATA = Curves.prices(NAME);
-  private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
-  private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
-  private static final DoubleArray SEASONALITY = DoubleArray.of(
-      0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d);
+  private static final InterpolatedNodalCurve CURVE_NOFIX = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE2_NOFIX = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
+  private static final DoubleArray SEASONALITY_MULTIPLICATIVE = DoubleArray.of(
+      1.002754153722096, 1.001058905136103, 1.006398754528882, 1.000862459308375,
+      0.998885402944655, 0.995571243121412, 1.001419845026233, 1.001663068058397,
+      0.999147014890734, 0.998377467899150, 0.999570726482709, 0.994346721844999);
   private static final SimplePriceIndexValues INSTANCE =
-      SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS, SEASONALITY);
+      SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {
       YearMonth.of(2015, 1), YearMonth.of(2015, 5), YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12)};
@@ -87,109 +90,80 @@ public class SimplePriceIndexValuesTest {
       PriceIndexObservation.of(US_CPI_U, YearMonth.of(2016, 6)),
       PriceIndexObservation.of(US_CPI_U, YearMonth.of(2024, 12))};
   private static final double TOLERANCE_VALUE = 1.0E-10;
-  private static final double TOLERANCE_DELTA = 1.0E-5;
+  private static final double TOLERANCE_DELTA = 1.0E-6;
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("deprecation")
   public void test_NO_SEASONALITY() {
     assertEquals(SimplePriceIndexValues.NO_SEASONALITY, DoubleArray.filled(12, 1d));
   }
 
+  @SuppressWarnings("deprecation")
   public void test_of_noSeasonality() {
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     assertEquals(test.getIndex(), US_CPI_U);
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
-    assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
-    assertEquals(test.getParameter(0), CURVE.getParameter(0));
-    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
-    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
-    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
-    assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
+    assertEquals(test.getCurve(), CURVE_NOFIX);
+    assertEquals(test.getParameterCount(), CURVE_NOFIX.getParameterCount());
+    assertEquals(test.getParameter(0), CURVE_NOFIX.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), CURVE_NOFIX.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE_NOFIX.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE_NOFIX.withPerturbation((i, v, m) -> v + 1d));
+    assertEquals(test.findData(CURVE_NOFIX.getName()), Optional.of(CURVE_NOFIX));
     assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     // check PriceIndexValues
-    PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     assertEquals(test, test2);
   }
 
+  @SuppressWarnings("deprecation")
   public void test_of_seasonality() {
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS, SEASONALITY);
+    SimplePriceIndexValues test =
+        SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS, SEASONALITY_MULTIPLICATIVE);
     assertEquals(test.getIndex(), US_CPI_U);
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getSeasonality(), SEASONALITY);
-    assertEquals(test.getCurve(), CURVE);
+    assertEquals(test.getSeasonality(), SEASONALITY_MULTIPLICATIVE);
+    YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
+    double nbMonth = YearMonth.from(VAL_DATE).until(lastMonth, MONTHS);
+    InflationNodalCurve seasonalCurve = InflationNodalCurve.of(
+        CURVE_NOFIX, VAL_DATE, lastMonth, nbMonth, SeasonalityDefinition.of(SEASONALITY_MULTIPLICATIVE, ShiftType.SCALED));
+    assertEquals(test.getCurve(), seasonalCurve);
   }
 
+  @SuppressWarnings("deprecation")
   public void test_of_wrongSeasonalityLength() {
     assertThrowsIllegalArg(() -> SimplePriceIndexValues.of(
-        US_CPI_U, VAL_DATE, CURVE, USCPI_TS, DoubleArray.EMPTY));
+        US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS, DoubleArray.EMPTY));
   }
 
+  @SuppressWarnings("deprecation")
   public void test_of_startDateBeforeFixing() {
     DoubleArray monthWrong = DoubleArray.of(-10.0, 21.0, 57.0, 117.0);
-    InterpolatedNodalCurve interpolated = CURVE.toBuilder().xValues(monthWrong).build();
-    assertThrowsIllegalArg(() -> SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, interpolated, USCPI_TS, SEASONALITY));
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_value() {
-    for (int i = 0; i < TEST_MONTHS.length; i++) {
-      YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
-      double nbMonthLast = VAL_MONTH.until(lastMonth, MONTHS);
-      InterpolatedNodalCurve finalCurve = CURVE.withNode(nbMonthLast, USCPI_TS.getLatestValue(), ParameterMetadata.empty());
-      double nbMonth = VAL_MONTH.until(TEST_MONTHS[i], MONTHS);
-      OptionalDouble valueTs = USCPI_TS.get(TEST_MONTHS[i].atEndOfMonth());
-      double adj = SEASONALITY.get(TEST_MONTHS[i].getMonthValue() - 1);
-      double valueExpected = valueTs.isPresent() ? valueTs.getAsDouble() : finalCurve.yValue(nbMonth) * adj;
-      double valueComputed = INSTANCE.value(TEST_OBS[i]);
-      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
-    }
+    InterpolatedNodalCurve interpolated = CURVE_NOFIX.toBuilder().xValues(monthWrong).build();
+    assertThrowsIllegalArg(() -> SimplePriceIndexValues.of(
+        US_CPI_U, VAL_DATE, interpolated, USCPI_TS, SEASONALITY_MULTIPLICATIVE));
   }
 
   //-------------------------------------------------------------------------
   public void test_valuePointSensitivity_fixing() {
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, VAL_MONTH.minusMonths(3));
     assertEquals(test.valuePointSensitivity(obs), PointSensitivityBuilder.none());
   }
 
   public void test_valuePointSensitivity_forward() {
     YearMonth month = VAL_MONTH.plusMonths(3);
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, month);
     InflationRateSensitivity expected = InflationRateSensitivity.of(obs, 1d);
     assertEquals(test.valuePointSensitivity(obs), expected);
   }
 
   //-------------------------------------------------------------------------
-  public void test_unitParameterSensitivity() {
-    double shift = 0.0001;
-    for (int i = 0; i < TEST_MONTHS.length; i++) {
-      CurrencyParameterSensitivities cps = INSTANCE.parameterSensitivity(InflationRateSensitivity.of(TEST_OBS[i], 1));
-      DoubleArray sensitivityComputed = cps.findSensitivity(NAME, Currency.USD)
-          .map(s -> s.getSensitivity())
-          .orElse(DoubleArray.filled(VALUES.size()));
-      for (int j = 0; j < VALUES.size(); j++) {
-        double[] valueFd = new double[2];
-        for (int k = 0; k < 2; k++) {
-          // copy indices to provide access in lambda
-          int jIndex = j;
-          int kIndex = k;
-          NodalCurve bumpedCurve = INSTANCE.getCurve()
-              .withPerturbation((idx, value, meta) -> (idx == jIndex) ? (kIndex == 0 ? -shift : shift) : 0d);
-          SimplePriceIndexValues curveShifted = INSTANCE.withCurve(bumpedCurve);
-          valueFd[k] = curveShifted.value(TEST_OBS[i]);
-        }
-        double sensitivityExpected = (valueFd[1] - valueFd[0]) / (2 * shift);
-        assertEquals(sensitivityComputed.get(j), sensitivityExpected, TOLERANCE_DELTA, "Test: " + i + " - sensi: " + j);
-      }
-    }
-  }
-
-  //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
   public void test_parameterSensitivity() {
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     InflationRateSensitivity point =
         InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
     assertEquals(test.parameterSensitivity(point).size(), 1);
@@ -197,28 +171,87 @@ public class SimplePriceIndexValuesTest {
 
   //-------------------------------------------------------------------------
   public void test_createParameterSensitivity() {
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15, 0.16, 0.17);
     CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
-    assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
+    assertEquals(sens.getSensitivities().get(0), CURVE_NOFIX.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------
   public void test_withCurve() {
-    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS).withCurve(CURVE2);
-    assertEquals(test.getCurve(), CURVE2);
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS).withCurve(CURVE2_NOFIX);
+    assertEquals(test.getCurve(), CURVE2_NOFIX);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parameter_count() {
+    assertEquals(INSTANCE.getParameterCount(), CURVE_NOFIX.getParameterCount());
+  }
+
+  public void test_parameter() {
+    assertEquals(INSTANCE.getParameter(2), CURVE_NOFIX.getParameter(2));
+  }
+
+  public void test_parameter_metadata() {
+    assertEquals(INSTANCE.getParameterMetadata(2), CURVE_NOFIX.getParameterMetadata(2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_value() {
+    for (int i = 0; i < TEST_MONTHS.length; i++) {
+      double valueComputed = INSTANCE.value(TEST_OBS[i]);
+      YearMonth fixingMonth = TEST_OBS[i].getFixingMonth();
+      double valueExpected;
+      if (USCPI_TS.containsDate(fixingMonth.atEndOfMonth())) {
+        valueExpected = USCPI_TS.get(fixingMonth.atEndOfMonth()).getAsDouble();
+      } else {
+        double x = YearMonth.from(VAL_DATE).until(fixingMonth, MONTHS);
+        valueExpected = CURVE_NOFIX.yValue(x);
+      }
+      assertEquals(valueComputed, valueExpected, TOLERANCE_VALUE, "test " + i);
+    }
+  }
+
+  public void test_value_pts_sensitivity() {
+    for (int i = 0; i < TEST_MONTHS.length; i++) {
+      PointSensitivityBuilder ptsComputed = INSTANCE.valuePointSensitivity(TEST_OBS[i]);
+      YearMonth fixingMonth = TEST_OBS[i].getFixingMonth();
+      PointSensitivityBuilder ptsExpected;
+      if (USCPI_TS.containsDate(fixingMonth.atEndOfMonth())) {
+        ptsExpected = PointSensitivityBuilder.none();
+      } else {
+        ptsExpected = InflationRateSensitivity.of(TEST_OBS[i], 1d);
+      }
+      assertTrue(ptsComputed.build().equalWithTolerance(ptsExpected.build(), TOLERANCE_VALUE), "test " + i);
+    }
+  }
+
+  public void test_value_parameter_sensitivity() {
+    for (int i = 0; i < TEST_MONTHS.length; i++) {
+      YearMonth fixingMonth = TEST_OBS[i].getFixingMonth();
+      if (!USCPI_TS.containsDate(fixingMonth.atEndOfMonth())) {
+        InflationRateSensitivity ptsExpected = (InflationRateSensitivity) InflationRateSensitivity.of(TEST_OBS[i], 1d);
+        CurrencyParameterSensitivities psComputed = INSTANCE.parameterSensitivity(ptsExpected);
+        double x = YearMonth.from(VAL_DATE).until(fixingMonth, MONTHS);
+        UnitParameterSensitivities sens1 = UnitParameterSensitivities.of(CURVE_NOFIX.yValueParameterSensitivity(x));
+        CurrencyParameterSensitivities psExpected =
+            sens1.multipliedBy(ptsExpected.getCurrency(), ptsExpected.getSensitivity());
+        assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_DELTA), "test " + i);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverImmutableBean(INSTANCE);
+    SimplePriceIndexValues instance1 = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
+    coverImmutableBean(instance1);
     SimplePriceIndexValues test2 =
         SimplePriceIndexValues.of(
             GB_HICP,
             VAL_DATE.plusMonths(1),
-            CURVE,
+            CURVE_NOFIX,
             LocalDateDoubleTimeSeries.of(VAL_MONTH.minusMonths(2).atEndOfMonth(), 100d));
-    coverBeanEquals(INSTANCE, test2);
+    coverBeanEquals(instance1, test2);
   }
 
 }

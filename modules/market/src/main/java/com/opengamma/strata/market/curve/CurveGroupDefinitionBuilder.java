@@ -35,6 +35,10 @@ public final class CurveGroupDefinitionBuilder {
    */
   private final Map<CurveName, NodalCurveDefinition> curveDefinitions;
   /**
+   * The definitions specifying which seasonality should be used some some price index curves.
+   */
+  private final Map<CurveName, SeasonalityDefinition> seasonalityDefinitions;
+  /**
    * Flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
    * The default value is 'true'.
    */
@@ -48,17 +52,20 @@ public final class CurveGroupDefinitionBuilder {
   CurveGroupDefinitionBuilder() {
     this.entries = new LinkedHashMap<>();
     this.curveDefinitions = new LinkedHashMap<>();
+    this.seasonalityDefinitions = new LinkedHashMap<>();
   }
 
   CurveGroupDefinitionBuilder(
       CurveGroupName name,
       Map<CurveName, CurveGroupEntry> entries,
       Map<CurveName, NodalCurveDefinition> curveDefinitions,
+      Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
       boolean computePvSensitivityToMarketQuote) {
     this.name = name;
     this.entries = entries;
     this.curveDefinitions = curveDefinitions;
+    this.seasonalityDefinitions = seasonalityDefinitions;
     this.computeJacobian = computeJacobian;
     this.computePvSensitivityToMarketQuote = computePvSensitivityToMarketQuote;
   }
@@ -253,6 +260,21 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
+  /**
+   * Adds a seasonality to the curve group definition.
+   * 
+   * @param curveName  the name of the curve
+   * @param seasonalityDefinition  the seasonality associated to the curve
+   * @return this builder
+   */
+  public CurveGroupDefinitionBuilder addSeasonality(
+      CurveName curveName,
+      SeasonalityDefinition seasonalityDefinition) {
+
+    seasonalityDefinitions.put(curveName, seasonalityDefinition);
+    return this;
+  }
+
   private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, NodalCurveDefinition curveDefinition) {
     curveDefinitions.put(curveDefinition.getName(), curveDefinition);
     return mergeEntry(newEntry);
@@ -287,6 +309,7 @@ public final class CurveGroupDefinitionBuilder {
         name,
         entries.values(),
         curveDefinitions.values(),
+        seasonalityDefinitions,
         computeJacobian || computePvSensitivityToMarketQuote,
         computePvSensitivityToMarketQuote);
   }
