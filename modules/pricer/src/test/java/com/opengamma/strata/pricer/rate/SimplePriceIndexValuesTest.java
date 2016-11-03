@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.SeasonalNodalCurve;
+import com.opengamma.strata.market.curve.InflationNodalCurve;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
@@ -126,7 +126,7 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getSeasonality(), SEASONALITY_MULTIPLICATIVE);
     YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
     double nbMonth = YearMonth.from(VAL_DATE).until(lastMonth, MONTHS);
-    SeasonalNodalCurve seasonalCurve = SeasonalNodalCurve.of(
+    InflationNodalCurve seasonalCurve = InflationNodalCurve.of(
         CURVE_NOFIX, VAL_DATE, lastMonth, nbMonth, SeasonalityDefinition.of(SEASONALITY_MULTIPLICATIVE, ShiftType.SCALED));
     assertEquals(test.getCurve(), seasonalCurve);
   }

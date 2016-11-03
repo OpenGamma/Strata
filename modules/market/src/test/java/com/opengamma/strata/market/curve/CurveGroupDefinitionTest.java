@@ -277,8 +277,8 @@ public class CurveGroupDefinitionTest {
     List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
-    assertTrue(list.get(1) instanceof SeasonalNodalCurveDefinition);
-    SeasonalNodalCurveDefinition seasonDef = (SeasonalNodalCurveDefinition) list.get(1);
+    assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
+    InflationNodalCurveDefinition seasonDef = (InflationNodalCurveDefinition) list.get(1);
     assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
     assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(lastFixingDate));
     assertEquals(seasonDef.getLastFixingValue(), lastFixingValue);
@@ -307,8 +307,8 @@ public class CurveGroupDefinitionTest {
     List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
-    assertTrue(list.get(1) instanceof SeasonalNodalCurveDefinition);
-    SeasonalNodalCurveDefinition seasonDef = (SeasonalNodalCurveDefinition) list.get(1);
+    assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
+    InflationNodalCurveDefinition seasonDef = (InflationNodalCurveDefinition) list.get(1);
     assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
     assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(otherFixingDate));
     assertEquals(seasonDef.getLastFixingValue(), lastFixingValue - 1.0);
@@ -334,8 +334,8 @@ public class CurveGroupDefinitionTest {
     List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
-    assertTrue(list.get(1) instanceof SeasonalNodalCurveDefinition);
-    SeasonalNodalCurveDefinition seasonDef = (SeasonalNodalCurveDefinition) list.get(1);
+    assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
+    InflationNodalCurveDefinition seasonDef = (InflationNodalCurveDefinition) list.get(1);
     assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
     assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(lastFixingDate));
     assertEquals(seasonDef.getLastFixingValue(), lastFixingValue);

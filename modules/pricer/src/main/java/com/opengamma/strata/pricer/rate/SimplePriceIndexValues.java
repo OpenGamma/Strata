@@ -39,8 +39,8 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.InflationNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.SeasonalNodalCurve;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -54,7 +54,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link PriceIndex}, such as 'US-CPI-U'.
  * <p>
  * This implementation is based on an underlying forward curve.
- * Seasonality is included in the curve, see {@link SeasonalNodalCurve}.
+ * Seasonality is included in the curve, see {@link InflationNodalCurve}.
  */
 @BeanDefinition(builderScope = "private")
 public final class SimplePriceIndexValues
@@ -63,7 +63,7 @@ public final class SimplePriceIndexValues
   /**
    * The list used when there is no seasonality.
    * It consists of 12 entries, all of value 1.
-   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link SeasonalNodalCurve}.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
    */
   @Deprecated
   public static final DoubleArray NO_SEASONALITY = DoubleArray.filled(12, 1d);
@@ -99,7 +99,7 @@ public final class SimplePriceIndexValues
    * The array has a dimension of 12, one element for each month, starting from January.
    * The adjustments are multiplicative. For each month, the price index is the one obtained
    * from the interpolated part of the curve multiplied by the seasonal adjustment.
-   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link SeasonalNodalCurve}.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
    */
   @Deprecated
   @PropertyDefinition(validate = "notNull")
@@ -162,13 +162,13 @@ public final class SimplePriceIndexValues
       LocalDateDoubleTimeSeries fixings,
       DoubleArray seasonality) {
 
-    ArgChecker.isFalse(curve instanceof SeasonalNodalCurve, "curve should not be adjusted twice for seasonality");
+    ArgChecker.isFalse(curve instanceof InflationNodalCurve, "Curve cannot be adjusted twice for seasonality");
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(fixings.getLatestDate());
     double nbMonth = YearMonth.from(valuationDate).until(lastMonth, MONTHS);
     DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
-    SeasonalNodalCurve seasonalCurve = SeasonalNodalCurve.of(
+    InflationNodalCurve seasonalCurve = InflationNodalCurve.of(
         curve, valuationDate, lastMonth, nbMonth, SeasonalityDefinition.of(seasonality, ShiftType.SCALED));
     return new SimplePriceIndexValues(index, valuationDate, seasonalCurve, fixings, seasonality);
   }
@@ -371,7 +371,7 @@ public final class SimplePriceIndexValues
    * The array has a dimension of 12, one element for each month, starting from January.
    * The adjustments are multiplicative. For each month, the price index is the one obtained
    * from the interpolated part of the curve multiplied by the seasonal adjustment.
-   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link SeasonalNodalCurve}.
+   * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
    * @return the value of the property, not null
    */
   @Deprecated
@@ -539,7 +539,7 @@ public final class SimplePriceIndexValues
 
     /**
      * The meta-property for the {@code seasonality} property.
-     * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link SeasonalNodalCurve}.
+     * @deprecated Kept for backward compatibility. The seasonality should be in the curve. See {@link InflationNodalCurve}.
      * @return the meta-property, not null
      */
     @Deprecated

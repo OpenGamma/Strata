@@ -33,10 +33,10 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 
 /**
- * Test {@link SeasonalNodalCurveDefinition}.
+ * Test {@link InflationNodalCurveDefinition}.
  */
 @Test
-public class SeasonalNodalCurveDefinitionTest {
+public class InflationNodalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 9, 9);
@@ -66,7 +66,7 @@ public class SeasonalNodalCurveDefinitionTest {
   private static final double LAST_FIX_VALUE = 240.0d;
 
   public void test_builder() {
-    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertEquals(test.getCurveWithoutFixingDefinition(), UNDERLYING_DEF);
     assertEquals(test.getLastFixingMonth(), LAST_FIX_MONTH);
@@ -76,7 +76,7 @@ public class SeasonalNodalCurveDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_metadata() {
-    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     DefaultCurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -90,7 +90,7 @@ public class SeasonalNodalCurveDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_curve() {
-    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     DefaultCurveMetadata metadata = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -110,21 +110,21 @@ public class SeasonalNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    SeasonalNodalCurve expected = SeasonalNodalCurve
+    InflationNodalCurve expected = InflationNodalCurve
         .of(expectedUnderlying, VAL_DATE, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertEquals(test.curve(VAL_DATE, metadata, param), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_toCurveParameterSize() {
-    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     coverImmutableBean(test);
     InterpolatedNodalCurveDefinition underlyingDef2 = InterpolatedNodalCurveDefinition.builder()
@@ -139,13 +139,13 @@ public class SeasonalNodalCurveDefinitionTest {
         .build();
     SeasonalityDefinition seasonalityDef2 =
         SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.SCALED);
-    SeasonalNodalCurveDefinition test2 = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test2 = new InflationNodalCurveDefinition(
         underlyingDef2, LAST_FIX_MONTH.plus(Period.ofMonths(1)), LAST_FIX_VALUE + 1.0d, seasonalityDef2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    SeasonalNodalCurveDefinition test = new SeasonalNodalCurveDefinition(
+    InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
     assertSerialization(test);
   }

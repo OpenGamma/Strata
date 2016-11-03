@@ -249,7 +249,7 @@ public final class CurveGroupDefinition
             "Price index curve must have associated time-series with at least one element in the past:" + index.toString());
         YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
         double lastFixingValue = tsPast.getLatestValue();
-        SeasonalNodalCurveDefinition seasonalCurveDef = new SeasonalNodalCurveDefinition(
+        InflationNodalCurveDefinition seasonalCurveDef = new InflationNodalCurveDefinition(
             curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
         boundCurveDefinitions.add(seasonalCurveDef);
       } else {
