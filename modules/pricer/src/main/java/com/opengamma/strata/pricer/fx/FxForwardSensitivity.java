@@ -68,7 +68,7 @@ public final class FxForwardSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The value of the sensitivity.
+   * The value of the sensitivity, i.e. the amount that is converted from the base currency to the counter currency.
    */
   @PropertyDefinition(overrideGet = true)
   private final double sensitivity;
@@ -293,7 +293,7 @@ public final class FxForwardSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the value of the sensitivity.
+   * Gets the value of the sensitivity, i.e. the amount that is converted from the base currency to the counter currency.
    * @return the value of the property
    */
   @Override

@@ -250,7 +250,7 @@ public final class DiscountFxForwardRates
   @Override
   public MultiCurrencyAmount currencyExposure(FxForwardSensitivity pointSensitivity) {
     ArgChecker.isTrue(pointSensitivity.getCurrency().equals(pointSensitivity.getReferenceCurrency()),
-        "Currency exposure definited only when sensitiivty currency equal reference currency");
+        "Currency exposure defined only when sensitivity currency equal reference currency");
     Currency ccyRef = pointSensitivity.getReferenceCurrency();
     CurrencyPair pair = pointSensitivity.getCurrencyPair();
     double s = pointSensitivity.getSensitivity();
