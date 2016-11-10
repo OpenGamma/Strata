@@ -49,7 +49,7 @@ public class DepositIsdaCreditCurveNodeTest {
     assertEquals(test.getObservableId(), OBS_ID);
     assertEquals(test.getSpotDateOffset(), ADJ_3D);
     assertEquals(test.getTenor(), TENOR);
-    assertEquals(test.getNodeDate(TRADE_DATE, REF_DATA), LocalDate.of(2017, 1, 4));
+    assertEquals(test.date(TRADE_DATE, REF_DATA), LocalDate.of(2017, 1, 4));
     assertEquals(test.metadata(LocalDate.of(2017, 1, 4)), TenorDateParameterMetadata.of(LocalDate.of(2017, 1, 4), TENOR));
   }
 

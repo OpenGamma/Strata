@@ -43,7 +43,7 @@ public interface IsdaCreditCurveNode {
   public abstract Tenor getTenor();
 
   /**
-   * Gets the date of this node within the curve.
+   * Calculates the date associated with the node.
    * <p>
    * Each curve node has an associated date which defines the x-value in the curve. 
    * This is typically the adjusted end date of the instrument.
@@ -52,7 +52,7 @@ public interface IsdaCreditCurveNode {
    * @param refData  the reference data
    * @return the node date
    */
-  public abstract LocalDate getNodeDate(LocalDate tradeDate, ReferenceData refData);
+  public abstract LocalDate date(LocalDate tradeDate, ReferenceData refData);
 
   /**
    * Returns metadata for the node from the node date. 

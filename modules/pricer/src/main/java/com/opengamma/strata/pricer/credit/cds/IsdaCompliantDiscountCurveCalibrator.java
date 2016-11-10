@@ -22,22 +22,18 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.DepositIsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.IsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.SwapIsdaCreditCurveNode;
-import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivities;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
@@ -62,7 +58,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
   /**
    * Default implementation.
    */
-  public static final IsdaCompliantDiscountCurveCalibrator DEFAULT = new IsdaCompliantDiscountCurveCalibrator();
+  public static final IsdaCompliantDiscountCurveCalibrator STANDARD = IsdaCompliantDiscountCurveCalibrator.of(1.0e-12);
 
   /**
    * The matrix algebra used for matrix inversion.
@@ -75,70 +71,92 @@ public final class IsdaCompliantDiscountCurveCalibrator {
   /**
    * The root finder.
    */
-  private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder();
+  private final NewtonRaphsonSingleRootFinder rootFinder;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains the standard curve calibrator.
+   * <p>
+   * The accuracy of the root finder is set to be its default, 1.0e-12;
+   * 
+   * @return the standard curve calibrator
+   */
+  public static IsdaCompliantDiscountCurveCalibrator standard() {
+    return IsdaCompliantDiscountCurveCalibrator.STANDARD;
+  }
+
+  /**
+   * Obtains the curve calibrator with the accuracy of the root finder specified. 
+   * 
+   * @param accuracy  the accuracy
+   * @return the curve calibrator
+   */
+  public static IsdaCompliantDiscountCurveCalibrator of(double accuracy) {
+    return new IsdaCompliantDiscountCurveCalibrator(accuracy);
+  }
+
+  // private constructor
+  private IsdaCompliantDiscountCurveCalibrator(double accuracy) {
+    this.rootFinder = new NewtonRaphsonSingleRootFinder(accuracy);
+  }
 
   //-------------------------------------------------------------------------
   /**
    * Calibrates the ISDA compliant discount curve to the market data.
    * <p>
    * This creates the single discount curve for a specified currency.
-   * The curve nodes should be term deposit or fixed-for-Ibor swap, and the number of nodes should be greater than 1.
-   * Typically, the term deposit nodes are used for tenor < 1Y and the swap nodes are used otherwise.
-   * <p>
-   * It is general that the snap date of the market data is different from the valuation date on which 
-   * the resultant curve will be used for pricing CDSs. {@code valuationDate} in {@code marketData} represents 
-   * the snap date, whereas {@code curveValuationDate} does the date on which a credit instrument will be priced.
+   * The curve nodes in {@code IsdaCreditCurveDefinition} should be term deposit or fixed-for-Ibor swap, 
+   * and the number of nodes should be greater than 1.
    * 
-   * @param curveNode  the curve node
-   * @param curveValuationDate  the curve valuation date
-   * @param curveDcc  the curve day count
-   * @param name  the curve name
-   * @param currency  the currency
+   * @param curveDefinition  the curve definition
    * @param marketData  the market data
-   * @param computeJacobian  the Jacobian matrices are computed if true
    * @param refData  the reference data
    * @return the ISDA compliant discount curve
    */
   public IsdaCompliantZeroRateDiscountFactors calibrate(
-      List<IsdaCreditCurveNode> curveNode,
-      LocalDate curveValuationDate,
-      DayCount curveDcc,
-      CurveName name,
-      Currency currency,
+      IsdaCreditCurveDefinition curveDefinition,
       MarketData marketData,
-      boolean computeJacobian,
       ReferenceData refData) {
 
-    ArgChecker.isTrue(curveNode.size() > 1, "the number of curve nodes must be greater than 1");
+    List<IsdaCreditCurveNode> curveNodes = curveDefinition.getCurveNodes();
+    int nNodes = curveNodes.size();
+    ArgChecker.isTrue(nNodes > 1, "the number of curve nodes must be greater than 1");
     LocalDate curveSnapDate = marketData.getValuationDate();
-    int nNode = curveNode.size();
-    BasicFixedLeg[] swapLeg = new BasicFixedLeg[nNode];
-    double[] termDepositYearFraction = new double[nNode];
-    double[] curveNodeTime = new double[nNode];
-    double[] rates = new double[nNode];
+    LocalDate curveValuationDate = curveDefinition.getCurveValuationDate();
+    DayCount curveDayCount = curveDefinition.getDayCount();
+    BasicFixedLeg[] swapLeg = new BasicFixedLeg[nNodes];
+    double[] termDepositYearFraction = new double[nNodes];
+    double[] curveNodeTime = new double[nNodes];
+    double[] rates = new double[nNodes];
     Builder<ParameterMetadata> paramMetadata = ImmutableList.builder();
     int nTermDeposit = 0;
     LocalDate curveSpotDate = null;
-    for (int i = 0; i < nNode; i++) {
+    for (int i = 0; i < nNodes; i++) {
       LocalDate cvDateTmp;
-      IsdaCreditCurveNode node = curveNode.get(i);
+      IsdaCreditCurveNode node = curveNodes.get(i);
       rates[i] = marketData.getValue(node.getObservableId());
-      LocalDate adjMatDate = node.getNodeDate(curveSnapDate, refData);
+      LocalDate adjMatDate = node.date(curveSnapDate, refData);
       paramMetadata.add(node.metadata(adjMatDate));
       if (node instanceof DepositIsdaCreditCurveNode) {
         DepositIsdaCreditCurveNode termDeposit = (DepositIsdaCreditCurveNode) node;
         cvDateTmp = termDeposit.getSpotDateOffset().adjust(curveSnapDate, refData);
-        curveNodeTime[i] = curveDcc.relativeYearFraction(cvDateTmp, adjMatDate);
+        curveNodeTime[i] = curveDayCount.relativeYearFraction(cvDateTmp, adjMatDate);
         termDepositYearFraction[i] = termDeposit.getDayCount().relativeYearFraction(cvDateTmp, adjMatDate);
         ArgChecker.isTrue(nTermDeposit == i, "TermDepositCurveNode should not be after FixedIborSwapCurveNode");
         ++nTermDeposit;
       } else if (node instanceof SwapIsdaCreditCurveNode) {
         SwapIsdaCreditCurveNode swap = (SwapIsdaCreditCurveNode) node;
         cvDateTmp = swap.getSpotDateOffset().adjust(curveSnapDate, refData);
-        curveNodeTime[i] = curveDcc.relativeYearFraction(cvDateTmp, adjMatDate);
+        curveNodeTime[i] = curveDayCount.relativeYearFraction(cvDateTmp, adjMatDate);
         BusinessDayAdjustment busAdj = swap.getBusinessDayAdjustment();
-        swapLeg[i] = new BasicFixedLeg(cvDateTmp, cvDateTmp.plus(swap.getTenor()), swap.getPaymentFrequency().getPeriod(),
-            swap.getDayCount(), curveDcc, busAdj, refData);
+        swapLeg[i] = new BasicFixedLeg(
+            cvDateTmp,
+            cvDateTmp.plus(swap.getTenor()),
+            swap.getPaymentFrequency().getPeriod(),
+            swap.getDayCount(),
+            curveDayCount,
+            busAdj,
+            refData);
       } else {
         throw new IllegalArgumentException("unsupported cuve node type");
       }
@@ -151,43 +169,33 @@ public final class IsdaCompliantDiscountCurveCalibrator {
       }
     }
     ImmutableList<ParameterMetadata> parameterMetadata = paramMetadata.build();
-    CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.ZERO_RATE)
-        .curveName(name)
-        .dayCount(curveDcc)
-        .build();
-    double[] ratesMod = Arrays.copyOf(rates, nNode);
+    double[] ratesMod = Arrays.copyOf(rates, nNodes);
     for (int i = 0; i < nTermDeposit; ++i) {
       double dfInv = 1d + ratesMod[i] * termDepositYearFraction[i];
       ratesMod[i] = Math.log(dfInv) / curveNodeTime[i];
     }
-    InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
-        baseMetadata,
-        DoubleArray.ofUnsafe(curveNodeTime),
-        DoubleArray.ofUnsafe(ratesMod),
-        CurveInterpolators.PRODUCT_LINEAR,
-        CurveExtrapolators.FLAT,
-        CurveExtrapolators.PRODUCT_LINEAR);
-    for (int i = nTermDeposit; i < nNode; ++i) {
+    InterpolatedNodalCurve curve = curveDefinition.curve(DoubleArray.ofUnsafe(curveNodeTime), DoubleArray.ofUnsafe(ratesMod));
+    for (int i = nTermDeposit; i < nNodes; ++i) {
       curve = fitSwap(i, swapLeg[i], curve, rates[i]);
     }
 
-    DoubleMatrix sensi = quoteValueSensitivity(nTermDeposit, termDepositYearFraction, swapLeg, ratesMod, curve, computeJacobian);
+    Currency currency = curveDefinition.getCurrency();
+    DoubleMatrix sensi = quoteValueSensitivity(
+        nTermDeposit, termDepositYearFraction, swapLeg, ratesMod, curve, curveDefinition.isComputeJacobian());
     if (curveValuationDate.isEqual(curveSpotDate)) {
-      if (computeJacobian) {
+      if (curveDefinition.isComputeJacobian()) {
         JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
-            ImmutableList.of(CurveParameterSize.of(name, nNode)), MATRIX_ALGEBRA.getInverse(sensi));
+            ImmutableList.of(CurveParameterSize.of(curveDefinition.getName(), nNodes)), MATRIX_ALGEBRA.getInverse(sensi));
         NodalCurve curveWithParamMetadata = curve.withMetadata(
             curve.getMetadata().withInfo(CurveInfoType.JACOBIAN, jacobian).withParameterMetadata(parameterMetadata));
         return IsdaCompliantZeroRateDiscountFactors.of(currency, curveValuationDate, curveWithParamMetadata);
       }
-      NodalCurve curveWithParamMetadata = curve.withMetadata(baseMetadata.withParameterMetadata(parameterMetadata));
+      NodalCurve curveWithParamMetadata = curve.withMetadata(curve.getMetadata().withParameterMetadata(parameterMetadata));
       return IsdaCompliantZeroRateDiscountFactors.of(currency, curveValuationDate, curveWithParamMetadata);
     }
-    double offset = curveDcc.relativeYearFraction(curveSpotDate, curveValuationDate);
+    double offset = curveDayCount.relativeYearFraction(curveSpotDate, curveValuationDate);
     return IsdaCompliantZeroRateDiscountFactors.of(
-        currency, curveValuationDate, withShift(curve, parameterMetadata, sensi, computeJacobian, offset));
+        currency, curveValuationDate, withShift(curve, parameterMetadata, sensi, curveDefinition.isComputeJacobian(), offset));
   }
 
   //-------------------------------------------------------------------------
@@ -256,7 +264,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
     double[] bracket = guess > 0d
         ? BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)
         : BRACKETER.getBracketedPoints(func, 1.25 * guess, 0.8 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-    double r = ROOT_FINDER.getRoot(func, grad, bracket[0], bracket[1]);
+    double r = rootFinder.getRoot(func, grad, bracket[0], bracket[1]);
     return curve.withParameter(curveIndex, r);
   }
 
@@ -324,8 +332,14 @@ public final class IsdaCompliantDiscountCurveCalibrator {
     private final double[] swapPaymentTime;
     private final double[] yearFraction;
 
-    public BasicFixedLeg(LocalDate curveSpotDate, LocalDate maturityDate, Period swapInterval, DayCount swapDCC,
-        DayCount curveDcc, BusinessDayAdjustment busAdj, ReferenceData refData) {
+    public BasicFixedLeg(
+        LocalDate curveSpotDate,
+        LocalDate maturityDate,
+        Period swapInterval,
+        DayCount swapDCC,
+        DayCount curveDcc,
+        BusinessDayAdjustment busAdj,
+        ReferenceData refData) {
 
       List<LocalDate> list = new ArrayList<>();
       LocalDate tDate = maturityDate;
