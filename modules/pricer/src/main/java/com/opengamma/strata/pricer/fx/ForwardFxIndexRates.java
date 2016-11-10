@@ -152,7 +152,6 @@ public final class ForwardFxIndexRates
     ArgChecker.isTrue(
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);
-
     LocalDate fixingDate = observation.getFixingDate();
     double fxIndexRate = !fixingDate.isAfter(getValuationDate()) ? historicRate(observation) : forwardRate(observation);
     boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
