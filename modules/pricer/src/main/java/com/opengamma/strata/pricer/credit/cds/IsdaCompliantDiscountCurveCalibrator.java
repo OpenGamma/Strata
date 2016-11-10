@@ -296,8 +296,12 @@ public final class IsdaCompliantDiscountCurveCalibrator {
     return DoubleMatrix.EMPTY;
   }
 
-  private DoubleArray sensitivityDeposit(InterpolatedNodalCurve curve, double termDepositYearFraction, int index,
+  private DoubleArray sensitivityDeposit(
+      InterpolatedNodalCurve curve,
+      double termDepositYearFraction,
+      int index,
       double fixedRate) {
+
     int nNode = curve.getParameterCount();
     double[] sensi = new double[nNode];
     sensi[index] = curve.getXValues().get(index) * (1d + fixedRate * termDepositYearFraction) / termDepositYearFraction;
