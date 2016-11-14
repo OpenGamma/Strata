@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.model;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
