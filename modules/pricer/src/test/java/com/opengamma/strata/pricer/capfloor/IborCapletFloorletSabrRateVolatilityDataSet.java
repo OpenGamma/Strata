@@ -103,9 +103,9 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
 
   static final double CONST_SHIFT = 0.015;
   private static final DefaultCurveMetadata META_CONST_SHIFT = DefaultCurveMetadata.of("Test-SABR-Shift");
-  private static final ConstantCurve SURFACE_CONST_SHIFT = ConstantCurve.of(META_CONST_SHIFT, CONST_SHIFT);
+  static final ConstantCurve CURVE_CONST_SHIFT = ConstantCurve.of(META_CONST_SHIFT, CONST_SHIFT);
   static final SabrParameters SABR_PARAM_CONST_SHIFT = SabrParameters.of(
-      CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, SURFACE_CONST_SHIFT, SabrVolatilityFormula.hagan());
+      CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, CURVE_CONST_SHIFT, SabrVolatilityFormula.hagan());
 
   static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("Test-SABR");
 
