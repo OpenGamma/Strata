@@ -121,7 +121,7 @@ public final class SabrInterestRateParameters
    * @param rhoSurface  the rho surface
    * @param nuSurface  the nu surface
    * @param sabrFormula  the SABR formula
-   * @return {@code SABRInterestRateParameters}
+   * @return {@code SabrInterestRateParameters}
    */
   @SuppressWarnings("javadoc")
   public static SabrInterestRateParameters of(
@@ -160,7 +160,7 @@ public final class SabrInterestRateParameters
    * @param nuSurface  the nu surface
    * @param shiftSurface  the shift surface
    * @param sabrFormula  the SABR formula
-   * @return {@code SABRInterestRateParameters}
+   * @return {@code SabrInterestRateParameters}
    */
   public static SabrInterestRateParameters of(
       Surface alphaSurface,

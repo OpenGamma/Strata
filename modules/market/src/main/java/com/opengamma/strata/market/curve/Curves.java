@@ -327,4 +327,81 @@ public final class Curves {
         .build();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates metadata for a curve providing a SABR parameter.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param yType  the y-value type, which must be one of the four SABR values
+   * @return the curve metadata
+   */
+  public static CurveMetadata sabrParameterByExpiry(
+      String name,
+      DayCount dayCount,
+      ValueType yType) {
+
+    return sabrParameterByExpiry(CurveName.of(name), dayCount, yType);
+  }
+
+  /**
+   * Creates metadata for a curve providing a SABR parameter.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param yType  the y-value type, which must be one of the four SABR values
+   * @return the curve metadata
+   */
+  public static CurveMetadata sabrParameterByExpiry(
+      CurveName name,
+      DayCount dayCount,
+      ValueType yType) {
+
+    if (!yType.equals(ValueType.SABR_ALPHA) && !yType.equals(ValueType.SABR_BETA) &&
+        !yType.equals(ValueType.SABR_RHO) && !yType.equals(ValueType.SABR_NU)) {
+      throw new IllegalArgumentException("SABR y-value type must be SabrAlpha, SabrBeta, SabrRho or SabrNu");
+    }
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(yType)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  /**
+   * Creates metadata for a curve providing a SABR parameter.
+   * <p>
+   * The x-values represent time to expiry year fractions as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param yType  the y-value type, which must be one of the four SABR values
+   * @param parameterMetadata  the parameter metadata
+   * @return the curve metadata
+   */
+  @SuppressWarnings("unchecked")
+  public static CurveMetadata sabrParameterByExpiry(
+      CurveName name,
+      DayCount dayCount,
+      ValueType yType,
+      List<? extends ParameterMetadata> parameterMetadata) {
+
+    if (!yType.equals(ValueType.SABR_ALPHA) && !yType.equals(ValueType.SABR_BETA) &&
+        !yType.equals(ValueType.SABR_RHO) && !yType.equals(ValueType.SABR_NU)) {
+      throw new IllegalArgumentException("SABR y-value type must be SabrAlpha, SabrBeta, SabrRho or SabrNu");
+    }
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(yType)
+        .dayCount(dayCount)
+        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
+        .build();
+  }
+
 }
