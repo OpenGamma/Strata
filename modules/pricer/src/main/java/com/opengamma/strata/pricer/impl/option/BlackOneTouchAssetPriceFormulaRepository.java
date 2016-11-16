@@ -27,7 +27,7 @@ public class BlackOneTouchAssetPriceFormulaRepository {
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   /**
-   * Small parameter.
+   * Small parameter
    */
   private static final double SMALL = 1.0e-6;
 
