@@ -25,9 +25,9 @@ public class BlackDigitalPriceFormulaRepository {
     private static final double SMALL = 1.0e-6;
 
     /**
-     * Computes the price of a Domestic Cash Digital option using the call spread approximation
+     * Computes the future price of a Domestic Cash Digital option using the call spread approximation
      *
-     * @param spot         the spot
+     * @param forward        the spot
      * @param strike       the strike
      * @param timeToExpiry the time to expiry
      * @param Rd           the Domestic rate
@@ -37,12 +37,10 @@ public class BlackDigitalPriceFormulaRepository {
      * @param N            the Notional
      * @return the price
      */
-    public double price(
-            double Forward,
+    public static double price(
+            double forward,
             double strike,
             double timeToExpiry,
-            double Rd,
-            double Rf,
             double lognormalVol,
             boolean isCall,
             double N)
@@ -52,8 +50,9 @@ public class BlackDigitalPriceFormulaRepository {
         double Kminus = strike * (1-Eps);
         int sign = isCall ? 1 : -1;
         double M = N / (Kplus-Kminus);
-        double output = sign * M * (BlackFormulaRepository.price(Forward, Kminus, timeToExpiry, lognormalVol, isCall)
-                    - BlackFormulaRepository.price(Forward, Kplus, timeToExpiry, lognormalVol, isCall));
+        //double costCarry = Rd-Rf;
+        double output = sign * M * (BlackFormulaRepository.price(forward,Kminus,timeToExpiry,lognormalVol,isCall)
+                    - BlackFormulaRepository.price(forward,Kplus,timeToExpiry,lognormalVol,isCall));
         /* Check for the price
          */
         if(output < 0.0)
@@ -63,12 +62,10 @@ public class BlackDigitalPriceFormulaRepository {
         return output;
     }
 
-    public double delta(
-            double Forward,
+    public static double delta(
+            double forward,
             double strike,
             double timeToExpiry,
-            double Rd,
-            double Rf,
             double lognormalVol,
             boolean isCall,
             double N)
@@ -78,23 +75,16 @@ public class BlackDigitalPriceFormulaRepository {
         double Kminus = strike * (1-Eps);
         int sign = isCall ? 1 : -1;
         double M = N / (Kplus-Kminus);
-        double output = sign * M * (BlackFormulaRepository.delta(Forward, Kminus, timeToExpiry, lognormalVol, isCall)
-                - BlackFormulaRepository.delta(Forward, Kplus, timeToExpiry, lognormalVol, isCall));
-        /* Check for the price
-         */
-        if(output < 0.0)
-        {
-            output = 0.0;
-        }
+        //double costCarry = Rd-Rf;
+        double output = sign * M * (BlackFormulaRepository.delta(forward,Kminus,timeToExpiry,lognormalVol,isCall)
+                - BlackFormulaRepository.delta(forward,Kplus,timeToExpiry,lognormalVol,isCall));
         return output;
     }
 
-    public double gamma(
-            double Forward,
+    public static double gamma(
+            double forward,
             double strike,
             double timeToExpiry,
-            double Rd,
-            double Rf,
             double lognormalVol,
             boolean isCall,
             double N)
@@ -104,13 +94,51 @@ public class BlackDigitalPriceFormulaRepository {
         double Kminus = strike * (1-Eps);
         int sign = isCall ? 1 : -1;
         double M = N / (Kplus-Kminus);
-        double output = sign * M * (BlackFormulaRepository.gamma(Forward,Kplus, timeToExpiry, lognormalVol)
-                - BlackFormulaRepository.gamma(Forward,Kplus, timeToExpiry, lognormalVol));
+        //double costCarry = Rd-Rf;
+        double output = sign * M * (BlackFormulaRepository.gamma(forward,Kminus,timeToExpiry,lognormalVol)
+                - BlackFormulaRepository.gamma(forward,Kplus,timeToExpiry,lognormalVol));
 
-        if(output < 0.0)
-        {
-            output = 0.0;
-        }
+        return output;
+    }
+
+    public static double vega(
+            double forward,
+            double strike,
+            double timeToExpiry,
+            double lognormalVol,
+            boolean isCall,
+            double N)
+    {
+        double Eps = SMALL;
+        double Kplus = strike * (1+Eps);
+        double Kminus = strike * (1-Eps);
+        int sign = isCall ? 1 : -1;
+        double M = N / (Kplus-Kminus);
+        //double costCarry = Rd-Rf;
+        double output = sign * M * (BlackFormulaRepository.vega(forward,Kminus,timeToExpiry,lognormalVol)
+                - BlackFormulaRepository.vega(forward,Kplus,timeToExpiry,lognormalVol));
+
+        return output;
+    }
+
+    public static double theta(
+            double forward,
+            double strike,
+            double timeToExpiry,
+            double Rd,
+            double lognormalVol,
+            boolean isCall,
+            double N)
+    {
+        double Eps = SMALL;
+        double Kplus = strike * (1+Eps);
+        double Kminus = strike * (1-Eps);
+        int sign = isCall ? 1 : -1;
+        double M = N / (Kplus-Kminus);
+        //double costCarry = Rd-Rf;
+        double output = sign * M * (BlackFormulaRepository.theta(forward,Kminus,timeToExpiry,lognormalVol,isCall,Rd)
+                - BlackFormulaRepository.theta(forward,Kplus,timeToExpiry,lognormalVol,isCall,Rd));
+
         return output;
     }
 }

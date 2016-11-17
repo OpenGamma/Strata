@@ -97,6 +97,12 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(FD_EPS);
 
+
+
+
+
+
+
   //-------------------------------------------------------------------------
   public void test_price_presentValue() {
     double priceCallOtm = PRICER.price(CALL_OTM, RATES_PROVIDER, VOLS);
