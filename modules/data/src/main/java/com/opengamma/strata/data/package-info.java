@@ -13,4 +13,3 @@
  * which is keyed by {@link com.opengamma.strata.data.MarketDataId MarketDataId}.
  */
 package com.opengamma.strata.data;
-
