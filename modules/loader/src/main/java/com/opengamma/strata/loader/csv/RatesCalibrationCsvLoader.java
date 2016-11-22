@@ -621,7 +621,7 @@ public final class RatesCalibrationCsvLoader {
         .dateOrder(order)
         .build();
   }
-  
+
   private static CurveNode curveOvernightIborCurveNode(
       String conventionStr,
       String timeStr,

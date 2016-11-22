@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -39,7 +40,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -268,13 +268,13 @@ public final class RatesCurvesCsvLoader {
       CurveName curveName = CurveName.of(curveNameStr);
       ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
       CurveInterpolator interpolator = CurveInterpolator.of(interpolatorStr);
-      CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorStr);
-      CurveExtrapolator rightExtrapolator = CurveExtrapolator.of(rightExtrapolatorStr);
-      LoadedCurveSettings settings = (valueType.equals(ValueType.PRICE_INDEX))
-          ? LoadedCurveSettings.of(curveName, ValueType.MONTHS, valueType, 
-              DayCounts.ONE_ONE, interpolator, leftExtrapolator, rightExtrapolator) // DayCount not used
-          : LoadedCurveSettings.of(curveName, ValueType.YEAR_FRACTION, valueType, 
-              DayCount.of(dayCountStr), interpolator, leftExtrapolator, rightExtrapolator);
+      CurveExtrapolator leftExtrap = CurveExtrapolator.of(leftExtrapolatorStr);
+      CurveExtrapolator rightExtrap = CurveExtrapolator.of(rightExtrapolatorStr);
+      // ONE_ONE day count is not used
+      LoadedCurveSettings settings = (valueType.equals(ValueType.PRICE_INDEX)) ?
+          LoadedCurveSettings.of(curveName, ValueType.MONTHS, valueType, ONE_ONE, interpolator, leftExtrap, rightExtrap) :
+          LoadedCurveSettings.of(
+              curveName, ValueType.YEAR_FRACTION, valueType, DayCount.of(dayCountStr), interpolator, leftExtrap, rightExtrap);
       builder.put(curveName, settings);
     }
     return builder.build();

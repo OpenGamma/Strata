@@ -8,4 +8,3 @@
  * Tools for loading data from files.
  */
 package com.opengamma.strata.loader;
-
