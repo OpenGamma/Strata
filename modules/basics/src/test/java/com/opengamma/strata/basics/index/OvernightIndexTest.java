@@ -130,7 +130,7 @@ public class OvernightIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "DKK-TNR");
   }
-  
+
   public void test_plnOis() {
     OvernightIndex test = OvernightIndex.of("PLN-POLONIA");
     assertEquals(test.getName(), "PLN-POLONIA");
@@ -142,7 +142,7 @@ public class OvernightIndexTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "PLN-POLONIA");
   }
-  
+
   public void test_sekOis() {
     OvernightIndex test = OvernightIndex.of("SEK-SIOR");
     assertEquals(test.getName(), "SEK-SIOR");

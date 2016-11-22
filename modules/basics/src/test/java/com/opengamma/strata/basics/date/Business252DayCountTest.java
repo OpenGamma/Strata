@@ -75,7 +75,7 @@ public class Business252DayCountTest {
       date2 = date2.plusDays(1);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     DayCount a = DayCount.of("Bus/252 EUTA");
