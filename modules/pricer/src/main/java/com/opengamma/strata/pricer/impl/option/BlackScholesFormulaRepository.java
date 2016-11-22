@@ -652,10 +652,9 @@ public final class BlackScholesFormulaRepository {
         d1 = (Math.log(spot / strike) / rootT + costOfCarry * rootT) / lognormalVol;
         d2 = d1;
       } else {
-        double tmp =
-            (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ? rootT
-                : ((Math.abs(costOfCarry) < SMALL && rootT > LARGE) ? 1d / lognormalVol : costOfCarry / lognormalVol *
-                    rootT);
+        double tmp = (Math.abs(costOfCarry) < SMALL && lognormalVol < SMALL) ?
+            rootT :
+            ((Math.abs(costOfCarry) < SMALL && rootT > LARGE) ? 1d / lognormalVol : costOfCarry / lognormalVol * rootT);
         d1 = Math.log(spot / strike) / sigmaRootT + tmp + 0.5 * sigmaRootT;
         d2 = d1 - sigmaRootT;
       }
@@ -665,10 +664,10 @@ public final class BlackScholesFormulaRepository {
     double rescaledStrike = discount * strike;
     double normForSpot = NORMAL.getCDF(sign * d1);
     double normForStrike = NORMAL.getCDF(sign * d2);
-    double spotTerm =
-        normForSpot < SMALL ? 0d : (Double.isNaN(rescaledSpot) ? -sign * Math.signum((costOfCarry - interestRate)) * rescaledSpot
-            : -sign *
-                ((costOfCarry - interestRate) * rescaledSpot * normForSpot));
+    double spotTerm = normForSpot < SMALL ?
+        0d :
+        (Double.isNaN(rescaledSpot) ? -sign * Math.signum((costOfCarry - interestRate)) * rescaledSpot : -sign *
+            ((costOfCarry - interestRate) * rescaledSpot * normForSpot));
     double strikeTerm =
         normForStrike < SMALL ? 0d : (Double.isNaN(rescaledSpot) ? sign * (-Math.signum(interestRate) * discount) : sign *
             (-interestRate * rescaledStrike * normForStrike));
@@ -845,8 +844,10 @@ public final class BlackScholesFormulaRepository {
       } else {
         double tmp = costOfCarry * rootT / lognormalVol;
         double sig = (costOfCarry >= 0d) ? 1d : -1d;
-        double scnd = Double.isNaN(tmp) ? ((lognormalVol < LARGE && lognormalVol > SMALL) ?
-            sig / lognormalVol : sig * rootT) :
+        double scnd = Double.isNaN(tmp) ?
+            ((lognormalVol < LARGE && lognormalVol > SMALL) ?
+                sig / lognormalVol :
+                sig * rootT) :
             tmp;
         double d1Tmp = Math.log(spot / strike) / sigmaRootT + scnd + 0.5 * sigmaRootT;
         double d2Tmp = Math.log(spot / strike) / sigmaRootT + scnd - 0.5 * sigmaRootT;

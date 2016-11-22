@@ -100,7 +100,8 @@ public final class SabrHaganVolatilityFunctionProvider
       vol = alpha *
           (1 + timeToExpiry *
               (beta1 * beta1 * alpha * alpha / 24 / f1 / f1 + rho * alpha * beta * nu / 4 / f1 + nu * nu *
-                  (2 - 3 * rho * rho) / 24)) / f1;
+                  (2 - 3 * rho * rho) / 24)) /
+          f1;
     } else {
       if (DoubleMath.fuzzyEquals(beta, 0, BETA_EPS)) {
         double ln = Math.log(forward / k);
@@ -128,7 +129,7 @@ public final class SabrHaganVolatilityFunctionProvider
       }
     }
     //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 to be large negative, and hence the volatility negative
-     return Math.max(MIN_VOL, vol);
+    return Math.max(MIN_VOL, vol);
   }
 
   /**
@@ -287,14 +288,15 @@ public final class SabrHaganVolatilityFunctionProvider
       }
     }
 
-    double lnrfKBar = sfK * (betaStar * betaStar / 12 * lnrfK + Math.pow(betaStar, 4) / 1920 * 4 * Math.pow(lnrfK, 3))
-        * sf1Bar + nu / alpha * sfK * zBar;
-    double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar - (Math.pow(betaStar * alpha, 2) / Math.pow(sfK, 3)
-        / 12 + (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
+    double lnrfKBar = sfK * (betaStar * betaStar / 12 * lnrfK + Math.pow(betaStar, 4) / 1920 * 4 * Math.pow(lnrfK, 3)) * sf1Bar +
+        nu / alpha * sfK * zBar;
+    double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar -
+        (Math.pow(betaStar * alpha, 2) / Math.pow(sfK, 3) / 12 + (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry *
+            sf2Bar;
     double strikeBar = -1 / k * lnrfKBar + betaStar * sfK / (2 * k) * sfKBar;
     double forwardBar = 1 / forward * lnrfKBar + betaStar * sfK / (2 * forward) * sfKBar;
-    double nuBar = 1 / alpha * sfK * lnrfK * zBar + ((rho * beta * alpha) / (4 * sfK)
-        + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
+    double nuBar = 1 / alpha * sfK * lnrfK * zBar +
+        ((rho * beta * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
 
     double rhoBar;
     if (Math.abs(forward - k) < ATM_EPS) {
@@ -318,11 +320,12 @@ public final class SabrHaganVolatilityFunctionProvider
     }
     rhoBar += ((beta * nu * alpha) / (4 * sfK) - rho * nu * nu / 4) * timeToExpiry * sf2Bar;
 
-    double alphaBar = -nu / (alpha * alpha) * sfK * lnrfK * zBar + ((betaStar * alpha / sfK) * (betaStar / sfK) / 12
-        + (rho * beta * nu) / (4 * sfK)) * timeToExpiry * sf2Bar + 1 / sf1 * rzxz * sf2 * vBar;
+    double alphaBar = -nu / (alpha * alpha) * sfK * lnrfK * zBar +
+        ((betaStar * alpha / sfK) * (betaStar / sfK) / 12 + (rho * beta * nu) / (4 * sfK)) * timeToExpiry * sf2Bar +
+        1 / sf1 * rzxz * sf2 * vBar;
     double betaBar = -0.5 * Math.log(forward * k) * sfK * sfKBar - sfK *
-        (betaStar / 12 * (lnrfK * lnrfK) + Math.pow(betaStar, 3) / 480 * Math.pow(lnrfK, 4)) * sf1Bar
-        + (-betaStar * alpha * alpha / sfK / sfK / 12 + rho * nu * alpha / 4 / sfK) * timeToExpiry * sf2Bar;
+        (betaStar / 12 * (lnrfK * lnrfK) + Math.pow(betaStar, 3) / 480 * Math.pow(lnrfK, 4)) * sf1Bar +
+        (-betaStar * alpha * alpha / sfK / sfK / 12 + rho * nu * alpha / 4 / sfK) * timeToExpiry * sf2Bar;
 
     return ValueDerivatives.of(volatility, DoubleArray.of(forwardBar, strikeBar, alphaBar, betaBar, rhoBar, nuBar));
   }
@@ -475,14 +478,14 @@ public final class SabrHaganVolatilityFunctionProvider
             f3Dh[loopy + 1]) *
             f1Dh[loopx + 1] +
             sigmaDf1 *
-            f1D2hh[loopx][loopy] +
+                f1D2hh[loopx][loopy] +
             (sigmaD2ff[0][1] * f1Dh[loopy + 1] + sigmaD2ff[1][1] * f2Dh[loopy + 1] + sigmaD2ff[1][2] * f3Dh[loopy + 1]) *
-            f2Dh[loopx + 1] +
+                f2Dh[loopx + 1] +
             sigmaDf2 *
-            f2D2hh[loopx][loopy]
-            +
+                f2D2hh[loopx][loopy] +
             (sigmaD2ff[0][2] * f1Dh[loopy + 1] + sigmaD2ff[1][2] * f2Dh[loopy + 1] + sigmaD2ff[2][2] * f3Dh[loopy + 1]) *
-            f3Dh[loopx + 1] + sigmaDf3 * f3D2hh[loopx][loopy];
+                f3Dh[loopx + 1] +
+            sigmaDf3 * f3D2hh[loopx][loopy];
       }
     }
     // Third level
@@ -507,7 +510,7 @@ public final class SabrHaganVolatilityFunctionProvider
       if (DoubleMath.fuzzyEquals(rho, 1.0, RHO_EPS)) {
         xDr = f2 > 1.0 ? 1.0 / (1.0 - rho) + (0.5 - f2) / (f2 - 1.0) / (f2 - 1.0) : 0.5 *
             Math.pow(f2 / (1.0 - f2), 2.0) + 0.25 * (f2 - 4.0) * Math.pow(f2 / (f2 - 1.0), 3) / (f2 - 1.0) *
-            (1.0 - rho);
+                (1.0 - rho);
         if (Doubles.isFinite(xDr)) {
           volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDx * xDr + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
         } else {

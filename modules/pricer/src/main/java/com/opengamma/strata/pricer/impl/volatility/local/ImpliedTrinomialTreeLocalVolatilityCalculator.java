@@ -140,7 +140,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
       double spot,
       Function<Double, Double> interestRate,
       Function<Double, Double> dividendRate) {
-    
+
     return calibrate(impliedVolatilitySurface, spot, interestRate, dividendRate).getSecond();
   }
 
@@ -192,8 +192,8 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
         assetTmp = spot * Math.pow(downFactor, i);
         for (int j = 0; j < position + 2; ++j) {
           assetPriceLocal[j] = assetTmp;
-          putOptionPrice[j] = callPriceSurface.zValue(time, assetPriceLocal[j])
-              - spot * Math.exp(-zeroDividendRate * time) + Math.exp(-zeroRate * time) * assetPriceLocal[j];
+          putOptionPrice[j] = callPriceSurface.zValue(time, assetPriceLocal[j]) - spot * Math.exp(-zeroDividendRate * time) +
+              Math.exp(-zeroRate * time) * assetPriceLocal[j];
           assetTmp *= upFactor;
         }
         resolveLayer(interestRate, dividendRate, i, nTotal, position, dt, zeroRate, zeroDividendRate, callOptionPrice,
@@ -292,13 +292,12 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
     double fwd = spot * fwdFactor;
     timeRes[nTotal - 1] = dt;
     spotRes[nTotal - 1] = spot;
-    double var = (dwProb * Math.pow(assetPrice[0] - fwd, 2)
-        + midProb * Math.pow(assetPrice[1] - fwd, 2)
-        + upProb * Math.pow(assetPrice[2] - fwd, 2)) / (fwd * fwd * dt);
+    double var = (dwProb * Math.pow(assetPrice[0] - fwd, 2) + midProb * Math.pow(assetPrice[1] - fwd, 2) +
+        upProb * Math.pow(assetPrice[2] - fwd, 2)) / (fwd * fwd * dt);
     volRes[nTotal - 1] = Math.sqrt(0.5 * (var + volRes[nTotal - 2] * volRes[nTotal - 2]));
-    probability.add(0, DoubleMatrix.ofUnsafe(new double[][] {{dwProb, midProb, upProb } }));
+    probability.add(0, DoubleMatrix.ofUnsafe(new double[][] {{dwProb, midProb, upProb}}));
     df[0] = discountFactor;
-    stateValue[0] = new double[] {spot };
+    stateValue[0] = new double[] {spot};
   }
 
   // resolve the i-th layer
@@ -366,18 +365,19 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
       double[] varBare = new double[nNodes];
       for (int k = 0; k < nNodes; ++k) {
         double fwd = assetPriceLocal[k] * fwdFactor;
-        varBare[k] = (prob[k][0] * Math.pow(assetPrice[k] - fwd, 2)
-            + prob[k][1] * Math.pow(assetPrice[k + 1] - fwd, 2)
-            + prob[k][2] * Math.pow(assetPrice[k + 2] - fwd, 2)) / (fwd * fwd * dt);
+        varBare[k] = (prob[k][0] * Math.pow(assetPrice[k] - fwd, 2) + prob[k][1] * Math.pow(assetPrice[k + 1] - fwd, 2) +
+            prob[k][2] * Math.pow(assetPrice[k + 2] - fwd, 2)) / (fwd * fwd * dt);
         if (varBare[k] < 0d) {
           throw new IllegalArgumentException("Negative variance");
         }
       }
       // smoothing
       for (int k = 0; k < nNodes - 2; ++k) {
-        double var = (k == 0 || k == nNodes - 3) ? (varBare[k] + varBare[k + 1] + varBare[k + 2]) / 3d :
+        double var = (k == 0 || k == nNodes - 3) ?
+            (varBare[k] + varBare[k + 1] + varBare[k + 2]) / 3d :
             (varBare[k - 1] + varBare[k] + varBare[k + 1] + varBare[k + 2] + varBare[k + 3]) / 5d;
-        volRes[offset + k] = i == nSteps - 1 ? Math.sqrt(var) :
+        volRes[offset + k] = i == nSteps - 1 ?
+            Math.sqrt(var) :
             Math.sqrt(0.5 * (var + volRes[offset - (2 * i - k)] * volRes[offset - (2 * i - k)]));
         timeRes[offset + k] = dt * (i + 1d);
         spotRes[offset + k] = assetPriceLocal[k + 1];
@@ -396,11 +396,11 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
       double fwd = assetBase * factor;
       if (fwd <= assertPriceMid && fwd > assertPriceLow) {
         probability[0] = 0.5 * (fwd - assertPriceLow) / (assetPriceHigh - assertPriceLow);
-        probability[2] = 0.5 * ((assetPriceHigh - fwd) / (assetPriceHigh - assertPriceLow)
-            + (assertPriceMid - fwd) / (assertPriceMid - assertPriceLow));
+        probability[2] = 0.5 * ((assetPriceHigh - fwd) / (assetPriceHigh - assertPriceLow) +
+            (assertPriceMid - fwd) / (assertPriceMid - assertPriceLow));
       } else if (fwd < assetPriceHigh && fwd > assertPriceMid) {
-        probability[0] = 0.5 * ((fwd - assertPriceMid) / (assetPriceHigh - assertPriceLow)
-            + (fwd - assertPriceLow) / (assetPriceHigh - assertPriceLow));
+        probability[0] = 0.5 * ((fwd - assertPriceMid) / (assetPriceHigh - assertPriceLow) +
+            (fwd - assertPriceLow) / (assetPriceHigh - assertPriceLow));
         probability[2] = 0.5 * (assetPriceHigh - fwd) / assetPriceHigh;
       }
       probability[1] = 1d - probability[0] - probability[2];

@@ -96,7 +96,7 @@ public interface OptionFunction {
       int i) {
 
     int nNodes = 2 * i + 1;
-    double[] probsAtNode = new double[] {downProbability, middleProbability, upProbability };
+    double[] probsAtNode = new double[] {downProbability, middleProbability, upProbability};
     double[][] probs = new double[nNodes][];
     Arrays.fill(probs, probsAtNode);
     DoubleArray stateValue = DoubleArray.of(nNodes, k -> spot * Math.pow(downFactor, i - k) * Math.pow(middleFactor, k));
@@ -128,7 +128,7 @@ public interface OptionFunction {
 
     int nNodes = 2 * i + 1;
     return DoubleArray.of(nNodes, j -> discountFactor * (transitionProbability.get(j, 2) * value.get(j + 2) +
-            transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
+        transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
   }
 
 }

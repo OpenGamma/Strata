@@ -182,10 +182,10 @@ public interface IborIndexRates
    * @throws RuntimeException if the value cannot be obtained
    */
   public default double explainRate(
-      IborIndexObservation observation, 
+      IborIndexObservation observation,
       ExplainMapBuilder builder,
       Consumer<ExplainMapBuilder> consumer) {
-    
+
     LocalDate fixingDate = observation.getFixingDate();
     double rate = rate(observation);
     ExplainMapBuilder child = builder.openListEntry(ExplainKey.OBSERVATIONS);

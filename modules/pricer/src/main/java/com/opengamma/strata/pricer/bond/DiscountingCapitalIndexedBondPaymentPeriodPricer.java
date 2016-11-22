@@ -139,7 +139,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
       IssuerCurveDiscountFactors issuerDiscountFactors) {
 
     if (period.getPaymentDate().isBefore(ratesProvider.getValuationDate())) {
-      return PointSensitivityBuilder.none(); 
+      return PointSensitivityBuilder.none();
     }
     double rate = rateComputationFn.rate(
         period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);

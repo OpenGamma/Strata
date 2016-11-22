@@ -411,15 +411,16 @@ public class DiscountingSwapProductPricer {
         "Swap should have a fixed leg and for one payment it should be based on compunding witout spread.");
     double df = provider.discountFactor(ccyReferenceLeg, referenceLeg.getPaymentPeriods().get(0).getPaymentDate());
     PointSensitivityBuilder dfDr = provider.discountFactors(ccyReferenceLeg)
-        .zeroRatePointSensitivity(referenceLeg.getPaymentPeriods().get(0).getPaymentDate());    
+        .zeroRatePointSensitivity(referenceLeg.getPaymentPeriods().get(0).getPaymentDate());
     double referenceConvertedPv = legPricer.presentValue(referenceLeg, provider).getAmount();
     PointSensitivityBuilder referenceConvertedPvDr = legPricer.presentValueSensitivity(referenceLeg, provider);
     double notional = ((RatePaymentPeriod) referenceLeg.getPaymentPeriods().get(0)).getNotional();
-    PointSensitivityBuilder DparSpreadDr = 
+    PointSensitivityBuilder DparSpreadDr =
         convertedPvDr.combinedWith(referenceConvertedPvDr.multipliedBy(-1)).multipliedBy(-1.0d / (df * notional))
-        .combinedWith(dfDr.multipliedBy((convertedPv - referenceConvertedPv) / (df * df * notional)))
-        .multipliedBy( 1.0d / fixedCompounded.getSecond() *
-        Math.pow(-(convertedPv - referenceConvertedPv) / (df * notional) + 1.0d, 1.0d / fixedCompounded.getSecond() - 1.0d));
+            .combinedWith(dfDr.multipliedBy((convertedPv - referenceConvertedPv) / (df * df * notional)))
+            .multipliedBy(1.0d / fixedCompounded.getSecond() *
+                Math.pow(-(convertedPv - referenceConvertedPv) / (df * notional) + 1.0d,
+                    1.0d / fixedCompounded.getSecond() - 1.0d));
     return DparSpreadDr;
   }
 
@@ -500,13 +501,13 @@ public class DiscountingSwapProductPricer {
     }
     return fixedLegs.get(0);
   }
-  
+
   // Checks if the leg is a fixed leg with one payment and compounding
   // This type of leg is used in zero-coupon inflation swaps
   // When returning a 'true' for the first element, the second element is the number of periods which are used in 
   //   par rate/spread computation and the third element is the common fixed rate
   private Triple<Boolean, Integer, Double> checkFixedCompounded(ResolvedSwapLeg leg) {
-    if(leg.getPaymentEvents().size() != 0) {
+    if (leg.getPaymentEvents().size() != 0) {
       return Triple.of(false, 0, 0.0d); // No event
     }
     RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) leg.getPaymentPeriods().get(0);

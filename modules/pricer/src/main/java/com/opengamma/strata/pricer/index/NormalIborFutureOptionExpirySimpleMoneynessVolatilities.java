@@ -203,7 +203,8 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
 
   private CurrencyParameterSensitivity parameterSensitivity(IborFutureOptionSensitivity point) {
     double simpleMoneyness = moneynessOnPrice ?
-        point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
+        point.getStrikePrice() - point.getFuturePrice() :
+        point.getFuturePrice() - point.getStrikePrice();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(point.getExpiry(), simpleMoneyness);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }

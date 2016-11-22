@@ -8,4 +8,3 @@
  * Calculators for FX options.
  */
 package com.opengamma.strata.pricer.fxopt;
-

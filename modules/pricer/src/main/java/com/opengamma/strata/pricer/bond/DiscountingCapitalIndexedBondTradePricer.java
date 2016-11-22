@@ -333,7 +333,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     PointSensitivityBuilder dfSensi = repoDiscountFactors.zeroRatePointSensitivity(standardSettlementDate);
     PointSensitivityBuilder pvSensiStandard = forecastValueSensitivityStandardFromCleanPrice(bond, ratesProvider,
         standardSettlementDate, cleanRealPrice).multipliedBy(df).combinedWith(dfSensi.multipliedBy(
-        forecastValueStandardFromCleanPrice(bond, ratesProvider, standardSettlementDate, cleanRealPrice)
+            forecastValueStandardFromCleanPrice(bond, ratesProvider, standardSettlementDate, cleanRealPrice)
                 .getAmount()));
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
       return presentValueSensitivityFromProductPresentValueSensitivity(
@@ -393,7 +393,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     PointSensitivityBuilder dfSensi = repoDiscountFactors.zeroRatePointSensitivity(standardSettlementDate);
     PointSensitivityBuilder pvSensiStandard = forecastValueSensitivityStandardFromCleanPrice(bond, ratesProvider,
         standardSettlementDate, cleanRealPrice).multipliedBy(df).combinedWith(dfSensi.multipliedBy(
-        forecastValueStandardFromCleanPrice(bond, ratesProvider, standardSettlementDate, cleanRealPrice)
+            forecastValueStandardFromCleanPrice(bond, ratesProvider, standardSettlementDate, cleanRealPrice)
                 .getAmount()));
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
       return presentValueSensitivityFromProductPresentValueSensitivity(
@@ -592,7 +592,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
         product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
     return netAmount(trade, ratesProvider).multipliedBy(discountFactors.discountFactor(settlement.getPaymentDate()));
   }
-  
+
   private CurrencyAmount presentValueFromProductPresentValue(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
@@ -612,7 +612,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     double notional = product.getNotional();
     double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
-    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT) ? 1d :
+    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT) ?
+        1d :
         productPricer.indexRatio(product, ratesProvider, standardSettlementDate);
     return CurrencyAmount.of(product.getCurrency(), indexRatio * netAmountReal);
   }

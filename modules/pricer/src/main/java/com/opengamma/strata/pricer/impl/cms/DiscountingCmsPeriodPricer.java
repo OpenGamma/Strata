@@ -33,7 +33,7 @@ public class DiscountingCmsPeriodPricer {
    */
   public static final DiscountingCmsPeriodPricer DEFAULT = new DiscountingCmsPeriodPricer(
       DiscountingSwapProductPricer.DEFAULT);
-  
+
   /**
    * Pricer for the underlying swap.
    */
@@ -48,7 +48,6 @@ public class DiscountingCmsPeriodPricer {
       DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "legPricer");
   }
-
 
   //-------------------------------------------------------------------------
   /**
@@ -100,7 +99,7 @@ public class DiscountingCmsPeriodPricer {
     double forward = swapPricer.parRate(swap, provider);
     return CurrencyAmount.of(ccy, forward * dfPayment * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
   }
-  
+
   /**
    * Computes the forward rate associated to the swap underlying the CMS period.
    * <p>
@@ -118,7 +117,7 @@ public class DiscountingCmsPeriodPricer {
     LocalDate fixingDate = cmsPeriod.getFixingDate();
     LocalDate valuationDate = provider.getValuationDate();
     if (!fixingDate.isAfter(valuationDate)) { // Using fixing
-      throw new IllegalArgumentException("Forward rate is availaible only for valuation date after the fixing date");      
+      throw new IllegalArgumentException("Forward rate is availaible only for valuation date after the fixing date");
     }
     ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     return swapPricer.parRate(swap, provider);
@@ -176,7 +175,7 @@ public class DiscountingCmsPeriodPricer {
     double forward = swapPricer.parRate(swap, provider);
     PointSensitivityBuilder forwardSensi = swapPricer.parRateSensitivity(swap, provider);
     return forwardSensi.multipliedBy(dfPayment).combinedWith(dfPaymentdr.multipliedBy(forward))
-        .multipliedBy(cmsPeriod.getNotional() * cmsPeriod.getYearFraction());    
-  }  
+        .multipliedBy(cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
+  }
 
 }

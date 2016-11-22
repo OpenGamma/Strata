@@ -8,4 +8,3 @@
  * Calculators for rate deposit instruments, such as term deposit.
  */
 package com.opengamma.strata.pricer.deposit;
-

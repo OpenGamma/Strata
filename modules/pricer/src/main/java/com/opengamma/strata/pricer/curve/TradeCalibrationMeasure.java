@@ -86,7 +86,7 @@ public class TradeCalibrationMeasure<T extends ResolvedTrade>
           "TermDepositParSpreadDiscounting",
           ResolvedTermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-              (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(
+          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(
               trade.getProduct(), p));
 
   /**

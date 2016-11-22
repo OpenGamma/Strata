@@ -556,11 +556,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
   //explain PV for an Cms period
   public void explainPresentValue(
-      CmsPeriod period, 
-      RatesProvider ratesProvider, 
+      CmsPeriod period,
+      RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities,
       ExplainMapBuilder builder) {
-    
+
     String type = period.getCmsPeriodType().toString();
     Currency ccy = period.getCurrency();
     LocalDate paymentDate = period.getPaymentDate();

@@ -8,4 +8,3 @@
  * Calculators for Ibor cap-floor.
  */
 package com.opengamma.strata.pricer.capfloor;
-

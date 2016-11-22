@@ -154,7 +154,8 @@ public class MultiCdsAnalytic {
       _matIndexToPayments[i] = index - couponOffset;
       //This will only matter for the edge case when the trade date is 1 day before maturity      
       LocalDate tDate2 = _matIndexToPayments[i] < 0 ?
-          fullPaymentSchedule.getAccStartDate(couponOffset - 1) : paymentSchedule.getAccStartDate(0);
+          fullPaymentSchedule.getAccStartDate(couponOffset - 1) :
+          paymentSchedule.getAccStartDate(0);
       long firstJulianDate = tDate2.getLong(JulianFields.MODIFIED_JULIAN_DAY);
       _accruedDays[i] = secondJulianDate > firstJulianDate ? (int) (secondJulianDate - firstJulianDate) : 0;
       _accrued[i] = tDate2.isBefore(stepinDate) ? accrualDayCount.yearFraction(tDate2, stepinDate) : 0.0;

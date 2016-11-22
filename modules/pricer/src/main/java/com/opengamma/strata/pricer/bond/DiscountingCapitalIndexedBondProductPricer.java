@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.bond;
 
-
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
@@ -348,11 +347,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
     Currency currency = bond.getCurrency();
     CurrencyAmount currentCash = CurrencyAmount.zero(currency);
     if (settlementDate.isBefore(valuationDate)) {
-      double cashCoupon = bond.hasExCouponPeriod() ? 0d :
+      double cashCoupon = bond.hasExCouponPeriod() ?
+          0d :
           currentCashPayment(bond, ratesProvider, valuationDate);
       CapitalIndexedBondPaymentPeriod nominal = bond.getNominalPayment();
       double cashNominal = nominal.getPaymentDate().isEqual(valuationDate) ?
-          periodPricer.forecastValue(nominal, ratesProvider) : 0d;
+          periodPricer.forecastValue(nominal, ratesProvider) :
+          0d;
       currentCash = currentCash.plus(CurrencyAmount.of(currency, cashCoupon + cashNominal));
     }
     return currentCash;
@@ -1179,7 +1180,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
   double indexRatio(ResolvedCapitalIndexedBond bond, RatesProvider ratesProvider, LocalDate settlementDate) {
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
-        ratesProvider.getValuationDate() : settlementDate;
+        ratesProvider.getValuationDate() :
+        settlementDate;
     RateComputation modifiedComputation = bond.getRateCalculation().createRateComputation(endReferenceDate);
     return 1d + periodPricer.getRateComputationFn().rate(
         modifiedComputation,
@@ -1194,7 +1196,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
       LocalDate settlementDate) {
 
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
-        ratesProvider.getValuationDate() : settlementDate;
+        ratesProvider.getValuationDate() :
+        settlementDate;
     RateComputation modifiedComputation = bond.getRateCalculation().createRateComputation(endReferenceDate);
     return periodPricer.getRateComputationFn().rateSensitivity(
         modifiedComputation,

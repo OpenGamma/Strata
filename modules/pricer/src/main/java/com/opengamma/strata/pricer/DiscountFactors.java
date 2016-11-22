@@ -174,7 +174,7 @@ public interface DiscountFactors
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
-    
+
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return 1d;
     }

@@ -809,7 +809,7 @@ public class AnalyticCdsPricer {
     ArgChecker.isTrue(creditCurveNode >= 0 && creditCurveNode < creditCurve.getNumberOfKnots(), "creditCurveNode out of range");
     if ((creditCurveNode != 0 && cds.getProtectionEnd() <= creditCurve.getTimeAtIndex(creditCurveNode - 1)) ||
         (creditCurveNode != creditCurve.getNumberOfKnots() - 1 &&
-        cds.getEffectiveProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
+            cds.getEffectiveProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
       return 0.0; // can't have any sensitivity in this case
     }
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
@@ -900,7 +900,7 @@ public class AnalyticCdsPricer {
     ArgChecker.isTrue(yieldCurveNode >= 0 && yieldCurveNode < yieldCurve.getNumberOfKnots(), "yieldCurveNode out of range");
     if ((yieldCurveNode != 0 && cds.getProtectionEnd() <= yieldCurve.getTimeAtIndex(yieldCurveNode - 1)) ||
         (yieldCurveNode != creditCurve.getNumberOfKnots() - 1 &&
-        cds.getEffectiveProtectionStart() >= yieldCurve.getTimeAtIndex(yieldCurveNode + 1))) {
+            cds.getEffectiveProtectionStart() >= yieldCurve.getTimeAtIndex(yieldCurveNode + 1))) {
       return 0.0; // can't have any sensitivity in this case
     }
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs

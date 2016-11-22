@@ -34,7 +34,7 @@ public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
     DEFAULT_TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     DEFAULT_TRANSFORMS[1] = new DoubleRangeLimitTransform(0, 1.0); // 0 <= beta <= 1
     DEFAULT_TRANSFORMS[2] = new DoubleRangeLimitTransform(-RHO_LIMIT, RHO_LIMIT); // -RHO_LIMIT <= rho <= RHO_LIMIT
-    DEFAULT_TRANSFORMS[3] = new DoubleRangeLimitTransform(0.01d, 2.50d); 
+    DEFAULT_TRANSFORMS[3] = new DoubleRangeLimitTransform(0.01d, 2.50d);
     // nu > 0  and limit on Nu to avoid numerical instability in formula for large nu.
   }
 

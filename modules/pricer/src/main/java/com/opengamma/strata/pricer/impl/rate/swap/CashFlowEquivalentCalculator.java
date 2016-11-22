@@ -25,12 +25,12 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.NotionalExchange;
-import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Computes cash flow equivalent of products.
@@ -90,9 +90,9 @@ public final class CashFlowEquivalentCalculator {
       IborIndex index = obs.getIndex();
       LocalDate fixingStartDate = obs.getEffectiveDate();
       double fixingYearFraction = obs.getYearFraction();
-      double beta = (1d + fixingYearFraction * ratesProvider.iborIndexRates(index).rate(obs))
-          * ratesProvider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate())
-          / ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
+      double beta = (1d + fixingYearFraction * ratesProvider.iborIndexRates(index).rate(obs)) *
+          ratesProvider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate()) /
+          ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
       double ycRatio = rateAccrualPeriod.getYearFraction() / fixingYearFraction;
       NotionalExchange payStart = NotionalExchange.of(notional.multipliedBy(beta * ycRatio), fixingStartDate);
       NotionalExchange payEnd = NotionalExchange.of(notional.multipliedBy(-ycRatio), paymentDate);

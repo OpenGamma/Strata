@@ -120,7 +120,8 @@ public class IsdaCompliantPresentValueCreditDefaultSwap {
     LocalDate[] creditCurveDates = hazardRateCurve.getCurveDates();
     // This is common to the protection leg
     LocalDate[] integrationSchedule = payAccOnDefault ?
-        getIntegrationNodesAsDates(globalAccStart, golobalAccEnd, yieldCurveDates, creditCurveDates) : null;
+        getIntegrationNodesAsDates(globalAccStart, golobalAccEnd, yieldCurveDates, creditCurveDates) :
+        null;
     int obsOffset = protectStart ? -1 : 0; // protection start at the beginning or end day
 
     double rpv01 = 0.0;

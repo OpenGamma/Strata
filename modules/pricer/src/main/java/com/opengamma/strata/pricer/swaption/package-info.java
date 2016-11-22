@@ -8,4 +8,3 @@
  * Calculators for swaptions.
  */
 package com.opengamma.strata.pricer.swaption;
-

@@ -33,7 +33,7 @@ public class ForwardInflationEndInterpolatedRateComputationFn
    */
   public static final ForwardInflationEndInterpolatedRateComputationFn DEFAULT =
       new ForwardInflationEndInterpolatedRateComputationFn();
-  
+
   /**
    * Creates an instance.
    */

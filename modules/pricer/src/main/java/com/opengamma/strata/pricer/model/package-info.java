@@ -8,4 +8,3 @@
  * Common code for model pricing.
  */
 package com.opengamma.strata.pricer.model;
-

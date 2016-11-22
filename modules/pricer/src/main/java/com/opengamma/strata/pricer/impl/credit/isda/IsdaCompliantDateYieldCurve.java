@@ -88,7 +88,12 @@ public class IsdaCompliantDateYieldCurve
     this.dayCount = dayCount;
   }
 
-  private IsdaCompliantDateYieldCurve(LocalDate baseDate, LocalDate[] dates, DayCount dayCount, IsdaCompliantYieldCurve baseCurve) {
+  private IsdaCompliantDateYieldCurve(
+      LocalDate baseDate,
+      LocalDate[] dates,
+      DayCount dayCount,
+      IsdaCompliantYieldCurve baseCurve) {
+
     super(baseCurve);
     this.baseDate = baseDate;
     this.dates = dates;
