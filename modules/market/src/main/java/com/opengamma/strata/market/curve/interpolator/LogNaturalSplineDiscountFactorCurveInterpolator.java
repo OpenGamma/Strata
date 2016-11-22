@@ -94,7 +94,7 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
       this.logYValues = getYLogValues(this.yValues);
       this.poly = new ClampedPiecewisePolynomialInterpolator(
           new NaturalSplineInterpolator(), new double[] {0d}, new double[] {0d})
-          .interpolateWithSensitivity(xValues.toArray(), logYValues);
+              .interpolateWithSensitivity(xValues.toArray(), logYValues);
       this.knots = poly.getKnots();
       this.coefMatrix = poly.getCoefMatrix();
       this.nKnots = knots.size();

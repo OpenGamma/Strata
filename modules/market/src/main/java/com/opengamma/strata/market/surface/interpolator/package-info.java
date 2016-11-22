@@ -8,4 +8,3 @@
  * Interpolators for surfaces.
  */
 package com.opengamma.strata.market.surface.interpolator;
-

@@ -192,7 +192,7 @@ final class DoubleQuadraticCurveInterpolator
       return w * quadratic1FirstDerivative.applyAsDouble(xValue - xValues[lowerIndex]) +
           (1 - w) * quadratic2FirstDerivative.applyAsDouble(xValue - xValues[higherIndex]) +
           (quadratic2.applyAsDouble(xValue - xValues[higherIndex]) - quadratic1.applyAsDouble(xValue - xValues[lowerIndex])) /
-          (xValues[higherIndex] - xValues[lowerIndex]);
+              (xValues[higherIndex] - xValues[lowerIndex]);
     }
 
     @Override

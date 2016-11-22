@@ -8,4 +8,3 @@
  * Market data related to pricing models.
  */
 package com.opengamma.strata.market.model;
-

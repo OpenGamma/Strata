@@ -8,4 +8,3 @@
  * Definitions of surfaces.
  */
 package com.opengamma.strata.market.surface;
-

@@ -12,4 +12,3 @@
  * possible execution paths, and the explain functionality allows these to be understood.
  */
 package com.opengamma.strata.market.explain;
-

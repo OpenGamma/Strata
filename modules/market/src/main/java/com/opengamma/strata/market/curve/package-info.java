@@ -8,4 +8,3 @@
  * Definitions of curves.
  */
 package com.opengamma.strata.market.curve;
-

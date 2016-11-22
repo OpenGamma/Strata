@@ -38,7 +38,7 @@ public class SeasonalityDefinitionTest {
     assertEquals(test.getSeasonalityMonthOnMonth(), SEASONALITY_ADDITIVE);
     assertEquals(test.getAdjustmentType(), ADDITIVE);
   }
-  
+
   //-------------------------------------------------------------------------
   public void coverage() {
     SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);

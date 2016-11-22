@@ -8,4 +8,3 @@
  * Defines representations of amounts typically used as result types.
  */
 package com.opengamma.strata.market.amount;
-
