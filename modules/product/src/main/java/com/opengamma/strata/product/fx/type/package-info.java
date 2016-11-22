@@ -8,4 +8,3 @@
  * Conventions and templates to aid the construction of foreign exchange products.
  */
 package com.opengamma.strata.product.fx.type;
-

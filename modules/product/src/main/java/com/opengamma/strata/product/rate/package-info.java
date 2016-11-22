@@ -11,4 +11,3 @@
  * that provides common ways to observe a rate, including interpolation, averaging and compounding.
  */
 package com.opengamma.strata.product.rate;
-

@@ -11,4 +11,3 @@
  * the difference between a fixed and floating rate of interest at a future date.
  */
 package com.opengamma.strata.product.fra;
-

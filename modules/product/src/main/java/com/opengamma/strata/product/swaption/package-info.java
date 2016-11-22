@@ -8,4 +8,3 @@
  * Entity objects describing options on swaps, known as swaptions.
  */
 package com.opengamma.strata.product.swaption;
-

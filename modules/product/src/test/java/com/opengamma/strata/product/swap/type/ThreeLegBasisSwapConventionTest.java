@@ -138,7 +138,7 @@ public class ThreeLegBasisSwapConventionTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, "EUR-FIXED-1Y-EURIBOR-3M-EURIBOR-6M" },
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, "EUR-FIXED-1Y-EURIBOR-3M-EURIBOR-6M"},
     };
   }
 

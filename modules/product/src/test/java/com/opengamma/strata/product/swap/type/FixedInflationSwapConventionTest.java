@@ -63,9 +63,9 @@ public class FixedInflationSwapConventionTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED, 
-        INFL, 
+        NAME,
+        FIXED,
+        INFL,
         PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
     assertEquals(test.getFixedLeg(), FIXED);
@@ -75,9 +75,9 @@ public class FixedInflationSwapConventionTest {
 
   public void test_of_spotDateOffset() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED, 
-        INFL, 
+        NAME,
+        FIXED,
+        INFL,
         PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
     assertEquals(test.getFixedLeg(), FIXED);
@@ -101,9 +101,9 @@ public class FixedInflationSwapConventionTest {
   //-------------------------------------------------------------------------
   public void test_toTrade_dates() {
     ImmutableFixedInflationSwapConvention base = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED, 
-        INFL, 
+        NAME,
+        FIXED,
+        INFL,
         PLUS_ONE_DAY);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
@@ -158,34 +158,34 @@ public class FixedInflationSwapConventionTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED, 
-        INFL, 
+        NAME,
+        FIXED,
+        INFL,
         PLUS_ONE_DAY);
     coverImmutableBean(test);
     ImmutableFixedInflationSwapConvention test2 = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED2, 
-        INFL2, 
+        NAME,
+        FIXED2,
+        INFL2,
         PLUS_ONE_DAY);
     coverBeanEquals(test, test2);
     ImmutableFixedInflationSwapConvention test3 = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED, 
-        INFL3, 
+        NAME,
+        FIXED,
+        INFL3,
         PLUS_ONE_DAY);
     coverBeanEquals(test, test3);
   }
 
   public void test_serialization() {
     FixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
-        NAME, 
-        FIXED, 
-        INFL, 
+        NAME,
+        FIXED,
+        INFL,
         PLUS_ONE_DAY);
     assertSerialization(test);
   }
-  
+
   // Create a zero-coupon fixed leg convention
   private static FixedRateSwapLegConvention fixedLegZcConvention(Currency ccy, HolidayCalendarId cal) {
     return FixedRateSwapLegConvention.builder()

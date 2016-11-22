@@ -217,7 +217,8 @@ public final class IborCapFloorLeg
       LocalDate paymentDate = paymentDateAdjuster.adjust(period.getEndDate());
       LocalDate fixingDate = fixingDateAdjuster.adjust(
           (calculation.getFixingRelativeTo().equals(FixingRelativeTo.PERIOD_START)) ?
-              period.getStartDate() : period.getEndDate());
+              period.getStartDate() :
+              period.getEndDate());
       double signedNotional = payReceive.normalize(notionals.get(i));
       periodsBuild.add(IborCapletFloorletPeriod.builder()
           .unadjustedStartDate(period.getUnadjustedStartDate())

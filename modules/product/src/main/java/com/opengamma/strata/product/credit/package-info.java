@@ -17,4 +17,3 @@
  * otherwise as agreed by the parties.
  */
 package com.opengamma.strata.product.credit;
-

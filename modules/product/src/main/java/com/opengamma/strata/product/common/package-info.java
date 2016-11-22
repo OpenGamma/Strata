@@ -8,4 +8,3 @@
  * Entity objects shared between other packages.
  */
 package com.opengamma.strata.product.common;
-

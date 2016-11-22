@@ -135,9 +135,9 @@ public interface FraConvention
       double notional,
       double fixedRate,
       ReferenceData refData) {
-    
+
     Period periodToEnd = periodToStart.plus(getIndex().getTenor());
-    return createTrade(tradeDate, periodToStart, periodToEnd , buySell, notional, fixedRate, refData);
+    return createTrade(tradeDate, periodToStart, periodToEnd, buySell, notional, fixedRate, refData);
   }
 
   /**

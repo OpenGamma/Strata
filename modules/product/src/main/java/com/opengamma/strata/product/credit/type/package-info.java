@@ -8,4 +8,3 @@
  * Conventions and templates to aid the construction of credit default swaps.
  */
 package com.opengamma.strata.product.credit.type;
-

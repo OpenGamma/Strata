@@ -14,4 +14,3 @@
  * The futures product is margined on a daily basis.
  */
 package com.opengamma.strata.product.dsf;
-
