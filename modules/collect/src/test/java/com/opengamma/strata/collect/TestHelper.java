@@ -432,7 +432,7 @@ public class TestHelper {
   public static synchronized List<LogRecord> caputureLog(Class<?> loggerClass, Runnable runner) {
     assertNotNull(loggerClass, "caputureLog() called with null Class");
     assertNotNull(runner, "caputureLog() called with null Runnable");
-    
+
     Logger logger = Logger.getLogger(loggerClass.getName());
     LogHandler handler = new LogHandler();
     try {

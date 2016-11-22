@@ -70,7 +70,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
 
   public void test_putAll_collection_array() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
-    double[] values = new double[]{2d, 3d};
+    double[] values = new double[] {2d, 3d};
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.putAll(dates, values);
 

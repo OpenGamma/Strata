@@ -19,4 +19,3 @@
  * </ul>
  */
 package com.opengamma.strata.collect;
-
