@@ -36,7 +36,7 @@ public class MeasureTest {
   public void test_of_lookup_null() {
     assertThrowsRuntime(() -> Measure.of(null));
   }
-  
+
   //-------------------------------------------------------------------------
 
   public void test_isConvertible() {

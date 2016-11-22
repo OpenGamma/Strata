@@ -70,7 +70,7 @@ public interface MarketDataFactory {
       ObservableDataProvider observableDataProvider,
       TimeSeriesProvider timeSeriesProvider,
       List<MarketDataFunction<?, ?>> functions) {
-    
+
     return new DefaultMarketDataFactory(observableDataProvider, timeSeriesProvider, functions);
   }
 

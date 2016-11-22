@@ -147,7 +147,7 @@ public class ScenarioDefinitionTest {
 
     @Override
     public int hashCode() {
-      return Objects.hash(new Object[]{values});
+      return Objects.hash(new Object[] {values});
     }
 
     @Override
@@ -197,4 +197,3 @@ public class ScenarioDefinitionTest {
     }
   }
 }
-

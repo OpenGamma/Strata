@@ -13,6 +13,7 @@ import static com.opengamma.strata.calc.TestingMeasures.PRESENT_VALUE;
 import static com.opengamma.strata.calc.TestingMeasures.PRESENT_VALUE_MULTI_CCY;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
