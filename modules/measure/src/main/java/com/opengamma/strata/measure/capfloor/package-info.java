@@ -8,4 +8,3 @@
  * Calculation functions for Ibor cap/floor products.
  */
 package com.opengamma.strata.measure.capfloor;
-

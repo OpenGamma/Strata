@@ -8,4 +8,3 @@
  * Integration code that allows strata-calc to use and calibrate curves.
  */
 package com.opengamma.strata.measure.curve;
-

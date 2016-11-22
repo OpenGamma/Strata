@@ -8,4 +8,3 @@
  * Calculation functions for DSF products.
  */
 package com.opengamma.strata.measure.dsf;
-

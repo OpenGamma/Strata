@@ -8,4 +8,3 @@
  * Calculation functions for swap products.
  */
 package com.opengamma.strata.measure.swap;
-

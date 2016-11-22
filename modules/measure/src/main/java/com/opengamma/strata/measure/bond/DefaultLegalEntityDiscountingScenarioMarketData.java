@@ -56,12 +56,18 @@ final class DefaultLegalEntityDiscountingScenarioMarketData
    * @param marketData  the market data
    * @return the rates market view
    */
-  static DefaultLegalEntityDiscountingScenarioMarketData of(LegalEntityDiscountingMarketDataLookup lookup, ScenarioMarketData marketData) {
+  static DefaultLegalEntityDiscountingScenarioMarketData of(
+      LegalEntityDiscountingMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
     return new DefaultLegalEntityDiscountingScenarioMarketData(lookup, marketData);
   }
 
   @ImmutableConstructor
-  private DefaultLegalEntityDiscountingScenarioMarketData(LegalEntityDiscountingMarketDataLookup lookup, ScenarioMarketData marketData) {
+  private DefaultLegalEntityDiscountingScenarioMarketData(
+      LegalEntityDiscountingMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());

@@ -8,4 +8,3 @@
  * Calculation functions for constant maturity swap (CMS) products.
  */
 package com.opengamma.strata.measure.cms;
-

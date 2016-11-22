@@ -18,8 +18,8 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.DiscountingFixedCouponBondTradePricer;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
 
 /**

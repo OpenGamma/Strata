@@ -77,12 +77,18 @@ final class DefaultLookupLegalEntityDiscountingProvider
    * @param marketData  the market data
    * @return the rates provider
    */
-  public static DefaultLookupLegalEntityDiscountingProvider of(DefaultLegalEntityDiscountingMarketDataLookup lookup, MarketData marketData) {
+  public static DefaultLookupLegalEntityDiscountingProvider of(
+      DefaultLegalEntityDiscountingMarketDataLookup lookup,
+      MarketData marketData) {
+
     return new DefaultLookupLegalEntityDiscountingProvider(lookup, marketData);
   }
 
   @ImmutableConstructor
-  private DefaultLookupLegalEntityDiscountingProvider(DefaultLegalEntityDiscountingMarketDataLookup lookup, MarketData marketData) {
+  private DefaultLookupLegalEntityDiscountingProvider(
+      DefaultLegalEntityDiscountingMarketDataLookup lookup,
+      MarketData marketData) {
+
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
   }

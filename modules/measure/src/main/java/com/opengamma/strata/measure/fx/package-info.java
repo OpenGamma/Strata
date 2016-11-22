@@ -8,4 +8,3 @@
  * Calculation functions for FX products.
  */
 package com.opengamma.strata.measure.fx;
-
