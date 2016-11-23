@@ -8,4 +8,3 @@
  * Calculators for CMS.
  */
 package com.opengamma.strata.pricer.cms;
-

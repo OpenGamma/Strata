@@ -82,7 +82,8 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
     if (isDown) {
       values[index + 1] = 0.5 * values[index + 1] + 0.5 * (bd * rebate + ub * values[index + 1]) / ud;
     } else {
-      values[index] = barrierLevel == stateValue.get(index) ? rebate :
+      values[index] = barrierLevel == stateValue.get(index) ?
+          rebate :
           0.5 * values[index] + 0.5 * (ub * rebate + bd * values[index]) / ud;
     }
     return DoubleArray.ofUnsafe(values);

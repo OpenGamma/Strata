@@ -8,4 +8,3 @@
  * Data structures for market data.
  */
 package com.opengamma.strata.market;
-

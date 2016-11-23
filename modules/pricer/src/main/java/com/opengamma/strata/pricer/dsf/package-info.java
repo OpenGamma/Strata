@@ -8,4 +8,3 @@
  * Calculators for Deliverable Swap Futures (DSFs).
  */
 package com.opengamma.strata.pricer.dsf;
-

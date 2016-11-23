@@ -362,7 +362,7 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "DKK-CIBOR-3M");
   }
-  
+
   public void test_pln_wibor() {
     IborIndex test = IborIndex.of("PLN-WIBOR-3M");
     assertEquals(test.getCurrency(), PLN);
@@ -376,7 +376,7 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "PLN-WIBOR-3M");
   }
-  
+
   public void test_sek_stibor() {
     IborIndex test = IborIndex.of("SEK-STIBOR-3M");
     assertEquals(test.getCurrency(), SEK);

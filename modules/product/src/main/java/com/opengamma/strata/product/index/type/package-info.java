@@ -8,4 +8,3 @@
  * Conventions and templates to aid the construction of rate index products.
  */
 package com.opengamma.strata.product.index.type;
-

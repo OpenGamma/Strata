@@ -64,8 +64,8 @@ public class ExportUtils {
     for (int looppts = 0; looppts < nbPts; looppts++) {
       ArgChecker.isTrue(pmdl.get(looppts) instanceof SwaptionSurfaceExpiryTenorParameterMetadata, "tenor expiry");
       SwaptionSurfaceExpiryTenorParameterMetadata pmd = (SwaptionSurfaceExpiryTenorParameterMetadata) pmdl.get(looppts);
-      output = output + pmd.getYearFraction() + ", " + pmd.getTenor() + ", " + pmd.getLabel()
-          + ", " + (s.get(looppts) * scale) + "\n";
+      double sens = s.get(looppts) * scale;
+      output = output + pmd.getYearFraction() + ", " + pmd.getTenor() + ", " + pmd.getLabel() + ", " + sens + "\n";
     }
     export(output, fileName);
   }

@@ -38,11 +38,11 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
 
   @Override
   public EvaluationResult evaluate(
-      Trade trade, 
+      Trade trade,
       CalculationFunctions functions,
       String firstToken,
       List<String> remainingTokens) {
-    
+
     MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
 
     // trade

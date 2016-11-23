@@ -566,7 +566,8 @@ final class SwapFpmlParserPlugin
     // interpolation
     String interpStr = inflationEl.getChild("interpolationMethod").getContent();
     builder.indexCalculationMethod(interpStr.toLowerCase(Locale.ENGLISH).contains("linear") ?
-        PriceIndexCalculationMethod.INTERPOLATED : PriceIndexCalculationMethod.MONTHLY);
+        PriceIndexCalculationMethod.INTERPOLATED :
+        PriceIndexCalculationMethod.MONTHLY);
     // initial index
     inflationEl.findChild("initialIndexLevel").ifPresent(el -> {
       builder.firstIndexValue(document.parseDecimal(el));

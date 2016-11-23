@@ -704,8 +704,11 @@ public final class PeriodicSchedule
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
     if (deduplicated.size() < adj.size()) {
       throw new ScheduleException(
-          this, "Schedule calculation resulted in duplicate adjusted dates {} from unadjusted dates {} " +
-              "using adjustment '{}'", adj, unadj, businessDayAdjustment);
+          this,
+          "Schedule calculation resulted in duplicate adjusted dates {} from unadjusted dates {} using adjustment '{}'",
+          adj,
+          unadj,
+          businessDayAdjustment);
     }
     return deduplicated;
   }

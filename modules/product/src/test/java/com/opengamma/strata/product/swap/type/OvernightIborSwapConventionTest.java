@@ -7,8 +7,8 @@ package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
@@ -134,7 +134,7 @@ public class OvernightIborSwapConventionTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, "USD-FED-FUND-AA-LIBOR-3M" },
+        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, "USD-FED-FUND-AA-LIBOR-3M"},
     };
   }
 

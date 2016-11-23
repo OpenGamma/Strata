@@ -10,4 +10,3 @@
  * Models a value that changes over time.
  */
 package com.opengamma.strata.collect.timeseries;
-

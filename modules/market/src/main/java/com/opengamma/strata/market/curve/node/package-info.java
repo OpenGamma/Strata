@@ -10,4 +10,3 @@
  * This package provides implementations of {@link com.opengamma.strata.market.curve.CurveNode}.
  */
 package com.opengamma.strata.market.curve.node;
-

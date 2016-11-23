@@ -193,9 +193,8 @@ public class FxMatrixBuilder {
         .filter(other.currencies::containsKey)
         .findFirst();
 
-    Currency commonCurrency = common.orElseThrow(() ->
-        new IllegalArgumentException("There are no currencies in common between " +
-            currencies.keySet() + " and " + other.currencies.keySet()));
+    Currency commonCurrency = common.orElseThrow(() -> new IllegalArgumentException(
+        "There are no currencies in common between " + currencies.keySet() + " and " + other.currencies.keySet()));
 
     // Add in all currencies that we don't already have
     MapStream.of(other.currencies)

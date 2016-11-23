@@ -300,31 +300,29 @@ public class BlackBarrierPriceFormulaRepository {
     double y2Bar = dDerivFirst[4] * xDBar;
     double m1Bar = x1Bar + x2Bar + y1Bar + y2Bar;
     double muBar = cDerivFirst[6] * xCBar + dDerivFirst[6] * xDBar + lognormalVolT * m1Bar;
-    double lognormalVolTBar = aDerivFirst[5] * xABar + bDerivFirst[5] * xBBar + cDerivFirst[5] * xCBar + dDerivFirst[5] * xDBar
-        - Math.log(h / spot) / (lognormalVolT * lognormalVolT) * y2Bar
-        - Math.log(h * h / spot / strike) / (lognormalVolT * lognormalVolT) * y1Bar
-        - Math.log(spot / h) / (lognormalVolT * lognormalVolT) * x2Bar
-        - Math.log(spot / strike) / (lognormalVolT * lognormalVolT) * x1Bar
-        + (1d + mu) * m1Bar;
+    double lognormalVolTBar = aDerivFirst[5] * xABar + bDerivFirst[5] * xBBar + cDerivFirst[5] * xCBar + dDerivFirst[5] * xDBar -
+        Math.log(h / spot) / (lognormalVolT * lognormalVolT) * y2Bar -
+        Math.log(h * h / spot / strike) / (lognormalVolT * lognormalVolT) * y1Bar -
+        Math.log(spot / h) / (lognormalVolT * lognormalVolT) * x2Bar -
+        Math.log(spot / strike) / (lognormalVolT * lognormalVolT) * x1Bar + (1d + mu) * m1Bar;
     double lognormalVolSqBar = -costOfCarry / (lognormalVolSq * lognormalVolSq) * muBar;
     double df2Bar = aDerivFirst[3] * xABar + bDerivFirst[3] * xBBar + cDerivFirst[3] * xCBar + dDerivFirst[3] * xDBar;
     double df1Bar = aDerivFirst[2] * xABar + bDerivFirst[2] * xBBar + cDerivFirst[2] * xCBar + dDerivFirst[2] * xDBar;
-    derivatives[0] = aDerivFirst[0] * xABar + bDerivFirst[0] * xBBar + cDerivFirst[0] * xCBar + dDerivFirst[0] * xDBar
-        + x1Bar * dxyds + x2Bar * dxyds - y1Bar * dxyds - y2Bar * dxyds;
-    derivatives[1] = aDerivFirst[1] * xABar + bDerivFirst[1] * xBBar + cDerivFirst[1] * xCBar + dDerivFirst[1] * xDBar
-        - (x1Bar + y1Bar) / strike / lognormalVolT;
+    derivatives[0] = aDerivFirst[0] * xABar + bDerivFirst[0] * xBBar + cDerivFirst[0] * xCBar + dDerivFirst[0] * xDBar +
+        x1Bar * dxyds + x2Bar * dxyds - y1Bar * dxyds - y2Bar * dxyds;
+    derivatives[1] = aDerivFirst[1] * xABar + bDerivFirst[1] * xBBar + cDerivFirst[1] * xCBar + dDerivFirst[1] * xDBar -
+        (x1Bar + y1Bar) / strike / lognormalVolT;
     derivatives[2] = -timeToExpiry * (df1 * df1Bar + df2 * df2Bar);
     derivatives[3] = timeToExpiry * df1 * df1Bar + muBar / lognormalVolSq;
     derivatives[4] = 2d * lognormalVol * lognormalVolSqBar + Math.sqrt(timeToExpiry) * lognormalVolTBar;
-    derivatives[5] = (costOfCarry - rate) * df1 * df1Bar - rate * df2 * df2Bar
-        + lognormalVolTBar * lognormalVolT * 0.5 / timeToExpiry;
-    derivatives[6] = aDerivSecond[0][0] * xABar + bDerivSecond[0][0] * xBBar
-        + cDerivSecond[0][0] * xCBar + dDerivSecond[0][0] * xDBar
-        + 2d * xABar * aDerivSecond[0][1] * dxyds + 2d * xBBar * bDerivSecond[0][1] * dxyds
-        - 2d * xCBar * cDerivSecond[0][1] * dxyds - 2d * xDBar * dDerivSecond[0][1] * dxyds
-        + xABar * aDerivSecond[1][1] * dxyds * dxyds + xBBar * bDerivSecond[1][1] * dxyds * dxyds
-        + xCBar * cDerivSecond[1][1] * dxyds * dxyds + xDBar * dDerivSecond[1][1] * dxyds * dxyds
-        - x1Bar * dxyds / spot - x2Bar * dxyds / spot + y1Bar * dxyds / spot + y2Bar * dxyds / spot;
+    derivatives[5] =
+        (costOfCarry - rate) * df1 * df1Bar - rate * df2 * df2Bar + lognormalVolTBar * lognormalVolT * 0.5 / timeToExpiry;
+    derivatives[6] = aDerivSecond[0][0] * xABar + bDerivSecond[0][0] * xBBar + cDerivSecond[0][0] * xCBar +
+        dDerivSecond[0][0] * xDBar + 2d * xABar * aDerivSecond[0][1] * dxyds + 2d * xBBar * bDerivSecond[0][1] * dxyds -
+        2d * xCBar * cDerivSecond[0][1] * dxyds - 2d * xDBar * dDerivSecond[0][1] * dxyds +
+        xABar * aDerivSecond[1][1] * dxyds * dxyds + xBBar * bDerivSecond[1][1] * dxyds * dxyds +
+        xCBar * cDerivSecond[1][1] * dxyds * dxyds + xDBar * dDerivSecond[1][1] * dxyds * dxyds - x1Bar * dxyds / spot -
+        x2Bar * dxyds / spot + y1Bar * dxyds / spot + y2Bar * dxyds / spot;
     return ValueDerivatives.of(price, DoubleArray.ofUnsafe(derivatives));
   }
 
@@ -353,8 +351,8 @@ public class BlackBarrierPriceFormulaRepository {
       double phi,
       double eta) {
 
-    return phi * (s * df1 * Math.pow(h / s, 2d * (mu + 1d)) * NORMAL.getCDF(eta * y)
-        - k * df2 * Math.pow(h / s, 2d * mu) * NORMAL.getCDF(eta * (y - lognormalVolT)));
+    return phi * (s * df1 * Math.pow(h / s, 2d * (mu + 1d)) * NORMAL.getCDF(eta * y) -
+        k * df2 * Math.pow(h / s, 2d * mu) * NORMAL.getCDF(eta * (y - lognormalVolT)));
   }
 
   //-------------------------------------------------------------------------
@@ -424,16 +422,15 @@ public class BlackBarrierPriceFormulaRepository {
     double n1Bar = phi * s * df1 * hsMu1;
     firstDerivatives[0] = phi * df1 * hsMu1 * n1 - 2d * mu * hsMu / s * hsMuBar - 2d * (mu + 1d) * hsMu1 / s * hsMu1Bar; // s
     firstDerivatives[1] = phi * -df2 * hsMu * n2; // k
-    firstDerivatives[2] = phi * s * hsMu1 * n1 ; // df1
-    firstDerivatives[3] = phi * -k * hsMu * n2 ; // df2
+    firstDerivatives[2] = phi * s * hsMu1 * n1; // df1
+    firstDerivatives[3] = phi * -k * hsMu * n2; // df2
     firstDerivatives[4] = n1df * eta * n1Bar + n2df * eta * n2Bar; // y
     firstDerivatives[5] = -n2df * eta * n2Bar; // lognormalVolT
     firstDerivatives[6] = 2d * Math.log(h / s) * hsMu * hsMuBar + 2d * Math.log(h / s) * hsMu1 * hsMu1Bar; // mu
-    secondDerivatives[0][0] = -2d * (mu + 1d) * phi * df1 * hsMu1 * n1 / s
-        + hsMu * hsMuBar * 2d * mu * (2d * mu + 1d) / (s * s)
-        - hsMu1 * hsMu1Bar * 2d * (mu + 1d) / (s * s) + hsMu1 * hsMu1Bar * 2d * (mu + 1d) * (2d * mu + 3d) / (s * s);
-    secondDerivatives[0][1] = hsMu1 * n1df * phi * df1 * eta - 2d * mu * hsMu / s * phi * -k * df2 * n2df * eta
-        - hsMu1 * n1df * 2d * (mu + 1d) * phi * df1 * eta;
+    secondDerivatives[0][0] = -2d * (mu + 1d) * phi * df1 * hsMu1 * n1 / s + hsMu * hsMuBar * 2d * mu * (2d * mu + 1d) / (s * s) -
+        hsMu1 * hsMu1Bar * 2d * (mu + 1d) / (s * s) + hsMu1 * hsMu1Bar * 2d * (mu + 1d) * (2d * mu + 3d) / (s * s);
+    secondDerivatives[0][1] = hsMu1 * n1df * phi * df1 * eta - 2d * mu * hsMu / s * phi * -k * df2 * n2df * eta -
+        hsMu1 * n1df * 2d * (mu + 1d) * phi * df1 * eta;
     secondDerivatives[1][0] = secondDerivatives[0][1];
     secondDerivatives[1][1] = -y * n1df * eta * n1Bar - (y - lognormalVolT) * n2df * eta * n2Bar;
     return c;

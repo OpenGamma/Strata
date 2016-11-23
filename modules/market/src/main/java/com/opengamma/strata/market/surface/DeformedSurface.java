@@ -102,10 +102,10 @@ public final class DeformedSurface
   public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     return getMetadata().getParameterMetadata().isPresent() ?
         UnitParameterSensitivity.of(
-            getMetadata().getSurfaceName(), 
-            getMetadata().getParameterMetadata().get(), 
-            deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives())
-        : UnitParameterSensitivity.of(
+            getMetadata().getSurfaceName(),
+            getMetadata().getParameterMetadata().get(),
+            deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives()) :
+        UnitParameterSensitivity.of(
             getMetadata().getSurfaceName(),
             deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives());
   }

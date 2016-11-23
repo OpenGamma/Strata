@@ -10,4 +10,3 @@
  * This package contains an interface to allow a rate, such as 'GBP-LIBOR-3M', to be observed.
  */
 package com.opengamma.strata.pricer.rate;
-

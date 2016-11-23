@@ -8,4 +8,3 @@
  * Entity objects describing Constant Maturity Swap (CMS) or CMS cap/floor.
  */
 package com.opengamma.strata.product.cms;
-

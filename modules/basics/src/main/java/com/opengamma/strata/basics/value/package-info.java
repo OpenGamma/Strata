@@ -17,4 +17,3 @@
  * The standard implementation is {@code HalfUpRounding}.
  */
 package com.opengamma.strata.basics.value;
-

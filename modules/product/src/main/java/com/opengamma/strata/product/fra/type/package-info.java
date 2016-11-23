@@ -8,4 +8,3 @@
  * Conventions and templates to aid the construction of FRAs.
  */
 package com.opengamma.strata.product.fra.type;
-

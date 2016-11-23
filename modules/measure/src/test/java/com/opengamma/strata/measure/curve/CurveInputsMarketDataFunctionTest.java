@@ -193,7 +193,8 @@ public class CurveInputsMarketDataFunctionTest {
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
         IllegalArgumentException.class,
-        "No curve named .*");}
+        "No curve named .*");
+  }
 
   /**
    * Test that a failure is returned if the observable data isn't available.

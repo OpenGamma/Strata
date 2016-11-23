@@ -196,7 +196,7 @@ public class IsdaCompliantCurve
       }
       double eta = (r[index - 1] * timesFromBaseDate[index - 1] *
           (timesFromBaseDate[index] - newBaseFromOriginalBase) + r[index] * timesFromBaseDate[index] *
-          (newBaseFromOriginalBase - timesFromBaseDate[index - 1])) /
+              (newBaseFromOriginalBase - timesFromBaseDate[index - 1])) /
           (timesFromBaseDate[index] - timesFromBaseDate[index - 1]);
       int m = n - index;
       this.t = new double[m];

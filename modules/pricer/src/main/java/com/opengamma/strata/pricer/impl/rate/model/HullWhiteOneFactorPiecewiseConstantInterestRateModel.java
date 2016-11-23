@@ -69,9 +69,9 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double factor2 = 0.0;
     for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
       factor2 += data.getVolatility().get(loopperiod) * data.getVolatility().get(loopperiod) *
-          (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod]))
-          * (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) -
-          Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
+          (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod])) *
+          (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) -
+              Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
     }
     return Math.exp(factor1 / numerator * factor2);
   }
@@ -106,10 +106,10 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double factor2 = 0.0;
     double[] factorExp = new double[indexT0];
     for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
-      factorExp[loopperiod] = (Math.exp(data.getMeanReversion() * s[loopperiod + 1])
-          - Math.exp(data.getMeanReversion() * s[loopperiod])) *
-          (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1]))
-          - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
+      factorExp[loopperiod] =
+          (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod])) *
+              (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) -
+                  Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
       factor2 += data.getVolatility().get(loopperiod) * data.getVolatility().get(loopperiod) * factorExp[loopperiod];
     }
     double factor = Math.exp(factor1 / numerator * factor2);
@@ -160,8 +160,8 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
       exp2as[loopperiod] = Math.exp(2 * a * s[loopperiod]);
     }
     for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
-      factor2 += parameters.getVolatility().get(loopperiod + indexStart - 1)
-          * parameters.getVolatility().get(loopperiod + indexStart - 1) * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
+      factor2 += parameters.getVolatility().get(loopperiod + indexStart - 1) *
+          parameters.getVolatility().get(loopperiod + indexStart - 1) * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
     }
     return Math.exp(factor1 * factor2 / numerator);
   }
@@ -811,8 +811,8 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double[] termFixedBar = new double[sizeFixed];
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       termFixedBar[loopcf] = gBar - alphaFixed.get(loopcf) * dgBar + alphaFixed.get(loopcf) * alphaFixed.get(loopcf) * dg2Bar;
-      alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf]
-          - termFixed[loopcf] * dgBar + 2d * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
+      alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf] -
+          termFixed[loopcf] * dgBar + 2d * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
     }
     double[] alphaIborBar = new double[sizeIbor];
     double[] termIborBar = new double[sizeIbor];

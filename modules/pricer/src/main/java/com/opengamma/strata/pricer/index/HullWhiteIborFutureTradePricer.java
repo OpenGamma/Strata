@@ -93,7 +93,7 @@ public class HullWhiteIborFutureTradePricer {
       ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
-    
+
     return productPricer.priceSensitivityRates(trade.getProduct(), ratesProvider, hwProvider);
   }
 

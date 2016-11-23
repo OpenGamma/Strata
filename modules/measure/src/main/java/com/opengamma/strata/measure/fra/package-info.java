@@ -8,4 +8,3 @@
  * Calculation functions for FRA products.
  */
 package com.opengamma.strata.measure.fra;
-

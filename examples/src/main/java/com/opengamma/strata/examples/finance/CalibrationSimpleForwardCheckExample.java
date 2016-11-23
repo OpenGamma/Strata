@@ -139,8 +139,8 @@ public class CalibrationSimpleForwardCheckExample {
         count += r.getColumnCount() + r.getRowCount();
       }
       long endTime = System.currentTimeMillis();
-      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in "
-          + (endTime - startTime) + " ms");
+      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in " +
+          (endTime - startTime) + " ms");
       // Previous run: 400 ms for 10 cycles
     }
     if (count == 0) {
@@ -189,7 +189,6 @@ public class CalibrationSimpleForwardCheckExample {
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
         .add(CURVE_GROUP_NAME, curveGroupDefinition)
         .build();
-
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();

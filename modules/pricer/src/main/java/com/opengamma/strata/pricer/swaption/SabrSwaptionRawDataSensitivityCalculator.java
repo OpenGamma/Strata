@@ -99,7 +99,7 @@ public class SabrSwaptionRawDataSensitivityCalculator {
       double[] sensitivityRawArray) {
 
     int nbSurfaceNode = sensitivityInfoParam.size();
-    ArgChecker.isTrue(s.getSensitivity().size() == nbSurfaceNode, 
+    ArgChecker.isTrue(s.getSensitivity().size() == nbSurfaceNode,
         "sensitivity and surface info are not of the same size");
     for (int loopnode = 0; loopnode < nbSurfaceNode; loopnode++) {
       double sum = sensitivityInfoParam.get(loopnode).sum();

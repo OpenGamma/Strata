@@ -91,7 +91,7 @@ public class InflationRateSwapLegConventionTest {
     RateCalculationSwapLeg test = base.toLeg(
         startDate,
         endDate,
-        PAY, 
+        PAY,
         NOTIONAL_2M);
 
     RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()

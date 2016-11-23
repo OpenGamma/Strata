@@ -40,7 +40,7 @@ public class BlackFlatCmsPeriodPricer {
 
   /* Small parameter below which a value is regarded as 0. */
   protected static final double EPS = 1.0E-4;
-  
+
   /**
    * Obtains the pricer.
    * 
@@ -115,10 +115,11 @@ public class BlackFlatCmsPeriodPricer {
         fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone()));
     double volatility = swaptionVolatilities.volatility(expiryTime, tenor, forward, forward);
     ValueDerivatives annuityDerivatives = swapPricer.getLegPricer().annuityCash2(nbFixedPaymentYear, nbFixedPeriod, volatility);
-    double forwardAdjustment = -0.5 * forward * forward  * volatility * volatility * expiryTime * 
+    double forwardAdjustment = -0.5 * forward * forward * volatility * volatility * expiryTime *
         annuityDerivatives.getDerivative(1) / annuityDerivatives.getDerivative(0);
-    return CurrencyAmount.of(ccy, 
+    return CurrencyAmount.of(
+        ccy,
         (forward + forwardAdjustment) * dfPayment * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
-  }  
+  }
 
 }

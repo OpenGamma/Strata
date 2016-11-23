@@ -8,4 +8,3 @@
  * Calculation functions for futures products.
  */
 package com.opengamma.strata.measure.security;
-

@@ -8,4 +8,3 @@
  * Types for reporting and formatting cashflows.
  */
 package com.opengamma.strata.report.cashflow;
-

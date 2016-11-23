@@ -62,4 +62,3 @@
  * The cell in the report will contain name of the index referenced by the FRA.
  */
 package com.opengamma.strata.report;
-

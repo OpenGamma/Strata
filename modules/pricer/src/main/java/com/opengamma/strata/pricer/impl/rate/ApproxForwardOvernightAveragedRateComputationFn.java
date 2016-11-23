@@ -335,9 +335,8 @@ public class ApproxForwardOvernightAveragedRateComputationFn
 
     // Calculate the total rate.
     private double calculateRate() {
-      return (pastAccumulation() + valuationDateAccumulation()
-          + approximatedForwardAccumulation() + cutOffAccumulation())
-          / accrualFactorTotal;
+      return (pastAccumulation() + valuationDateAccumulation() +
+          approximatedForwardAccumulation() + cutOffAccumulation()) / accrualFactorTotal;
     }
 
     // Calculate the total rate sensitivity.
@@ -360,9 +359,8 @@ public class ApproxForwardOvernightAveragedRateComputationFn
         OvernightIndex index) {
 
       OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
-      return fixedRate.orElseThrow(() ->
-          new PricingException("Could not get fixing value of index " + index.getName() +
-              " for date " + currentFixingTs));
+      return fixedRate.orElseThrow(() -> new PricingException(
+          "Could not get fixing value of index " + index.getName() + " for date " + currentFixingTs));
     }
   }
 

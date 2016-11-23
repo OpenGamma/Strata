@@ -8,4 +8,3 @@
  * Calculation functions for FX option products.
  */
 package com.opengamma.strata.measure.fxopt;
-

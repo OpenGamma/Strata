@@ -10,4 +10,3 @@
  * The main class is {@link com.opengamma.strata.pricer.curve.CurveCalibrator}.
  */
 package com.opengamma.strata.pricer.curve;
-

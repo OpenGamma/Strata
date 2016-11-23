@@ -206,7 +206,7 @@ public class MultiCurrencyAmountArrayTest {
         .build();
     CurrencyAmountArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, fxMatrix);
     assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
-    double[] expected = new double[]{
+    double[] expected = new double[] {
         20 + 30 / 1.5 + 40 * 0.7,
         21 + 32 / 1.5 + 43 * 0.7,
         22 + 33 / 1.5 + 44 * 0.7};
@@ -355,10 +355,10 @@ public class MultiCurrencyAmountArrayTest {
 
   public void test_minusDifferentSize() {
     MultiCurrencyAmountArray array1 = MultiCurrencyAmountArray.of(
-      ImmutableMap.of(
-          Currency.USD, DoubleArray.of(30, 32),
-          Currency.EUR, DoubleArray.of(40, 43),
-          Currency.CHF, DoubleArray.of(50, 54)));
+        ImmutableMap.of(
+            Currency.USD, DoubleArray.of(30, 32),
+            Currency.EUR, DoubleArray.of(40, 43),
+            Currency.CHF, DoubleArray.of(50, 54)));
     MultiCurrencyAmountArray array2 = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
             Currency.GBP, DoubleArray.of(20, 21, 22),

@@ -289,8 +289,7 @@ public class VannaVolgaFxVanillaOptionProductPricer {
       double strike,
       double timeToExpiry,
       double volATM,
-      double[] strikesReference
-      ) {
+      double[] strikesReference) {
 
     double lnk21 = Math.log(strikesReference[1] / strikesReference[0]);
     double lnk31 = Math.log(strikesReference[2] / strikesReference[0]);

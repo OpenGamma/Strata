@@ -12,4 +12,3 @@
  * and measures the reaction to changes in underlying factors, such as the forward rate curve.
  */
 package com.opengamma.strata.market.sensitivity;
-

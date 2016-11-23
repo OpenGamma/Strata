@@ -257,7 +257,8 @@ public final class ImmutableFraConvention
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment != null ?
-        businessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
+        businessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
   }
 
   /**

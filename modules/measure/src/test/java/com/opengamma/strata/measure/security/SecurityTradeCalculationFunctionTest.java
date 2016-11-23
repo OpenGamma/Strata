@@ -76,7 +76,7 @@ public class SecurityTradeCalculationFunctionTest {
   public void test_presentValue() {
     SecurityTradeCalculationFunction function = new SecurityTradeCalculationFunction();
     ScenarioMarketData md = marketData();
-    
+
     double unitPv = (MARKET_PRICE / TICK_SIZE) * TICK_VALUE;
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
 

@@ -37,7 +37,7 @@ public interface Measure extends Named {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the name that uniquely identifies this measure.

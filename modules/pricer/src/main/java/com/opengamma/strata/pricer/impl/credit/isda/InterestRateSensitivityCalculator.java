@@ -82,7 +82,12 @@ public class InterestRateSensitivityCalculator {
    *  builder, i.e. in ascending order of maturity)
    * @return the parallel IR01 
    */
-  public double parallelIR01(CdsAnalytic cds, CdsQuoteConvention quote, IsdaCompliantYieldCurve yieldCurve, double[] marketRates) {
+  public double parallelIR01(
+      CdsAnalytic cds,
+      CdsQuoteConvention quote,
+      IsdaCompliantYieldCurve yieldCurve,
+      double[] marketRates) {
+
     ArgChecker.notNull(cds, "cds");
     ArgChecker.notNull(quote, "quote");
     ArgChecker.notNull(yieldCurve, "yieldCurve");

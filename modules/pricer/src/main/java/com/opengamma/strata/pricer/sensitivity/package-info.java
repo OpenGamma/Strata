@@ -8,4 +8,3 @@
  * Calculators for sensitivities.
  */
 package com.opengamma.strata.pricer.sensitivity;
-

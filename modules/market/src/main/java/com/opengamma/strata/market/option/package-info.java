@@ -8,4 +8,3 @@
  * Entity objects for options.
  */
 package com.opengamma.strata.market.option;
-

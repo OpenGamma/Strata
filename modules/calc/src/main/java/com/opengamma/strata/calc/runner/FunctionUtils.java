@@ -16,9 +16,9 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
-import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 
 /**
  * Static utility methods useful when writing calculation functions.
@@ -62,7 +62,9 @@ public final class FunctionUtils {
    * @return a collector used at the end of a stream of {@link MultiCurrencyAmount}
    *   to build a {@link MultiCurrencyScenarioArray}
    */
-  public static Collector<MultiCurrencyAmount, List<MultiCurrencyAmount>, MultiCurrencyScenarioArray> toMultiCurrencyValuesArray() {
+  public static
+      Collector<MultiCurrencyAmount, List<MultiCurrencyAmount>, MultiCurrencyScenarioArray> toMultiCurrencyValuesArray() {
+
     return Collector.of(
         ArrayList<MultiCurrencyAmount>::new,
         (a, b) -> a.add(b),

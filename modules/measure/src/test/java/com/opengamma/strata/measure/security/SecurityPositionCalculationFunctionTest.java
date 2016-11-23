@@ -68,7 +68,7 @@ public class SecurityPositionCalculationFunctionTest {
   public void test_presentValue() {
     SecurityPositionCalculationFunction function = new SecurityPositionCalculationFunction();
     ScenarioMarketData md = marketData();
-    
+
     double unitPv = (MARKET_PRICE / TICK_SIZE) * TICK_VALUE;
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
 

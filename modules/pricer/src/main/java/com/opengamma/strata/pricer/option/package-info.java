@@ -8,4 +8,3 @@
  * Pricer support classes for options.
  */
 package com.opengamma.strata.pricer.option;
-

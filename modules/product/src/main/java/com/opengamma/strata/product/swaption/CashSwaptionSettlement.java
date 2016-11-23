@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -24,8 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.product.common.SettlementType;
-
-import org.joda.beans.BeanBuilder;
 
 /**
  * Defines the settlement type and settlement method of swaptions.

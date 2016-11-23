@@ -101,7 +101,8 @@ public class IborCapFloorMarketDataLookupTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DefaultIborCapFloorMarketDataLookup test = DefaultIborCapFloorMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
+    DefaultIborCapFloorMarketDataLookup test =
+        DefaultIborCapFloorMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
     coverImmutableBean(test);
     DefaultIborCapFloorMarketDataLookup test2 = DefaultIborCapFloorMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     coverBeanEquals(test, test2);
@@ -111,7 +112,8 @@ public class IborCapFloorMarketDataLookupTest {
   }
 
   public void test_serialization() {
-    DefaultIborCapFloorMarketDataLookup test = DefaultIborCapFloorMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
+    DefaultIborCapFloorMarketDataLookup test =
+        DefaultIborCapFloorMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
     assertSerialization(test);
   }
 

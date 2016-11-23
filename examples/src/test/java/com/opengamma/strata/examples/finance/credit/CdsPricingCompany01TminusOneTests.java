@@ -42,7 +42,6 @@ public class CdsPricingCompany01TminusOneTests {
     onTrade().jumpToDefaultShouldBe(-67_388_093.70403334).on(valuationDate);
   }
 
-
   public void test_ir01_parallel_par_on_company_01_t_minus_1() {
     onTrade().ir01ParallelParShouldBe(-972.8116886373609).on(valuationDate);
   }

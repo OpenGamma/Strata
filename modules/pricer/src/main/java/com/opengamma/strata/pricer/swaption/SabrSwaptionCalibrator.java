@@ -67,7 +67,7 @@ public class SabrSwaptionCalibrator {
    * The reference data.
    */
   private final ReferenceData refData;
-  
+
   /** The root-finder used in the Alpha calibration to ATM volatility. */
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder();
 
@@ -198,11 +198,11 @@ public class SabrSwaptionCalibrator {
     BusinessDayAdjustment bda = convention.getFloatingLeg().getStartDateBusinessDayAdjustment();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     // Sorted maps to obtain the surfaces nodes in standard order
-    TreeMap<Double, TreeMap<Double, ParameterMetadata>> parameterMetadataTmp = new TreeMap<>(); 
+    TreeMap<Double, TreeMap<Double, ParameterMetadata>> parameterMetadataTmp = new TreeMap<>();
     TreeMap<Double, TreeMap<Double, DoubleArray>> dataSensitivityAlphaTmp = new TreeMap<>(); // Sensitivity to the calibrating data
-    TreeMap<Double, TreeMap<Double, DoubleArray>>  dataSensitivityRhoTmp = new TreeMap<>();
-    TreeMap<Double, TreeMap<Double, DoubleArray>>  dataSensitivityNuTmp = new TreeMap<>();
-    TreeMap<Double, TreeMap<Double, SabrFormulaData>>  sabrPointTmp = new TreeMap<>();
+    TreeMap<Double, TreeMap<Double, DoubleArray>> dataSensitivityRhoTmp = new TreeMap<>();
+    TreeMap<Double, TreeMap<Double, DoubleArray>> dataSensitivityNuTmp = new TreeMap<>();
+    TreeMap<Double, TreeMap<Double, SabrFormulaData>> sabrPointTmp = new TreeMap<>();
     for (Tenor tenor : data.getTenors()) {
       RawOptionData tenorData = data.getData(tenor);
       double timeTenor = tenor.getPeriod().getYears() + tenor.getPeriod().getMonths() / 12;
@@ -316,7 +316,6 @@ public class SabrSwaptionCalibrator {
         .dataSensitivityRho(dataSensitivityRho)
         .dataSensitivityNu(dataSensitivityNu).build();
   }
-      
 
   // The main part of the calibration. The calibration is done 4 times with different starting points: low and high
   // volatilities and high and low vol of vol. The best result (in term of chi^2) is returned.
@@ -561,7 +560,7 @@ public class SabrSwaptionCalibrator {
     LeastSquareResultsWithTransform result = fitter.solve(startParameters, fixedParameters);
     return Pair.of(result, volAndDerivatives.getSecond());
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Calibrate the SABR alpha parameter to an ATM Black volatility and compute the derivative of the result with 
@@ -589,7 +588,7 @@ public class SabrSwaptionCalibrator {
       double shiftInput,
       DoubleArray startParameters,
       double shiftOutput) {
-    
+
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     LocalDate exerciseDate = expirationDate(bda, calibrationDate, periodToExpiry);
     double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
@@ -600,7 +599,7 @@ public class SabrSwaptionCalibrator {
         (a) -> sabrVolatilityFormula.volatility(forward + shiftOutput, forward + shiftOutput, timeToExpiry, a,
             startParameters.get(1), startParameters.get(2), startParameters.get(3)) - blackVolatilitiesTransformed.get(0);
     double alphaCalibrated = ROOT_FINDER.getRoot(volFunction, startParameters.get(0));
-    double dAlphadBlack = 1.0d / sabrVolatilityFormula.volatilityAdjoint(forward + shiftOutput, forward + shiftOutput, 
+    double dAlphadBlack = 1.0d / sabrVolatilityFormula.volatilityAdjoint(forward + shiftOutput, forward + shiftOutput,
         timeToExpiry, alphaCalibrated, startParameters.get(1), startParameters.get(2), startParameters.get(3))
         .getDerivative(2);
     return Pair.of(alphaCalibrated, dAlphadBlack * volAndDerivatives.getSecond().get(0));
@@ -787,7 +786,7 @@ public class SabrSwaptionCalibrator {
     LeastSquareResultsWithTransform result = fitter.solve(startParameters, fixedParameters);
     return Pair.of(result, volAndDerivatives.getSecond());
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Calibrate the SABR alpha parameter to an ATM normal volatility and compute the derivative of the result 
@@ -813,7 +812,7 @@ public class SabrSwaptionCalibrator {
       double normalVolatility,
       DoubleArray startParameters,
       double shiftOutput) {
-    
+
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     LocalDate exerciseDate = expirationDate(bda, calibrationDate, periodToExpiry);
     double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
@@ -824,7 +823,7 @@ public class SabrSwaptionCalibrator {
         (a) -> sabrVolatilityFormula.volatility(forward + shiftOutput, forward + shiftOutput, timeToExpiry, a,
             startParameters.get(1), startParameters.get(2), startParameters.get(3)) - blackVolatilitiesTransformed.get(0);
     double alphaCalibrated = ROOT_FINDER.getRoot(volFunction, startParameters.get(0));
-    double dAlphadBlack = 1.0d / sabrVolatilityFormula.volatilityAdjoint(forward + shiftOutput, forward + shiftOutput, 
+    double dAlphadBlack = 1.0d / sabrVolatilityFormula.volatilityAdjoint(forward + shiftOutput, forward + shiftOutput,
         timeToExpiry, alphaCalibrated, startParameters.get(1), startParameters.get(2), startParameters.get(3))
         .getDerivative(2);
     return Pair.of(alphaCalibrated, dAlphadBlack * volAndDerivatives.getSecond().get(0));

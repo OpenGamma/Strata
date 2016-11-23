@@ -133,8 +133,8 @@ public interface LocalDateDoubleTimeSeries {
    * @throws NoSuchElementException if the time-series is empty
    */
   public default LocalDate getEarliestDate() {
-    return dates().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest date, time-series is empty"));
+    return dates().findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Unable to return earliest date, time-series is empty"));
   }
 
   /**
@@ -146,8 +146,8 @@ public interface LocalDateDoubleTimeSeries {
    * @throws NoSuchElementException if the time-series is empty
    */
   public default double getEarliestValue() {
-    return values().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest value, time-series is empty"));
+    return values().findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Unable to return earliest value, time-series is empty"));
   }
 
   /**

@@ -30,8 +30,8 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Represents curve settings, used when loading curves.
@@ -99,7 +99,8 @@ final class LoadedCurveSettings
       CurveExtrapolator extrapolatorLeft,
       CurveExtrapolator extrapolatorRight) {
 
-    return new LoadedCurveSettings(curveName, xValueType, yValueType, dayCount, interpolator, extrapolatorLeft, extrapolatorRight);
+    return new LoadedCurveSettings(
+        curveName, xValueType, yValueType, dayCount, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
@@ -112,7 +113,7 @@ final class LoadedCurveSettings
     // build each node
     double[] xValues = new double[nodes.size()];
     double[] yValues = new double[nodes.size()];
-    List<ParameterMetadata> pointsMetadata = new ArrayList<ParameterMetadata>(nodes.size());
+    List<ParameterMetadata> pointsMetadata = new ArrayList<>(nodes.size());
     for (int i = 0; i < nodes.size(); i++) {
       LoadedCurveNode point = nodes.get(i);
       double yearFraction = dayCount.yearFraction(date, point.getDate());

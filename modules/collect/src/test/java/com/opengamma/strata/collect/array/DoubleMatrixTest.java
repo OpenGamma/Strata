@@ -89,7 +89,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_ofUnsafe() {
-    double[][] base = { {1d, 2d}, {3d, 4d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}};
     DoubleMatrix test = DoubleMatrix.ofUnsafe(base);
     assertMatrix(test, 1d, 2d, 3d, 4d);
     base[0][0] = 7d;
@@ -102,7 +102,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_copyOf_array() {
-    double[][] base = { {1d, 2d}, {3d, 4d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test, 1d, 2d, 3d, 4d);
     base[0][0] = 7d;
@@ -144,7 +144,7 @@ public class DoubleMatrixTest {
 
   //-------------------------------------------------------------------------
   public void test_get() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.get(0, 0), 1d);
     assertEquals(test.get(2, 1), 6d);
@@ -153,7 +153,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_row() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.row(0), DoubleArray.of(1d, 2d));
     assertEquals(test.row(1), DoubleArray.of(3d, 4d));
@@ -163,7 +163,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_rowArray() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.rowArray(0), new double[] {1d, 2d});
     assertEquals(test.rowArray(1), new double[] {3d, 4d});
@@ -173,7 +173,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_column() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.column(0), DoubleArray.of(1d, 3d, 5d));
     assertEquals(test.column(1), DoubleArray.of(2d, 4d, 6d));
@@ -182,7 +182,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_columnArray() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.columnArray(0), new double[] {1d, 3d, 5d});
     assertEquals(test.columnArray(1), new double[] {2d, 4d, 6d});
@@ -192,7 +192,7 @@ public class DoubleMatrixTest {
 
   //-------------------------------------------------------------------------
   public void test_forEach() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     double[] extracted = new double[6];
     test.forEach((i, j, v) -> extracted[i * 2 + j] = v);
@@ -201,7 +201,7 @@ public class DoubleMatrixTest {
 
   //-------------------------------------------------------------------------
   public void test_with() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test.with(0, 0, 2.6d), 2.6d, 2d, 3d, 4d, 5d, 6d);
     assertMatrix(test.with(0, 0, 1d), 1d, 2d, 3d, 4d, 5d, 6d);
@@ -213,20 +213,20 @@ public class DoubleMatrixTest {
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test.multipliedBy(5), 5d, 10d, 15d, 20d, 25d, 30d);
     assertMatrix(test.multipliedBy(1), 1d, 2d, 3d, 4d, 5d, 6d);
   }
 
   public void test_map() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test.map(v -> 1 / v), 1d, 1d / 2d, 1d / 3d, 1d / 4d, 1d / 5d, 1d / 6d);
   }
 
   public void test_mapWithIndex() {
-    double[][] base = { {1d, 2d}, {3d, 4d}, {5d, 6d}};
+    double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test.mapWithIndex((i, j, v) -> i * (j + 1) * v), 0d, 0d, 3d, 8d, 10d, 24d);
   }
@@ -256,7 +256,7 @@ public class DoubleMatrixTest {
   //-------------------------------------------------------------------------
   public void test_total() {
     assertEquals(DoubleMatrix.EMPTY.total(), 0d);
-    assertEquals(DoubleMatrix.copyOf(new double[][] { {1d, 2d}, {3d, 4d}, {5d, 6d}}).total(), 21d);
+    assertEquals(DoubleMatrix.copyOf(new double[][] {{1d, 2d}, {3d, 4d}, {5d, 6d}}).total(), 21d);
   }
 
   public void test_reduce() {
@@ -299,7 +299,7 @@ public class DoubleMatrixTest {
     DoubleMatrix a1 = DoubleMatrix.copyOf(new double[][] {{2d, 3d}});
     DoubleMatrix a2 = DoubleMatrix.copyOf(new double[][] {{2d, 3d}});
     DoubleMatrix b = DoubleMatrix.copyOf(new double[][] {{3d, 3d}});
-    DoubleMatrix c = DoubleMatrix.copyOf(new double[][] { {2d, 3d}, {4d, 5d}});
+    DoubleMatrix c = DoubleMatrix.copyOf(new double[][] {{2d, 3d}, {4d, 5d}});
     DoubleMatrix d = DoubleMatrix.copyOf(new double[][] {{2d}});
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
@@ -312,7 +312,7 @@ public class DoubleMatrixTest {
   }
 
   public void test_toString() {
-    DoubleMatrix test = DoubleMatrix.copyOf(new double[][] { {1d, 2d}, {3d, 4d}, {5d, 6d}});
+    DoubleMatrix test = DoubleMatrix.copyOf(new double[][] {{1d, 2d}, {3d, 4d}, {5d, 6d}});
     assertEquals(test.toString(), "1.0 2.0\n3.0 4.0\n5.0 6.0\n");
   }
 

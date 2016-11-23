@@ -13,8 +13,8 @@ import static org.testng.Assert.assertNotNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.ReportingCurrency;
+import com.opengamma.strata.calc.TestingMeasures;
 
 /**
  * Test {@link CalculationTaskCell}.

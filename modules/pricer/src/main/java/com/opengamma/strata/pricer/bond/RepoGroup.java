@@ -39,7 +39,7 @@ public final class RepoGroup
   /**
    * Creates an instance.
    * 
-   * @param group  the group name
+   * @param name  the group name
    */
   RepoGroup(String name) {
     super(name);

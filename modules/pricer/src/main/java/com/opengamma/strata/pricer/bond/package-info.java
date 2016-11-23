@@ -8,4 +8,3 @@
  * Calculators for bonds.
  */
 package com.opengamma.strata.pricer.bond;
-

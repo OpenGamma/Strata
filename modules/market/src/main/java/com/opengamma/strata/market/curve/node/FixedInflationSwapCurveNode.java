@@ -45,13 +45,13 @@ import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
-import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 
@@ -123,7 +123,11 @@ public final class FixedInflationSwapCurveNode
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FixedInflationSwapCurveNode of(FixedInflationSwapTemplate template, ObservableId rateId, double additionalSpread) {
+  public static FixedInflationSwapCurveNode of(
+      FixedInflationSwapTemplate template,
+      ObservableId rateId,
+      double additionalSpread) {
+
     return builder()
         .template(template)
         .rateId(rateId)

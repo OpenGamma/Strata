@@ -371,7 +371,8 @@ public final class OvernightRateSwapLegConvention
    */
   public BusinessDayAdjustment getAccrualBusinessDayAdjustment() {
     return accrualBusinessDayAdjustment != null ?
-        accrualBusinessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
+        accrualBusinessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
   }
 
   /**

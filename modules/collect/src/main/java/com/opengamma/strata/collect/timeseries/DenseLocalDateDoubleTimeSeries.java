@@ -291,8 +291,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToObj(this::calculateDateFromPosition)
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest date, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest date, time-series is empty"));
   }
 
   @Override
@@ -300,8 +299,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToDouble(i -> points[i])
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest value, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest value, time-series is empty"));
   }
 
   //-------------------------------------------------------------------------
@@ -444,8 +442,7 @@ class DenseLocalDateDoubleTimeSeries
 
   @Override
   public void forEach(ObjDoubleConsumer<LocalDate> action) {
-    validIndices().forEach(i ->
-        action.accept(calculateDateFromPosition(i), points[i]));
+    validIndices().forEach(i -> action.accept(calculateDateFromPosition(i), points[i]));
   }
 
   @Override

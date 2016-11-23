@@ -177,7 +177,7 @@ public class IborFixingDepositConventionTest {
         .name("Foo")
         .build();
     coverBeanEquals(test1, test2);
-    
+
     coverPrivateConstructor(IborFixingDepositConventions.class);
     coverPrivateConstructor(IborFixingDepositConventionLookup.class);
   }

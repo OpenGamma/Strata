@@ -8,4 +8,3 @@
  * Conventions and templates to aid the construction of rate swaps.
  */
 package com.opengamma.strata.product.swap.type;
-

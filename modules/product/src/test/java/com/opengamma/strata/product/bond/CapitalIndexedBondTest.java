@@ -56,7 +56,7 @@ public class CapitalIndexedBondTest {
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "Bond2");
   private static final double NOTIONAL = 10_000_000d;
   private static final double START_INDEX = 198.475;
-  private static final double[] COUPONS = new double[] {0.01, 0.015, 0.012, 0.09 };
+  private static final double[] COUPONS = new double[] {0.01, 0.015, 0.012, 0.09};
   private static final ValueSchedule COUPON;
   static {
     List<ValueStep> steps = new ArrayList<ValueStep>();
@@ -157,8 +157,8 @@ public class CapitalIndexedBondTest {
   public void test_resolve() {
     CapitalIndexedBond base = sut();
     LocalDate[] unAdjDates = new LocalDate[] {LocalDate.of(2008, 1, 13), LocalDate.of(2008, 7, 13),
-      LocalDate.of(2009, 1, 13), LocalDate.of(2009, 7, 13), LocalDate.of(2010, 1, 13) };
-    CapitalIndexedBondPaymentPeriod [] periodic =new CapitalIndexedBondPaymentPeriod[4];
+        LocalDate.of(2009, 1, 13), LocalDate.of(2009, 7, 13), LocalDate.of(2010, 1, 13)};
+    CapitalIndexedBondPaymentPeriod[] periodic = new CapitalIndexedBondPaymentPeriod[4];
     for (int i = 0; i < 4; ++i) {
       LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i], REF_DATA);
       LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1], REF_DATA);

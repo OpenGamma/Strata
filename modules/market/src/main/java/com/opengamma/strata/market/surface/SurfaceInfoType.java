@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.surface;
 
-
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.basics.date.DayCount;

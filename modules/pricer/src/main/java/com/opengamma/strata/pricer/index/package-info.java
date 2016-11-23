@@ -8,4 +8,3 @@
  * Calculators for products based on rate indices, such as Short Term Interest Rate futures (STIRs).
  */
 package com.opengamma.strata.pricer.index;
-

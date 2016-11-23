@@ -707,8 +707,8 @@ public final class BlackFormulaRepository {
     double d2 = 0d;
 
     double priceLike = Double.NaN;
-    double rt = (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0d ? 1d : -1d)
-        : interestRate * timeToExpiry;
+    double rt =
+        (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0d ? 1d : -1d) : interestRate * timeToExpiry;
     if (bFwd && bStr) {
       log.info("(large value)/(large value) ambiguous");
       priceLike = isCall ? (forward >= strike ? forward : 0d) : (strike >= forward ? strike : 0d);
@@ -717,8 +717,9 @@ public final class BlackFormulaRepository {
         if (rt > LARGE) {
           priceLike = isCall ? (forward > strike ? forward : 0d) : (forward > strike ? 0d : -forward);
         } else {
-          priceLike = isCall ? (forward > strike ? forward - strike * Math.exp(-rt) : 0d) : (forward > strike ? 0d
-              : -forward + strike * Math.exp(-rt));
+          priceLike = isCall ?
+              (forward > strike ? forward - strike * Math.exp(-rt) : 0d) :
+              (forward > strike ? 0d : -forward + strike * Math.exp(-rt));
         }
       } else {
         if (Math.abs(forward - strike) < SMALL | bSigRt) {
@@ -795,8 +796,8 @@ public final class BlackFormulaRepository {
     double d2 = 0d;
 
     double priceLike = Double.NaN;
-    double rt = (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0d ? 1d : -1d)
-        : interestRate * timeToExpiry;
+    double rt =
+        (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0d ? 1d : -1d) : interestRate * timeToExpiry;
     if (bFwd && bStr) {
       log.info("(large value)/(large value) ambiguous");
       priceLike = isCall ? 0d : (strike >= forward ? strike : 0d);

@@ -8,4 +8,3 @@
  * Entity objects describing bonds.
  */
 package com.opengamma.strata.product.bond;
-
