@@ -28,6 +28,7 @@ public class BlogsTest {
     assertTrue(captured.contains("Calibration and export finished"));
     assertValidCaptured(captured);
   }
+
   public void test_multicurve1_perf() {
     String captured = caputureSystemOut(() -> CalibrationPVPerformanceExample.main(NO_ARGS));
     assertTrue(captured.contains("Performance estimate for curve calibration"));

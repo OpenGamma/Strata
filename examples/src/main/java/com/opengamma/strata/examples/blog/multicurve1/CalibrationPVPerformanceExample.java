@@ -49,7 +49,7 @@ public class CalibrationPVPerformanceExample {
   // Configuration with discounting curve using OIS up to final maturity; Libor forward curve using IRS.
   private static final String CONFIG_STR = "GBP-DSCONOIS-L6MIRS";
   private static final CurveGroupName CONFIG_NAME = CurveGroupName.of(CONFIG_STR);
-  
+
   /* Swap description. */
   private static final Period SWAP_PERIOD_TO_START = Period.ofMonths(3);
   private static final double SWAP_COUPON = 0.0250;
@@ -63,18 +63,18 @@ public class CalibrationPVPerformanceExample {
   private static final String GROUPS_SUFFIX = "-group";
   private static final String NODES_SUFFIX = "-nodes";
   private static final String SETTINGS_SUFFIX = "-settings";
-  
-  private static final ResourceLocator GROUP_RESOURCE = 
+
+  private static final ResourceLocator GROUP_RESOURCE =
       ResourceLocator.of(PATH_CONFIG + CONFIG_STR + "/" + CONFIG_STR + GROUPS_SUFFIX + SUFFIX_CSV);
-  private static final ResourceLocator SETTINGS_RESOURCE = 
+  private static final ResourceLocator SETTINGS_RESOURCE =
       ResourceLocator.of(PATH_CONFIG + CONFIG_STR + "/" + CONFIG_STR + SETTINGS_SUFFIX + SUFFIX_CSV);
-  private static final ResourceLocator NODES_RESOURCE = 
+  private static final ResourceLocator NODES_RESOURCE =
       ResourceLocator.of(PATH_CONFIG + CONFIG_STR + "/" + CONFIG_STR + NODES_SUFFIX + SUFFIX_CSV);
 
   /* Raw data */
   private static final String QUOTES_FILE = PATH_QUOTES + "MARKET-QUOTES-GBP-20160801.csv";
   private static final Map<QuoteId, Double> MAP_MQ = QuotesCsvLoader.load(VALUATION_DATE, ResourceLocator.of(QUOTES_FILE));
-  private static final ImmutableMarketData MARKET_QUOTES = 
+  private static final ImmutableMarketData MARKET_QUOTES =
       ImmutableMarketData.builder(VALUATION_DATE).values(MAP_MQ).build();
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
@@ -82,16 +82,15 @@ public class CalibrationPVPerformanceExample {
 
   private static final DiscountingSwapTradePricer PRICER_SWAP = DiscountingSwapTradePricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
-  
+
   private static final int NB_COUPONS = 100;
   private static final double SWAP_COUPON_RANGE = 0.0100;
   private static final int NB_TENORS = 20;
   private static final int TENOR_START = 1;
-  
 
   @SuppressWarnings("null")
-  public static void main(String[] arg){
-    
+  public static void main(String[] arg) {
+
     int nbRrpWarm = 2;
     int nbRunPerf = 2;
 
@@ -125,8 +124,8 @@ public class CalibrationPVPerformanceExample {
     end = System.currentTimeMillis();
     System.out.println("Computation time: " + (end - start) + " ms");
 
-    System.out.println("Performance estimate for curve calibration, " + (NB_COUPONS * NB_TENORS) + " trades and " + 
-      nbRunPerf + " repetitions.\n" + r.getFirst() + r.getSecond());
+    System.out.println("Performance estimate for curve calibration, " + (NB_COUPONS * NB_TENORS) + " trades and " +
+        nbRunPerf + " repetitions.\n" + r.getFirst() + r.getSecond());
 
   }
 
@@ -148,9 +147,9 @@ public class CalibrationPVPerformanceExample {
       CurrencyParameterSensitivities ps = multicurve.parameterSensitivity(pts);
       mqs[loopswap] = MQC.sensitivity(ps, multicurve);
     }
-    
+
     return Pair.of(pv, mqs);
-    
+
   }
 
 }

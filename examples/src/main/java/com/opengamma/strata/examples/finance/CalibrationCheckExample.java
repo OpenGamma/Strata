@@ -138,8 +138,8 @@ public class CalibrationCheckExample {
         count += r.getColumnCount() + r.getRowCount();
       }
       long endTime = System.currentTimeMillis();
-      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in "
-          + (endTime - startTime) + " ms");
+      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in " +
+          (endTime - startTime) + " ms");
       // Previous run: 400 ms for 10 cycles
     }
     if (count == 0) {

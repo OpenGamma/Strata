@@ -164,10 +164,12 @@ public class CdsScenarioExample {
 
   // loads the base single name credit curves from a fixed resource
   private static void loadBaseSingleNameCreditCurves(ImmutableMarketDataBuilder builder) {
-    ResourceLocator curvesResource = ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/credit/2014-10-16/singleName.creditCurves.csv");
+    ResourceLocator curvesResource =
+        ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/credit/2014-10-16/singleName.creditCurves.csv");
     CharSource curvesInputSource = curvesResource.getCharSource();
 
-    ResourceLocator staticDataResource = ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/credit/2014-10-16/singleName.staticData.csv");
+    ResourceLocator staticDataResource =
+        ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/credit/2014-10-16/singleName.staticData.csv");
     CharSource staticDataInputSource = staticDataResource.getCharSource();
 
     // use the built-in markit credit curve parser
@@ -234,7 +236,7 @@ public class CdsScenarioExample {
     Random r = new Random();
     for (int scenarioIndex = 1; scenarioIndex <= scenarioCount; scenarioIndex++) {
       for (int nodeIndex = 0; nodeIndex < curveNodes; nodeIndex++) {
-        relativeShifts[scenarioIndex][nodeIndex] =  1 + ((r.nextDouble() - 0.5) * 0.1);
+        relativeShifts[scenarioIndex][nodeIndex] = 1 + ((r.nextDouble() - 0.5) * 0.1);
       }
     }
 
@@ -282,7 +284,7 @@ public class CdsScenarioExample {
 
     private final DoubleMatrix shifts;
 
-    public IsdaCreditCurveShifts(DoubleMatrix shifts){
+    public IsdaCreditCurveShifts(DoubleMatrix shifts) {
       this.shifts = shifts;
     }
 
@@ -321,7 +323,8 @@ public class CdsScenarioExample {
   // implements a filter which selects the credit curve to perturb based on matching a given ID
   // this custom implementation of MarketDataFilter is necessary for CDS where non-standard market data types are used
   // for other asset classes, the built-in CurveNameFilter or AllCurvesFilter may be used
-  private static class IsdaCreditCurveFilter implements MarketDataFilter<IsdaCreditCurveInputs, IsdaSingleNameCreditCurveInputsId> {
+  private static class IsdaCreditCurveFilter
+      implements MarketDataFilter<IsdaCreditCurveInputs, IsdaSingleNameCreditCurveInputsId> {
 
     private final IsdaSingleNameCreditCurveInputsId id;
 
@@ -339,7 +342,11 @@ public class CdsScenarioExample {
     }
 
     @Override
-    public boolean matches(IsdaSingleNameCreditCurveInputsId marketDataId, MarketDataBox<IsdaCreditCurveInputs> marketData, ReferenceData refData) {
+    public boolean matches(
+        IsdaSingleNameCreditCurveInputsId marketDataId,
+        MarketDataBox<IsdaCreditCurveInputs> marketData,
+        ReferenceData refData) {
+
       return this.id.equals(marketDataId);
     }
 

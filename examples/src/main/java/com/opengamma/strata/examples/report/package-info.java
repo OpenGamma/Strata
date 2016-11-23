@@ -8,4 +8,3 @@
  * Integration of examples with strata-report.
  */
 package com.opengamma.strata.examples.report;
-

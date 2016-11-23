@@ -12,4 +12,3 @@
  * including examples of calibration, scenarios and trade construction.
  */
 package com.opengamma.strata.examples;
-

@@ -234,8 +234,6 @@ public class ExamplesTest {
     assertFalse(captured.contains("ERROR"));
     assertFalse(captured.contains("Exception"));
   }
-  
-  
 
   //-------------------------------------------------------------------------
   private String[] toolArgs(String name) {

@@ -45,55 +45,52 @@ public class TestHarness {
     }
 
     public static TradeFactory withCompany01(BuySell buySell, double feeAmount, LocalDate cashSettleDate) {
-      TradeSource tradeSource = () ->
-          CdsConventions.USD_NORTH_AMERICAN
-              .toTrade(
-                  LocalDate.of(2014, 9, 22),
-                  LocalDate.of(2019, 12, 20),
-                  buySell,
-                  100_000_000D,
-                  0.0100,
-                  SingleNameReferenceInformation.of(
-                      MarkitRedCode.id("COMP01"),
-                      SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                      Currency.USD,
-                      RestructuringClause.NO_RESTRUCTURING_2014),
-                  feeAmount,
-                  cashSettleDate);
+      TradeSource tradeSource = () -> CdsConventions.USD_NORTH_AMERICAN
+          .toTrade(
+              LocalDate.of(2014, 9, 22),
+              LocalDate.of(2019, 12, 20),
+              buySell,
+              100_000_000D,
+              0.0100,
+              SingleNameReferenceInformation.of(
+                  MarkitRedCode.id("COMP01"),
+                  SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+                  Currency.USD,
+                  RestructuringClause.NO_RESTRUCTURING_2014),
+              feeAmount,
+              cashSettleDate);
       return new TradeFactory(tradeSource);
     }
 
     public static TradeFactory withCompany02() {
-      TradeSource tradeSource = () ->
-          CdsConventions.USD_NORTH_AMERICAN
-              .toTrade(
-                  LocalDate.of(2014, 9, 22),
-                  LocalDate.of(2019, 12, 20),
-                  BuySell.BUY,
-                  100_000_000D,
-                  0.0500,
-                  SingleNameReferenceInformation.of(
-                      MarkitRedCode.id("COMP02"),
-                      SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                      Currency.USD,
-                      RestructuringClause.NO_RESTRUCTURING_2014),
-                  -1_370_582.00D,
-                  LocalDate.of(2014, 10, 21));
+      TradeSource tradeSource = () -> CdsConventions.USD_NORTH_AMERICAN
+          .toTrade(
+              LocalDate.of(2014, 9, 22),
+              LocalDate.of(2019, 12, 20),
+              BuySell.BUY,
+              100_000_000D,
+              0.0500,
+              SingleNameReferenceInformation.of(
+                  MarkitRedCode.id("COMP02"),
+                  SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+                  Currency.USD,
+                  RestructuringClause.NO_RESTRUCTURING_2014),
+              -1_370_582.00D,
+              LocalDate.of(2014, 10, 21));
       return new TradeFactory(tradeSource);
     }
 
     public static TradeFactory withIndex0001() {
-      TradeSource tradeSource = () ->
-          CdsConventions.USD_NORTH_AMERICAN
-              .toTrade(
-                  LocalDate.of(2014, 3, 20),
-                  LocalDate.of(2019, 6, 20),
-                  BuySell.BUY,
-                  100_000_000D,
-                  0.0500,
-                  IndexReferenceInformation.of(MarkitRedCode.id("INDEX0001"), 22, 4),
-                  2_000_000D,
-                  LocalDate.of(2014, 10, 21));
+      TradeSource tradeSource = () -> CdsConventions.USD_NORTH_AMERICAN
+          .toTrade(
+              LocalDate.of(2014, 3, 20),
+              LocalDate.of(2019, 6, 20),
+              BuySell.BUY,
+              100_000_000D,
+              0.0500,
+              IndexReferenceInformation.of(MarkitRedCode.id("INDEX0001"), 22, 4),
+              2_000_000D,
+              LocalDate.of(2014, 10, 21));
       return new TradeFactory(tradeSource);
     }
 
