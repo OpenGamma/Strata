@@ -221,7 +221,7 @@ public final class ZeroRatePeriodicDiscountFactors
   }
 
   @Override
-  public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+  public CurrencyParameterSensitivities createParameterSensitivities(Currency currency, DoubleArray sensitivities) {
     return CurrencyParameterSensitivities.of(curve.createParameterSensitivity(currency, sensitivities));
   }
 

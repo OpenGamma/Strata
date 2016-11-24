@@ -218,7 +218,7 @@ public final class DiscountIborIndexRates
 
   @Override
   public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
-    return discountFactors.createParameterSensitivity(currency, sensitivities);
+    return discountFactors.createParameterSensitivities(currency, sensitivities);
   }
 
   //-------------------------------------------------------------------------

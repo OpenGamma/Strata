@@ -48,6 +48,14 @@ public interface DiscountFactors
    * @return the discount factors view
    */
   public static DiscountFactors of(Currency currency, LocalDate valuationDate, Curve curve) {
+    if(curve instanceof DiscountFactors) {
+      DiscountFactors discountFactor = (DiscountFactors) curve;
+      ArgChecker.isTrue(currency.equals(discountFactor.getCurrency()), 
+          "curve currency must be equal to given currency");
+      ArgChecker.isTrue(valuationDate.equals(discountFactor.getValuationDate()), 
+          "curve local date must be equal to given date");
+      return discountFactor;
+    }
     if (curve.getMetadata().getYValueType().equals(ValueType.DISCOUNT_FACTOR)) {
       return SimpleDiscountFactors.of(currency, valuationDate, curve);
     }
@@ -451,6 +459,6 @@ public interface DiscountFactors
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities);
+  public abstract CurrencyParameterSensitivities createParameterSensitivities(Currency currency, DoubleArray sensitivities);
 
 }

@@ -9,14 +9,19 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -72,10 +77,34 @@ public class DiscountFactorsTest {
     assertEquals(test instanceof ZeroRatePeriodicDiscountFactors, true);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
+  }  
+  
+  public void test_of_discountFactorsObject() {
+    DiscountFactors underlying = mock(DiscountFactors.class, withSettings().extraInterfaces(Curve.class));
+    when(underlying.getCurrency()).thenReturn(GBP);
+    when(underlying.getValuationDate()).thenReturn(DATE_VAL);
+    DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, (Curve) underlying);
+    assertEquals(test instanceof DiscountFactors, true);
+    assertEquals(test instanceof Curve, true);
+    assertEquals(test == underlying, true);
   }
 
   public void test_of_prices() {
     assertThrowsIllegalArg(() -> DiscountFactors.of(GBP, DATE_VAL, CURVE_PRICES));
+  }
+
+  public void test_of_discountFactorsObject_illegal_ccy() {
+    DiscountFactors underlying = mock(DiscountFactors.class, withSettings().extraInterfaces(Curve.class));
+    when(underlying.getCurrency()).thenReturn(Currency.USD);
+    when(underlying.getValuationDate()).thenReturn(DATE_VAL);
+    assertThrowsIllegalArg(() -> DiscountFactors.of(GBP, DATE_VAL, (Curve) underlying));
+  }
+
+  public void test_of_discountFactorsObject_illegal_value_date() {
+    DiscountFactors underlying = mock(DiscountFactors.class, withSettings().extraInterfaces(Curve.class));
+    when(underlying.getCurrency()).thenReturn(GBP);
+    when(underlying.getValuationDate()).thenReturn(DATE_VAL.plusDays(1));
+    assertThrowsIllegalArg(() -> DiscountFactors.of(GBP, DATE_VAL, (Curve) underlying));
   }
 
 }

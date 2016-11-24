@@ -250,7 +250,7 @@ public class SimpleDiscountFactorsTest {
   public void test_createParameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15);
-    CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
+    CurrencyParameterSensitivities sens = test.createParameterSensitivities(USD, sensitivities);
     assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
   }
 
