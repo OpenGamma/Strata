@@ -250,7 +250,8 @@ public class SabrIborCapFloorLegPricerTest {
       capExpected = capExpected.combinedWith(
           PRICER_PERIOD.presentValueSensitivityRatesStickyModel(CAP.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
       floorExpected = floorExpected.combinedWith(
-          PRICER_PERIOD.presentValueSensitivityRatesStickyModel(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
+          PRICER_PERIOD.presentValueSensitivityRatesStickyModel(
+              FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
     }
     CurrencyParameterSensitivities capSensiComputed = RATES_AFTER.parameterSensitivity(capComputed.build());
     CurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.parameterSensitivity(floorComputed.build());

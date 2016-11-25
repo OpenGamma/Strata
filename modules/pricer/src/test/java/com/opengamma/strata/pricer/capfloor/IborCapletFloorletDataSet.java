@@ -104,7 +104,7 @@ public class IborCapletFloorletDataSet {
   private static final DoubleArray EXPIRIES = DoubleArray.of(0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0);
   private static final DoubleArray STRIKES = DoubleArray.of(0.01, 0.02, 0.03, 0.01, 0.02, 0.03, 0.01, 0.02, 0.03);
   private static final DoubleArray BLACK_VOLS = DoubleArray.of(0.35, 0.30, 0.28, 0.34, 0.25, 0.23, 0.25, 0.20, 0.18);
-  private static final SurfaceMetadata BLACK_METADATA = 
+  private static final SurfaceMetadata BLACK_METADATA =
       Surfaces.blackVolatilityByExpiryStrike("Black Vol", ACT_ACT_ISDA);
   private static final Surface BLACK_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(BLACK_METADATA, EXPIRIES, STRIKES, BLACK_VOLS, INTERPOLATOR_2D);

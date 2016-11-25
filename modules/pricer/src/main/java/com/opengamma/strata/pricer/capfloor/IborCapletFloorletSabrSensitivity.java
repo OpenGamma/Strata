@@ -47,8 +47,8 @@ public final class IborCapletFloorletSabrSensitivity
   @PropertyDefinition(validate = "notNull")
   private final IborCapletFloorletVolatilitiesName volatilitiesName;
   /**
-  * The time to expiry of the option as a year fraction.
-  */
+   * The time to expiry of the option as a year fraction.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double expiry;
   /**
@@ -62,22 +62,22 @@ public final class IborCapletFloorletSabrSensitivity
   @PropertyDefinition(overrideGet = true)
   private final Currency currency;
   /**
-  * The value of the sensitivity.
-  */
+   * The value of the sensitivity.
+   */
   @PropertyDefinition(overrideGet = true)
   private final double sensitivity;
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
-  * Obtains an instance from the specified elements.
-  * 
-  * @param volatilitiesName  the name of the volatilities
-  * @param expiry  the time to expiry of the option as a year fraction
-  * @param sensitivityType  the type of the sensitivity
-  * @param sensitivityCurrency  the currency of the sensitivity 
-  * @param sensitivity  the value of the sensitivity
-  * @return the sensitivity object
-  */
+   * Obtains an instance from the specified elements.
+   * 
+   * @param volatilitiesName  the name of the volatilities
+   * @param expiry  the time to expiry of the option as a year fraction
+   * @param sensitivityType  the type of the sensitivity
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @param sensitivity  the value of the sensitivity
+   * @return the sensitivity object
+   */
   public static IborCapletFloorletSabrSensitivity of(
       IborCapletFloorletVolatilitiesName volatilitiesName,
       double expiry,
@@ -93,7 +93,7 @@ public final class IborCapletFloorletSabrSensitivity
         sensitivity);
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public IborCapletFloorletSabrSensitivity withCurrency(Currency currency) {
     if (this.currency.equals(currency)) {
@@ -126,7 +126,7 @@ public final class IborCapletFloorletSabrSensitivity
     return (IborCapletFloorletSabrSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public IborCapletFloorletSabrSensitivity multipliedBy(double factor) {
     return new IborCapletFloorletSabrSensitivity(volatilitiesName, expiry, sensitivityType, currency, sensitivity * factor);

@@ -58,8 +58,7 @@ public class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
       DoubleArray.of(0.14, 0.14, 0.13, 0.12, 0.12, 0.13, 0.12, 0.11, 0.1, 0.12, 0.11, 0.1);
   private static final SurfaceMetadata METADATA;
   static {
-    List<GenericVolatilitySurfaceYearFractionParameterMetadata> list =
-        new ArrayList<GenericVolatilitySurfaceYearFractionParameterMetadata>();
+    List<GenericVolatilitySurfaceYearFractionParameterMetadata> list = new ArrayList<>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
       GenericVolatilitySurfaceYearFractionParameterMetadata parameterMetadata =
@@ -116,7 +115,8 @@ public class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
         for (PutCall putCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
           assertEquals(
               VOLS.price(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
-              BlackFormulaRepository.price(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
+              BlackFormulaRepository.price(
+                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
           assertEquals(
               VOLS.priceDelta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
               BlackFormulaRepository.delta(

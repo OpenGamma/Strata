@@ -28,17 +28,28 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 public class SabrParametersTest {
 
   private static final InterpolatedNodalCurve ALPHA_CURVE =
-      InterpolatedNodalCurve.of(Curves.sabrParameterByExpiry("SabrAlpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA),
-      DoubleArray.of(0, 10), DoubleArray.of(0.2, 0.2), LINEAR);
+      InterpolatedNodalCurve.of(
+          Curves.sabrParameterByExpiry("SabrAlpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA),
+          DoubleArray.of(0, 10),
+          DoubleArray.of(0.2, 0.2),
+          LINEAR);
   private static final InterpolatedNodalCurve BETA_CURVE =
       InterpolatedNodalCurve.of(Curves.sabrParameterByExpiry("SabrBeta", ACT_ACT_ISDA, ValueType.SABR_BETA),
-      DoubleArray.of(0, 10), DoubleArray.of(1, 1), LINEAR);
+          DoubleArray.of(0, 10),
+          DoubleArray.of(1, 1),
+          LINEAR);
   private static final InterpolatedNodalCurve RHO_CURVE =
-      InterpolatedNodalCurve.of(Curves.sabrParameterByExpiry("SabrRho", ACT_ACT_ISDA, ValueType.SABR_RHO),
-      DoubleArray.of(0, 10), DoubleArray.of(-0.5, -0.5), LINEAR);
+      InterpolatedNodalCurve.of(
+          Curves.sabrParameterByExpiry("SabrRho", ACT_ACT_ISDA, ValueType.SABR_RHO),
+          DoubleArray.of(0, 10),
+          DoubleArray.of(-0.5, -0.5),
+          LINEAR);
   private static final InterpolatedNodalCurve NU_CURVE =
-      InterpolatedNodalCurve.of(Curves.sabrParameterByExpiry("SabrNu", ACT_ACT_ISDA, ValueType.SABR_NU),
-      DoubleArray.of(0, 10), DoubleArray.of(0.5, 0.5), LINEAR);
+      InterpolatedNodalCurve.of(
+          Curves.sabrParameterByExpiry("SabrNu", ACT_ACT_ISDA, ValueType.SABR_NU),
+          DoubleArray.of(0, 10),
+          DoubleArray.of(0.5, 0.5),
+          LINEAR);
   private static final SabrVolatilityFormula FORMULA = SabrVolatilityFormula.hagan();
   private static final SabrParameters PARAMETERS =
       SabrParameters.of(ALPHA_CURVE, BETA_CURVE, RHO_CURVE, NU_CURVE, FORMULA);
