@@ -19,6 +19,8 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.ConstantCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -107,6 +109,16 @@ public class IborCapletFloorletDataSet {
   private static final Surface BLACK_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(BLACK_METADATA, EXPIRIES, STRIKES, BLACK_VOLS, INTERPOLATOR_2D);
 
+  // Black volatilities provider with shift
+  /** constant shift */
+  public static final double SHIFT = 5.0e-2;
+  private static final DoubleArray SHIFTED_STRIKES = DoubleArray.of(STRIKES.size(), i -> STRIKES.get(i) + SHIFT);
+  private static final SurfaceMetadata SHIFTED_BLACK_METADATA =
+      Surfaces.blackVolatilityByExpiryStrike("Shifted Black vol", ACT_ACT_ISDA);
+  private static final Surface SHIFTED_BLACK_SURFACE_EXP_STR =
+      InterpolatedNodalSurface.of(SHIFTED_BLACK_METADATA, EXPIRIES, SHIFTED_STRIKES, BLACK_VOLS, INTERPOLATOR_2D);
+  private static final Curve SHIFT_CURVE = ConstantCurve.of("const shift", SHIFT);
+
   /**
    * Creates volatilities provider with specified date and index.
    * 
@@ -118,6 +130,20 @@ public class IborCapletFloorletDataSet {
       ZonedDateTime valuationDate,
       IborIndex index) {
     return BlackIborCapletFloorletExpiryStrikeVolatilities.of(index, valuationDate, BLACK_SURFACE_EXP_STR);
+  }
+
+  /**
+   * Creates shifted Black volatilities provider with specified date and index.
+   * 
+   * @param valuationDate  the valuation date
+   * @param index  the index
+   * @return  the volatilities provider
+   */
+  public static ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities createShiftedBlackVolatilities(
+      ZonedDateTime valuationDate,
+      IborIndex index) {
+    return ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
+        index, valuationDate, SHIFTED_BLACK_SURFACE_EXP_STR, SHIFT_CURVE);
   }
 
   // Normal volatilities provider

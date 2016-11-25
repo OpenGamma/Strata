@@ -40,7 +40,7 @@ public class VolatilityIborCapFloorTradePricer {
   /**
    * Pricer for {@link Payment}.
    */
-  private final DiscountingPaymentPricer paymentPricer;
+  protected final DiscountingPaymentPricer paymentPricer;
 
   /**
    * Creates an instance.

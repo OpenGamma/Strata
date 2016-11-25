@@ -218,7 +218,7 @@ public class VolatilityIborCapFloorLegPricer {
   }
 
   //-------------------------------------------------------------------------
-  private void validate(RatesProvider ratesProvider, IborCapletFloorletVolatilities volatilities) {
+  protected void validate(RatesProvider ratesProvider, IborCapletFloorletVolatilities volatilities) {
     ArgChecker.isTrue(volatilities.getValuationDate().equals(ratesProvider.getValuationDate()),
         "volatility and rate data must be for the same date");
   }
