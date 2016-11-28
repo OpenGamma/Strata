@@ -65,7 +65,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  * or look up data from a data store, for example a time series database.
  * Instances of {@link CalculationRunner} are created directly using the static methods on the interface.
  */
-public class StandardComponents {
+public final class StandardComponents {
 
   /**
    * The standard calculation functions.

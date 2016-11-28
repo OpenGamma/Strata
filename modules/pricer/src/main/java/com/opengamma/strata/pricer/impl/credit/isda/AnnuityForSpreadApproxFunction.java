@@ -11,9 +11,9 @@ public class AnnuityForSpreadApproxFunction extends AnnuityForSpreadFunction {
 
   private static final AnalyticCdsPricer PRICER = new AnalyticCdsPricer();
 
-  private final CdsAnalytic _cds;
-  private final IsdaCompliantYieldCurve _yieldCurve;
-  private final double _eta;
+  private final CdsAnalytic cds;
+  private final IsdaCompliantYieldCurve yieldCurve;
+  private final double eta;
 
   /**
    * For a given quoted spread (aka 'flat' spread), this function returns the risky annuity
@@ -26,16 +26,16 @@ public class AnnuityForSpreadApproxFunction extends AnnuityForSpreadFunction {
    * @param yieldCurve  the calibrated yield curve 
    */
   public AnnuityForSpreadApproxFunction(CdsAnalytic cds, IsdaCompliantYieldCurve yieldCurve) {
-    _cds = cds;
-    _yieldCurve = yieldCurve;
-    _eta = cds.getCoupon(0).getYFRatio();
+    this.cds = cds;
+    this.yieldCurve = yieldCurve;
+    this.eta = cds.getCoupon(0).getYFRatio();
   }
 
   @Override
   public Double apply(Double spread) {
-    double lambda = _eta * spread / _cds.getLGD();
+    double lambda = eta * spread / cds.getLGD();
     IsdaCompliantCreditCurve cc = new IsdaCompliantCreditCurve(1.0, lambda);
-    return PRICER.annuity(_cds, _yieldCurve, cc, CdsPriceType.CLEAN);
+    return PRICER.annuity(cds, yieldCurve, cc, CdsPriceType.CLEAN);
   }
 
 }

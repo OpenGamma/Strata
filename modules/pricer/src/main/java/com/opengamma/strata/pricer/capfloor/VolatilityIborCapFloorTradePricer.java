@@ -40,7 +40,7 @@ public class VolatilityIborCapFloorTradePricer {
   /**
    * Pricer for {@link Payment}.
    */
-  protected final DiscountingPaymentPricer paymentPricer;
+  private final DiscountingPaymentPricer paymentPricer;
 
   /**
    * Creates an instance.
@@ -54,6 +54,15 @@ public class VolatilityIborCapFloorTradePricer {
 
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
+  }
+
+  /**
+   * Gets the payment pricer.
+   * 
+   * @return the payment pricer
+   */
+  protected DiscountingPaymentPricer getPaymentPricer() {
+    return paymentPricer;
   }
 
   //-------------------------------------------------------------------------

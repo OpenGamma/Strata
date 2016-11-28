@@ -20,7 +20,7 @@ public class CdsTradeExampleTest {
   public void test_load_from_classpath() {
     String xmlStringFromClasspath = CdsTradeExample.loadExamplePortfolio();
     String xmlStringFromClasspathCompact = CdsTradeExample.serializeCompact(CdsTradeExample.deserialize(xmlStringFromClasspath));
-    String xmlStringFromCode = CdsTradeExample.serializeCompact(CdsTradeExample.tradeList);
+    String xmlStringFromCode = CdsTradeExample.serializeCompact(CdsTradeExample.TRADE_LIST);
     assertEquals(xmlStringFromClasspathCompact, xmlStringFromCode);
   }
 

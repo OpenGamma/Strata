@@ -11,7 +11,7 @@ package com.opengamma.strata.math.impl.statistics.distribution;
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * See http://www.netlib.org/slatec/fnlib/derfc.f
  */
-class DERFC {
+final class DERFC {
 
   //CSOFF
   private static final double[] s_erfcs = {
@@ -154,19 +154,19 @@ class DERFC {
   //CSON
 
   private static final double SQRTPI = 1.77245385090551602729816748334115;
-  private static double s_eta;
-  private static int s_nterf;
-  private static int s_nterfc;
-  private static int s_nterc2;
-  private static double s_xsml;
-  private static double s_sqeps;
+  private static double ETA;
+  private static int NTERF;
+  private static int NTERFC;
+  private static int NTERC2;
+  private static double XSML;
+  private static double SQEPS;
   static {
-    s_eta = 0.1 * D1MACH.three(); // slight variation from F77 SLATEC, comparing using doubles opposed to floats
-    s_nterf = INITDS.getInitds(s_erfcs, 21, s_eta);
-    s_nterfc = INITDS.getInitds(s_erfccs, 59, s_eta);
-    s_nterc2 = INITDS.getInitds(s_erc2cs, 49, s_eta);
-    s_xsml = -Math.sqrt(-Math.log(SQRTPI * D1MACH.three()));
-    s_sqeps = Math.sqrt(2d * D1MACH.three());
+    ETA = 0.1 * D1MACH.three(); // slight variation from F77 SLATEC, comparing using doubles opposed to floats
+    NTERF = INITDS.getInitds(s_erfcs, 21, ETA);
+    NTERFC = INITDS.getInitds(s_erfccs, 59, ETA);
+    NTERC2 = INITDS.getInitds(s_erc2cs, 49, ETA);
+    XSML = -Math.sqrt(-Math.log(SQRTPI * D1MACH.three()));
+    SQEPS = Math.sqrt(2d * D1MACH.three());
   }
 
   /**
@@ -176,24 +176,24 @@ class DERFC {
    */
   static double getErfc(double x) {
     double ret = 0;
-    if (x <= s_xsml) {
+    if (x <= XSML) {
       return 2.d;
     }
     double y = Math.abs(x);
     if (y <= 1d) {
-      if (y < s_sqeps) {
+      if (y < SQEPS) {
         return (1d - 2d * x / SQRTPI);
       }
-      if (y >= s_sqeps) {
-        return (1d - x * (1d + DCSEVL.getDCSEVL(2.d * x * x - 1.d, s_erfcs, s_nterf)));
+      if (y >= SQEPS) {
+        return (1d - x * (1d + DCSEVL.compute(2.d * x * x - 1.d, s_erfcs, NTERF)));
       }
     }
     y = y * y;
     if (y <= 4d) {
-      ret = Math.exp(-y) / Math.abs(x) * (0.5d + DCSEVL.getDCSEVL((8.d / y - 5.d) / 3.d, s_erc2cs, s_nterc2));
+      ret = Math.exp(-y) / Math.abs(x) * (0.5d + DCSEVL.compute((8.d / y - 5.d) / 3.d, s_erc2cs, NTERC2));
     }
     if (y > 4d) {
-      ret = Math.exp(-y) / Math.abs(x) * (0.5d + DCSEVL.getDCSEVL((8.d / y - 1.d), s_erfccs, s_nterfc));
+      ret = Math.exp(-y) / Math.abs(x) * (0.5d + DCSEVL.compute((8.d / y - 1.d), s_erfccs, NTERFC));
     }
     if (x < 0d) {
       ret = 2d - ret;

@@ -16,17 +16,17 @@ import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
  */
 public class AnalyticSpreadSensitivityCalculator {
 
-  private final IsdaCompliantCreditCurveBuilder _curveBuilder;
-  private final AnalyticCdsPricer _pricer;
+  private final IsdaCompliantCreditCurveBuilder curveBuilder;
+  private final AnalyticCdsPricer pricer;
 
   public AnalyticSpreadSensitivityCalculator() {
-    _curveBuilder = new FastCreditCurveBuilder();
-    _pricer = new AnalyticCdsPricer();
+    this.curveBuilder = new FastCreditCurveBuilder();
+    this.pricer = new AnalyticCdsPricer();
   }
 
   public AnalyticSpreadSensitivityCalculator(AccrualOnDefaultFormulae formula) {
-    _curveBuilder = new FastCreditCurveBuilder(formula);
-    _pricer = new AnalyticCdsPricer(formula);
+    this.curveBuilder = new FastCreditCurveBuilder(formula);
+    this.pricer = new AnalyticCdsPricer(formula);
   }
 
   //***************************************************************************************************************
@@ -57,11 +57,11 @@ public class AnalyticSpreadSensitivityCalculator {
    */
   public double parallelCS01FromPUF(CdsAnalytic cds, double coupon, IsdaCompliantYieldCurve yieldCurve, double puf) {
 
-    IsdaCompliantCreditCurve cc = _curveBuilder.calibrateCreditCurve(cds, coupon, yieldCurve, puf);
-    double a = _pricer.protectionLeg(cds, yieldCurve, cc);
-    double b = _pricer.annuity(cds, yieldCurve, cc, CdsPriceType.CLEAN);
-    double aPrime = _pricer.protectionLegCreditSensitivity(cds, yieldCurve, cc, 0);
-    double bPrime = _pricer.pvPremiumLegCreditSensitivity(cds, yieldCurve, cc, 0);
+    IsdaCompliantCreditCurve cc = curveBuilder.calibrateCreditCurve(cds, coupon, yieldCurve, puf);
+    double a = pricer.protectionLeg(cds, yieldCurve, cc);
+    double b = pricer.annuity(cds, yieldCurve, cc, CdsPriceType.CLEAN);
+    double aPrime = pricer.protectionLegCreditSensitivity(cds, yieldCurve, cc, 0);
+    double bPrime = pricer.pvPremiumLegCreditSensitivity(cds, yieldCurve, cc, 0);
     double s = a / b;
     double dPVdh = aPrime - coupon * bPrime;
     double dSdh = (aPrime - s * bPrime) / b;
@@ -84,15 +84,15 @@ public class AnalyticSpreadSensitivityCalculator {
       IsdaCompliantYieldCurve yieldCurve,
       double marketSpread) {
 
-    IsdaCompliantCreditCurve cc = _curveBuilder.calibrateCreditCurve(cds, marketSpread, yieldCurve);
-    double a = _pricer.protectionLeg(cds, yieldCurve, cc);
+    IsdaCompliantCreditCurve cc = curveBuilder.calibrateCreditCurve(cds, marketSpread, yieldCurve);
+    double a = pricer.protectionLeg(cds, yieldCurve, cc);
     double b = a / marketSpread; //shortcut calculation of RPV01
     double diff = marketSpread - coupon;
     if (diff == 0) {
       return b;
     }
-    double aPrime = _pricer.protectionLegCreditSensitivity(cds, yieldCurve, cc, 0);
-    double bPrime = _pricer.pvPremiumLegCreditSensitivity(cds, yieldCurve, cc, 0);
+    double aPrime = pricer.protectionLegCreditSensitivity(cds, yieldCurve, cc, 0);
+    double bPrime = pricer.pvPremiumLegCreditSensitivity(cds, yieldCurve, cc, 0);
     double dSdh = (aPrime - marketSpread * bPrime); //note - this has not been divided by b
     return b * (1 + diff * bPrime / dSdh);
   }
@@ -104,7 +104,7 @@ public class AnalyticSpreadSensitivityCalculator {
       CdsQuoteConvention[] marketQuotes,
       IsdaCompliantYieldCurve yieldCurve) {
 
-    IsdaCompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
+    IsdaCompliantCreditCurve creditCurve = curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
     return parallelCS01FromCreditCurve(cds, cdsCoupon, pillarCDSs, yieldCurve, creditCurve);
   }
 
@@ -134,7 +134,7 @@ public class AnalyticSpreadSensitivityCalculator {
       double marketSpread,
       CdsAnalytic[] buckets) {
 
-    IsdaCompliantCreditCurve cc = _curveBuilder.calibrateCreditCurve(cds, marketSpread, yieldCurve);
+    IsdaCompliantCreditCurve cc = curveBuilder.calibrateCreditCurve(cds, marketSpread, yieldCurve);
     return bucketedCS01FromCreditCurve(cds, coupon, buckets, yieldCurve, cc);
   }
 
@@ -145,7 +145,7 @@ public class AnalyticSpreadSensitivityCalculator {
       CdsQuoteConvention[] marketQuotes,
       IsdaCompliantYieldCurve yieldCurve) {
 
-    IsdaCompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
+    IsdaCompliantCreditCurve creditCurve = curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
     return bucketedCS01FromCreditCurve(cds, cdsCoupon, pillarCDSs, yieldCurve, creditCurve);
   }
 
@@ -156,7 +156,7 @@ public class AnalyticSpreadSensitivityCalculator {
       CdsQuoteConvention[] marketQuotes,
       IsdaCompliantYieldCurve yieldCurve) {
 
-    IsdaCompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
+    IsdaCompliantCreditCurve creditCurve = curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
     return bucketedCS01FromCreditCurve(cds, cdsCoupons, pillarCDSs, yieldCurve, creditCurve);
   }
 
@@ -167,7 +167,7 @@ public class AnalyticSpreadSensitivityCalculator {
       CdsAnalytic[] pillarCDSs,
       double[] spreads) {
 
-    IsdaCompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, spreads, yieldCurve);
+    IsdaCompliantCreditCurve creditCurve = curveBuilder.calibrateCreditCurve(pillarCDSs, spreads, yieldCurve);
     return bucketedCS01FromCreditCurve(cds, cdsCoupon, pillarCDSs, yieldCurve, creditCurve);
   }
 
@@ -185,9 +185,9 @@ public class AnalyticSpreadSensitivityCalculator {
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
     DoubleArray vLambda = DoubleArray.of(n,
-        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
+        i -> pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, cdsCoupon, i));
     DoubleMatrix jacT = DoubleMatrix.of(n, n,
-        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
+        (i, j) -> pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
     LUDecompositionResult luRes = decomp.apply(jacT);
     DoubleArray vS = luRes.solve(vLambda);
     return vS.toArray();
@@ -210,14 +210,14 @@ public class AnalyticSpreadSensitivityCalculator {
     LUDecompositionCommons decomp = new LUDecompositionCommons();
     int n = bucketCDSs.length;
     DoubleMatrix jacT = DoubleMatrix.of(n, n,
-        (i, j) -> _pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
+        (i, j) -> pricer.parSpreadCreditSensitivity(bucketCDSs[j], yieldCurve, creditCurve, i));
 
     double[] vLambda = new double[n];
     double[][] res = new double[m][];
     LUDecompositionResult luRes = decomp.apply(jacT);
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        vLambda[j] = _pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, cdsCoupon[i], j);
+        vLambda[j] = pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, cdsCoupon[i], j);
       }
       res[i] = luRes.solve(vLambda);
     }

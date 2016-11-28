@@ -17,7 +17,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Formatter for currency parameter sensitivity.
  */
-class CurrencyParameterSensitivityValueFormatter
+final class CurrencyParameterSensitivityValueFormatter
     implements ValueFormatter<CurrencyParameterSensitivity> {
 
   /**

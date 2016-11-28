@@ -18,17 +18,17 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  */
 public class HedgeRatioCalculator {
 
-  MatrixAlgebra MA = new OGMatrixAlgebra();
+  private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
-  private final AnalyticCdsPricer _pricer;
-  private final IsdaCompliantCreditCurveBuilder _builder;
+  private final AnalyticCdsPricer pricer;
+  private final IsdaCompliantCreditCurveBuilder builder;
 
   /**
    * Default constructor.
    */
   public HedgeRatioCalculator() {
-    _pricer = new AnalyticCdsPricer();
-    _builder = new FastCreditCurveBuilder();
+    this.pricer = new AnalyticCdsPricer();
+    this.builder = new FastCreditCurveBuilder();
   }
 
   /**
@@ -38,8 +38,8 @@ public class HedgeRatioCalculator {
    */
   public HedgeRatioCalculator(AccrualOnDefaultFormulae formula) {
     ArgChecker.notNull(formula, "formula");
-    _pricer = new AnalyticCdsPricer(formula);
-    _builder = new FastCreditCurveBuilder(formula);
+    this.pricer = new AnalyticCdsPricer(formula);
+    this.builder = new FastCreditCurveBuilder(formula);
   }
 
   //-------------------------------------------------------------------------
@@ -64,7 +64,7 @@ public class HedgeRatioCalculator {
     ArgChecker.notNull(yieldCurve, "yieldCurve");
     return DoubleArray.of(
         creditCurve.getNumberOfKnots(),
-        i -> _pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, coupon, i));
+        i -> pricer.pvCreditSensitivity(cds, yieldCurve, creditCurve, coupon, i));
   }
 
   /**
@@ -94,7 +94,7 @@ public class HedgeRatioCalculator {
 
     for (int i = 0; i < nCDS; i++) {
       for (int j = 0; j < nKnots; j++) {
-        sense[j][i] = _pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, coupons[i], j);
+        sense[j][i] = pricer.pvCreditSensitivity(cds[i], yieldCurve, creditCurve, coupons[i], j);
       }
     }
     return DoubleMatrix.copyOf(sense);
@@ -111,9 +111,9 @@ public class HedgeRatioCalculator {
    * 
    * @param cds  the CDS to be hedged
    * @param coupon  the coupon of the CDS to be hedged
-   * @param hedgeCDSs  the CDSs to hedge with - these are also used to build the credit curve
-   * @param hedgeCDSCoupons  the coupons of the CDSs to hedge with/build credit curve
-   * @param hegdeCDSPUF  the PUF of the CDSs to build credit curve
+   * @param hedgeCdsArray  the CDSs to hedge with - these are also used to build the credit curve
+   * @param hedgeCdsCoupons  the coupons of the CDSs to hedge with/build credit curve
+   * @param hedgeCdsPuf  the PUF of the CDSs to build credit curve
    * @param yieldCurve  the yield curve
    * @return the hedge ratios,
    *  since we use a unit notional, the ratios should be multiplied by -notional to give the hedge notional amounts
@@ -121,13 +121,13 @@ public class HedgeRatioCalculator {
   public DoubleArray getHedgeRatios(
       CdsAnalytic cds,
       double coupon,
-      CdsAnalytic[] hedgeCDSs,
-      double[] hedgeCDSCoupons,
-      double[] hegdeCDSPUF,
+      CdsAnalytic[] hedgeCdsArray,
+      double[] hedgeCdsCoupons,
+      double[] hedgeCdsPuf,
       IsdaCompliantYieldCurve yieldCurve) {
 
-    IsdaCompliantCreditCurve cc = _builder.calibrateCreditCurve(hedgeCDSs, hedgeCDSCoupons, yieldCurve, hegdeCDSPUF);
-    return getHedgeRatios(cds, coupon, hedgeCDSs, hedgeCDSCoupons, cc, yieldCurve);
+    IsdaCompliantCreditCurve cc = builder.calibrateCreditCurve(hedgeCdsArray, hedgeCdsCoupons, yieldCurve, hedgeCdsPuf);
+    return getHedgeRatios(cds, coupon, hedgeCdsArray, hedgeCdsCoupons, cc, yieldCurve);
   }
 
   /**

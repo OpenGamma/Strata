@@ -8,7 +8,7 @@ package com.opengamma.strata.report.framework.format;
 /**
  * Default formatter which returns the value of {@code toString()} on the object.
  */
-class ToStringValueFormatter
+final class ToStringValueFormatter
     implements ValueFormatter<Object> {
 
   /**

@@ -18,10 +18,10 @@ public class CdsCouponDes {
 
   private static final DayCount DEFAULT_ACCURAL_DCC = DayCounts.ACT_360;
 
-  private final LocalDate _accStart;
-  private final LocalDate _accEnd;
-  private final LocalDate _paymentDate;
-  private final double _yearFrac;
+  private final LocalDate accStart;
+  private final LocalDate accEnd;
+  private final LocalDate paymentDate;
+  private final double yearFrac;
 
   /**
    * Make a set of CDSCouponDes.
@@ -77,10 +77,10 @@ public class CdsCouponDes {
     ArgChecker.notNull(paymentDate, "paymentDate");
     ArgChecker.isTrue(accEnd.isAfter(accStart), "accEnd must be after accStart");
     ArgChecker.notNull(accrualDCC, "accrualDCC");
-    _accStart = accStart;
-    _accEnd = accEnd;
-    _paymentDate = paymentDate;
-    _yearFrac = accrualDCC.yearFraction(accStart, accEnd);
+    this.accStart = accStart;
+    this.accEnd = accEnd;
+    this.paymentDate = paymentDate;
+    this.yearFrac = accrualDCC.yearFraction(accStart, accEnd);
   }
 
   //-------------------------------------------------------------------------
@@ -89,7 +89,7 @@ public class CdsCouponDes {
    * @return the accStart
    */
   public LocalDate getAccStart() {
-    return _accStart;
+    return accStart;
   }
 
   /**
@@ -97,7 +97,7 @@ public class CdsCouponDes {
    * @return the accEnd
    */
   public LocalDate getAccEnd() {
-    return _accEnd;
+    return accEnd;
   }
 
   /**
@@ -105,7 +105,7 @@ public class CdsCouponDes {
    * @return the paymentDate
    */
   public LocalDate getPaymentDate() {
-    return _paymentDate;
+    return paymentDate;
   }
 
   /**
@@ -113,7 +113,7 @@ public class CdsCouponDes {
    * @return the yearFrac
    */
   public double getYearFrac() {
-    return _yearFrac;
+    return yearFrac;
   }
 
 }

@@ -33,7 +33,7 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
  * 
  * @param <T> the trade type
  */
-public class TradeCalibrationMeasure<T extends ResolvedTrade>
+public final class TradeCalibrationMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   /**

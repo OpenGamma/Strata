@@ -93,8 +93,8 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     SwaptionSettlement swaptionSettlement = parseSettlement(swaptionEl, document);
 
     //Re use the Swap FpML parser to parse the underlying swap on this swaption.
-    SwapFpmlParserPlugin INSTANCE = SwapFpmlParserPlugin.INSTANCE;
-    Swap swap = INSTANCE.parseSwap(document, swaptionEl, tradeInfoBuilder);
+    SwapFpmlParserPlugin swapParser = SwapFpmlParserPlugin.INSTANCE;
+    Swap swap = swapParser.parseSwap(document, swaptionEl, tradeInfoBuilder);
 
     Swaption swaption = Swaption.builder()
         .expiryDate(expiryDate)

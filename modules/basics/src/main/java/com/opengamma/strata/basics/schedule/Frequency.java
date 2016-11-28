@@ -168,11 +168,11 @@ public final class Frequency
   /**
    * The number of events per year.
    */
-  private transient final int eventsPerYear;
+  private final transient int eventsPerYear;
   /**
    * The number of events per year.
    */
-  private transient final double eventsPerYearEstimate;
+  private final transient double eventsPerYearEstimate;
 
   //-------------------------------------------------------------------------
   /**

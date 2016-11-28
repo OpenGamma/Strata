@@ -126,7 +126,7 @@ public class IsdaCdsPricer {
    * The static factory methods either bootstrap and calibrate a curve or they replace the
    * calibrated values with a supplied vector of zeroes or hazards (the y axis of the calibrated curve)
    */
-  static class IsdaNodalCurve implements NodalCurve {
+  static final class IsdaNodalCurve implements NodalCurve {
     private final IsdaCompliantCurve underlyingCurve;
     private final CurveMetadata curveMetadata;
 

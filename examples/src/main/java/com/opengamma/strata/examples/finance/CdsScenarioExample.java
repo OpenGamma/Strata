@@ -323,7 +323,7 @@ public class CdsScenarioExample {
   // implements a filter which selects the credit curve to perturb based on matching a given ID
   // this custom implementation of MarketDataFilter is necessary for CDS where non-standard market data types are used
   // for other asset classes, the built-in CurveNameFilter or AllCurvesFilter may be used
-  private static class IsdaCreditCurveFilter
+  private static final class IsdaCreditCurveFilter
       implements MarketDataFilter<IsdaCreditCurveInputs, IsdaSingleNameCreditCurveInputsId> {
 
     private final IsdaSingleNameCreditCurveInputsId id;

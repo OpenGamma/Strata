@@ -18,7 +18,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplateIniLoader;
 /**
  * Loads report templates from ini files by delegating to specific loaders for the different report types.
  */
-class MasterReportTemplateIniLoader {
+final class MasterReportTemplateIniLoader {
 
   /**
    * The known report template loaders.

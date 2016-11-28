@@ -34,7 +34,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  * <p>
  * This uses a single instance of {@link ExecutorService}.
  */
-class DefaultCalculationTaskRunner implements CalculationTaskRunner {
+final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   /**
    * Executes the tasks that perform the individual calculations.

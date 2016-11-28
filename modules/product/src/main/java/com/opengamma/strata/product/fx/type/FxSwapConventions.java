@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 /**
  * Market standard FX swap conventions.
  */
-public class FxSwapConventions {
+public final class FxSwapConventions {
 
   /**
    * The extended enum lookup from name to instance.

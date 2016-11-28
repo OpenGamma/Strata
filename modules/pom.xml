@@ -74,6 +74,39 @@
       </testResource>
     </testResources>
     <plugins>
+      <!--  checkstyle -->
+      <!--plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>7.3</version>
+          </dependency>
+          <dependency>
+            <groupId>com.opengamma</groupId>
+            <artifactId>build-config</artifactId>
+            <version>2.0.0</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>run-checkstyle</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includeResources>false</includeResources>
+          <includeTestResources>false</includeTestResources>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+        </configuration>
+      </plugin-->
       <!--  obtain git commit -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -522,6 +555,9 @@
     <jcommander.version>1.48</jcommander.version>
     <testng.version>6.9.10</testng.version>
     <mockito.version>1.10.19</mockito.version>
+    <!-- Properties for maven-checkstyle-plugin -->
+    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+    <checkstyle.config.location>checkstyle/checkstyle.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>

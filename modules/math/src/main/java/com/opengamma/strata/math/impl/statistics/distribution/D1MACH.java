@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 /**
  * Provides double precision machine constants
  */
-class D1MACH {
+final class D1MACH {
 
   /**
    * Smallest normalised number representable by a double according to IEEE

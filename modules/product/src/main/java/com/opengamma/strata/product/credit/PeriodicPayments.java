@@ -48,7 +48,7 @@ public final class PeriodicPayments
    * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
    */
   @PropertyDefinition(validate = "notNull")
-  final CurrencyAmount notional;
+  private final CurrencyAmount notional;
   /**
    * The coupon.
    * <p>
@@ -56,21 +56,21 @@ public final class PeriodicPayments
    * A fixed rate of 5% would be represented as 0.05.
    */
   @PropertyDefinition(validate = "notNull")
-  final double coupon;
+  private final double coupon;
   /**
    * The day count convention.
    * <p>
    * ISDA 2003 Term: Fixed Rate Day Count Fraction.
    */
   @PropertyDefinition(validate = "notNull")
-  final DayCount dayCount;
+  private final DayCount dayCount;
   /**
    * The periodic frequency defining when payments are made.
    * <p>
    * This represents the time interval between regular fixed rate payer payment dates.
    */
   @PropertyDefinition(validate = "notNull")
-  final Frequency paymentFrequency;
+  private final Frequency paymentFrequency;
   /**
    * The stub convention to use.
    * <p>
@@ -80,14 +80,14 @@ public final class PeriodicPayments
    * The values 'None' and 'Both' are not allowed.
    */
   @PropertyDefinition(validate = "notNull")
-  final StubConvention stubConvention;
+  private final StubConvention stubConvention;
   /**
    * The roll convention
    * <p>
    * This is used to calculate payment schedule.
    */
   @PropertyDefinition(validate = "notNull")
-  final RollConvention rollConvention;
+  private final RollConvention rollConvention;
 
   //-------------------------------------------------------------------------
   /**

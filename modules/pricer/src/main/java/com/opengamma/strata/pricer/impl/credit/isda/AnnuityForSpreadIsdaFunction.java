@@ -9,9 +9,9 @@ package com.opengamma.strata.pricer.impl.credit.isda;
  */
 public class AnnuityForSpreadIsdaFunction extends AnnuityForSpreadFunction {
   private static final AnalyticCdsPricer PRICER = new AnalyticCdsPricer();
-  private final CdsAnalytic _cds;
-  private final IsdaCompliantYieldCurve _yieldCurve;
-  private final CreditCurveCalibrator _calibrator;
+  private final CdsAnalytic cds;
+  private final IsdaCompliantYieldCurve yieldCurve;
+  private final CreditCurveCalibrator calibrator;
 
   /**
    * For a given quoted spread (aka 'flat' spread), this function returns the risky annuity
@@ -24,15 +24,15 @@ public class AnnuityForSpreadIsdaFunction extends AnnuityForSpreadFunction {
    * @param yieldCurve  the calibrated yield curve 
    */
   public AnnuityForSpreadIsdaFunction(CdsAnalytic cds, IsdaCompliantYieldCurve yieldCurve) {
-    _cds = cds;
-    _yieldCurve = yieldCurve;
-    _calibrator = new CreditCurveCalibrator(new CdsAnalytic[] {cds}, yieldCurve);
+    this.cds = cds;
+    this.yieldCurve = yieldCurve;
+    this.calibrator = new CreditCurveCalibrator(new CdsAnalytic[] {cds}, yieldCurve);
   }
 
   @Override
   public Double apply(Double spread) {
-    IsdaCompliantCreditCurve cc = _calibrator.calibrate(new double[] {spread});
-    return PRICER.annuity(_cds, _yieldCurve, cc, CdsPriceType.CLEAN);
+    IsdaCompliantCreditCurve cc = calibrator.calibrate(new double[] {spread});
+    return PRICER.annuity(cds, yieldCurve, cc, CdsPriceType.CLEAN);
   }
 
 }

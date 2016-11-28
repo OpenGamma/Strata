@@ -27,12 +27,13 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * \end{align*}
  * $$
  * <p> 
- * This class is a wrapper for the <a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/analysis/integration/TrapezoidIntegrator.html">Commons Math library implementation</a> 
+ * This class is a wrapper for the
+ * <a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/analysis/integration/TrapezoidIntegrator.html">Commons Math library implementation</a> 
  * of trapezoidal integration.
  */
 public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Double> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ExtendedTrapezoidIntegrator1D.class);
+  private static final Logger log = LoggerFactory.getLogger(ExtendedTrapezoidIntegrator1D.class);
   private static final UnivariateIntegrator INTEGRATOR = new TrapezoidIntegrator();
   private static final int MAX_EVAL = 10000;
 
@@ -50,7 +51,7 @@ public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Double> 
       if (lower < upper) {
         return INTEGRATOR.integrate(MAX_EVAL, CommonsMathWrapper.wrapUnivariate(f), lower, upper);
       }
-      s_logger.info("Upper bound was less than lower bound; swapping bounds and negating result");
+      log.info("Upper bound was less than lower bound; swapping bounds and negating result");
       return -INTEGRATOR.integrate(MAX_EVAL, CommonsMathWrapper.wrapUnivariate(f), upper, lower);
     } catch (MaxCountExceededException |
         MathIllegalArgumentException e) {

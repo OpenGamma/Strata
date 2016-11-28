@@ -37,7 +37,7 @@ public class VolatilityIborCapFloorProductPricer {
   /**
    * The pricer for {@link SwapLeg}.
    */
-  protected final DiscountingSwapLegPricer payLegPricer;
+  private final DiscountingSwapLegPricer payLegPricer;
 
   /**
    * Creates an instance.
@@ -51,6 +51,15 @@ public class VolatilityIborCapFloorProductPricer {
 
     this.capFloorLegPricer = ArgChecker.notNull(capFloorLegPricer, "capFloorLegPricer");
     this.payLegPricer = ArgChecker.notNull(payLegPricer, "payLegPricer");
+  }
+
+  /**
+   * Gets the pay leg pricer.
+   * 
+   * @return the pay leg pricer
+   */
+  protected DiscountingSwapLegPricer getPayLegPricer() {
+    return payLegPricer;
   }
 
   //-------------------------------------------------------------------------

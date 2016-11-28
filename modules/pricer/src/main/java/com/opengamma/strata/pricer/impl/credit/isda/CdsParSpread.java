@@ -16,15 +16,15 @@ package com.opengamma.strata.pricer.impl.credit.isda;
  */
 public class CdsParSpread implements CdsQuoteConvention {
 
-  private final double _parSpread;
+  private final double parSpread;
 
   public CdsParSpread(double parSpread) {
-    _parSpread = parSpread;
+    this.parSpread = parSpread;
   }
 
   @Override
   public double getCoupon() {
-    return _parSpread;
+    return parSpread;
   }
 
 }

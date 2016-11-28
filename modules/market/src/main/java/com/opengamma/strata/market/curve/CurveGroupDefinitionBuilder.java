@@ -47,7 +47,7 @@ public final class CurveGroupDefinitionBuilder {
    * Flag indicating if present value sensitivity to market quotes should be computed and stored in metadata or not.
    * The default value is 'false'.
    */
-  private boolean computePvSensitivityToMarketQuote = false;
+  private boolean computePvSensitivityToMarketQuote;
 
   CurveGroupDefinitionBuilder() {
     this.entries = new LinkedHashMap<>();

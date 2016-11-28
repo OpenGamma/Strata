@@ -52,7 +52,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  * <p>
  * This calibrator takes raw data and produces calibrated SABR parameters.
  */
-public class SabrSwaptionCalibrator {
+public final class SabrSwaptionCalibrator {
 
   /**
    * The SABR implied volatility formula.

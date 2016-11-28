@@ -29,14 +29,15 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * \end{align*}
  * $$
  * <p> 
- * This class is a wrapper for the <a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/analysis/integration/SimpsonIntegrator.html">Commons Math library implementation</a> 
+ * This class is a wrapper for the
+ * <a href="http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/analysis/integration/SimpsonIntegrator.html">Commons Math library implementation</a> 
  * of Simpson integration.
  */
 public class SimpsonIntegrator1D extends Integrator1D<Double, Double> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SimpsonIntegrator1D.class);
-  private final UnivariateIntegrator _integrator = new SimpsonIntegrator();
+  private static final Logger log = LoggerFactory.getLogger(SimpsonIntegrator1D.class);
   private static final int MAX_EVAL = 1000;
+  private final UnivariateIntegrator integrator = new SimpsonIntegrator();
 
   /**
    * Simpson's integration method.
@@ -56,10 +57,10 @@ public class SimpsonIntegrator1D extends Integrator1D<Double, Double> {
     ArgChecker.notNull(upper, "upper bound");
     try {
       if (lower < upper) {
-        return _integrator.integrate(MAX_EVAL, CommonsMathWrapper.wrapUnivariate(f), lower, upper);
+        return integrator.integrate(MAX_EVAL, CommonsMathWrapper.wrapUnivariate(f), lower, upper);
       }
-      s_logger.info("Upper bound was less than lower bound; swapping bounds and negating result");
-      return -_integrator.integrate(MAX_EVAL, CommonsMathWrapper.wrapUnivariate(f), upper, lower);
+      log.info("Upper bound was less than lower bound; swapping bounds and negating result");
+      return -integrator.integrate(MAX_EVAL, CommonsMathWrapper.wrapUnivariate(f), upper, lower);
     } catch (NumberIsTooSmallException | NumberIsTooLargeException e) {
       throw new MathException(e);
     }

@@ -10,7 +10,13 @@ package com.opengamma.strata.pricer.impl.credit.isda;
  */
 public enum IsdaInstrumentTypes {
 
+  /**
+   * Money market.
+   */
   MONEY_MARKET,
+  /**
+   * Swap.
+   */
   SWAP;
 
 }

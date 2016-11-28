@@ -265,16 +265,16 @@ public final class Currency
   /**
    * The number of fraction digits, such as 2 for cents in the dollar.
    */
-  private transient final int minorUnitDigits;
+  private final transient int minorUnitDigits;
   /**
    * The triangulation currency.
    * Due to initialization ordering, cannot guarantee that USD/EUR is loaded first, so this must be a string.
    */
-  private transient final String triangulationCurrency;
+  private final transient String triangulationCurrency;
   /**
    * The cached hash code.
    */
-  private transient final int cachedHashCode;
+  private final transient int cachedHashCode;
 
   //-------------------------------------------------------------------------
   /**

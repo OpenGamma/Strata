@@ -21,7 +21,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 /**
  * Market standard FX swap conventions.
  */
-public class StandardFxSwapConventions {
+public final class StandardFxSwapConventions {
 
   // Join calendar with the main currencies
   private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);

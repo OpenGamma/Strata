@@ -585,8 +585,8 @@ public final class PeriodicSchedule
   // dedicated list implementation for backwards looping for performance
   // only implements those methods that are needed
   private static class BackwardsList extends AbstractList<LocalDate> {
-    int first;
-    LocalDate[] array;
+    private int first;
+    private LocalDate[] array;
 
     BackwardsList(int capacity) {
       this.array = new LocalDate[capacity];

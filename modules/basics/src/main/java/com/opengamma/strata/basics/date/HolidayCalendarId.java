@@ -51,12 +51,12 @@ public final class HolidayCalendarId
   /**
    * The hash code.
    */
-  private transient final int hashCode;
+  private final transient int hashCode;
   /**
    * The resolver function.
    * Implementations of this function must only call {@link ReferenceData#queryValueOrNull(ReferenceDataId)}.
    */
-  private transient final BiFunction<HolidayCalendarId, ReferenceData, HolidayCalendar> resolver;
+  private final transient BiFunction<HolidayCalendarId, ReferenceData, HolidayCalendar> resolver;
 
   //-------------------------------------------------------------------------
   /**

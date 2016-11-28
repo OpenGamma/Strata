@@ -42,7 +42,7 @@ public final class FeeLeg
    * This amount occurs on the specified date and is considered to be a fee separate from the regular payments.
    */
   @PropertyDefinition(validate = "notNull")
-  final Payment upfrontFee;
+  private final Payment upfrontFee;
   /**
    * The periodic schedule of payments.
    * <p>
@@ -55,7 +55,7 @@ public final class FeeLeg
    * generalTerms component.
    */
   @PropertyDefinition(validate = "notNull")
-  final PeriodicPayments periodicPayments;
+  private final PeriodicPayments periodicPayments;
 
   //-------------------------------------------------------------------------
   /**

@@ -127,14 +127,14 @@ public class CalibrationUsdCpiExample {
     // optionally test performance
     if (args.length > 0) {
       if (args[0].equals("-p")) {
-        performance_calibration_pricing();
+        performanceCalibrationPricing();
       }
     }
     System.out.println("Checked PV for all instruments used in the calibration set are near to zero");
   }
 
   // Example of performance: loading data from file, calibration and PV
-  private static void performance_calibration_pricing() {
+  private static void performanceCalibrationPricing() {
     int nbTests = 10;
     int nbRep = 3;
     int count = 0;
@@ -173,12 +173,12 @@ public class CalibrationUsdCpiExample {
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
     // load time series
-    Map<ObservableId, LocalDateDoubleTimeSeries> FIXINGS_US_CPI_U = FixingSeriesCsvLoader.load(FIXING_RESOURCE);
+    Map<ObservableId, LocalDateDoubleTimeSeries> fixings = FixingSeriesCsvLoader.load(FIXING_RESOURCE);
 
     // create the market data
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValueMap(quotes)
-        .addTimeSeriesMap(FIXINGS_US_CPI_U).build();
+        .addTimeSeriesMap(fixings).build();
 
     // load the curve definition
     Map<CurveGroupName, CurveGroupDefinition> defns =
