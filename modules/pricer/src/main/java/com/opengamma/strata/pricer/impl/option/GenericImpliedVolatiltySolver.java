@@ -97,6 +97,10 @@ public class GenericImpliedVolatiltySolver {
     double lowerSigma;
     double upperSigma;
 
+    if (optionPrice == 0.21056699275786067) {
+      int i = 0;
+    }
+
     try {
       double[] temp = bracketRoot(optionPrice, volGuess);
       lowerSigma = temp[0];
