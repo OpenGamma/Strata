@@ -67,7 +67,7 @@ public final class SabrIborCapletFloorletBootstrapDefinition
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborCapletFloorletVolatilitiesName name;
   /**
-   * The name of the volatilities.
+   * The Ibor index for which the data is valid.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
@@ -409,7 +409,7 @@ public final class SabrIborCapletFloorletBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the volatilities.
+   * Gets the Ibor index for which the data is valid.
    * @return the value of the property, not null
    */
   @Override
@@ -935,7 +935,7 @@ public final class SabrIborCapletFloorletBootstrapDefinition
     }
 
     /**
-     * Sets the name of the volatilities.
+     * Sets the Ibor index for which the data is valid.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */

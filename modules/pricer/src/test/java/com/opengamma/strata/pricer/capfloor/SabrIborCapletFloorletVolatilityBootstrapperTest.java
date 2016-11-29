@@ -1,8 +1,14 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
@@ -17,6 +23,9 @@ import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganVolatilityFunc
 import com.opengamma.strata.pricer.option.RawOptionData;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 
+/**
+ * Test {@link SabrIborCapletFloorletVolatilityBootstrapper}.
+ */
 @Test
 public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStrippingSetup {
 
@@ -34,7 +43,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
     RawOptionData data = RawOptionData.of(
         createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE, createFullBlackDataMatrix(), ValueType.BLACK_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
-    SabrIborCapletFloorletVolatilities resVols = (SabrIborCapletFloorletVolatilities) res.getVolatilities();
+    SabrParametersIborCapletFloorletVolatilities resVols = (SabrParametersIborCapletFloorletVolatilities) res.getVolatilities();
     for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
       Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackVols(i);
       List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
@@ -50,6 +59,12 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
         assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 3d);
       }
     }
+    assertTrue(res.getChiSquare() > 0d);
+    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
+    assertEquals(resVols.getName(), definition.getName());
+    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
+    assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
+    assertEquals(resVols.getParameters().getBetaCurve(), definition.getBetaCurve().get());
   }
 
   public void test_recovery_black_shift() {
@@ -61,7 +76,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
         RawOptionData.of(createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE, createFullBlackDataMatrix(),
             ValueType.BLACK_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
-    SabrIborCapletFloorletVolatilities resVols = (SabrIborCapletFloorletVolatilities) res.getVolatilities();
+    SabrParametersIborCapletFloorletVolatilities resVols = (SabrParametersIborCapletFloorletVolatilities) res.getVolatilities();
     for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
       Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackVols(i);
       List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
@@ -77,6 +92,12 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
         assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 3d);
       }
     }
+    assertTrue(res.getChiSquare() > 0d);
+    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
+    assertEquals(resVols.getName(), definition.getName());
+    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
+    assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
+    assertEquals(resVols.getParameters().getBetaCurve(), definition.getBetaCurve().get());
   }
 
   public void test_recovery_normal() {
@@ -94,7 +115,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
         createFullNormalEquivDataMatrix(),
         ValueType.NORMAL_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
-    SabrIborCapletFloorletVolatilities resVols = (SabrIborCapletFloorletVolatilities) res.getVolatilities();
+    SabrParametersIborCapletFloorletVolatilities resVols = (SabrParametersIborCapletFloorletVolatilities) res.getVolatilities();
     for (int i = 1; i < NUM_BLACK_STRIKES; ++i) {
       Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsNormalEquivVols(i);
       List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
@@ -110,6 +131,10 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
         assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 3d);
       }
     }
+    assertTrue(res.getChiSquare() > 0d);
+    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
+    assertEquals(resVols.getName(), definition.getName());
+    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
   }
 
   @Test
@@ -129,7 +154,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
         createFullFlatBlackDataMatrix(),
         ValueType.BLACK_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
-    SabrIborCapletFloorletVolatilities resVols = (SabrIborCapletFloorletVolatilities) res.getVolatilities();
+    SabrParametersIborCapletFloorletVolatilities resVols = (SabrParametersIborCapletFloorletVolatilities) res.getVolatilities();
     for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
       Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsFlatBlackVols(i);
       List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();

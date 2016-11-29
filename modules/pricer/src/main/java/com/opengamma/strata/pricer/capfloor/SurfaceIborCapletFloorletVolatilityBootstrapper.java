@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
@@ -27,17 +28,13 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 
 /**
- * Caplet volatility calibration to cap volatilities based on curve interpolation.
+ * Caplet volatilities calibration to cap volatilities based on interpolated surface.
  * <p>
  * The caplet volatilities are computed by bootstrapping along the expiry time dimension. 
  * The result is an interpolated surface spanned by expiry and strike.  
  * The position of the node points on the resultant surface corresponds to market caps. 
  * The node should be interpolated by a local interpolation scheme along the time direction.  
  * See {@link SurfaceIborCapletFloorletBootstrapDefinition} for detail.
- * <p>
- * An alternative bootstrap method is implemented by assuming that caplet volatilities are functions of time to expiry only
- * ({@link #calibrate(SurfaceIborCapletFloorletBootstrapDefinition, ZonedDateTime, List, List, RatesProvider)}.
- * The resultant surface is flat along the strike dimension.
  */
 public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletFloorletVolatilityCalibrator {
 
@@ -75,6 +72,8 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
       RawOptionData capFloorData,
       RatesProvider ratesProvider) {
 
+    ArgChecker.isTrue(ratesProvider.getValuationDate().equals(calibrationDateTime.toLocalDate()),
+        "valuationDate of ratesProvider should be coherent to calibrationDateTime");
     ArgChecker.isTrue(definition instanceof SurfaceIborCapletFloorletBootstrapDefinition);
     SurfaceIborCapletFloorletBootstrapDefinition bsDefinition = (SurfaceIborCapletFloorletBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
@@ -99,12 +98,24 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
           volatilitiesFunction, timeList, strikeList, volList, capList, priceList);
       startIndex[i + 1] = volList.size();
     }
-
-    InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(
-        metadata, DoubleArray.copyOf(timeList), DoubleArray.copyOf(strikeList), DoubleArray.copyOf(volList),
-        bsDefinition.getInterpolator());
-    IborCapletFloorletVolatilities vols = volatilitiesFunction.apply(surface);
-    for (int i = 1; i < nExpiries; ++i) {
+    IborCapletFloorletVolatilities vols;
+    int start;
+    if (bsDefinition.getShiftCurve().isPresent()) {
+      Curve shiftCurve = bsDefinition.getShiftCurve().get();
+      DoubleArray timeShifted = DoubleArray.of(timeList.size(), n -> strikeList.get(n) + shiftCurve.yValue(timeList.get(n)));
+      InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(
+          metadata, DoubleArray.copyOf(timeList), timeShifted, DoubleArray.copyOf(volList), bsDefinition.getInterpolator());
+      vols = ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
+          index, calibrationDateTime, surface, bsDefinition.getShiftCurve().get());
+      start = 0;
+    } else {
+      InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(
+          metadata, DoubleArray.copyOf(timeList), DoubleArray.copyOf(strikeList), DoubleArray.copyOf(volList),
+          bsDefinition.getInterpolator());
+      vols = volatilitiesFunction.apply(surface);
+      start = 1;
+    }
+    for (int i = start; i < nExpiries; ++i) {
       for (int j = startIndex[i]; j < startIndex[i + 1]; ++j) {
         Function<Double, double[]> func = getValueVegaFunction(capList.get(j), ratesProvider, vols, j);
         GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(func);

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -36,6 +37,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.SimpleStrike;
@@ -77,6 +79,13 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    */
   @PropertyDefinition(validate = "notNull")
   private final GridSurfaceInterpolator interpolator;
+  /**
+   * The shift parameter of shifted Black model.
+   * <p>
+   * The x value of the curve is the expiry.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Curve shiftCurve;
 
   //-------------------------------------------------------------------------
   /**
@@ -94,7 +103,27 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       DayCount dayCount,
       GridSurfaceInterpolator interpolator) {
 
-    return new SurfaceIborCapletFloorletBootstrapDefinition(name, index, dayCount, interpolator);
+    return of(name, index, dayCount, interpolator, null);
+  }
+
+  /**
+   * Obtains an instance.
+   * 
+   * @param name  the name of the volatilities
+   * @param index  the Ibor index
+   * @param dayCount  the day count to use
+   * @param interpolator  the surface interpolator
+   * @param shiftCurve  the shift curve
+   * @return the instance
+   */
+  public static SurfaceIborCapletFloorletBootstrapDefinition of(
+      IborCapletFloorletVolatilitiesName name,
+      IborIndex index,
+      DayCount dayCount,
+      GridSurfaceInterpolator interpolator,
+      Curve shiftCurve) {
+
+    return new SurfaceIborCapletFloorletBootstrapDefinition(name, index, dayCount, interpolator, shiftCurve);
   }
 
   /**
@@ -118,9 +147,35 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       CurveInterpolator timeInterpolator,
       CurveInterpolator strikeInterpolator) {
 
+    return of(name, index, dayCount, timeInterpolator, strikeInterpolator, null);
+  }
+
+  /**
+   * Obtains an instance with assumption on the extrapolation. 
+   * <p>
+   * The left extrapolation in the time dimension is flat.
+   * The right extrapolation  in the time dimension is linear. 
+   * The extrapolators in the strike dimension is linear. 
+   * 
+   * @param name  the name of the volatilities
+   * @param index  the Ibor index
+   * @param dayCount  the day count to use
+   * @param timeInterpolator  the time interpolator
+   * @param strikeInterpolator  the strike interpolator
+   * @param shiftCurve  the shift curve 
+   * @return the instance
+   */
+  public static SurfaceIborCapletFloorletBootstrapDefinition of(
+      IborCapletFloorletVolatilitiesName name,
+      IborIndex index,
+      DayCount dayCount,
+      CurveInterpolator timeInterpolator,
+      CurveInterpolator strikeInterpolator,
+      Curve shiftCurve) {
+
     GridSurfaceInterpolator gridInterpolator = GridSurfaceInterpolator.of(
         timeInterpolator, FLAT, LINEAR, strikeInterpolator, LINEAR, LINEAR);
-    return new SurfaceIborCapletFloorletBootstrapDefinition(name, index, dayCount, gridInterpolator);
+    return of(name, index, dayCount, gridInterpolator, shiftCurve);
   }
 
   @ImmutableValidator
@@ -181,7 +236,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       IborCapletFloorletVolatilitiesName name,
       IborIndex index,
       DayCount dayCount,
-      GridSurfaceInterpolator interpolator) {
+      GridSurfaceInterpolator interpolator,
+      Curve shiftCurve) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(dayCount, "dayCount");
@@ -190,6 +246,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     this.index = index;
     this.dayCount = dayCount;
     this.interpolator = interpolator;
+    this.shiftCurve = shiftCurve;
     validate();
   }
 
@@ -248,6 +305,17 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the shift parameter of shifted Black model.
+   * <p>
+   * The x value of the curve is the expiry.
+   * @return the optional value of the property, not null
+   */
+  public Optional<Curve> getShiftCurve() {
+    return Optional.ofNullable(shiftCurve);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -258,7 +326,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(interpolator, other.interpolator);
+          JodaBeanUtils.equal(interpolator, other.interpolator) &&
+          JodaBeanUtils.equal(shiftCurve, other.shiftCurve);
     }
     return false;
   }
@@ -270,17 +339,19 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shiftCurve);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("SurfaceIborCapletFloorletBootstrapDefinition{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator));
+    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
+    buf.append("shiftCurve").append('=').append(JodaBeanUtils.toString(shiftCurve));
     buf.append('}');
     return buf.toString();
   }
@@ -316,6 +387,11 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     private final MetaProperty<GridSurfaceInterpolator> interpolator = DirectMetaProperty.ofImmutable(
         this, "interpolator", SurfaceIborCapletFloorletBootstrapDefinition.class, GridSurfaceInterpolator.class);
     /**
+     * The meta-property for the {@code shiftCurve} property.
+     */
+    private final MetaProperty<Curve> shiftCurve = DirectMetaProperty.ofImmutable(
+        this, "shiftCurve", SurfaceIborCapletFloorletBootstrapDefinition.class, Curve.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -323,7 +399,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
         "name",
         "index",
         "dayCount",
-        "interpolator");
+        "interpolator",
+        "shiftCurve");
 
     /**
      * Restricted constructor.
@@ -342,6 +419,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
           return dayCount;
         case 2096253127:  // interpolator
           return interpolator;
+        case 1908090253:  // shiftCurve
+          return shiftCurve;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -394,6 +473,14 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       return interpolator;
     }
 
+    /**
+     * The meta-property for the {@code shiftCurve} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Curve> shiftCurve() {
+      return shiftCurve;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -406,6 +493,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
           return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).getDayCount();
         case 2096253127:  // interpolator
           return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).getInterpolator();
+        case 1908090253:  // shiftCurve
+          return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).shiftCurve;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -431,6 +520,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     private IborIndex index;
     private DayCount dayCount;
     private GridSurfaceInterpolator interpolator;
+    private Curve shiftCurve;
 
     /**
      * Restricted constructor.
@@ -450,6 +540,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
           return dayCount;
         case 2096253127:  // interpolator
           return interpolator;
+        case 1908090253:  // shiftCurve
+          return shiftCurve;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -469,6 +561,9 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
           break;
         case 2096253127:  // interpolator
           this.interpolator = (GridSurfaceInterpolator) newValue;
+          break;
+        case 1908090253:  // shiftCurve
+          this.shiftCurve = (Curve) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -506,18 +601,20 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
           name,
           index,
           dayCount,
-          interpolator);
+          interpolator,
+          shiftCurve);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("SurfaceIborCapletFloorletBootstrapDefinition.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator));
+      buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
+      buf.append("shiftCurve").append('=').append(JodaBeanUtils.toString(shiftCurve));
       buf.append('}');
       return buf.toString();
     }

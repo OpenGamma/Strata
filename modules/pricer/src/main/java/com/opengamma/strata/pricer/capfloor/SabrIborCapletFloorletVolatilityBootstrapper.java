@@ -46,7 +46,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 
 /**
- * Caplet volatility calibration to cap volatilities based on SABR model.
+ * Caplet volatilities calibration to cap volatilities based on SABR model.
  * <p>
  * The SABR model parameters are computed by bootstrapping along the expiry time dimension. 
  * The result is a complete set of curves for the SABR parameters spanned by the expiry time.  
@@ -94,7 +94,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
    * The epsilon is the parameter used in {@linked NonLinearLeastSquare}, where the iteration stops when certain 
    * quantities are smaller than this parameter.
    * 
-   * @param pricer  the cap/floor pricer to convert qoted volatilities to prices
+   * @param pricer  the cap/floor pricer to convert quoted volatilities to prices
    * @param sabrLegPricer  the SABR pricer
    * @param epsilon  the epsilon parameter
    * @param referenceData  the reference data

@@ -74,7 +74,7 @@ public final class GenericVolatilitySurfacePeriodParameterMetadata
   }
 
   /**
-   * Creates node using periodn, strike and label.
+   * Creates node using period, strike and label.
    * 
    * @param period  the period
    * @param strike  the strike
