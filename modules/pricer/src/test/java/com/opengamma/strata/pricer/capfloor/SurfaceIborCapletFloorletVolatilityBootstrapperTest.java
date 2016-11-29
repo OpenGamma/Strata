@@ -230,5 +230,33 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
     }
     assertEquals(res.getChiSquare(), 0d);
   }
+
+  public void recovery_test_normal2_shift() {
+    SurfaceIborCapletFloorletBootstrapDefinition definition = SurfaceIborCapletFloorletBootstrapDefinition.of(
+        IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, DOUBLE_QUADRATIC,
+        ConstantCurve.of("Black shift", 0.02));
+    DoubleArray strikes = createNormalEquivStrikes();
+    RawOptionData data = RawOptionData.of(
+        createNormalEquivMaturities(), strikes, ValueType.STRIKE, createFullNormalEquivDataMatrix(), ValueType.NORMAL_VOLATILITY);
+    IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
+    ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities resVol =
+        (ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities) res.getVolatilities();
+    for (int i = 0; i < strikes.size(); ++i) {
+      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsNormalEquivVols(i);
+      List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
+      List<Double> vols = capsAndVols.getSecond();
+      int nCaps = caps.size();
+      for (int j = 0; j < nCaps; ++j) {
+        ConstantSurface volSurface = ConstantSurface.of(
+            Surfaces.normalVolatilityByExpiryStrike("test", ACT_ACT_ISDA), vols.get(j));
+        NormalIborCapletFloorletExpiryStrikeVolatilities constVol = NormalIborCapletFloorletExpiryStrikeVolatilities.of(
+            USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
+        double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
+        double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVol).getAmount();
+        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 100d);
+      }
+    }
+    assertEquals(res.getChiSquare(), 0d);
+  }
   
 }

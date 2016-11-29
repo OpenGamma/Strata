@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
+import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -22,6 +24,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.GenericImpliedVolatiltySolver;
 import com.opengamma.strata.pricer.option.RawOptionData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -98,13 +101,22 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
           volatilitiesFunction, timeList, strikeList, volList, capList, priceList);
       startIndex[i + 1] = volList.size();
     }
+    int nTotal = startIndex[nExpiries];
     IborCapletFloorletVolatilities vols;
     int start;
     if (bsDefinition.getShiftCurve().isPresent()) {
       Curve shiftCurve = bsDefinition.getShiftCurve().get();
-      DoubleArray timeShifted = DoubleArray.of(timeList.size(), n -> strikeList.get(n) + shiftCurve.yValue(timeList.get(n)));
+      DoubleArray strikeShifted = DoubleArray.of(nTotal, n -> strikeList.get(n) + shiftCurve.yValue(timeList.get(n)));
+      DoubleArray volArray = DoubleArray.copyOf(volList);
+      if (capFloorData.getDataType().equals(NORMAL_VOLATILITY)) { // correct initial surface
+        metadata = Surfaces.blackVolatilityByExpiryStrike(bsDefinition.getName().getName(), bsDefinition.getDayCount())
+          .withParameterMetadata(metadata.getParameterMetadata().get());
+        volArray = DoubleArray.of(nTotal, n -> volList.get(n) /
+                (ratesProvider.iborIndexRates(index).rate(capList.get(n).getFinalPeriod().getIborRate().getObservation()) +
+                shiftCurve.yValue(timeList.get(n))));
+      }
       InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(
-          metadata, DoubleArray.copyOf(timeList), timeShifted, DoubleArray.copyOf(volList), bsDefinition.getInterpolator());
+          metadata, DoubleArray.copyOf(timeList), strikeShifted, volArray, bsDefinition.getInterpolator());
       vols = ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
           index, calibrationDateTime, surface, bsDefinition.getShiftCurve().get());
       start = 0;

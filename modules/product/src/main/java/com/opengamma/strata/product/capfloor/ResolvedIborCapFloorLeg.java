@@ -124,6 +124,15 @@ public final class ResolvedIborCapFloorLeg
   }
 
   /**
+   * Gets the final caplet/floorlet period.
+   * 
+   * @return the final period
+   */
+  public IborCapletFloorletPeriod getFinalPeriod() {
+    return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1);
+  }
+
+  /**
    * Gets the currency of the leg.
    * <p>
    * All periods in the leg will have this currency.

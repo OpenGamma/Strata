@@ -83,6 +83,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    * The shift parameter of shifted Black model.
    * <p>
    * The x value of the curve is the expiry.
+   * The market volatilities are calibrated to shifted Black model if this field is not null.
    */
   @PropertyDefinition(get = "optional")
   private final Curve shiftCurve;
@@ -309,6 +310,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    * Gets the shift parameter of shifted Black model.
    * <p>
    * The x value of the curve is the expiry.
+   * The market volatilities are calibrated to shifted Black model if this field is not null.
    * @return the optional value of the property, not null
    */
   public Optional<Curve> getShiftCurve() {

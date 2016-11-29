@@ -237,8 +237,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     List<Double> vols = volList.subList(startIndex[postion], startIndex[postion + 1]);
     ResolvedIborCapFloorLeg cap = capList.get(startIndex[postion]);
     double factor = valueType.equals(ValueType.BLACK_VOLATILITY) ? 1d
-        : 1d / ratesProvider.iborIndexRates(cap.getIndex()).rate(
-            cap.getCapletFloorletPeriods().get(cap.getCapletFloorletPeriods().size() - 1).getIborRate().getObservation());
+        : 1d / ratesProvider.iborIndexRates(cap.getIndex()).rate(cap.getFinalPeriod().getIborRate().getObservation());
     List<Double> volsEquiv = vols.stream().map(v -> v * factor).collect(Collectors.toList());
     double nuFirst;
     double betaInitial;
