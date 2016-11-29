@@ -20,11 +20,11 @@ public class CdsCoupon {
   private static final DayCount ACT_360 = DayCounts.ACT_360;
   private static final boolean PROTECTION_FROM_START = true;
 
-  private final double _effStart;
-  private final double _effEnd;
-  private final double _paymentTime;
-  private final double _yearFrac;
-  private final double _ycRatio;
+  private final double effStart;
+  private final double effEnd;
+  private final double paymentTime;
+  private final double yearFrac;
+  private final double ycRatio;
 
   /**
    * Make a set of CDSCoupon used by {@link CdsAnalytic} given a trade date and the schedule of the accrual periods.
@@ -152,13 +152,13 @@ public class CdsCoupon {
     LocalDate effStart = protectionFromStartOfDay ? coupon.getAccStart().minusDays(1) : coupon.getAccStart();
     LocalDate effEnd = protectionFromStartOfDay ? coupon.getAccEnd().minusDays(1) : coupon.getAccEnd();
 
-    _effStart = effStart.isBefore(tradeDate) ?
+    this.effStart = effStart.isBefore(tradeDate) ?
         -curveDCC.yearFraction(effStart, tradeDate) :
         curveDCC.yearFraction(tradeDate, effStart);
-    _effEnd = curveDCC.yearFraction(tradeDate, effEnd);
-    _paymentTime = curveDCC.yearFraction(tradeDate, coupon.getPaymentDate());
-    _yearFrac = coupon.getYearFrac();
-    _ycRatio = _yearFrac / curveDCC.yearFraction(coupon.getAccStart(), coupon.getAccEnd());
+    this.effEnd = curveDCC.yearFraction(tradeDate, effEnd);
+    this.paymentTime = curveDCC.yearFraction(tradeDate, coupon.getPaymentDate());
+    this.yearFrac = coupon.getYearFrac();
+    this.ycRatio = yearFrac / curveDCC.yearFraction(coupon.getAccStart(), coupon.getAccEnd());
   }
 
   /**
@@ -239,21 +239,21 @@ public class CdsCoupon {
   }
 
   private CdsCoupon(double... data) {
-    _effStart = data[0];
-    _effEnd = data[1];
-    _paymentTime = data[2];
-    _yearFrac = data[3];
-    _ycRatio = data[4];
+    this.effStart = data[0];
+    this.effEnd = data[1];
+    this.paymentTime = data[2];
+    this.yearFrac = data[3];
+    this.ycRatio = data[4];
   }
 
   @SuppressWarnings("unused")
   private CdsCoupon(CdsCoupon other) {
     ArgChecker.notNull(other, "other");
-    _paymentTime = other._paymentTime;
-    _yearFrac = other._yearFrac;
-    _effStart = other._effStart;
-    _effEnd = other._effEnd;
-    _ycRatio = other._ycRatio;
+    this.paymentTime = other.paymentTime;
+    this.yearFrac = other.yearFrac;
+    this.effStart = other.effStart;
+    this.effEnd = other.effEnd;
+    this.ycRatio = other.ycRatio;
   }
 
   private static double[] toDoubles(
@@ -293,7 +293,7 @@ public class CdsCoupon {
    * @return the paymentTime
    */
   public double getPaymentTime() {
-    return _paymentTime;
+    return paymentTime;
   }
 
   /**
@@ -301,7 +301,7 @@ public class CdsCoupon {
    * @return the yearFrac
    */
   public double getYearFrac() {
-    return _yearFrac;
+    return yearFrac;
   }
 
   /**
@@ -309,7 +309,7 @@ public class CdsCoupon {
    * @return the effStart
    */
   public double getEffStart() {
-    return _effStart;
+    return effStart;
   }
 
   /**
@@ -317,7 +317,7 @@ public class CdsCoupon {
    * @return the effEnd
    */
   public double getEffEnd() {
-    return _effEnd;
+    return effEnd;
   }
 
   /**
@@ -327,7 +327,7 @@ public class CdsCoupon {
    * @return the year fraction ratio
    */
   public double getYFRatio() {
-    return _ycRatio;
+    return ycRatio;
   }
 
   /**
@@ -339,7 +339,7 @@ public class CdsCoupon {
    * @return offset coupon 
    */
   public CdsCoupon withOffset(double offset) {
-    return new CdsCoupon(_effStart + offset, _effEnd + offset, _paymentTime + offset, _yearFrac, _ycRatio);
+    return new CdsCoupon(effStart + offset, effEnd + offset, paymentTime + offset, yearFrac, ycRatio);
   }
 
   @Override
@@ -347,15 +347,15 @@ public class CdsCoupon {
     int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_effEnd);
+    temp = Double.doubleToLongBits(effEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_effStart);
+    temp = Double.doubleToLongBits(effStart);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_paymentTime);
+    temp = Double.doubleToLongBits(paymentTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_ycRatio);
+    temp = Double.doubleToLongBits(ycRatio);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_yearFrac);
+    temp = Double.doubleToLongBits(yearFrac);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -372,19 +372,19 @@ public class CdsCoupon {
       return false;
     }
     CdsCoupon other = (CdsCoupon) obj;
-    if (Double.doubleToLongBits(_effEnd) != Double.doubleToLongBits(other._effEnd)) {
+    if (Double.doubleToLongBits(effEnd) != Double.doubleToLongBits(other.effEnd)) {
       return false;
     }
-    if (Double.doubleToLongBits(_effStart) != Double.doubleToLongBits(other._effStart)) {
+    if (Double.doubleToLongBits(effStart) != Double.doubleToLongBits(other.effStart)) {
       return false;
     }
-    if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {
+    if (Double.doubleToLongBits(paymentTime) != Double.doubleToLongBits(other.paymentTime)) {
       return false;
     }
-    if (Double.doubleToLongBits(_ycRatio) != Double.doubleToLongBits(other._ycRatio)) {
+    if (Double.doubleToLongBits(ycRatio) != Double.doubleToLongBits(other.ycRatio)) {
       return false;
     }
-    if (Double.doubleToLongBits(_yearFrac) != Double.doubleToLongBits(other._yearFrac)) {
+    if (Double.doubleToLongBits(yearFrac) != Double.doubleToLongBits(other.yearFrac)) {
       return false;
     }
     return true;

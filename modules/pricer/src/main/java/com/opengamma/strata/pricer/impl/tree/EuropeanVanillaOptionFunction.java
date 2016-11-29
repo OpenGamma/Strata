@@ -56,7 +56,7 @@ public final class EuropeanVanillaOptionFunction
    * The number of time steps.
    */
   @PropertyDefinition(overrideGet = true)
-  final int numberOfSteps;
+  private final int numberOfSteps;
 
   //-------------------------------------------------------------------------
   /**

@@ -30,7 +30,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  *
  * @see MarketDataNode
  */
-class DependencyTreeBuilder {
+final class DependencyTreeBuilder {
 
   /** The market data supplied by the user. */
   private final ScenarioMarketData suppliedData;

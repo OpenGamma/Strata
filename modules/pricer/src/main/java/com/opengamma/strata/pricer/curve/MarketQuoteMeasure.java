@@ -31,7 +31,7 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
  * 
  * @param <T> the trade type
  */
-public class MarketQuoteMeasure<T extends ResolvedTrade>
+public final class MarketQuoteMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   /**
@@ -58,7 +58,7 @@ public class MarketQuoteMeasure<T extends ResolvedTrade>
    * The measure for {@link ResolvedSwapTrade} using par rate discounting. Apply only to swap with a fixed leg.
    */
   public static final MarketQuoteMeasure<ResolvedSwapTrade> SWAP_MQ =
-      MarketQuoteMeasure.of( // Market quote
+      MarketQuoteMeasure.of(
           "SwapParRateDiscounting",
           ResolvedSwapTrade.class,
           (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRate(trade.getProduct(), p),

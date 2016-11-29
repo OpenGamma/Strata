@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public abstract class Integrator1D<T, U> implements Integrator<T, U, Function<U, T>> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(Integrator1D.class);
+  private static final Logger log = LoggerFactory.getLogger(Integrator1D.class);
 
   /**
    * {@inheritDoc}
@@ -35,10 +35,10 @@ public abstract class Integrator1D<T, U> implements Integrator<T, U, Function<U,
     ArgChecker.notNull(lower[0], "lower bound was null");
     ArgChecker.notNull(upper[0], "upper bound was null");
     if (lower.length > 1) {
-      s_logger.info("Lower bound array had more than one element; only using the first");
+      log.info("Lower bound array had more than one element; only using the first");
     }
     if (upper.length > 1) {
-      s_logger.info("Upper bound array had more than one element; only using the first");
+      log.info("Upper bound array had more than one element; only using the first");
     }
     return integrate(f, lower[0], upper[0]);
   }

@@ -65,7 +65,7 @@ public class SabrIborCapFloorTradePricer
       return pvSensiProduct.build();
     }
     PointSensitivityBuilder pvSensiPremium =
-        paymentPricer.presentValueSensitivity(trade.getPremium().get(), ratesProvider);
+        getPaymentPricer().presentValueSensitivity(trade.getPremium().get(), ratesProvider);
     return pvSensiProduct.combinedWith(pvSensiPremium).build();
   }
 

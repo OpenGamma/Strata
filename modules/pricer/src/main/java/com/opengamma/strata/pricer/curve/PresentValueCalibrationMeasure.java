@@ -40,7 +40,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * 
  * @param <T> the trade type
  */
-public class PresentValueCalibrationMeasure<T extends ResolvedTrade>
+public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;

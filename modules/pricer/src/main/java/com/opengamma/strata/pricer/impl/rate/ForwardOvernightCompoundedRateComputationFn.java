@@ -84,7 +84,7 @@ public class ForwardOvernightCompoundedRateComputationFn
 
   //-------------------------------------------------------------------------
   // Internal class. Observation details stored in a separate class to clarify the construction.
-  private static class ObservationDetails {
+  private static final class ObservationDetails {
 
     private final OvernightCompoundedRateComputation computation;
     private final OvernightIndexRates rates;

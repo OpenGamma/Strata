@@ -21,7 +21,7 @@ import com.opengamma.strata.report.framework.format.ValueFormatters;
 /**
  * Formatter for trade reports.
  */
-public class TradeReportFormatter
+public final class TradeReportFormatter
     extends ReportFormatter<TradeReport> {
 
   /**

@@ -44,7 +44,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * Reference: Interest Rate Cross-gamma for Single and Multiple Curves. OpenGamma quantitative research 15, July 14
  */
-public class CurveGammaCalculator {
+public final class CurveGammaCalculator {
 
   /**
    * Default implementation. Finite difference is forward and the shift is one basis point (0.0001).

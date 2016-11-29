@@ -45,8 +45,8 @@ public class CdsTradeExample {
    */
   public static void main(String[] args) {
 
-    String xmlString = serializePretty(tradeList);
-    System.out.println("Successfully serialized " + tradeList.toString());
+    String xmlString = serializePretty(TRADE_LIST);
+    System.out.println("Successfully serialized " + TRADE_LIST.toString());
     System.out.println("Serialized XML is:\n" + xmlString);
 
     TradeList deserializedPortfolioFromString = deserialize(xmlString);
@@ -73,7 +73,7 @@ public class CdsTradeExample {
     return Unchecked.wrap(() -> ResourceLocator.ofClasspath(CDS_PORTFOLIO_XML).getCharSource().read());
   }
 
-  public static CdsTrade comp01 =
+  static final CdsTrade COMP01 =
       CdsConventions.USD_NORTH_AMERICAN
           .toTrade(
               LocalDate.of(2014, 9, 22),
@@ -89,7 +89,7 @@ public class CdsTradeExample {
               3_694_117.73d,
               LocalDate.of(2014, 10, 21));
 
-  public static CdsTrade comp02 =
+  static final CdsTrade COMP02 =
       CdsConventions.USD_NORTH_AMERICAN
           .toTrade(
               LocalDate.of(2014, 9, 22),
@@ -105,7 +105,7 @@ public class CdsTradeExample {
               -1_370_582.00d,
               LocalDate.of(2014, 10, 21));
 
-  public static CdsTrade index0001 =
+  static final CdsTrade INDEX0001 =
       CdsConventions.USD_NORTH_AMERICAN
           .toTrade(
               LocalDate.of(2014, 3, 20),
@@ -117,11 +117,14 @@ public class CdsTradeExample {
               2_000_000d,
               LocalDate.of(2014, 10, 21));
 
-  public static List<Trade> trades = ImmutableList.of(
-      comp01,
-      comp02,
-      index0001);
+  static final List<Trade> TRADES = ImmutableList.of(
+      COMP01,
+      COMP02,
+      INDEX0001);
 
-  public static TradeList tradeList = TradeList.of(trades);
+  /**
+   * The list of trades.
+   */
+  public static final TradeList TRADE_LIST = TradeList.of(TRADES);
 
 }

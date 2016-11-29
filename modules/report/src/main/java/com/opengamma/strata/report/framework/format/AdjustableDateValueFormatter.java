@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 /**
  * Formatter for adjustable dates.
  */
-class AdjustableDateValueFormatter
+final class AdjustableDateValueFormatter
     implements ValueFormatter<AdjustableDate> {
 
   /**

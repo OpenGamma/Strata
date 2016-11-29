@@ -23,21 +23,21 @@ package com.opengamma.strata.pricer.impl.credit.isda;
  */
 public class CdsQuotedSpread implements CdsQuoteConvention {
 
-  private final double _coupon;
-  private final double _quotedSpread;
+  private final double coupon;
+  private final double quotedSpread;
 
   public CdsQuotedSpread(double coupon, double quotedSpread) {
-    _coupon = coupon;
-    _quotedSpread = quotedSpread;
+    this.coupon = coupon;
+    this.quotedSpread = quotedSpread;
   }
 
   @Override
   public double getCoupon() {
-    return _coupon;
+    return coupon;
   }
 
   public double getQuotedSpread() {
-    return _quotedSpread;
+    return quotedSpread;
   }
 
 }

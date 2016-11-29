@@ -36,7 +36,7 @@ import com.opengamma.strata.product.common.PutCall;
  * <P>
  * OpenGamma implementation note: Smile extrapolation, version 1.2, May 2011.
  */
-public class SabrExtrapolationRightFunction {
+public final class SabrExtrapolationRightFunction {
 
   /**
    * Matrix decomposition.

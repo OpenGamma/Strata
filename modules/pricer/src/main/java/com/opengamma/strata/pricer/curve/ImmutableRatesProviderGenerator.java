@@ -36,7 +36,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * This takes a base {@link ImmutableRatesProvider} and list of curve definitions
  * to generate a child provider.
  */
-public class ImmutableRatesProviderGenerator
+public final class ImmutableRatesProviderGenerator
     implements RatesProviderGenerator {
 
   /**

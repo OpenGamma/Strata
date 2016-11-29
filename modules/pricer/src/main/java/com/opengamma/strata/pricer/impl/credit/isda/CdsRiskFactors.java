@@ -12,14 +12,14 @@ package com.opengamma.strata.pricer.impl.credit.isda;
  */
 public class CdsRiskFactors {
 
-  private final AnalyticCdsPricer _pricer;
+  private final AnalyticCdsPricer pricer;
 
   public CdsRiskFactors() {
-    _pricer = new AnalyticCdsPricer();
+    this.pricer = new AnalyticCdsPricer();
   }
 
   public CdsRiskFactors(AccrualOnDefaultFormulae formula) {
-    _pricer = new AnalyticCdsPricer(formula);
+    this.pricer = new AnalyticCdsPricer(formula);
   }
 
   /**
@@ -37,7 +37,7 @@ public class CdsRiskFactors {
       IsdaCompliantCreditCurve creditCurve) {
 
     CdsAnalytic zeroRR = cds.withRecoveryRate(0);
-    return -_pricer.protectionLeg(zeroRR, yieldCurve, creditCurve);
+    return -pricer.protectionLeg(zeroRR, yieldCurve, creditCurve);
   }
 
   /**
@@ -58,7 +58,7 @@ public class CdsRiskFactors {
       IsdaCompliantCreditCurve creditCurve,
       double coupon) {
 
-    double pv = _pricer.pv(cds, yieldCurve, creditCurve, coupon);
+    double pv = pricer.pv(cds, yieldCurve, creditCurve, coupon);
     return -pv + cds.getLGD();
   }
 

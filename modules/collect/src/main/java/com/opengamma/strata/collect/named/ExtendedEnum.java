@@ -425,7 +425,7 @@ public final class ExtendedEnum<T extends Named> {
    * 
    * @param <T>  the type of the enum
    */
-  public static class ExternalEnumNames<T extends Named> {
+  public static final class ExternalEnumNames<T extends Named> {
 
     private ExtendedEnum<T> extendedEnum;
     private String group;

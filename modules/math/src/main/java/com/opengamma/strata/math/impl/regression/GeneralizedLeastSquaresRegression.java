@@ -14,7 +14,7 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
  */
 public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
 
-  private static CommonsMatrixAlgebra s_algebra = new CommonsMatrixAlgebra();
+  private static CommonsMatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
 
   @Override
   public LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y, boolean useIntercept) {
@@ -34,15 +34,15 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     DoubleMatrix matrix = DoubleMatrix.copyOf(dep);
     DoubleArray vector = DoubleArray.copyOf(indep);
     DoubleMatrix w = DoubleMatrix.copyOf(wArray);
-    DoubleMatrix transpose = s_algebra.getTranspose(matrix);
+    DoubleMatrix transpose = ALGEBRA.getTranspose(matrix);
     DoubleMatrix betasVector = (DoubleMatrix)
-        s_algebra.multiply(
-            s_algebra.multiply(
-                s_algebra.multiply(
-                    s_algebra.getInverse(s_algebra.multiply(transpose, s_algebra.multiply(w, matrix))), transpose),
+        ALGEBRA.multiply(
+            ALGEBRA.multiply(
+                ALGEBRA.multiply(
+                    ALGEBRA.getInverse(ALGEBRA.multiply(transpose, ALGEBRA.multiply(w, matrix))), transpose),
                 w),
             vector);
-    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) s_algebra.multiply(matrix, betasVector)).toArray());
+    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) ALGEBRA.multiply(matrix, betasVector)).toArray());
     double[] betas = super.writeArrayAsVector(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, useIntercept);
   }

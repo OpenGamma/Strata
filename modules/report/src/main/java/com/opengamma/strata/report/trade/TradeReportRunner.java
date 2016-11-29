@@ -28,7 +28,7 @@ import com.opengamma.strata.report.framework.expression.ValuePathEvaluator;
  * The resulting report is a table containing one row per trade, and the requested columns each
  * showing a value for that trade.
  */
-public class TradeReportRunner
+public final class TradeReportRunner
     implements ReportRunner<TradeReportTemplate> {
 
   /**

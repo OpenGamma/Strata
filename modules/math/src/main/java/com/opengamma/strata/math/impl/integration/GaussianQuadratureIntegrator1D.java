@@ -31,9 +31,9 @@ import com.opengamma.strata.math.impl.function.special.OrthogonalPolynomialFunct
  */
 public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Double> {
 
-  private final int _n;
-  private final QuadratureWeightAndAbscissaFunction _generator;
-  final GaussianQuadratureData _quadrature;
+  private final int size;
+  private final QuadratureWeightAndAbscissaFunction generator;
+  private final GaussianQuadratureData quadrature;
 
   /**
    * @param n The number of sample points to be used in the integration, not negative or zero
@@ -42,9 +42,9 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
   public GaussianQuadratureIntegrator1D(int n, QuadratureWeightAndAbscissaFunction generator) {
     ArgChecker.isTrue(n > 0, "number of intervals must be > 0");
     ArgChecker.notNull(generator, "generating function");
-    _n = n;
-    _generator = generator;
-    _quadrature = _generator.generate(_n);
+    this.size = n;
+    this.generator = generator;
+    this.quadrature = generator.generate(size);
   }
 
   /**
@@ -72,9 +72,9 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    */
   public double integrateFromPolyFunc(Function<Double, Double> polyFunction) {
     ArgChecker.notNull(polyFunction, "polyFunction");
-    double[] abscissas = _quadrature.getAbscissas();
+    double[] abscissas = quadrature.getAbscissas();
     int n = abscissas.length;
-    double[] weights = _quadrature.getWeights();
+    double[] weights = quadrature.getWeights();
     double sum = 0;
     for (int i = 0; i < n; i++) {
       sum += polyFunction.apply(abscissas[i]) * weights[i];
@@ -103,8 +103,8 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
   public int hashCode() {
     int prime = 31;
     int result = 1;
-    result = prime * result + _generator.hashCode();
-    result = prime * result + _n;
+    result = prime * result + generator.hashCode();
+    result = prime * result + size;
     return result;
   }
 
@@ -120,10 +120,10 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
       return false;
     }
     GaussianQuadratureIntegrator1D other = (GaussianQuadratureIntegrator1D) obj;
-    if (_n != other._n) {
+    if (this.size != other.size) {
       return false;
     }
-    return Objects.equals(_generator, other._generator);
+    return Objects.equals(this.generator, other.generator);
   }
 
 }

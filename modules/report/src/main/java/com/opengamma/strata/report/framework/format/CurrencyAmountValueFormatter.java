@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 /**
  * Formatter for currency amounts.
  */
-class CurrencyAmountValueFormatter
+final class CurrencyAmountValueFormatter
     implements ValueFormatter<CurrencyAmount> {
 
   /**

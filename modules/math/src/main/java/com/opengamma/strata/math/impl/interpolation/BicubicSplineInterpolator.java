@@ -23,7 +23,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
   private static final double ERROR = 1.e-13;
 
   private PiecewisePolynomialInterpolator[] _method;
-  private static DoubleMatrix s_invMat;
+  private static DoubleMatrix INV_MAT;
 
   static {
     double[][] invMat = new double[16][16];
@@ -43,7 +43,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
     invMat[13] = new double[] {0., 0., 0., 0., 2., 0., -2., 0., 0., 0., 0., 0., 1., 0., 1., 0.};
     invMat[14] = new double[] {-6., 6., 6., -6., -4., -2., 4., 2., -3., 3., -3., 3., -2., -1., -2., -1.};
     invMat[15] = new double[] {4., -4., -4., 4., 2., 2., -2., -2., 2., -2., 2., -2., 1., 1., 1., 1.};
-    s_invMat = DoubleMatrix.ofUnsafe(invMat);
+    INV_MAT = DoubleMatrix.ofUnsafe(invMat);
   }
 
   /**
@@ -135,7 +135,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
           }
         }
         final DoubleArray diffs = DoubleArray.copyOf(diffsVec);
-        final DoubleArray ansVec = ((DoubleArray) OG_ALGEBRA.multiply(s_invMat, diffs));
+        final DoubleArray ansVec = ((DoubleArray) OG_ALGEBRA.multiply(INV_MAT, diffs));
 
         double ref = 0.;
         double[][] coefMatTmp = new double[order][order];

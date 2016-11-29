@@ -21,8 +21,8 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
  */
 public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(WeightedLeastSquaresRegression.class);
-  private static CommonsMatrixAlgebra s_algebra = new CommonsMatrixAlgebra();
+  private static final Logger log = LoggerFactory.getLogger(WeightedLeastSquaresRegression.class);
+  private static CommonsMatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
 
   @Override
   public LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y, boolean useIntercept) {
@@ -30,7 +30,7 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
       throw new IllegalArgumentException("Cannot perform WLS regression without an array of weights");
     }
     checkData(x, weights, y);
-    s_logger
+    log
         .info("Have a two-dimensional array for what should be a one-dimensional array of weights. " +
             "The weights used in this regression will be the diagonal elements only");
     double[] w = new double[weights.length];
@@ -53,17 +53,17 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     DoubleMatrix matrix = DoubleMatrix.copyOf(dep);
     DoubleArray vector = DoubleArray.copyOf(y);
     RealMatrix wDiag = new DiagonalMatrix(w);
-    DoubleMatrix transpose = s_algebra.getTranspose(matrix);
+    DoubleMatrix transpose = ALGEBRA.getTranspose(matrix);
 
     DoubleMatrix wDiagTimesMatrix = DoubleMatrix.ofUnsafe(wDiag.multiply(
         new Array2DRowRealMatrix(matrix.toArrayUnsafe())).getData());
-    DoubleMatrix tmp = (DoubleMatrix) s_algebra.multiply(
-        s_algebra.getInverse(s_algebra.multiply(transpose, wDiagTimesMatrix)), transpose);
+    DoubleMatrix tmp = (DoubleMatrix) ALGEBRA.multiply(
+        ALGEBRA.getInverse(ALGEBRA.multiply(transpose, wDiagTimesMatrix)), transpose);
 
     DoubleMatrix wTmpTimesDiag =
         DoubleMatrix.copyOf(wDiag.preMultiply(new Array2DRowRealMatrix(tmp.toArrayUnsafe())).getData());
-    DoubleMatrix betasVector = (DoubleMatrix) s_algebra.multiply(wTmpTimesDiag, vector);
-    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) s_algebra.multiply(matrix, betasVector)).toArray());
+    DoubleMatrix betasVector = (DoubleMatrix) ALGEBRA.multiply(wTmpTimesDiag, vector);
+    double[] yModel = super.writeArrayAsVector(((DoubleMatrix) ALGEBRA.multiply(matrix, betasVector)).toArray());
     double[] betas = super.writeArrayAsVector(betasVector.toArray());
     return getResultWithStatistics(x, convertArray(wDiag.getData()), y, betas, yModel, transpose, matrix, useIntercept);
   }
@@ -90,7 +90,7 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
       errorSumOfSquares += w[i][i] * residuals[i] * residuals[i];
     }
     double regressionSumOfSquares = totalSumOfSquares - errorSumOfSquares;
-    double[][] covarianceBetas = convertArray(s_algebra.getInverse(s_algebra.multiply(transpose, matrix)).toArray());
+    double[][] covarianceBetas = convertArray(ALGEBRA.getInverse(ALGEBRA.multiply(transpose, matrix)).toArray());
     double rSquared = regressionSumOfSquares / totalSumOfSquares;
     double adjustedRSquared = 1. - (1 - rSquared) * (n - 1) / (n - k);
     double meanSquareError = errorSumOfSquares / (n - k);

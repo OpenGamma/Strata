@@ -19,7 +19,7 @@ import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
 public class AnalyticBondPricer {
 
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder();
-  private final AnalyticCdsPricer _pricer = new AnalyticCdsPricer();
+  private final AnalyticCdsPricer pricer = new AnalyticCdsPricer();
 
   //-------------------------------------------------------------------------
   /**
@@ -45,7 +45,7 @@ public class AnalyticBondPricer {
 
     double lambda = getHazardRate(bond, yieldCurve, bondPrice, cleanOrDirty);
     IsdaCompliantCreditCurve cc = new IsdaCompliantCreditCurve(cds.getProtectionEnd(), lambda);
-    return _pricer.parSpread(cds, yieldCurve, cc);
+    return pricer.parSpread(cds, yieldCurve, cc);
   }
 
   //-------------------------------------------------------------------------

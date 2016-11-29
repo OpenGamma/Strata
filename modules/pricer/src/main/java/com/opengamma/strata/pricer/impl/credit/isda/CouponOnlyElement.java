@@ -10,24 +10,24 @@ package com.opengamma.strata.pricer.impl.credit.isda;
  */
 public class CouponOnlyElement {
 
-  private final double _riskLessValue;
-  private final double _effEnd;
-  private final int _creditCurveKnot;
+  private final double riskLessValue;
+  private final double effEnd;
+  private final int creditCurveKnot;
 
   public CouponOnlyElement(CdsCoupon coupon, IsdaCompliantYieldCurve yieldCurve, int creditCurveKnot) {
-    _riskLessValue = coupon.getYearFrac() * yieldCurve.getDiscountFactor(coupon.getPaymentTime());
-    _effEnd = coupon.getEffEnd();
-    _creditCurveKnot = creditCurveKnot;
+    this.riskLessValue = coupon.getYearFrac() * yieldCurve.getDiscountFactor(coupon.getPaymentTime());
+    this.effEnd = coupon.getEffEnd();
+    this.creditCurveKnot = creditCurveKnot;
   }
 
   //-------------------------------------------------------------------------
   public double pv(IsdaCompliantCreditCurve creditCurve) {
-    return _riskLessValue * creditCurve.getDiscountFactor(_effEnd);
+    return riskLessValue * creditCurve.getDiscountFactor(effEnd);
   }
 
   public double[] pvAndSense(IsdaCompliantCreditCurve creditCurve) {
-    double pv = _riskLessValue * creditCurve.getDiscountFactor(_effEnd);
-    double pvSense = -pv * creditCurve.getSingleNodeRTSensitivity(_effEnd, _creditCurveKnot);
+    double pv = riskLessValue * creditCurve.getDiscountFactor(effEnd);
+    double pvSense = -pv * creditCurve.getSingleNodeRTSensitivity(effEnd, creditCurveKnot);
     return new double[] {pv, pvSense};
   }
 
@@ -36,11 +36,11 @@ public class CouponOnlyElement {
   public int hashCode() {
     int prime = 31;
     int result = 1;
-    result = prime * result + _creditCurveKnot;
+    result = prime * result + creditCurveKnot;
     long temp;
-    temp = Double.doubleToLongBits(_effEnd);
+    temp = Double.doubleToLongBits(effEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_riskLessValue);
+    temp = Double.doubleToLongBits(riskLessValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -57,13 +57,13 @@ public class CouponOnlyElement {
       return false;
     }
     CouponOnlyElement other = (CouponOnlyElement) obj;
-    if (_creditCurveKnot != other._creditCurveKnot) {
+    if (creditCurveKnot != other.creditCurveKnot) {
       return false;
     }
-    if (Double.doubleToLongBits(_effEnd) != Double.doubleToLongBits(other._effEnd)) {
+    if (Double.doubleToLongBits(effEnd) != Double.doubleToLongBits(other.effEnd)) {
       return false;
     }
-    if (Double.doubleToLongBits(_riskLessValue) != Double.doubleToLongBits(other._riskLessValue)) {
+    if (Double.doubleToLongBits(riskLessValue) != Double.doubleToLongBits(other.riskLessValue)) {
       return false;
     }
     return true;

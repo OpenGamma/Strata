@@ -101,7 +101,7 @@ public final class StandardId
   /**
    * The hash code.
    */
-  private transient final int hashCode;
+  private final transient int hashCode;
 
   //-------------------------------------------------------------------------
   /**

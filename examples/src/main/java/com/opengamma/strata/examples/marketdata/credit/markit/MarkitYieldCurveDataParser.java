@@ -101,7 +101,7 @@ public class MarkitYieldCurveDataParser {
   /**
    * Stores the parsed data points.
    */
-  private static class Point {
+  private static final class Point {
     private final Tenor tenor;
     private final LocalDate date;
     private final IsdaYieldCurveUnderlyingType instrumentType;

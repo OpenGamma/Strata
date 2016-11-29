@@ -415,13 +415,13 @@ public class DiscountingSwapProductPricer {
     double referenceConvertedPv = legPricer.presentValue(referenceLeg, provider).getAmount();
     PointSensitivityBuilder referenceConvertedPvDr = legPricer.presentValueSensitivity(referenceLeg, provider);
     double notional = ((RatePaymentPeriod) referenceLeg.getPaymentPeriods().get(0)).getNotional();
-    PointSensitivityBuilder DparSpreadDr =
+    PointSensitivityBuilder dParSpreadDr =
         convertedPvDr.combinedWith(referenceConvertedPvDr.multipliedBy(-1)).multipliedBy(-1.0d / (df * notional))
             .combinedWith(dfDr.multipliedBy((convertedPv - referenceConvertedPv) / (df * df * notional)))
             .multipliedBy(1.0d / fixedCompounded.getSecond() *
                 Math.pow(-(convertedPv - referenceConvertedPv) / (df * notional) + 1.0d,
                     1.0d / fixedCompounded.getSecond() - 1.0d));
-    return DparSpreadDr;
+    return dParSpreadDr;
   }
 
   //-------------------------------------------------------------------------

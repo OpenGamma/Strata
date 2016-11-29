@@ -60,7 +60,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
-public class SabrExtrapolationReplicationCmsPeriodPricer {
+public final class SabrExtrapolationReplicationCmsPeriodPricer {
 
   /**
    * Logger.
@@ -714,8 +714,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
           double xShifted = Math.max(x + shift, 0d); // handle tiny but negative number
-          DoubleArray priceDerivativeSABR = getSabrExtrapolation().priceAdjointSabr(xShifted, putCall).getDerivatives();
-          return priceDerivativeSABR.get(i) * (factor * (kD[1] * (x - strike) + 2d * kD[0]));
+          DoubleArray priceDerivativeSabr = getSabrExtrapolation().priceAdjointSabr(xShifted, putCall).getDerivatives();
+          return priceDerivativeSabr.get(i) * (factor * (kD[1] * (x - strike) + 2d * kD[0]));
         }
       };
     }

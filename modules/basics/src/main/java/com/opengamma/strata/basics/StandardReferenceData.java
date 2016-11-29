@@ -17,7 +17,7 @@ final class StandardReferenceData {
   /**
    * Standard reference data.
    */
-  static ImmutableReferenceData STANDARD;
+  static final ImmutableReferenceData STANDARD;
   static {
     ImmutableMap.Builder<ReferenceDataId<?>, Object> builder = ImmutableMap.builder();
     for (HolidayCalendar cal : HolidayCalendars.extendedEnum().lookupAll().values()) {
@@ -28,7 +28,7 @@ final class StandardReferenceData {
   /**
    * Minimal reference data.
    */
-  static ImmutableReferenceData MINIMAL;
+  static final ImmutableReferenceData MINIMAL;
   static {
     ImmutableMap.Builder<ReferenceDataId<?>, Object> builder = ImmutableMap.builder();
     builder.put(HolidayCalendars.NO_HOLIDAYS.getId(), HolidayCalendars.NO_HOLIDAYS);

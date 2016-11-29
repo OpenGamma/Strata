@@ -17,12 +17,12 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  **/
 public class ConcatenatedVectorFunction extends VectorFunction {
 
-  private final int[] _xPartition;
-  private final int[] _yPartition;
-  private final int _nPartitions;
-  private final VectorFunction[] _functions;
-  private final int _sizeDom;
-  private final int _sizeRange;
+  private final int[] xPartition;
+  private final int[] yPartition;
+  private final int nPartitions;
+  private final VectorFunction[] functions;
+  private final int sizeDom;
+  private final int sizeRange;
 
   /**
    * Creates an instance.
@@ -33,20 +33,20 @@ public class ConcatenatedVectorFunction extends VectorFunction {
    */
   public ConcatenatedVectorFunction(VectorFunction[] functions) {
     ArgChecker.noNulls(functions, "functions");
-    _functions = functions;
-    _nPartitions = functions.length;
-    _xPartition = new int[_nPartitions];
-    _yPartition = new int[_nPartitions];
+    this.functions = functions;
+    this.nPartitions = functions.length;
+    this.xPartition = new int[nPartitions];
+    this.yPartition = new int[nPartitions];
     int m = 0;
     int n = 0;
-    for (int i = 0; i < _nPartitions; i++) {
-      _xPartition[i] = _functions[i].getLengthOfDomain();
-      _yPartition[i] = _functions[i].getLengthOfRange();
-      m += _xPartition[i];
-      n += _yPartition[i];
+    for (int i = 0; i < nPartitions; i++) {
+      xPartition[i] = functions[i].getLengthOfDomain();
+      yPartition[i] = functions[i].getLengthOfRange();
+      m += xPartition[i];
+      n += yPartition[i];
     }
-    _sizeDom = m;
-    _sizeRange = n;
+    this.sizeDom = m;
+    this.sizeRange = n;
   }
 
   //-------------------------------------------------------------------------
@@ -61,11 +61,11 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     int posInput = 0;
     int pos1 = 0;
     int pos2 = 0;
-    for (int i = 0; i < _nPartitions; i++) {
-      int nRows = _yPartition[i];
-      int nCols = _xPartition[i];
+    for (int i = 0; i < nPartitions; i++) {
+      int nRows = yPartition[i];
+      int nCols = xPartition[i];
       DoubleArray sub = x.subArray(posInput, posInput + nCols);
-      DoubleMatrix subJac = _functions[i].calculateJacobian(sub);
+      DoubleMatrix subJac = functions[i].calculateJacobian(sub);
       if (nCols > 0) {
         for (int r = 0; r < nRows; r++) {
           System.arraycopy(subJac.toArrayUnsafe()[r], 0, jac[pos1++], pos2, nCols);
@@ -89,10 +89,10 @@ public class ConcatenatedVectorFunction extends VectorFunction {
     int posInput = 0;
     int posOutput = 0;
     //evaluate each function (with the appropriate sub vector) and concatenate the results 
-    for (int i = 0; i < _nPartitions; i++) {
-      int length = _xPartition[i];
+    for (int i = 0; i < nPartitions; i++) {
+      int length = xPartition[i];
       DoubleArray sub = x.subArray(posInput, posInput + length);
-      DoubleArray eval = _functions[i].apply(sub);
+      DoubleArray eval = functions[i].apply(sub);
       eval.copyInto(y, posOutput);
       posInput += length;
       posOutput += eval.size();
@@ -102,12 +102,12 @@ public class ConcatenatedVectorFunction extends VectorFunction {
 
   @Override
   public int getLengthOfDomain() {
-    return _sizeDom;
+    return sizeDom;
   }
 
   @Override
   public int getLengthOfRange() {
-    return _sizeRange;
+    return sizeRange;
   }
 
 }

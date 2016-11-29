@@ -21,9 +21,9 @@ public class ComplexNumber extends Number {
   private static final long serialVersionUID = 1L;
 
   /** The real part. */
-  private final double _real;
+  private final double real;
   /** The imaginary part. */
-  private final double _imaginary;
+  private final double imaginary;
 
   /**
    * Creates an instance from the real part.
@@ -31,8 +31,8 @@ public class ComplexNumber extends Number {
    * @param real  the real part
    */
   public ComplexNumber(double real) {
-    _real = real;
-    _imaginary = 0.0;
+    this.real = real;
+    this.imaginary = 0.0;
   }
 
   /**
@@ -42,8 +42,8 @@ public class ComplexNumber extends Number {
    * @param imaginary  the imaginary part
    */
   public ComplexNumber(double real, double imaginary) {
-    _real = real;
-    _imaginary = imaginary;
+    this.real = real;
+    this.imaginary = imaginary;
   }
 
   //-------------------------------------------------------------------------
@@ -53,7 +53,7 @@ public class ComplexNumber extends Number {
    * @return the real part
    */
   public double getReal() {
-    return _real;
+    return real;
   }
 
   /**
@@ -62,7 +62,7 @@ public class ComplexNumber extends Number {
    * @return the imaginary part
    */
   public double getImaginary() {
-    return _imaginary;
+    return imaginary;
   }
 
   //-------------------------------------------------------------------------
@@ -115,10 +115,10 @@ public class ComplexNumber extends Number {
       return false;
     }
     ComplexNumber other = (ComplexNumber) obj;
-    if (Double.doubleToLongBits(_imaginary) != Double.doubleToLongBits(other._imaginary)) {
+    if (Double.doubleToLongBits(this.imaginary) != Double.doubleToLongBits(other.imaginary)) {
       return false;
     }
-    if (Double.doubleToLongBits(_real) != Double.doubleToLongBits(other._real)) {
+    if (Double.doubleToLongBits(this.real) != Double.doubleToLongBits(other.real)) {
       return false;
     }
     return true;
@@ -129,18 +129,18 @@ public class ComplexNumber extends Number {
     int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_imaginary);
+    temp = Double.doubleToLongBits(imaginary);
     result = prime * result + (int) (temp ^ temp >>> 32);
-    temp = Double.doubleToLongBits(_real);
+    temp = Double.doubleToLongBits(real);
     result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
   @Override
   public String toString() {
-    boolean negative = _imaginary < 0;
-    double abs = Math.abs(_imaginary);
-    return Double.toString(_real) + (negative ? " - " : " + ") + Double.toString(abs) + "i";
+    boolean negative = imaginary < 0;
+    double abs = Math.abs(imaginary);
+    return Double.toString(real) + (negative ? " - " : " + ") + Double.toString(abs) + "i";
   }
 
 }

@@ -22,16 +22,16 @@ public class AnalyticCdsPricer {
   /** Default value for determining if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
   private static final AccrualOnDefaultFormulae DEFAULT_FORMULA = AccrualOnDefaultFormulae.ORIGINAL_ISDA;
   /** True if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
-  private final AccrualOnDefaultFormulae _formula;
-  private final double _omega;
+  private final AccrualOnDefaultFormulae formula;
+  private final double omega;
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
    */
   public AnalyticCdsPricer() {
-    _formula = DEFAULT_FORMULA;
-    _omega = HALFDAY;
+    this.formula = DEFAULT_FORMULA;
+    this.omega = HALFDAY;
   }
 
   //-------------------------------------------------------------------------
@@ -44,11 +44,11 @@ public class AnalyticCdsPricer {
    */
   public AnalyticCdsPricer(AccrualOnDefaultFormulae formula) {
     ArgChecker.notNull(formula, "formula");
-    _formula = formula;
-    if (_formula == AccrualOnDefaultFormulae.ORIGINAL_ISDA) {
-      _omega = HALFDAY;
+    this.formula = formula;
+    if (formula == AccrualOnDefaultFormulae.ORIGINAL_ISDA) {
+      this.omega = HALFDAY;
     } else {
-      _omega = 0.0;
+      this.omega = 0.0;
     }
   }
 
@@ -383,7 +383,7 @@ public class AnalyticCdsPricer {
     double rt0 = yieldCurve.getRT(t);
     double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
 
-    double t0 = t - coupon.getEffStart() + _omega;
+    double t0 = t - coupon.getEffStart() + omega;
     double pv = 0.0;
     int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -399,14 +399,14 @@ public class AnalyticCdsPricer {
       double dhrt = dht + drt;
 
       double tPV;
-      if (_formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
+      if (formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * dt * b0 * epsilonP(-dhrt);
         } else {
           tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
         }
       } else {
-        double t1 = t - coupon.getEffStart() + _omega;
+        double t1 = t - coupon.getEffStart() + omega;
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
         } else {
@@ -649,7 +649,7 @@ public class AnalyticCdsPricer {
     double b0 = p0 * q0; // this is the risky discount factor
     double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
 
-    double t0 = t - coupon.getEffStart() + _omega;
+    double t0 = t - coupon.getEffStart() + omega;
     double pvSense = 0.0;
     int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -671,7 +671,7 @@ public class AnalyticCdsPricer {
       // TODO once the maths is written up in a white paper, check these formula again,
       // since tests again finite difference could miss some subtle error
 
-      if (_formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
+      if (formula == AccrualOnDefaultFormulae.MARKIT_FIX) {
         if (Math.abs(dhrt) < 1e-5) {
           double eP = epsilonP(-dhrt);
           double ePP = epsilonPP(-dhrt);
@@ -689,7 +689,7 @@ public class AnalyticCdsPricer {
           tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
       } else {
-        double t1 = t - coupon.getEffStart() + _omega;
+        double t1 = t - coupon.getEffStart() + omega;
         if (Math.abs(dhrt) < 1e-5) {
           double e = epsilon(-dhrt);
           double eP = epsilonP(-dhrt);
@@ -736,7 +736,7 @@ public class AnalyticCdsPricer {
     if (start >= coupon.getEffEnd()) {
       return 0.0;
     }
-    if (_formula != AccrualOnDefaultFormulae.MARKIT_FIX) {
+    if (formula != AccrualOnDefaultFormulae.MARKIT_FIX) {
       throw new UnsupportedOperationException();
     }
 

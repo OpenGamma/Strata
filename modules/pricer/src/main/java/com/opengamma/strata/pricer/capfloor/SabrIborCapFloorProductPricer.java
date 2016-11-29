@@ -63,7 +63,7 @@ public class SabrIborCapFloorProductPricer
     if (!capFloor.getPayLeg().isPresent()) {
       return pvSensiCapFloorLeg;
     }
-    PointSensitivityBuilder pvSensiPayLeg = payLegPricer.presentValueSensitivity(capFloor.getPayLeg().get(), ratesProvider);
+    PointSensitivityBuilder pvSensiPayLeg = getPayLegPricer().presentValueSensitivity(capFloor.getPayLeg().get(), ratesProvider);
     return pvSensiCapFloorLeg.combinedWith(pvSensiPayLeg);
   }
 

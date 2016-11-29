@@ -51,7 +51,7 @@ class IsdaCdsHelper {
    * <p>
    * The model expects ACT_365F, but this value is not on the trade or the convention.
    */
-  private final static DayCount CURVE_DAY_COUNT = DayCounts.ACT_365F;
+  private static final DayCount CURVE_DAY_COUNT = DayCounts.ACT_365F;
   /**
    * When protection starts, at the start or end of the day.
    * <p>
@@ -63,11 +63,11 @@ class IsdaCdsHelper {
    * accrual end date is just the CDS maturity. The effect of having protectionFromStartOfDay = true
    * is to add an extra day of protection.
    */
-  private final static boolean PROTECT_START = true;
+  private static final boolean PROTECT_START = true;
   /**
    * ISDA Standard model implementation in analytics.
    */
-  private final static AnalyticCdsPricer CALCULATOR = new AnalyticCdsPricer();
+  private static final AnalyticCdsPricer CALCULATOR = new AnalyticCdsPricer();
 
   //-------------------------------------------------------------------------
   /**

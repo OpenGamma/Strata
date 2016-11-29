@@ -80,13 +80,13 @@ public final class HalfUpRounding
    * The fraction, as a {@code BigDecimal}.
    * Not a Joda-Beans property.
    */
-  private transient final BigDecimal fractionDecimal;
+  private final transient BigDecimal fractionDecimal;
   /**
    * The hash code.
    * Uniquely identifies the state of the object.
    * Not a Joda-Beans property.
    */
-  private transient final int uniqueHashCode;
+  private final transient int uniqueHashCode;
 
   //-------------------------------------------------------------------------
   /**

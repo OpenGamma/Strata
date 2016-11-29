@@ -189,7 +189,7 @@ public class MarkitIndexCreditCurveDataParser {
   /**
    * Stores the parsed static data.
    */
-  private static class StaticData {
+  private static final class StaticData {
 
     private LocalDate fromDate;
     private CdsConvention convention;
@@ -225,7 +225,7 @@ public class MarkitIndexCreditCurveDataParser {
   /**
    * Stores the parsed data points.
    */
-  private static class Point {
+  private static final class Point {
     private final Tenor tenor;
 
     private final LocalDate date;

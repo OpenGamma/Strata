@@ -30,11 +30,11 @@ public class GenericImpliedVolatiltySolver {
   /**
    * The price function.
    */
-  private final Function<Double, Double> _priceFunc;
+  private final Function<Double, Double> priceFunc;
   /**
    * The combined price and vega function.
    */
-  private final Function<Double, double[]> _priceAndVegaFunc;
+  private final Function<Double, double[]> priceAndVegaFunc;
 
   /**
    * Creates an instance.
@@ -43,12 +43,12 @@ public class GenericImpliedVolatiltySolver {
    */
   public GenericImpliedVolatiltySolver(Function<Double, double[]> priceAndVegaFunc) {
     ArgChecker.notNull(priceAndVegaFunc, "priceAndVegaFunc");
-    _priceAndVegaFunc = priceAndVegaFunc;
-    _priceFunc = new Function<Double, Double>() {
+    this.priceAndVegaFunc = priceAndVegaFunc;
+    this.priceFunc = new Function<Double, Double>() {
 
       @Override
       public Double apply(Double sigma) {
-        return _priceAndVegaFunc.apply(sigma)[0];
+        return priceAndVegaFunc.apply(sigma)[0];
       }
     };
   }
@@ -62,8 +62,8 @@ public class GenericImpliedVolatiltySolver {
   public GenericImpliedVolatiltySolver(Function<Double, Double> priceFunc, Function<Double, Double> vegaFunc) {
     ArgChecker.notNull(priceFunc, "priceFunc");
     ArgChecker.notNull(vegaFunc, "vegaFunc");
-    _priceFunc = priceFunc;
-    _priceAndVegaFunc = new Function<Double, double[]>() {
+    this.priceFunc = priceFunc;
+    this.priceAndVegaFunc = new Function<Double, double[]>() {
 
       @Override
       public double[] apply(Double sigma) {
@@ -106,7 +106,7 @@ public class GenericImpliedVolatiltySolver {
     }
     double sigma = (lowerSigma + upperSigma) / 2.0;
 
-    double[] pnv = _priceAndVegaFunc.apply(sigma);
+    double[] pnv = priceAndVegaFunc.apply(sigma);
 
     // This can happen for American options,
     // where low volatilities puts you in the early excise region which obviously has zero vega
@@ -132,7 +132,7 @@ public class GenericImpliedVolatiltySolver {
     int count = 0;
     while (Math.abs(actChange) > VOL_TOL) {
       sigma += actChange;
-      pnv = _priceAndVegaFunc.apply(sigma);
+      pnv = priceAndVegaFunc.apply(sigma);
 
       if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
         return solveByBisection(optionPrice, lowerSigma, upperSigma);
@@ -167,7 +167,7 @@ public class GenericImpliedVolatiltySolver {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double volatility) {
-        return _priceFunc.apply(volatility) / optionPrice - 1.0;
+        return priceFunc.apply(volatility) / optionPrice - 1.0;
       }
     };
     return bracketer.getBracketedPoints(
@@ -184,7 +184,7 @@ public class GenericImpliedVolatiltySolver {
 
       @Override
       public Double apply(Double volatility) {
-        double trialPrice = _priceFunc.apply(volatility);
+        double trialPrice = priceFunc.apply(volatility);
         return trialPrice / optionPrice - 1.0;
       }
     };

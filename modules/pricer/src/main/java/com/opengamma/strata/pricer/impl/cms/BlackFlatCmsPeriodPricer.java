@@ -31,7 +31,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
  *    Chapter Yield Curve Application of Swap Products. New York Institute of Finance.
  *  OpenGamma implementation note: Pricing of CMS by replication and other approaches, Version 2.1, May 2016.
  */
-public class BlackFlatCmsPeriodPricer {
+public final class BlackFlatCmsPeriodPricer {
 
   /**
    * Pricer for the underlying swap.
@@ -39,7 +39,7 @@ public class BlackFlatCmsPeriodPricer {
   private final DiscountingSwapProductPricer swapPricer;
 
   /* Small parameter below which a value is regarded as 0. */
-  protected static final double EPS = 1.0E-4;
+  static final double EPS = 1.0E-4;
 
   /**
    * Obtains the pricer.
