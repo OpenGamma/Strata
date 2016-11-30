@@ -91,7 +91,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
   /**
    * Creates an instance. 
    * <p>
-   * The epsilon is the parameter used in {@linked NonLinearLeastSquare}, where the iteration stops when certain 
+   * The epsilon is the parameter used in {@link NonLinearLeastSquare}, where the iteration stops when certain 
    * quantities are smaller than this parameter.
    * 
    * @param pricer  the cap/floor pricer to convert quoted volatilities to prices
@@ -132,7 +132,8 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
 
     ArgChecker.isTrue(ratesProvider.getValuationDate().equals(calibrationDateTime.toLocalDate()),
         "valuationDate of ratesProvider should be coherent to calibrationDateTime");
-    ArgChecker.isTrue(definition instanceof SabrIborCapletFloorletBootstrapDefinition);
+    ArgChecker.isTrue(definition instanceof SabrIborCapletFloorletBootstrapDefinition,
+        "definition should be SabrIborCapletFloorletBootstrapDefinition");
     SabrIborCapletFloorletBootstrapDefinition bsDefinition = (SabrIborCapletFloorletBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();

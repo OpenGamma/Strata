@@ -77,7 +77,8 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
 
     ArgChecker.isTrue(ratesProvider.getValuationDate().equals(calibrationDateTime.toLocalDate()),
         "valuationDate of ratesProvider should be coherent to calibrationDateTime");
-    ArgChecker.isTrue(definition instanceof SurfaceIborCapletFloorletBootstrapDefinition);
+    ArgChecker.isTrue(definition instanceof SurfaceIborCapletFloorletBootstrapDefinition,
+        "definition should be SurfaceIborCapletFloorletBootstrapDefinition");
     SurfaceIborCapletFloorletBootstrapDefinition bsDefinition = (SurfaceIborCapletFloorletBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
