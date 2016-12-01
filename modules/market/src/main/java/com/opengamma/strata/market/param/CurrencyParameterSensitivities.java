@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -259,6 +260,25 @@ public final class CurrencyParameterSensitivities
     return new CurrencyParameterSensitivities(ImmutableList.copyOf(mutable));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Splits this sensitivity instance.
+   * <p>
+   * This examines each individual sensitivity to see if it can be {@link CurrencyParameterSensitivity#split() split}.
+   * If any can be split, the result will contain the combination of the split sensitivities.
+   * 
+   * @return this sensitivity, with any combined sensitivities split
+   */
+  public CurrencyParameterSensitivities split() {
+    if (!sensitivities.stream().anyMatch(s -> s.getParameterSplit().isPresent())) {
+      return this;
+    }
+    return of(sensitivities.stream()
+        .flatMap(s -> s.split().stream())
+        .collect(toImmutableList()));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the total of the sensitivity values.
    * <p>

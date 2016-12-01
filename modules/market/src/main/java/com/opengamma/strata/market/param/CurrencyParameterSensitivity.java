@@ -5,12 +5,16 @@
  */
 package com.opengamma.strata.market.param;
 
+import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -32,6 +36,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
@@ -46,6 +52,11 @@ import com.opengamma.strata.market.surface.Surface;
  * <p>
  * The sensitivity is expressed as an array, with one entry for each parameter in the {@code ParameterizedData}.
  * The sensitivity represents a monetary value in the specified currency.
+ * <p>
+ * A single {@code CurrencyParameterSensitivity} represents the sensitivity to a single {@code ParameterizedData} instance.
+ * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
+ * For example, a curve formed from two underlying curves.
+ * Information about the split between these underlying instances can optionally be stored.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurrencyParameterSensitivity
@@ -77,6 +88,16 @@ public final class CurrencyParameterSensitivity
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray sensitivity;
+  /**
+   * The split of parameters between the underlying parameterized data.
+   * <p>
+   * A single {@code UnitParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
+   * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
+   * For example, a curve formed from two underlying curves.
+   * This list is present, it represents how to split this sensitivity between the underlying instances.
+   */
+  @PropertyDefinition(get = "optional", type = "List<>")
+  private final ImmutableList<ParameterSize> parameterSplit;
 
   //-------------------------------------------------------------------------
   /**
@@ -98,7 +119,7 @@ public final class CurrencyParameterSensitivity
       Currency currency,
       DoubleArray sensitivity) {
 
-    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity);
+    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity, null);
   }
 
   /**
@@ -121,10 +142,83 @@ public final class CurrencyParameterSensitivity
     return of(marketDataName, ParameterMetadata.listOfEmpty(sensitivity.size()), currency, sensitivity);
   }
 
+  /**
+   * Obtains an instance from the market data name, metadata, currency, sensitivity and parameter split.
+   * <p>
+   * The market data name identifies the {@link ParameterizedData} instance that was queried.
+   * The parameter metadata provides information on each parameter.
+   * The size of the parameter metadata list must match the size of the sensitivity array.
+   * <p>
+   * The parameter split allows the sensitivity to represent the split between two or more
+   * underlying {@link ParameterizedData} instances. The sum of the parameters in the split
+   * must equal the size of the sensitivity array, and each name must be unique.
+   * 
+   * @param marketDataName  the name of the market data that the sensitivity refers to
+   * @param parameterMetadata  the parameter metadata
+   * @param currency  the currency of the sensitivity
+   * @param sensitivity  the sensitivity values, one for each parameter
+   * @param parameterSplit  the split between the underlying {@code ParameterizedData} instances
+   * @return the sensitivity object
+   */
+  public static CurrencyParameterSensitivity of(
+      MarketDataName<?> marketDataName,
+      List<? extends ParameterMetadata> parameterMetadata,
+      Currency currency,
+      DoubleArray sensitivity,
+      List<ParameterSize> parameterSplit) {
+
+    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity, parameterSplit);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Combines two or more instances to form a single sensitivity instance.
+   * <p>
+   * The result will store information about the separate instances allowing it to be {@link #split()} later.
+   * 
+   * @param marketDataName  the combined name of the market data that the sensitivity refers to
+   * @param sensitivities  the sensitivity instances to combine, two or more
+   * @return the combined sensitivity object
+   */
+  public static CurrencyParameterSensitivity combine(
+      MarketDataName<?> marketDataName,
+      CurrencyParameterSensitivity... sensitivities) {
+
+    ArgChecker.notEmpty(sensitivities, "sensitivities");
+    if (sensitivities.length < 2) {
+      throw new IllegalArgumentException("At least two sensitivity instances must be specified");
+    }
+    Currency currency = Stream.of(sensitivities).map(s -> s.getCurrency()).distinct().reduce(ensureOnlyOne()).get();
+    int size = Stream.of(sensitivities).mapToInt(s -> s.getParameterCount()).sum();
+    double[] combinedSensitivities = new double[size];
+    ImmutableList.Builder<ParameterMetadata> combinedMeta = ImmutableList.builder();
+    ImmutableList.Builder<ParameterSize> split = ImmutableList.builder();
+    int count = 0;
+    for (int i = 0; i < sensitivities.length; i++) {
+      CurrencyParameterSensitivity sens = sensitivities[i];
+      System.arraycopy(sens.getSensitivity().toArrayUnsafe(), 0, combinedSensitivities, count, sens.getParameterCount());
+      combinedMeta.addAll(sens.getParameterMetadata());
+      split.add(ParameterSize.of(sens.getMarketDataName(), sens.getParameterCount()));
+      count += sens.getParameterCount();
+    }
+    
+    return new CurrencyParameterSensitivity(
+        marketDataName, combinedMeta.build(), currency, DoubleArray.ofUnsafe(combinedSensitivities), split.build());
+  }
+
   @ImmutableValidator
   private void validate() {
     if (sensitivity.size() != parameterMetadata.size()) {
       throw new IllegalArgumentException("Length of sensitivity and parameter metadata must match");
+    }
+    if (parameterSplit != null) {
+      long total = parameterSplit.stream().mapToInt(p -> p.getParameterCount()).sum();
+      if (sensitivity.size() != total) {
+        throw new IllegalArgumentException("Length of sensitivity and parameter split must match");
+      }
+      if (parameterSplit.stream().map(p -> p.getName()).distinct().count() != parameterSplit.size()) {
+        throw new IllegalArgumentException("Parameter split must not contain duplicate market data names");
+      }
     }
   }
 
@@ -218,7 +312,7 @@ public final class CurrencyParameterSensitivity
 
   // maps the sensitivities and potentially changes the currency
   private CurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator, Currency currency) {
-    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity.map(operator));
+    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity.map(operator), parameterSplit);
   }
 
   /**
@@ -228,7 +322,70 @@ public final class CurrencyParameterSensitivity
    * @return an instance based on this one, with the specified sensitivity values
    */
   public CurrencyParameterSensitivity withSensitivity(DoubleArray sensitivity) {
-    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity);
+    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity, parameterSplit);
+  }
+
+  /**
+   * Returns an instance with the specified sensitivity array added to the array in this instance.
+   * <p>
+   * The specified array must match the size of the array in this instance.
+   * 
+   * @param otherSensitivty  the other parameter sensitivity
+   * @return an instance based on this one, with the other instance added
+   * @throws IllegalArgumentException if the market data name, metadata or parameter split differs
+   */
+  public CurrencyParameterSensitivity plus(DoubleArray otherSensitivty) {
+    if (otherSensitivty.size() != sensitivity.size()) {
+      throw new IllegalArgumentException(Messages.format(
+          "Sensitivity array size {} must match size {}", otherSensitivty.size(), sensitivity.size()));
+    }
+    return withSensitivity(sensitivity.plus(otherSensitivty));
+  }
+
+  /**
+   * Returns an instance with the specified sensitivity array added to the array in this instance.
+   * <p>
+   * The specified instance must have the same name, metadata, currency and parameter split as this instance.
+   * 
+   * @param otherSensitivty  the other parameter sensitivity
+   * @return an instance based on this one, with the other instance added
+   * @throws IllegalArgumentException if the market data name, metadata or parameter split differs
+   */
+  public CurrencyParameterSensitivity plus(CurrencyParameterSensitivity otherSensitivty) {
+    if (!marketDataName.equals(otherSensitivty.marketDataName) ||
+        !parameterMetadata.equals(otherSensitivty.parameterMetadata) ||
+        !currency.equals(otherSensitivty.currency) ||
+        (parameterSplit != null && !parameterSplit.equals(otherSensitivty.parameterSplit))) {
+      throw new IllegalArgumentException("Two sensitivity instances can only be added if name, metadata and split are equal");
+    }
+    return plus(otherSensitivty.getSensitivity());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Splits this sensitivity instance.
+   * <p>
+   * A single sensitivity instance may be based on more than one underlying {@link ParameterizedData},
+   * as represented by {@link #getParameterSplit()}. Calling this method returns a list
+   * where the sensitivity of this instance has been split into multiple instances as per
+   * the parameter split definition. In the common case where there is a single underlying
+   * {@code ParameterizedData}, the list will be of size one containing this instance.
+   * 
+   * @return this sensitivity split as per the defined parameter split, ordered as per this instance
+   */
+  public ImmutableList<CurrencyParameterSensitivity> split() {
+    if (parameterSplit == null) {
+      return ImmutableList.of(this);
+    }
+    ImmutableList.Builder<CurrencyParameterSensitivity> builder = ImmutableList.builder();
+    int count = 0;
+    for (ParameterSize size : parameterSplit) {
+      List<ParameterMetadata> splitMetadata = parameterMetadata.subList(count, count + size.getParameterCount());
+      DoubleArray splitSensitivity = sensitivity.subArray(count, count + size.getParameterCount());
+      builder.add(CurrencyParameterSensitivity.of(size.getName(), splitMetadata, currency, splitSensitivity));
+      count += size.getParameterCount();
+    }
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -276,7 +433,8 @@ public final class CurrencyParameterSensitivity
       MarketDataName<?> marketDataName,
       List<? extends ParameterMetadata> parameterMetadata,
       Currency currency,
-      DoubleArray sensitivity) {
+      DoubleArray sensitivity,
+      List<ParameterSize> parameterSplit) {
     JodaBeanUtils.notNull(marketDataName, "marketDataName");
     JodaBeanUtils.notNull(parameterMetadata, "parameterMetadata");
     JodaBeanUtils.notNull(currency, "currency");
@@ -285,6 +443,7 @@ public final class CurrencyParameterSensitivity
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     this.currency = currency;
     this.sensitivity = sensitivity;
+    this.parameterSplit = (parameterSplit != null ? ImmutableList.copyOf(parameterSplit) : null);
     validate();
   }
 
@@ -346,6 +505,20 @@ public final class CurrencyParameterSensitivity
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the split of parameters between the underlying parameterized data.
+   * <p>
+   * A single {@code UnitParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
+   * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
+   * For example, a curve formed from two underlying curves.
+   * This list is present, it represents how to split this sensitivity between the underlying instances.
+   * @return the optional value of the property, not null
+   */
+  public Optional<List<ParameterSize>> getParameterSplit() {
+    return Optional.ofNullable(parameterSplit);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -356,7 +529,8 @@ public final class CurrencyParameterSensitivity
       return JodaBeanUtils.equal(marketDataName, other.marketDataName) &&
           JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata) &&
           JodaBeanUtils.equal(currency, other.currency) &&
-          JodaBeanUtils.equal(sensitivity, other.sensitivity);
+          JodaBeanUtils.equal(sensitivity, other.sensitivity) &&
+          JodaBeanUtils.equal(parameterSplit, other.parameterSplit);
     }
     return false;
   }
@@ -368,17 +542,19 @@ public final class CurrencyParameterSensitivity
     hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameterSplit);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("CurrencyParameterSensitivity{");
     buf.append("marketDataName").append('=').append(marketDataName).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(parameterMetadata).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
+    buf.append("sensitivity").append('=').append(sensitivity).append(',').append(' ');
+    buf.append("parameterSplit").append('=').append(JodaBeanUtils.toString(parameterSplit));
     buf.append('}');
     return buf.toString();
   }
@@ -416,6 +592,12 @@ public final class CurrencyParameterSensitivity
     private final MetaProperty<DoubleArray> sensitivity = DirectMetaProperty.ofImmutable(
         this, "sensitivity", CurrencyParameterSensitivity.class, DoubleArray.class);
     /**
+     * The meta-property for the {@code parameterSplit} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<ParameterSize>> parameterSplit = DirectMetaProperty.ofImmutable(
+        this, "parameterSplit", CurrencyParameterSensitivity.class, (Class) List.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -423,7 +605,8 @@ public final class CurrencyParameterSensitivity
         "marketDataName",
         "parameterMetadata",
         "currency",
-        "sensitivity");
+        "sensitivity",
+        "parameterSplit");
 
     /**
      * Restricted constructor.
@@ -442,6 +625,8 @@ public final class CurrencyParameterSensitivity
           return currency;
         case 564403871:  // sensitivity
           return sensitivity;
+        case 1122130161:  // parameterSplit
+          return parameterSplit;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -494,6 +679,14 @@ public final class CurrencyParameterSensitivity
       return sensitivity;
     }
 
+    /**
+     * The meta-property for the {@code parameterSplit} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<List<ParameterSize>> parameterSplit() {
+      return parameterSplit;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -506,6 +699,8 @@ public final class CurrencyParameterSensitivity
           return ((CurrencyParameterSensitivity) bean).getCurrency();
         case 564403871:  // sensitivity
           return ((CurrencyParameterSensitivity) bean).getSensitivity();
+        case 1122130161:  // parameterSplit
+          return ((CurrencyParameterSensitivity) bean).parameterSplit;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -531,6 +726,7 @@ public final class CurrencyParameterSensitivity
     private List<? extends ParameterMetadata> parameterMetadata = ImmutableList.of();
     private Currency currency;
     private DoubleArray sensitivity;
+    private List<ParameterSize> parameterSplit;
 
     /**
      * Restricted constructor.
@@ -550,6 +746,8 @@ public final class CurrencyParameterSensitivity
           return currency;
         case 564403871:  // sensitivity
           return sensitivity;
+        case 1122130161:  // parameterSplit
+          return parameterSplit;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -570,6 +768,9 @@ public final class CurrencyParameterSensitivity
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (DoubleArray) newValue;
+          break;
+        case 1122130161:  // parameterSplit
+          this.parameterSplit = (List<ParameterSize>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -607,18 +808,20 @@ public final class CurrencyParameterSensitivity
           marketDataName,
           parameterMetadata,
           currency,
-          sensitivity);
+          sensitivity,
+          parameterSplit);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("CurrencyParameterSensitivity.Builder{");
       buf.append("marketDataName").append('=').append(JodaBeanUtils.toString(marketDataName)).append(',').append(' ');
       buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
+      buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity)).append(',').append(' ');
+      buf.append("parameterSplit").append('=').append(JodaBeanUtils.toString(parameterSplit));
       buf.append('}');
       return buf.toString();
     }
