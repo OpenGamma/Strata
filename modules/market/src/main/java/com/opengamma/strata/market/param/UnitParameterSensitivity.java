@@ -251,7 +251,8 @@ public final class UnitParameterSensitivity
    * @return the resulting sensitivity object
    */
   public CurrencyParameterSensitivity multipliedBy(Currency currency, double amount) {
-    return CurrencyParameterSensitivity.of(marketDataName, parameterMetadata, currency, sensitivity.multipliedBy(amount));
+    return CurrencyParameterSensitivity.of(
+        marketDataName, parameterMetadata, currency, sensitivity.multipliedBy(amount), parameterSplit);
   }
 
   /**
