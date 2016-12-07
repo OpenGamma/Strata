@@ -554,6 +554,32 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month JIBAR index.
+   * <p>
+   * The "Johannnesburg Interbank Average Rate".
+   */
+  public static final IborIndex ZAR_JIBAR_1M = IborIndex.of("ZAR-JIBAR-1M");
+  /**
+   * The 3 month JIBAR index.
+   * <p>
+   * The "Johannnesburg Interbank Average Rate".
+   */
+  public static final IborIndex ZAR_JIBAR_3M = IborIndex.of("ZAR-JIBAR-3M");
+  /**
+   * The 6 month JIBAR index.
+   * <p>
+   * The "Johannnesburg Interbank Average Rate".
+   */
+  public static final IborIndex ZAR_JIBAR_6M = IborIndex.of("ZAR-JIBAR-6M");
+  /**
+   * The 12 month JIBAR index.
+   * <p>
+   * The "Johannnesburg Interbank Average Rate".
+   */
+  public static final IborIndex ZAR_JIBAR_12M = IborIndex.of("ZAR-JIBAR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private IborIndices() {

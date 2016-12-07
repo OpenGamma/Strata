@@ -1,5 +1,5 @@
 Name,Currency,Active,Day Count,Fixing Calendar,Offset Days,Offset Calendar,Effective Date Calendar,Tenor,Tenor Convention,FixingTime,FixingZone
-,,,,,,
+,,,,,,,,,,,
 GBP-LIBOR-1W,GBP,true,Act/365F,GBLO,0,GBLO,GBLO,1W,None,11:00,Europe/London
 GBP-LIBOR-2W,GBP,false,Act/365F,GBLO,0,GBLO,GBLO,2W,None,11:00,Europe/London
 GBP-LIBOR-1M,GBP,true,Act/365F,GBLO,0,GBLO,GBLO,1M,LastBusinessDay,11:00,Europe/London
@@ -14,7 +14,7 @@ GBP-LIBOR-9M,GBP,false,Act/365F,GBLO,0,GBLO,GBLO,9M,LastBusinessDay,11:00,Europe
 GBP-LIBOR-10M,GBP,false,Act/365F,GBLO,0,GBLO,GBLO,10M,LastBusinessDay,11:00,Europe/London
 GBP-LIBOR-11M,GBP,false,Act/365F,GBLO,0,GBLO,GBLO,11M,LastBusinessDay,11:00,Europe/London
 GBP-LIBOR-12M,GBP,true,Act/365F,GBLO,0,GBLO,GBLO,12M,LastBusinessDay,11:00,Europe/London
-,,,,,,
+,,,,,,,,,,,
 CHF-LIBOR-1W,CHF,true,Act/360,GBLO,2,GBLO,GBLO+CHZU,1W,None,11:00,Europe/London
 CHF-LIBOR-2W,CHF,false,Act/360,GBLO,2,GBLO,GBLO+CHZU,2W,None,11:00,Europe/London
 CHF-LIBOR-1M,CHF,true,Act/360,GBLO,2,GBLO,GBLO+CHZU,1M,LastBusinessDay,11:00,Europe/London
@@ -29,7 +29,7 @@ CHF-LIBOR-9M,CHF,false,Act/360,GBLO,2,GBLO,GBLO+CHZU,9M,LastBusinessDay,11:00,Eu
 CHF-LIBOR-10M,CHF,false,Act/360,GBLO,2,GBLO,GBLO+CHZU,10M,LastBusinessDay,11:00,Europe/London
 CHF-LIBOR-11M,CHF,false,Act/360,GBLO,2,GBLO,GBLO+CHZU,11M,LastBusinessDay,11:00,Europe/London
 CHF-LIBOR-12M,CHF,true,Act/360,GBLO,2,GBLO,GBLO+CHZU,12M,LastBusinessDay,11:00,Europe/London
-,,,,,,
+,,,,,,,,,,,
 EUR-LIBOR-1W,EUR,true,Act/360,GBLO,2,EUTA,EUTA,1W,None,11:00,Europe/London
 EUR-LIBOR-2W,EUR,false,Act/360,GBLO,2,EUTA,EUTA,2W,None,11:00,Europe/London
 EUR-LIBOR-1M,EUR,true,Act/360,GBLO,2,EUTA,EUTA,1M,LastBusinessDay,11:00,Europe/London
@@ -44,7 +44,7 @@ EUR-LIBOR-9M,EUR,false,Act/360,GBLO,2,EUTA,EUTA,9M,LastBusinessDay,11:00,Europe/
 EUR-LIBOR-10M,EUR,false,Act/360,GBLO,2,EUTA,EUTA,10M,LastBusinessDay,11:00,Europe/London
 EUR-LIBOR-11M,EUR,false,Act/360,GBLO,2,EUTA,EUTA,11M,LastBusinessDay,11:00,Europe/London
 EUR-LIBOR-12M,EUR,true,Act/360,GBLO,2,EUTA,EUTA,12M,LastBusinessDay,11:00,Europe/London
-,,,,,,
+,,,,,,,,,,,
 JPY-LIBOR-1W,JPY,true,Act/360,GBLO,2,GBLO,GBLO+JPTO,1W,None,11:00,Europe/London
 JPY-LIBOR-2W,JPY,false,Act/360,GBLO,2,GBLO,GBLO+JPTO,2W,None,11:00,Europe/London
 JPY-LIBOR-1M,JPY,true,Act/360,GBLO,2,GBLO,GBLO+JPTO,1M,LastBusinessDay,11:00,Europe/London
@@ -59,7 +59,7 @@ JPY-LIBOR-9M,JPY,false,Act/360,GBLO,2,GBLO,GBLO+JPTO,9M,LastBusinessDay,11:00,Eu
 JPY-LIBOR-10M,JPY,false,Act/360,GBLO,2,GBLO,GBLO+JPTO,10M,LastBusinessDay,11:00,Europe/London
 JPY-LIBOR-11M,JPY,false,Act/360,GBLO,2,GBLO,GBLO+JPTO,11M,LastBusinessDay,11:00,Europe/London
 JPY-LIBOR-12M,JPY,true,Act/360,GBLO,2,GBLO,GBLO+JPTO,12M,LastBusinessDay,11:00,Europe/London
-,,,,,,
+,,,,,,,,,,,
 USD-LIBOR-1W,USD,true,Act/360,GBLO,2,GBLO,GBLO+USNY,1W,None,11:00,Europe/London
 USD-LIBOR-2W,USD,false,Act/360,GBLO,2,GBLO,GBLO+USNY,2W,None,11:00,Europe/London
 USD-LIBOR-1M,USD,true,Act/360,GBLO,2,GBLO,GBLO+USNY,1M,LastBusinessDay,11:00,Europe/London
@@ -74,7 +74,7 @@ USD-LIBOR-9M,USD,false,Act/360,GBLO,2,GBLO,GBLO+USNY,9M,LastBusinessDay,11:00,Eu
 USD-LIBOR-10M,USD,false,Act/360,GBLO,2,GBLO,GBLO+USNY,10M,LastBusinessDay,11:00,Europe/London
 USD-LIBOR-11M,USD,false,Act/360,GBLO,2,GBLO,GBLO+USNY,11M,LastBusinessDay,11:00,Europe/London
 USD-LIBOR-12M,USD,true,Act/360,GBLO,2,GBLO,GBLO+USNY,12M,LastBusinessDay,11:00,Europe/London
-,,,,,,
+,,,,,,,,,,,
 EUR-EURIBOR-1W,EUR,true,Act/360,EUTA,2,EUTA,EUTA,1W,None,11:00,Europe/Brussels
 EUR-EURIBOR-2W,EUR,true,Act/360,EUTA,2,EUTA,EUTA,2W,None,11:00,Europe/Brussels
 EUR-EURIBOR-1M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,1M,LastBusinessDay,11:00,Europe/Brussels
@@ -83,7 +83,7 @@ EUR-EURIBOR-3M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,3M,LastBusinessDay,11:00,Europe
 EUR-EURIBOR-6M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,6M,LastBusinessDay,11:00,Europe/Brussels
 EUR-EURIBOR-9M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,9M,LastBusinessDay,11:00,Europe/Brussels
 EUR-EURIBOR-12M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,12M,LastBusinessDay,11:00,Europe/Brussels
-,,,,,,
+,,,,,,,,,,,
 JPY-TIBOR-JAPAN-1W,JPY,true,Act/365F,JPTO,2,JPTO,JPTO,1W,None,11:50,Asia/Tokyo
 JPY-TIBOR-JAPAN-1M,JPY,true,Act/365F,JPTO,2,JPTO,JPTO,1M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-JAPAN-2M,JPY,true,Act/365F,JPTO,2,JPTO,JPTO,2M,LastBusinessDay,11:50,Asia/Tokyo
@@ -97,7 +97,7 @@ JPY-TIBOR-JAPAN-9M,JPY,false,Act/365F,JPTO,2,JPTO,JPTO,9M,LastBusinessDay,11:50,
 JPY-TIBOR-JAPAN-10M,JPY,false,Act/365F,JPTO,2,JPTO,JPTO,10M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-JAPAN-11M,JPY,false,Act/365F,JPTO,2,JPTO,JPTO,11M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-JAPAN-12M,JPY,true,Act/365F,JPTO,2,JPTO,JPTO,12M,LastBusinessDay,11:50,Asia/Tokyo
-,,,,,,
+,,,,,,,,,,,
 JPY-TIBOR-EUROYEN-1W,JPY,true,Act/360,JPTO,2,JPTO,JPTO,1W,None,11:50,Asia/Tokyo
 JPY-TIBOR-EUROYEN-1M,JPY,true,Act/360,JPTO,2,JPTO,JPTO,1M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-EUROYEN-2M,JPY,true,Act/360,JPTO,2,JPTO,JPTO,2M,LastBusinessDay,11:50,Asia/Tokyo
@@ -111,20 +111,20 @@ JPY-TIBOR-EUROYEN-9M,JPY,false,Act/360,JPTO,2,JPTO,JPTO,9M,LastBusinessDay,11:50
 JPY-TIBOR-EUROYEN-10M,JPY,false,Act/360,JPTO,2,JPTO,JPTO,10M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-EUROYEN-11M,JPY,false,Act/360,JPTO,2,JPTO,JPTO,11M,LastBusinessDay,11:50,Asia/Tokyo
 JPY-TIBOR-EUROYEN-12M,JPY,true,Act/360,JPTO,2,JPTO,JPTO,12M,LastBusinessDay,11:50,Asia/Tokyo
-,,,,,,
+,,,,,,,,,,,
 AUD-BBSW-1M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,1M,None,11:00,Australia/Sydney
 AUD-BBSW-2M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,2M,None,11:00,Australia/Sydney
 AUD-BBSW-3M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,3M,None,11:00,Australia/Sydney
 AUD-BBSW-4M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,4M,None,11:00,Australia/Sydney
 AUD-BBSW-5M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,5M,None,11:00,Australia/Sydney
 AUD-BBSW-6M,AUD,true,Act/365F,AUSY,1,AUSY,AUSY,6M,None,11:00,Australia/Sydney
-,,,,,,
+,,,,,,,,,,,
 CAD-CDOR-1M,CAD,true,Act/365F,CATO,0,CATO,CATO,1M,None,10:15,America/Toronto
 CAD-CDOR-2M,CAD,true,Act/365F,CATO,0,CATO,CATO,2M,None,10:15,America/Toronto
 CAD-CDOR-3M,CAD,true,Act/365F,CATO,0,CATO,CATO,3M,None,10:15,America/Toronto
 CAD-CDOR-6M,CAD,true,Act/365F,CATO,0,CATO,CATO,6M,None,10:15,America/Toronto
 CAD-CDOR-12M,CAD,true,Act/365F,CATO,0,CATO,CATO,12M,None,10:15,America/Toronto
-,,,,,,
+,,,,,,,,,,,
 DKK-CIBOR-1W,DKK,true,Act/360,DKCO,0,DKCO,DKCO,1W,None,11:00,Europe/Copenhagen
 DKK-CIBOR-2W,DKK,true,Act/360,DKCO,0,DKCO,DKCO,2W,None,11:00,Europe/Copenhagen
 DKK-CIBOR-1M,DKK,true,Act/360,DKCO,0,DKCO,DKCO,1M,None,11:00,Europe/Copenhagen
@@ -139,7 +139,7 @@ DKK-CIBOR-9M,DKK,true,Act/360,DKCO,0,DKCO,DKCO,9M,None,11:00,Europe/Copenhagen
 DKK-CIBOR-10M,DKK,false,Act/360,DKCO,0,DKCO,DKCO,10M,None,11:00,Europe/Copenhagen
 DKK-CIBOR-11M,DKK,false,Act/360,DKCO,0,DKCO,DKCO,11M,None,11:00,Europe/Copenhagen
 DKK-CIBOR-12M,DKK,true,Act/360,DKCO,0,DKCO,DKCO,12M,None,11:00,Europe/Copenhagen
-,,,,,,
+,,,,,,,,,,,
 NOK-NIBOR-1W,NOK,true,Act/360,NOOS,2,NOOS,NOOS,1W,None,12:00,Europe/Oslo
 NOK-NIBOR-2W,NOK,false,Act/360,NOOS,2,NOOS,NOOS,2W,None,12:00,Europe/Oslo
 NOK-NIBOR-1M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,1M,None,12:00,Europe/Oslo
@@ -164,3 +164,9 @@ SEK-STIBOR-3M,SEK,true,Act/360,SEST,2,SEST,SEST,3M,None,11:00,Europe/Stockholm
 SEK-STIBOR-6M,SEK,true,Act/360,SEST,2,SEST,SEST,6M,None,11:00,Europe/Stockholm
 SEK-STIBOR-9M,SEK,false,Act/360,SEST,2,SEST,SEST,9M,None,11:00,Europe/Stockholm
 SEK-STIBOR-12M,SEK,false,Act/360,SEST,2,SEST,SEST,12M,None,11:00,Europe/Stockholm
+,,,,,,,,,,,
+ZAR-JIBAR-1M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,1M,None,10:00,Africa/Johannesburg
+ZAR-JIBAR-3M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,3M,None,10:00,Africa/Johannesburg
+ZAR-JIBAR-6M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,6M,None,10:00,Africa/Johannesburg
+ZAR-JIBAR-9M,ZAR,false,Act/365F,ZAJO,0,ZAJO,ZAJO,6M,None,10:00,Africa/Johannesburg
+ZAR-JIBAR-12M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,12M,None,10:00,Africa/Johannesburg
