@@ -58,6 +58,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex AUD_AONIA = OvernightIndex.of("AUD-AONIA");
   /**
+   * The CDI index for BRL.
+   * <p>
+   * The "Brazil Certificates of Interbank Deposit" index.
+   */
+  public static final OvernightIndex BRL_CDI = OvernightIndex.of("BRL-CDI");
+  /**
    * The CORRA index for CAD.
    * <p>
    * The "Canadian Overnight Repo Rate Average" index.

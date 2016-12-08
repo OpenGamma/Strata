@@ -124,6 +124,13 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId AUSY = HolidayCalendarId.of("AUSY");
   /**
+   * An identifier for the holiday calendar of Brazil, with code 'BRBD'.
+   * <p>
+   * This constant references the combined calendar for Brazil bank holidays.
+   * This unites city-level calendars.
+   */
+  public static final HolidayCalendarId BRBD = HolidayCalendarId.of("BRBD");
+  /**
    * An identifier for the holiday calendar of Toronto, Canada, with code 'CATO'.
    * <p>
    * This constant references the calendar for Toronto bank holidays.

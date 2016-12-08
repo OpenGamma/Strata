@@ -136,6 +136,16 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar AUSY = generateSydney();
   /**
+   * The holiday calendar for Brazil with code 'BRBD'.
+   * <p>
+   * This constant references the combined calendar for Brazil bank holidays.
+   * This unites city-level calendars.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar BRBD = generateBrazil();
+  /**
    * The holiday calendar for Toronto, Canada, with code 'CATO'.
    * <p>
    * This constant provides the calendar for Toronto holidays.
@@ -1107,6 +1117,44 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("MXMC"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // generate BRBD
+  // http://www.planalto.gov.br/ccivil_03/leis/l0662.htm
+  // http://www.planalto.gov.br/ccivil_03/Leis/L6802.htm
+  // http://www.planalto.gov.br/ccivil_03/leis/2002/L10607.htm
+  static ImmutableHolidayCalendar generateBrazil() {
+    // base law is from 1949, reworded in 2002
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // carnival
+      holidays.add(easter(year).minusDays(48));
+      holidays.add(easter(year).minusDays(47));
+      // tiradentes
+      holidays.add(date(year, 4, 21));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // labour
+      holidays.add(date(year, 5, 1));
+      // corpus christi
+      holidays.add(easter(year).plusDays(60));
+      // independence
+      holidays.add(date(year, 9, 7));
+      // aparedica
+      if (year >= 1980) {
+        holidays.add(date(year, 10, 12));
+      }
+      // dead
+      holidays.add(date(year, 11, 2));
+      // republic
+      holidays.add(date(year, 11, 15));
+      // christmas
+      holidays.add(date(year, 12, 25));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("BRBD"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
