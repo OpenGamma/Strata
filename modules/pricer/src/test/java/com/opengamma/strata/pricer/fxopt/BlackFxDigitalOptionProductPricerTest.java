@@ -7,7 +7,10 @@ package com.opengamma.strata.pricer.fxopt;
 
         import static com.opengamma.strata.basics.currency.Currency.EUR;
         import static com.opengamma.strata.basics.currency.Currency.USD;
+        import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
         import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+        import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
+        import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_CUBIC_SPLINE;
         import static com.opengamma.strata.product.common.LongShort.LONG;
         import static com.opengamma.strata.product.common.LongShort.SHORT;
         import static org.testng.Assert.assertEquals;
@@ -18,8 +21,12 @@ package com.opengamma.strata.pricer.fxopt;
         import java.time.ZoneId;
         import java.time.ZonedDateTime;
 
+        import com.google.common.collect.ImmutableList;
+        import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+        import com.opengamma.strata.math.impl.util.Epsilon;
         import com.opengamma.strata.pricer.impl.option.BlackDigitalPriceFormulaRepository;
         import com.opengamma.strata.product.common.LongShort;
+        import com.sun.prism.shader.FillCircle_LinearGradient_PAD_AlphaTest_Loader;
         import org.testng.annotations.Test;
 
         import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -74,8 +81,8 @@ public class BlackFxDigitalOptionProductPricerTest {
     private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
     private static final double NOTIONAL = 1.0e6;
     private static final LocalDate PAYMENT_DATE = LocalDate.of(2014, 5, 13);
-    private static final double STRIKE_RATE_HIGH = 1.44;
-    private static final double STRIKE_RATE_LOW = 1.36;
+    private static final double STRIKE_RATE_HIGH = 1.70;
+    private static final double STRIKE_RATE_LOW = 1.15;
     private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
     private static final CurrencyAmount USD_AMOUNT_HIGH = CurrencyAmount.of(USD, -NOTIONAL * STRIKE_RATE_HIGH);
     private static final CurrencyAmount USD_AMOUNT_LOW = CurrencyAmount.of(USD, -NOTIONAL * STRIKE_RATE_LOW);
@@ -136,7 +143,7 @@ public class BlackFxDigitalOptionProductPricerTest {
     LongShort LS4 = PUT_ITM.getLongShort();
 
 
-    
+
     // default pricer Black Digital
     private static final BlackFxDigitalOptionProductPricer PRICER = BlackFxDigitalOptionProductPricer.DEFAULT;
     private static final double TOL = 1.0e-13;
@@ -155,6 +162,14 @@ public class BlackFxDigitalOptionProductPricerTest {
         double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
         double forward = PRICER.getDiscountingFxSingleProductPricer()
                 .forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER).fxRate(CURRENCY_PAIR);
+        CurveInterpolator strikeinterp = SMILE_TERM.getStrikeInterpolator();
+        CurveInterpolator timeinterp = SMILE_TERM.getTimeInterpolator();
+        ImmutableList<SmileDeltaParameters> volterm=  SMILE_TERM.getVolatilityTerm();
+        SmileDeltaParameters time = SMILE_TERM.smileForExpiry(timeToExpiry);
+
+
+
+
         double volHigh = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
         double volLow = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_LOW, forward);
         double expectedPriceCallOtm =
@@ -165,6 +180,12 @@ public class BlackFxDigitalOptionProductPricerTest {
                 BlackDigitalPriceFormulaRepository.price(forward, STRIKE_RATE_HIGH, timeToExpiry, volHigh, true, 1.0);
         double expectedPvPutOtm = -NOTIONAL * df *
                 BlackDigitalPriceFormulaRepository.price(forward, STRIKE_RATE_LOW, timeToExpiry, volLow, false, 1.0);
+
+        InterpolatedStrikeSmileDeltaTermStructure ISS = InterpolatedStrikeSmileDeltaTermStructure.of(volterm,ACT_360,NATURAL_CUBIC_SPLINE,FLAT,FLAT);
+        //CurveInterpolator strikeinterp = SMILE_TERM.getStrikeInterpolator();
+        //CurveInterpolator timeinterp = SMILE_TERM.getTimeInterpolator();
+
+
         assertEquals(priceCallOtm, expectedPriceCallOtm, TOL);
         assertEquals(pvCallOtm.getCurrency(), USD);
         assertEquals(pvCallOtm.getAmount(), expectedPvCallOtm, NOTIONAL * TOL);
@@ -172,6 +193,32 @@ public class BlackFxDigitalOptionProductPricerTest {
         assertEquals(pvPutOtm.getCurrency(), USD);
         assertEquals(pvPutOtm.getAmount(), expectedPvPutOtm, NOTIONAL * TOL);
     }
+
+    public void test_price_presentValue_Interpolator()
+    {
+        //NUMBER 1
+        double timeToExpiry = VOLS.relativeTime(EXPIRY);
+        CurveInterpolator strikeinterp = SMILE_TERM.getStrikeInterpolator();
+        CurveInterpolator timeinterp = SMILE_TERM.getTimeInterpolator();
+        ImmutableList<SmileDeltaParameters> volterm=  SMILE_TERM.getVolatilityTerm();
+        SmileDeltaParameters time = SMILE_TERM.smileForExpiry(timeToExpiry);
+        InterpolatedStrikeSmileDeltaTermStructure ISS = InterpolatedStrikeSmileDeltaTermStructure.of(volterm,ACT_360,NATURAL_CUBIC_SPLINE,FLAT,FLAT);
+        test_price_presentValue();
+
+        //NUMBER 2
+        InterpolatedStrikeSmileDeltaTermStructure ISS2 = InterpolatedStrikeSmileDeltaTermStructure.of(volterm,ACT_360,NATURAL_CUBIC_SPLINE,FLAT,FLAT);
+        test_price_presentValue();
+
+        //NUMBER 3
+        InterpolatedStrikeSmileDeltaTermStructure ISS3 = InterpolatedStrikeSmileDeltaTermStructure.of(volterm,ACT_360,NATURAL_CUBIC_SPLINE,FLAT,FLAT);
+        test_price_presentValue();
+
+        //NUMBER 4
+        InterpolatedStrikeSmileDeltaTermStructure ISS4 = InterpolatedStrikeSmileDeltaTermStructure.of(volterm,ACT_360,NATURAL_CUBIC_SPLINE,FLAT,FLAT);
+        test_price_presentValue();
+    }
+
+
 
     public void test_price_presentValue_atExpiry() {
         double df = RATES_PROVIDER_EXPIRY.discountFactor(USD, PAYMENT_DATE);
@@ -202,18 +249,52 @@ public class BlackFxDigitalOptionProductPricerTest {
         assertEquals(pv.getAmount(), 0d, NOTIONAL * TOL);
     }
 
-    public void test_price_presentValue_parity() {
+    public void test_price_presentValue_parity1() {
+        double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
+        double forward = PRICER.getDiscountingFxSingleProductPricer()
+                .forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER).fxRate(CURRENCY_PAIR);
+        double priceCallItm = PRICER.price(CALL_ITM, RATES_PROVIDER, VOLS);
+        CurrencyAmount pvCallOtm = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
+        double pricePutOtm = PRICER.price(PUT_OTM, RATES_PROVIDER, VOLS);
+        double discountfactor = RATES_PROVIDER.discountFactor(CURRENCY_PAIR.getBase(),EXPIRY.toLocalDate());
+        boolean parity = false;
+        double totalPV = priceCallItm + pricePutOtm;
+        double totalFV = totalPV / discountfactor;
+        totalFV = totalFV -1.0;
+        if(totalFV < 0.001)
+        {            parity = true;
+        }
+
+    }
+
+    public void test_price_presentValue_parity2() {
         double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
         double forward = PRICER.getDiscountingFxSingleProductPricer()
                 .forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER).fxRate(CURRENCY_PAIR);
         double priceCallOtm = PRICER.price(CALL_OTM, RATES_PROVIDER, VOLS);
         CurrencyAmount pvCallOtm = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
         double pricePutItm = PRICER.price(PUT_ITM, RATES_PROVIDER, VOLS);
-        CurrencyAmount pvPutItm = PRICER.presentValue(PUT_ITM, RATES_PROVIDER, VOLS);
-        assertEquals(priceCallOtm - pricePutItm, df * (forward - STRIKE_RATE_HIGH), TOL);
-        assertEquals(-pvCallOtm.getAmount() - pvPutItm.getAmount(),
-                df * (forward - STRIKE_RATE_HIGH) * NOTIONAL, NOTIONAL * TOL);
+        double discountfactor = RATES_PROVIDER.discountFactor(CURRENCY_PAIR.getBase(),EXPIRY.toLocalDate());
+        boolean parity = false;
+        double totalPV = priceCallOtm + pricePutItm;
+        double totalFV = totalPV / discountfactor;
+        totalFV = totalFV -1.0;
+        if(totalFV < 0.001)
+        {            parity = true;
+        }
+
     }
+
+
+
+
+
+
+
+
+
+
+
 
     //-------------------------------------------------------------------------
     public void test_delta_presentValueDelta() {
@@ -269,7 +350,7 @@ public class BlackFxDigitalOptionProductPricerTest {
     //-------------------------------------------------------------------------
     public void test_presentValueSensitivity() {
         // call
-        FD_CAL.sensitivity()
+        //FD_CAL.sensitivity()
         PointSensitivities pointCall = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER, VOLS);
         CurrencyParameterSensitivities computedCall = RATES_PROVIDER.parameterSensitivity(pointCall);
         CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity(
