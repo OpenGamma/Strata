@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
@@ -40,8 +42,10 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
     SabrIborCapletFloorletBootstrapDefinition definition = SabrIborCapletFloorletBootstrapDefinition.of(
         IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, 0.85, CurveInterpolators.LINEAR,
         SabrHaganVolatilityFunctionProvider.DEFAULT);
+    DoubleMatrix volData = createFullBlackDataMatrix();
+    DoubleMatrix error = DoubleMatrix.filled(volData.rowCount(), volData.columnCount(), 1.0e-3);
     RawOptionData data = RawOptionData.of(
-        createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE, createFullBlackDataMatrix(), ValueType.BLACK_VOLATILITY);
+        createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE, volData, error, ValueType.BLACK_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
     SabrParametersIborCapletFloorletVolatilities resVols = (SabrParametersIborCapletFloorletVolatilities) res.getVolatilities();
     for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
@@ -65,6 +69,42 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
     assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
     assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
     assertEquals(resVols.getParameters().getBetaCurve(), definition.getBetaCurve().get());
+  }
+
+  public void test_recovery_black_betaNotFixed() {
+    SabrIborCapletFloorletBootstrapDefinition definition = SabrIborCapletFloorletBootstrapDefinition.of(
+        IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, CurveInterpolators.LINEAR,
+        SabrHaganVolatilityFunctionProvider.DEFAULT);
+    DoubleMatrix volData = createFullBlackDataMatrix();
+    DoubleMatrix error = DoubleMatrix.filled(volData.rowCount(), volData.columnCount(), 1.0e-2);
+    RawOptionData data = RawOptionData.of(
+        createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE, volData, error, ValueType.BLACK_VOLATILITY);
+    IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
+    SabrParametersIborCapletFloorletVolatilities resVols = (SabrParametersIborCapletFloorletVolatilities) res.getVolatilities();
+    for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
+      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackVols(i);
+      List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
+      List<Double> vols = capsAndVols.getSecond();
+      int nCaps = caps.size();
+      for (int j = 0; j < nCaps; ++j) {
+        ConstantSurface volSurface = ConstantSurface.of(
+            Surfaces.blackVolatilityByExpiryStrike("test", ACT_ACT_ISDA), vols.get(j));
+        BlackIborCapletFloorletExpiryStrikeVolatilities constVol = BlackIborCapletFloorletExpiryStrikeVolatilities.of(
+            USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
+        double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
+        double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
+        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 3d);
+      }
+    }
+  }
+
+  public void test_invalid_data() {
+    SabrIborCapletFloorletBootstrapDefinition definition = SabrIborCapletFloorletBootstrapDefinition.of(
+        IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, 0.85, CurveInterpolators.LINEAR,
+        SabrHaganVolatilityFunctionProvider.DEFAULT);
+    RawOptionData data = RawOptionData.of(createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE,
+        createFullBlackDataMatrixInvalid(), ValueType.BLACK_VOLATILITY);
+    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
   }
 
   public void test_recovery_black_shift() {

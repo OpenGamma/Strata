@@ -74,6 +74,7 @@ abstract class IborCapletFloorletVolatilityCalibrator {
       RatesProvider ratesProvider,
       DoubleArray strikes,
       DoubleArray volatilityData,
+      DoubleArray errors,
       LocalDate startDate,
       LocalDate endDate,
       SurfaceMetadata metadata,
@@ -82,7 +83,8 @@ abstract class IborCapletFloorletVolatilityCalibrator {
       List<Double> strikeList,
       List<Double> volList,
       List<ResolvedIborCapFloorLeg> capList,
-      List<Double> priceList) {
+      List<Double> priceList,
+      List<Double> errorList) {
 
     int nStrikes = strikes.size();
     for (int i = 0; i < nStrikes; ++i) {
@@ -95,6 +97,7 @@ abstract class IborCapletFloorletVolatilityCalibrator {
         IborCapletFloorletVolatilities vols = volatilityFunction.apply(constVolSurface);
         timeList.add(vols.relativeTime(capFloor.getFinalFixingDateTime()));
         priceList.add(pricer.presentValue(capFloor, ratesProvider, vols).getAmount());
+        errorList.add(errors.get(i));
       }
     }
   }

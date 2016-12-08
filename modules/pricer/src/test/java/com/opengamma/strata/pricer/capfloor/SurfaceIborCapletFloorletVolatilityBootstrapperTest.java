@@ -7,15 +7,19 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.testng.Assert.assertEquals;
 
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.ConstantCurve;
@@ -74,6 +78,15 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
     }
   }
 
+  public void test_invalid_data() {
+    SurfaceIborCapletFloorletBootstrapDefinition definition = SurfaceIborCapletFloorletBootstrapDefinition.of(
+        IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, LINEAR);
+    DoubleArray strikes = createBlackStrikes();
+    RawOptionData data = RawOptionData.of(
+        createBlackMaturities(), strikes, ValueType.STRIKE, createFullBlackDataMatrixInvalid(), ValueType.BLACK_VOLATILITY);
+    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
+  }
+
   public void recovery_test_blackSurface_shift() {
     SurfaceIborCapletFloorletBootstrapDefinition definition = SurfaceIborCapletFloorletBootstrapDefinition.of(
         IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, LINEAR,
@@ -117,8 +130,9 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
         IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, LINEAR);
     DoubleArray strikes = createBlackStrikes();
     for (int i = 0; i < strikes.size(); ++i) {
+      Pair<List<Period>, DoubleMatrix> trimedData = trimData(createBlackMaturities(), createBlackDataMatrixForStrike(i));
       RawOptionData data = RawOptionData.of(
-          createBlackMaturities(), DoubleArray.of(strikes.get(i)), ValueType.STRIKE, createBlackDataMatrixForStrike(i),
+          trimedData.getFirst(), DoubleArray.of(strikes.get(i)), ValueType.STRIKE, trimedData.getSecond(),
           ValueType.BLACK_VOLATILITY);
       IborCapletFloorletVolatilityCalibrationResult res =
           CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
@@ -257,6 +271,21 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
       }
     }
     assertEquals(res.getChiSquare(), 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  // remove null for one-dimensional bootstrapping
+  private Pair<List<Period>, DoubleMatrix> trimData(List<Period> expiries, DoubleMatrix vols) {
+    List<Period> resExpiries = new ArrayList<>();
+    List<Double> resVols = new ArrayList<>();
+    int size = vols.size();
+    for (int i = 0; i < size; ++i) {
+      if (Double.isFinite(vols.get(i, 0))) {
+        resExpiries.add(expiries.get(i));
+        resVols.add(vols.get(i, 0));
+      }
+    }
+    return Pair.of(resExpiries, DoubleMatrix.of(resExpiries.size(), 1, DoubleArray.copyOf(resVols).toArray()));
   }
   
 }

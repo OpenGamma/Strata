@@ -155,6 +155,25 @@ public class CapletStrippingSetup {
       {Double.NaN, 0.8489, 0.70205, 0.58245, 0.4999, 0.39155, 0.3239},
       {Double.NaN, Double.NaN, 0.7009, 0.5824, 0.5059, 0.4005, 0.3255},
       {Double.NaN, Double.NaN, 0.6997, 0.5818, 0.5059, 0.4014, 0.3271}};
+  private static final double[][] CAP_BLACK_VOLS_INVALID = new double[][] {
+      {0.7175, Double.NaN, 0.8366, Double.NaN, 0.8101, 0.7633, 0.714},
+      {Double.NaN, Double.NaN, 0.7523, 0.7056, 0.66095, 0.5933, 0.5313},
+      {Double.NaN, Double.NaN, 0.73987, 0.667, 0.61469, 0.53502, 0.4691},
+      {Double.NaN, Double.NaN, Double.NaN, 0.63455, 0.56975, 0.48235, 0.4369},
+      {Double.NaN, Double.NaN, 0.73408, 0.6081, 0.5472, 0.46445, 0.38854},
+      {Double.NaN, Double.NaN, Double.NaN, 0.61055, 0.52865, 0.432, 0.365},
+      {0.96976, Double.NaN, 0.73761, Double.NaN, 0.5168, 0.4183, 0.35485},
+      {0.98927, Double.NaN, 0.7274, 0.5983, 0.5169, 0.4083, 0.3375},
+      {1.00627, Double.NaN, Double.NaN, 0.6003, Double.NaN, Double.NaN, 0.34498},
+      {1.02132, Double.NaN, 0.7226, 0.5921, 0.4984, 0.3914, 0.32155},
+      {1.0255, Double.NaN, 0.7196, 0.5962, 0.5035, 0.3873, 0.3227},
+      {1.0476, Double.NaN, 0.7072, 0.58845, 0.50055, 0.3856, 0.3135},
+      {1.0467, Double.NaN, 0.70655, 0.5855, 0.50165, 0.3824, 0.3093},
+      {Double.NaN, Double.NaN, 0.70495, 0.58455, 0.499, 0.3802, 0.316},
+      {Double.NaN, Double.NaN, 0.70345, 0.58335, 0.4984, 0.38905, 0.3164},
+      {Double.NaN, Double.NaN, 0.70205, 0.58245, 0.4999, 0.39155, 0.3239},
+      {Double.NaN, Double.NaN, 0.7009, 0.5824, 0.5059, 0.4005, 0.3255},
+      {Double.NaN, Double.NaN, 0.6997, 0.5818, 0.5059, 0.4014, 0.3271}};
   private static final double[][] CAP_NORMAL_VOLS = new double[][] {
       {0.5463, 0.5827, 0.5589, 0.5339, 0.5224, 0.5685, 0.6396, 0.7184, 0.8029, 0.8908, 0.9804, 1.0705, 1.1608},
       {0.6679, 0.7129, 0.6801, 0.6483, 0.6308, 0.6654, 0.7263, 0.7939, 0.8673, 0.9448, 1.0249, 1.1062, 1.1881},
@@ -191,6 +210,11 @@ public class CapletStrippingSetup {
   //-------------------------------------------------------------------------
   protected static DoubleMatrix createFullBlackDataMatrix() {
     DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_BLACK_VOLS);
+    return matrix.transpose();
+  }
+
+  protected static DoubleMatrix createFullBlackDataMatrixInvalid() {
+    DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_BLACK_VOLS_INVALID);
     return matrix.transpose();
   }
 
@@ -320,7 +344,8 @@ public class CapletStrippingSetup {
   //-------------------------------------------------------------------------
   // print for debugging
   protected void print(IborCapletFloorletVolatilityCalibrationResult res, DoubleArray strikes, double maxTime) {
-    System.out.println(res.getChiSquare());
+    System.out.println("Print in CapletStrippingSetup \n");
+    System.out.println("Chi-square: " + res.getChiSquare());
     IborCapletFloorletVolatilities vols = res.getVolatilities();
     final int nSamples = 51;
     final int nStrikeSamples = 51;

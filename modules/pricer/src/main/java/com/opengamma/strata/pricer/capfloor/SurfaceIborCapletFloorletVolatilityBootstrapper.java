@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -44,8 +45,8 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
   /**
    * Default implementation.
    */
-  public static final SurfaceIborCapletFloorletVolatilityBootstrapper DEFAULT =
-      new SurfaceIborCapletFloorletVolatilityBootstrapper(VolatilityIborCapFloorLegPricer.DEFAULT, ReferenceData.standard());
+  public static final SurfaceIborCapletFloorletVolatilityBootstrapper DEFAULT = of(
+      VolatilityIborCapFloorLegPricer.DEFAULT, ReferenceData.standard());
 
   //-------------------------------------------------------------------------
   /**
@@ -89,22 +90,28 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
     SurfaceMetadata metadata = bsDefinition.createMetadata(capFloorData);
     List<Period> expiries = capFloorData.getExpiries();
     int nExpiries = expiries.size();
+    DoubleArray strikes = capFloorData.getStrikes();
+    DoubleMatrix errorsMatrix = capFloorData.getError().orElse(DoubleMatrix.filled(nExpiries, strikes.size(), 1d));
     List<Double> timeList = new ArrayList<>();
     List<Double> strikeList = new ArrayList<>();
     List<Double> volList = new ArrayList<>();
     List<ResolvedIborCapFloorLeg> capList = new ArrayList<>();
     List<Double> priceList = new ArrayList<>();
+    List<Double> errorList = new ArrayList<>();
     int[] startIndex = new int[nExpiries + 1];
     for (int i = 0; i < nExpiries; ++i) {
       LocalDate endDate = baseDate.plus(expiries.get(i));
       DoubleArray volatilityData = capFloorData.getData().row(i);
-      reduceRawData(bsDefinition, ratesProvider, capFloorData.getStrikes(), volatilityData, startDate, endDate, metadata,
-          volatilitiesFunction, timeList, strikeList, volList, capList, priceList);
+      DoubleArray errors = errorsMatrix.row(i);
+      reduceRawData(bsDefinition, ratesProvider, strikes, volatilityData, errors, startDate, endDate, metadata,
+          volatilitiesFunction, timeList, strikeList, volList, capList, priceList, errorList);
       startIndex[i + 1] = volList.size();
+      ArgChecker.isTrue(startIndex[i + 1] > startIndex[i], "no valid option data for {}", expiries.get(i));
     }
     int nTotal = startIndex[nExpiries];
     IborCapletFloorletVolatilities vols;
     int start;
+    ZonedDateTime prevExpiry;
     if (bsDefinition.getShiftCurve().isPresent()) {
       Curve shiftCurve = bsDefinition.getShiftCurve().get();
       DoubleArray strikeShifted = DoubleArray.of(nTotal, n -> strikeList.get(n) + shiftCurve.yValue(timeList.get(n)));
@@ -121,20 +128,24 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
       vols = ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
           index, calibrationDateTime, surface, bsDefinition.getShiftCurve().get());
       start = 0;
+      prevExpiry = calibrationDateTime.minusDays(1L); // included if calibrationDateTime == fixingDateTime
     } else {
       InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(
           metadata, DoubleArray.copyOf(timeList), DoubleArray.copyOf(strikeList), DoubleArray.copyOf(volList),
           bsDefinition.getInterpolator());
       vols = volatilitiesFunction.apply(surface);
       start = 1;
+      prevExpiry = capList.get(startIndex[1] - 1).getFinalFixingDateTime();
     }
     for (int i = start; i < nExpiries; ++i) {
       for (int j = startIndex[i]; j < startIndex[i + 1]; ++j) {
-        Function<Double, double[]> func = getValueVegaFunction(capList.get(j), ratesProvider, vols, j);
+        Function<Double, double[]> func = getValueVegaFunction(capList.get(j), ratesProvider, vols, prevExpiry, j);
         GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(func);
-        double capletVol = solver.impliedVolatility(priceList.get(j), volList.get(j));
+        double priceFixed = i == 0 ? 0d : priceFixed(capList.get(j), ratesProvider, vols, prevExpiry);
+        double capletVol = solver.impliedVolatility(priceList.get(j) - priceFixed, volList.get(j));
         vols = vols.withParameter(j, capletVol);
       }
+      prevExpiry = capList.get(startIndex[i + 1] - 1).getFinalFixingDateTime();
     }
     return IborCapletFloorletVolatilityCalibrationResult.ofRootFind(vols);
   }
@@ -142,23 +153,47 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
   //-------------------------------------------------------------------------
   // price and vega function
   private Function<Double, double[]> getValueVegaFunction(
-      ResolvedIborCapFloorLeg leg,
+      ResolvedIborCapFloorLeg cap,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities vols,
+      ZonedDateTime prevExpiry,
       int nodeIndex) {
 
+    VolatilityIborCapletFloorletPeriodPricer periodPricer = pricer.getPeriodPricer();
     Function<Double, double[]> priceAndVegaFunction = new Function<Double, double[]>() {
       @Override
       public double[] apply(Double x) {
         IborCapletFloorletVolatilities newVols = vols.withParameter(nodeIndex, x);
-        double price = pricer.presentValue(leg, ratesProvider, newVols).getAmount();
-        PointSensitivities point = pricer.presentValueSensitivityModelParamsVolatility(leg, ratesProvider, newVols).build();
+        double price = cap.getCapletFloorletPeriods().stream()
+            .filter(p -> p.getFixingDateTime().isAfter(prevExpiry))
+            .mapToDouble(p -> periodPricer.presentValue(p, ratesProvider, newVols).getAmount())
+            .sum();
+        PointSensitivities point = cap.getCapletFloorletPeriods().stream()
+            .filter(p -> p.getFixingDateTime().isAfter(prevExpiry))
+            .map(p -> periodPricer.presentValueSensitivityModelParamsVolatility(p, ratesProvider, newVols))
+            .reduce((c1, c2) -> c1.combinedWith(c2))
+            .get()
+            .build();
         CurrencyParameterSensitivities sensi = vols.parameterSensitivity(point);
         double vega = sensi.getSensitivities().get(0).getSensitivity().get(nodeIndex);
         return new double[] {price, vega};
       }
     };
     return priceAndVegaFunction;
+  }
+
+  // sum of caplet prices which are already fixed
+  private double priceFixed(
+      ResolvedIborCapFloorLeg cap,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities vols,
+      ZonedDateTime prevExpiry) {
+
+    VolatilityIborCapletFloorletPeriodPricer periodPricer = pricer.getPeriodPricer();
+    return cap.getCapletFloorletPeriods().stream()
+        .filter(p -> !p.getFixingDateTime().isAfter(prevExpiry))
+        .mapToDouble(p -> periodPricer.presentValue(p, ratesProvider, vols).getAmount())
+        .sum();
   }
 
 }

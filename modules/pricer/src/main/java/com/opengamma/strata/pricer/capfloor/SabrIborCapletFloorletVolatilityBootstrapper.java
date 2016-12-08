@@ -60,7 +60,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
    * Default implementation.
    */
   public static final SabrIborCapletFloorletVolatilityBootstrapper DEFAULT = of(
-      VolatilityIborCapFloorLegPricer.DEFAULT, SabrIborCapFloorLegPricer.DEFAULT, 1.0e-10, ReferenceData.standard());
+      VolatilityIborCapFloorLegPricer.DEFAULT, SabrIborCapletFloorletPeriodPricer.DEFAULT, 1.0e-10, ReferenceData.standard());
 
   /**
    * Transformation for SABR parameters.
@@ -73,7 +73,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
   static {
     TRANSFORMS = new ParameterLimitsTransform[4];
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
-    TRANSFORMS[1] = new DoubleRangeLimitTransform(0, 1.0); // 0 <= beta <= 1
+    TRANSFORMS[1] = new DoubleRangeLimitTransform(0.0, 1.0); // 0 <= beta <= 1
     TRANSFORMS[2] = new DoubleRangeLimitTransform(-RHO_LIMIT, RHO_LIMIT); // -1 <= rho <= 1
     TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
   }
@@ -83,9 +83,9 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
    */
   private final NonLinearLeastSquare solver;
   /**
-   * SABR pricer for cap/floor leg.
+   * SABR pricer for caplet/floorlet.
    */
-  private final SabrIborCapFloorLegPricer sabrLegPricer;
+  private final SabrIborCapletFloorletPeriodPricer sabrPeriodPricer;
 
   //-------------------------------------------------------------------------
   /**
@@ -95,30 +95,30 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
    * quantities are smaller than this parameter.
    * 
    * @param pricer  the cap/floor pricer to convert quoted volatilities to prices
-   * @param sabrLegPricer  the SABR pricer
+   * @param sabrPeriodPricer  the SABR pricer
    * @param epsilon  the epsilon parameter
    * @param referenceData  the reference data
    * @return the instance
    */
   public static SabrIborCapletFloorletVolatilityBootstrapper of(
       VolatilityIborCapFloorLegPricer pricer,
-      SabrIborCapFloorLegPricer sabrLegPricer,
+      SabrIborCapletFloorletPeriodPricer sabrPeriodPricer,
       double epsilon,
       ReferenceData referenceData) {
 
     NonLinearLeastSquare solver = new NonLinearLeastSquare(SV_COMMONS, OG_ALGEBRA, epsilon);
-    return new SabrIborCapletFloorletVolatilityBootstrapper(pricer, sabrLegPricer, solver, referenceData);
+    return new SabrIborCapletFloorletVolatilityBootstrapper(pricer, sabrPeriodPricer, solver, referenceData);
   }
 
   // private constructor
   private SabrIborCapletFloorletVolatilityBootstrapper(
       VolatilityIborCapFloorLegPricer pricer,
-      SabrIborCapFloorLegPricer sabrLegPricer,
+      SabrIborCapletFloorletPeriodPricer sabrPeriodPricer,
       NonLinearLeastSquare solver,
       ReferenceData referenceData) {
 
     super(pricer, referenceData);
-    this.sabrLegPricer = ArgChecker.notNull(sabrLegPricer, "sabrLegPricer");
+    this.sabrPeriodPricer = ArgChecker.notNull(sabrPeriodPricer, "sabrPeriodPricer");
     this.solver = ArgChecker.notNull(solver, "solver");
   }
 
@@ -144,18 +144,23 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     SurfaceMetadata metaData = bsDefinition.createMetadata(capFloorData);
     List<Period> expiries = capFloorData.getExpiries();
     int nExpiries = expiries.size();
+    DoubleArray strikes = capFloorData.getStrikes();
+    DoubleMatrix errorsMatrix = capFloorData.getError().orElse(DoubleMatrix.filled(nExpiries, strikes.size(), 1d));
     List<Double> timeList = new ArrayList<>();
     List<Double> strikeList = new ArrayList<>();
     List<Double> volList = new ArrayList<>();
     List<ResolvedIborCapFloorLeg> capList = new ArrayList<>();
     List<Double> priceList = new ArrayList<>();
+    List<Double> errorList = new ArrayList<>();
     int[] startIndex = new int[nExpiries + 1];
     for (int i = 0; i < nExpiries; ++i) {
       LocalDate endDate = baseDate.plus(expiries.get(i));
       DoubleArray volatilityData = capFloorData.getData().row(i);
-      reduceRawData(bsDefinition, ratesProvider, capFloorData.getStrikes(), volatilityData, startDate, endDate, metaData,
-          volatilitiesFunction, timeList, strikeList, volList, capList, priceList);
+      DoubleArray errors = errorsMatrix.row(i);
+      reduceRawData(bsDefinition, ratesProvider, strikes, volatilityData, errors, startDate, endDate, metaData,
+          volatilitiesFunction, timeList, strikeList, volList, capList, priceList, errorList);
       startIndex[i + 1] = volList.size();
+      ArgChecker.isTrue(startIndex[i + 1] > startIndex[i], "no valid option data for {}", expiries.get(i));
     }
 
     List<CurveMetadata> metadataList = bsDefinition.createSabrParameterMetadata();
@@ -200,6 +205,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     SabrParametersIborCapletFloorletVolatilities vols =
         SabrParametersIborCapletFloorletVolatilities.of(bsDefinition.getName(), index, calibrationDateTime, sabrParams);
     double totalChiSq = 0d;
+    ZonedDateTime prevExpiry = calibrationDateTime.minusDays(1L); // included if calibrationDateTime == fixingDateTime
     for (int i = 0; i < nExpiries; ++i) {
       DoubleArray start = computeInitialValues(
           ratesProvider, betaCurve, timeList, volList, capList, startIndex, i, fixed.get(1), capFloorData.getDataType());
@@ -207,17 +213,20 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
       int nCaplets = startIndex[i + 1] - startIndex[i];
       int currentStart = startIndex[i];
       Function<DoubleArray, DoubleArray> valueFunction = createPriceFunction(
-          ratesProvider, vols, capList, startIndex, nExpiries, i, nCaplets, fixed.get(1));
+          ratesProvider, vols, prevExpiry, capList, startIndex, nExpiries, i, nCaplets, fixed.get(1));
       Function<DoubleArray, DoubleMatrix> jacobianFunction = createJacobianFunction(
-          ratesProvider, vols, capList, index.getCurrency(), startIndex, nExpiries, i, nCaplets, fixed.get(1));
+          ratesProvider, vols, prevExpiry, capList, index.getCurrency(), startIndex, nExpiries, i, nCaplets, fixed.get(1));
       NonLinearTransformFunction transFunc = new NonLinearTransformFunction(valueFunction, jacobianFunction, transform);
       DoubleArray capPrices = DoubleArray.of(nCaplets, n -> priceList.get(currentStart + n));
-      DoubleArray errors = DoubleArray.filled(nCaplets, 1d);
-      LeastSquareResults res = solver.solve(
-          capPrices, errors, transFunc.getFittingFunction(), transFunc.getFittingJacobian(), transform.transform(start));
+      DoubleArray capPricesFixed = i == 0 ? DoubleArray.filled(nCaplets)
+          : pricesFixed(capList.subList(startIndex[i], startIndex[i + 1]), ratesProvider, vols, prevExpiry);
+      DoubleArray errors = DoubleArray.of(nCaplets, n -> errorList.get(currentStart + n));
+      LeastSquareResults res = solver.solve(capPrices.minus(capPricesFixed), errors, transFunc.getFittingFunction(),
+          transFunc.getFittingJacobian(), transform.transform(start));
       LeastSquareResultsWithTransform resTransform = new LeastSquareResultsWithTransform(res, transform);
       vols = updateParameters(vols, nExpiries, i, fixed.get(1), resTransform.getModelParameters());
       totalChiSq += res.getChiSq();
+      prevExpiry = capList.get(startIndex[i + 1] - 1).getFinalFixingDateTime();
     }
     return IborCapletFloorletVolatilityCalibrationResult.ofLestSquare(vols, totalChiSq);
   }
@@ -241,19 +250,13 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
         : 1d / ratesProvider.iborIndexRates(cap.getIndex()).rate(cap.getFinalPeriod().getIborRate().getObservation());
     List<Double> volsEquiv = vols.stream().map(v -> v * factor).collect(Collectors.toList());
     double nuFirst;
-    double betaInitial;
+    double betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.95d;
     double alphaInitial = DoubleArray.copyOf(volsEquiv).min();
-    if (alphaInitial == volsEquiv.get(0)) {
+    if (alphaInitial == volsEquiv.get(0) || alphaInitial == volsEquiv.get(volsEquiv.size() - 1)) {
       nuFirst = 0.1d;
-      betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.95d;
-      alphaInitial *= 0.95d;
-    } else if (alphaInitial == volsEquiv.get(volsEquiv.size() - 1)) {
-      nuFirst = 0.1d;
-      betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.05d;
       alphaInitial *= 0.95d;
     } else {
       nuFirst = 1d;
-      betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.5d;
     }
     return DoubleArray.of(alphaInitial, betaInitial, -0.5 * betaInitial + 0.5 * (1d - betaInitial), nuFirst);
   }
@@ -262,6 +265,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
   private Function<DoubleArray, DoubleArray> createPriceFunction(
       RatesProvider ratesProvider,
       SabrParametersIborCapletFloorletVolatilities volatilities,
+      ZonedDateTime prevExpiry,
       List<ResolvedIborCapFloorLeg> capList,
       int[] startIndex,
       int nExpiries,
@@ -274,7 +278,10 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
       public DoubleArray apply(DoubleArray x) {
         SabrParametersIborCapletFloorletVolatilities volsNew = updateParameters(volatilities, nExpiries, timeIndex, betaFixed, x);
         return DoubleArray.of(nCaplets,
-            n -> sabrLegPricer.presentValue(capList.get(startIndex[timeIndex] + n), ratesProvider, volsNew).getAmount());
+            n -> capList.get(startIndex[timeIndex] + n).getCapletFloorletPeriods().stream()
+                .filter(p -> p.getFixingDateTime().isAfter(prevExpiry))
+                .mapToDouble(p -> sabrPeriodPricer.presentValue(p, ratesProvider, volsNew).getAmount())
+                .sum());
       }
     };
     return priceFunction;
@@ -284,6 +291,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
   private Function<DoubleArray, DoubleMatrix> createJacobianFunction(
       RatesProvider ratesProvider,
       SabrParametersIborCapletFloorletVolatilities volatilities,
+      ZonedDateTime prevExpiry,
       List<ResolvedIborCapFloorLeg> capList,
       Currency currency,
       int[] startIndex,
@@ -302,8 +310,12 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
         SabrParametersIborCapletFloorletVolatilities volsNew = updateParameters(volatilities, nExpiries, timeIndex, betaFixed, x);
         double[][] jacobian = new double[nCaplets][4];
         for (int n = 0; n < nCaplets; ++n) {
-          PointSensitivities point = sabrLegPricer.presentValueSensitivityModelParamsSabr(
-              capList.get(startIndex[timeIndex] + n), ratesProvider, volsNew).build();
+          PointSensitivities point = capList.get(startIndex[timeIndex] + n).getCapletFloorletPeriods().stream()
+              .filter(p -> p.getFixingDateTime().isAfter(prevExpiry))
+              .map(p -> sabrPeriodPricer.presentValueSensitivityModelParamsSabr(p, ratesProvider, volsNew))
+              .reduce((c1, c2) -> c1.combinedWith(c2))
+              .get()
+              .build();
           CurrencyParameterSensitivities sensi = volsNew.parameterSensitivity(point);
           jacobian[n][0] = sensi.getSensitivity(alphaCurve.getName(), currency).getSensitivity().get(timeIndex);
           jacobian[n][1] = betaFixed ? 0d
@@ -333,8 +345,24 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     if (betaFixed) {
       return newVols;
     }
-    newVols = volatilities.withParameter(timeIndex + nExpiries, newParameters.get(1));
+    newVols = newVols.withParameter(timeIndex + nExpiries, newParameters.get(1));
     return newVols;
+  }
+
+  // sum of caplet prices which are already fixed
+  private DoubleArray pricesFixed(
+      List<ResolvedIborCapFloorLeg> caps,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities vols,
+      ZonedDateTime prevExpiry) {
+
+    double[] prices = caps.stream()
+        .mapToDouble(cl -> cl.getCapletFloorletPeriods().stream()
+            .filter(p -> !p.getFixingDateTime().isAfter(prevExpiry))
+            .mapToDouble(p -> sabrPeriodPricer.presentValue(p, ratesProvider, vols).getAmount())
+            .sum())
+        .toArray();
+    return DoubleArray.ofUnsafe(prices);
   }
 
 }

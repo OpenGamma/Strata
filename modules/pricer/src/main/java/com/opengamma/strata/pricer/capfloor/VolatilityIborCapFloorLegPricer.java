@@ -46,6 +46,16 @@ public class VolatilityIborCapFloorLegPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains the underlying period pricer. 
+   * 
+   * @return the period pricer
+   */
+  public VolatilityIborCapletFloorletPeriodPricer getPeriodPricer() {
+    return periodPricer;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of the Ibor cap/floor leg.
    * <p>
    * The present value of the leg is the value on the valuation date.

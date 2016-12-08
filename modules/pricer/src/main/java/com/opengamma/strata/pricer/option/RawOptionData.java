@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 
@@ -57,6 +58,14 @@ public final class RawOptionData
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix data;
   /**
+   * The measurement error of the option data.
+   * <p>
+   * These will be used if the option data is calibrated by a least square method. 
+   * {@code data} and {@code error} must have the same number of elements.
+   */
+  @PropertyDefinition(get = "optional")
+  private final DoubleMatrix error;
+  /**
    * The type of the raw data.
    */
   @PropertyDefinition(validate = "notNull")
@@ -93,7 +102,7 @@ public final class RawOptionData
       ArgChecker.isTrue(strikes.size() == data.columnCount(),
           "strikes should be of the same size as the inner data dimension");
     }
-    return new RawOptionData(expiries, strikes, strikeType, data, dataType, 0.0);
+    return new RawOptionData(expiries, strikes, strikeType, data, null, dataType, 0.0);
   }
 
   /**
@@ -119,7 +128,69 @@ public final class RawOptionData
       ArgChecker.isTrue(strikes.size() == data.columnCount(),
           "strikes should be of the same size as the inner data dimension");
     }
-    return new RawOptionData(expiries, strikes, strikeType, data, ValueType.BLACK_VOLATILITY, shift);
+    return new RawOptionData(expiries, strikes, strikeType, data, null, ValueType.BLACK_VOLATILITY, shift);
+  }
+
+  /**
+   * Obtains an instance of the raw data with error.
+   * <p>
+   * The data values can be model parameters (like Black or normal volatilities) or direct option prices.
+   * 
+   * @param expiries  the expiries
+   * @param strikes  the strikes-like data
+   * @param strikeType  the value type of the strike-like dimension
+   * @param data  the data
+   * @param error  the error
+   * @param dataType  the data type
+   * @return the instance
+   */
+  public static RawOptionData of(
+      List<Period> expiries,
+      DoubleArray strikes,
+      ValueType strikeType,
+      DoubleMatrix data,
+      DoubleMatrix error,
+      ValueType dataType) {
+
+    ArgChecker.isTrue(expiries.size() == data.rowCount(),
+        "expiries list should be of the same size as the external data dimension");
+    ArgChecker.isTrue(error.rowCount() == data.rowCount(),
+        "the error row count should be the same as the data raw count");
+    ArgChecker.isTrue(error.columnCount() == data.columnCount(),
+        "the error column count should the same as the data column count");
+    for (int i = 0; i < expiries.size(); i++) {
+      ArgChecker.isTrue(strikes.size() == data.columnCount(),
+          "strikes should be of the same size as the inner data dimension");
+    }
+    return new RawOptionData(expiries, strikes, strikeType, data, error, dataType, 0.0);
+  }
+
+  /**
+   * Obtains an instance of the raw data with error for shifted Black (log-normal) volatility.
+   * 
+   * @param expiries  the expiries
+   * @param strikes  the strikes-like data
+   * @param strikeType  the value type of the strike-like dimension
+   * @param data  the data
+   * @param error  the error
+   * @param shift  the shift
+   * @return the instance
+   */
+  public static RawOptionData ofBlackVolatility(
+      List<Period> expiries,
+      DoubleArray strikes,
+      ValueType strikeType,
+      DoubleMatrix data,
+      DoubleMatrix error,
+      Double shift) {
+
+    ArgChecker.isTrue(expiries.size() == data.rowCount(),
+        "expiries list should be of the same size as the external data dimension");
+    for (int i = 0; i < expiries.size(); i++) {
+      ArgChecker.isTrue(strikes.size() == data.columnCount(),
+          "strikes should be of the same size as the inner data dimension");
+    }
+    return new RawOptionData(expiries, strikes, strikeType, data, error, ValueType.BLACK_VOLATILITY, shift);
   }
 
   //-------------------------------------------------------------------------
@@ -172,6 +243,7 @@ public final class RawOptionData
       DoubleArray strikes,
       ValueType strikeType,
       DoubleMatrix data,
+      DoubleMatrix error,
       ValueType dataType,
       Double shift) {
     JodaBeanUtils.notNull(expiries, "expiries");
@@ -183,6 +255,7 @@ public final class RawOptionData
     this.strikes = strikes;
     this.strikeType = strikeType;
     this.data = data;
+    this.error = error;
     this.dataType = dataType;
     this.shift = shift;
   }
@@ -242,6 +315,18 @@ public final class RawOptionData
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the measurement error of the option data.
+   * <p>
+   * These will be used if the option data is calibrated by a least square method.
+   * {@code data} and {@code error} must have the same number of elements.
+   * @return the optional value of the property, not null
+   */
+  public Optional<DoubleMatrix> getError() {
+    return Optional.ofNullable(error);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the type of the raw data.
    * @return the value of the property, not null
    */
@@ -270,6 +355,7 @@ public final class RawOptionData
           JodaBeanUtils.equal(strikes, other.strikes) &&
           JodaBeanUtils.equal(strikeType, other.strikeType) &&
           JodaBeanUtils.equal(data, other.data) &&
+          JodaBeanUtils.equal(error, other.error) &&
           JodaBeanUtils.equal(dataType, other.dataType) &&
           JodaBeanUtils.equal(shift, other.shift);
     }
@@ -283,6 +369,7 @@ public final class RawOptionData
     hash = hash * 31 + JodaBeanUtils.hashCode(strikes);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikeType);
     hash = hash * 31 + JodaBeanUtils.hashCode(data);
+    hash = hash * 31 + JodaBeanUtils.hashCode(error);
     hash = hash * 31 + JodaBeanUtils.hashCode(dataType);
     hash = hash * 31 + JodaBeanUtils.hashCode(shift);
     return hash;
@@ -290,12 +377,13 @@ public final class RawOptionData
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("RawOptionData{");
     buf.append("expiries").append('=').append(expiries).append(',').append(' ');
     buf.append("strikes").append('=').append(strikes).append(',').append(' ');
     buf.append("strikeType").append('=').append(strikeType).append(',').append(' ');
     buf.append("data").append('=').append(data).append(',').append(' ');
+    buf.append("error").append('=').append(error).append(',').append(' ');
     buf.append("dataType").append('=').append(dataType).append(',').append(' ');
     buf.append("shift").append('=').append(JodaBeanUtils.toString(shift));
     buf.append('}');
