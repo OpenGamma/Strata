@@ -178,6 +178,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar SEST = generateStockholm();
+  /**
+   * The holiday calendar for Johannesburg, South Africa, with code 'ZAJO'.
+   * <p>
+   * This constant provides the calendar for Johannesburg holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar ZAJO = generateJohannesburg();
 
   //-------------------------------------------------------------------------
   /**
@@ -245,8 +254,8 @@ final class GlobalHolidayCalendars {
         holidays.add(first(year, 8).with(lastInMonth(MONDAY)));
       }
       // christmas
-      holidays.add(christmas(year));
-      holidays.add(boxingDay(year));
+      holidays.add(christmasBumpedSatSun(year));
+      holidays.add(boxingDayBumpedSatSun(year));
     }
     holidays.add(date(2011, 4, 29));  // royal wedding
     holidays.add(date(1999, 12, 31));  // millennium
@@ -675,9 +684,9 @@ final class GlobalHolidayCalendars {
       // remembrance
       holidays.add(bumpToMon(date(year, 11, 11)));
       // christmas (public)
-      holidays.add(christmas(year));
+      holidays.add(christmasBumpedSatSun(year));
       // boxing (public)
-      holidays.add(boxingDay(year));
+      holidays.add(boxingDayBumpedSatSun(year));
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("CATO"), holidays, SATURDAY, SUNDAY);
@@ -879,12 +888,70 @@ final class GlobalHolidayCalendars {
       // labour day 
       holidays.add(first(year, 10).with(dayOfWeekInMonth(1, MONDAY)));
       // christmas 
-      holidays.add(christmas(year));
+      holidays.add(christmasBumpedSatSun(year));
       // boxing
-      holidays.add(boxingDay(year));
+      holidays.add(boxingDayBumpedSatSun(year));
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("AUSY"), holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // http://www.gov.za/about-sa/public-holidays
+  // http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
+  // http://www.gov.za/sites/www.gov.za/files/Act48of1995.pdf
+  // 27th Dec when Tue http://www.gov.za/sites/www.gov.za/files/34881_proc72.pdf
+  static ImmutableHolidayCalendar generateJohannesburg() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // from 1995 (act of 7 Dec 1994)
+      // older act from 1952 not implemented here
+      // new year
+      holidays.add(bumpSunToMon(date(year, 1, 1)));
+      // human rights day
+      holidays.add(bumpSunToMon(date(year, 3, 21)));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // family day (easter monday)
+      holidays.add(easter(year).plusDays(1));
+      // freedom day
+      holidays.add(bumpSunToMon(date(year, 4, 27)));
+      // workers day
+      holidays.add(bumpSunToMon(date(year, 5, 1)));
+      // youth day
+      holidays.add(bumpSunToMon(date(year, 6, 16)));
+      // womens day
+      holidays.add(bumpSunToMon(date(year, 8, 9)));
+      // heritage day
+      holidays.add(bumpSunToMon(date(year, 9, 24)));
+      // reconcilliation
+      holidays.add(bumpSunToMon(date(year, 12, 16)));
+      // christmas 
+      holidays.add(christmasBumpedSun(year));
+      // goodwill
+      holidays.add(boxingDayBumpedSun(year));
+    }
+    // mostly election days
+    // http://www.gov.za/sites/www.gov.za/files/40125_proc%2045.pdf
+    holidays.add(date(2016, 8, 3));
+    // http://www.gov.za/sites/www.gov.za/files/37376_proc13.pdf
+    holidays.add(date(2014, 5, 7));
+    // http://www.gov.za/sites/www.gov.za/files/34127_proc27.pdf
+    holidays.add(date(2011, 5, 18));
+    // http://www.gov.za/sites/www.gov.za/files/32039_17.pdf
+    holidays.add(date(2009, 4, 22));
+    // http://www.gov.za/sites/www.gov.za/files/30900_7.pdf (moved human rights day)
+    holidays.add(date(2008, 5, 2));
+    // http://www.gov.za/sites/www.gov.za/files/28442_0.pdf
+    holidays.add(date(2006, 3, 1));
+    // http://www.gov.za/sites/www.gov.za/files/26075.pdf
+    holidays.add(date(2004, 4, 14));
+    // http://www.gov.za/sites/www.gov.za/files/20032_0.pdf
+    holidays.add(date(1999, 12, 31));
+    holidays.add(date(2000, 1, 1));
+    holidays.add(date(2000, 1, 2));
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("ZAJO"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -922,7 +989,7 @@ final class GlobalHolidayCalendars {
   }
 
   // christmas
-  private static LocalDate christmas(int year) {
+  private static LocalDate christmasBumpedSatSun(int year) {
     LocalDate base = LocalDate.of(year, 12, 25);
     if (base.getDayOfWeek() == SATURDAY || base.getDayOfWeek() == SUNDAY) {
       return LocalDate.of(year, 12, 27);
@@ -930,11 +997,29 @@ final class GlobalHolidayCalendars {
     return base;
   }
 
+  // christmas (if Christmas is Sunday, moved to Monday)
+  private static LocalDate christmasBumpedSun(int year) {
+    LocalDate base = LocalDate.of(year, 12, 25);
+    if (base.getDayOfWeek() == SUNDAY) {
+      return LocalDate.of(year, 12, 26);
+    }
+    return base;
+  }
+
   // boxing day
-  private static LocalDate boxingDay(int year) {
+  private static LocalDate boxingDayBumpedSatSun(int year) {
     LocalDate base = LocalDate.of(year, 12, 26);
     if (base.getDayOfWeek() == SATURDAY || base.getDayOfWeek() == SUNDAY) {
       return LocalDate.of(year, 12, 28);
+    }
+    return base;
+  }
+
+  // boxing day (if Christmas is Sunday, boxing day moved from Monday to Tuesday)
+  private static LocalDate boxingDayBumpedSun(int year) {
+    LocalDate base = LocalDate.of(year, 12, 26);
+    if (base.getDayOfWeek() == MONDAY) {
+      return LocalDate.of(year, 12, 27);
     }
     return base;
   }

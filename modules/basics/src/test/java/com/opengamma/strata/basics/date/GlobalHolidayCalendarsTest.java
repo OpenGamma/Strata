@@ -828,6 +828,34 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar ZAJO = GlobalHolidayCalendars.generateJohannesburg();
+
+  @DataProvider(name = "zajo")
+  Object[][] data_zajo() {
+    // http://www.gov.za/about-sa/public-holidays
+    // https://web.archive.org/web/20151230214958/http://www.gov.za/about-sa/public-holidays
+    return new Object[][] {
+        {2015, mds(2015, md(1, 1), md(3, 21), md(4, 3), md(4, 6), md(4, 27), md(5, 1),
+            md(6, 16), md(8, 10), md(9, 24), md(12, 16), md(12, 25), md(12, 26))},
+        {2016, mds(2016, md(1, 1), md(3, 21), md(3, 25), md(3, 28), md(4, 27), md(5, 2),
+            md(6, 16), md(8, 3), md(8, 9), md(9, 24), md(12, 16), md(12, 26), md(12, 27))},
+        {2017, mds(2017, md(1, 1), md(1, 2), md(3, 21), md(4, 14), md(4, 17), md(4, 27), md(5, 1),
+            md(6, 16), md(8, 9), md(9, 25), md(12, 16), md(12, 16), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "zajo")
+  public void test_zajo(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(ZAJO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static List<LocalDate> mds(int year, MonthDay... monthDays) {
     List<LocalDate> holidays = new ArrayList<>();
     for (MonthDay md : monthDays) {
