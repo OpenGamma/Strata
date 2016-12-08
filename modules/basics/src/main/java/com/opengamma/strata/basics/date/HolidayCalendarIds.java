@@ -142,6 +142,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId HUBU = HolidayCalendarId.of("HUBU");
   /**
+   * An identifier for the holiday calendar of Mexico City, Mexico, with code 'MXMC'.
+   * <p>
+   * This constant references the calendar for Mexico City bank holidays.
+   */
+  public static final HolidayCalendarId MXMC = HolidayCalendarId.of("MXMC");
+  /**
    * An identifier for the holiday calendar of Oslo, Norway, with code 'NOOS'.
    * <p>
    * This constant references the calendar for Oslo bank holidays.

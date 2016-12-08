@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
+import static com.opengamma.strata.basics.currency.Currency.MXN;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -26,6 +27,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.HUBU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.MXMC;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
@@ -34,6 +36,7 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_4M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_4W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_5M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
@@ -379,6 +382,20 @@ public class IborIndexTest {
         TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, HUBU)));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "HUF-BUBOR-3M");
+  }
+
+  public void test_mxn_tiie() {
+    IborIndex test = IborIndex.of("MXN-TIIE-4W");
+    assertEquals(test.getCurrency(), MXN);
+    assertEquals(test.getName(), "MXN-TIIE-4W");
+    assertEquals(test.getTenor(), TENOR_4W);
+    assertEquals(test.getFixingCalendar(), MXMC);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, MXMC));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, MXMC));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_4W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, MXMC)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "MXN-TIIE-4W");
   }
 
   public void test_pln_wibor() {

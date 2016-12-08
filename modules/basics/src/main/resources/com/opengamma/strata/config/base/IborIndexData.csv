@@ -155,6 +155,10 @@ HUF-BUBOR-10M,HUF,false,Act/360,HUBU,2,HUBU,HUBU,10M,None,11:00,Europe/Budapest
 HUF-BUBOR-11M,HUF,false,Act/360,HUBU,2,HUBU,HUBU,11M,None,11:00,Europe/Budapest
 HUF-BUBOR-12M,HUF,true,Act/360,HUBU,2,HUBU,HUBU,12M,None,11:00,Europe/Budapest
 ,,,,,,,,,,,
+MXN-TIIE-4W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,4W,None,11:00,America/Mexico_City
+MXN-TIIE-13W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,13W,None,11:00,America/Mexico_City
+MXN-TIIE-26W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,26W,None,11:00,America/Mexico_City
+,,,,,,,,,,,
 NOK-NIBOR-1W,NOK,true,Act/360,NOOS,2,NOOS,NOOS,1W,None,12:00,Europe/Oslo
 NOK-NIBOR-2W,NOK,false,Act/360,NOOS,2,NOOS,NOOS,2W,None,12:00,Europe/Oslo
 NOK-NIBOR-1M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,1M,None,12:00,Europe/Oslo

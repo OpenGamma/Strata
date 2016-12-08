@@ -508,6 +508,26 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 4 week TIIE index.
+   * <p>
+   * The "Interbank Equilibrium Interest Rate".
+   */
+  public static final IborIndex MXN_TIIE_4W = IborIndex.of("MXN-TIIE-4W");
+  /**
+   * The 13 week TIIE index.
+   * <p>
+   * The "Interbank Equilibrium Interest Rate".
+   */
+  public static final IborIndex MXN_TIIE_13W = IborIndex.of("MXN-TIIE-13W");
+  /**
+   * The 26 week TIIE index.
+   * <p>
+   * The "Interbank Equilibrium Interest Rate".
+   */
+  public static final IborIndex MXN_TIIE_26W = IborIndex.of("MXN-TIIE-26W");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week NIBOR index.
    * <p>
    * The "Norwegian Interbank Offered Rate".

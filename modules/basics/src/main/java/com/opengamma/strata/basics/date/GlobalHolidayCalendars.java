@@ -163,6 +163,15 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar HUBU = generateBudapest();
   /**
+   * The holiday calendar for Mexico City, Mexico, with code 'HUBU'.
+   * <p>
+   * This constant provides the calendar for Mexico City holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar MXMC = generateMexicoCity();
+  /**
    * The holiday calendar for Oslo, Norway, with code 'NOOS'.
    * <p>
    * This constant provides the calendar for Oslo holidays.
@@ -838,6 +847,7 @@ final class GlobalHolidayCalendars {
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("PLWA"), holidays, SATURDAY, SUNDAY);
   }
 
+  //-------------------------------------------------------------------------
   // generate SEST
   // data sources - history of dates that STIBOR fixing occurred
   // http://www.riksbank.se/en/Interest-and-exchange-rates/search-interest-rates-exchange-rates/?g5-SEDP1MSTIBOR=on&from=2016-01-01&to=2016-10-05&f=Day&cAverage=Average&s=Comma#search
@@ -1062,6 +1072,41 @@ final class GlobalHolidayCalendars {
       }
       date = date.plusDays(7);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // generate MXMC
+  // dates of published fixings - https://twitter.com/Banxico
+  // http://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF111&locale=en
+  // http://www.gob.mx/cms/uploads/attachment/file/161094/calendario_vacaciones2016.pdf
+  static ImmutableHolidayCalendar generateMexicoCity() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // constitution
+      holidays.add(first(year, 2).with(firstInMonth(MONDAY)));
+      // president
+      holidays.add(first(year, 3).with(firstInMonth(MONDAY)).plusWeeks(2));
+      // maundy thursday
+      holidays.add(easter(year).minusDays(3));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // labour
+      holidays.add(date(year, 5, 1));
+      // independence
+      holidays.add(date(year, 9, 16));
+      // dead
+      holidays.add(date(year, 11, 2));
+      // revolution
+      holidays.add(first(year, 11).with(firstInMonth(MONDAY)).plusWeeks(2));
+      // guadalupe
+      holidays.add(date(year, 12, 12));
+      // christmas
+      holidays.add(date(year, 12, 25));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("MXMC"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
