@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
@@ -23,6 +24,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.HUBU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
@@ -363,6 +365,20 @@ public class IborIndexTest {
         TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, DKCO)));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "DKK-CIBOR-3M");
+  }
+
+  public void test_huf_bubor() {
+    IborIndex test = IborIndex.of("HUF-BUBOR-3M");
+    assertEquals(test.getCurrency(), HUF);
+    assertEquals(test.getName(), "HUF-BUBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), HUBU);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, HUBU));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, HUBU));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, HUBU)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "HUF-BUBOR-3M");
   }
 
   public void test_pln_wibor() {

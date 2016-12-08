@@ -458,6 +458,56 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 week BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_1W = IborIndex.of("HUF-BUBOR-1W");
+  /**
+   * The 2 week BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_2W = IborIndex.of("HUF-BUBOR-2W");
+  /**
+   * The 1 month BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_1M = IborIndex.of("HUF-BUBOR-1M");
+  /**
+   * The 2 month BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_2M = IborIndex.of("HUF-BUBOR-2M");
+  /**
+   * The 3 month BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_3M = IborIndex.of("HUF-BUBOR-3M");
+  /**
+   * The 6 month BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_6M = IborIndex.of("HUF-BUBOR-6M");
+  /**
+   * The 9 month BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_9M = IborIndex.of("HUF-BUBOR-9M");
+  /**
+   * The 12 month BUBOR index.
+   * <p>
+   * The "Budapest Interbank Offered Rate".
+   */
+  public static final IborIndex HUF_BUBOR_12M = IborIndex.of("HUF-BUBOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week NIBOR index.
    * <p>
    * The "Norwegian Interbank Offered Rate".

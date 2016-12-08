@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
@@ -17,6 +18,8 @@ import java.util.List;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@code GlobalHolidayCalendars}.
@@ -728,6 +731,45 @@ public class GlobalHolidayCalendarsTest {
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(DKCO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar HUBU = GlobalHolidayCalendars.generateBudapest();
+
+  @DataProvider(name = "hubu")
+  Object[][] data_hubu() {
+    // http://www.mnb.hu/letoltes/bubor2.xls
+    // http://holidays.kayaposoft.com/public_holidays.php?year=2013&country=hun&region=#
+    return new Object[][] {
+        {2012, mds(2012, md(3, 15), md(3, 16), md(4, 9), md(4, 30), md(5, 1), md(5, 28),
+            md(8, 20), md(10, 22), md(10, 23), md(11, 1), md(11, 2), md(12, 24), md(12, 25), md(12, 26), md(12, 31)),
+            ImmutableList.of(date(2012, 3, 24), date(2012, 5, 5), date(2012, 10, 27),
+                date(2012, 11, 10), date(2012, 12, 15), date(2012, 12, 29))},
+        {2013, mds(2013, md(1, 1), md(3, 15), md(4, 1), md(5, 1), md(5, 20),
+            md(8, 19), md(8, 20), md(10, 23), md(11, 1), md(12, 24), md(12, 25), md(12, 26), md(12, 27)),
+            ImmutableList.of(date(2013, 8, 24), date(2013, 12, 7), date(2013, 12, 21))},
+        {2014, mds(2014, md(1, 1), md(3, 15), md(4, 21), md(5, 1), md(5, 2),
+            md(6, 9), md(8, 20), md(10, 23), md(10, 24), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2014, 5, 10), date(2014, 10, 18))},
+        {2015, mds(2015, md(1, 1), md(1, 2), md(3, 15), md(4, 6), md(5, 1), md(5, 25),
+            md(8, 20), md(8, 21), md(10, 23), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2015, 1, 10), date(2015, 8, 8), date(2015, 12, 12))},
+        {2016, mds(2016, md(1, 1), md(3, 14), md(3, 15), md(3, 28), md(5, 1), md(5, 16),
+            md(10, 31), md(11, 1), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2016, 3, 5), date(2016, 10, 15))},
+    };
+  }
+
+  @Test(dataProvider = "hubu")
+  public void test_hubu(int year, List<LocalDate> holidays, List<LocalDate> workDays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = (holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY) &&
+          !workDays.contains(date);
+      assertEquals(HUBU.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
     }
   }

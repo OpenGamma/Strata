@@ -136,6 +136,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId DKCO = HolidayCalendarId.of("DKCO");
   /**
+   * An identifier for the holiday calendar of Budapest, Hungary, with code 'HUBU'.
+   * <p>
+   * This constant references the calendar for Budapest bank holidays.
+   */
+  public static final HolidayCalendarId HUBU = HolidayCalendarId.of("HUBU");
+  /**
    * An identifier for the holiday calendar of Oslo, Norway, with code 'NOOS'.
    * <p>
    * This constant references the calendar for Oslo bank holidays.

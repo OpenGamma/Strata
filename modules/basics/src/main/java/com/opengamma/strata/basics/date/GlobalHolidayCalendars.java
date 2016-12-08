@@ -18,10 +18,12 @@ import static java.time.temporal.TemporalAdjusters.lastInMonth;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.stream.Collectors.toSet;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -151,6 +153,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar DKCO = generateCopenhagen();
+  /**
+   * The holiday calendar for Budapest, Hungary, with code 'HUBU'.
+   * <p>
+   * This constant provides the calendar for Budapest holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar HUBU = generateBudapest();
   /**
    * The holiday calendar for Oslo, Norway, with code 'NOOS'.
    * <p>
@@ -952,6 +963,105 @@ final class GlobalHolidayCalendars {
     holidays.add(date(2000, 1, 2));
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("ZAJO"), holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // http://www.magyarkozlony.hu/dokumentumok/b0d596a3e6ce15a2350a9e138c058a78dd8622d0/megtekintes (article 148)
+  // http://www.mfa.gov.hu/NR/rdonlyres/18C1949E-D740-45E0-923A-BDFC81EC44C8/0/ListofHolidays2016.pdf
+  // http://jollyday.sourceforge.net/data/hu.html
+  // https://englishhungary.wordpress.com/2012/01/15/bridge-days/
+  // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2015/
+  // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2014/
+  static ImmutableHolidayCalendar generateBudapest() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    Set<LocalDate> workDays = new HashSet<>(500);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      addDateWithHungarianBridging(date(year, 1, 1), -1, 1, holidays, workDays);
+      // national day
+      addDateWithHungarianBridging(date(year, 3, 15), -2, 1, holidays, workDays);
+      if (year >= 2017) {
+        // good friday
+        holidays.add(easter(year).minusDays(2));
+      }
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // labour day
+      addDateWithHungarianBridging(date(year, 5, 1), 0, 1, holidays, workDays);
+      // pentecost monday
+      holidays.add(easter(year).plusDays(50));
+      // state foundation day
+      addDateWithHungarianBridging(date(year, 8, 20), 0, -2, holidays, workDays);
+      // national day
+      addDateWithHungarianBridging(date(year, 10, 23), 0, -1, holidays, workDays);
+      // all saints day
+      addDateWithHungarianBridging(date(year, 11, 1), -3, 1, holidays, workDays);
+      // christmas
+      holidays.add(date(year, 12, 25));
+      holidays.add(date(year, 12, 26));
+      if (date(year, 12, 25).getDayOfWeek() == TUESDAY) {
+        holidays.add(date(year, 12, 24));
+        workDays.add(date(year, 12, 15));
+      } else if (date(year, 12, 25).getDayOfWeek() == WEDNESDAY) {
+        holidays.add(date(year, 12, 24));
+        holidays.add(date(year, 12, 27));
+        workDays.add(date(year, 12, 7));
+        workDays.add(date(year, 12, 21));
+      } else if (date(year, 12, 25).getDayOfWeek() == THURSDAY) {
+        holidays.add(date(year, 12, 24));
+      } else if (date(year, 12, 25).getDayOfWeek() == FRIDAY) {
+        holidays.add(date(year, 12, 24));
+        workDays.add(date(year, 12, 12));
+      }
+    }
+    // some Saturdays are work days
+    addHungarianSaturdays(holidays, workDays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("HUBU"), holidays, SUNDAY, SUNDAY);
+  }
+
+  // an attempt to divine the official rules from the data available
+  private static void addDateWithHungarianBridging(
+      LocalDate date,
+      int relativeWeeksTue,
+      int relativeWeeksThu,
+      List<LocalDate> holidays,
+      Set<LocalDate> workDays) {
+
+    DayOfWeek dow = date.getDayOfWeek();
+    switch (dow) {
+      case MONDAY:
+      case WEDNESDAY:
+      case FRIDAY:
+        holidays.add(date);
+        return;
+      case TUESDAY:
+        holidays.add(date.minusDays(1));
+        holidays.add(date);
+        workDays.add(date.plusDays(4).plusWeeks(relativeWeeksTue));  // a Saturday is now a workday
+        return;
+      case THURSDAY:
+        holidays.add(date.plusDays(1));
+        holidays.add(date);
+        workDays.add(date.plusDays(2).plusWeeks(relativeWeeksThu));  // a Saturday is now a workday
+        return;
+      case SATURDAY:
+      case SUNDAY:
+        return;
+    }
+  }
+
+  private static void addHungarianSaturdays(List<LocalDate> holidays, Set<LocalDate> workDays) {
+    // remove all saturdays and sundays
+    removeSatSun(holidays);
+    // add all saturdays
+    LocalDate endDate = LocalDate.of(2099, 12, 31);
+    LocalDate date = LocalDate.of(1950, 1, 7);
+    while (date.isBefore(endDate)) {
+      if (!workDays.contains(date)) {
+        holidays.add(date);
+      }
+      date = date.plusDays(7);
+    }
   }
 
   //-------------------------------------------------------------------------
