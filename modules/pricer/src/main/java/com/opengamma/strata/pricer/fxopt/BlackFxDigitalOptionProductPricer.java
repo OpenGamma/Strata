@@ -72,6 +72,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the price of the product
    */
+  // discounted price digital
   public double price(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -96,6 +97,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the present value of the product
    */
+  // discounted Currency value of option
   public CurrencyAmount presentValue(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -106,7 +108,7 @@ public class BlackFxDigitalOptionProductPricer {
     return CurrencyAmount.of(option.getCounterCurrency(), signedNotional(option) * price);
   }
 
-  // the price without discounting
+  // the undiscounted price
   private double undiscountedPrice(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -138,6 +140,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the delta of the product
    */
+  // discounted delta
   public double delta(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -161,6 +164,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the present value delta of the product
    */
+  // discounted currency PV
   public CurrencyAmount presentValueDelta(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -227,7 +231,7 @@ public class BlackFxDigitalOptionProductPricer {
     return fwdSensi.combinedWith(dscSensi).build().convertedTo(option.getCounterCurrency(), ratesProvider);
   }
 
-  // the delta without discounting
+  // the undiscounted delta
   private double undiscountedDelta(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -263,6 +267,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the gamma of the product
    */
+  // disocunted gamma
   public double gamma(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -297,6 +302,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the present value gamma of the product
    */
+  // Cash Discounted Gamma
   public CurrencyAmount presentValueGamma(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -317,6 +323,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the vega of the product
    */
+  // discounted Vega
   public double vega(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -348,6 +355,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the present value vega of the product
    */
+  // Cash discounted Vega
   public CurrencyAmount presentValueVega(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -401,6 +409,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the theta of the product
    */
+  // discounted theta
   public double theta(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -435,6 +444,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the present value vega of the product
    */
+  // cash discounted theta
   public CurrencyAmount presentValueTheta(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -454,6 +464,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @return the implied volatility of the product
    * @throws IllegalArgumentException if the option has expired
    */
+  // nonsensical impliedvol of digital
   public double impliedVolatility(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,
@@ -478,6 +489,7 @@ public class BlackFxDigitalOptionProductPricer {
    * @param volatilities  the Black volatility provider
    * @return the currency exposure
    */
+  // currencyexposure of the option position
   public MultiCurrencyAmount currencyExposure(
       ResolvedFxDigitalOption option,
       RatesProvider ratesProvider,

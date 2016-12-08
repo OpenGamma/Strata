@@ -5,16 +5,11 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.math.DoubleMath;
-import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The price function to compute the price of barrier option in the Black world.
@@ -33,7 +28,7 @@ public class BlackDigitalPriceFormulaRepository {
     private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
     /**
-     * Computes the future price of a Domestic Cash Digital option using the call spread approximation.
+
      * @param forward        the spot
      * @param strike       the strike
      * @param timeToExpiry the time to expiry
@@ -44,6 +39,7 @@ public class BlackDigitalPriceFormulaRepository {
      * @param N            the Notional
      * @return the price
      */
+    // Computes the forward price of a Domestic Cash Digital option using the call spread approximation.
     public static double price(
             double forward,
             double strike,
@@ -63,6 +59,7 @@ public class BlackDigitalPriceFormulaRepository {
         {
             ArgChecker.isTrue(2* strike * Eps < SMALL, "Epsilon for call spread adjustment is too small with value {}", Eps);
         }
+        // Black.price is forward price
         double output = sign * M * (BlackFormulaRepository.price(forward,Kminus,timeToExpiry,lognormalVol,isCall)
                     - BlackFormulaRepository.price(forward,Kplus,timeToExpiry,lognormalVol,isCall));
         //double costCarry = Rd-Rf;
@@ -165,7 +162,7 @@ public class BlackDigitalPriceFormulaRepository {
 
 
 
-    // Computes the current Domestic Cash Digital option - BS.
+    // Computes the valuation date price: Domestic Cash Digital option - BS.
     /**
      * @param forward        the spot
      * @param strike       the strike
