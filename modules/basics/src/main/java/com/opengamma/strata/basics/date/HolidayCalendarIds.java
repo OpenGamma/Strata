@@ -124,6 +124,13 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId AUSY = HolidayCalendarId.of("AUSY");
   /**
+   * An identifier for the holiday calendar of Brazil, with code 'BRBD'.
+   * <p>
+   * This constant references the combined calendar for Brazil bank holidays.
+   * This unites city-level calendars.
+   */
+  public static final HolidayCalendarId BRBD = HolidayCalendarId.of("BRBD");
+  /**
    * An identifier for the holiday calendar of Toronto, Canada, with code 'CATO'.
    * <p>
    * This constant references the calendar for Toronto bank holidays.
@@ -135,6 +142,18 @@ public final class HolidayCalendarIds {
    * This constant references the calendar for Copenhagen bank holidays.
    */
   public static final HolidayCalendarId DKCO = HolidayCalendarId.of("DKCO");
+  /**
+   * An identifier for the holiday calendar of Budapest, Hungary, with code 'HUBU'.
+   * <p>
+   * This constant references the calendar for Budapest bank holidays.
+   */
+  public static final HolidayCalendarId HUBU = HolidayCalendarId.of("HUBU");
+  /**
+   * An identifier for the holiday calendar of Mexico City, Mexico, with code 'MXMC'.
+   * <p>
+   * This constant references the calendar for Mexico City bank holidays.
+   */
+  public static final HolidayCalendarId MXMC = HolidayCalendarId.of("MXMC");
   /**
    * An identifier for the holiday calendar of Oslo, Norway, with code 'NOOS'.
    * <p>

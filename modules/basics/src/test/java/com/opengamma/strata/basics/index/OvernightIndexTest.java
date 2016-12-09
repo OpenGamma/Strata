@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
@@ -14,6 +15,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
@@ -33,6 +35,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DayCount;
 
 /**
  * Test Overnight Index.
@@ -119,6 +122,18 @@ public class OvernightIndexTest {
     assertEquals(test.toString(), "AUD-AONIA");
   }
 
+  public void test_brlCdi() {
+    OvernightIndex test = OvernightIndex.of("BRL-CDI");
+    assertEquals(test.getName(), "BRL-CDI");
+    assertEquals(test.getCurrency(), BRL);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), BRBD);
+    assertEquals(test.getPublicationDateOffset(), 1);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), DayCount.ofBus252(BRBD));
+    assertEquals(test.toString(), "BRL-CDI");
+  }
+
   public void test_dkkOis() {
     OvernightIndex test = OvernightIndex.of("DKK-TNR");
     assertEquals(test.getName(), "DKK-TNR");
@@ -165,6 +180,7 @@ public class OvernightIndexTest {
         {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
         {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},
         {OvernightIndices.AUD_AONIA, "AUD-AONIA"},
+        {OvernightIndices.BRL_CDI, "BRL-CDI"},
         {OvernightIndices.DKK_TNR, "DKK-TNR"},
     };
   }
