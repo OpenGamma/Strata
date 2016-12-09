@@ -9,13 +9,13 @@ import java.io.UncheckedIOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Unchecked;
 
 /**
@@ -79,7 +79,7 @@ public final class IniFile {
   public static IniFile of(CharSource source) {
     ArgChecker.notNull(source, "source");
     ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
-    Map<String, Multimap<String, String>> parsedIni = parse(lines);
+    ImmutableMap<String, ImmutableListMultimap<String, String>> parsedIni = parse(lines);
     ImmutableMap.Builder<String, PropertySet> builder = ImmutableMap.builder();
     parsedIni.forEach((sectionName, sectionData) -> builder.put(sectionName, PropertySet.of(sectionData)));
     return new IniFile(builder.build());
@@ -87,9 +87,11 @@ public final class IniFile {
 
   //-------------------------------------------------------------------------
   // parses the INI file format
-  private static Map<String, Multimap<String, String>> parse(ImmutableList<String> lines) {
-    Map<String, Multimap<String, String>> ini = new LinkedHashMap<>();
-    Multimap<String, String> currentSection = null;
+  private static ImmutableMap<String, ImmutableListMultimap<String, String>> parse(ImmutableList<String> lines) {
+    // cannot use ArrayListMultiMap as it does not retain the order of the keys
+    // whereas ImmutableListMultimap does retain the order of the keys
+    Map<String, ImmutableListMultimap.Builder<String, String>> ini = new LinkedHashMap<>();
+    ImmutableListMultimap.Builder<String, String> currentSection = null;
     int lineNum = 0;
     for (String line : lines) {
       lineNum++;
@@ -102,7 +104,7 @@ public final class IniFile {
         if (ini.containsKey(sectionName)) {
           throw new IllegalArgumentException("Invalid INI file, duplicate section not allowed, line " + lineNum);
         }
-        currentSection = ArrayListMultimap.create();
+        currentSection = ImmutableListMultimap.builder();
         ini.put(sectionName, currentSection);
 
       } else if (currentSection == null) {
@@ -118,7 +120,7 @@ public final class IniFile {
         currentSection.put(key, value);
       }
     }
-    return ini;
+    return MapStream.of(ini).mapValues(b -> b.build()).toMap();
   }
 
   //-------------------------------------------------------------------------

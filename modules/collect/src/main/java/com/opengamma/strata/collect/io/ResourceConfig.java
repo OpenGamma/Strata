@@ -214,7 +214,7 @@ public final class ResourceConfig {
       // add entries, replacing existing data
       for (String sectionName : file.asMap().keySet()) {
         if (!sectionName.equals(CHAIN_SECTION)) {
-          sectionMap.merge(sectionName, file.section(sectionName), PropertySet::combinedWith);
+          sectionMap.merge(sectionName, file.section(sectionName), PropertySet::overrideWith);
         }
       }
     }

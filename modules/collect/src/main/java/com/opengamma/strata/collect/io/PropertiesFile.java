@@ -9,9 +9,8 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Properties;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
@@ -75,7 +74,9 @@ public final class PropertiesFile {
 
   // parses the properties file format
   private static PropertySet parse(ImmutableList<String> lines) {
-    Multimap<String, String> parsed = ArrayListMultimap.create();
+    // cannot use ArrayListMultiMap as it does not retain the order of the keys
+    // whereas ImmutableListMultimap does retain the order of the keys
+    ImmutableListMultimap.Builder<String, String> parsed = ImmutableListMultimap.builder();
     int lineNum = 0;
     for (String line : lines) {
       lineNum++;
@@ -91,7 +92,7 @@ public final class PropertiesFile {
       }
       parsed.put(key, value);
     }
-    return PropertySet.of(parsed);
+    return PropertySet.of(parsed.build());
   }
 
   //-------------------------------------------------------------------------
