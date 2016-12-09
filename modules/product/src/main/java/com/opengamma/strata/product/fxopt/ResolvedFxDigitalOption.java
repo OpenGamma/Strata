@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.product.fxopt;
 
-import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.ResolvedProduct;
@@ -28,7 +27,7 @@ import java.util.Set;
 import static com.opengamma.strata.collect.ArgChecker.inOrderOrEqual;
 
 /**
- * A vanilla FX option, resolved for pricing.
+ * A Digital FX option, resolved for pricing.
  * <p>
  * This is the resolved form of {@link FxDigitalOption} and is an input to the pricers.
  * Applications will typically create a {@code ResolvedVanillaOption} is bound to data that changes over time, such as holiday calendars.
