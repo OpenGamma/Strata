@@ -74,7 +74,7 @@ public class CdsIndexIsdaCreditCurveNodeTest {
     assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getObservableId(), QUOTE_ID);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDate(VAL_DATE, REF_DATA), date(2025, 6, 20));
+    assertEquals(test.date(VAL_DATE, REF_DATA), date(2025, 6, 20));
   }
 
   public void test_of_quotedSpread() {
@@ -85,7 +85,7 @@ public class CdsIndexIsdaCreditCurveNodeTest {
     assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getObservableId(), QUOTE_ID);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDate(VAL_DATE, REF_DATA), date(2025, 6, 20));
+    assertEquals(test.date(VAL_DATE, REF_DATA), date(2025, 6, 20));
   }
 
   public void test_of_pardSpread() {
@@ -95,7 +95,7 @@ public class CdsIndexIsdaCreditCurveNodeTest {
     assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getObservableId(), QUOTE_ID);
     assertEquals(test.getTemplate(), TEMPLATE_NS);
-    assertEquals(test.getNodeDate(VAL_DATE, REF_DATA), END_DATE);
+    assertEquals(test.date(VAL_DATE, REF_DATA), END_DATE);
   }
 
   public void test_of_pointsUpfront() {
@@ -106,7 +106,7 @@ public class CdsIndexIsdaCreditCurveNodeTest {
     assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getObservableId(), QUOTE_ID);
     assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getNodeDate(VAL_DATE, REF_DATA), date(2025, 6, 20));
+    assertEquals(test.date(VAL_DATE, REF_DATA), date(2025, 6, 20));
   }
 
   public void test_build_fail_noRate() {

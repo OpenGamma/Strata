@@ -37,6 +37,7 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DepositIsdaCreditCurveNode;
+import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.IsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.SwapIsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
@@ -280,8 +281,10 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       builder.addValue(QuoteId.of(StandardId.of("OG", ID_VALUES[j])), RATES[j] * rateScale);
     }
     ImmutableMarketData quotes = builder.build();
-    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantDiscountCurveCalibrator.DEFAULT.calibrate(
-        DSC_NODES, tradeDate, ACT_365F, CurveName.of("yield"), EUR, quotes, false, REF_DATA);
+    IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
+        CurveName.of("yield"), EUR, tradeDate, ACT_365F, DSC_NODES, false);
+    IsdaCompliantZeroRateDiscountFactors yc =
+        IsdaCompliantDiscountCurveCalibrator.standard().calibrate(curveDefinition, quotes, REF_DATA);
     return CreditRatesProvider.builder()
         .valuationDate(tradeDate)
         .discountCurves(ImmutableMap.of(EUR, yc))

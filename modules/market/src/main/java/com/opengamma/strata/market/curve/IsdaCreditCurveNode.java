@@ -8,7 +8,6 @@ package com.opengamma.strata.market.curve;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
@@ -35,13 +34,6 @@ public interface IsdaCreditCurveNode {
    * @return the observable ID
    */
   public abstract ObservableId getObservableId();
-
-  /**
-   * Get the tenor of the node.
-   * 
-   * @return the tenor
-   */
-  public abstract Tenor getTenor();
 
   /**
    * Calculates the date associated with the node.
