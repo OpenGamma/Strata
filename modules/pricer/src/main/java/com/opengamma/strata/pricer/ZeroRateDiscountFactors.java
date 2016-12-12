@@ -162,6 +162,13 @@ public final class ZeroRateDiscountFactors
   }
 
   @Override
+  public double discountFactorTimeDerivative(double yearFraction) {
+    double zr = curve.yValue(yearFraction);    
+    return - Math.exp(-yearFraction * curve.yValue(yearFraction)) 
+        * (zr + curve.firstDerivative(yearFraction) * yearFraction);
+  }
+
+  @Override
   public double zeroRate(double yearFraction) {
     return curve.yValue(yearFraction);
   }
