@@ -12,8 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The price function to compute the price of barrier option in the Black world.
- * Reference: E. G. Haug (2007) The complete guide to Option Pricing Formulas. Mc Graw Hill. Section 4.17.1.
+ * The price function to compute the price of digital option in the Black world using call spread approximation.
  */
 public class BlackDigitalPriceFormulaRepository {
 
@@ -32,8 +31,6 @@ public class BlackDigitalPriceFormulaRepository {
      * @param forward        the spot
      * @param strike       the strike
      * @param timeToExpiry the time to expiry
-     * @param Rd           the Domestic rate
-     * @param Rf           the foreign rate
      * @param lognormalVol the lognormal volatility
      * @param isCall       true if call, false otherwise
      * @param N            the Notional

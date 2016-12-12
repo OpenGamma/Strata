@@ -30,9 +30,6 @@ import java.time.ZonedDateTime;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
-import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.*;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.testng.Assert.assertEquals;
@@ -147,50 +144,35 @@ public class BlackFxDigitalOptionProductPricerTest {
 
 
 
-  // Test the Pricing equation
+  // Test the PV
   public void test_price_presentValue() {
-    // callOTM price
     double priceCallOtm = PRICER.price(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvCallOtm = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
-    // PutOTM Price
     double pricePutOtm = PRICER.price(PUT_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvPutOtm = PRICER.presentValue(PUT_OTM, RATES_PROVIDER, VOLS);
     double timeToExpiry = VOLS.relativeTime(EXPIRY);
     double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer()
         .forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER).fxRate(CURRENCY_PAIR);
-    // Interp K
     CurveInterpolator strikeinterp = SMILE_TERM.getStrikeInterpolator();
-    // Interp T
     CurveInterpolator timeinterp = SMILE_TERM.getTimeInterpolator();
-    // SmileVols
     ImmutableList<SmileDeltaParameters> volterm = SMILE_TERM.getVolatilityTerm();
-    // DeltaBased smile
     SmileDeltaParameters time = SMILE_TERM.smileForExpiry(timeToExpiry);
 
 
-    // Interpolate SmileVol at K
     double volHigh = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
     double volLow = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_LOW, forward);
 
-    // Discounted Option Prices
     double expectedPriceCallOtm =
         df * BlackDigitalPriceFormulaRepository.price(forward, STRIKE_RATE_HIGH, timeToExpiry, volHigh, true, 1.0);
     double expectedPricePutOtm =
         df * BlackDigitalPriceFormulaRepository.price(forward, STRIKE_RATE_LOW, timeToExpiry, volLow, false, 1.0);
-    // Discounted Cash Option prices
     double expectedPvCallOtm = -NOTIONAL * df *
         BlackDigitalPriceFormulaRepository.price(forward, STRIKE_RATE_HIGH, timeToExpiry, volHigh, true, 1.0);
     double expectedPvPutOtm = -NOTIONAL * df *
         BlackDigitalPriceFormulaRepository.price(forward, STRIKE_RATE_LOW, timeToExpiry, volLow, false, 1.0);
 
-    // Vol term structure for smile
-    //InterpolatedStrikeSmileDeltaTermStructure ISS =
-       // InterpolatedStrikeSmileDeltaTermStructure.of(volterm, ACT_360, NATURAL_CUBIC_SPLINE, FLAT, FLAT);
-    //CurveInterpolator strikeinterp = SMILE_TERM.getStrikeInterpolator();
-    //CurveInterpolator timeinterp = SMILE_TERM.getTimeInterpolator();
 
-    // checks values are equal
     assertEquals(priceCallOtm, expectedPriceCallOtm, TOL);
     assertEquals(pvCallOtm.getCurrency(), USD);
     assertEquals(pvCallOtm.getAmount(), expectedPvCallOtm, NOTIONAL * TOL);
@@ -199,39 +181,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(pvPutOtm.getAmount(), expectedPvPutOtm, NOTIONAL * TOL);
   }
 
-
-
-
-
-  // creation of different Strike based Interpolators
-  // not working!!!
-  public void test_price_presentValue_Interpolator() {
-
-    double timeToExpiry = VOLS.relativeTime(EXPIRY);
-    CurveInterpolator strikeinterp = SMILE_TERM.getStrikeInterpolator();
-    CurveInterpolator timeinterp = SMILE_TERM.getTimeInterpolator();
-    ImmutableList<SmileDeltaParameters> volterm = SMILE_TERM.getVolatilityTerm();
-    SmileDeltaParameters time = SMILE_TERM.smileForExpiry(timeToExpiry);
-    // LOGLINEAR K Interp
-    InterpolatedStrikeSmileDeltaTermStructure ISS =
-        InterpolatedStrikeSmileDeltaTermStructure.of(volterm, ACT_360, LOG_LINEAR, FLAT, FLAT);
-    test_price_presentValue();
-
-    // Cubic Spline K Interp
-    InterpolatedStrikeSmileDeltaTermStructure ISS2 =
-        InterpolatedStrikeSmileDeltaTermStructure.of(volterm, ACT_360, NATURAL_CUBIC_SPLINE, FLAT, FLAT);
-    test_price_presentValue();
-
-    // DOuble Quad K Interp
-    InterpolatedStrikeSmileDeltaTermStructure ISS3 =
-        InterpolatedStrikeSmileDeltaTermStructure.of(volterm, ACT_360, DOUBLE_QUADRATIC, FLAT, FLAT);
-    test_price_presentValue();
-
-    // Linear K Interp
-    InterpolatedStrikeSmileDeltaTermStructure ISS4 =
-        InterpolatedStrikeSmileDeltaTermStructure.of(volterm, ACT_360, LINEAR, FLAT, FLAT);
-    test_price_presentValue();
-  }
 
 
 
@@ -267,7 +216,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(pvPutItm.getAmount(), df  * NOTIONAL, NOTIONAL * TOL);
   }
 
-  //Check price after expiry is zero
   public void test_price_presentValue_afterExpiry() {
     double price = PRICER.price(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
@@ -276,7 +224,6 @@ public class BlackFxDigitalOptionProductPricerTest {
   }
 
 
-  // check parity for digitals ITMC + OTMP
   public void test_price_presentValue_parity1() {
     double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer()
@@ -294,7 +241,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     }
   }
 
-  // check parity for digitals ITMP + OTMC
   public void test_price_presentValue_parity2() {
     double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer()
@@ -314,7 +260,6 @@ public class BlackFxDigitalOptionProductPricerTest {
   }
 
 
-  //Check C/P delta calculations
   public void test_delta_presentValueDelta() {
     double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvDeltaCall = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -339,7 +284,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(pvDeltaPut.getAmount(), expectedPvDeltaPut, NOTIONAL * TOL);
   }
 
-  //check delta after expiry = 0
   public void test_delta_presentValueDelta_atExpiry() {
     double dfFor = RATES_PROVIDER_EXPIRY.discountFactor(EUR, PAYMENT_DATE);
     double deltaCallOtm = PRICER.delta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
@@ -360,7 +304,7 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(pvDeltaPutOtm.getAmount(), 0d, NOTIONAL * TOL);
   }
 
-  // check DeltaPV after expiry = 0
+
   public void test_delta_presentValueDelta_afterExpiry() {
     double delta = PRICER.delta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvDelta = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
@@ -370,49 +314,6 @@ public class BlackFxDigitalOptionProductPricerTest {
 
 
 
-
-
-
-
-
-
-
-
-
-  // ????
-  /*
-  public void test_presentValueSensitivity() {
-    // call
-    //FD_CAL.sensitivity()
-    PointSensitivities pointCall = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER, VOLS);
-    CurrencyParameterSensitivities computedCall = RATES_PROVIDER.parameterSensitivity(pointCall);
-    CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity(
-        RATES_PROVIDER, p -> PRICER.presentValue(CALL_OTM, p, VOLS));
-    // contribution via implied volatility, to be subtracted.
-    CurrencyAmount pvVegaCall = PRICER.presentValueVega(CALL_OTM, RATES_PROVIDER, VOLS);
-    CurrencyParameterSensitivities impliedVolSenseCall =
-        FD_CAL.sensitivity(RATES_PROVIDER,
-            (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(CALL_OTM, (p), VOLS)))
-            .multipliedBy(-pvVegaCall.getAmount());
-    CurrencyParameterSensitivities Output = expectedCall.combinedWith(impliedVolSenseCall);
-    assertTrue(computedCall.equalWithTolerance(expectedCall.combinedWith(impliedVolSenseCall), NOTIONAL * FD_EPS));
-
-
-    // put
-    PointSensitivities pointPut = PRICER.presentValueSensitivityRatesStickyStrike(PUT_OTM, RATES_PROVIDER, VOLS);
-    CurrencyParameterSensitivities computedPut = RATES_PROVIDER.parameterSensitivity(pointPut);
-    CurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity(
-        RATES_PROVIDER, (p) -> PRICER.presentValue(PUT_OTM, (p), VOLS));
-    // contribution via implied volatility, to be subtracted.
-    CurrencyAmount pvVegaPut = PRICER.presentValueVega(PUT_OTM, RATES_PROVIDER, VOLS);
-    CurrencyParameterSensitivities impliedVolSensePut = FD_CAL.sensitivity(
-        RATES_PROVIDER, (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(PUT_OTM, (p), VOLS)))
-        .multipliedBy(-pvVegaPut.getAmount());
-    assertTrue(computedPut.equalWithTolerance(expectedPut.combinedWith(impliedVolSensePut), NOTIONAL * FD_EPS));
-  }
-*/
-
-  // checks PV Sens at Expiry is ok
   public void test_presentValueSensitivity_atExpiry() {
     // call
     PointSensitivities pointCall = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
@@ -428,7 +329,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertTrue(computedPut.equalWithTolerance(expectedPut, NOTIONAL * FD_EPS));
   }
 
-  // check
   public void test_presentValueSensitivity_afterExpiry() {
     PointSensitivities point = PRICER.presentValueSensitivityRatesStickyStrike(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     assertEquals(point, PointSensitivities.empty());
@@ -463,10 +363,7 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(gammaCall, expectedGammaCall, TOL);
     assertEquals(pvGammaCall.getCurrency(), USD);
     assertEquals(pvGammaCall.getAmount(), expectedPvGammaCall, NOTIONAL * TOL);
-    /*
-    double o1 = pvGammaCall.getAmount() - expectedPvGammaCall;
-    double o2 = pvGammaPut.getAmount() - expectedPvGammaPut;
-    */
+
     // ITMP Gamma
     assertEquals(gammaPut, expectedGammaPut, TOL);
     assertEquals(pvGammaPut.getCurrency(), USD);
@@ -475,14 +372,13 @@ public class BlackFxDigitalOptionProductPricerTest {
   }
 
 
-  // check PVGamma at expiry is zero
   public void test_gamma_presentValueGamma_atExpiry() {
     double gamma = PRICER.gamma(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvGamma = PRICER.presentValueGamma(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     assertEquals(gamma, 0d, TOL);
     assertEquals(pvGamma.getAmount(), 0d, NOTIONAL * TOL);
   }
-  // check PVGamma after expiry is zero
+
   public void test_gamma_presentValueGamma_afterExpiry() {
     double gamma = PRICER.gamma(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvGamma = PRICER.presentValueGamma(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
@@ -490,7 +386,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(pvGamma.getAmount(), 0d, NOTIONAL * TOL);
   }
 
-  // check PVVega Calc
   public void test_vega_presentValueVega() {
     double vegaCall = PRICER.vega(CALL_OTM, RATES_PROVIDER, VOLS);
 
@@ -519,7 +414,6 @@ public class BlackFxDigitalOptionProductPricerTest {
   }
 
 
-  // check PVVega at expiry is zero
   public void test_vega_presentValueVega_atExpiry() {
     double vega = PRICER.vega(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvVega = PRICER.presentValueVega(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
@@ -527,7 +421,6 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(pvVega.getAmount(), 0d, NOTIONAL * TOL);
   }
 
-  // check PVVega after expiry is zero
   public void test_vega_presentValueVega_afterExpiry() {
     double vega = PRICER.vega(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvVega = PRICER.presentValueVega(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
@@ -574,31 +467,6 @@ public class BlackFxDigitalOptionProductPricerTest {
 
 
   //-------------------------------------------------------------------------
-  /*
-  public void test_impliedVolatility() {
-    double computedCall = PRICER.impliedVolatility(CALL_OTM, RATES_PROVIDER, VOLS);
-    double computedPut = PRICER.impliedVolatility(PUT_ITM, RATES_PROVIDER, VOLS);
-    double timeToExpiry = VOLS.relativeTime(EXPIRY);
-    double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
-        .fxRate(CURRENCY_PAIR);
-    double expected = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
-    assertEquals(computedCall, expected);
-    assertEquals(computedPut, expected);
-  }
-  */
-
-  /*
-  public void test_impliedVolatility_atExpiry() {
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY));
-  }
-  */
-  /*
-  public void test_impliedVolatility_afterExpiry() {
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER));
-  }
-  */
-
-  //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     MultiCurrencyAmount computedPricer = PRICER.currencyExposure(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -607,5 +475,4 @@ public class BlackFxDigitalOptionProductPricerTest {
     assertEquals(computedPricer.getAmount(EUR).getAmount(), computedPoint.getAmount(EUR).getAmount(), NOTIONAL * TOL);
     assertEquals(computedPricer.getAmount(USD).getAmount(), computedPoint.getAmount(USD).getAmount(), NOTIONAL * TOL);
   }
-
 }
