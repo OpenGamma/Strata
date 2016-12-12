@@ -52,7 +52,7 @@ public class SwapIsdaCreditCurveNodeTest {
     assertEquals(test.getPaymentFrequency(), FREQUENCY);
     assertEquals(test.getSpotDateOffset(), ADJ_3D);
     assertEquals(test.getTenor(), TENOR);
-    assertEquals(test.getNodeDate(TRADE_DATE, REF_DATA), LocalDate.of(2026, 10, 5));
+    assertEquals(test.date(TRADE_DATE, REF_DATA), LocalDate.of(2026, 10, 5));
     assertEquals(test.metadata(LocalDate.of(2026, 10, 5)), TenorDateParameterMetadata.of(LocalDate.of(2026, 10, 5), TENOR));
   }
 

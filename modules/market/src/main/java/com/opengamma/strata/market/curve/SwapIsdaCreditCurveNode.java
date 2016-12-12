@@ -100,7 +100,7 @@ public final class SwapIsdaCreditCurveNode
   /**
    * Returns a curve node for a standard fixed-Ibor swap.
    * <p>
-   * {@code label} will be created from {@code tenor}. 
+   * The label will be created from {@code tenor}. 
    * 
    * @param observableId  the observable ID
    * @param spotDateOffset  the spot date offset
@@ -137,7 +137,7 @@ public final class SwapIsdaCreditCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDate getNodeDate(LocalDate tradeDate, ReferenceData refData) {
+  public LocalDate date(LocalDate tradeDate, ReferenceData refData) {
     LocalDate startDate = spotDateOffset.adjust(tradeDate, refData);
     LocalDate endDate = startDate.plus(tenor.getPeriod());
     return businessDayAdjustment.adjust(endDate, refData);

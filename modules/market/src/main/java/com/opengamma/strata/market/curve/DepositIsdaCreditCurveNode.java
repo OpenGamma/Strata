@@ -84,7 +84,7 @@ public final class DepositIsdaCreditCurveNode
   /**
    * Returns a curve node for a term deposit.
    * <p>
-   * {@code label} will be created using {@code tenor}.
+   * The label will be created using {@code tenor}.
    * 
    * @param observableId  the observable ID
    * @param spotDateOffset  the spot date offset
@@ -118,7 +118,7 @@ public final class DepositIsdaCreditCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDate getNodeDate(LocalDate tradeDate, ReferenceData refData) {
+  public LocalDate date(LocalDate tradeDate, ReferenceData refData) {
     LocalDate startDate = spotDateOffset.adjust(tradeDate, refData);
     LocalDate endDate = startDate.plus(tenor);
     return businessDayAdjustment.adjust(endDate, refData);
