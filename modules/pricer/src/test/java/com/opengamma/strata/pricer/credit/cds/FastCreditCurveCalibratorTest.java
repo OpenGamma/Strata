@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -50,8 +51,8 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
   private static final double EPS = 1.0e-5;
 
   public void regression_consistency_test() {
-    testCalibrationAgainstISDA(BUILDER_ISDA, TOL);
-    testCalibrationAgainstISDA(BUILDER_MARKIT, TOL);
+    testCalibrationAgainstISDA(BUILDER_ISDA, ACT_365F, EUR, TOL);
+    testCalibrationAgainstISDA(BUILDER_MARKIT, ACT_365F, EUR, TOL);
   }
 
   public void parSpreadTest() {
@@ -103,14 +104,16 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
       builderCredit.addValue(id, quotes[i]);
     }
     ImmutableMarketData marketData = builderCredit.build();
+    IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
     LegalEntitySurvivalProbabilities cc =
-        BUILDER_ISDA.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, true, REF_DATA);
+        BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
     LegalEntitySurvivalProbabilities ccMf =
-        BUILDER_MARKIT.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, true, REF_DATA);
+        BUILDER_MARKIT.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurveMf = ((IsdaCompliantZeroRateDiscountFactors) ccMf.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getYValues().toArray(), rateNodeExpMf, TOL));
@@ -167,14 +170,16 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
       builderCredit.addValue(id, quotes[i]);
     }
     ImmutableMarketData marketData = builderCredit.build();
+    IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
     LegalEntitySurvivalProbabilities cc =
-        BUILDER_ISDA.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, true, REF_DATA);
+        BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
     LegalEntitySurvivalProbabilities ccMf =
-        BUILDER_MARKIT.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, true, REF_DATA);
+        BUILDER_MARKIT.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurveMf = ((IsdaCompliantZeroRateDiscountFactors) ccMf.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getYValues().toArray(), rateNodeExpMf, TOL));
@@ -256,14 +261,16 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
       builderCredit.addValue(id, quotes[i] * ONE_PC);
     }
     ImmutableMarketData marketData = builderCredit.build();
+    IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
     LegalEntitySurvivalProbabilities cc =
-        BUILDER_ISDA.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, true, REF_DATA);
+        BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, ONE_PC, EPS);
     LegalEntitySurvivalProbabilities ccMf =
-        BUILDER_MARKIT.calibrate(nodes, CurveName.of("cc"), marketData, ratesProvider, true, REF_DATA);
+        BUILDER_MARKIT.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurveMf = ((IsdaCompliantZeroRateDiscountFactors) ccMf.getSurvivalProbabilities()).getCurve();
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurveMf.getYValues().toArray(), rateNodeExpMf, TOL));

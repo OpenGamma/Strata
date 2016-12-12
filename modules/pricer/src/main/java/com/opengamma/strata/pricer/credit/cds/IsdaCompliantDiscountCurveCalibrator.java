@@ -118,7 +118,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
       MarketData marketData,
       ReferenceData refData) {
 
-    List<IsdaCreditCurveNode> curveNodes = curveDefinition.getCurveNodes();
+    List<? extends IsdaCreditCurveNode> curveNodes = curveDefinition.getCurveNodes();
     int nNodes = curveNodes.size();
     ArgChecker.isTrue(nNodes > 1, "the number of curve nodes must be greater than 1");
     LocalDate curveSnapDate = marketData.getValuationDate();

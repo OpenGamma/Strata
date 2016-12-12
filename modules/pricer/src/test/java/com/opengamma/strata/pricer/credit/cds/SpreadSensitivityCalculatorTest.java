@@ -33,6 +33,7 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -154,7 +155,9 @@ public class SpreadSensitivityCalculatorTest {
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
         .build();
-    CREDIT_CURVE = BUILDER.calibrate(nodes, CREDIT_CURVE_NAME, marketData, rates, true, REF_DATA);
+    IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
+        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true);
+    CREDIT_CURVE = BUILDER.calibrate(definition, marketData, rates, REF_DATA);
     NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) CREDIT_CURVE.getSurvivalProbabilities()).getCurve();
     NodalCurve curveWithFactor = underlyingCurve.withMetadata(
         underlyingCurve.getMetadata().withInfo(CurveInfoType.CDS_INDEX_FACTOR, INDEX_FACTOR));
@@ -222,8 +225,9 @@ public class SpreadSensitivityCalculatorTest {
     CdsIsdaCreditCurveNode node =
         CdsIsdaCreditCurveNode.ofParSpread(DatesCdsTemplate.of(START, END2, CDS_CONV), quoteId, LEGAL_ENTITY);
     ImmutableMarketData marketData = ImmutableMarketData.builder(VALUATION_DATE).addValue(quoteId, DEAL_SPREAD * ONE_BP).build();
-    LegalEntitySurvivalProbabilities creditCurve = BUILDER.calibrate(
-        ImmutableList.of(node), CREDIT_CURVE_NAME, marketData, ratesProviderNoCredit, true, REF_DATA);
+    IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
+        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, ImmutableList.of(node), true);
+    LegalEntitySurvivalProbabilities creditCurve = BUILDER.calibrate(definition, marketData, ratesProviderNoCredit, REF_DATA);
     CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))

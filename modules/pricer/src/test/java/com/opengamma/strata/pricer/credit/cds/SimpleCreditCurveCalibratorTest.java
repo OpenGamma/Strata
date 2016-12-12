@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.pricer.credit.cds;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+
 import org.testng.annotations.Test;
 
 /**
@@ -22,8 +25,8 @@ public class SimpleCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCal
   private static final double TOL = 1e-14;
 
   public void regression_consistency_test() {
-    testCalibrationAgainstISDA(BUILDER_ISDA, TOL);
-    testCalibrationAgainstISDA(BUILDER_MARKIT, TOL);
+    testCalibrationAgainstISDA(BUILDER_ISDA, ACT_365F, EUR, TOL);
+    testCalibrationAgainstISDA(BUILDER_MARKIT, ACT_365F, EUR, TOL);
   }
 
 }

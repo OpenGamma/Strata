@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
@@ -331,11 +333,22 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   private static final int N_OBS = OBS_TIMES.length;
 
   //-------------------------------------------------------------------------
-  protected void testCalibrationAgainstISDA(IsdaCompliantCreditCurveCalibrator builder, double tol) {
+  protected void testCalibrationAgainstISDA(
+      IsdaCompliantCreditCurveCalibrator builder,
+      DayCount dayCount,
+      Currency currency,
+      double tol) {
+
     IsdaCdsProductPricer pricer = new IsdaCdsProductPricer(builder.getAccOnDefaultFormula());
     for (int i = 0; i < NUM_TESTS; i++) {
       LegalEntitySurvivalProbabilities creditCurve = builder.calibrate(
-          ImmutableList.copyOf(NODE_CDS[i]), CurveName.of("credit"), CDS_MARKET_DATA[i], YIELD_CURVES[i], false, REF_DATA);
+          ImmutableList.copyOf(NODE_CDS[i]),
+          CurveName.of("credit"),
+          CDS_MARKET_DATA[i],
+          YIELD_CURVES[i],
+          dayCount,
+          currency,
+          false, REF_DATA);
       ResolvedCdsTrade[] expectedCds = EXP_NODE_CDS[i];
       CreditRatesProvider provider = YIELD_CURVES[i].toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, EUR), creditCurve))
@@ -384,10 +397,12 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       }
       ImmutableMarketData marketDataUp = builderCreditUp.build();
       ImmutableMarketData marketDataDw = builderCreditDw.build();
-      IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) builder
-          .calibrate(nodes, name, marketDataUp, ratesProvider, false, REF_DATA).getSurvivalProbabilities();
-      IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) builder
-          .calibrate(nodes, name, marketDataDw, ratesProvider, false, REF_DATA).getSurvivalProbabilities();
+      IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) builder.calibrate(
+          nodes, name, marketDataUp, ratesProvider, curve.getSurvivalProbabilities().getDayCount(), curve.getCurrency(),
+          false, REF_DATA).getSurvivalProbabilities();
+      IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) builder.calibrate(
+          nodes, name, marketDataDw, ratesProvider, curve.getSurvivalProbabilities().getDayCount(), curve.getCurrency(),
+          false, REF_DATA).getSurvivalProbabilities();
       for (int j = 0; j < nNode; ++j) {
         double computed = df.getCurve().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix().get(j, i);
         double expected = 0.5 * (ccUp.getCurve().getYValues().get(j) - ccDw.getCurve().getYValues().get(j)) / eps;
