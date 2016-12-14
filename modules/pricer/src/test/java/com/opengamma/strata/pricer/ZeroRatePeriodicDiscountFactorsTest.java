@@ -66,6 +66,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
   private static final double TOLERANCE_DF = 1.0e-12;
   private static final double TOLERANCE_DELTA = 1.0e-10;
   private static final double TOLERANCE_DELTA_FD = 1.0e-8;
+  private static final double EPS = 1.0e-6;
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -126,6 +127,15 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     double expected = Math.pow(1.0d + CURVE.yValue(relativeYearFraction) / CMP_PERIOD,
         -CMP_PERIOD * relativeYearFraction);
     assertEquals(test.discountFactor(DATE_AFTER), expected);
+  }
+  
+  public void test_discountFactorTimeDerivative() {
+    DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double expectedP = test.discountFactor(relativeYearFraction + EPS);
+    double expectedM = test.discountFactor(relativeYearFraction - EPS);
+    assertEquals(test.discountFactorTimeDerivative(relativeYearFraction), (expectedP - expectedM) / (2 * EPS),
+        TOLERANCE_DELTA_FD);
   }
 
   //-------------------------------------------------------------------------

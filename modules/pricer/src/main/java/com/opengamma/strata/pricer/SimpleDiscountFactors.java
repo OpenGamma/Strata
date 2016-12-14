@@ -166,6 +166,11 @@ public final class SimpleDiscountFactors
   }
 
   @Override
+  public double discountFactorTimeDerivative(double yearFraction) {
+    return curve.firstDerivative(yearFraction);
+  }
+
+  @Override
   public double zeroRate(double yearFraction) {
     double yearFractionMod = Math.max(EFFECTIVE_ZERO, yearFraction);
     double discountFactor = discountFactor(yearFractionMod);

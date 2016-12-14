@@ -120,6 +120,17 @@ public interface DiscountFactors
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double discountFactor(double yearFraction);
+  
+  /**
+   * Returns the discount factor derivative with respect to the year fraction or time.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction 
+   * @return the discount factor derivative
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double discountFactorTimeDerivative(double yearFraction);
 
   /**
    * Gets the discount factor for the specified date with z-spread.

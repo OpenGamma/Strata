@@ -174,6 +174,15 @@ public final class ZeroRatePeriodicDiscountFactors
   }
 
   @Override
+  public double discountFactorTimeDerivative(double yearFraction) {
+    double zr = curve.yValue(yearFraction);
+    double periodIF = 1d + zr / frequency;
+    double df = Math.pow(periodIF, -yearFraction * frequency);
+    return - frequency * df * 
+        (Math.log(periodIF) + yearFraction / periodIF * curve.firstDerivative(yearFraction) / frequency);
+  }
+
+  @Override
   public double zeroRate(double yearFraction) {
     double ratePeriod = curve.yValue(yearFraction);
     return frequency * Math.log(1d + ratePeriod / frequency);
