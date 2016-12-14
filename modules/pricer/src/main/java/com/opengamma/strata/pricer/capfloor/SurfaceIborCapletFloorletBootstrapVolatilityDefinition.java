@@ -69,7 +69,7 @@ public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
   /**
-   * The day count to use.
+   * The day count to measure the time in the expiry dimension.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
@@ -81,7 +81,6 @@ public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
   /**
    * The shift parameter of shifted Black model.
    * <p>
-   * The x value of the curve is the expiry.
    * The market volatilities are calibrated to shifted Black model if this field is not null.
    */
   @PropertyDefinition(get = "optional")
@@ -128,6 +127,8 @@ public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
 
   /**
    * Obtains an instance with time interpolator and strike interpolator. 
+   * <p>
+   * The extrapolation is completed by default extrapolators in {@code GridSurfaceInterpolator}.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -148,6 +149,8 @@ public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
 
   /**
    * Obtains an instance with time interpolator, strike interpolator and shift curve.
+   * <p>
+   * The extrapolation is completed by default extrapolators in {@code GridSurfaceInterpolator}.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -278,7 +281,7 @@ public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count to use.
+   * Gets the day count to measure the time in the expiry dimension.
    * @return the value of the property, not null
    */
   @Override
@@ -299,7 +302,6 @@ public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
   /**
    * Gets the shift parameter of shifted Black model.
    * <p>
-   * The x value of the curve is the expiry.
    * The market volatilities are calibrated to shifted Black model if this field is not null.
    * @return the optional value of the property, not null
    */

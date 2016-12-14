@@ -72,7 +72,7 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
   /**
-   * The day count to use.
+   * The day count to measure the time in the expiry dimension.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
@@ -80,7 +80,6 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
    * The beta (elasticity) curve.
    * <p>
    * This represents the beta parameter of SABR model.
-   * The x value of the curve is the expiry.
    * <p>
    * The beta will be treated as one of the calibration parameters if this field is not specified.
    */
@@ -90,7 +89,6 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
    * The rho (correlation) curve.
    * <p>
    * This represents the rho parameter of SABR model.
-   * The x value of the curve is the expiry.
    * <p>
    * The rho will be treated as one of the calibration parameters if this field is not specified.
    */
@@ -107,17 +105,23 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
   @PropertyDefinition(validate = "notNull")
   private final Curve shiftCurve;
   /**
-   * The interpolator for the SABR parameters.
+   * The interpolator for the SABR parameter curves.
+   * <p>
+   * The x value of the interpolated curves is the expiry.
    */
   @PropertyDefinition(validate = "notNull")
   private final CurveInterpolator interpolator;
   /**
-   * The left extrapolator for the SABR parameters.
+   * The left extrapolator for the SABR parameter curves.
+   * <p>
+   * The x value of the interpolated curves is the expiry.
    */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator extrapolatorLeft;
   /**
-   * The right extrapolator for the SABR parameters.
+   * The right extrapolator for the SABR parameter curves.
+   * <p>
+   * The x value of the interpolated curves is the expiry.
    */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator extrapolatorRight;
@@ -428,7 +432,7 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count to use.
+   * Gets the day count to measure the time in the expiry dimension.
    * @return the value of the property, not null
    */
   @Override
@@ -441,7 +445,6 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
    * Gets the beta (elasticity) curve.
    * <p>
    * This represents the beta parameter of SABR model.
-   * The x value of the curve is the expiry.
    * <p>
    * The beta will be treated as one of the calibration parameters if this field is not specified.
    * @return the optional value of the property, not null
@@ -455,7 +458,6 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
    * Gets the rho (correlation) curve.
    * <p>
    * This represents the rho parameter of SABR model.
-   * The x value of the curve is the expiry.
    * <p>
    * The rho will be treated as one of the calibration parameters if this field is not specified.
    * @return the optional value of the property, not null
@@ -480,7 +482,9 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the interpolator for the SABR parameters.
+   * Gets the interpolator for the SABR parameter curves.
+   * <p>
+   * The x value of the interpolated curves is the expiry.
    * @return the value of the property, not null
    */
   public CurveInterpolator getInterpolator() {
@@ -489,7 +493,9 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the left extrapolator for the SABR parameters.
+   * Gets the left extrapolator for the SABR parameter curves.
+   * <p>
+   * The x value of the interpolated curves is the expiry.
    * @return the value of the property, not null
    */
   public CurveExtrapolator getExtrapolatorLeft() {
@@ -498,7 +504,9 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the right extrapolator for the SABR parameters.
+   * Gets the right extrapolator for the SABR parameter curves.
+   * <p>
+   * The x value of the interpolated curves is the expiry.
    * @return the value of the property, not null
    */
   public CurveExtrapolator getExtrapolatorRight() {
@@ -994,7 +1002,7 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
     }
 
     /**
-     * Sets the day count to use.
+     * Sets the day count to measure the time in the expiry dimension.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1008,7 +1016,6 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
      * Sets the beta (elasticity) curve.
      * <p>
      * This represents the beta parameter of SABR model.
-     * The x value of the curve is the expiry.
      * <p>
      * The beta will be treated as one of the calibration parameters if this field is not specified.
      * @param betaCurve  the new value
@@ -1023,7 +1030,6 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
      * Sets the rho (correlation) curve.
      * <p>
      * This represents the rho parameter of SABR model.
-     * The x value of the curve is the expiry.
      * <p>
      * The rho will be treated as one of the calibration parameters if this field is not specified.
      * @param rhoCurve  the new value
@@ -1051,7 +1057,9 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
     }
 
     /**
-     * Sets the interpolator for the SABR parameters.
+     * Sets the interpolator for the SABR parameter curves.
+     * <p>
+     * The x value of the interpolated curves is the expiry.
      * @param interpolator  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1062,7 +1070,9 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
     }
 
     /**
-     * Sets the left extrapolator for the SABR parameters.
+     * Sets the left extrapolator for the SABR parameter curves.
+     * <p>
+     * The x value of the interpolated curves is the expiry.
      * @param extrapolatorLeft  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1073,7 +1083,9 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
     }
 
     /**
-     * Sets the right extrapolator for the SABR parameters.
+     * Sets the right extrapolator for the SABR parameter curves.
+     * <p>
+     * The x value of the interpolated curves is the expiry.
      * @param extrapolatorRight  the new value, not null
      * @return this, for chaining, not null
      */

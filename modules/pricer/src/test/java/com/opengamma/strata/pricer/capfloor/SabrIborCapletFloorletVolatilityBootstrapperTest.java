@@ -80,7 +80,6 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
     assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
     assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
     assertEquals(resVols.getParameters().getBetaCurve(), definition.getBetaCurve().get());
-    print(res, createBlackStrikes(), 10d);
   }
 
   public void test_recovery_black_fixedRho() {
@@ -124,7 +123,6 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
     assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
     assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
     assertEquals(resVols.getParameters().getRhoCurve(), definition.getRhoCurve().get());
-    print(res, createBlackStrikes(), 10d);
   }
 
   public void test_invalid_data() {

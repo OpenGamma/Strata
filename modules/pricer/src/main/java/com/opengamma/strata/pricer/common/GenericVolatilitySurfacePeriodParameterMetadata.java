@@ -30,7 +30,7 @@ import com.opengamma.strata.market.option.Strike;
 import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
- * Surface node metadata for a generic volatility surface node with a specific period to maturity and strike.
+ * Surface node metadata for a generic volatility surface node with a specific period to expiry and strike.
  */
 @BeanDefinition(builderScope = "private")
 public final class GenericVolatilitySurfacePeriodParameterMetadata
@@ -39,7 +39,7 @@ public final class GenericVolatilitySurfacePeriodParameterMetadata
   /**
    * The period of the surface node.
    * <p>
-   * This is the period to maturity that the node on the surface is defined as.
+   * This is the period to expiry that the node on the surface is defined as.
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    */
   @PropertyDefinition
@@ -150,7 +150,7 @@ public final class GenericVolatilitySurfacePeriodParameterMetadata
   /**
    * Gets the period of the surface node.
    * <p>
-   * This is the period to maturity that the node on the surface is defined as.
+   * This is the period to expiry that the node on the surface is defined as.
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    * @return the value of the property
    */

@@ -78,7 +78,8 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     TRANSFORMS[1] = new DoubleRangeLimitTransform(0.0, 1.0); // 0 <= beta <= 1
     TRANSFORMS[2] = new DoubleRangeLimitTransform(-RHO_LIMIT, RHO_LIMIT); // -1 <= rho <= 1
-    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
+    TRANSFORMS[3] = new DoubleRangeLimitTransform(0.01d, 2.50d);
+    // nu > 0  and limit on Nu to avoid numerical instability in formula for large nu.
   }
 
   /**
@@ -171,9 +172,6 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     DoubleArray timeToExpiries = DoubleArray.of(nExpiries, i -> timeList.get(startIndex[i]));
 
     BitSet fixed = new BitSet();
-//    fixed.set(1); // beta fixed
-//    Curve betaCurve = bsDefinition.getBetaCurve();
-    // TODO rho fixed instead of beta fixed
     Curve betaCurve;
     Curve rhoCurve;
     if (bsDefinition.getBetaCurve().isPresent()) {
