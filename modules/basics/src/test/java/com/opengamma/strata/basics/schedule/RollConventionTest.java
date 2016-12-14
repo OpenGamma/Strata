@@ -35,6 +35,7 @@ import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -358,6 +359,8 @@ public class RollConventionTest {
       assertEquals(test.adjust(date(2014, JULY, 1)), date(2014, JULY, i));
       assertEquals(test.getName(), "Day" + i);
       assertEquals(test.toString(), "Day" + i);
+      assertSame(RollConvention.of(test.getName()), test);
+      assertSame(RollConvention.of("DAY" + i), test);
     }
   }
 
@@ -469,6 +472,8 @@ public class RollConventionTest {
           CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
       assertEquals(test.toString(), "Day" +
           CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
+      assertSame(RollConvention.of(test.getName()), test);
+      assertSame(RollConvention.of("DAY" + dow.toString().substring(0, 3)), test);
     }
   }
 

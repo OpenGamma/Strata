@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -215,6 +216,7 @@ public final class ExtendedEnum<T extends Named> {
         try {
           R instance = enumType.cast(field.get(null));
           instances.putIfAbsent(instance.getName(), instance);
+          instances.putIfAbsent(instance.getName().toUpperCase(Locale.ENGLISH), instance);
         } catch (Exception ex) {
           throw new IllegalArgumentException("Unable to query field: " + field, ex);
         }
@@ -234,7 +236,12 @@ public final class ExtendedEnum<T extends Named> {
     if (!config.contains(ALTERNATES_SECTION)) {
       return ImmutableMap.of();
     }
-    return config.section(ALTERNATES_SECTION).asMap();
+    Map<String, String> alternates = new HashMap<>();
+    for (Entry<String, String> entry : config.section(ALTERNATES_SECTION).asMap().entrySet()) {
+      alternates.put(entry.getKey(), entry.getValue());
+      alternates.putIfAbsent(entry.getKey().toUpperCase(Locale.ENGLISH), entry.getValue());
+    }
+    return ImmutableMap.copyOf(alternates);
   }
 
   // parses the external names.
@@ -401,7 +408,7 @@ public final class ExtendedEnum<T extends Named> {
     if (externals == null) {
       throw new IllegalArgumentException(type.getSimpleName() + " group not found: " + group);
     }
-    return new ExternalEnumNames<T>(this, group, externals);
+    return new ExternalEnumNames<>(this, group, externals);
   }
 
   //-------------------------------------------------------------------------

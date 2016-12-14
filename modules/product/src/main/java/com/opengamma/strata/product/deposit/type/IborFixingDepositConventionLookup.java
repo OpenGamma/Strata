@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.deposit.type;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,7 +38,16 @@ final class IborFixingDepositConventionLookup
   //-------------------------------------------------------------------------
   @Override
   public IborFixingDepositConvention lookup(String name) {
-    return BY_NAME.computeIfAbsent(name, IborFixingDepositConventionLookup::createByName);
+    IborFixingDepositConvention value = BY_NAME.get(name);
+    if (value == null) {
+      IborFixingDepositConvention created = createByName(name);
+      if (created != null) {
+        String correctName = created.getName();
+        value = BY_NAME.computeIfAbsent(correctName, k -> created);
+        BY_NAME.putIfAbsent(correctName.toUpperCase(Locale.ENGLISH), value);
+      }
+    }
+    return value;
   }
 
   @Override

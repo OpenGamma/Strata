@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.basics;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
@@ -19,11 +22,11 @@ final class StandardReferenceData {
    */
   static final ImmutableReferenceData STANDARD;
   static {
-    ImmutableMap.Builder<ReferenceDataId<?>, Object> builder = ImmutableMap.builder();
+    Map<ReferenceDataId<?>, Object> map = new HashMap<>();
     for (HolidayCalendar cal : HolidayCalendars.extendedEnum().lookupAll().values()) {
-      builder.put(cal.getId(), cal);
+      map.put(cal.getId(), cal);
     }
-    STANDARD = ImmutableReferenceData.of(builder.build());
+    STANDARD = ImmutableReferenceData.of(map);
   }
   /**
    * Minimal reference data.
