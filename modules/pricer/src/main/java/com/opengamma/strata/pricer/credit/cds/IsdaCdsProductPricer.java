@@ -70,6 +70,9 @@ public class IsdaCdsProductPricer {
   /**
    * Calculates the price of the CDS product, which is the present value per unit notional. 
    * <p>
+   * This method can calculate the clean or dirty price, see {@link PriceType}. 
+   * If calculating the clean price, the accrued interest is calculated based on the step-in date.
+   * <p>
    * This is coherent with {@link #presentValue(ResolvedCds, CreditRatesProvider, LocalDate, PriceType, ReferenceData)}.
    * 
    * @param cds  the product
@@ -129,7 +132,7 @@ public class IsdaCdsProductPricer {
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    if (!cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate())) { //short cut already expired CDSs
+    if (isExpired(cds, ratesProvider)) {
       return PointSensitivityBuilder.none();
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
@@ -153,7 +156,8 @@ public class IsdaCdsProductPricer {
    * The present value of the product is based on {@code referenceDate}.
    * This is typically the valuation date, or cash settlement date if the product is associated with a {@code Trade}. 
    * <p>
-   * The price type is clean or dirty. The accrued interest is computed based on the valuation date.
+   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
+   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -403,7 +407,7 @@ public class IsdaCdsProductPricer {
   }
 
   // computes protection leg pv per unit notional, without loss-given-default rate multiplied
-  private double protectionFull(
+  double protectionFull(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -448,7 +452,7 @@ public class IsdaCdsProductPricer {
   }
 
   // computes risky annuity
-  private double riskyAnnuity(
+  double riskyAnnuity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -458,7 +462,7 @@ public class IsdaCdsProductPricer {
       PriceType priceType) {
 
     double pv = 0d;
-    for (CreditCouponPaymentPeriod coupon : cds.getPeriodicPayments()) {
+    for (CreditCouponPaymentPeriod coupon : cds.getPaymentPeriods()) {
       if (stepinDate.isBefore(coupon.getEndDate())) {
         double q = survivalProbabilities.survivalProbability(coupon.getEffectiveEndDate());
         double p = discountFactors.discountFactor(coupon.getPaymentDate());
@@ -468,13 +472,13 @@ public class IsdaCdsProductPricer {
 
     if (cds.getPaymentOnDefault().isAccruedInterest()) {
       // This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. 
-      LocalDate start = cds.getPeriodicPayments().size() == 1 ? effectiveStartDate : cds.getAccrualStartDate();
+      LocalDate start = cds.getPaymentPeriods().size() == 1 ? effectiveStartDate : cds.getAccrualStartDate();
       DoubleArray integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
           discountFactors.relativeYearFraction(start),
           discountFactors.relativeYearFraction(cds.getProtectionEndDate()),
           discountFactors.getParameterKeys(),
           survivalProbabilities.getParameterKeys());
-      for (CreditCouponPaymentPeriod coupon : cds.getPeriodicPayments()) {
+      for (CreditCouponPaymentPeriod coupon : cds.getPaymentPeriods()) {
         pv += singlePeriodAccrualOnDefault(
             coupon, effectiveStartDate, integrationSchedule, discountFactors, survivalProbabilities);
       }
@@ -557,7 +561,7 @@ public class IsdaCdsProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  private PointSensitivityBuilder protectionLegSensitivity(
+  PointSensitivityBuilder protectionLegSensitivity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -641,7 +645,7 @@ public class IsdaCdsProductPricer {
     return (1d - (pn * qn / (pd * qd) - 1d) / dhrt) / dhrt;
   }
 
-  private PointSensitivityBuilder riskyAnnuitySensitivity(
+  PointSensitivityBuilder riskyAnnuitySensitivity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -651,7 +655,7 @@ public class IsdaCdsProductPricer {
 
     double pv = 0d;
     PointSensitivityBuilder pvSensi = PointSensitivityBuilder.none();
-    for (CreditCouponPaymentPeriod coupon : cds.getPeriodicPayments()) {
+    for (CreditCouponPaymentPeriod coupon : cds.getPaymentPeriods()) {
       if (stepinDate.isBefore(coupon.getEndDate())) {
         double q = survivalProbabilities.survivalProbability(coupon.getEffectiveEndDate());
         PointSensitivityBuilder qSensi = survivalProbabilities.zeroRatePointSensitivity(coupon.getEffectiveEndDate());
@@ -665,13 +669,13 @@ public class IsdaCdsProductPricer {
 
     if (cds.getPaymentOnDefault().isAccruedInterest()) {
       // This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. 
-      LocalDate start = cds.getPeriodicPayments().size() == 1 ? effectiveStartDate : cds.getAccrualStartDate();
+      LocalDate start = cds.getPaymentPeriods().size() == 1 ? effectiveStartDate : cds.getAccrualStartDate();
       DoubleArray integrationSchedule = DoublesScheduleGenerator.getIntegrationsPoints(
           discountFactors.relativeYearFraction(start),
           discountFactors.relativeYearFraction(cds.getProtectionEndDate()),
           discountFactors.getParameterKeys(),
           survivalProbabilities.getParameterKeys());
-      for (CreditCouponPaymentPeriod coupon : cds.getPeriodicPayments()) {
+      for (CreditCouponPaymentPeriod coupon : cds.getPaymentPeriods()) {
         Pair<Double, PointSensitivityBuilder> pvAndSensi = singlePeriodAccrualOnDefaultSensitivity(
             coupon, effectiveStartDate, integrationSchedule, discountFactors, survivalProbabilities);
         pv += pvAndSensi.getFirst();
@@ -797,13 +801,13 @@ public class IsdaCdsProductPricer {
     return !cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate());
   }
 
-  private double recoveryRate(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+  double recoveryRate(ResolvedCds cds, CreditRatesProvider ratesProvider) {
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
     ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
     return recoveryRates.recoveryRate(cds.getProtectionEndDate());
   }
 
-  private void validateRecoveryRates(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+  void validateRecoveryRates(ResolvedCds cds, CreditRatesProvider ratesProvider) {
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(cds.getLegalEntityId());
     ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
   }

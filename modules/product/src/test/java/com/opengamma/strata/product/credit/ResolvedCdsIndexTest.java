@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
 import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
 import static org.testng.Assert.assertEquals;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -33,15 +35,17 @@ import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.product.common.BuySell;
 
 /**
- * Test {@link ResolvedCds}.
+ * Test {@link ResolvedCdsIndex}.
  */
 @Test
-public class ResolvedCdsTest {
+public class ResolvedCdsIndexTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
   private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
+  private static final StandardId INDEX_ID = StandardId.of("OG", "AA-INDEX");
+  private static final ImmutableList<StandardId> LEGAL_ENTITIES = ImmutableList.of(
+      StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2"), StandardId.of("OG", "ABC3"), StandardId.of("OG", "ABC4"));
   private static final double COUPON = 0.05;
   private static final double NOTIONAL = 1.0e9;
   private static final LocalDate START_DATE = LocalDate.of(2013, 12, 20);
@@ -85,10 +89,11 @@ public class ResolvedCdsTest {
   }
 
   public void test_builder() {
-    ResolvedCds test = ResolvedCds.builder()
+    ResolvedCdsIndex test = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
-        .legalEntityId(LEGAL_ENTITY)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .paymentPeriods(PAYMENTS)
@@ -102,7 +107,8 @@ public class ResolvedCdsTest {
     assertEquals(test.getAccrualEndDate(), PAYMENTS.get(42).getEndDate());
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getFixedRate(), COUPON);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
+    assertEquals(test.getCdsIndexId(), INDEX_ID);
+    assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getPaymentOnDefault(), ACCRUED_PREMIUM);
     assertEquals(test.getPaymentPeriods(), PAYMENTS);
@@ -114,10 +120,11 @@ public class ResolvedCdsTest {
 
   public void test_accruedYearFraction() {
     double eps = 1.0e-15;
-    ResolvedCds test = ResolvedCds.builder()
+    ResolvedCdsIndex test = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
-        .legalEntityId(LEGAL_ENTITY)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .paymentPeriods(PAYMENTS)
@@ -143,10 +150,11 @@ public class ResolvedCdsTest {
   }
 
   public void test_effectiveStartDate() {
-    ResolvedCds test1 = ResolvedCds.builder()
+    ResolvedCdsIndex test1 = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
-        .legalEntityId(LEGAL_ENTITY)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .paymentPeriods(PAYMENTS)
@@ -158,10 +166,11 @@ public class ResolvedCdsTest {
     assertEquals(test1.calculateEffectiveStartDate(date1), date1.minusDays(1));
     LocalDate date2 = LocalDate.of(2013, 9, 22);
     assertEquals(test1.calculateEffectiveStartDate(date2), START_DATE.minusDays(1));
-    ResolvedCds test2 = ResolvedCds.builder()
+    ResolvedCdsIndex test2 = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
-        .legalEntityId(LEGAL_ENTITY)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(ProtectionStartOfDay.NONE)
         .paymentPeriods(PAYMENTS)
@@ -175,12 +184,41 @@ public class ResolvedCdsTest {
     assertEquals(test2.calculateEffectiveStartDate(date4), START_DATE);
   }
 
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    ResolvedCds test1 = ResolvedCds.builder()
+  public void test_totoSingleNameCds() {
+    ResolvedCdsIndex base = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
-        .legalEntityId(LEGAL_ENTITY)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
+        .paymentOnDefault(ACCRUED_PREMIUM)
+        .protectionStart(BEGINNING)
+        .paymentPeriods(PAYMENTS)
+        .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
+        .settlementDateOffset(SETTLE_DAY_ADJ)
+        .stepinDateOffset(STEPIN_DAY_ADJ)
+        .build();
+    ResolvedCds test = base.toSingleNameCds();
+    ResolvedCds expected = ResolvedCds.builder()
+        .buySell(SELL)
+        .dayCount(ACT_360)
+        .legalEntityId(INDEX_ID)
+        .paymentOnDefault(ACCRUED_PREMIUM)
+        .protectionStart(BEGINNING)
+        .paymentPeriods(PAYMENTS)
+        .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
+        .settlementDateOffset(SETTLE_DAY_ADJ)
+        .stepinDateOffset(STEPIN_DAY_ADJ)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    ResolvedCdsIndex test1 = ResolvedCdsIndex.builder()
+        .buySell(BUY)
+        .dayCount(ACT_360)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .paymentPeriods(PAYMENTS)
@@ -189,10 +227,11 @@ public class ResolvedCdsTest {
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
     coverImmutableBean(test1);
-    ResolvedCds test2 = ResolvedCds.builder()
+    ResolvedCdsIndex test2 = ResolvedCdsIndex.builder()
         .buySell(BuySell.SELL)
         .dayCount(DayCounts.ACT_365F)
-        .legalEntityId(StandardId.of("OG", "EFG"))
+        .cdsIndexId(StandardId.of("OG", "AA-INDEX"))
+        .legalEntityIds(ImmutableList.of(StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2")))
         .paymentOnDefault(PaymentOnDefault.NONE)
         .protectionStart(ProtectionStartOfDay.NONE)
         .paymentPeriods(PAYMENTS.get(0))
@@ -204,10 +243,11 @@ public class ResolvedCdsTest {
   }
 
   public void test_serialization() {
-    ResolvedCds test = ResolvedCds.builder()
+    ResolvedCdsIndex test = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
-        .legalEntityId(LEGAL_ENTITY)
+        .cdsIndexId(INDEX_ID)
+        .legalEntityIds(LEGAL_ENTITIES)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
         .paymentPeriods(PAYMENTS)
