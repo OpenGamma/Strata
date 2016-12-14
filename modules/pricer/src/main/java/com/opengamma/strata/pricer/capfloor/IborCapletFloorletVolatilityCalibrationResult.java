@@ -42,7 +42,7 @@ public final class IborCapletFloorletVolatilityCalibrationResult
    * The chi-square value.
    * <p>
    * The chi square is 0 if the volatilities are computed by root-finding. 
-   * The chi square is generally non-zeoro if the volatilities are computed by least square method.
+   * The chi square is generally non-zero if the volatilities are computed by least square method.
    */
   @PropertyDefinition(validate = "notNull")
   private final double chiSquare;
@@ -55,7 +55,7 @@ public final class IborCapletFloorletVolatilityCalibrationResult
    * @param chiSquare  the chi-square value
    * @return the instance
    */
-  public static IborCapletFloorletVolatilityCalibrationResult ofLestSquare(
+  public static IborCapletFloorletVolatilityCalibrationResult ofLeastSquare(
       IborCapletFloorletVolatilities volatilities,
       double chiSquare) {
 
@@ -130,7 +130,7 @@ public final class IborCapletFloorletVolatilityCalibrationResult
    * Gets the chi-square value.
    * <p>
    * The chi square is 0 if the volatilities are computed by root-finding.
-   * The chi square is generally non-zeoro if the volatilities are computed by least square method.
+   * The chi square is generally non-zero if the volatilities are computed by least square method.
    * @return the value of the property, not null
    */
   public double getChiSquare() {

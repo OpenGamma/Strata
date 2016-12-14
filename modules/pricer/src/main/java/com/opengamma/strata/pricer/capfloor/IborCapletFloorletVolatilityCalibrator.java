@@ -62,7 +62,7 @@ abstract class IborCapletFloorletVolatilityCalibrator {
    * @return the calibration result
    */
   public abstract IborCapletFloorletVolatilityCalibrationResult calibrate(
-      IborCapletFloorletDefinition definition,
+      IborCapletFloorletVolatilityDefinition definition,
       ZonedDateTime calibrationDateTime,
       RawOptionData capFloorData,
       RatesProvider ratesProvider);
@@ -70,7 +70,7 @@ abstract class IborCapletFloorletVolatilityCalibrator {
   //-------------------------------------------------------------------------
   // create complete lists of caps, volatilities, strikes, expiries
   protected void reduceRawData(
-      IborCapletFloorletDefinition definition,
+      IborCapletFloorletVolatilityDefinition definition,
       RatesProvider ratesProvider,
       DoubleArray strikes,
       DoubleArray volatilityData,
@@ -104,7 +104,7 @@ abstract class IborCapletFloorletVolatilityCalibrator {
 
   // function creating volatilities object from surface
   protected Function<Surface, IborCapletFloorletVolatilities> volatilitiesFunction(
-      IborCapletFloorletDefinition definition,
+      IborCapletFloorletVolatilityDefinition definition,
       ZonedDateTime calibrationDateTime,
       RawOptionData capFloorData) {
 

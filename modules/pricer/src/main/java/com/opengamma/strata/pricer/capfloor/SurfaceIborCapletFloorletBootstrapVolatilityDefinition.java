@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
-import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 
 import java.io.Serializable;
 import java.time.Period;
@@ -56,8 +55,8 @@ import com.opengamma.strata.pricer.option.RawOptionData;
  * The resulting volatilities object will be a set of caplet volatilities interpolated by {@link GridSurfaceInterpolator}.
  */
 @BeanDefinition(builderScope = "private")
-public final class SurfaceIborCapletFloorletBootstrapDefinition
-    implements IborCapletFloorletDefinition, ImmutableBean, Serializable {
+public final class SurfaceIborCapletFloorletBootstrapVolatilityDefinition
+    implements IborCapletFloorletVolatilityDefinition, ImmutableBean, Serializable {
 
   /**
    * The name of the volatilities.
@@ -90,7 +89,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance.
+   * Obtains an instance with gird surface interpolator.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -98,7 +97,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    * @param interpolator  the surface interpolator
    * @return the instance
    */
-  public static SurfaceIborCapletFloorletBootstrapDefinition of(
+  public static SurfaceIborCapletFloorletBootstrapVolatilityDefinition of(
       IborCapletFloorletVolatilitiesName name,
       IborIndex index,
       DayCount dayCount,
@@ -108,7 +107,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
   }
 
   /**
-   * Obtains an instance.
+   * Obtains an instance with gird surface interpolator and shift curve.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -117,22 +116,18 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    * @param shiftCurve  the shift curve
    * @return the instance
    */
-  public static SurfaceIborCapletFloorletBootstrapDefinition of(
+  public static SurfaceIborCapletFloorletBootstrapVolatilityDefinition of(
       IborCapletFloorletVolatilitiesName name,
       IborIndex index,
       DayCount dayCount,
       GridSurfaceInterpolator interpolator,
       Curve shiftCurve) {
 
-    return new SurfaceIborCapletFloorletBootstrapDefinition(name, index, dayCount, interpolator, shiftCurve);
+    return new SurfaceIborCapletFloorletBootstrapVolatilityDefinition(name, index, dayCount, interpolator, shiftCurve);
   }
 
   /**
-   * Obtains an instance with assumption on the extrapolation. 
-   * <p>
-   * The left extrapolation in the time dimension is flat.
-   * The right extrapolation  in the time dimension is linear. 
-   * The extrapolators in the strike dimension is linear. 
+   * Obtains an instance with time interpolator and strike interpolator. 
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -141,7 +136,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    * @param strikeInterpolator  the strike interpolator
    * @return the instance
    */
-  public static SurfaceIborCapletFloorletBootstrapDefinition of(
+  public static SurfaceIborCapletFloorletBootstrapVolatilityDefinition of(
       IborCapletFloorletVolatilitiesName name,
       IborIndex index,
       DayCount dayCount,
@@ -152,11 +147,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
   }
 
   /**
-   * Obtains an instance with assumption on the extrapolation. 
-   * <p>
-   * The left extrapolation in the time dimension is flat.
-   * The right extrapolation  in the time dimension is linear. 
-   * The extrapolators in the strike dimension is linear. 
+   * Obtains an instance with time interpolator, strike interpolator and shift curve.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -166,7 +157,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    * @param shiftCurve  the shift curve 
    * @return the instance
    */
-  public static SurfaceIborCapletFloorletBootstrapDefinition of(
+  public static SurfaceIborCapletFloorletBootstrapVolatilityDefinition of(
       IborCapletFloorletVolatilitiesName name,
       IborIndex index,
       DayCount dayCount,
@@ -174,8 +165,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       CurveInterpolator strikeInterpolator,
       Curve shiftCurve) {
 
-    GridSurfaceInterpolator gridInterpolator = GridSurfaceInterpolator.of(
-        timeInterpolator, FLAT, LINEAR, strikeInterpolator, LINEAR, LINEAR);
+    GridSurfaceInterpolator gridInterpolator = GridSurfaceInterpolator.of(timeInterpolator, strikeInterpolator);
     return of(name, index, dayCount, gridInterpolator, shiftCurve);
   }
 
@@ -217,15 +207,15 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SurfaceIborCapletFloorletBootstrapDefinition}.
+   * The meta-bean for {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}.
    * @return the meta-bean, not null
    */
-  public static SurfaceIborCapletFloorletBootstrapDefinition.Meta meta() {
-    return SurfaceIborCapletFloorletBootstrapDefinition.Meta.INSTANCE;
+  public static SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Meta meta() {
+    return SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SurfaceIborCapletFloorletBootstrapDefinition.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Meta.INSTANCE);
   }
 
   /**
@@ -233,7 +223,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
    */
   private static final long serialVersionUID = 1L;
 
-  private SurfaceIborCapletFloorletBootstrapDefinition(
+  private SurfaceIborCapletFloorletBootstrapVolatilityDefinition(
       IborCapletFloorletVolatilitiesName name,
       IborIndex index,
       DayCount dayCount,
@@ -252,8 +242,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
   }
 
   @Override
-  public SurfaceIborCapletFloorletBootstrapDefinition.Meta metaBean() {
-    return SurfaceIborCapletFloorletBootstrapDefinition.Meta.INSTANCE;
+  public SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Meta metaBean() {
+    return SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Meta.INSTANCE;
   }
 
   @Override
@@ -324,7 +314,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SurfaceIborCapletFloorletBootstrapDefinition other = (SurfaceIborCapletFloorletBootstrapDefinition) obj;
+      SurfaceIborCapletFloorletBootstrapVolatilityDefinition other = (SurfaceIborCapletFloorletBootstrapVolatilityDefinition) obj;
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
@@ -348,7 +338,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("SurfaceIborCapletFloorletBootstrapDefinition{");
+    buf.append("SurfaceIborCapletFloorletBootstrapVolatilityDefinition{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
@@ -360,7 +350,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SurfaceIborCapletFloorletBootstrapDefinition}.
+   * The meta-bean for {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -372,27 +362,27 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<IborCapletFloorletVolatilitiesName> name = DirectMetaProperty.ofImmutable(
-        this, "name", SurfaceIborCapletFloorletBootstrapDefinition.class, IborCapletFloorletVolatilitiesName.class);
+        this, "name", SurfaceIborCapletFloorletBootstrapVolatilityDefinition.class, IborCapletFloorletVolatilitiesName.class);
     /**
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", SurfaceIborCapletFloorletBootstrapDefinition.class, IborIndex.class);
+        this, "index", SurfaceIborCapletFloorletBootstrapVolatilityDefinition.class, IborIndex.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", SurfaceIborCapletFloorletBootstrapDefinition.class, DayCount.class);
+        this, "dayCount", SurfaceIborCapletFloorletBootstrapVolatilityDefinition.class, DayCount.class);
     /**
      * The meta-property for the {@code interpolator} property.
      */
     private final MetaProperty<GridSurfaceInterpolator> interpolator = DirectMetaProperty.ofImmutable(
-        this, "interpolator", SurfaceIborCapletFloorletBootstrapDefinition.class, GridSurfaceInterpolator.class);
+        this, "interpolator", SurfaceIborCapletFloorletBootstrapVolatilityDefinition.class, GridSurfaceInterpolator.class);
     /**
      * The meta-property for the {@code shiftCurve} property.
      */
     private final MetaProperty<Curve> shiftCurve = DirectMetaProperty.ofImmutable(
-        this, "shiftCurve", SurfaceIborCapletFloorletBootstrapDefinition.class, Curve.class);
+        this, "shiftCurve", SurfaceIborCapletFloorletBootstrapVolatilityDefinition.class, Curve.class);
     /**
      * The meta-properties.
      */
@@ -428,13 +418,13 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     }
 
     @Override
-    public BeanBuilder<? extends SurfaceIborCapletFloorletBootstrapDefinition> builder() {
-      return new SurfaceIborCapletFloorletBootstrapDefinition.Builder();
+    public BeanBuilder<? extends SurfaceIborCapletFloorletBootstrapVolatilityDefinition> builder() {
+      return new SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Builder();
     }
 
     @Override
-    public Class<? extends SurfaceIborCapletFloorletBootstrapDefinition> beanType() {
-      return SurfaceIborCapletFloorletBootstrapDefinition.class;
+    public Class<? extends SurfaceIborCapletFloorletBootstrapVolatilityDefinition> beanType() {
+      return SurfaceIborCapletFloorletBootstrapVolatilityDefinition.class;
     }
 
     @Override
@@ -488,15 +478,15 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).getName();
+          return ((SurfaceIborCapletFloorletBootstrapVolatilityDefinition) bean).getName();
         case 100346066:  // index
-          return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).getIndex();
+          return ((SurfaceIborCapletFloorletBootstrapVolatilityDefinition) bean).getIndex();
         case 1905311443:  // dayCount
-          return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).getDayCount();
+          return ((SurfaceIborCapletFloorletBootstrapVolatilityDefinition) bean).getDayCount();
         case 2096253127:  // interpolator
-          return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).getInterpolator();
+          return ((SurfaceIborCapletFloorletBootstrapVolatilityDefinition) bean).getInterpolator();
         case 1908090253:  // shiftCurve
-          return ((SurfaceIborCapletFloorletBootstrapDefinition) bean).shiftCurve;
+          return ((SurfaceIborCapletFloorletBootstrapVolatilityDefinition) bean).shiftCurve;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -514,9 +504,9 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code SurfaceIborCapletFloorletBootstrapDefinition}.
+   * The bean-builder for {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SurfaceIborCapletFloorletBootstrapDefinition> {
+  private static final class Builder extends DirectFieldsBeanBuilder<SurfaceIborCapletFloorletBootstrapVolatilityDefinition> {
 
     private IborCapletFloorletVolatilitiesName name;
     private IborIndex index;
@@ -598,8 +588,8 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     }
 
     @Override
-    public SurfaceIborCapletFloorletBootstrapDefinition build() {
-      return new SurfaceIborCapletFloorletBootstrapDefinition(
+    public SurfaceIborCapletFloorletBootstrapVolatilityDefinition build() {
+      return new SurfaceIborCapletFloorletBootstrapVolatilityDefinition(
           name,
           index,
           dayCount,
@@ -611,7 +601,7 @@ public final class SurfaceIborCapletFloorletBootstrapDefinition
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("SurfaceIborCapletFloorletBootstrapDefinition.Builder{");
+      buf.append("SurfaceIborCapletFloorletBootstrapVolatilityDefinition.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');

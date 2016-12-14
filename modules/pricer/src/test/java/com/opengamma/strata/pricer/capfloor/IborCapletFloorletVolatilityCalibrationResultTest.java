@@ -36,7 +36,7 @@ public class IborCapletFloorletVolatilityCalibrationResultTest {
 
   public void test_ofLestSquare() {
     double chiSq = 5.5e-6;
-    IborCapletFloorletVolatilityCalibrationResult test = IborCapletFloorletVolatilityCalibrationResult.ofLestSquare(VOLS, chiSq);
+    IborCapletFloorletVolatilityCalibrationResult test = IborCapletFloorletVolatilityCalibrationResult.ofLeastSquare(VOLS, chiSq);
     assertEquals(test.getVolatilities(), VOLS);
     assertEquals(test.getChiSquare(), chiSq);
   }
@@ -50,7 +50,8 @@ public class IborCapletFloorletVolatilityCalibrationResultTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     double chiSq = 5.5e-12;
-    IborCapletFloorletVolatilityCalibrationResult test1 = IborCapletFloorletVolatilityCalibrationResult.ofLestSquare(VOLS, chiSq);
+    IborCapletFloorletVolatilityCalibrationResult test1 =
+        IborCapletFloorletVolatilityCalibrationResult.ofLeastSquare(VOLS, chiSq);
     coverImmutableBean(test1);
     IborCapletFloorletVolatilityCalibrationResult test2 = IborCapletFloorletVolatilityCalibrationResult.ofRootFind(
         BlackIborCapletFloorletExpiryStrikeVolatilities.of(GBP_LIBOR_3M, VALUATION, SURFACE));

@@ -128,16 +128,17 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
   //-------------------------------------------------------------------------
   @Override
   public IborCapletFloorletVolatilityCalibrationResult calibrate(
-      IborCapletFloorletDefinition definition,
+      IborCapletFloorletVolatilityDefinition definition,
       ZonedDateTime calibrationDateTime,
       RawOptionData capFloorData,
       RatesProvider ratesProvider) {
 
     ArgChecker.isTrue(ratesProvider.getValuationDate().equals(calibrationDateTime.toLocalDate()),
         "valuationDate of ratesProvider should be coherent to calibrationDateTime");
-    ArgChecker.isTrue(definition instanceof SabrIborCapletFloorletBootstrapDefinition,
+    ArgChecker.isTrue(definition instanceof SabrIborCapletFloorletVolatilityBootstrapDefinition,
         "definition should be SabrIborCapletFloorletBootstrapDefinition");
-    SabrIborCapletFloorletBootstrapDefinition bsDefinition = (SabrIborCapletFloorletBootstrapDefinition) definition;
+    SabrIborCapletFloorletVolatilityBootstrapDefinition bsDefinition =
+        (SabrIborCapletFloorletVolatilityBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, referenceData);
@@ -168,12 +169,25 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
 
     List<CurveMetadata> metadataList = bsDefinition.createSabrParameterMetadata();
     DoubleArray timeToExpiries = DoubleArray.of(nExpiries, i -> timeList.get(startIndex[i]));
+
     BitSet fixed = new BitSet();
+//    fixed.set(1); // beta fixed
+//    Curve betaCurve = bsDefinition.getBetaCurve();
+    // TODO rho fixed instead of beta fixed
     Curve betaCurve;
+    Curve rhoCurve;
     if (bsDefinition.getBetaCurve().isPresent()) {
       fixed.set(1);
       betaCurve = bsDefinition.getBetaCurve().get();
+      rhoCurve = InterpolatedNodalCurve.of(
+          metadataList.get(2),
+          timeToExpiries,
+          DoubleArray.filled(nExpiries),
+          bsDefinition.getInterpolator(),
+          bsDefinition.getExtrapolatorLeft(),
+          bsDefinition.getExtrapolatorRight());
     } else {
+      fixed.set(2);
       betaCurve = InterpolatedNodalCurve.of(
           metadataList.get(1),
           timeToExpiries,
@@ -181,16 +195,10 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
           bsDefinition.getInterpolator(),
           bsDefinition.getExtrapolatorLeft(),
           bsDefinition.getExtrapolatorRight());
+      rhoCurve = bsDefinition.getRhoCurve().get();
     }
     InterpolatedNodalCurve alphaCurve = InterpolatedNodalCurve.of(
         metadataList.get(0),
-        timeToExpiries,
-        DoubleArray.filled(nExpiries),
-        bsDefinition.getInterpolator(),
-        bsDefinition.getExtrapolatorLeft(),
-        bsDefinition.getExtrapolatorRight());
-    InterpolatedNodalCurve rhoCurve = InterpolatedNodalCurve.of(
-        metadataList.get(2),
         timeToExpiries,
         DoubleArray.filled(nExpiries),
         bsDefinition.getInterpolator(),
@@ -230,7 +238,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
       totalChiSq += res.getChiSq();
       prevExpiry = capList.get(startIndex[i + 1] - 1).getFinalFixingDateTime();
     }
-    return IborCapletFloorletVolatilityCalibrationResult.ofLestSquare(vols, totalChiSq);
+    return IborCapletFloorletVolatilityCalibrationResult.ofLeastSquare(vols, totalChiSq);
   }
 
   //-------------------------------------------------------------------------
@@ -248,12 +256,12 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
 
     List<Double> vols = volList.subList(startIndex[postion], startIndex[postion + 1]);
     ResolvedIborCapFloorLeg cap = capList.get(startIndex[postion]);
-    double factor = valueType.equals(ValueType.BLACK_VOLATILITY) ? 1d
-        : 1d / ratesProvider.iborIndexRates(cap.getIndex()).rate(cap.getFinalPeriod().getIborRate().getObservation());
+    double fwd = ratesProvider.iborIndexRates(cap.getIndex()).rate(cap.getFinalPeriod().getIborRate().getObservation());
+    double factor = valueType.equals(ValueType.BLACK_VOLATILITY) ? 1d : 1d / fwd;
     List<Double> volsEquiv = vols.stream().map(v -> v * factor).collect(Collectors.toList());
     double nuFirst;
-    double betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.95d;
-    double alphaInitial = DoubleArray.copyOf(volsEquiv).min();
+    double betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.5d;
+    double alphaInitial = DoubleArray.copyOf(volsEquiv).min() * Math.pow(fwd, 1d - betaInitial);
     if (alphaInitial == volsEquiv.get(0) || alphaInitial == volsEquiv.get(volsEquiv.size() - 1)) {
       nuFirst = 0.1d;
       alphaInitial *= 0.95d;
@@ -325,9 +333,15 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
           double targetPrice = priceList.get(currentStart + i);
           CurrencyParameterSensitivities sensi = volsNew.parameterSensitivity(point);
           jacobian[i][0] = sensi.getSensitivity(alphaCurve.getName(), currency).getSensitivity().get(timeIndex) / targetPrice;
-          jacobian[i][1] = betaFixed ? 0d
-              : sensi.getSensitivity(betaCurve.getName(), currency).getSensitivity().get(timeIndex) / targetPrice;
-          jacobian[i][2] = sensi.getSensitivity(rhoCurve.getName(), currency).getSensitivity().get(timeIndex) / targetPrice;
+          if (betaFixed) {
+            jacobian[i][1] = 0d;
+            jacobian[i][2] = sensi.getSensitivity(rhoCurve.getName(), currency).getSensitivity().get(timeIndex) / targetPrice;
+
+          } else {
+            jacobian[i][1] = sensi.getSensitivity(betaCurve.getName(), currency).getSensitivity().get(timeIndex) / targetPrice;
+            jacobian[i][2] = 0d;
+
+          }
           jacobian[i][3] = sensi.getSensitivity(nuCurve.getName(), currency).getSensitivity().get(timeIndex) / targetPrice;
         }
         return DoubleMatrix.ofUnsafe(jacobian);
@@ -345,11 +359,12 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
       DoubleArray newParameters) {
 
     int nBetaParams = volatilities.getParameters().getBetaCurve().getParameterCount();
+    int nRhoParams = volatilities.getParameters().getRhoCurve().getParameterCount();
     SabrParametersIborCapletFloorletVolatilities newVols = volatilities
         .withParameter(timeIndex, newParameters.get(0))
-        .withParameter(timeIndex + nExpiries + nBetaParams, newParameters.get(2))
-        .withParameter(timeIndex + 2 * nExpiries + nBetaParams, newParameters.get(3));
+        .withParameter(timeIndex + nExpiries + nBetaParams + nRhoParams, newParameters.get(3));
     if (betaFixed) {
+      newVols = newVols.withParameter(timeIndex + nExpiries + nBetaParams, newParameters.get(2));
       return newVols;
     }
     newVols = newVols.withParameter(timeIndex + nExpiries, newParameters.get(1));

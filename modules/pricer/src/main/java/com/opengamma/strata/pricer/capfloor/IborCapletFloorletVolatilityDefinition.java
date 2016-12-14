@@ -25,7 +25,7 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 /**
  * Definition of caplet volatilities calibration.
  */
-public interface IborCapletFloorletDefinition {
+public interface IborCapletFloorletVolatilityDefinition {
 
   /**
    * Gets the name of these volatilities.
