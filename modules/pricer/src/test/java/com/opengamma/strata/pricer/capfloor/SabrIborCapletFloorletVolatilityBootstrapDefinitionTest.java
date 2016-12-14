@@ -182,8 +182,8 @@ public class SabrIborCapletFloorletVolatilityBootstrapDefinitionTest {
     ImmutableList<CurveMetadata> expected = ImmutableList.of(
         Curves.sabrParameterByExpiry(NAME.getName() + "-Alpha", ACT_ACT_ISDA, SABR_ALPHA),
         Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_ACT_ISDA, SABR_BETA),
-        Curves.sabrParameterByExpiry(NAME.getName() + "-Nu", ACT_ACT_ISDA, SABR_RHO),
-        Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_ACT_ISDA, SABR_NU));
+        Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_ACT_ISDA, SABR_RHO),
+        Curves.sabrParameterByExpiry(NAME.getName() + "-Nu", ACT_ACT_ISDA, SABR_NU));
     ImmutableList<CurveMetadata> computed = base.createSabrParameterMetadata();
     assertEquals(computed, expected);
   }
