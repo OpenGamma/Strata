@@ -59,8 +59,7 @@ public class CdsIndexTest {
   private static final LocalDate START_DATE = LocalDate.of(2013, 12, 20);
   private static final LocalDate END_DATE = LocalDate.of(2024, 9, 20);
   private static final CdsIndex PRODUCT = CdsIndex.of(
-      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, BusinessDayAdjustment.of(FOLLOWING, SAT_SUN),
-      SHORT_INITIAL, COUPON, ACT_360, ACCRUED_PREMIUM, BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ);
+      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
 
   public void test_builder() {
     LocalDate startDate = LocalDate.of(2014, 12, 20);
@@ -68,7 +67,7 @@ public class CdsIndexTest {
     PeriodicSchedule sch =
         PeriodicSchedule.of(startDate, endDate, P3M, BusinessDayAdjustment.NONE, SHORT_INITIAL, RollConventions.NONE);
     CdsIndex test = CdsIndex.builder()
-        .accrualSchedule(sch)
+        .paymentSchedule(sch)
         .buySell(SELL)
         .currency(JPY)
         .dayCount(ACT_365F)
@@ -81,7 +80,7 @@ public class CdsIndexTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test.getAccrualSchedule(), sch);
+    assertEquals(test.getPaymentSchedule(), sch);
     assertEquals(test.getBuySell(), SELL);
     assertEquals(test.getCurrency(), JPY);
     assertEquals(test.getDayCount(), ACT_365F);
@@ -107,7 +106,7 @@ public class CdsIndexTest {
         .rollConvention(RollConventions.NONE)
         .stubConvention(SHORT_INITIAL)
         .build();
-    assertEquals(PRODUCT.getAccrualSchedule(), expected);
+    assertEquals(PRODUCT.getPaymentSchedule(), expected);
     assertEquals(PRODUCT.getBuySell(), BUY);
     assertEquals(PRODUCT.getCurrency(), USD);
     assertEquals(PRODUCT.getDayCount(), ACT_360);
@@ -119,7 +118,7 @@ public class CdsIndexTest {
     assertEquals(PRODUCT.getProtectionStart(), BEGINNING);
     assertEquals(PRODUCT.getSettlementDateOffset(), SETTLE_DAY_ADJ);
     assertEquals(PRODUCT.getStepinDateOffset(), STEPIN_DAY_ADJ);
-    CdsIndex test = CdsIndex.of(BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, SAT_SUN, COUPON);
+    CdsIndex test = CdsIndex.of(BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
     assertEquals(test, PRODUCT);
   }
 
@@ -169,7 +168,7 @@ public class CdsIndexTest {
         .legalEntityIds(LEGAL_ENTITIES)
         .dayCount(ACT_360)
         .paymentOnDefault(ACCRUED_PREMIUM)
-        .periodicPayments(payments)
+        .paymentPeriods(payments)
         .protectionStart(BEGINNING)
         .protectionEndDate(END_DATE)
         .settlementDateOffset(SETTLE_DAY_ADJ)
@@ -181,11 +180,27 @@ public class CdsIndexTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(PRODUCT);
-    CdsIndex other = CdsIndex.of(SELL, StandardId.of("OG", "AA-INDEX"),
-        ImmutableList.of(StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2")), JPY, 1d, LocalDate.of(2014, 1, 4),
-        LocalDate.of(2020, 11, 20), P6M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO),
-        StubConvention.SHORT_FINAL, 0.01, ACT_365F, PaymentOnDefault.NONE, ProtectionStartOfDay.NONE, DaysAdjustment.NONE,
-        DaysAdjustment.NONE);
+    CdsIndex other = CdsIndex.builder()
+        .buySell(SELL)
+        .cdsIndexId(StandardId.of("OG", "AA-INDEX"))
+        .legalEntityIds(ImmutableList.of(StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2")))
+        .currency(JPY)
+        .notional(1d)
+        .paymentSchedule(
+            PeriodicSchedule.of(
+                LocalDate.of(2014, 1, 4),
+                LocalDate.of(2020, 11, 20),
+                P6M,
+                BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO),
+                StubConvention.SHORT_FINAL,
+                RollConventions.NONE))
+        .fixedRate(0.01)
+        .dayCount(ACT_365F)
+        .paymentOnDefault(PaymentOnDefault.NONE)
+        .protectionStart(ProtectionStartOfDay.NONE)
+        .settlementDateOffset(DaysAdjustment.NONE)
+        .stepinDateOffset(DaysAdjustment.NONE)
+        .build();
     coverBeanEquals(PRODUCT, other);
   }
 

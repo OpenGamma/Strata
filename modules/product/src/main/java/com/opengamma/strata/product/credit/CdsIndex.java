@@ -68,14 +68,14 @@ public final class CdsIndex
   /**
    * The CDS index identifier.
    * <p>
-   * This identifier is used for referring this CDS index product.
+   * This identifier is used to refer this CDS index product.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId cdsIndexId;
   /**
    * The legal entity identifiers.
    * <p>
-   * This identifiers are used for the reference legal entities of the CDS index.
+   * These identifiers refer to the reference legal entities of the CDS index.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<StandardId> legalEntityIds;
@@ -95,12 +95,12 @@ public final class CdsIndex
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
-   * The accrual schedule.
+   * The payment schedule.
    * <p>
-   * This is used to define the accrual periods.
+   * This is used to define the payment periods.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PeriodicSchedule accrualSchedule;
+  private final PeriodicSchedule paymentSchedule;
   /**
    * The fixed coupon rate.
    * <p>
@@ -147,27 +147,18 @@ public final class CdsIndex
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
-   * <p>
-   * The start date adjustment, end date adjustment, and roll convention are switched off. 
-   * Use {@link #builder()} for the full flexibility.
+   * Creates an instance of standardized CDS index.
    * 
    * @param buySell  buy or sell
    * @param cdsIndexId  the CDS index ID
    * @param legalEntityIds  the legal entity IDs
    * @param currency  the currency
-   * @param notional  the notional 
+   * @param notional  the notional
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param paymentFrequency  the coupon frequency
-   * @param businessDayAdjustment  the business day adjustment
-   * @param stubConvention  the stub convention
+   * @param calendar  the calendar
+   * @param paymentFrequency  the payment frequency
    * @param fixedRate  the fixed coupon rate
-   * @param dayCount  the day count convention
-   * @param paymentOnDefault  the payment on default
-   * @param protectStart  the protection start of the day
-   * @param stepinDateOffset  the step-in date offset
-   * @param settlementDateOffset  the settlement date offset
    * @return the instance
    */
   public static CdsIndex of(
@@ -179,64 +170,39 @@ public final class CdsIndex
       LocalDate startDate,
       LocalDate endDate,
       Frequency paymentFrequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      double fixedRate,
-      DayCount dayCount,
-      PaymentOnDefault paymentOnDefault,
-      ProtectionStartOfDay protectStart,
-      DaysAdjustment stepinDateOffset,
-      DaysAdjustment settlementDateOffset) {
+      HolidayCalendarId calendar,
+      double fixedRate) {
 
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
-        .businessDayAdjustment(businessDayAdjustment)
+        .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, calendar))
         .startDate(startDate)
         .endDate(endDate)
         .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
         .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
         .frequency(paymentFrequency)
         .rollConvention(RollConventions.NONE)
-        .stubConvention(stubConvention)
+        .stubConvention(StubConvention.SHORT_INITIAL)
         .build();
-    return new CdsIndex(buySell, cdsIndexId, legalEntityIds, currency, notional, accrualSchedule, fixedRate, dayCount,
-        paymentOnDefault, protectStart, stepinDateOffset, settlementDateOffset);
-  }
 
-  /**
-   * Creates an instance of standardized CDS index.
-   * 
-   * @param buySell  buy or sell
-   * @param cdsIndexId  the CDS index ID
-   * @param legalEntityIds  the legal entity IDs
-   * @param currency  the currency
-   * @param notional  the notional
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param calendar  the calendar
-   * @param fixedRate  the fixed coupon rate
-   * @return the instance
-   */
-  public static CdsIndex of(
-      BuySell buySell,
-      StandardId cdsIndexId,
-      List<StandardId> legalEntityIds,
-      Currency currency,
-      double notional,
-      LocalDate startDate,
-      LocalDate endDate,
-      HolidayCalendarId calendar,
-      double fixedRate) {
-
-    return of(buySell, cdsIndexId, legalEntityIds, currency, notional, startDate, endDate, Frequency.P3M,
-        BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, calendar), StubConvention.SHORT_INITIAL,
-        fixedRate, DayCounts.ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING,
-        DaysAdjustment.ofCalendarDays(1), DaysAdjustment.ofBusinessDays(3, calendar));
+    return new CdsIndex(
+        buySell,
+        cdsIndexId,
+        legalEntityIds,
+        currency,
+        notional,
+        accrualSchedule,
+        fixedRate,
+        DayCounts.ACT_360,
+        PaymentOnDefault.ACCRUED_PREMIUM,
+        ProtectionStartOfDay.BEGINNING,
+        DaysAdjustment.ofCalendarDays(1),
+        DaysAdjustment.ofBusinessDays(3, calendar));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedCdsIndex resolve(ReferenceData refData) {
-    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData);
+    Schedule adjustedSchedule = paymentSchedule.createSchedule(refData);
     ImmutableList.Builder<CreditCouponPaymentPeriod> accrualPeriods = ImmutableList.builder();
     int nPeriods = adjustedSchedule.size();
     for (int i = 0; i < nPeriods - 1; i++) {
@@ -255,6 +221,7 @@ public final class CdsIndex
           .yearFraction(period.yearFraction(dayCount, adjustedSchedule))
           .build());
     }
+    // last period - accrual end is modified
     SchedulePeriod lastPeriod = adjustedSchedule.getPeriod(nPeriods - 1);
     LocalDate accEndDate = protectionStart.isBeginning() ? lastPeriod.getEndDate().plusDays(1) : lastPeriod.getEndDate();
     SchedulePeriod modifiedPeriod = lastPeriod.toBuilder().endDate(accEndDate).build();
@@ -265,13 +232,13 @@ public final class CdsIndex
         .unadjustedEndDate(modifiedPeriod.getUnadjustedEndDate())
         .effectiveStartDate(protectionStart.isBeginning() ? lastPeriod.getStartDate().minusDays(1) : lastPeriod.getStartDate())
         .effectiveEndDate(lastPeriod.getEndDate())
-        .paymentDate(accrualSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
+        .paymentDate(paymentSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
         .notional(notional)
         .currency(currency)
         .fixedRate(fixedRate)
         .yearFraction(modifiedPeriod.yearFraction(dayCount, adjustedSchedule))
         .build());
-    ImmutableList<CreditCouponPaymentPeriod> periodicPayments = accrualPeriods.build();
+    ImmutableList<CreditCouponPaymentPeriod> paymentPeriods = accrualPeriods.build();
 
     return ResolvedCdsIndex.builder()
         .buySell(buySell)
@@ -279,7 +246,7 @@ public final class CdsIndex
         .legalEntityIds(legalEntityIds)
         .protectionStart(protectionStart)
         .paymentOnDefault(paymentOnDefault)
-        .periodicPayments(periodicPayments)
+        .paymentPeriods(paymentPeriods)
         .protectionEndDate(lastPeriod.getEndDate())
         .settlementDateOffset(settlementDateOffset)
         .stepinDateOffset(stepinDateOffset)
@@ -320,7 +287,7 @@ public final class CdsIndex
       List<StandardId> legalEntityIds,
       Currency currency,
       double notional,
-      PeriodicSchedule accrualSchedule,
+      PeriodicSchedule paymentSchedule,
       double fixedRate,
       DayCount dayCount,
       PaymentOnDefault paymentOnDefault,
@@ -332,7 +299,7 @@ public final class CdsIndex
     JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegativeOrZero(notional, "notional");
-    JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
+    JodaBeanUtils.notNull(paymentSchedule, "paymentSchedule");
     ArgChecker.notNegative(fixedRate, "fixedRate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(paymentOnDefault, "paymentOnDefault");
@@ -344,7 +311,7 @@ public final class CdsIndex
     this.legalEntityIds = ImmutableList.copyOf(legalEntityIds);
     this.currency = currency;
     this.notional = notional;
-    this.accrualSchedule = accrualSchedule;
+    this.paymentSchedule = paymentSchedule;
     this.fixedRate = fixedRate;
     this.dayCount = dayCount;
     this.paymentOnDefault = paymentOnDefault;
@@ -386,7 +353,7 @@ public final class CdsIndex
   /**
    * Gets the CDS index identifier.
    * <p>
-   * This identifier is used for referring this CDS index product.
+   * This identifier is used to refer this CDS index product.
    * @return the value of the property, not null
    */
   public StandardId getCdsIndexId() {
@@ -397,7 +364,7 @@ public final class CdsIndex
   /**
    * Gets the legal entity identifiers.
    * <p>
-   * This identifiers are used for the reference legal entities of the CDS index.
+   * These identifiers refer to the reference legal entities of the CDS index.
    * @return the value of the property, not null
    */
   public ImmutableList<StandardId> getLegalEntityIds() {
@@ -429,13 +396,13 @@ public final class CdsIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrual schedule.
+   * Gets the payment schedule.
    * <p>
-   * This is used to define the accrual periods.
+   * This is used to define the payment periods.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getAccrualSchedule() {
-    return accrualSchedule;
+  public PeriodicSchedule getPaymentSchedule() {
+    return paymentSchedule;
   }
 
   //-----------------------------------------------------------------------
@@ -526,7 +493,7 @@ public final class CdsIndex
           JodaBeanUtils.equal(legalEntityIds, other.legalEntityIds) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
-          JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+          JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(paymentOnDefault, other.paymentOnDefault) &&
@@ -545,7 +512,7 @@ public final class CdsIndex
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityIds);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
-    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentOnDefault);
@@ -564,7 +531,7 @@ public final class CdsIndex
     buf.append("legalEntityIds").append('=').append(legalEntityIds).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
     buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("paymentOnDefault").append('=').append(paymentOnDefault).append(',').append(' ');
@@ -612,10 +579,10 @@ public final class CdsIndex
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", CdsIndex.class, Double.TYPE);
     /**
-     * The meta-property for the {@code accrualSchedule} property.
+     * The meta-property for the {@code paymentSchedule} property.
      */
-    private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
-        this, "accrualSchedule", CdsIndex.class, PeriodicSchedule.class);
+    private final MetaProperty<PeriodicSchedule> paymentSchedule = DirectMetaProperty.ofImmutable(
+        this, "paymentSchedule", CdsIndex.class, PeriodicSchedule.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -656,7 +623,7 @@ public final class CdsIndex
         "legalEntityIds",
         "currency",
         "notional",
-        "accrualSchedule",
+        "paymentSchedule",
         "fixedRate",
         "dayCount",
         "paymentOnDefault",
@@ -683,8 +650,8 @@ public final class CdsIndex
           return currency;
         case 1585636160:  // notional
           return notional;
-        case 304659814:  // accrualSchedule
-          return accrualSchedule;
+        case -1499086147:  // paymentSchedule
+          return paymentSchedule;
         case 747425396:  // fixedRate
           return fixedRate;
         case 1905311443:  // dayCount
@@ -758,11 +725,11 @@ public final class CdsIndex
     }
 
     /**
-     * The meta-property for the {@code accrualSchedule} property.
+     * The meta-property for the {@code paymentSchedule} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> accrualSchedule() {
-      return accrualSchedule;
+    public MetaProperty<PeriodicSchedule> paymentSchedule() {
+      return paymentSchedule;
     }
 
     /**
@@ -827,8 +794,8 @@ public final class CdsIndex
           return ((CdsIndex) bean).getCurrency();
         case 1585636160:  // notional
           return ((CdsIndex) bean).getNotional();
-        case 304659814:  // accrualSchedule
-          return ((CdsIndex) bean).getAccrualSchedule();
+        case -1499086147:  // paymentSchedule
+          return ((CdsIndex) bean).getPaymentSchedule();
         case 747425396:  // fixedRate
           return ((CdsIndex) bean).getFixedRate();
         case 1905311443:  // dayCount
@@ -867,7 +834,7 @@ public final class CdsIndex
     private List<StandardId> legalEntityIds = ImmutableList.of();
     private Currency currency;
     private double notional;
-    private PeriodicSchedule accrualSchedule;
+    private PeriodicSchedule paymentSchedule;
     private double fixedRate;
     private DayCount dayCount;
     private PaymentOnDefault paymentOnDefault;
@@ -891,7 +858,7 @@ public final class CdsIndex
       this.legalEntityIds = beanToCopy.getLegalEntityIds();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
-      this.accrualSchedule = beanToCopy.getAccrualSchedule();
+      this.paymentSchedule = beanToCopy.getPaymentSchedule();
       this.fixedRate = beanToCopy.getFixedRate();
       this.dayCount = beanToCopy.getDayCount();
       this.paymentOnDefault = beanToCopy.getPaymentOnDefault();
@@ -914,8 +881,8 @@ public final class CdsIndex
           return currency;
         case 1585636160:  // notional
           return notional;
-        case 304659814:  // accrualSchedule
-          return accrualSchedule;
+        case -1499086147:  // paymentSchedule
+          return paymentSchedule;
         case 747425396:  // fixedRate
           return fixedRate;
         case 1905311443:  // dayCount
@@ -952,8 +919,8 @@ public final class CdsIndex
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
-        case 304659814:  // accrualSchedule
-          this.accrualSchedule = (PeriodicSchedule) newValue;
+        case -1499086147:  // paymentSchedule
+          this.paymentSchedule = (PeriodicSchedule) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -1011,7 +978,7 @@ public final class CdsIndex
           legalEntityIds,
           currency,
           notional,
-          accrualSchedule,
+          paymentSchedule,
           fixedRate,
           dayCount,
           paymentOnDefault,
@@ -1040,7 +1007,7 @@ public final class CdsIndex
     /**
      * Sets the CDS index identifier.
      * <p>
-     * This identifier is used for referring this CDS index product.
+     * This identifier is used to refer this CDS index product.
      * @param cdsIndexId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1053,7 +1020,7 @@ public final class CdsIndex
     /**
      * Sets the legal entity identifiers.
      * <p>
-     * This identifiers are used for the reference legal entities of the CDS index.
+     * These identifiers refer to the reference legal entities of the CDS index.
      * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1101,15 +1068,15 @@ public final class CdsIndex
     }
 
     /**
-     * Sets the accrual schedule.
+     * Sets the payment schedule.
      * <p>
-     * This is used to define the accrual periods.
-     * @param accrualSchedule  the new value, not null
+     * This is used to define the payment periods.
+     * @param paymentSchedule  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder accrualSchedule(PeriodicSchedule accrualSchedule) {
-      JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
-      this.accrualSchedule = accrualSchedule;
+    public Builder paymentSchedule(PeriodicSchedule paymentSchedule) {
+      JodaBeanUtils.notNull(paymentSchedule, "paymentSchedule");
+      this.paymentSchedule = paymentSchedule;
       return this;
     }
 
@@ -1202,7 +1169,7 @@ public final class CdsIndex
       buf.append("legalEntityIds").append('=').append(JodaBeanUtils.toString(legalEntityIds)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+      buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');

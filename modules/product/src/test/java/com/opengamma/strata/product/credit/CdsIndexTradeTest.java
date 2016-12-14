@@ -7,16 +7,13 @@ package com.opengamma.strata.product.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
-import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
+import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
-import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -43,7 +40,6 @@ public class CdsIndexTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
-  private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
   private static final StandardId INDEX_ID = StandardId.of("OG", "AA-INDEX");
   private static final ImmutableList<StandardId> LEGAL_ENTITIES = ImmutableList.of(
       StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2"), StandardId.of("OG", "ABC3"), StandardId.of("OG", "ABC4"));
@@ -52,8 +48,7 @@ public class CdsIndexTradeTest {
   private static final LocalDate START_DATE = LocalDate.of(2013, 12, 20);
   private static final LocalDate END_DATE = LocalDate.of(2024, 9, 20);
   private static final CdsIndex PRODUCT = CdsIndex.of(
-      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, BusinessDayAdjustment.of(FOLLOWING, SAT_SUN),
-      SHORT_INITIAL, COUPON, ACT_360, ACCRUED_PREMIUM, BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ);
+      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 1, 9);
   private static final LocalDate SETTLE_DATE = SETTLE_DAY_ADJ.adjust(TRADE_DATE, REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
@@ -115,7 +110,7 @@ public class CdsIndexTradeTest {
         .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
-    CdsIndex product = CdsIndex.of(BUY, INDEX_ID, LEGAL_ENTITIES, USD, 1.e9, START_DATE, END_DATE, SAT_SUN, 0.067);
+    CdsIndex product = CdsIndex.of(BUY, INDEX_ID, LEGAL_ENTITIES, USD, 1.e9, START_DATE, END_DATE, P6M, SAT_SUN, 0.067);
     CdsIndexTrade test2 = CdsIndexTrade.builder()
         .product(product)
         .info(TradeInfo.empty())

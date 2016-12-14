@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.credit.cds;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.common.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.common.PriceType.DIRTY;
@@ -106,10 +107,10 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
   private static final LocalDate START_DATE = LocalDate.of(2013, 12, 20);
   private static final LocalDate MATURITY_DATE = LocalDate.of(2018, 12, 20);
   private static final double COUPON = 0.05;
-  private static final ResolvedCdsIndex PRODUCT =
-      CdsIndex.of(BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, MATURITY_DATE, SAT_SUN, COUPON).resolve(REF_DATA);
-  private static final ResolvedCdsIndex PRODUCT_SELL =
-      CdsIndex.of(SELL, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, MATURITY_DATE, SAT_SUN, COUPON).resolve(REF_DATA);
+  private static final ResolvedCdsIndex PRODUCT = CdsIndex.of(
+      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, MATURITY_DATE, P3M, SAT_SUN, COUPON).resolve(REF_DATA);
+  private static final ResolvedCdsIndex PRODUCT_SELL = CdsIndex.of(
+      SELL, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, MATURITY_DATE, P3M, SAT_SUN, COUPON).resolve(REF_DATA);
   private static final LocalDate SETTLEMENT_STD = PRODUCT.getSettlementDateOffset().adjust(VALUATION_DATE, REF_DATA);
 
   private static final double TOL = 1.0e-14;

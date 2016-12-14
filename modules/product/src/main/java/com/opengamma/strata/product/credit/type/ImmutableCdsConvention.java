@@ -257,7 +257,7 @@ public final class ImmutableCdsConvention
 
     Cds product = Cds.builder()
         .legalEntityId(legalEntityId)
-        .accrualSchedule(
+        .paymentSchedule(
             PeriodicSchedule.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -297,7 +297,7 @@ public final class ImmutableCdsConvention
 
     Cds product = Cds.builder()
         .legalEntityId(legalEntityId)
-        .accrualSchedule(
+        .paymentSchedule(
             PeriodicSchedule.builder()
                 .startDate(startDate)
                 .endDate(endDate)

@@ -121,7 +121,7 @@ public class CdsConventionTest {
     ImmutableCdsConvention base = ImmutableCdsConvention.of(NAME, GBP, ACT_360, P3M, BUSI_ADJ_STD, SETTLE_DAY_ADJ_STD);
     Cds product = Cds.builder()
         .legalEntityId(LEGAL_ENTITY)
-        .accrualSchedule(
+        .paymentSchedule(
             PeriodicSchedule.builder()
                 .startDate(startDate)
                 .endDate(endDate)

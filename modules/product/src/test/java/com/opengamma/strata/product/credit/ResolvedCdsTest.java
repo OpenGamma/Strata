@@ -91,7 +91,7 @@ public class ResolvedCdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
-        .periodicPayments(PAYMENTS)
+        .paymentPeriods(PAYMENTS)
         .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
@@ -105,7 +105,7 @@ public class ResolvedCdsTest {
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getPaymentOnDefault(), ACCRUED_PREMIUM);
-    assertEquals(test.getPeriodicPayments(), PAYMENTS);
+    assertEquals(test.getPaymentPeriods(), PAYMENTS);
     assertEquals(test.getProtectionEndDate(), PAYMENTS.get(42).getEffectiveEndDate());
     assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
     assertEquals(test.getProtectionStart(), BEGINNING);
@@ -120,7 +120,7 @@ public class ResolvedCdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
-        .periodicPayments(PAYMENTS)
+        .paymentPeriods(PAYMENTS)
         .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
@@ -149,7 +149,7 @@ public class ResolvedCdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
-        .periodicPayments(PAYMENTS)
+        .paymentPeriods(PAYMENTS)
         .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
@@ -164,7 +164,7 @@ public class ResolvedCdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(ProtectionStartOfDay.NONE)
-        .periodicPayments(PAYMENTS)
+        .paymentPeriods(PAYMENTS)
         .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
@@ -183,7 +183,7 @@ public class ResolvedCdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
-        .periodicPayments(PAYMENTS)
+        .paymentPeriods(PAYMENTS)
         .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
@@ -195,7 +195,7 @@ public class ResolvedCdsTest {
         .legalEntityId(StandardId.of("OG", "EFG"))
         .paymentOnDefault(PaymentOnDefault.NONE)
         .protectionStart(ProtectionStartOfDay.NONE)
-        .periodicPayments(PAYMENTS.get(0))
+        .paymentPeriods(PAYMENTS.get(0))
         .protectionEndDate(PAYMENTS.get(0).getEffectiveEndDate())
         .settlementDateOffset(DaysAdjustment.NONE)
         .stepinDateOffset(DaysAdjustment.NONE)
@@ -210,7 +210,7 @@ public class ResolvedCdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .paymentOnDefault(ACCRUED_PREMIUM)
         .protectionStart(BEGINNING)
-        .periodicPayments(PAYMENTS)
+        .paymentPeriods(PAYMENTS)
         .protectionEndDate(PAYMENTS.get(PAYMENTS.size() - 1).getEffectiveEndDate())
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
