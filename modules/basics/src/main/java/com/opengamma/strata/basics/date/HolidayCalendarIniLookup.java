@@ -103,6 +103,7 @@ final class HolidayCalendarIniLookup
           PropertySet section = ini.section(sectionName);
           HolidayCalendar parsed = parseHolidayCalendar(sectionName, section);
           map.put(parsed.getName(), parsed);
+          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as Holiday Calendar INI file: " + resource, ex);

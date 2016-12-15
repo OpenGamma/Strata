@@ -39,6 +39,15 @@ public class Business252DayCountTest {
     assertSame(DayCount.ofBus252(EUTA), test);
   }
 
+  public void test_factory_nameUpper() {
+    DayCount test = DayCount.of("BUS/252 EUTA");
+    assertEquals(test.getName(), "Bus/252 EUTA");
+    assertEquals(test.toString(), "Bus/252 EUTA");
+
+    assertSame(DayCount.of("Bus/252 EUTA"), test);
+    assertSame(DayCount.ofBus252(EUTA), test);
+  }
+
   public void test_factory_calendar() {
     DayCount test = DayCount.ofBus252(GBLO);
     assertEquals(test.getName(), "Bus/252 GBLO");
