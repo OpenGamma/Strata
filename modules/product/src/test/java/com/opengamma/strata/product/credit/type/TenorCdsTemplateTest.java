@@ -69,18 +69,18 @@ public class TenorCdsTemplateTest {
     CdsTrade test2 = base2.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, REF_DATA);
     Cds expected1 = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, startDate1, endDate1,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
-    PeriodicSchedule sch1 = expected1.getAccrualSchedule();
+    PeriodicSchedule sch1 = expected1.getPaymentSchedule();
     expected1 = expected1.toBuilder()
-        .accrualSchedule(sch1.toBuilder()
+        .paymentSchedule(sch1.toBuilder()
             .startDateBusinessDayAdjustment(sch1.getBusinessDayAdjustment())
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
     Cds expected2 = Cds.of(BUY, LEGAL_ENTITY, CONV2.getCurrency(), NOTIONAL_2M, startDate2, endDate2,
         CONV2.getSettlementDateOffset().getCalendar(), 0.05d);
-    PeriodicSchedule sch2 = expected2.getAccrualSchedule();
+    PeriodicSchedule sch2 = expected2.getPaymentSchedule();
     expected2 = expected2.toBuilder()
-        .accrualSchedule(sch2.toBuilder()
+        .paymentSchedule(sch2.toBuilder()
             .startDateBusinessDayAdjustment(sch2.getBusinessDayAdjustment())
             .rollConvention(RollConventions.DAY_20)
             .build())
@@ -109,18 +109,18 @@ public class TenorCdsTemplateTest {
     CdsTrade test2 = base2.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, payment2, REF_DATA);
     Cds expected1 = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, startDate1, endDate1,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
-    PeriodicSchedule sch1 = expected1.getAccrualSchedule();
+    PeriodicSchedule sch1 = expected1.getPaymentSchedule();
     expected1 = expected1.toBuilder()
-        .accrualSchedule(sch1.toBuilder()
+        .paymentSchedule(sch1.toBuilder()
             .startDateBusinessDayAdjustment(sch1.getBusinessDayAdjustment())
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
     Cds expected2 = Cds.of(BUY, LEGAL_ENTITY, CONV2.getCurrency(), NOTIONAL_2M, startDate2, endDate2,
         CONV2.getSettlementDateOffset().getCalendar(), 0.05d);
-    PeriodicSchedule sch2 = expected2.getAccrualSchedule();
+    PeriodicSchedule sch2 = expected2.getPaymentSchedule();
     expected2 = expected2.toBuilder()
-        .accrualSchedule(sch2.toBuilder()
+        .paymentSchedule(sch2.toBuilder()
             .startDateBusinessDayAdjustment(sch2.getBusinessDayAdjustment())
             .rollConvention(RollConventions.DAY_20)
             .build())

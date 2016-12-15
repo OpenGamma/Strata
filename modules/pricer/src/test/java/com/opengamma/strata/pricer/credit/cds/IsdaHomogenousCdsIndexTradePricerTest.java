@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.credit.cds;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -99,7 +100,7 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
 
   private static final double NOTIONAL = 1.0e7;
   private static final ResolvedCdsIndex PRODUCT = CdsIndex.of(
-      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2020, 10, 20), CALENDAR, 0.015)
+      BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2020, 10, 20), P3M, CALENDAR, 0.015)
       .resolve(REF_DATA);
   private static final LocalDate SETTLEMENT_DATE = PRODUCT.getSettlementDateOffset().adjust(VALUATION_DATE, REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()

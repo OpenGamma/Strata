@@ -88,12 +88,12 @@ public final class Cds
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
-   * The accrual schedule.
+   * The payment schedule.
    * <p>
-   * This is used to define the accrual periods.
+   * This is used to define the payment periods.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PeriodicSchedule accrualSchedule;
+  private final PeriodicSchedule paymentSchedule;
   /**
    * The fixed coupon rate.
    * <p>
@@ -225,7 +225,7 @@ public final class Cds
   //-------------------------------------------------------------------------
   @Override
   public ResolvedCds resolve(ReferenceData refData) {
-    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData);
+    Schedule adjustedSchedule = paymentSchedule.createSchedule(refData);
     ImmutableList.Builder<CreditCouponPaymentPeriod> accrualPeriods = ImmutableList.builder();
     int nPeriods = adjustedSchedule.size();
     for (int i = 0; i < nPeriods - 1; i++) {
@@ -254,20 +254,20 @@ public final class Cds
         .unadjustedEndDate(modifiedPeriod.getUnadjustedEndDate())
         .effectiveStartDate(protectionStart.isBeginning() ? lastPeriod.getStartDate().minusDays(1) : lastPeriod.getStartDate())
         .effectiveEndDate(lastPeriod.getEndDate())
-        .paymentDate(accrualSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
+        .paymentDate(paymentSchedule.getBusinessDayAdjustment().adjust(lastPeriod.getEndDate(), refData))
         .notional(notional)
         .currency(currency)
         .fixedRate(fixedRate)
         .yearFraction(modifiedPeriod.yearFraction(dayCount, adjustedSchedule))
         .build());
-    ImmutableList<CreditCouponPaymentPeriod> periodicPayments = accrualPeriods.build();
+    ImmutableList<CreditCouponPaymentPeriod> paymentPeriods = accrualPeriods.build();
 
     return ResolvedCds.builder()
         .buySell(buySell)
         .legalEntityId(legalEntityId)
         .protectionStart(protectionStart)
         .paymentOnDefault(paymentOnDefault)
-        .periodicPayments(periodicPayments)
+        .paymentPeriods(paymentPeriods)
         .protectionEndDate(lastPeriod.getEndDate())
         .settlementDateOffset(settlementDateOffset)
         .stepinDateOffset(stepinDateOffset)
@@ -307,7 +307,7 @@ public final class Cds
       StandardId legalEntityId,
       Currency currency,
       double notional,
-      PeriodicSchedule accrualSchedule,
+      PeriodicSchedule paymentSchedule,
       double fixedRate,
       DayCount dayCount,
       PaymentOnDefault paymentOnDefault,
@@ -318,7 +318,7 @@ public final class Cds
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegativeOrZero(notional, "notional");
-    JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
+    JodaBeanUtils.notNull(paymentSchedule, "paymentSchedule");
     ArgChecker.notNegative(fixedRate, "fixedRate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(paymentOnDefault, "paymentOnDefault");
@@ -329,7 +329,7 @@ public final class Cds
     this.legalEntityId = legalEntityId;
     this.currency = currency;
     this.notional = notional;
-    this.accrualSchedule = accrualSchedule;
+    this.paymentSchedule = paymentSchedule;
     this.fixedRate = fixedRate;
     this.dayCount = dayCount;
     this.paymentOnDefault = paymentOnDefault;
@@ -403,13 +403,13 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrual schedule.
+   * Gets the payment schedule.
    * <p>
-   * This is used to define the accrual periods.
+   * This is used to define the payment periods.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getAccrualSchedule() {
-    return accrualSchedule;
+  public PeriodicSchedule getPaymentSchedule() {
+    return paymentSchedule;
   }
 
   //-----------------------------------------------------------------------
@@ -499,7 +499,7 @@ public final class Cds
           JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
-          JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+          JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(paymentOnDefault, other.paymentOnDefault) &&
@@ -517,7 +517,7 @@ public final class Cds
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
-    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentOnDefault);
@@ -535,7 +535,7 @@ public final class Cds
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
     buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("paymentOnDefault").append('=').append(paymentOnDefault).append(',').append(' ');
@@ -577,10 +577,10 @@ public final class Cds
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", Cds.class, Double.TYPE);
     /**
-     * The meta-property for the {@code accrualSchedule} property.
+     * The meta-property for the {@code paymentSchedule} property.
      */
-    private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
-        this, "accrualSchedule", Cds.class, PeriodicSchedule.class);
+    private final MetaProperty<PeriodicSchedule> paymentSchedule = DirectMetaProperty.ofImmutable(
+        this, "paymentSchedule", Cds.class, PeriodicSchedule.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -620,7 +620,7 @@ public final class Cds
         "legalEntityId",
         "currency",
         "notional",
-        "accrualSchedule",
+        "paymentSchedule",
         "fixedRate",
         "dayCount",
         "paymentOnDefault",
@@ -645,8 +645,8 @@ public final class Cds
           return currency;
         case 1585636160:  // notional
           return notional;
-        case 304659814:  // accrualSchedule
-          return accrualSchedule;
+        case -1499086147:  // paymentSchedule
+          return paymentSchedule;
         case 747425396:  // fixedRate
           return fixedRate;
         case 1905311443:  // dayCount
@@ -712,11 +712,11 @@ public final class Cds
     }
 
     /**
-     * The meta-property for the {@code accrualSchedule} property.
+     * The meta-property for the {@code paymentSchedule} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> accrualSchedule() {
-      return accrualSchedule;
+    public MetaProperty<PeriodicSchedule> paymentSchedule() {
+      return paymentSchedule;
     }
 
     /**
@@ -779,8 +779,8 @@ public final class Cds
           return ((Cds) bean).getCurrency();
         case 1585636160:  // notional
           return ((Cds) bean).getNotional();
-        case 304659814:  // accrualSchedule
-          return ((Cds) bean).getAccrualSchedule();
+        case -1499086147:  // paymentSchedule
+          return ((Cds) bean).getPaymentSchedule();
         case 747425396:  // fixedRate
           return ((Cds) bean).getFixedRate();
         case 1905311443:  // dayCount
@@ -818,7 +818,7 @@ public final class Cds
     private StandardId legalEntityId;
     private Currency currency;
     private double notional;
-    private PeriodicSchedule accrualSchedule;
+    private PeriodicSchedule paymentSchedule;
     private double fixedRate;
     private DayCount dayCount;
     private PaymentOnDefault paymentOnDefault;
@@ -841,7 +841,7 @@ public final class Cds
       this.legalEntityId = beanToCopy.getLegalEntityId();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
-      this.accrualSchedule = beanToCopy.getAccrualSchedule();
+      this.paymentSchedule = beanToCopy.getPaymentSchedule();
       this.fixedRate = beanToCopy.getFixedRate();
       this.dayCount = beanToCopy.getDayCount();
       this.paymentOnDefault = beanToCopy.getPaymentOnDefault();
@@ -862,8 +862,8 @@ public final class Cds
           return currency;
         case 1585636160:  // notional
           return notional;
-        case 304659814:  // accrualSchedule
-          return accrualSchedule;
+        case -1499086147:  // paymentSchedule
+          return paymentSchedule;
         case 747425396:  // fixedRate
           return fixedRate;
         case 1905311443:  // dayCount
@@ -896,8 +896,8 @@ public final class Cds
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
-        case 304659814:  // accrualSchedule
-          this.accrualSchedule = (PeriodicSchedule) newValue;
+        case -1499086147:  // paymentSchedule
+          this.paymentSchedule = (PeriodicSchedule) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -954,7 +954,7 @@ public final class Cds
           legalEntityId,
           currency,
           notional,
-          accrualSchedule,
+          paymentSchedule,
           fixedRate,
           dayCount,
           paymentOnDefault,
@@ -1021,15 +1021,15 @@ public final class Cds
     }
 
     /**
-     * Sets the accrual schedule.
+     * Sets the payment schedule.
      * <p>
-     * This is used to define the accrual periods.
-     * @param accrualSchedule  the new value, not null
+     * This is used to define the payment periods.
+     * @param paymentSchedule  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder accrualSchedule(PeriodicSchedule accrualSchedule) {
-      JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
-      this.accrualSchedule = accrualSchedule;
+    public Builder paymentSchedule(PeriodicSchedule paymentSchedule) {
+      JodaBeanUtils.notNull(paymentSchedule, "paymentSchedule");
+      this.paymentSchedule = paymentSchedule;
       return this;
     }
 
@@ -1121,7 +1121,7 @@ public final class Cds
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+      buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');

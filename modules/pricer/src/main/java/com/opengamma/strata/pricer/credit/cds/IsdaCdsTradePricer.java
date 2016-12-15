@@ -62,6 +62,9 @@ public class IsdaCdsTradePricer {
   /**
    * Calculates the price of the underlying product, which is the present value per unit notional. 
    * <p>
+   * This method can calculate the clean or dirty price, see {@link PriceType}. 
+   * If calculating the clean price, the accrued interest is calculated based on the step-in date.
+   * <p>
    * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
@@ -157,6 +160,9 @@ public class IsdaCdsTradePricer {
    * Calculates the present value of the trade.
    * <p>
    * The present value of the product is based on the valuation date.
+   * <p>
+   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
+   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -306,7 +312,7 @@ public class IsdaCdsTradePricer {
       ReferenceData refData) {
 
     return trade.getInfo().getSettlementDate()
-        .orElse(trade.getProduct().getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
+        .orElse(trade.getProduct().calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData));
   }
 
 }

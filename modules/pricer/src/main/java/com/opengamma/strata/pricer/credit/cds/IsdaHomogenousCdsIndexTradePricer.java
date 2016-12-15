@@ -65,6 +65,12 @@ public class IsdaHomogenousCdsIndexTradePricer {
   /**
    * Calculates the price of the underlying product, which is the present value per unit notional. 
    * <p>
+<<<<<<< HEAD
+=======
+   * This method can calculate the clean or dirty price, see {@link PriceType}. 
+   * If calculating the clean price, the accrued interest is calculated based on the step-in date.
+   * <p>
+>>>>>>> topic/cds-merge
    * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
@@ -149,6 +155,12 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * Calculates the present value of the trade.
    * <p>
    * The present value of the product is based on the valuation date.
+<<<<<<< HEAD
+=======
+   * <p>
+   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
+   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
+>>>>>>> topic/cds-merge
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -204,6 +216,12 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * Calculates the present value of the underlying product. 
    * <p>
    * The present value is computed based on the settlement date rather than the valuation date.
+<<<<<<< HEAD
+=======
+   * <p>
+   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
+   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
+>>>>>>> topic/cds-merge
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -298,7 +316,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
       ReferenceData refData) {
 
     return trade.getInfo().getSettlementDate()
-        .orElse(trade.getProduct().getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData));
+        .orElse(trade.getProduct().calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData));
   }
 
 }

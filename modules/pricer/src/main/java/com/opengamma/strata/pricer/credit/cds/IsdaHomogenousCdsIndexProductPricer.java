@@ -54,6 +54,12 @@ public class IsdaHomogenousCdsIndexProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Calculates the price of the CDS index product, which is the minus of the present value per unit notional. 
+<<<<<<< HEAD
+=======
+   * <p>
+   * This method can calculate the clean or dirty price, see {@link PriceType}. 
+   * If calculating the clean price, the accrued interest is calculated based on the step-in date.
+>>>>>>> topic/cds-merge
    * 
    * @param cdsIndex  the product
    * @param ratesProvider  the rates provider
@@ -101,7 +107,12 @@ public class IsdaHomogenousCdsIndexProductPricer {
    * The present value of the product is based on {@code referenceDate}.
    * This is typically the valuation date, or cash settlement date if the product is associated with a {@code Trade}. 
    * <p>
+<<<<<<< HEAD
    * The price type is clean or dirty. The accrued interest is computed based on the valuation date.
+=======
+   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
+   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
+>>>>>>> topic/cds-merge
    * 
    * @param cdsIndex  the product
    * @param ratesProvider  the rates provider
@@ -129,8 +140,9 @@ public class IsdaHomogenousCdsIndexProductPricer {
         underlyingPricer.protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
     double rpv01 = underlyingPricer.riskyAnnuity(
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
-    return CurrencyAmount.of(cds.getCurrency(),
-        cds.getBuySell().normalize(cds.getNotional()) * rates.getThird() * (protectionLeg - rpv01 * cds.getFixedRate()));
+    double amount =
+        cds.getBuySell().normalize(cds.getNotional()) * rates.getThird() * (protectionLeg - rpv01 * cds.getFixedRate());
+    return CurrencyAmount.of(cds.getCurrency(), amount);
   }
 
   /**
@@ -161,11 +173,11 @@ public class IsdaHomogenousCdsIndexProductPricer {
 
     double signedNotional = cds.getBuySell().normalize(cds.getNotional());
     PointSensitivityBuilder protectionLegSensi = underlyingPricer.protectionLegSensitivity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate)
-        .multipliedBy(signedNotional * rates.getThird());
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
+    protectionLegSensi = protectionLegSensi.multipliedBy(signedNotional * rates.getThird());
     PointSensitivityBuilder riskyAnnuitySensi = underlyingPricer.riskyAnnuitySensitivity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
-        .multipliedBy(-cds.getFixedRate() * signedNotional * rates.getThird());
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate);
+    riskyAnnuitySensi = riskyAnnuitySensi.multipliedBy(-cds.getFixedRate() * signedNotional * rates.getThird());
 
     return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }
@@ -244,7 +256,8 @@ public class IsdaHomogenousCdsIndexProductPricer {
     Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
     double riskyAnnuity = underlyingPricer.riskyAnnuity(
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
-    return CurrencyAmount.of(cds.getCurrency(), cds.getBuySell().normalize(cds.getNotional()) * riskyAnnuity * rates.getThird());
+    double amount = cds.getBuySell().normalize(cds.getNotional()) * riskyAnnuity * rates.getThird();
+    return CurrencyAmount.of(cds.getCurrency(), amount);
   }
 
   //-------------------------------------------------------------------------
@@ -277,8 +290,8 @@ public class IsdaHomogenousCdsIndexProductPricer {
     Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
     double protectionFull =
         underlyingPricer.protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
-    return CurrencyAmount.of(cds.getCurrency(),
-        -cds.getBuySell().normalize(cds.getNotional()) * protectionFull * rates.getThird());
+    double amount = -cds.getBuySell().normalize(cds.getNotional()) * protectionFull * rates.getThird();
+    return CurrencyAmount.of(cds.getCurrency(), amount);
   }
 
   //-------------------------------------------------------------------------

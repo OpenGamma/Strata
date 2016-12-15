@@ -79,7 +79,11 @@ public final class IsdaCreditCurveDefinition
    * The nodes are used to find the par rates and calibrate the curve.
    */
   @PropertyDefinition(validate = "notNull")
+<<<<<<< HEAD
   private final ImmutableList<? extends IsdaCreditCurveNode> curveNodes;
+=======
+  private final ImmutableList<IsdaCreditCurveNode> curveNodes;
+>>>>>>> topic/cds-merge
   /**
    * The flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
    */
@@ -103,7 +107,11 @@ public final class IsdaCreditCurveDefinition
       Currency currency,
       LocalDate curveValuationDate,
       DayCount dayCount,
+<<<<<<< HEAD
       List<? extends IsdaCreditCurveNode> curveNodes,
+=======
+      List<IsdaCreditCurveNode> curveNodes,
+>>>>>>> topic/cds-merge
       boolean computeJacobian) {
 
     return new IsdaCreditCurveDefinition(name, currency, curveValuationDate, dayCount, curveNodes, computeJacobian);
@@ -164,7 +172,11 @@ public final class IsdaCreditCurveDefinition
       Currency currency,
       LocalDate curveValuationDate,
       DayCount dayCount,
+<<<<<<< HEAD
       List<? extends IsdaCreditCurveNode> curveNodes,
+=======
+      List<IsdaCreditCurveNode> curveNodes,
+>>>>>>> topic/cds-merge
       boolean computeJacobian) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
@@ -248,7 +260,11 @@ public final class IsdaCreditCurveDefinition
    * The nodes are used to find the par rates and calibrate the curve.
    * @return the value of the property, not null
    */
+<<<<<<< HEAD
   public ImmutableList<? extends IsdaCreditCurveNode> getCurveNodes() {
+=======
+  public ImmutableList<IsdaCreditCurveNode> getCurveNodes() {
+>>>>>>> topic/cds-merge
     return curveNodes;
   }
 
@@ -339,7 +355,11 @@ public final class IsdaCreditCurveDefinition
      * The meta-property for the {@code curveNodes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
+<<<<<<< HEAD
     private final MetaProperty<ImmutableList<? extends IsdaCreditCurveNode>> curveNodes = DirectMetaProperty.ofImmutable(
+=======
+    private final MetaProperty<ImmutableList<IsdaCreditCurveNode>> curveNodes = DirectMetaProperty.ofImmutable(
+>>>>>>> topic/cds-merge
         this, "curveNodes", IsdaCreditCurveDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code computeJacobian} property.
@@ -435,7 +455,11 @@ public final class IsdaCreditCurveDefinition
      * The meta-property for the {@code curveNodes} property.
      * @return the meta-property, not null
      */
+<<<<<<< HEAD
     public MetaProperty<ImmutableList<? extends IsdaCreditCurveNode>> curveNodes() {
+=======
+    public MetaProperty<ImmutableList<IsdaCreditCurveNode>> curveNodes() {
+>>>>>>> topic/cds-merge
       return curveNodes;
     }
 
@@ -488,7 +512,11 @@ public final class IsdaCreditCurveDefinition
     private Currency currency;
     private LocalDate curveValuationDate;
     private DayCount dayCount;
+<<<<<<< HEAD
     private List<? extends IsdaCreditCurveNode> curveNodes = ImmutableList.of();
+=======
+    private List<IsdaCreditCurveNode> curveNodes = ImmutableList.of();
+>>>>>>> topic/cds-merge
     private boolean computeJacobian;
 
     /**
@@ -535,7 +563,11 @@ public final class IsdaCreditCurveDefinition
           this.dayCount = (DayCount) newValue;
           break;
         case -1863622910:  // curveNodes
+<<<<<<< HEAD
           this.curveNodes = (List<? extends IsdaCreditCurveNode>) newValue;
+=======
+          this.curveNodes = (List<IsdaCreditCurveNode>) newValue;
+>>>>>>> topic/cds-merge
           break;
         case -1730091410:  // computeJacobian
           this.computeJacobian = (Boolean) newValue;

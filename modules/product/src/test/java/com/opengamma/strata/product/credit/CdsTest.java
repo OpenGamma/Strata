@@ -65,7 +65,7 @@ public class CdsTest {
     PeriodicSchedule sch =
         PeriodicSchedule.of(startDate, endDate, P3M, BusinessDayAdjustment.NONE, SHORT_INITIAL, RollConventions.NONE);
     Cds test = Cds.builder()
-        .accrualSchedule(sch)
+        .paymentSchedule(sch)
         .buySell(SELL)
         .currency(JPY)
         .dayCount(ACT_365F)
@@ -77,7 +77,7 @@ public class CdsTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test.getAccrualSchedule(), sch);
+    assertEquals(test.getPaymentSchedule(), sch);
     assertEquals(test.getBuySell(), SELL);
     assertEquals(test.getCurrency(), JPY);
     assertEquals(test.getDayCount(), ACT_365F);
@@ -102,7 +102,7 @@ public class CdsTest {
         .rollConvention(RollConventions.NONE)
         .stubConvention(SHORT_INITIAL)
         .build();
-    assertEquals(PRODUCT_STD.getAccrualSchedule(), expected);
+    assertEquals(PRODUCT_STD.getPaymentSchedule(), expected);
     assertEquals(PRODUCT_STD.getBuySell(), BUY);
     assertEquals(PRODUCT_STD.getCurrency(), USD);
     assertEquals(PRODUCT_STD.getDayCount(), ACT_360);
@@ -162,7 +162,7 @@ public class CdsTest {
         .legalEntityId(LEGAL_ENTITY)
         .dayCount(ACT_360)
         .paymentOnDefault(ACCRUED_PREMIUM)
-        .periodicPayments(payments)
+        .paymentPeriods(payments)
         .protectionStart(BEGINNING)
         .protectionEndDate(END_DATE)
         .settlementDateOffset(SETTLE_DAY_ADJ)
