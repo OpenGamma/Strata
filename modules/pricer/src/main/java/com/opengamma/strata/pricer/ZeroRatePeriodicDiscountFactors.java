@@ -178,7 +178,7 @@ public final class ZeroRatePeriodicDiscountFactors
     double zr = curve.yValue(yearFraction);
     double periodIF = 1d + zr / frequency;
     double df = Math.pow(periodIF, -yearFraction * frequency);
-    return - frequency * df * 
+    return -frequency * df *
         (Math.log(periodIF) + yearFraction / periodIF * curve.firstDerivative(yearFraction) / frequency);
   }
 
