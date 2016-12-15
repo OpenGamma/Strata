@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
@@ -48,6 +48,7 @@ import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.LegalEntityInformation;
 import com.opengamma.strata.market.observable.LegalEntityInformationId;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.pricer.credit.IsdaCompliantIndexCurveCalibrator;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.ImmutableCdsConvention;

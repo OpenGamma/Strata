@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
@@ -127,12 +128,12 @@ public class CdsIndexIsdaCreditCurveNodeTest {
     CdsTrade cdsTrade = TEMPLATE.createTrade(INDEX_ID, VAL_DATE, SELL, -quantity, 0.01, REF_DATA);
     CdsIndex cdsIndex = CdsIndex.of(
         SELL, INDEX_ID, LEGAL_ENTITIES, TEMPLATE.getConvention().getCurrency(), -quantity, date(2015, 6, 20),
-        date(2025, 6, 20), TEMPLATE.getConvention().getSettlementDateOffset().getCalendar(), 0.01);
+        date(2025, 6, 20), Frequency.P3M, TEMPLATE.getConvention().getSettlementDateOffset().getCalendar(), 0.01);
     CdsIndex cdsIndexMod = cdsIndex.toBuilder()
-        .accrualSchedule(
-            cdsIndex.getAccrualSchedule().toBuilder()
+        .paymentSchedule(
+            cdsIndex.getPaymentSchedule().toBuilder()
                 .rollConvention(RollConventions.DAY_20)
-                .startDateBusinessDayAdjustment(cdsIndex.getAccrualSchedule().getBusinessDayAdjustment())
+                .startDateBusinessDayAdjustment(cdsIndex.getPaymentSchedule().getBusinessDayAdjustment())
                 .build())
         .build();
     CdsIndexTrade expected = CdsIndexTrade.builder()
@@ -147,12 +148,12 @@ public class CdsIndexIsdaCreditCurveNodeTest {
     CdsIndexCalibrationTrade trade1 = node1.trade(quantity, marketData, REF_DATA);
     CdsIndex cdsIndex1 = CdsIndex.of(
         SELL, INDEX_ID, LEGAL_ENTITIES, TEMPLATE.getConvention().getCurrency(), -quantity, date(2015, 6, 20),
-        date(2025, 6, 20), TEMPLATE.getConvention().getSettlementDateOffset().getCalendar(), rate);
+        date(2025, 6, 20), Frequency.P3M, TEMPLATE.getConvention().getSettlementDateOffset().getCalendar(), rate);
     CdsIndex cdsIndexMod1 = cdsIndex1.toBuilder()
-        .accrualSchedule(
-            cdsIndex.getAccrualSchedule().toBuilder()
+        .paymentSchedule(
+            cdsIndex.getPaymentSchedule().toBuilder()
                 .rollConvention(RollConventions.DAY_20)
-                .startDateBusinessDayAdjustment(cdsIndex1.getAccrualSchedule().getBusinessDayAdjustment())
+                .startDateBusinessDayAdjustment(cdsIndex1.getPaymentSchedule().getBusinessDayAdjustment())
                 .build())
         .build();
     CdsIndexTrade expected1 = CdsIndexTrade.builder()

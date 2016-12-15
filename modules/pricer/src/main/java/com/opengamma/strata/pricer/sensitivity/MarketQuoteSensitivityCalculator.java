@@ -19,7 +19,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
-import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

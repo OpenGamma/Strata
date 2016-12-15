@@ -258,7 +258,7 @@ public final class CdsIndexIsdaCreditCurveNode
             .cdsIndexId(cdsIndexId)
             .legalEntityIds(legalEntityIds)
             .dayCount(cdsProduct.getDayCount())
-            .accrualSchedule(cdsProduct.getAccrualSchedule())
+            .paymentSchedule(cdsProduct.getPaymentSchedule())
             .fixedRate(cdsProduct.getFixedRate())
             .paymentOnDefault(cdsProduct.getPaymentOnDefault())
             .protectionStart(cdsProduct.getProtectionStart())
