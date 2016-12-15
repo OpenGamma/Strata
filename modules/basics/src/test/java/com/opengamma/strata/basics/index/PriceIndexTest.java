@@ -37,7 +37,14 @@ public class PriceIndexTest {
     assertEquals(test.getRegion(), GB);
     assertEquals(test.isActive(), true);
     assertEquals(test.getPublicationFrequency(), Frequency.P1M);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GB-HICP"));
     assertEquals(test.toString(), "GB-HICP");
+  }
+
+  public void test_getFloatingRateName() {
+    for (PriceIndex index : PriceIndex.extendedEnum().lookupAll().values()) {
+      assertEquals(index.getFloatingRateName(), FloatingRateName.of(index.getName()));
+    }
   }
 
   //-------------------------------------------------------------------------

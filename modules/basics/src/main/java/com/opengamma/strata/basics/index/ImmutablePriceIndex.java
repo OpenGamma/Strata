@@ -77,6 +77,11 @@ public final class ImmutablePriceIndex
     builder.active = true;
   }
 
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(name);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {

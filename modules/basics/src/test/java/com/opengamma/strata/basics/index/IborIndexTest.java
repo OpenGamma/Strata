@@ -83,6 +83,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)));
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GBP-LIBOR"));
     assertEquals(test.toString(), "GBP-LIBOR-3M");
   }
 
@@ -109,6 +110,14 @@ public class IborIndexTest {
     assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 13)), IborIndexObservation.of(test, date(2014, 10, 13), REF_DATA));
   }
 
+  public void test_getFloatingRateName() {
+    for (IborIndex index : IborIndex.extendedEnum().lookupAll().values()) {
+      String name = index.getName().substring(0, index.getName().lastIndexOf('-'));
+      assertEquals(index.getFloatingRateName(), FloatingRateName.of(name));
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_usdLibor3m() {
     IborIndex test = IborIndex.of("USD-LIBOR-3M");
     assertEquals(test.getCurrency(), USD);
@@ -121,6 +130,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combinedWith(USNY))));
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("USD-LIBOR"));
     assertEquals(test.toString(), "USD-LIBOR-3M");
   }
 
@@ -152,7 +162,7 @@ public class IborIndexTest {
     assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 27)), IborIndexObservation.of(test, date(2014, 10, 27), REF_DATA));
   }
 
-  public void test_euibor3m() {
+  public void test_euribor3m() {
     IborIndex test = IborIndex.of("EUR-EURIBOR-3M");
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getName(), "EUR-EURIBOR-3M");
@@ -163,6 +173,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)));
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("EUR-EURIBOR"));
     assertEquals(test.toString(), "EUR-EURIBOR-3M");
   }
 
@@ -198,6 +209,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("JPY-TIBOR-JAPAN"));
     assertEquals(test.toString(), "JPY-TIBOR-JAPAN-3M");
   }
 
@@ -233,6 +245,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("JPY-TIBOR-EUROYEN"));
     assertEquals(test.toString(), "JPY-TIBOR-EUROYEN-3M");
   }
 
@@ -495,7 +508,7 @@ public class IborIndexTest {
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableIborIndex a = ImmutableIborIndex.builder()
-        .name("Test")
+        .name("Test-3M")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -505,14 +518,14 @@ public class IborIndexTest {
         .fixingTime(LocalTime.NOON)
         .fixingZone(ZoneId.of("Europe/London"))
         .build();
-    IborIndex b = a.toBuilder().name("Rubbish").build();
+    IborIndex b = a.toBuilder().name("Rubbish-3M").build();
     assertEquals(a.equals(b), false);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableIborIndex index = ImmutableIborIndex.builder()
-        .name("Test")
+        .name("Test-3M")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -532,7 +545,7 @@ public class IborIndexTest {
 
   public void test_serialization() {
     IborIndex index = ImmutableIborIndex.builder()
-        .name("Test")
+        .name("Test-3M")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))

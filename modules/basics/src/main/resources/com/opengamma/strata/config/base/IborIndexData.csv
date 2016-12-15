@@ -187,5 +187,5 @@ SEK-STIBOR-12M,SEK,false,Act/360,SEST,2,SEST,SEST,12M,None,11:00,Europe/Stockhol
 ZAR-JIBAR-1M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,1M,None,10:00,Africa/Johannesburg
 ZAR-JIBAR-3M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,3M,None,10:00,Africa/Johannesburg
 ZAR-JIBAR-6M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,6M,None,10:00,Africa/Johannesburg
-ZAR-JIBAR-9M,ZAR,false,Act/365F,ZAJO,0,ZAJO,ZAJO,6M,None,10:00,Africa/Johannesburg
+ZAR-JIBAR-9M,ZAR,false,Act/365F,ZAJO,0,ZAJO,ZAJO,9M,None,10:00,Africa/Johannesburg
 ZAR-JIBAR-12M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,12M,None,10:00,Africa/Johannesburg

@@ -65,7 +65,7 @@ public class FraConventionTest {
   private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
   private static final DaysAdjustment MINUS_FIVE_DAYS = DaysAdjustment.ofBusinessDays(-5, GBLO);
   private static final ImmutableIborIndex AUD_INDEX = ImmutableIborIndex.builder()
-      .name("AUD-INDEX")
+      .name("AUD-INDEX-3M")
       .currency(AUD)
       .dayCount(ACT_360)
       .fixingDateOffset(MINUS_TWO_DAYS)
@@ -76,7 +76,7 @@ public class FraConventionTest {
       .fixingZone(ZoneId.of("Australia/Sydney"))
       .build();
   private static final ImmutableIborIndex NZD_INDEX = ImmutableIborIndex.builder()
-      .name("NZD-INDEX")
+      .name("NZD-INDEX-3M")
       .currency(NZD)
       .dayCount(ACT_360)
       .fixingDateOffset(MINUS_TWO_DAYS)
