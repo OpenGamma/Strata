@@ -137,7 +137,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     ArgChecker.isTrue(ratesProvider.getValuationDate().equals(calibrationDateTime.toLocalDate()),
         "valuationDate of ratesProvider should be coherent to calibrationDateTime");
     ArgChecker.isTrue(definition instanceof SabrIborCapletFloorletVolatilityBootstrapDefinition,
-        "definition should be SabrIborCapletFloorletBootstrapDefinition");
+        "definition should be SabrIborCapletFloorletVolatilityBootstrapDefinition");
     SabrIborCapletFloorletVolatilityBootstrapDefinition bsDefinition =
         (SabrIborCapletFloorletVolatilityBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
@@ -224,8 +224,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
       Function<DoubleArray, DoubleArray> valueFunction = createPriceFunction(
           ratesProvider, vols, prevExpiry, capList, priceList, startIndex, nExpiries, i, nCaplets, fixed.get(1));
       Function<DoubleArray, DoubleMatrix> jacobianFunction = createJacobianFunction(
-          ratesProvider, vols, prevExpiry, capList, priceList, index.getCurrency(), startIndex, nExpiries, i, nCaplets,
-          fixed.get(1));
+          ratesProvider, vols, prevExpiry, capList, priceList, index.getCurrency(), startIndex, nExpiries, i, nCaplets, fixed.get(1));
       NonLinearTransformFunction transFunc = new NonLinearTransformFunction(valueFunction, jacobianFunction, transform);
       DoubleArray adjustedPrices = adjustedPrices(ratesProvider, vols, prevExpiry, capList, priceList, startIndex, i, nCaplets);
       DoubleArray errors = DoubleArray.of(nCaplets, n -> errorList.get(currentStart + n));

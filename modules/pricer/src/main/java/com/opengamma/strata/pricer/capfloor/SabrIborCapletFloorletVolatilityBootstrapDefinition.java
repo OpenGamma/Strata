@@ -55,6 +55,9 @@ import com.opengamma.strata.pricer.option.RawOptionData;
  * This definition is used with {@link SabrIborCapletFloorletVolatilityBootstrapper}. 
  * The SABR parameters are computed by bootstrap along the time direction, 
  * thus the interpolation and left extrapolation for the time dimension must be local. 
+ * <p>
+ * Either rho or beta must be fixed. 
+ * Then the calibration is computed to the other three SABR parameter curves. 
  * The resulting volatilities object will be {@link SabrParametersIborCapletFloorletVolatilities}.
  */
 @BeanDefinition

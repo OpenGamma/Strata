@@ -37,7 +37,7 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
  * The caplet volatilities are computed by bootstrapping along the expiry time dimension. 
  * The result is an interpolated surface spanned by expiry and strike.  
  * The position of the node points on the resultant surface corresponds to last expiry date of market caps. 
- * The node should be interpolated by a local interpolation scheme along the time direction.  
+ * The nodes should be interpolated by a local interpolation scheme along the time direction.  
  * See {@link SurfaceIborCapletFloorletBootstrapDefinition} for detail.
  * <p>
  * If the shift curve is not present in {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}, 
@@ -86,7 +86,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
     ArgChecker.isTrue(ratesProvider.getValuationDate().equals(calibrationDateTime.toLocalDate()),
         "valuationDate of ratesProvider should be coherent to calibrationDateTime");
     ArgChecker.isTrue(definition instanceof SurfaceIborCapletFloorletBootstrapVolatilityDefinition,
-        "definition should be SurfaceIborCapletFloorletBootstrapDefinition");
+        "definition should be SurfaceIborCapletFloorletBootstrapVolatilityDefinition");
     SurfaceIborCapletFloorletBootstrapVolatilityDefinition bsDefinition =
         (SurfaceIborCapletFloorletBootstrapVolatilityDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
