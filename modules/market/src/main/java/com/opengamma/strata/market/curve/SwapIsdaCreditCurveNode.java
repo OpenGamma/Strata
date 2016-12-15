@@ -62,7 +62,7 @@ public final class SwapIsdaCreditCurveNode
    * <p>
    * This is the period from the first accrual date to the last accrual date.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final Tenor tenor;
   /**
    * The offset of the start date from the trade date.
@@ -237,7 +237,6 @@ public final class SwapIsdaCreditCurveNode
    * This is the period from the first accrual date to the last accrual date.
    * @return the value of the property, not null
    */
-  @Override
   public Tenor getTenor() {
     return tenor;
   }

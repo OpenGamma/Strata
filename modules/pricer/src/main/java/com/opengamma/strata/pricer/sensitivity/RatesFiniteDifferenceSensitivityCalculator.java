@@ -25,10 +25,10 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.credit.cds.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.cds.LegalEntitySurvivalProbabilities;
+import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
+import com.opengamma.strata.pricer.credit.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
