@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
@@ -27,6 +27,11 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
+import com.opengamma.strata.pricer.credit.CreditCurveZeroRateSensitivity;
+import com.opengamma.strata.pricer.credit.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.fx.FxForwardSensitivity;
 
 /**

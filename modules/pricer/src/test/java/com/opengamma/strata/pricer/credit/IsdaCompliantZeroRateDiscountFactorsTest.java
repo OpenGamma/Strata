@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -31,6 +31,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
 
 /**
  * Test {@link IsdaCompliantZeroRateDiscountFactors}.

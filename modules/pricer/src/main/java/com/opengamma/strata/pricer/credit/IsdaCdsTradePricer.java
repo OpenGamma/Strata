@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
 
@@ -14,27 +14,24 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
-import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
 /**
- * Pricer for CDS portfolio index trade based on ISDA standard model. 
+ * Pricer for single-name credit default swaps (CDS) trade based on ISDA standard model. 
  * <p>
- * The underlying CDS index product is priced as a single name CDS using a single credit curve rather than 
- * credit curves of constituent single names. 
- * See {@link IsdaSimpleCdsIndexTradePricer} for detail.
+ * The implementation is based on the ISDA model versions 1.8.2.
  */
-public class IsdaHomogenousCdsIndexTradePricer {
+public class IsdaCdsTradePricer {
 
   /**
    * Default implementation.
    */
-  public static final IsdaHomogenousCdsIndexTradePricer DEFAULT = new IsdaHomogenousCdsIndexTradePricer();
+  public static final IsdaCdsTradePricer DEFAULT = new IsdaCdsTradePricer();
 
   /**
    * The product pricer.
    */
-  private final IsdaHomogenousCdsIndexProductPricer productPricer;
+  private final IsdaCdsProductPricer productPricer;
   /**
    * The upfront fee pricer.
    */
@@ -46,8 +43,8 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * <p>
    * The default pricers are used.
    */
-  public IsdaHomogenousCdsIndexTradePricer() {
-    this.productPricer = IsdaHomogenousCdsIndexProductPricer.DEFAULT;
+  public IsdaCdsTradePricer() {
+    this.productPricer = IsdaCdsProductPricer.DEFAULT;
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
   }
 
@@ -56,8 +53,8 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * 
    * @param formula  the accrual-on-default formula
    */
-  public IsdaHomogenousCdsIndexTradePricer(AccrualOnDefaultFormula formula) {
-    this.productPricer = new IsdaHomogenousCdsIndexProductPricer(formula);
+  public IsdaCdsTradePricer(AccrualOnDefaultFormula formula) {
+    this.productPricer = new IsdaCdsProductPricer(formula);
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
   }
 
@@ -65,12 +62,9 @@ public class IsdaHomogenousCdsIndexTradePricer {
   /**
    * Calculates the price of the underlying product, which is the present value per unit notional. 
    * <p>
-<<<<<<< HEAD
-=======
    * This method can calculate the clean or dirty price, see {@link PriceType}. 
    * If calculating the clean price, the accrued interest is calculated based on the step-in date.
    * <p>
->>>>>>> topic/cds-merge
    * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
@@ -80,13 +74,24 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the price
    */
   public double price(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
 
+    return price(trade, ratesProvider, trade.getProduct().getFixedRate(), priceType, refData);
+  }
+
+  // internal price computation with specified coupon rate
+  double price(
+      ResolvedCdsTrade trade,
+      CreditRatesProvider ratesProvider,
+      double fractionalSpread,
+      PriceType priceType,
+      ReferenceData refData) {
+
     LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
-    return productPricer.price(trade.getProduct(), ratesProvider, settlementDate, priceType, refData);
+    return productPricer.price(trade.getProduct(), ratesProvider, fractionalSpread, settlementDate, priceType, refData);
   }
 
   /**
@@ -100,7 +105,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities priceSensitivity(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -123,7 +128,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the par spread
    */
   public double parSpread(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -142,7 +147,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities parSpreadSensitivity(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -155,12 +160,9 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * Calculates the present value of the trade.
    * <p>
    * The present value of the product is based on the valuation date.
-<<<<<<< HEAD
-=======
    * <p>
    * This method can calculate the clean or dirty present value, see {@link PriceType}. 
    * If calculating the clean value, the accrued interest is calculated based on the step-in date.
->>>>>>> topic/cds-merge
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -169,7 +171,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the price
    */
   public CurrencyAmount presentValue(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -196,7 +198,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueSensitivity(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -216,12 +218,6 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * Calculates the present value of the underlying product. 
    * <p>
    * The present value is computed based on the settlement date rather than the valuation date.
-<<<<<<< HEAD
-=======
-   * <p>
-   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
-   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
->>>>>>> topic/cds-merge
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -230,7 +226,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the price
    */
   public CurrencyAmount presentValueOnSettle(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -253,7 +249,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueOnSettleSensitivity(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -276,7 +272,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the RPV01
    */
   public CurrencyAmount rpv01OnSettle(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -301,7 +297,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * @return the recovery01
    */
   public CurrencyAmount recovery01OnSettle(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -311,7 +307,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
 
   //-------------------------------------------------------------------------
   private LocalDate calculateSettlementDate(
-      ResolvedCdsIndexTrade trade,
+      ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 

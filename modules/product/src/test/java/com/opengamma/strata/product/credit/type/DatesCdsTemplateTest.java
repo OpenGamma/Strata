@@ -59,9 +59,9 @@ public class DatesCdsTemplateTest {
     CdsTrade test = base.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, REF_DATA);
     Cds expected = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, START, END,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
-    PeriodicSchedule sch1 = expected.getAccrualSchedule();
+    PeriodicSchedule sch1 = expected.getPaymentSchedule();
     expected = expected.toBuilder()
-        .accrualSchedule(sch1.toBuilder()
+        .paymentSchedule(sch1.toBuilder()
             .startDateBusinessDayAdjustment(sch1.getBusinessDayAdjustment())
             .rollConvention(RollConventions.DAY_20)
             .build())
@@ -79,9 +79,9 @@ public class DatesCdsTemplateTest {
     CdsTrade test = base.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, payment, REF_DATA);
     Cds expected = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, START, END,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
-    PeriodicSchedule sch1 = expected.getAccrualSchedule();
+    PeriodicSchedule sch1 = expected.getPaymentSchedule();
     expected = expected.toBuilder()
-        .accrualSchedule(sch1.toBuilder()
+        .paymentSchedule(sch1.toBuilder()
             .startDateBusinessDayAdjustment(sch1.getBusinessDayAdjustment())
             .rollConvention(RollConventions.DAY_20)
             .build())

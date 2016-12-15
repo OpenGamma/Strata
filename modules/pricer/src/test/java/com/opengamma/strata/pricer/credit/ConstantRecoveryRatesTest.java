@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
 
 /**
  * Test {@link ConstantRecoveryRates}.

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -32,6 +32,14 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
+import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
+import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
+import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
+import com.opengamma.strata.pricer.credit.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.IsdaCdsProductPricer;
+import com.opengamma.strata.pricer.credit.IsdaCdsTradePricer;
+import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.ResolvedCds;

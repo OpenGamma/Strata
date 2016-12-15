@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
 
@@ -14,24 +14,27 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
+import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
 /**
- * Pricer for single-name credit default swaps (CDS) trade based on ISDA standard model. 
+ * Pricer for CDS portfolio index trade based on ISDA standard model. 
  * <p>
- * The implementation is based on the ISDA model versions 1.8.2.
+ * The underlying CDS index product is priced as a single name CDS using a single credit curve rather than 
+ * credit curves of constituent single names. 
+ * See {@link IsdaSimpleCdsIndexTradePricer} for detail.
  */
-public class IsdaCdsTradePricer {
+public class IsdaHomogenousCdsIndexTradePricer {
 
   /**
    * Default implementation.
    */
-  public static final IsdaCdsTradePricer DEFAULT = new IsdaCdsTradePricer();
+  public static final IsdaHomogenousCdsIndexTradePricer DEFAULT = new IsdaHomogenousCdsIndexTradePricer();
 
   /**
    * The product pricer.
    */
-  private final IsdaCdsProductPricer productPricer;
+  private final IsdaHomogenousCdsIndexProductPricer productPricer;
   /**
    * The upfront fee pricer.
    */
@@ -43,8 +46,8 @@ public class IsdaCdsTradePricer {
    * <p>
    * The default pricers are used.
    */
-  public IsdaCdsTradePricer() {
-    this.productPricer = IsdaCdsProductPricer.DEFAULT;
+  public IsdaHomogenousCdsIndexTradePricer() {
+    this.productPricer = IsdaHomogenousCdsIndexProductPricer.DEFAULT;
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
   }
 
@@ -53,8 +56,8 @@ public class IsdaCdsTradePricer {
    * 
    * @param formula  the accrual-on-default formula
    */
-  public IsdaCdsTradePricer(AccrualOnDefaultFormula formula) {
-    this.productPricer = new IsdaCdsProductPricer(formula);
+  public IsdaHomogenousCdsIndexTradePricer(AccrualOnDefaultFormula formula) {
+    this.productPricer = new IsdaHomogenousCdsIndexProductPricer(formula);
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
   }
 
@@ -74,24 +77,13 @@ public class IsdaCdsTradePricer {
    * @return the price
    */
   public double price(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
-      PriceType priceType,
-      ReferenceData refData) {
-
-    return price(trade, ratesProvider, trade.getProduct().getFixedRate(), priceType, refData);
-  }
-
-  // internal price computation with specified coupon rate
-  double price(
-      ResolvedCdsTrade trade,
-      CreditRatesProvider ratesProvider,
-      double fractionalSpread,
       PriceType priceType,
       ReferenceData refData) {
 
     LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
-    return productPricer.price(trade.getProduct(), ratesProvider, fractionalSpread, settlementDate, priceType, refData);
+    return productPricer.price(trade.getProduct(), ratesProvider, settlementDate, priceType, refData);
   }
 
   /**
@@ -105,7 +97,7 @@ public class IsdaCdsTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities priceSensitivity(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -128,7 +120,7 @@ public class IsdaCdsTradePricer {
    * @return the par spread
    */
   public double parSpread(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -147,7 +139,7 @@ public class IsdaCdsTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities parSpreadSensitivity(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -171,7 +163,7 @@ public class IsdaCdsTradePricer {
    * @return the price
    */
   public CurrencyAmount presentValue(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -198,7 +190,7 @@ public class IsdaCdsTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueSensitivity(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -218,6 +210,9 @@ public class IsdaCdsTradePricer {
    * Calculates the present value of the underlying product. 
    * <p>
    * The present value is computed based on the settlement date rather than the valuation date.
+   * <p>
+   * This method can calculate the clean or dirty present value, see {@link PriceType}. 
+   * If calculating the clean value, the accrued interest is calculated based on the step-in date.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -226,7 +221,7 @@ public class IsdaCdsTradePricer {
    * @return the price
    */
   public CurrencyAmount presentValueOnSettle(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -249,7 +244,7 @@ public class IsdaCdsTradePricer {
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueOnSettleSensitivity(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -272,7 +267,7 @@ public class IsdaCdsTradePricer {
    * @return the RPV01
    */
   public CurrencyAmount rpv01OnSettle(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -297,7 +292,7 @@ public class IsdaCdsTradePricer {
    * @return the recovery01
    */
   public CurrencyAmount recovery01OnSettle(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -307,7 +302,7 @@ public class IsdaCdsTradePricer {
 
   //-------------------------------------------------------------------------
   private LocalDate calculateSettlementDate(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 

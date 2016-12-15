@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.credit.cds;
+package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
 
@@ -54,12 +54,9 @@ public class IsdaHomogenousCdsIndexProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Calculates the price of the CDS index product, which is the minus of the present value per unit notional. 
-<<<<<<< HEAD
-=======
    * <p>
    * This method can calculate the clean or dirty price, see {@link PriceType}. 
    * If calculating the clean price, the accrued interest is calculated based on the step-in date.
->>>>>>> topic/cds-merge
    * 
    * @param cdsIndex  the product
    * @param ratesProvider  the rates provider
@@ -107,12 +104,8 @@ public class IsdaHomogenousCdsIndexProductPricer {
    * The present value of the product is based on {@code referenceDate}.
    * This is typically the valuation date, or cash settlement date if the product is associated with a {@code Trade}. 
    * <p>
-<<<<<<< HEAD
-   * The price type is clean or dirty. The accrued interest is computed based on the valuation date.
-=======
    * This method can calculate the clean or dirty present value, see {@link PriceType}. 
    * If calculating the clean value, the accrued interest is calculated based on the step-in date.
->>>>>>> topic/cds-merge
    * 
    * @param cdsIndex  the product
    * @param ratesProvider  the rates provider
