@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
@@ -108,6 +109,19 @@ public class FloatingRateNameTest {
 
   public void test_of_lookup_null() {
     assertThrowsIllegalArg(() -> FloatingRateName.of(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_defaultIborIndex() {
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.GBP), FloatingRateName.of("GBP-LIBOR"));
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.EUR), FloatingRateName.of("EUR-EURIBOR"));
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.USD), FloatingRateName.of("USD-LIBOR"));
+  }
+
+  public void test_defaultOvernightIndex() {
+    assertEquals(FloatingRateName.defaultOvernightIndex(Currency.GBP), FloatingRateName.of("GBP-SONIA"));
+    assertEquals(FloatingRateName.defaultOvernightIndex(Currency.EUR), FloatingRateName.of("EUR-EONIA"));
+    assertEquals(FloatingRateName.defaultOvernightIndex(Currency.USD), FloatingRateName.of("USD-FED-FUND"));
   }
 
   //-------------------------------------------------------------------------
