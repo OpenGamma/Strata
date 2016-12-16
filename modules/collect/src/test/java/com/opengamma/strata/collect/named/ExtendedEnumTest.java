@@ -38,6 +38,14 @@ public class ExtendedEnumTest {
             .put("Another2", SampleNamedInstanceLookup2.ANOTHER2)
             .put("ANOTHER2", SampleNamedInstanceLookup2.ANOTHER2)
             .build());
+    assertEquals(test.lookupAllNormalized(),
+        ImmutableMap.builder()
+            .put("Standard", SampleNameds.STANDARD)
+            .put("More", MoreSampleNameds.MORE)
+            .put("Other", OtherSampleNameds.OTHER)
+            .put("Another1", SampleNamedInstanceLookup1.ANOTHER1)
+            .put("Another2", SampleNamedInstanceLookup2.ANOTHER2)
+            .build());
     assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard", "ALTERNATE", "Standard"));
     assertEquals(test.find("Standard"), Optional.of(SampleNameds.STANDARD));
     assertEquals(test.find("STANDARD"), Optional.of(SampleNameds.STANDARD));

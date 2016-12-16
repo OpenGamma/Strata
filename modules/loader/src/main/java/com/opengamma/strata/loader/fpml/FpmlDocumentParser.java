@@ -100,7 +100,7 @@ public final class FpmlDocumentParser {
       FpmlPartySelector ourPartySelector,
       FpmlTradeInfoParserPlugin tradeInfoParser) {
 
-    return of(ourPartySelector, tradeInfoParser, FpmlParserPlugin.extendedEnum().lookupAll());
+    return of(ourPartySelector, tradeInfoParser, FpmlParserPlugin.extendedEnum().lookupAllNormalized());
   }
 
   /**
