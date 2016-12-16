@@ -5,28 +5,20 @@
  */
 package com.opengamma.strata.product.fxopt;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableDefaults;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.TradeInfo;
+import org.joda.beans.*;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.product.ResolvedTrade;
-import com.opengamma.strata.product.TradeInfo;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * A trade in a vanilla FX option, resolved for pricing.
@@ -337,6 +329,7 @@ public final class ResolvedFxDigitalOptionTrade
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
