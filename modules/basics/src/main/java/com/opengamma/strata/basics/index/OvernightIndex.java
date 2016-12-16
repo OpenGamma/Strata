@@ -88,6 +88,13 @@ public interface OvernightIndex
    */
   public abstract HolidayCalendarId getFixingCalendar();
 
+  /**
+   * Gets the floating rate name for this index.
+   * 
+   * @return the floating rate name
+   */
+  public abstract FloatingRateName getFloatingRateName();
+
   //-------------------------------------------------------------------------
   /**
    * Gets the number of days to add to the fixing date to obtain the publication date.

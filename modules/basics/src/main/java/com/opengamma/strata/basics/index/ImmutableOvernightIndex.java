@@ -102,6 +102,11 @@ public final class ImmutableOvernightIndex
     builder.active = true;
   }
 
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(name);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public LocalDate calculatePublicationFromFixing(LocalDate fixingDate, ReferenceData refData) {

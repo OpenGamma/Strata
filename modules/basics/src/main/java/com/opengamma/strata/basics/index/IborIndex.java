@@ -100,6 +100,16 @@ public interface IborIndex
    */
   public abstract Tenor getTenor();
 
+  /**
+   * Gets the floating rate name for this index.
+   * <p>
+   * The {@link FloatingRateName} does not include the tenor.
+   * It can be used to find the other tenors available for this index.
+   * 
+   * @return the floating rate name
+   */
+  public abstract FloatingRateName getFloatingRateName();
+
   //-------------------------------------------------------------------------
   /**
    * Gets the adjustment applied to the effective date to obtain the fixing date.

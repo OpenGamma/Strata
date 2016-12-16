@@ -54,6 +54,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GBP-SONIA"));
     assertEquals(test.toString(), "GBP-SONIA");
   }
 
@@ -78,6 +79,13 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 14));
   }
 
+  public void test_getFloatingRateName() {
+    for (OvernightIndex index : OvernightIndex.extendedEnum().lookupAll().values()) {
+      assertEquals(index.getFloatingRateName(), FloatingRateName.of(index.getName()));
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_usdFedFund3m() {
     OvernightIndex test = OvernightIndex.of("USD-FED-FUND");
     assertEquals(test.getCurrency(), USD);

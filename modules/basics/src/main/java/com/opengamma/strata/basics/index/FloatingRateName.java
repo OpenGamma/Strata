@@ -91,11 +91,23 @@ public interface FloatingRateName
    */
   public abstract Set<Tenor> getTenors();
 
+  /**
+   * Gets the normalized form of the floating rate name.
+   * <p>
+   * The normalized for is the name that Strata uses for the index.
+   * For example, the normalized form of 'GBP-LIBOR-BBA' is 'GBP-LIBOR',
+   * and the normalized form of 'EUR-EURIBOR-Reuters' is 'EUR-EURIBOR'.
+   * Note that for Ibor indices, the tenor is not present.
+   * 
+   * @return the normalized name
+   */
+  public abstract FloatingRateName normalized();
+
   //-------------------------------------------------------------------------
   /**
    * Checks and returns an Ibor index.
    * <p>
-   * If this is an Ibor index, then this returns the matching {@link IborIndex}.
+   * If this name represents an Ibor index, then this method returns the matching {@link IborIndex}.
    * If not, an exception is thrown.
    * 
    * @param tenor  the tenor of the index
@@ -107,7 +119,7 @@ public interface FloatingRateName
   /**
    * Converts to an {@link OvernightIndex}.
    * <p>
-   * If this is an Overnight index, then this returns the matching {@link OvernightIndex}.
+   * If this name represents an Overnight index, then this method returns the matching {@link OvernightIndex}.
    * If not, an exception is thrown.
    * 
    * @return the index
@@ -118,7 +130,7 @@ public interface FloatingRateName
   /**
    * Converts to an {@link PriceIndex}.
    * <p>
-   * If this is a price index, then this returns the matching {@link PriceIndex}.
+   * If this name represents a price index, then this method returns the matching {@link PriceIndex}.
    * If not, an exception is thrown.
    *
    * @return the index

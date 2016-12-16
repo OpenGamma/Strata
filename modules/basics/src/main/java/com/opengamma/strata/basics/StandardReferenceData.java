@@ -23,7 +23,7 @@ final class StandardReferenceData {
   static final ImmutableReferenceData STANDARD;
   static {
     Map<ReferenceDataId<?>, Object> map = new HashMap<>();
-    for (HolidayCalendar cal : HolidayCalendars.extendedEnum().lookupAll().values()) {
+    for (HolidayCalendar cal : HolidayCalendars.extendedEnum().lookupAllNormalized().values()) {
       map.put(cal.getId(), cal);
     }
     STANDARD = ImmutableReferenceData.of(map);

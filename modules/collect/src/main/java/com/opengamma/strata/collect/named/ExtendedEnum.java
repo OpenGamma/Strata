@@ -349,8 +349,9 @@ public final class ExtendedEnum<T extends Named> {
    * This method returns all known instances.
    * It is permitted for an enum provider implementation to return an empty map,
    * thus the map may not be complete.
-   * The map may include instances keyed under an alternate name, however it
-   * will not include the base set of {@linkplain #alternateNames() alternate names}.
+   * The map may include instances keyed under an alternate name, such as names
+   * in upper case, however it will not include the base set of
+   * {@linkplain #alternateNames() alternate names}.
    * 
    * @return the map of enum instance by name
    */
@@ -363,6 +364,33 @@ public final class ExtendedEnum<T extends Named> {
       }
     }
     return ImmutableMap.copyOf(map);
+  }
+
+  /**
+   * Returns the map of known instances by normalized name.
+   * <p>
+   * This method returns all known instances, keyed by the normalized name.
+   * This is equivalent to the result of {@link #lookupAll()} adjusted such
+   * that each entry is keyed by the result of {@link Named#getName()}.
+   * 
+   * @return the map of enum instance by name
+   */
+  public ImmutableMap<String, T> lookupAllNormalized() {
+    // add values that are keyed under the normalized name
+    // keep values keyed under a non-normalized name
+    Map<String, T> result = new HashMap<>();
+    Map<String, T> others = new HashMap<>();
+    for (Entry<String, T> entry : lookupAll().entrySet()) {
+      String normalizedName = entry.getValue().getName();
+      if (entry.getKey().equals(normalizedName)) {
+        result.put(normalizedName, entry.getValue());
+      } else {
+        others.put(normalizedName, entry.getValue());
+      }
+    }
+    // include any values that are only keyed under a non-normalized name
+    others.values().forEach(v -> result.putIfAbsent(v.getName(), v));
+    return ImmutableMap.copyOf(result);
   }
 
   /**
