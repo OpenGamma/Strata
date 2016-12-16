@@ -78,7 +78,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     TRANSFORMS[1] = new DoubleRangeLimitTransform(0.0, 1.0); // 0 <= beta <= 1
     TRANSFORMS[2] = new DoubleRangeLimitTransform(-RHO_LIMIT, RHO_LIMIT); // -1 <= rho <= 1
-    TRANSFORMS[3] = new DoubleRangeLimitTransform(0.01d, 2.50d);
+    TRANSFORMS[3] = new DoubleRangeLimitTransform(0.001d, 2.50d);
     // nu > 0  and limit on Nu to avoid numerical instability in formula for large nu.
   }
 
@@ -209,15 +209,16 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
         bsDefinition.getInterpolator(),
         bsDefinition.getExtrapolatorLeft(),
         bsDefinition.getExtrapolatorRight());
+    Curve shiftCurve = bsDefinition.getShiftCurve();
     SabrParameters sabrParams = SabrParameters.of(
-        alphaCurve, betaCurve, rhoCurve, nuCurve, bsDefinition.getShiftCurve(), bsDefinition.getSabrVolatilityFormula());
+        alphaCurve, betaCurve, rhoCurve, nuCurve, shiftCurve, bsDefinition.getSabrVolatilityFormula());
     SabrParametersIborCapletFloorletVolatilities vols =
         SabrParametersIborCapletFloorletVolatilities.of(bsDefinition.getName(), index, calibrationDateTime, sabrParams);
     double totalChiSq = 0d;
     ZonedDateTime prevExpiry = calibrationDateTime.minusDays(1L); // included if calibrationDateTime == fixingDateTime
     for (int i = 0; i < nExpiries; ++i) {
       DoubleArray start = computeInitialValues(
-          ratesProvider, betaCurve, timeList, volList, capList, startIndex, i, fixed.get(1), capFloorData.getDataType());
+          ratesProvider, betaCurve, shiftCurve, timeList, volList, capList, startIndex, i, fixed.get(1), capFloorData.getDataType());
       UncoupledParameterTransforms transform = new UncoupledParameterTransforms(start, TRANSFORMS, fixed);
       int nCaplets = startIndex[i + 1] - startIndex[i];
       int currentStart = startIndex[i];
@@ -243,6 +244,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
   private DoubleArray computeInitialValues(
       RatesProvider ratesProvider,
       Curve betaCurve,
+      Curve shiftCurve,
       List<Double> timeList,
       List<Double> volList,
       List<ResolvedIborCapFloorLeg> capList,
@@ -254,7 +256,8 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     List<Double> vols = volList.subList(startIndex[postion], startIndex[postion + 1]);
     ResolvedIborCapFloorLeg cap = capList.get(startIndex[postion]);
     double fwd = ratesProvider.iborIndexRates(cap.getIndex()).rate(cap.getFinalPeriod().getIborRate().getObservation());
-    double factor = valueType.equals(ValueType.BLACK_VOLATILITY) ? 1d : 1d / fwd;
+    double shift = shiftCurve.yValue(timeList.get(startIndex[postion]));
+    double factor = valueType.equals(ValueType.BLACK_VOLATILITY) ? 1d : 1d / (fwd + shift);
     List<Double> volsEquiv = vols.stream().map(v -> v * factor).collect(Collectors.toList());
     double nuFirst;
     double betaInitial = betaFixed ? betaCurve.yValue(timeList.get(startIndex[postion])) : 0.5d;
