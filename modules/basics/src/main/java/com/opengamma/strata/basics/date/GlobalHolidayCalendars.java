@@ -688,6 +688,7 @@ final class GlobalHolidayCalendars {
   // http://www.cra-arc.gc.ca/tx/hldys/menu-eng.html
   // http://www.tmxmoney.com/en/investor_tools/market_hours.html
   // http://www.statutoryholidayscanada.com/
+  // http://www.osc.gov.on.ca/en/SecuritiesLaw_csa_20151209_13-315_sra-closed-dates.htm
   static ImmutableHolidayCalendar generateToronto() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -699,8 +700,6 @@ final class GlobalHolidayCalendars {
       }
       // good friday (public)
       holidays.add(easter(year).minusDays(2));
-      // easter monday
-      holidays.add(easter(year).plusDays(1));
       // victoria (public)
       holidays.add(date(year, 5, 25).with(TemporalAdjusters.previous(MONDAY)));
       // canada (public)
