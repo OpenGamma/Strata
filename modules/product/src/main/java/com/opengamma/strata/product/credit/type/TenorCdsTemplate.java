@@ -39,6 +39,7 @@ import com.opengamma.strata.product.credit.CdsTrade;
  * <p>
  * The legal entity ID, trade date, notional and fixed rate are required to complete the template and create the trade.
  * As such, it is often possible to get a market quote for a trade based on the template.
+ * The start date and end date are computed from trade date with the standard semi-annual roll convention. 
  * <p>
  * A CDS is quoted in points upfront, par spread, or quoted spread. 
  * For the latter two cases, the market quotes are passed as the fixed rate.

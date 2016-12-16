@@ -78,8 +78,8 @@ public final class IsdaCreditCurveDefinition
    * <p>
    * The nodes are used to find the par rates and calibrate the curve.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<? extends IsdaCreditCurveNode> curveNodes;
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends IsdaCreditCurveNode>")
+  private final ImmutableList<IsdaCreditCurveNode> curveNodes;
   /**
    * The flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
    */
@@ -248,7 +248,7 @@ public final class IsdaCreditCurveDefinition
    * The nodes are used to find the par rates and calibrate the curve.
    * @return the value of the property, not null
    */
-  public ImmutableList<? extends IsdaCreditCurveNode> getCurveNodes() {
+  public ImmutableList<IsdaCreditCurveNode> getCurveNodes() {
     return curveNodes;
   }
 
@@ -339,7 +339,7 @@ public final class IsdaCreditCurveDefinition
      * The meta-property for the {@code curveNodes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<? extends IsdaCreditCurveNode>> curveNodes = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<IsdaCreditCurveNode>> curveNodes = DirectMetaProperty.ofImmutable(
         this, "curveNodes", IsdaCreditCurveDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code computeJacobian} property.
@@ -435,7 +435,7 @@ public final class IsdaCreditCurveDefinition
      * The meta-property for the {@code curveNodes} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<? extends IsdaCreditCurveNode>> curveNodes() {
+    public MetaProperty<ImmutableList<IsdaCreditCurveNode>> curveNodes() {
       return curveNodes;
     }
 
