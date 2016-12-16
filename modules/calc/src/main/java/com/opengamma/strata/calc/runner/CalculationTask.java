@@ -24,6 +24,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
@@ -223,7 +224,10 @@ public final class CalculationTask implements ImmutableBean {
       Set<Measure> requestedMeasures = getMeasures();
       Set<Measure> supportedMeasures = function.supportedMeasures();
       Set<Measure> measures = Sets.intersection(requestedMeasures, supportedMeasures);
-      Map<Measure, Result<?>> map = function.calculate(target, measures, parameters, marketData, refData);
+      Map<Measure, Result<?>> map = ImmutableMap.of();
+      if (!measures.isEmpty()) {
+        map = function.calculate(target, measures, parameters, marketData, refData);
+      }
       // check if result does not contain all requested measures
       if (!map.keySet().containsAll(requestedMeasures)) {
         return handleMissing(requestedMeasures, supportedMeasures, map);
