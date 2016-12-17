@@ -10,6 +10,7 @@ import java.util.Set;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -60,6 +61,29 @@ public interface FloatingRateName
    */
   public static ExtendedEnum<FloatingRateName> extendedEnum() {
     return FloatingRateNames.ENUM_LOOKUP;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the default Ibor index for a currency.
+   * 
+   * @param currency  the currency to find the default for
+   * @return the floating rate
+   * @throws IllegalArgumentException if there is no default for the currency
+   */
+  public static FloatingRateName defaultIborIndex(Currency currency) {
+    return FloatingRateNameIniLookup.INSTANCE.defaultIborIndex(currency);
+  }
+
+  /**
+   * Gets the default Overnight index for a currency.
+   * 
+   * @param currency  the currency to find the default for
+   * @return the floating rate
+   * @throws IllegalArgumentException if there is no default for the currency
+   */
+  public static FloatingRateName defaultOvernightIndex(Currency currency) {
+    return FloatingRateNameIniLookup.INSTANCE.defaultOvernightIndex(currency);
   }
 
   //-----------------------------------------------------------------------
