@@ -155,6 +155,15 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar CATO = generateToronto();
   /**
+   * The holiday calendar of Prague, Czech Republic, with code 'CZPR'.
+   * <p>
+   * This constant provides the calendar for Prague bank holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar CZPR = generatePrague();
+  /**
    * The holiday calendar for Copenhagen, Denmark, with code 'DKCO'.
    * <p>
    * This constant provides the calendar for Copenhagen holidays.
@@ -1154,6 +1163,45 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("BRBD"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // generate CZPR
+  // https://www.cnb.cz/en/public/media_service/schedules/media_svatky.html
+  static ImmutableHolidayCalendar generatePrague() {
+    // dates are fixed - no moving Sunday to Monday or similar
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // good friday
+      if (year > 2015) {
+        holidays.add(easter(year).minusDays(2));
+      }
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // may day
+      holidays.add(date(year, 5, 1));
+      // liberation from fascism
+      holidays.add(date(year, 5, 8));
+      // cyril and methodius
+      holidays.add(date(year, 7, 5));
+      // jan hus
+      holidays.add(date(year, 7, 6));
+      // statehood
+      holidays.add(date(year, 9, 28));
+      // republic
+      holidays.add(date(year, 10, 28));
+      // freedom and democracy
+      holidays.add(date(year, 11, 17));
+      // christmas eve
+      holidays.add(date(year, 12, 24));
+      // christmas
+      holidays.add(date(year, 12, 25));
+      // boxing
+      holidays.add(date(year, 12, 26));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("CZPR"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------

@@ -737,6 +737,48 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar CZPR = GlobalHolidayCalendars.generatePrague();
+
+  @DataProvider(name = "czpr")
+  Object[][] data_czpr() {
+    // official data from Czech National Bank
+    // https://www.cnb.cz/en/public/media_service/schedules/media_svatky.html
+    return new Object[][] {
+        {2008, mds(2008, md(1, 1), md(3, 24), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2009, mds(2009, md(1, 1), md(4, 13), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2010, mds(2010, md(1, 1), md(4, 5), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2011, mds(2011, md(1, 1), md(4, 25), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2012, mds(2012, md(1, 1), md(4, 9), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2013, mds(2013, md(1, 1), md(4, 1), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2014, mds(2014, md(1, 1), md(4, 21), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2015, mds(2015, md(1, 1), md(4, 6), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2016, mds(2016, md(1, 1), md(3, 25), md(3, 28), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2017, mds(2017, md(1, 1), md(4, 14), md(4, 17), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "czpr")
+  public void test_czpr(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(CZPR.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static final HolidayCalendar DKCO = GlobalHolidayCalendars.generateCopenhagen();
 
   @DataProvider(name = "dkco")

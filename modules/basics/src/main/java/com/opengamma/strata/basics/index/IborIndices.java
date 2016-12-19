@@ -408,6 +408,56 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 week PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_1W = IborIndex.of("CZK-PRIBOR-1W");
+  /**
+   * The 2 week PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_2W = IborIndex.of("CZK-PRIBOR-2W");
+  /**
+   * The 1 month PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_1M = IborIndex.of("CZK-PRIBOR-1M");
+  /**
+   * The 2 month PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_2M = IborIndex.of("CZK-PRIBOR-2M");
+  /**
+   * The 3 month PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_3M = IborIndex.of("CZK-PRIBOR-3M");
+  /**
+   * The 6 month PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_6M = IborIndex.of("CZK-PRIBOR-6M");
+  /**
+   * The 9 month PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_9M = IborIndex.of("CZK-PRIBOR-9M");
+  /**
+   * The 12 month PRIBOR index.
+   * <p>
+   * The "Prague Interbank Offered Rate".
+   */
+  public static final IborIndex CZK_PRIBOR_12M = IborIndex.of("CZK-PRIBOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week CIBOR index.
    * <p>
    * The "Copenhagen Interbank Offered Rate".
