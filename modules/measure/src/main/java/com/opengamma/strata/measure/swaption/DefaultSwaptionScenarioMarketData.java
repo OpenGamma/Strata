@@ -43,7 +43,7 @@ final class DefaultSwaptionScenarioMarketData
   /**
    * The cache of single scenario instances.
    */
-  private final AtomicReferenceArray<SwaptionMarketData> cache;  // derived
+  private final transient AtomicReferenceArray<SwaptionMarketData> cache;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -71,6 +71,11 @@ final class DefaultSwaptionScenarioMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultSwaptionScenarioMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

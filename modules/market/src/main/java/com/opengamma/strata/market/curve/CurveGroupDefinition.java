@@ -98,11 +98,11 @@ public final class CurveGroupDefinition
   /**
    * Entries for the curves, keyed by the curve name.
    */
-  private final ImmutableMap<CurveName, CurveGroupEntry> entriesByName;
+  private final transient ImmutableMap<CurveName, CurveGroupEntry> entriesByName;  // not a property
   /**
    * Definitions for the curves, keyed by the curve name.
    */
-  private final ImmutableMap<CurveName, NodalCurveDefinition> curveDefinitionsByName;
+  private final transient ImmutableMap<CurveName, NodalCurveDefinition> curveDefinitionsByName;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -193,6 +193,12 @@ public final class CurveGroupDefinition
     if (builder.computePvSensitivityToMarketQuote) {
       builder.computeJacobian = true;
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new CurveGroupDefinition(
+        name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
   //-------------------------------------------------------------------------

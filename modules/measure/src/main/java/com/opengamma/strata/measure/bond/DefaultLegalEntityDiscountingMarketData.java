@@ -43,7 +43,7 @@ final class DefaultLegalEntityDiscountingMarketData
   /**
    * The discounting provider.
    */
-  private final LegalEntityDiscountingProvider discountingProvider;  // derived
+  private final transient LegalEntityDiscountingProvider discountingProvider;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -65,6 +65,11 @@ final class DefaultLegalEntityDiscountingMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.discountingProvider = lookup.discountingProvider(marketData);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultLegalEntityDiscountingMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

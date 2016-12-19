@@ -83,7 +83,7 @@ public final class SimpleIborIndexRates
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   /**
    * Obtains an instance from a curve, with an empty time-series of fixings.
@@ -151,6 +151,11 @@ public final class SimpleIborIndexRates
     this.curve = curve;
     this.fixings = fixings;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
 
   //-------------------------------------------------------------------------

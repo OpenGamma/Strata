@@ -83,13 +83,13 @@ public final class ImmutableHolidayCalendar
    * The start year.
    * Used as the base year for the lookup table.
    */
-  private final int startYear;
+  private final transient int startYear;  // not a property
   /**
    * The lookup table, where each item represents a month from January of startYear onwards.
    * Bits 0 to 31 are used for each day-of-month, where 0 is a holiday and 1 is a business day.
    * Trailing bits are set to 0 so they act as holidays, avoiding month length logic.
    */
-  private final int[] lookup;
+  private final transient int[] lookup;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -213,6 +213,11 @@ public final class ImmutableHolidayCalendar
       array[index] &= ~(1 << (date.getDayOfMonth() - 1));
     }
     return array;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ImmutableHolidayCalendar(id, holidays, weekendDays);
   }
 
   //-------------------------------------------------------------------------

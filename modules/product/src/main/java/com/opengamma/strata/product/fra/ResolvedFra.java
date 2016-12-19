@@ -130,7 +130,7 @@ public final class ResolvedFra
   /**
    * The set of indices.
    */
-  private final ImmutableSet<IborIndex> indices;  // not a property, derived and cached from input data
+  private final transient ImmutableSet<IborIndex> indices;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
@@ -165,6 +165,12 @@ public final class ResolvedFra
     return builder.build().stream()
         .map(index -> IborIndex.class.cast(index))
         .collect(toImmutableSet());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedFra(
+        currency, notional, paymentDate, startDate, endDate, yearFraction, fixedRate, floatingRate, discounting);
   }
 
   //-------------------------------------------------------------------------

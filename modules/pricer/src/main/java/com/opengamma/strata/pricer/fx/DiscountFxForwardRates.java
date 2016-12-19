@@ -77,11 +77,11 @@ public final class DiscountFxForwardRates
   /**
    * The valuation date.
    */
-  private final LocalDate valuationDate;  // not a property, derived and cached from input data
+  private final transient LocalDate valuationDate;  // not a property, derived and cached from input data
   /**
    * The parameter combiner.
    */
-  private final ParameterizedDataCombiner paramCombiner;  // not a property
+  private final transient ParameterizedDataCombiner paramCombiner;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -136,6 +136,11 @@ public final class DiscountFxForwardRates
     this.counterCurrencyDiscountFactors = counterCurrencyDiscountFactors;
     this.valuationDate = baseCurrencyDiscountFactors.getValuationDate();
     this.paramCombiner = ParameterizedDataCombiner.of(baseCurrencyDiscountFactors, counterCurrencyDiscountFactors);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DiscountFxForwardRates(currencyPair, fxRateProvider, baseCurrencyDiscountFactors, counterCurrencyDiscountFactors);
   }
 
   //-------------------------------------------------------------------------

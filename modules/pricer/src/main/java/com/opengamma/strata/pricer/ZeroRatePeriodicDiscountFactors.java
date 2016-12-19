@@ -77,11 +77,11 @@ public final class ZeroRatePeriodicDiscountFactors
   /**
    * The number of compounding periods per year of the zero-coupon rate.
    */
-  private final int frequency;  // cached, not a property
+  private final transient int frequency;  // cached, not a property
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -125,6 +125,11 @@ public final class ZeroRatePeriodicDiscountFactors
     this.curve = curve;
     this.dayCount = dayCount;
     this.frequency = frequencyOpt.get();
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ZeroRatePeriodicDiscountFactors(currency, valuationDate, curve);
   }
 
   //-------------------------------------------------------------------------

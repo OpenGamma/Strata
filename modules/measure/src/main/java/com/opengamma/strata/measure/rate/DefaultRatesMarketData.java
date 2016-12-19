@@ -43,7 +43,7 @@ final class DefaultRatesMarketData
   /**
    * The rates provider.
    */
-  private final RatesProvider ratesProvider;  // derived
+  private final transient RatesProvider ratesProvider;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -65,6 +65,11 @@ final class DefaultRatesMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.ratesProvider = lookup.ratesProvider(marketData);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultRatesMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

@@ -65,9 +65,14 @@ public final class InflationNodalCurve
    */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType adjustmentType;
-
-  private final double xFixing;  // cached, not a property
-  private final double yFixing;  // cached, not a property
+  /**
+   * The first x-value, from the curve.
+   */
+  private final transient double xFixing;  // cached, not a property
+  /**
+   * The first y-value from the curve.
+   */
+  private final transient double yFixing;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -152,6 +157,12 @@ public final class InflationNodalCurve
     this.adjustmentType = adjustmentType;
   }
 
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new InflationNodalCurve(underlying, seasonality, adjustmentType);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public CurveMetadata getMetadata() {
     return underlying.getMetadata();

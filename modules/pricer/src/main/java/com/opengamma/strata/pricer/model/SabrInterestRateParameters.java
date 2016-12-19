@@ -93,11 +93,11 @@ public final class SabrInterestRateParameters
   /**
    * The day count convention of the surfaces.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
   /**
    * The parameter combiner.
    */
-  private final ParameterizedDataCombiner paramCombiner;  // cached, not a property
+  private final transient ParameterizedDataCombiner paramCombiner;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -223,6 +223,11 @@ public final class SabrInterestRateParameters
     if (!surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT).orElse(dayCount).equals(dayCount)) {
       throw new IllegalArgumentException("SABR surfaces must have the same day count");
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SabrInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrVolatilityFormula);
   }
 
   //-------------------------------------------------------------------------

@@ -54,7 +54,7 @@ public final class IborAveragedRateComputation
   /**
    * The total weight of all the fixings in this computation.
    */
-  private final double totalWeight;  // not a property, derived and cached from input data
+  private final transient double totalWeight;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   /**
@@ -80,6 +80,11 @@ public final class IborAveragedRateComputation
     this.totalWeight = fixings.stream()
         .mapToDouble(f -> f.getWeight())
         .sum();
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new IborAveragedRateComputation(fixings);
   }
 
   //-----------------------------------------------------------------------

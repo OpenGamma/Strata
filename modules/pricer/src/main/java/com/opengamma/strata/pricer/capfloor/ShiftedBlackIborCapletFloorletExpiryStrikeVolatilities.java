@@ -94,7 +94,7 @@ public final class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities
   /**
    * The day count convention of the surface.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -158,6 +158,11 @@ public final class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities
     if (!curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT).orElse(dayCount).equals(dayCount)) {
       throw new IllegalArgumentException("shift curve must have the same day count as surface");
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities(index, valuationDateTime, surface, shiftCurve);
   }
 
   //-------------------------------------------------------------------------

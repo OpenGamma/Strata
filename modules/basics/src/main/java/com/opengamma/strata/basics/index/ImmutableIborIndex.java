@@ -130,7 +130,7 @@ public final class ImmutableIborIndex
   /**
    * The floating rate name, such as 'GBP-LIBOR'.
    */
-  private final String floatingRateName;  // derived
+  private final transient String floatingRateName;  // derived
 
   //-------------------------------------------------------------------------
   // creates an instance
@@ -168,6 +168,21 @@ public final class ImmutableIborIndex
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.active = true;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ImmutableIborIndex(
+        name,
+        currency,
+        active,
+        fixingCalendar,
+        fixingTime,
+        fixingZone,
+        fixingDateOffset,
+        effectiveDateOffset,
+        maturityDateOffset,
+        dayCount);
   }
 
   //-------------------------------------------------------------------------

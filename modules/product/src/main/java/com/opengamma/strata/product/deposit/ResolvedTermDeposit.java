@@ -15,7 +15,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -104,29 +103,34 @@ public final class ResolvedTermDeposit
    * When the rate is positive, a 'buy' term deposit has a positive signed interest amount 
    * and a 'sell' term deposit has a negative signed interest amount.
    */
-  private final double interest;  // not a property
+  private final transient double interest;  // not a property
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
-  private ResolvedTermDeposit(ResolvedTermDeposit.Builder builder) {
-    JodaBeanUtils.notNull(builder.startDate, "startDate");
-    JodaBeanUtils.notNull(builder.endDate, "endDate");
-    ArgChecker.inOrderNotEqual(builder.startDate, builder.endDate, "startDate", "endDate");
-    ArgChecker.notNegative(builder.yearFraction, "yearFraction");
-    JodaBeanUtils.notNull(builder.rate, "rate");
-    this.startDate = builder.startDate;
-    this.endDate = builder.endDate;
-    this.yearFraction = builder.yearFraction;
-    this.currency = builder.currency;
-    this.notional = builder.notional;
-    this.rate = builder.rate;
-    interest = (rate * notional * yearFraction);
-    validate();
+  private ResolvedTermDeposit(
+      Currency currency,
+      double notional,
+      LocalDate startDate,
+      LocalDate endDate,
+      double yearFraction,
+      double rate) {
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.notNegative(yearFraction, "yearFraction");
+    this.currency = currency;
+    this.notional = notional;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.yearFraction = yearFraction;
+    this.rate = rate;
+    this.interest = (rate * notional * yearFraction);
   }
 
-  @ImmutableValidator
-  private void validate() {
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedTermDeposit(currency, notional, startDate, endDate, yearFraction, rate);
   }
 
   //-------------------------------------------------------------------------
@@ -588,7 +592,13 @@ public final class ResolvedTermDeposit
 
     @Override
     public ResolvedTermDeposit build() {
-      return new ResolvedTermDeposit(this);
+      return new ResolvedTermDeposit(
+          currency,
+          notional,
+          startDate,
+          endDate,
+          yearFraction,
+          rate);
     }
 
     //-----------------------------------------------------------------------
