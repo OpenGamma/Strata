@@ -172,7 +172,9 @@ abstract class SpreadSensitivityCalculator {
         ratesProvider.survivalProbabilities(cds.getLegalEntityId(), cds.getCurrency());
     // instance is checked in pricer
     double indexFactor = ((IsdaCompliantZeroRateDiscountFactors) survivalProbabilities.getSurvivalProbabilities())
-        .getCurve().getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
+        .getCurve()
+        .getMetadata()
+        .getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     return indexFactor;
   }
 

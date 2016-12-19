@@ -146,8 +146,14 @@ public class CdsMarketQuoteConverter {
     StandardId legalEntityId = product.getLegalEntityId();
     LocalDate valuationDate = ratesProvider.getValuationDate();
     NodalCurve creditCurve = builder.calibrate(
-        new ResolvedCdsTrade[] {trade}, new double[] {quote.getQuotedValue()}, new double[] {0d}, CurveName.of("temp"),
-        valuationDate, ratesProvider.discountFactors(currency), ratesProvider.recoveryRates(legalEntityId), refData);
+        new ResolvedCdsTrade[] {trade},
+        new double[] {quote.getQuotedValue()},
+        new double[] {0d},
+        CurveName.of("temp"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
@@ -189,9 +195,14 @@ public class CdsMarketQuoteConverter {
     StandardId legalEntityId = product.getLegalEntityId();
     LocalDate valuationDate = ratesProvider.getValuationDate();
     NodalCurve creditCurve = builder.calibrate(
-        new ResolvedCdsTrade[] {trade}, new double[] {product.getFixedRate()}, new double[] {quote.getQuotedValue()},
-        CurveName.of("temp"), valuationDate, ratesProvider.discountFactors(currency),
-        ratesProvider.recoveryRates(legalEntityId), refData);
+        new ResolvedCdsTrade[] {trade},
+        new double[] {product.getFixedRate()},
+        new double[] {quote.getQuotedValue()},
+        CurveName.of("temp"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
@@ -247,9 +258,15 @@ public class CdsMarketQuoteConverter {
     LocalDate valuationDate = ratesProvider.getValuationDate();
     CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntityId);
-    NodalCurve creditCurve = builder.calibrate(trades.toArray(new ResolvedCdsTrade[nNodes]),
+    NodalCurve creditCurve = builder.calibrate(
+        trades.toArray(new ResolvedCdsTrade[nNodes]),
         DoubleArray.of(nNodes, q -> quotes.get(q).getQuotedValue()).toArray(),
-        new double[nNodes], CurveName.of("temp"), valuationDate, discountFactors, recoveryRates, refData);
+        new double[nNodes],
+        CurveName.of("temp"),
+        valuationDate,
+        discountFactors,
+        recoveryRates,
+        refData);
     CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),

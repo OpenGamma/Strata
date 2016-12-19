@@ -32,7 +32,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.pricer.credit.CdsMarketQuoteConverter;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
@@ -137,9 +136,10 @@ public class CdsMarketQuoteConverterTest {
       products.add(Cds.of(BuySell.BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, MATURITIES[i], DEFAULT_CALENDAR, parSpreads[i]));
       quotes.add(CdsQuote.of(CdsQuoteConvention.PAR_SPREAD, parSpreads[i]));
     }
-    TradeInfo info =
-        TradeInfo.builder().tradeDate(TODAY).settlementDate(products.get(0).getSettlementDateOffset().adjust(TODAY, REF_DATA))
-            .build();
+    TradeInfo info = TradeInfo.builder()
+        .tradeDate(TODAY)
+        .settlementDate(products.get(0).getSettlementDateOffset().adjust(TODAY, REF_DATA))
+        .build();
     List<ResolvedCdsTrade> trades = products.stream()
         .map(p -> CdsTrade.builder().product(p).info(info).build().resolve(REF_DATA))
         .collect(Collectors.toList());
@@ -173,11 +173,11 @@ public class CdsMarketQuoteConverterTest {
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
     NodalCurve cc = CALIB.calibrate(new ResolvedCdsTrade[] {trade}, new double[] {0.0123}, new double[] {0.0},
         CurveName.of("test"), TODAY, DSC_CURVE, REC_RATES, REF_DATA);
-    CreditRatesProvider rates =
-        RATES_PROVIDER.toBuilder()
-            .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, GBP),
-                LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))
-            .build();
+    CreditRatesProvider rates = RATES_PROVIDER.toBuilder()
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY, GBP),
+            LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))
+        .build();
     double pointsUpFront = CONV.pointsUpfront(trade, rates, REF_DATA);
     double cleanPrice = CONV.cleanPrice(trade, rates, REF_DATA);
     double cleanPriceRe = CONV.ceanPriceFromPointsUpfront(pointsUpFront);
