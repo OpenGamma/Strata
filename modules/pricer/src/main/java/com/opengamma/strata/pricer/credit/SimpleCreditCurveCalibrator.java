@@ -75,8 +75,15 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
 
   //-------------------------------------------------------------------------
   @Override
-  NodalCurve calibrate(ResolvedCdsTrade[] calibrationCDSs, double[] premiums, double[] pointsUpfront, CurveName name,
-      LocalDate valuationDate, CreditDiscountFactors discountFactors, RecoveryRates recoveryRates, ReferenceData refData) {
+  NodalCurve calibrate(
+      ResolvedCdsTrade[] calibrationCDSs,
+      double[] premiums,
+      double[] pointsUpfront,
+      CurveName name,
+      LocalDate valuationDate,
+      CreditDiscountFactors discountFactors,
+      RecoveryRates recoveryRates,
+      ReferenceData refData) {
 
     int n = calibrationCDSs.length;
     double[] guess = new double[n];
@@ -116,9 +123,17 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
     return creditCurve;
   }
 
-  private Function<Double, Double> getPriceFunction(int index, ResolvedCdsTrade cds, double flactionalSpread,
-      double pointsUpfront, LocalDate valuationDate, NodalCurve creditCurve, CreditDiscountFactors discountFactors,
-      RecoveryRates recoveryRates, ReferenceData refData) {
+  private Function<Double, Double> getPriceFunction(
+      int index,
+      ResolvedCdsTrade cds,
+      double flactionalSpread,
+      double pointsUpfront,
+      LocalDate valuationDate,
+      NodalCurve creditCurve,
+      CreditDiscountFactors discountFactors,
+      RecoveryRates recoveryRates,
+      ReferenceData refData) {
+
     ResolvedCds cdsProduct = cds.getProduct();
     Currency currency = cdsProduct.getCurrency();
     StandardId legalEntityId = cdsProduct.getLegalEntityId();

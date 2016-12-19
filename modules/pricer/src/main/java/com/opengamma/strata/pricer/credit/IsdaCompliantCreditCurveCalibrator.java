@@ -73,7 +73,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
    */
   private final ArbitrageHandling arbHandling;
   /**
-   * The pricing formula.
+   * The accrual-on-default formula.
    */
   private final AccrualOnDefaultFormula formula;
   /**
@@ -97,14 +97,33 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains the arbitrage handling. 
+   * <p>
+   * See {@link ArbitrageHandling} for detail.
+   * 
+   * @return
+   */
   protected ArbitrageHandling getArbHanding() {
     return arbHandling;
   }
 
+  /**
+   * Obtains the accrual-on-default formula. 
+   * <p>
+   * See {@link AccrualOnDefaultFormula} for detail.
+   * 
+   * @return
+   */
   protected AccrualOnDefaultFormula getAccOnDefaultFormula() {
     return formula;
   }
 
+  /**
+   * Obtains the trade pricer used in this calibration. 
+   * 
+   * @return the trade pricer
+   */
   protected IsdaCdsTradePricer getTradePricer() {
     return tradePricer;
   }
@@ -223,7 +242,8 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
         legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));
   }
 
-  private Function<ResolvedCdsTrade, DoubleArray> getPointsUpfrontSensitivityFunction(CreditRatesProvider ratesProvider,
+  private Function<ResolvedCdsTrade, DoubleArray> getPointsUpfrontSensitivityFunction(
+      CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
     Function<ResolvedCdsTrade, DoubleArray> func = new Function<ResolvedCdsTrade, DoubleArray>() {
@@ -236,7 +256,8 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     return func;
   }
 
-  private Function<ResolvedCdsTrade, DoubleArray> getParSpreadSensitivityFunction(CreditRatesProvider ratesProvider,
+  private Function<ResolvedCdsTrade, DoubleArray> getParSpreadSensitivityFunction(
+      CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
     Function<ResolvedCdsTrade, DoubleArray> func = new Function<ResolvedCdsTrade, DoubleArray>() {
@@ -249,9 +270,15 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     return func;
   }
 
-  abstract NodalCurve calibrate(ResolvedCdsTrade[] calibrationCDSs, double[] flactionalSpreads,
-      double[] pointsUpfront, CurveName name, LocalDate valuationDate, CreditDiscountFactors discountFactors,
-      RecoveryRates recoveryRates, ReferenceData refData);
+  abstract NodalCurve calibrate(
+      ResolvedCdsTrade[] calibrationCDSs,
+      double[] flactionalSpreads,
+      double[] pointsUpfront,
+      CurveName name,
+      LocalDate valuationDate,
+      CreditDiscountFactors discountFactors,
+      RecoveryRates recoveryRates,
+      ReferenceData refData);
 
   private double[] getStandardQuoteForm(ResolvedCdsTrade calibrationCds, CdsQuote marketQuote, LocalDate valuationDate,
       CreditDiscountFactors discountFactors, RecoveryRates recoveryRates, boolean computeJacobian, ReferenceData refData) {

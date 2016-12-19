@@ -37,8 +37,11 @@ import com.opengamma.strata.product.credit.CdsTrade;
  * This defines almost all the data necessary to create a credit default swap {@link CdsTrade}.
  * The start and end of the trade are defined in terms of {@code AccrualStart} and {@code Tenor}.
  * <p>
- * The legal entity ID, trade date, notional and fixed rate are required to complete the template and create the trade.
+ * The legal entity ID, trade date, notional and fixed rate are required 
+ * to complete the template and create the trade.
  * As such, it is often possible to get a market quote for a trade based on the template.
+ * The start date (if it is not the next day) and end date are computed from trade date 
+ * with the standard semi-annual roll convention. 
  * <p>
  * A CDS is quoted in points upfront, par spread, or quoted spread. 
  * For the latter two cases, the market quotes are passed as the fixed rate.
