@@ -138,22 +138,46 @@ public final class IborRateCalculation
   private final NegativeRateMethod negativeRateMethod;
 
   /**
-   * The first rate of the first regular reset period, optional.
+   * The rate of the first regular reset period, optional.
    * A 5% rate will be expressed as 0.05.
    * <p>
-   * In certain circumstances two counterparties agree the rate of the first fixing when the contract starts.
-   * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
-   * It is used in place of an observed fixing.
-   * Other calculation elements, such as gearing or spread, still apply.
-   * After the first reset period, the rate is observed via the normal fixing process.
+   * In certain circumstances two counterparties agree the rate of the first fixing
+   * when the contract starts, and it is used in place of one observed fixing.
+   * For all other fixings, the rate is observed via the normal fixing process.
    * <p>
-   * If the first floating rate applies to the initial stub rather than the regular accrual periods
-   * it must be specified using {@code initialStub}.
+   * This property allows the rate of the first reset period of the first <i>regular</i> accrual period
+   * to be controlled. Note that if there is an initial stub, this will be the second reset period.
+   * Other calculation elements, such as gearing or spread, still apply to the rate specified here.
+   * <p>
+   * If the first rate applies to the initial stub rather than the regular accrual periods
+   * it must be specified using {@code initialStub}. Alternatively, {@code firstRate} can be used.
+   * <p>
+   * This property follows the definition in FpML. See also {@code firstRate}.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Double firstRegularRate;
+  /**
+   * The rate of the first reset period, which may be a stub, optional.
+   * A 5% rate will be expressed as 0.05.
+   * <p>
+   * In certain circumstances two counterparties agree the rate of the first fixing
+   * when the contract starts, and it is used in place of one observed fixing.
+   * For all other fixings, the rate is observed via the normal fixing process.
+   * <p>
+   * This property allows the rate of the first reset period to be controlled,
+   * irrespective of whether that is an initial stub or a regular period.
+   * Other calculation elements, such as gearing or spread, still apply to the rate specified here.
+   * <p>
+   * This property is similar to {@code firstRegularRate}.
+   * This property operates on the first reset period, whether that is an initial stub or a regular period.
+   * By contrast, {@code firstRegularRate} operates on the first regular period, and never on a stub.
+   * <p>
+   * If either {@code firstRegularRate} or {@code initialStub} are present, this property is ignored.
    * <p>
    * If this property is not present, then the first rate is observed via the normal fixing process.
    */
   @PropertyDefinition(get = "optional")
-  private final Double firstRegularRate;
+  private final Double firstRate;
   /**
    * The offset of the first fixing date from the first adjusted reset date, optional.
    * <p>
@@ -288,17 +312,6 @@ public final class IborRateCalculation
       Schedule paymentSchedule,
       ReferenceData refData) {
 
-    // avoid null stub definitions if there are stubs
-    Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();
-    Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
-    if ((scheduleInitialStub.isPresent() && initialStub == null) ||
-        (scheduleFinalStub.isPresent() && finalStub == null)) {
-      return toBuilder()
-          .initialStub(firstNonNull(initialStub, IborRateStubCalculation.NONE))
-          .finalStub(firstNonNull(finalStub, IborRateStubCalculation.NONE))
-          .build()
-          .createAccrualPeriods(accrualSchedule, paymentSchedule, refData);
-    }
     // resolve data by schedule
     DoubleArray resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule);
     DoubleArray resolvedSpreads = firstNonNull(spread, ALWAYS_0).resolveValues(accrualSchedule);
@@ -308,6 +321,8 @@ public final class IborRateCalculation
         getResetPeriods().map(rp -> rp.createSchedule(accrualSchedule.getRollConvention(), refData)).orElse(null);
     Function<LocalDate, IborIndexObservation> iborObservationFn = index.resolve(refData);
     // build accrual periods
+    Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();
+    Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
@@ -335,12 +350,27 @@ public final class IborRateCalculation
     if (scheduleIndex == 0 && firstFixingDateOffset != null) {
       fixingDate = firstFixingDateOffset.resolve(refData).adjust(fixingRelativeTo.selectBaseDate(period));
     }
-    // handle stubs
-    if (scheduleInitialStub.isPresent() && scheduleInitialStub.get() == period) {
-      return initialStub.createRateComputation(fixingDate, index, refData);
+    // initial stub
+    if (scheduleInitialStub.isPresent() && scheduleIndex == 0) {
+      if (firstRate != null &&
+          firstRegularRate == null &&
+          (initialStub == null || IborRateStubCalculation.NONE.equals(initialStub))) {
+        return FixedRateComputation.of(firstRate);
+      }
+      return firstNonNull(initialStub, IborRateStubCalculation.NONE).createRateComputation(fixingDate, index, refData);
     }
+    // final stub
     if (scheduleFinalStub.isPresent() && scheduleFinalStub.get() == period) {
-      return finalStub.createRateComputation(fixingDate, index, refData);
+      return firstNonNull(finalStub, IborRateStubCalculation.NONE).createRateComputation(fixingDate, index, refData);
+    }
+    // override rate
+    Double overrideFirstRate = null;
+    if (firstRegularRate != null) {
+      if (isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent())) {
+        overrideFirstRate = firstRegularRate;
+      }
+    } else if (firstRate != null && scheduleIndex == 0) {
+      overrideFirstRate = firstRate;
     }
     // handle explicit reset periods, possible averaging
     if (resetScheduleFn != null) {
@@ -349,12 +379,12 @@ public final class IborRateCalculation
           fixingDateAdjuster,
           iborObservationFn,
           scheduleIndex,
-          isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()),
+          overrideFirstRate,
           refData);
     }
     // handle possible fixed rate
-    if (firstRegularRate != null && isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent())) {
-      return FixedRateComputation.of(firstRegularRate);
+    if (overrideFirstRate != null) {
+      return FixedRateComputation.of(overrideFirstRate);
     }
     // simple Ibor
     return IborRateComputation.of(iborObservationFn.apply(fixingDate));
@@ -366,7 +396,7 @@ public final class IborRateCalculation
       DateAdjuster fixingDateAdjuster,
       Function<LocalDate, IborIndexObservation> iborObservationFn,
       int scheduleIndex,
-      boolean firstRegular,
+      Double overrideFirstRate,
       ReferenceData refData) {
 
     List<IborAveragedFixing> fixings = new ArrayList<>();
@@ -378,7 +408,7 @@ public final class IborRateCalculation
       }
       fixings.add(IborAveragedFixing.builder()
           .observation(iborObservationFn.apply(fixingDate))
-          .fixedRate(firstRegular && i == 0 ? firstRegularRate : null)
+          .fixedRate(overrideFirstRate != null && i == 0 ? overrideFirstRate : null)
           .weight(resetPeriods.getResetMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
     }
@@ -429,6 +459,7 @@ public final class IborRateCalculation
       DaysAdjustment fixingDateOffset,
       NegativeRateMethod negativeRateMethod,
       Double firstRegularRate,
+      Double firstRate,
       DaysAdjustment firstFixingDateOffset,
       IborRateStubCalculation initialStub,
       IborRateStubCalculation finalStub,
@@ -446,6 +477,7 @@ public final class IborRateCalculation
     this.fixingDateOffset = fixingDateOffset;
     this.negativeRateMethod = negativeRateMethod;
     this.firstRegularRate = firstRegularRate;
+    this.firstRate = firstRate;
     this.firstFixingDateOffset = firstFixingDateOffset;
     this.initialStub = initialStub;
     this.finalStub = finalStub;
@@ -557,23 +589,51 @@ public final class IborRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first rate of the first regular reset period, optional.
+   * Gets the rate of the first regular reset period, optional.
    * A 5% rate will be expressed as 0.05.
    * <p>
-   * In certain circumstances two counterparties agree the rate of the first fixing when the contract starts.
-   * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
-   * It is used in place of an observed fixing.
-   * Other calculation elements, such as gearing or spread, still apply.
-   * After the first reset period, the rate is observed via the normal fixing process.
+   * In certain circumstances two counterparties agree the rate of the first fixing
+   * when the contract starts, and it is used in place of one observed fixing.
+   * For all other fixings, the rate is observed via the normal fixing process.
    * <p>
-   * If the first floating rate applies to the initial stub rather than the regular accrual periods
-   * it must be specified using {@code initialStub}.
+   * This property allows the rate of the first reset period of the first <i>regular</i> accrual period
+   * to be controlled. Note that if there is an initial stub, this will be the second reset period.
+   * Other calculation elements, such as gearing or spread, still apply to the rate specified here.
    * <p>
-   * If this property is not present, then the first rate is observed via the normal fixing process.
+   * If the first rate applies to the initial stub rather than the regular accrual periods
+   * it must be specified using {@code initialStub}. Alternatively, {@code firstRate} can be used.
+   * <p>
+   * This property follows the definition in FpML. See also {@code firstRate}.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getFirstRegularRate() {
     return firstRegularRate != null ? OptionalDouble.of(firstRegularRate) : OptionalDouble.empty();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the rate of the first reset period, which may be a stub, optional.
+   * A 5% rate will be expressed as 0.05.
+   * <p>
+   * In certain circumstances two counterparties agree the rate of the first fixing
+   * when the contract starts, and it is used in place of one observed fixing.
+   * For all other fixings, the rate is observed via the normal fixing process.
+   * <p>
+   * This property allows the rate of the first reset period to be controlled,
+   * irrespective of whether that is an initial stub or a regular period.
+   * Other calculation elements, such as gearing or spread, still apply to the rate specified here.
+   * <p>
+   * This property is similar to {@code firstRegularRate}.
+   * This property operates on the first reset period, whether that is an initial stub or a regular period.
+   * By contrast, {@code firstRegularRate} operates on the first regular period, and never on a stub.
+   * <p>
+   * If either {@code firstRegularRate} or {@code initialStub} are present, this property is ignored.
+   * <p>
+   * If this property is not present, then the first rate is observed via the normal fixing process.
+   * @return the optional value of the property, not null
+   */
+  public OptionalDouble getFirstRate() {
+    return firstRate != null ? OptionalDouble.of(firstRate) : OptionalDouble.empty();
   }
 
   //-----------------------------------------------------------------------
@@ -692,6 +752,7 @@ public final class IborRateCalculation
           JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset) &&
           JodaBeanUtils.equal(negativeRateMethod, other.negativeRateMethod) &&
           JodaBeanUtils.equal(firstRegularRate, other.firstRegularRate) &&
+          JodaBeanUtils.equal(firstRate, other.firstRate) &&
           JodaBeanUtils.equal(firstFixingDateOffset, other.firstFixingDateOffset) &&
           JodaBeanUtils.equal(initialStub, other.initialStub) &&
           JodaBeanUtils.equal(finalStub, other.finalStub) &&
@@ -711,6 +772,7 @@ public final class IborRateCalculation
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(negativeRateMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(firstRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(firstFixingDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(initialStub);
     hash = hash * 31 + JodaBeanUtils.hashCode(finalStub);
@@ -721,7 +783,7 @@ public final class IborRateCalculation
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(448);
     buf.append("IborRateCalculation{");
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
@@ -730,6 +792,7 @@ public final class IborRateCalculation
     buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(negativeRateMethod).append(',').append(' ');
     buf.append("firstRegularRate").append('=').append(firstRegularRate).append(',').append(' ');
+    buf.append("firstRate").append('=').append(firstRate).append(',').append(' ');
     buf.append("firstFixingDateOffset").append('=').append(firstFixingDateOffset).append(',').append(' ');
     buf.append("initialStub").append('=').append(initialStub).append(',').append(' ');
     buf.append("finalStub").append('=').append(finalStub).append(',').append(' ');
@@ -785,6 +848,11 @@ public final class IborRateCalculation
     private final MetaProperty<Double> firstRegularRate = DirectMetaProperty.ofImmutable(
         this, "firstRegularRate", IborRateCalculation.class, Double.class);
     /**
+     * The meta-property for the {@code firstRate} property.
+     */
+    private final MetaProperty<Double> firstRate = DirectMetaProperty.ofImmutable(
+        this, "firstRate", IborRateCalculation.class, Double.class);
+    /**
      * The meta-property for the {@code firstFixingDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> firstFixingDateOffset = DirectMetaProperty.ofImmutable(
@@ -821,6 +889,7 @@ public final class IborRateCalculation
         "fixingDateOffset",
         "negativeRateMethod",
         "firstRegularRate",
+        "firstRate",
         "firstFixingDateOffset",
         "initialStub",
         "finalStub",
@@ -850,6 +919,8 @@ public final class IborRateCalculation
           return negativeRateMethod;
         case 570227148:  // firstRegularRate
           return firstRegularRate;
+        case 132955056:  // firstRate
+          return firstRate;
         case 2022439998:  // firstFixingDateOffset
           return firstFixingDateOffset;
         case 1233359378:  // initialStub
@@ -937,6 +1008,14 @@ public final class IborRateCalculation
     }
 
     /**
+     * The meta-property for the {@code firstRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> firstRate() {
+      return firstRate;
+    }
+
+    /**
      * The meta-property for the {@code firstFixingDateOffset} property.
      * @return the meta-property, not null
      */
@@ -994,6 +1073,8 @@ public final class IborRateCalculation
           return ((IborRateCalculation) bean).getNegativeRateMethod();
         case 570227148:  // firstRegularRate
           return ((IborRateCalculation) bean).firstRegularRate;
+        case 132955056:  // firstRate
+          return ((IborRateCalculation) bean).firstRate;
         case 2022439998:  // firstFixingDateOffset
           return ((IborRateCalculation) bean).firstFixingDateOffset;
         case 1233359378:  // initialStub
@@ -1032,6 +1113,7 @@ public final class IborRateCalculation
     private DaysAdjustment fixingDateOffset;
     private NegativeRateMethod negativeRateMethod;
     private Double firstRegularRate;
+    private Double firstRate;
     private DaysAdjustment firstFixingDateOffset;
     private IborRateStubCalculation initialStub;
     private IborRateStubCalculation finalStub;
@@ -1057,6 +1139,7 @@ public final class IborRateCalculation
       this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
       this.firstRegularRate = beanToCopy.firstRegularRate;
+      this.firstRate = beanToCopy.firstRate;
       this.firstFixingDateOffset = beanToCopy.firstFixingDateOffset;
       this.initialStub = beanToCopy.initialStub;
       this.finalStub = beanToCopy.finalStub;
@@ -1082,6 +1165,8 @@ public final class IborRateCalculation
           return negativeRateMethod;
         case 570227148:  // firstRegularRate
           return firstRegularRate;
+        case 132955056:  // firstRate
+          return firstRate;
         case 2022439998:  // firstFixingDateOffset
           return firstFixingDateOffset;
         case 1233359378:  // initialStub
@@ -1120,6 +1205,9 @@ public final class IborRateCalculation
           break;
         case 570227148:  // firstRegularRate
           this.firstRegularRate = (Double) newValue;
+          break;
+        case 132955056:  // firstRate
+          this.firstRate = (Double) newValue;
           break;
         case 2022439998:  // firstFixingDateOffset
           this.firstFixingDateOffset = (DaysAdjustment) newValue;
@@ -1177,6 +1265,7 @@ public final class IborRateCalculation
           fixingDateOffset,
           negativeRateMethod,
           firstRegularRate,
+          firstRate,
           firstFixingDateOffset,
           initialStub,
           finalStub,
@@ -1283,24 +1372,53 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the first rate of the first regular reset period, optional.
+     * Sets the rate of the first regular reset period, optional.
      * A 5% rate will be expressed as 0.05.
      * <p>
-     * In certain circumstances two counterparties agree the rate of the first fixing when the contract starts.
-     * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
-     * It is used in place of an observed fixing.
-     * Other calculation elements, such as gearing or spread, still apply.
-     * After the first reset period, the rate is observed via the normal fixing process.
+     * In certain circumstances two counterparties agree the rate of the first fixing
+     * when the contract starts, and it is used in place of one observed fixing.
+     * For all other fixings, the rate is observed via the normal fixing process.
      * <p>
-     * If the first floating rate applies to the initial stub rather than the regular accrual periods
-     * it must be specified using {@code initialStub}.
+     * This property allows the rate of the first reset period of the first <i>regular</i> accrual period
+     * to be controlled. Note that if there is an initial stub, this will be the second reset period.
+     * Other calculation elements, such as gearing or spread, still apply to the rate specified here.
      * <p>
-     * If this property is not present, then the first rate is observed via the normal fixing process.
+     * If the first rate applies to the initial stub rather than the regular accrual periods
+     * it must be specified using {@code initialStub}. Alternatively, {@code firstRate} can be used.
+     * <p>
+     * This property follows the definition in FpML. See also {@code firstRate}.
      * @param firstRegularRate  the new value
      * @return this, for chaining, not null
      */
     public Builder firstRegularRate(Double firstRegularRate) {
       this.firstRegularRate = firstRegularRate;
+      return this;
+    }
+
+    /**
+     * Sets the rate of the first reset period, which may be a stub, optional.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * In certain circumstances two counterparties agree the rate of the first fixing
+     * when the contract starts, and it is used in place of one observed fixing.
+     * For all other fixings, the rate is observed via the normal fixing process.
+     * <p>
+     * This property allows the rate of the first reset period to be controlled,
+     * irrespective of whether that is an initial stub or a regular period.
+     * Other calculation elements, such as gearing or spread, still apply to the rate specified here.
+     * <p>
+     * This property is similar to {@code firstRegularRate}.
+     * This property operates on the first reset period, whether that is an initial stub or a regular period.
+     * By contrast, {@code firstRegularRate} operates on the first regular period, and never on a stub.
+     * <p>
+     * If either {@code firstRegularRate} or {@code initialStub} are present, this property is ignored.
+     * <p>
+     * If this property is not present, then the first rate is observed via the normal fixing process.
+     * @param firstRate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder firstRate(Double firstRate) {
+      this.firstRate = firstRate;
       return this;
     }
 
@@ -1405,7 +1523,7 @@ public final class IborRateCalculation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(416);
+      StringBuilder buf = new StringBuilder(448);
       buf.append("IborRateCalculation.Builder{");
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
@@ -1414,6 +1532,7 @@ public final class IborRateCalculation
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
       buf.append("firstRegularRate").append('=').append(JodaBeanUtils.toString(firstRegularRate)).append(',').append(' ');
+      buf.append("firstRate").append('=').append(JodaBeanUtils.toString(firstRate)).append(',').append(' ');
       buf.append("firstFixingDateOffset").append('=').append(JodaBeanUtils.toString(firstFixingDateOffset)).append(',').append(' ');
       buf.append("initialStub").append('=').append(JodaBeanUtils.toString(initialStub)).append(',').append(' ');
       buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub)).append(',').append(' ');
