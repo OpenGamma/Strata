@@ -294,6 +294,7 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
         extrapolatorRight,
         sabrVolatilityFormula);
   }
+
   //-------------------------------------------------------------------------
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {

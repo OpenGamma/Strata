@@ -142,7 +142,7 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
         (SabrIborCapletFloorletVolatilityBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
-    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, referenceData);
+    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, getReferenceData());
     LocalDate startDate = baseDate.plus(index.getTenor());
     Function<Surface, IborCapletFloorletVolatilities> volatilitiesFunction = volatilitiesFunction(
         bsDefinition, calibrationDateTime, capFloorData);
@@ -172,9 +172,11 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     DoubleArray timeToExpiries = DoubleArray.of(nExpiries, i -> timeList.get(startIndex[i]));
 
     BitSet fixed = new BitSet();
+    boolean betaFix = false;
     Curve betaCurve;
     Curve rhoCurve;
     if (bsDefinition.getBetaCurve().isPresent()) {
+      betaFix = true;
       fixed.set(1);
       betaCurve = bsDefinition.getBetaCurve().get();
       rhoCurve = InterpolatedNodalCurve.of(
@@ -218,21 +220,21 @@ public class SabrIborCapletFloorletVolatilityBootstrapper extends IborCapletFloo
     ZonedDateTime prevExpiry = calibrationDateTime.minusDays(1L); // included if calibrationDateTime == fixingDateTime
     for (int i = 0; i < nExpiries; ++i) {
       DoubleArray start = computeInitialValues(
-          ratesProvider, betaCurve, shiftCurve, timeList, volList, capList, startIndex, i, fixed.get(1), capFloorData.getDataType());
+          ratesProvider, betaCurve, shiftCurve, timeList, volList, capList, startIndex, i, betaFix, capFloorData.getDataType());
       UncoupledParameterTransforms transform = new UncoupledParameterTransforms(start, TRANSFORMS, fixed);
       int nCaplets = startIndex[i + 1] - startIndex[i];
       int currentStart = startIndex[i];
       Function<DoubleArray, DoubleArray> valueFunction = createPriceFunction(
-          ratesProvider, vols, prevExpiry, capList, priceList, startIndex, nExpiries, i, nCaplets, fixed.get(1));
+          ratesProvider, vols, prevExpiry, capList, priceList, startIndex, nExpiries, i, nCaplets, betaFix);
       Function<DoubleArray, DoubleMatrix> jacobianFunction = createJacobianFunction(
-          ratesProvider, vols, prevExpiry, capList, priceList, index.getCurrency(), startIndex, nExpiries, i, nCaplets, fixed.get(1));
+          ratesProvider, vols, prevExpiry, capList, priceList, index.getCurrency(), startIndex, nExpiries, i, nCaplets, betaFix);
       NonLinearTransformFunction transFunc = new NonLinearTransformFunction(valueFunction, jacobianFunction, transform);
       DoubleArray adjustedPrices = adjustedPrices(ratesProvider, vols, prevExpiry, capList, priceList, startIndex, i, nCaplets);
       DoubleArray errors = DoubleArray.of(nCaplets, n -> errorList.get(currentStart + n));
       LeastSquareResults res = solver.solve(adjustedPrices, errors, transFunc.getFittingFunction(),
           transFunc.getFittingJacobian(), transform.transform(start));
       LeastSquareResultsWithTransform resTransform = new LeastSquareResultsWithTransform(res, transform);
-      vols = updateParameters(vols, nExpiries, i, fixed.get(1), resTransform.getModelParameters());
+      vols = updateParameters(vols, nExpiries, i, betaFix, resTransform.getModelParameters());
       totalChiSq += res.getChiSq();
       prevExpiry = capList.get(startIndex[i + 1] - 1).getFinalFixingDateTime();
     }

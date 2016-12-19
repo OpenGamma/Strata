@@ -38,7 +38,7 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
  * The result is an interpolated surface spanned by expiry and strike.  
  * The position of the node points on the resultant surface corresponds to last expiry date of market caps. 
  * The nodes should be interpolated by a local interpolation scheme along the time direction.  
- * See {@link SurfaceIborCapletFloorletBootstrapVolatilityDefinition} for detail.
+ * See {@link SurfaceIborCapletFloorletVolatilityBootstrapDefinition} for detail.
  * <p>
  * If the shift curve is not present in {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}, 
  * the resultant volatility type is the same as the input volatility type, i.e.,
@@ -91,7 +91,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
         (SurfaceIborCapletFloorletVolatilityBootstrapDefinition) definition;
     IborIndex index = bsDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
-    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, referenceData);
+    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, getReferenceData());
     LocalDate startDate = baseDate.plus(index.getTenor());
     Function<Surface, IborCapletFloorletVolatilities> volatilitiesFunction = volatilitiesFunction(
         bsDefinition, calibrationDateTime, capFloorData);
@@ -166,7 +166,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
       ZonedDateTime prevExpiry,
       int nodeIndex) {
 
-    VolatilityIborCapletFloorletPeriodPricer periodPricer = pricer.getPeriodPricer();
+    VolatilityIborCapletFloorletPeriodPricer periodPricer = getLegPricer().getPeriodPricer();
     Function<Double, double[]> priceAndVegaFunction = new Function<Double, double[]>() {
       @Override
       public double[] apply(Double x) {
@@ -196,7 +196,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
       IborCapletFloorletVolatilities vols,
       ZonedDateTime prevExpiry) {
 
-    VolatilityIborCapletFloorletPeriodPricer periodPricer = pricer.getPeriodPricer();
+    VolatilityIborCapletFloorletPeriodPricer periodPricer = getLegPricer().getPeriodPricer();
     return cap.getCapletFloorletPeriods().stream()
         .filter(p -> !p.getFixingDateTime().isAfter(prevExpiry))
         .mapToDouble(p -> periodPricer.presentValue(p, ratesProvider, vols).getAmount())

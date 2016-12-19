@@ -35,11 +35,11 @@ abstract class IborCapletFloorletVolatilityCalibrator {
    * <p>
    * This pricer is used for converting market cap volatilities to cap prices. 
    */
-  protected final VolatilityIborCapFloorLegPricer pricer;
+  private final VolatilityIborCapFloorLegPricer pricer;
   /**
    * The reference data.
    */
-  protected final ReferenceData referenceData;
+  private final ReferenceData referenceData;
 
   /**
    * Constructor with cap pricer and reference data.
@@ -66,6 +66,25 @@ abstract class IborCapletFloorletVolatilityCalibrator {
       ZonedDateTime calibrationDateTime,
       RawOptionData capFloorData,
       RatesProvider ratesProvider);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the reference data.
+   * 
+   * @return the reference data
+   */
+  protected ReferenceData getReferenceData() {
+    return referenceData;
+  }
+
+  /**
+   * Gets the leg pricer.
+   * 
+   * @return the leg pricer
+   */
+  protected VolatilityIborCapFloorLegPricer getLegPricer() {
+    return pricer;
+  }
 
   //-------------------------------------------------------------------------
   // create complete lists of caps, volatilities, strikes, expiries

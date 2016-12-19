@@ -37,7 +37,6 @@ public final class IborCapletFloorletVolatilityCalibrationResult
    */
   @PropertyDefinition(validate = "notNull")
   private final IborCapletFloorletVolatilities volatilities;
-
   /**
    * The chi-square value.
    * <p>
