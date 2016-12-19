@@ -42,7 +42,7 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
  * <p>
  * If the shift curve is not present in {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}, 
  * the resultant volatility type is the same as the input volatility type, i.e.,
- * Black caplet volatilities are returned if Balck cap volatilities are plugged in, and normal caplet volatilities are
+ * Black caplet volatilities are returned if Black cap volatilities are plugged in, and normal caplet volatilities are
  * returned otherwise. 
  * On the other hand, if the shift curve is present in {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}, 
  * Black caplet volatilities are returned for any input volatility type. 
