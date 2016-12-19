@@ -43,7 +43,7 @@ final class DefaultBondFutureOptionScenarioMarketData
   /**
    * The cache of single scenario instances.
    */
-  private final AtomicReferenceArray<BondFutureOptionMarketData> cache;  // derived
+  private final transient AtomicReferenceArray<BondFutureOptionMarketData> cache;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -71,6 +71,11 @@ final class DefaultBondFutureOptionScenarioMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultBondFutureOptionScenarioMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

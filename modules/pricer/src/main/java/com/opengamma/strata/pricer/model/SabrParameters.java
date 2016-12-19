@@ -93,11 +93,11 @@ public final class SabrParameters
   /**
    * The day count convention of the curves.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
   /**
    * The parameter combiner.
    */
-  private final ParameterizedDataCombiner paramCombiner;  // cached, not a property
+  private final transient ParameterizedDataCombiner paramCombiner;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -216,6 +216,11 @@ public final class SabrParameters
     if (!curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT).orElse(dayCount).equals(dayCount)) {
       throw new IllegalArgumentException("SABR curves must have the same day count");
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SabrParameters(alphaCurve, betaCurve, rhoCurve, nuCurve, shiftCurve, sabrVolatilityFormula);
   }
 
   //-------------------------------------------------------------------------

@@ -78,11 +78,11 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
   /**
    * Whether the moneyness is on the price (true) or on the rate (false).
    */
-  private final boolean moneynessOnPrice;  // cached, not a property
+  private final transient boolean moneynessOnPrice;  // cached, not a property
   /**
    * The day count convention of the surface.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -137,6 +137,11 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
     this.surface = surface;
     this.moneynessOnPrice = moneynessType == MoneynessType.PRICE;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new NormalIborFutureOptionExpirySimpleMoneynessVolatilities(index, valuationDateTime, surface);
   }
 
   //-------------------------------------------------------------------------

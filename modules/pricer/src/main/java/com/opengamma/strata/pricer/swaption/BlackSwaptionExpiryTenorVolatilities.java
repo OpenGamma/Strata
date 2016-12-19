@@ -78,7 +78,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
   /**
    * The day count convention of the surface.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -130,6 +130,11 @@ public final class BlackSwaptionExpiryTenorVolatilities
     this.surface = surface;
     this.convention = convention;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new BlackSwaptionExpiryTenorVolatilities(convention, valuationDateTime, surface);
   }
 
   //-------------------------------------------------------------------------

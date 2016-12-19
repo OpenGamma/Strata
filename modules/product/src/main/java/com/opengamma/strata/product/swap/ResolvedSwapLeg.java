@@ -101,7 +101,7 @@ public final class ResolvedSwapLeg
   /**
    * The currency of the leg.
    */
-  private final Currency currency;  // not a property, derived and cached from input data
+  private final transient Currency currency;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
@@ -138,6 +138,11 @@ public final class ResolvedSwapLeg
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
     this.paymentEvents = ImmutableList.copyOf(paymentEvents);
     this.currency = currency;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedSwapLeg(type, payReceive, paymentPeriods, paymentEvents);
   }
 
   //-------------------------------------------------------------------------

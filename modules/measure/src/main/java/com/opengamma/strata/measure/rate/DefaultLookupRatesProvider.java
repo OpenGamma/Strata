@@ -77,7 +77,7 @@ final class DefaultLookupRatesProvider
   /**
    * The FX rate provider.
    */
-  private final FxRateProvider fxRateProvider;  // derived
+  private final transient FxRateProvider fxRateProvider;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -99,6 +99,11 @@ final class DefaultLookupRatesProvider
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.fxRateProvider = lookup.fxRateProvider(marketData);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultLookupRatesProvider(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

@@ -73,7 +73,7 @@ public final class ZeroRateDiscountFactors
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -113,6 +113,11 @@ public final class ZeroRateDiscountFactors
     this.valuationDate = valuationDate;
     this.curve = curve;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ZeroRateDiscountFactors(currency, valuationDate, curve);
   }
 
   //-------------------------------------------------------------------------

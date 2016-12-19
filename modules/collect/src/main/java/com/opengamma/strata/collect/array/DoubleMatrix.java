@@ -64,15 +64,15 @@ public final class DoubleMatrix
   /**
    * The number of rows.
    */
-  private final int rows;  // derived, not a property
+  private final transient int rows;  // derived, not a property
   /**
    * The number of columns.
    */
-  private final int columns;  // derived, not a property
+  private final transient int columns;  // derived, not a property
   /**
    * The number of elements.
    */
-  private final int elements;  // derived, not a property
+  private final transient int elements;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -340,6 +340,11 @@ public final class DoubleMatrix
       cloned[i] = input[i].clone();
     }
     return cloned;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DoubleMatrix(array);
   }
 
   //-------------------------------------------------------------------------

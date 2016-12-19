@@ -65,11 +65,11 @@ public final class Results implements ImmutableBean {
   /**
    * The number of rows.
    */
-  private final int rowCount;  // derived, not a property
+  private final transient int rowCount;  // derived, not a property
   /**
    * The number of columns.
    */
-  private final int columnCount;  // derived, not a property
+  private final transient int columnCount;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -102,6 +102,11 @@ public final class Results implements ImmutableBean {
               this.rowCount,
               this.columnCount));
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new Results(columns, cells);
   }
 
   //-------------------------------------------------------------------------

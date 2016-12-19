@@ -43,7 +43,7 @@ final class DefaultLegalEntityDiscountingScenarioMarketData
   /**
    * The cache of single scenario instances.
    */
-  private final AtomicReferenceArray<LegalEntityDiscountingMarketData> cache;  // derived
+  private final transient AtomicReferenceArray<LegalEntityDiscountingMarketData> cache;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -71,6 +71,11 @@ final class DefaultLegalEntityDiscountingScenarioMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultLegalEntityDiscountingScenarioMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------
