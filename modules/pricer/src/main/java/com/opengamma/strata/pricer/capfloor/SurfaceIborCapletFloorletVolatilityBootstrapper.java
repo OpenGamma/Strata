@@ -38,7 +38,7 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
  * The result is an interpolated surface spanned by expiry and strike.  
  * The position of the node points on the resultant surface corresponds to last expiry date of market caps. 
  * The nodes should be interpolated by a local interpolation scheme along the time direction.  
- * See {@link SurfaceIborCapletFloorletBootstrapDefinition} for detail.
+ * See {@link SurfaceIborCapletFloorletBootstrapVolatilityDefinition} for detail.
  * <p>
  * If the shift curve is not present in {@code SurfaceIborCapletFloorletBootstrapVolatilityDefinition}, 
  * the resultant volatility type is the same as the input volatility type, i.e.,
