@@ -88,14 +88,6 @@ public class FxVanillaOptionTest {
 
   //-------------------------------------------------------------------------
   static FxVanillaOption sut() {
-    FxVanillaOption a = FxVanillaOption.builder()
-            .longShort(LONG)
-            .expiryDate(EXPIRY_DATE)
-            .expiryTime(EXPIRY_TIME)
-            .expiryZone(EXPIRY_ZONE)
-            .underlying(FX)
-            .build();
-    a.toBuilder().longShort(LongShort.SHORT).build();
     return FxVanillaOption.builder()
         .longShort(LONG)
         .expiryDate(EXPIRY_DATE)
