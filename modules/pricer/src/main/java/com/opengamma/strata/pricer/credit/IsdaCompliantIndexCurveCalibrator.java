@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.credit;
 
 import java.util.List;
@@ -23,7 +28,7 @@ import com.opengamma.strata.market.observable.LegalEntityInformationId;
  * <p>
  * The curve is defined using one or more {@linkplain CdsIndexIsdaCreditCurveNode nodes}.
  * Each node primarily defines enough information to produce a reference CDS index trade.
- * All of the curve nodes must be based on a common single names and currency.
+ * All of the curve nodes must be based on a common CDS index ID and currency.
  * <p>
  * Calibration involves pricing, and re-pricing, these trades to find the best fit using a root finder, 
  * where the pricing is based on {@link IsdaHomogenousCdsIndexTradePricer}, thus the calibration is 

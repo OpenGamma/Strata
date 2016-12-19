@@ -79,14 +79,14 @@ public final class CdsIndexIsdaCreditCurveNode
   /**
    * The CDS index identifier.
    * <p>
-   * This identifier is used for referring this CDS index product.
+   * This identifier is used to refer this CDS index product.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId cdsIndexId;
   /**
    * The legal entity identifiers.
    * <p>
-   * This identifiers are used for the reference legal entities of the CDS index.
+   * These identifiers refer to the reference legal entities of the CDS index.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<StandardId> legalEntityIds;
@@ -370,7 +370,7 @@ public final class CdsIndexIsdaCreditCurveNode
   /**
    * Gets the CDS index identifier.
    * <p>
-   * This identifier is used for referring this CDS index product.
+   * This identifier is used to refer this CDS index product.
    * @return the value of the property, not null
    */
   public StandardId getCdsIndexId() {
@@ -381,7 +381,7 @@ public final class CdsIndexIsdaCreditCurveNode
   /**
    * Gets the legal entity identifiers.
    * <p>
-   * This identifiers are used for the reference legal entities of the CDS index.
+   * These identifiers refer to the reference legal entities of the CDS index.
    * @return the value of the property, not null
    */
   public ImmutableList<StandardId> getLegalEntityIds() {
@@ -821,7 +821,7 @@ public final class CdsIndexIsdaCreditCurveNode
     /**
      * Sets the CDS index identifier.
      * <p>
-     * This identifier is used for referring this CDS index product.
+     * This identifier is used to refer this CDS index product.
      * @param cdsIndexId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -834,7 +834,7 @@ public final class CdsIndexIsdaCreditCurveNode
     /**
      * Sets the legal entity identifiers.
      * <p>
-     * This identifiers are used for the reference legal entities of the CDS index.
+     * These identifiers refer to the reference legal entities of the CDS index.
      * @param legalEntityIds  the new value, not null
      * @return this, for chaining, not null
      */
