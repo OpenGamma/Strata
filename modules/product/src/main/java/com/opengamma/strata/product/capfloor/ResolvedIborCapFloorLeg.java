@@ -7,6 +7,7 @@ package com.opengamma.strata.product.capfloor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -111,6 +112,24 @@ public final class ResolvedIborCapFloorLeg
    */
   public LocalDate getEndDate() {
     return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1).getEndDate();
+  }
+
+  /**
+   * Gets the fixing date time of the final caplet/floorlet period.
+   * 
+   * @return the fixing date time
+   */
+  public ZonedDateTime getFinalFixingDateTime() {
+    return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1).getFixingDateTime();
+  }
+
+  /**
+   * Gets the final caplet/floorlet period.
+   * 
+   * @return the final period
+   */
+  public IborCapletFloorletPeriod getFinalPeriod() {
+    return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1);
   }
 
   /**

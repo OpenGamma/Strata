@@ -115,6 +115,13 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator PRODUCT_LINEAR =
       CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_LINEAR.getName());
+  /**
+   * Step upper interpolator.
+   * <p>
+   * The interpolated value at <i>x</i> s.t. <i>x<sub>1</sub> < x =< x<sub>2</sub></i> is the value at <i>x<sub>2</sub></i>. 
+   */
+  public static final CurveInterpolator STEP_UPPER =
+      CurveInterpolator.of(StandardCurveInterpolators.STEP_UPPER.getName());
 
   //-------------------------------------------------------------------------
   /**

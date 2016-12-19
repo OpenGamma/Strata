@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 
 import java.time.Period;
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ public class RawOptionDataTest {
       new double[][] {{Double.NaN, Double.NaN, Double.NaN, Double.NaN},
           {Double.NaN, 0.10, 0.11, 0.12},
           {0.10, 0.11, 0.12, 0.13}});
+  private static final DoubleMatrix ERROR = DoubleMatrix.ofUnsafe(
+      new double[][] {{1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4},
+          {1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4},
+          {1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3}});
 
   //-------------------------------------------------------------------------
   public void of() {
@@ -64,6 +69,7 @@ public class RawOptionDataTest {
     assertEquals(test.getData(), DATA_SPARSE);
     assertEquals(test.getDataType(), ValueType.BLACK_VOLATILITY);
     assertEquals(test.getShift(), OptionalDouble.of(shift));
+    assertFalse(test.getError().isPresent());
   }
 
   public void available_smile_at_expiry() {
@@ -82,6 +88,27 @@ public class RawOptionDataTest {
       Pair<DoubleArray, DoubleArray> smile = test.availableSmileAtExpiry(EXPIRIES.get(i));
       assertEquals(smile.getFirst(), strikesAvailable[i]);
     }
+  }
+
+  public void of_error() {
+    RawOptionData test = sut3();
+    assertEquals(test.getStrikes(), MONEYNESS);
+    assertEquals(test.getStrikeType(), ValueType.SIMPLE_MONEYNESS);
+    assertEquals(test.getData(), DATA_FULL);
+    assertEquals(test.getDataType(), ValueType.NORMAL_VOLATILITY);
+    assertEquals(test.getError().get(), ERROR);
+  }
+
+  public void ofBlackVolatility_error() {
+    double shift = 0.0075;
+    RawOptionData test =
+        RawOptionData.ofBlackVolatility(EXPIRIES, STRIKES, ValueType.STRIKE, DATA_SPARSE, ERROR, shift);
+    assertEquals(test.getStrikes(), STRIKES);
+    assertEquals(test.getStrikeType(), ValueType.STRIKE);
+    assertEquals(test.getData(), DATA_SPARSE);
+    assertEquals(test.getDataType(), ValueType.BLACK_VOLATILITY);
+    assertEquals(test.getShift(), OptionalDouble.of(shift));
+    assertEquals(test.getError().get(), ERROR);
   }
 
   //-------------------------------------------------------------------------
@@ -109,8 +136,12 @@ public class RawOptionDataTest {
     expiries2.add(Period.ofYears(1));
     expiries2.add(Period.ofYears(5));
     RawOptionData test2 =
-        RawOptionData.of(expiries2, STRIKES, ValueType.STRIKE, DATA_SPARSE, ValueType.BLACK_VOLATILITY);
+        RawOptionData.of(expiries2, STRIKES, ValueType.STRIKE, DATA_SPARSE, ERROR, ValueType.BLACK_VOLATILITY);
     return test2;
+  }
+
+  static RawOptionData sut3() {
+    return RawOptionData.of(EXPIRIES, MONEYNESS, ValueType.SIMPLE_MONEYNESS, DATA_FULL, ERROR, ValueType.NORMAL_VOLATILITY);
   }
 
 }
