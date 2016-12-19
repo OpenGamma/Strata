@@ -22,10 +22,10 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
-import com.opengamma.strata.pricer.credit.cds.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.cds.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.cds.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.cds.LegalEntitySurvivalProbabilities;
+import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
+import com.opengamma.strata.pricer.credit.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 
 /**
  * {@code CreditRatesProvider} data sets for testing.

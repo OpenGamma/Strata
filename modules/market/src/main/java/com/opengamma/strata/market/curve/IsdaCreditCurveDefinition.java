@@ -78,7 +78,7 @@ public final class IsdaCreditCurveDefinition
    * <p>
    * The nodes are used to find the par rates and calibrate the curve.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends IsdaCreditCurveNode>")
   private final ImmutableList<IsdaCreditCurveNode> curveNodes;
   /**
    * The flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
@@ -103,7 +103,7 @@ public final class IsdaCreditCurveDefinition
       Currency currency,
       LocalDate curveValuationDate,
       DayCount dayCount,
-      List<IsdaCreditCurveNode> curveNodes,
+      List<? extends IsdaCreditCurveNode> curveNodes,
       boolean computeJacobian) {
 
     return new IsdaCreditCurveDefinition(name, currency, curveValuationDate, dayCount, curveNodes, computeJacobian);
@@ -164,7 +164,7 @@ public final class IsdaCreditCurveDefinition
       Currency currency,
       LocalDate curveValuationDate,
       DayCount dayCount,
-      List<IsdaCreditCurveNode> curveNodes,
+      List<? extends IsdaCreditCurveNode> curveNodes,
       boolean computeJacobian) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
@@ -488,7 +488,7 @@ public final class IsdaCreditCurveDefinition
     private Currency currency;
     private LocalDate curveValuationDate;
     private DayCount dayCount;
-    private List<IsdaCreditCurveNode> curveNodes = ImmutableList.of();
+    private List<? extends IsdaCreditCurveNode> curveNodes = ImmutableList.of();
     private boolean computeJacobian;
 
     /**
@@ -535,7 +535,7 @@ public final class IsdaCreditCurveDefinition
           this.dayCount = (DayCount) newValue;
           break;
         case -1863622910:  // curveNodes
-          this.curveNodes = (List<IsdaCreditCurveNode>) newValue;
+          this.curveNodes = (List<? extends IsdaCreditCurveNode>) newValue;
           break;
         case -1730091410:  // computeJacobian
           this.computeJacobian = (Boolean) newValue;
