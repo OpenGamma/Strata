@@ -91,7 +91,7 @@ public final class CurrencyParameterSensitivity
   /**
    * The split of parameters between the underlying parameterized data.
    * <p>
-   * A single {@code UnitParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
+   * A single {@code CurrencyParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
    * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
    * For example, a curve formed from two underlying curves.
    * This list is present, it represents how to split this sensitivity between the underlying instances.
@@ -508,7 +508,7 @@ public final class CurrencyParameterSensitivity
   /**
    * Gets the split of parameters between the underlying parameterized data.
    * <p>
-   * A single {@code UnitParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
+   * A single {@code CurrencyParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
    * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
    * For example, a curve formed from two underlying curves.
    * This list is present, it represents how to split this sensitivity between the underlying instances.
