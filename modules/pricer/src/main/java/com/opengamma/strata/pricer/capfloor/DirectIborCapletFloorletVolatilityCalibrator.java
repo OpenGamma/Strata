@@ -124,7 +124,7 @@ public class DirectIborCapletFloorletVolatilityCalibrator
     // unpack cap data, create node caps
     IborIndex index = directDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
-    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, referenceData);
+    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, getReferenceData());
     LocalDate startDate = baseDate.plus(index.getTenor());
     Function<Surface, IborCapletFloorletVolatilities> volatilitiesFunction = volatilitiesFunction(
         directDefinition, calibrationDateTime, capFloorData);
@@ -257,7 +257,7 @@ public class DirectIborCapletFloorletVolatilityCalibrator
       @Override
       public DoubleArray apply(DoubleArray capletVols) {
         IborCapletFloorletVolatilities newVols = volatilitiesFunction.apply(baseSurface.withZValues(capletVols));
-        return DoubleArray.of(nCaps, n -> pricer.presentValue(capList.get(n), ratesProvider, newVols).getAmount());
+        return DoubleArray.of(nCaps, n -> getLegPricer().presentValue(capList.get(n), ratesProvider, newVols).getAmount());
       }
     };
     return priceFunction;
@@ -279,7 +279,7 @@ public class DirectIborCapletFloorletVolatilityCalibrator
             nCaps,
             nNodes,
             n -> newVols.parameterSensitivity(
-                pricer.presentValueSensitivityModelParamsVolatility(capList.get(n), ratesProvider, newVols).build())
+                getLegPricer().presentValueSensitivityModelParamsVolatility(capList.get(n), ratesProvider, newVols).build())
                 .getSensitivities()
                 .get(0)
                 .getSensitivity());

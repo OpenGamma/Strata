@@ -140,7 +140,7 @@ public class SabrIborCapletFloorletVolatilityCalibrator
     // unpack cap data, create node caps
     IborIndex index = sabrDefinition.getIndex();
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
-    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, referenceData);
+    LocalDate baseDate = index.getEffectiveDateOffset().adjust(calibrationDate, getReferenceData());
     LocalDate startDate = baseDate.plus(index.getTenor());
     Function<Surface, IborCapletFloorletVolatilities> volatilitiesFunction = volatilitiesFunction(
         sabrDefinition, calibrationDateTime, capFloorData);
