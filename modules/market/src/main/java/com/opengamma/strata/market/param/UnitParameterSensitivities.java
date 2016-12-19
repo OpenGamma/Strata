@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.param;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -284,6 +286,24 @@ public final class UnitParameterSensitivities
             Collectors.collectingAndThen(
                 Guavate.toImmutableList(),
                 UnitParameterSensitivities::new));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Splits this sensitivity instance.
+   * <p>
+   * This examines each individual sensitivity to see if it can be {@link CurrencyParameterSensitivity#split() split}.
+   * If any can be split, the result will contain the combination of the split sensitivities.
+   * 
+   * @return this sensitivity, with any combined sensitivities split
+   */
+  public UnitParameterSensitivities split() {
+    if (!sensitivities.stream().anyMatch(s -> s.getParameterSplit().isPresent())) {
+      return this;
+    }
+    return of(sensitivities.stream()
+        .flatMap(s -> s.split().stream())
+        .collect(toImmutableList()));
   }
 
   //-------------------------------------------------------------------------

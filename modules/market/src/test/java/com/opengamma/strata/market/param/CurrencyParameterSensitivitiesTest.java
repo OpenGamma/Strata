@@ -67,6 +67,8 @@ public class CurrencyParameterSensitivitiesTest {
       CurrencyParameterSensitivity.of(NAME0, METADATA0, USD, VECTOR_ZERO);
   private static final CurrencyParameterSensitivity ENTRY_ZERO3 =
       CurrencyParameterSensitivity.of(NAME3, METADATA3, USD, VECTOR_ZERO);
+  private static final CurrencyParameterSensitivity ENTRY_COMBINED =
+      CurrencyParameterSensitivity.combine(NAME3, ENTRY_USD, ENTRY_EUR_IN_USD);
 
   private static final CurrencyParameterSensitivities SENSI_1 = CurrencyParameterSensitivities.of(ENTRY_USD);
   private static final CurrencyParameterSensitivities SENSI_2 =
@@ -216,6 +218,17 @@ public class CurrencyParameterSensitivitiesTest {
     CurrencyParameterSensitivities multiplied = SENSI_2.multipliedBy(2d);
     CurrencyParameterSensitivities added = SENSI_2.combinedWith(SENSI_2);
     assertEquals(multiplied, added);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_split() {
+    CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_COMBINED).split();
+    assertEquals(test, CurrencyParameterSensitivities.of(ENTRY_USD, ENTRY_EUR_IN_USD));
+  }
+
+  public void test_split_noSplit() {
+    CurrencyParameterSensitivities test = SENSI_1.split();
+    assertEquals(test, SENSI_1);
   }
 
   //-------------------------------------------------------------------------
