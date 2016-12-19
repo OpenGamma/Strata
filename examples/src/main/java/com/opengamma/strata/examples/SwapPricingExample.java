@@ -157,7 +157,6 @@ public class SwapPricingExample {
         BuySell.BUY,               // indicates wheter this trade is a buy or sell
         100_000_000,               // the notional amount
         0.015);                    // the fixed interest rate
-
   }
 
   // create a libor 3m vs libor 6m basis swap with spread
