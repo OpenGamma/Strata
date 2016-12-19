@@ -29,49 +29,38 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
   private static final PiecewiseCubicHermiteSplineInterpolator INTERP = new PiecewiseCubicHermiteSplineInterpolator();
 
   @Override
-  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
+  public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(double[] xValues, double[] yValues) {
 
     ArgChecker.notNull(xValues, "xValues");
     ArgChecker.notNull(yValues, "yValues");
-
     ArgChecker.isTrue(xValues.length == yValues.length, "xValues length = yValues length");
     ArgChecker.isTrue(xValues.length > 1, "Data points should be more than 1");
-
-    final int nDataPts = xValues.length;
-
+    int nDataPts = xValues.length;
     for (int i = 0; i < nDataPts; ++i) {
-      ArgChecker.isFalse(Double.isNaN(xValues[i]), "xData containing NaN");
-      ArgChecker.isFalse(Double.isInfinite(xValues[i]), "xData containing Infinity");
-      ArgChecker.isFalse(Double.isNaN(yValues[i]), "yData containing NaN");
-      ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
+      ArgChecker.isTrue(Double.isFinite(xValues[i]), "xData is not finite");
+      ArgChecker.isTrue(Double.isFinite(yValues[i]), "yData is not finite");
     }
-
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
-
     for (int i = 1; i < nDataPts; ++i) {
       ArgChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
     }
 
-    final DoubleMatrix[] temp = solve(xValuesSrt, yValuesSrt);
-
+    DoubleMatrix[] temp = solve(xValuesSrt, yValuesSrt);
     // check the matrices
-    // TODO remove some of these tests
-    ArgChecker.noNulls(temp, "error in solve - some matrices are null");
     int n = temp.length;
-    ArgChecker.isTrue(n == nDataPts, "wrong number of matricies");
     for (int k = 0; k < n; k++) {
       DoubleMatrix m = temp[k];
-      final int rows = m.rowCount();
-      final int cols = m.columnCount();
+      int rows = m.rowCount();
+      int cols = m.columnCount();
       for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
           ArgChecker.isTrue(Doubles.isFinite(m.get(i, j)), "Matrix contains a NaN or infinite");
         }
       }
     }
-
+    // copy
     DoubleMatrix coefMatrix = temp[0];
     DoubleMatrix[] coefMatrixSense = new DoubleMatrix[n - 1];
     System.arraycopy(temp, 1, coefMatrixSense, 0, n - 1);
@@ -84,28 +73,30 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
    * @param yValues Y values of data
    * @return Coefficient matrix whose i-th row vector is {a3, a2, a1, a0} of f(x) = a3 * (x-x_i)^3 + a2 * (x-x_i)^2 +... for the i-th interval
    */
-  private DoubleMatrix[] solve(final double[] xValues, final double[] yValues) {
+  private DoubleMatrix[] solve(double[] xValues, double[] yValues) {
 
-    final int n = xValues.length;
-
+    int n = xValues.length;
     double[][] coeff = new double[n - 1][4];
     double[] h = new double[n - 1];
     double[] delta = new double[n - 1];
     DoubleMatrix[] res = new DoubleMatrix[n];
-
     for (int i = 0; i < n - 1; ++i) {
       h[i] = xValues[i + 1] - xValues[i];
       delta[i] = (yValues[i + 1] - yValues[i]) / h[i];
     }
 
     if (n == 2) {
-      // TODO check this - should be yValues
       coeff[0][2] = delta[0];
-      coeff[0][3] = xValues[0];
+      coeff[0][3] = yValues[0];
+      double[][] coeffSense = new double[4][2];
+      coeffSense[2][1] = 1d / h[0];
+      coeffSense[2][0] = -1d / h[0];
+      coeffSense[3][0] = 1d;
+      res[1] = DoubleMatrix.copyOf(coeffSense);
     } else {
       SlopeFinderResults temp = slopeFinder(h, delta, yValues);
-      final DoubleArray d = temp.getSlopes();
-      final double[][] dDy = temp.getSlopeJacobian().toArray();
+      DoubleArray d = temp.getSlopes();
+      double[][] dDy = temp.getSlopeJacobian().toArray();
 
       // form up the coefficient matrix
       for (int i = 0; i < n - 1; ++i) {
@@ -115,15 +106,12 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         coeff[i][3] = yValues[i];
       }
 
-      // // TODO this would all be a lot nicer if we had multiplication of sparse matrices
-
       double[][] bDy = new double[n - 1][n];
       double[][] cDy = new double[n - 1][n];
-
       for (int i = 0; i < n - 1; i++) {
-        final double invH = 1 / h[i];
-        final double invH2 = invH * invH;
-        final double invH3 = invH * invH2;
+        double invH = 1 / h[i];
+        double invH2 = invH * invH;
+        double invH3 = invH * invH2;
         cDy[i][i] = -3 * invH2;
         cDy[i][i + 1] = 3 * invH2;
         bDy[i][i] = 2 * invH3;
@@ -135,7 +123,6 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
       }
 
       // Now we have to pack this into an array of DoubleMatrix - my kingdom for a tensor class
-      res[0] = DoubleMatrix.copyOf(coeff);
       for (int k = 0; k < n - 1; k++) {
         double[][] coeffSense = new double[4][];
         coeffSense[0] = bDy[k];
@@ -145,8 +132,9 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
         coeffSense[3][k] = 1.0;
         res[k + 1] = DoubleMatrix.copyOf(coeffSense);
       }
-
     }
+
+    res[0] = DoubleMatrix.copyOf(coeff);
     return res;
   }
 
@@ -154,7 +142,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     private final DoubleArray _d;
     private final DoubleMatrix _dDy;
 
-    public SlopeFinderResults(final DoubleArray d, final DoubleMatrix dDy) {
+    public SlopeFinderResults(DoubleArray d, DoubleMatrix dDy) {
       // this is a private class - don't do the normal checks on inputs
       _d = d;
       _dDy = dDy;
@@ -176,41 +164,39 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
    * @param delta 
    * @return slope finder results 
    */
-  private SlopeFinderResults slopeFinder(final double[] h, final double[] delta, final double[] y) {
+  private SlopeFinderResults slopeFinder(double[] h, double[] delta, double[] y) {
     final int n = y.length;
 
-    final double[] invDelta = new double[n - 1];
-    final double[] invDelta2 = new double[n - 1];
-    final double[] invH = new double[n - 1];
+    double[] invDelta = new double[n - 1];
+    double[] invDelta2 = new double[n - 1];
+    double[] invH = new double[n - 1];
     for (int i = 0; i < (n - 1); i++) {
       invDelta[i] = 1 / delta[i];
       invDelta2[i] = invDelta[i] * invDelta[i];
       invH[i] = 1 / h[i];
     }
 
-    final double[] d = new double[n];
-
-    // TODO it would be better if this were a sparse matrix
-    final double[][] jac = new double[n][n];
+    double[] d = new double[n];
+    double[][] jac = new double[n][n];
 
     // internal points
     for (int i = 1; i < n - 1; ++i) {
       if (delta[i] * delta[i - 1] > 0.) {
-        final double w1 = 2. * h[i] + h[i - 1];
-        final double w2 = h[i] + 2. * h[i - 1];
-        final double w12 = w1 + w2;
+        double w1 = 2. * h[i] + h[i - 1];
+        double w2 = h[i] + 2. * h[i - 1];
+        double w12 = w1 + w2;
         d[i] = w12 / (w1 * invDelta[i - 1] + w2 * invDelta[i]);
 
-        final double z1 = d[i] * d[i] / w12;
+        double z1 = d[i] * d[i] / w12;
         jac[i][i - 1] = -w1 * invH[i - 1] * invDelta2[i - 1] * z1;
         jac[i][i] = (w1 * invH[i - 1] * invDelta2[i - 1] - w2 * invH[i] * invDelta2[i]) * z1;
         jac[i][i + 1] = w2 * invH[i] * invDelta2[i] * z1;
       } else if (delta[i] == 0 ^ delta[i - 1] == 0) {
         // d is zero, so we don't explicitly set it
-        final double w1 = 2. * h[i] + h[i - 1];
-        final double w2 = h[i] + 2. * h[i - 1];
-        final double w12 = w1 + w2;
-        final double z2 = 0.5 * w12 / FunctionUtils.square(w1 * delta[i] + w2 * delta[i - 1]);
+        double w1 = 2. * h[i] + h[i - 1];
+        double w2 = h[i] + 2. * h[i - 1];
+        double w12 = w1 + w2;
+        double z2 = 0.5 * w12 / FunctionUtils.square(w1 * delta[i] + w2 * delta[i - 1]);
         jac[i][i - 1] = -w1 * invH[i - 1] * delta[i] * delta[i] * z2;
         jac[i][i] = (w1 * invH[i - 1] * delta[i] * delta[i] - w2 * invH[i] * delta[i - 1] * delta[i - 1]) * z2;
         jac[i][i + 1] = w2 * invH[i] * delta[i - 1] * delta[i - 1] * z2;
@@ -241,9 +227,9 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
    * @param y3
    * @return array of length 4 - the first element contains d, while the other three are sensitivities to the ys 
    */
-  private double[] endpointSlope(final double h1, final double h2, final double del1, final double del2, final boolean rightSide) {
+  private double[] endpointSlope(double h1, double h2, double del1, double del2, boolean rightSide) {
 
-    final double[] res = new double[4];
+    double[] res = new double[4];
 
     if (del1 == 0.0) { // quick exist for particular edge case
       // d and dDy3 are both zero - no need to explicitly set
@@ -266,7 +252,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     }
 
     // This value is used in the clauses - may not be the returned value
-    final double d = ((2. * h1 + h2) * del1 - h1 * del2) / (h1 + h2);
+    double d = ((2. * h1 + h2) * del1 - h1 * del2) / (h1 + h2);
 
     if (Math.signum(d) != Math.signum(del1)) {
       // again d is now set to zero

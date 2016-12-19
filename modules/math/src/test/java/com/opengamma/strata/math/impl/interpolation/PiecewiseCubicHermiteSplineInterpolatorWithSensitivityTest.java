@@ -107,7 +107,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     for (int example = 0; example < nExamples; example++) {
       PiecewisePolynomialResultsWithSensitivity pp = PCHIP_S.interpolateWithSensitivity(X, Y[example]);
 
-      DoubleArray[] fdRes = fdSenseCal(Y[example], XX);
+      DoubleArray[] fdRes = fdSenseCal(X, Y[example], XX);
 
       for (int i = 0; i < n; i++) {
         DoubleArray res = PPVAL_S.nodeSensitivity(pp, XX[i]);
@@ -118,22 +118,35 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     }
   }
 
-  private DoubleArray[] fdSenseCal(final double[] yValues, final double[] xx) {
-    final int nData = yValues.length;
+  public void sensitivityTwoNodeTest() {
+    int n = XX.length;
+    double[] xValues = new double[] {-0.2, 3.63};
+    double[] yValues = new double[] {4.67, -1.22};
+    PiecewisePolynomialResultsWithSensitivity pp = PCHIP_S.interpolateWithSensitivity(xValues, yValues);
+    DoubleArray[] fdRes = fdSenseCal(xValues, yValues, XX);
+    for (int i = 0; i < n; i++) {
+      DoubleArray res = PPVAL_S.nodeSensitivity(pp, XX[i]);
+      for (int j = 0; j < 2; j++) {
+        assertEquals(fdRes[j].get(i), res.get(j), 1e-4);
+      }
+    }
+  }
 
-    final double eps = 1e-6;
-    final double scale = 0.5 / eps;
-    final DoubleArray[] res = new DoubleArray[nData];
+  private DoubleArray[] fdSenseCal(double[] xValues, double[] yValues, double[] xx) {
+    int nData = yValues.length;
+    double eps = 1e-6;
+    double scale = 0.5 / eps;
+    DoubleArray[] res = new DoubleArray[nData];
     double[] temp = new double[nData];
     PiecewisePolynomialResult pp;
     for (int i = 0; i < nData; i++) {
       System.arraycopy(yValues, 0, temp, 0, nData);
       temp[i] += eps;
-      pp = PCHIP.interpolate(X, temp);
-      final DoubleArray yUp = PPVAL.evaluate(pp, xx).row(0);
+      pp = PCHIP.interpolate(xValues, temp);
+      DoubleArray yUp = PPVAL.evaluate(pp, xx).row(0);
       temp[i] -= 2 * eps;
-      pp = PCHIP.interpolate(X, temp);
-      final DoubleArray yDown = PPVAL.evaluate(pp, xx).row(0);
+      pp = PCHIP.interpolate(xValues, temp);
+      DoubleArray yDown = PPVAL.evaluate(pp, xx).row(0);
       res[i] = (DoubleArray) MA.scale(MA.subtract(yUp, yDown), scale);
     }
     return res;

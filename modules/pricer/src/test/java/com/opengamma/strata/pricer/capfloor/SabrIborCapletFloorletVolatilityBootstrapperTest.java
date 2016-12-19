@@ -34,9 +34,6 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
 
   private static final SabrIborCapletFloorletVolatilityBootstrapper CALIBRATOR =
       SabrIborCapletFloorletVolatilityBootstrapper.DEFAULT;
-  private static final BlackIborCapFloorLegPricer LEG_PRICER_BLACK = BlackIborCapFloorLegPricer.DEFAULT;
-  private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
-  private static final SabrIborCapFloorLegPricer LEG_PRICER_SABR = SabrIborCapFloorLegPricer.DEFAULT;
   private static final double TOL = 1.0e-3;
 
   public void test_recovery_black() {

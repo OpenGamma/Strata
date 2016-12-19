@@ -143,7 +143,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
 
     if (nDataPts == 2) {
       res[0][2] = grads[0];
-      res[0][3] = xValues[0];
+      res[0][3] = yValues[0];
     } else {
       double[] derivatives = slopeFinder(intervals, grads);
       for (int i = 0; i < nDataPts - 1; ++i) {

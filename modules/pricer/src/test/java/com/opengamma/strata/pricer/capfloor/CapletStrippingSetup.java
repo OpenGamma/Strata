@@ -44,6 +44,10 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
  */
 public class CapletStrippingSetup {
 
+  protected static final BlackIborCapFloorLegPricer LEG_PRICER_BLACK = BlackIborCapFloorLegPricer.DEFAULT;
+  protected static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
+  protected static final SabrIborCapFloorLegPricer LEG_PRICER_SABR = SabrIborCapFloorLegPricer.DEFAULT;
+
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double[] FWD_CURVE_NODES = new double[] {
       0.0438356164383561, 0.0876712328767123, 0.172602739726027, 0.254794520547945, 0.506849315068493, 0.758904109589041,
