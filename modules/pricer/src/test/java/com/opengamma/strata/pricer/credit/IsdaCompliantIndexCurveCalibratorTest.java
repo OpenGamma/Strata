@@ -48,7 +48,6 @@ import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.LegalEntityInformation;
 import com.opengamma.strata.market.observable.LegalEntityInformationId;
 import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.pricer.credit.IsdaCompliantIndexCurveCalibrator;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.ImmutableCdsConvention;
@@ -116,7 +115,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     LEGAL_ENTITIES = legalEntityIdsbuilder.build();
     Builder<CdsIndexIsdaCreditCurveNode> curveNodesBuilder = ImmutableList.builder();
     Builder<CdsIndexIsdaCreditCurveNode> curveNodesPsBuilder = ImmutableList.builder();
-    for (int i=0;i<NUM_PILLARS;++i){
+    for (int i = 0; i < NUM_PILLARS; ++i) {
       QuoteId id = QuoteId.of(StandardId.of("OG", INDEX_TENORS[i].toString()));
       CdsTemplate temp = TenorCdsTemplate.of(INDEX_TENORS[i], CONVENTION);
       curveNodesBuilder.add(CdsIndexIsdaCreditCurveNode.ofPointsUpfront(temp, id, INDEX_ID, LEGAL_ENTITIES, COUPON));
@@ -124,7 +123,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
       marketDataBuilder.addValue(id, PUF_QUOTES[i]);
       marketDataPsBuilder.addValue(id, PS_QUOTES[i]);
     }
-    CURVE_NODES = curveNodesBuilder.build(); 
+    CURVE_NODES = curveNodesBuilder.build();
     MARKET_DATA = marketDataBuilder.build();
     CURVE_NODES_PS = curveNodesPsBuilder.build();
     MARKET_DATA_PS = marketDataPsBuilder.build();
@@ -204,7 +203,6 @@ public class IsdaCompliantIndexCurveCalibratorTest {
 
     int nNode = nodes.size();
     IsdaCompliantZeroRateDiscountFactors df = (IsdaCompliantZeroRateDiscountFactors) curve.getSurvivalProbabilities();
-    CurveName name = df.getCurve().getName();
     int nCurveNode = df.getParameterCount();
     for (int i = 0; i < nCurveNode; ++i) {
       double[] quotesUp = Arrays.copyOf(quotes, nNode);

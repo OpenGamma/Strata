@@ -21,9 +21,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendarId;
-import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 
@@ -32,9 +29,6 @@ import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
  */
 @Test
 public class CdsIndexCalibrationTradeTest {
-  private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
-  private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
-  private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
   private static final StandardId INDEX_ID = StandardId.of("OG", "ABCXX");
   private static final ImmutableList<StandardId> LEGAL_ENTITIES =
       ImmutableList.of(StandardId.of("OG", "ABC1"), StandardId.of("OG", "ABC2"), StandardId.of("OG", "ABC3"));
@@ -78,7 +72,7 @@ public class CdsIndexCalibrationTradeTest {
   }
 
   public void test_serialization_trade() {
-    CdsIndexCalibrationTrade test = CdsIndexCalibrationTrade.of(TRADE, QUOTE1);
+    CdsIndexCalibrationTrade test = CdsIndexCalibrationTrade.of(TRADE, QUOTE3);
     assertSerialization(test);
   }
 
