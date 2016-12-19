@@ -125,6 +125,15 @@ CAD-CDOR-3M,CAD,true,Act/365F,CATO,0,CATO,CATO,3M,None,10:15,America/Toronto
 CAD-CDOR-6M,CAD,true,Act/365F,CATO,0,CATO,CATO,6M,None,10:15,America/Toronto
 CAD-CDOR-12M,CAD,true,Act/365F,CATO,0,CATO,CATO,12M,None,10:15,America/Toronto
 ,,,,,,,,,,,
+CZK-PRIBOR-1W,CZK,true,Act/360,CZPR,2,CZPR,CZPR,1W,None,11:00,Europe/Prague
+CZK-PRIBOR-2W,CZK,true,Act/360,CZPR,2,CZPR,CZPR,2W,None,11:00,Europe/Prague
+CZK-PRIBOR-1M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,1M,None,11:00,Europe/Prague
+CZK-PRIBOR-2M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,2M,None,11:00,Europe/Prague
+CZK-PRIBOR-3M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,3M,None,11:00,Europe/Prague
+CZK-PRIBOR-6M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,6M,None,11:00,Europe/Prague
+CZK-PRIBOR-9M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,9M,None,11:00,Europe/Prague
+CZK-PRIBOR-12M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,12M,None,11:00,Europe/Prague
+,,,,,,,,,,,
 DKK-CIBOR-1W,DKK,true,Act/360,DKCO,0,DKCO,DKCO,1W,None,11:00,Europe/Copenhagen
 DKK-CIBOR-2W,DKK,true,Act/360,DKCO,0,DKCO,DKCO,2W,None,11:00,Europe/Copenhagen
 DKK-CIBOR-1M,DKK,true,Act/360,DKCO,0,DKCO,DKCO,1M,None,11:00,Europe/Copenhagen

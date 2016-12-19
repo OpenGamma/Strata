@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.CZK;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -22,6 +23,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CZPR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
@@ -367,6 +369,20 @@ public class IborIndexTest {
         TenorAdjustment.of(TENOR_6M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-6M");
+  }
+
+  public void test_czk_pribor() {
+    IborIndex test = IborIndex.of("CZK-PRIBOR-3M");
+    assertEquals(test.getCurrency(), CZK);
+    assertEquals(test.getName(), "CZK-PRIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), CZPR);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, CZPR));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, CZPR));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, CZPR)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "CZK-PRIBOR-3M");
   }
 
   public void test_dkk_cibor() {

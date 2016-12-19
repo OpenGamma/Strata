@@ -137,6 +137,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId CATO = HolidayCalendarId.of("CATO");
   /**
+   * An identifier for the holiday calendar of Prague, Czech Republic, with code 'CZPR'.
+   * <p>
+   * This constant references the calendar for Prague bank holidays.
+   */
+  public static final HolidayCalendarId CZPR = HolidayCalendarId.of("CZPR");
+  /**
    * An identifier for the holiday calendar of Copenhagen, Denmark, with code 'DKCO'.
    * <p>
    * This constant references the calendar for Copenhagen bank holidays.
