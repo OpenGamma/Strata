@@ -61,7 +61,7 @@ import com.opengamma.strata.pricer.option.RawOptionData;
  * The SABR parameters are represented by {@code NodalCurve} and the node positions on the curves are flexible.
  * <p>
  * Either rho or beta must be fixed. 
- * Then the calibration is computed to the other three SABR parameter curves.
+ * Then the calibration is computed in terms of the other three SABR parameter curves.
  * The resulting volatilities object will be {@link SabrParametersIborCapletFloorletVolatilities}.
  */
 @BeanDefinition
@@ -89,6 +89,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * This represents the beta parameter of SABR model.
    * <p>
    * The beta will be treated as one of the calibration parameters if this field is not specified.
+   * Either {@code betaCurve} or {@code rhoCurve} must be present. 
    */
   @PropertyDefinition(get = "optional")
   private final Curve betaCurve;
@@ -98,6 +99,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * This represents the rho parameter of SABR model.
    * <p>
    * The rho will be treated as one of the calibration parameters if this field is not specified.
+   * Either {@code betaCurve} or {@code rhoCurve} must be present. 
    */
   @PropertyDefinition(get = "optional")
   private final Curve rhoCurve;
@@ -114,7 +116,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * The nodes of SABR parameter curves.
    * <p>
    * The size of the list must be 4, ordered as alpha, beta, rho and nu. 
-   * The second element corresponding to beta will be ignored if beta is fixed, i.e., {@code betaCurve} is present.
    * <p>
    * If the number of nodes is greater than 1, the curve will be created with {@code CurveInterpolator} and 
    * {@code CurveExtrapolator} specified below. Otherwise, {@code ConstantNodalCurve} will be created.
@@ -125,7 +126,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * The initial parameter values used in calibration. 
    * <p>
    * Default values will be used if not specified. 
-   * The size of this field must be 4, regardless of fixed or not, ordered as alpha, beta, rho and nu. 
+   * The size of this field must be 4, ordered as alpha, beta, rho and nu. 
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray initialParameters;
@@ -255,7 +256,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * Obtains an instance with fixed beta, nonzero shift and initial values.
    * <p>
    * The beta and shift are constant in time.
-   * The default initial values will be used in the calibration.
    * 
    * @param name  the name of volatilities
    * @param index  the Ibor index
@@ -307,7 +307,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * Obtains an instance with fixed beta, zero shift and initial values.
    * <p>
    * The beta and shift are constant in time.
-   * The default initial values will be used in the calibration.
    * 
    * @param name  the name of volatilities
    * @param index  the Ibor index
@@ -454,7 +453,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * Obtains an instance with fixed rho, nonzero shift and initial values.
    * <p>
    * The rho and shift are constant in time.
-   * The default initial values will be used in the calibration.
    * 
    * @param name  the name of volatilities
    * @param index  the Ibor index
@@ -506,7 +504,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * Obtains an instance with fixed rho, zero shift and initial values.
    * <p>
    * The rho is constant in time.
-   * The default initial values will be used in the calibration.
    * 
    * @param name  the name of volatilities
    * @param index  the Ibor index
@@ -584,7 +581,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
   /**
    * Creates curve metadata for SABR parameters.
    * <p>
-   * The metadata in the list are order as alpha, beta, rho, then nu.  
+   * The metadata in the list are ordered as alpha, beta, rho, then nu.  
    * 
    * @return the curve metadata
    */
@@ -599,9 +596,12 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
   /**
    * Creates the parameter curves with parameter node values. 
    * <p>
-   * The node values must be combined nodes ordered as alpha, beta (if beta is not fixed), rho, then nu. 
-   * The returned curves are ordered in the same manner. 
+   * The node values must be combined nodes ordered as 
+   * alpha, beta (if beta is not fixed), rho (if rho is not fixed), then nu. 
+   * <p>
+   * The returned curves are ordered in the same way. 
    * If the beta is fixed, {@code betaCurve} is returned as the second element.
+   * If the rho is fixed, {@code rhoCurve} is returned as the third element.
    * 
    * @param metadata  the metadata
    * @param nodeValues  the parameter node values 
@@ -663,8 +663,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
 
   /**
    * Create initial values for all the curve parameters. 
-   * <p>
-   * Default values are used if {@code initialParameters} is not specified.
    * 
    * @return the initial values
    */
@@ -802,6 +800,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * This represents the beta parameter of SABR model.
    * <p>
    * The beta will be treated as one of the calibration parameters if this field is not specified.
+   * Either {@code betaCurve} or {@code rhoCurve} must be present.
    * @return the optional value of the property, not null
    */
   public Optional<Curve> getBetaCurve() {
@@ -815,6 +814,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * This represents the rho parameter of SABR model.
    * <p>
    * The rho will be treated as one of the calibration parameters if this field is not specified.
+   * Either {@code betaCurve} or {@code rhoCurve} must be present.
    * @return the optional value of the property, not null
    */
   public Optional<Curve> getRhoCurve() {
@@ -839,7 +839,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * Gets the nodes of SABR parameter curves.
    * <p>
    * The size of the list must be 4, ordered as alpha, beta, rho and nu.
-   * The second element corresponding to beta will be ignored if beta is fixed, i.e., {@code betaCurve} is present.
    * <p>
    * If the number of nodes is greater than 1, the curve will be created with {@code CurveInterpolator} and
    * {@code CurveExtrapolator} specified below. Otherwise, {@code ConstantNodalCurve} will be created.
@@ -854,7 +853,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
    * Gets the initial parameter values used in calibration.
    * <p>
    * Default values will be used if not specified.
-   * The size of this field must be 4, regardless of fixed or not, ordered as alpha, beta, rho and nu.
+   * The size of this field must be 4, ordered as alpha, beta, rho and nu.
    * @return the value of the property, not null
    */
   public DoubleArray getInitialParameters() {
@@ -1456,6 +1455,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
      * This represents the beta parameter of SABR model.
      * <p>
      * The beta will be treated as one of the calibration parameters if this field is not specified.
+     * Either {@code betaCurve} or {@code rhoCurve} must be present.
      * @param betaCurve  the new value
      * @return this, for chaining, not null
      */
@@ -1470,6 +1470,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
      * This represents the rho parameter of SABR model.
      * <p>
      * The rho will be treated as one of the calibration parameters if this field is not specified.
+     * Either {@code betaCurve} or {@code rhoCurve} must be present.
      * @param rhoCurve  the new value
      * @return this, for chaining, not null
      */
@@ -1497,7 +1498,6 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
      * Sets the nodes of SABR parameter curves.
      * <p>
      * The size of the list must be 4, ordered as alpha, beta, rho and nu.
-     * The second element corresponding to beta will be ignored if beta is fixed, i.e., {@code betaCurve} is present.
      * <p>
      * If the number of nodes is greater than 1, the curve will be created with {@code CurveInterpolator} and
      * {@code CurveExtrapolator} specified below. Otherwise, {@code ConstantNodalCurve} will be created.
@@ -1524,7 +1524,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
      * Sets the initial parameter values used in calibration.
      * <p>
      * Default values will be used if not specified.
-     * The size of this field must be 4, regardless of fixed or not, ordered as alpha, beta, rho and nu.
+     * The size of this field must be 4, ordered as alpha, beta, rho and nu.
      * @param initialParameters  the new value, not null
      * @return this, for chaining, not null
      */

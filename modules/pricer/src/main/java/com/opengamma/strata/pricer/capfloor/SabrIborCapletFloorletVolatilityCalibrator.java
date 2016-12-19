@@ -47,7 +47,9 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 /**
  * Caplet volatilities calibration to cap volatilities based on SABR model.
  * <p>
- * The SABR parameters are represented by {@code NodalCurve} and the node positions on the curves are flexible.
+ * The SABR parameters are represented by {@code NodalCurve}. 
+ * The node positions on the individual curves are flexible 
+ * and defined in  {@code SabrIborCapletFloorletVolatilityCalibrationDefinition}.
  * The resulting volatilities object will be {@link SabrParametersIborCapletFloorletVolatilities}.
  * <p>
  * The calibration to SABR is computed once the option volatility date is converted to prices. 

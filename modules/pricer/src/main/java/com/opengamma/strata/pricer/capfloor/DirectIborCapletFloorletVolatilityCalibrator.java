@@ -39,7 +39,8 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
  * Caplet volatilities calibration to cap volatilities. 
  * <p>
  * The volatilities of the constituent caplets in the market caps are "model parameters"  
- * and calibrated to the market data under a certain penalty constraint.
+ * and calibrated to the market data under the penalty constraint.
+ * The penalty is based on the second-order finite difference differentiation along the strike and expiry dimensions.
  * <p>
  * If the shift curve is not present in {@code DirectIborCapletFloorletVolatilityDefinition}, 
  * the resultant volatility type is the same as the input volatility type. e.g., 
