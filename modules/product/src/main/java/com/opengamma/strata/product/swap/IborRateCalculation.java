@@ -155,6 +155,20 @@ public final class IborRateCalculation
   @PropertyDefinition(get = "optional")
   private final Double firstRegularRate;
   /**
+   * The offset of the first fixing date from the first adjusted reset date, optional.
+   * <p>
+   * If present, this offset is used instead of {@code fixingDateOffset} for the first
+   * reset period of the swap, which will be either an initial stub or the first reset
+   * period of the first <i>regular</i> accrual period.
+   * <p>
+   * The offset is applied to the base date specified by {@code fixingRelativeTo}.
+   * The offset is typically a negative number of business days.
+   * <p>
+   * If this property is not present, then the {@code fixingDateOffset} applies to all fixings.
+   */
+  @PropertyDefinition(get = "optional")
+  private final DaysAdjustment firstFixingDateOffset;
+  /**
    * The rate to be used in initial stub, optional.
    * <p>
    * The initial stub of a swap may have different rate rules to the regular accrual periods.
@@ -318,6 +332,9 @@ public final class IborRateCalculation
       ReferenceData refData) {
 
     LocalDate fixingDate = fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(period));
+    if (scheduleIndex == 0 && firstFixingDateOffset != null) {
+      fixingDate = firstFixingDateOffset.resolve(refData).adjust(fixingRelativeTo.selectBaseDate(period));
+    }
     // handle stubs
     if (scheduleInitialStub.isPresent() && scheduleInitialStub.get() == period) {
       return initialStub.createRateComputation(fixingDate, index, refData);
@@ -331,7 +348,9 @@ public final class IborRateCalculation
           resetScheduleFn.apply(period),
           fixingDateAdjuster,
           iborObservationFn,
-          isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()));
+          scheduleIndex,
+          isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()),
+          refData);
     }
     // handle possible fixed rate
     if (firstRegularRate != null && isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent())) {
@@ -346,12 +365,17 @@ public final class IborRateCalculation
       Schedule resetSchedule,
       DateAdjuster fixingDateAdjuster,
       Function<LocalDate, IborIndexObservation> iborObservationFn,
-      boolean firstRegular) {
+      int scheduleIndex,
+      boolean firstRegular,
+      ReferenceData refData) {
 
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < resetSchedule.size(); i++) {
       SchedulePeriod resetPeriod = resetSchedule.getPeriod(i);
       LocalDate fixingDate = fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(resetPeriod));
+      if (scheduleIndex == 0 && i == 0 && firstFixingDateOffset != null) {
+        fixingDate = firstFixingDateOffset.resolve(refData).adjust(fixingRelativeTo.selectBaseDate(resetPeriod));
+      }
       fixings.add(IborAveragedFixing.builder()
           .observation(iborObservationFn.apply(fixingDate))
           .fixedRate(firstRegular && i == 0 ? firstRegularRate : null)
@@ -405,6 +429,7 @@ public final class IborRateCalculation
       DaysAdjustment fixingDateOffset,
       NegativeRateMethod negativeRateMethod,
       Double firstRegularRate,
+      DaysAdjustment firstFixingDateOffset,
       IborRateStubCalculation initialStub,
       IborRateStubCalculation finalStub,
       ValueSchedule gearing,
@@ -421,6 +446,7 @@ public final class IborRateCalculation
     this.fixingDateOffset = fixingDateOffset;
     this.negativeRateMethod = negativeRateMethod;
     this.firstRegularRate = firstRegularRate;
+    this.firstFixingDateOffset = firstFixingDateOffset;
     this.initialStub = initialStub;
     this.finalStub = finalStub;
     this.gearing = gearing;
@@ -552,6 +578,24 @@ public final class IborRateCalculation
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the offset of the first fixing date from the first adjusted reset date, optional.
+   * <p>
+   * If present, this offset is used instead of {@code fixingDateOffset} for the first
+   * reset period of the swap, which will be either an initial stub or the first reset
+   * period of the first <i>regular</i> accrual period.
+   * <p>
+   * The offset is applied to the base date specified by {@code fixingRelativeTo}.
+   * The offset is typically a negative number of business days.
+   * <p>
+   * If this property is not present, then the {@code fixingDateOffset} applies to all fixings.
+   * @return the optional value of the property, not null
+   */
+  public Optional<DaysAdjustment> getFirstFixingDateOffset() {
+    return Optional.ofNullable(firstFixingDateOffset);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the rate to be used in initial stub, optional.
    * <p>
    * The initial stub of a swap may have different rate rules to the regular accrual periods.
@@ -648,6 +692,7 @@ public final class IborRateCalculation
           JodaBeanUtils.equal(fixingDateOffset, other.fixingDateOffset) &&
           JodaBeanUtils.equal(negativeRateMethod, other.negativeRateMethod) &&
           JodaBeanUtils.equal(firstRegularRate, other.firstRegularRate) &&
+          JodaBeanUtils.equal(firstFixingDateOffset, other.firstFixingDateOffset) &&
           JodaBeanUtils.equal(initialStub, other.initialStub) &&
           JodaBeanUtils.equal(finalStub, other.finalStub) &&
           JodaBeanUtils.equal(gearing, other.gearing) &&
@@ -666,6 +711,7 @@ public final class IborRateCalculation
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(negativeRateMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(firstFixingDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(initialStub);
     hash = hash * 31 + JodaBeanUtils.hashCode(finalStub);
     hash = hash * 31 + JodaBeanUtils.hashCode(gearing);
@@ -675,7 +721,7 @@ public final class IborRateCalculation
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(384);
+    StringBuilder buf = new StringBuilder(416);
     buf.append("IborRateCalculation{");
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
@@ -684,6 +730,7 @@ public final class IborRateCalculation
     buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(negativeRateMethod).append(',').append(' ');
     buf.append("firstRegularRate").append('=').append(firstRegularRate).append(',').append(' ');
+    buf.append("firstFixingDateOffset").append('=').append(firstFixingDateOffset).append(',').append(' ');
     buf.append("initialStub").append('=').append(initialStub).append(',').append(' ');
     buf.append("finalStub").append('=').append(finalStub).append(',').append(' ');
     buf.append("gearing").append('=').append(gearing).append(',').append(' ');
@@ -738,6 +785,11 @@ public final class IborRateCalculation
     private final MetaProperty<Double> firstRegularRate = DirectMetaProperty.ofImmutable(
         this, "firstRegularRate", IborRateCalculation.class, Double.class);
     /**
+     * The meta-property for the {@code firstFixingDateOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> firstFixingDateOffset = DirectMetaProperty.ofImmutable(
+        this, "firstFixingDateOffset", IborRateCalculation.class, DaysAdjustment.class);
+    /**
      * The meta-property for the {@code initialStub} property.
      */
     private final MetaProperty<IborRateStubCalculation> initialStub = DirectMetaProperty.ofImmutable(
@@ -769,6 +821,7 @@ public final class IborRateCalculation
         "fixingDateOffset",
         "negativeRateMethod",
         "firstRegularRate",
+        "firstFixingDateOffset",
         "initialStub",
         "finalStub",
         "gearing",
@@ -797,6 +850,8 @@ public final class IborRateCalculation
           return negativeRateMethod;
         case 570227148:  // firstRegularRate
           return firstRegularRate;
+        case 2022439998:  // firstFixingDateOffset
+          return firstFixingDateOffset;
         case 1233359378:  // initialStub
           return initialStub;
         case 355242820:  // finalStub
@@ -882,6 +937,14 @@ public final class IborRateCalculation
     }
 
     /**
+     * The meta-property for the {@code firstFixingDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> firstFixingDateOffset() {
+      return firstFixingDateOffset;
+    }
+
+    /**
      * The meta-property for the {@code initialStub} property.
      * @return the meta-property, not null
      */
@@ -931,6 +994,8 @@ public final class IborRateCalculation
           return ((IborRateCalculation) bean).getNegativeRateMethod();
         case 570227148:  // firstRegularRate
           return ((IborRateCalculation) bean).firstRegularRate;
+        case 2022439998:  // firstFixingDateOffset
+          return ((IborRateCalculation) bean).firstFixingDateOffset;
         case 1233359378:  // initialStub
           return ((IborRateCalculation) bean).initialStub;
         case 355242820:  // finalStub
@@ -967,6 +1032,7 @@ public final class IborRateCalculation
     private DaysAdjustment fixingDateOffset;
     private NegativeRateMethod negativeRateMethod;
     private Double firstRegularRate;
+    private DaysAdjustment firstFixingDateOffset;
     private IborRateStubCalculation initialStub;
     private IborRateStubCalculation finalStub;
     private ValueSchedule gearing;
@@ -991,6 +1057,7 @@ public final class IborRateCalculation
       this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
       this.firstRegularRate = beanToCopy.firstRegularRate;
+      this.firstFixingDateOffset = beanToCopy.firstFixingDateOffset;
       this.initialStub = beanToCopy.initialStub;
       this.finalStub = beanToCopy.finalStub;
       this.gearing = beanToCopy.gearing;
@@ -1015,6 +1082,8 @@ public final class IborRateCalculation
           return negativeRateMethod;
         case 570227148:  // firstRegularRate
           return firstRegularRate;
+        case 2022439998:  // firstFixingDateOffset
+          return firstFixingDateOffset;
         case 1233359378:  // initialStub
           return initialStub;
         case 355242820:  // finalStub
@@ -1051,6 +1120,9 @@ public final class IborRateCalculation
           break;
         case 570227148:  // firstRegularRate
           this.firstRegularRate = (Double) newValue;
+          break;
+        case 2022439998:  // firstFixingDateOffset
+          this.firstFixingDateOffset = (DaysAdjustment) newValue;
           break;
         case 1233359378:  // initialStub
           this.initialStub = (IborRateStubCalculation) newValue;
@@ -1105,6 +1177,7 @@ public final class IborRateCalculation
           fixingDateOffset,
           negativeRateMethod,
           firstRegularRate,
+          firstFixingDateOffset,
           initialStub,
           finalStub,
           gearing,
@@ -1232,6 +1305,25 @@ public final class IborRateCalculation
     }
 
     /**
+     * Sets the offset of the first fixing date from the first adjusted reset date, optional.
+     * <p>
+     * If present, this offset is used instead of {@code fixingDateOffset} for the first
+     * reset period of the swap, which will be either an initial stub or the first reset
+     * period of the first <i>regular</i> accrual period.
+     * <p>
+     * The offset is applied to the base date specified by {@code fixingRelativeTo}.
+     * The offset is typically a negative number of business days.
+     * <p>
+     * If this property is not present, then the {@code fixingDateOffset} applies to all fixings.
+     * @param firstFixingDateOffset  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder firstFixingDateOffset(DaysAdjustment firstFixingDateOffset) {
+      this.firstFixingDateOffset = firstFixingDateOffset;
+      return this;
+    }
+
+    /**
      * Sets the rate to be used in initial stub, optional.
      * <p>
      * The initial stub of a swap may have different rate rules to the regular accrual periods.
@@ -1313,7 +1405,7 @@ public final class IborRateCalculation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(384);
+      StringBuilder buf = new StringBuilder(416);
       buf.append("IborRateCalculation.Builder{");
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
@@ -1322,6 +1414,7 @@ public final class IborRateCalculation
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
       buf.append("firstRegularRate").append('=').append(JodaBeanUtils.toString(firstRegularRate)).append(',').append(' ');
+      buf.append("firstFixingDateOffset").append('=').append(JodaBeanUtils.toString(firstFixingDateOffset)).append(',').append(' ');
       buf.append("initialStub").append('=').append(JodaBeanUtils.toString(initialStub)).append(',').append(' ');
       buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');

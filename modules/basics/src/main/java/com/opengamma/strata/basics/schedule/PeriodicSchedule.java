@@ -774,7 +774,7 @@ public final class PeriodicSchedule
   }
 
   // calculates the applicable start date
-  // applies rule to handle misuse of EOM to mean last business day for startDate
+  // applies de facto rule where EOM means last business day for startDate
   // and similar rule for numeric roll conventions
   // http://www.fpml.org/forums/topic/can-a-roll-convention-imply-a-stub/#post-7659
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
