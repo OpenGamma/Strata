@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -203,12 +204,13 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     double[] coupons = new double[nNodes];
     double[] pufs = new double[nNodes];
     double[][] diag = new double[nNodes][nNodes];
-    ResolvedCdsTrade[] trades = new ResolvedCdsTrade[nNodes];
+    Builder<ResolvedCdsTrade> tradesBuilder = ImmutableList.builder();
     for (int i = 0; i < nNodes; i++) {
       CdsCalibrationTrade tradeCalibration = curveNodes.get(i).trade(1d, marketData, refData);
-      trades[i] = tradeCalibration.getUnderlyingTrade().resolve(refData);
+      ResolvedCdsTrade trade = tradeCalibration.getUnderlyingTrade().resolve(refData);
+      tradesBuilder.add(trade);
       double[] temp = getStandardQuoteForm(
-          trades[i],
+          trade,
           tradeCalibration.getQuote(),
           valuationDate,
           discountFactors,
@@ -219,8 +221,16 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       pufs[i] = temp[1];
       diag[i][i] = temp[2];
     }
+    ImmutableList<ResolvedCdsTrade> trades = tradesBuilder.build();
     NodalCurve nodalCurve = calibrate(
-        trades, coupons, pufs, name, valuationDate, discountFactors, recoveryRates, refData);
+        trades,
+        DoubleArray.ofUnsafe(coupons),
+        DoubleArray.ofUnsafe(pufs),
+        name,
+        valuationDate,
+        discountFactors,
+        recoveryRates,
+        refData);
 
     if (computeJacobian) {
       LegalEntitySurvivalProbabilities creditCurve = LegalEntitySurvivalProbabilities.of(
@@ -231,7 +241,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       Function<ResolvedCdsTrade, DoubleArray> sensiFunc = quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)
           ? getParSpreadSensitivityFunction(ratesProviderNew, refData)
           : getPointsUpfrontSensitivityFunction(ratesProviderNew, refData);
-      DoubleMatrix sensi = DoubleMatrix.ofArrayObjects(nNodes, nNodes, i -> sensiFunc.apply(trades[i]));
+      DoubleMatrix sensi = DoubleMatrix.ofArrayObjects(nNodes, nNodes, i -> sensiFunc.apply(trades.get(i)));
       sensi = (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(diag), sensi);
       JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
           ImmutableList.of(CurveParameterSize.of(name, nNodes)), MATRIX_ALGEBRA.getInverse(sensi));
@@ -271,9 +281,9 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
   }
 
   abstract NodalCurve calibrate(
-      ResolvedCdsTrade[] calibrationCDSs,
-      double[] flactionalSpreads,
-      double[] pointsUpfront,
+      List<ResolvedCdsTrade> calibrationCDSs,
+      DoubleArray flactionalSpreads,
+      DoubleArray pointsUpfront,
       CurveName name,
       LocalDate valuationDate,
       CreditDiscountFactors discountFactors,
@@ -290,9 +300,15 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     } else if (marketQuote.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD)) {
       double qSpread = marketQuote.getQuotedValue();
       CurveName curveName = CurveName.of("quoteConvertCurve");
-      NodalCurve tempCreditCurve =
-          calibrate(new ResolvedCdsTrade[] {calibrationCds}, new double[] {qSpread}, new double[1], curveName,
-              valuationDate, discountFactors, recoveryRates, refData);
+      NodalCurve tempCreditCurve = calibrate(
+          ImmutableList.of(calibrationCds),
+          DoubleArray.of(qSpread),
+          DoubleArray.of(0d),
+          curveName,
+          valuationDate,
+          discountFactors,
+          recoveryRates,
+          refData);
       Currency currency = calibrationCds.getProduct().getCurrency();
       StandardId legalEntityId = calibrationCds.getProduct().getLegalEntityId();
       CreditRatesProvider rates = CreditRatesProvider.builder()

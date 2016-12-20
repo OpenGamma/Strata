@@ -9,6 +9,7 @@ import static com.opengamma.strata.math.impl.util.Epsilon.epsilon;
 import static com.opengamma.strata.math.impl.util.Epsilon.epsilonP;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.function.Function;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -88,24 +89,24 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
 
   @Override
   NodalCurve calibrate(
-      ResolvedCdsTrade[] calibrationCDSs,
-      double[] flactionalSpreads,
-      double[] pointsUpfront,
+      List<ResolvedCdsTrade> calibrationCDSs,
+      DoubleArray flactionalSpreads,
+      DoubleArray pointsUpfront,
       CurveName name,
       LocalDate valuationDate,
       CreditDiscountFactors discountFactors,
       RecoveryRates recoveryRates,
       ReferenceData refData) {
 
-    int n = calibrationCDSs.length;
+    int n = calibrationCDSs.size();
     double[] guess = new double[n];
     double[] t = new double[n];
     double[] lgd = new double[n];
     for (int i = 0; i < n; i++) {
-      LocalDate endDate = calibrationCDSs[i].getProduct().getProtectionEndDate();
+      LocalDate endDate = calibrationCDSs.get(i).getProduct().getProtectionEndDate();
       t[i] = discountFactors.relativeYearFraction(endDate);
       lgd[i] = 1d - recoveryRates.recoveryRate(endDate);
-      guess[i] = (flactionalSpreads[i] + pointsUpfront[i] / t[i]) / lgd[i];
+      guess[i] = (flactionalSpreads.get(i) + pointsUpfront.get(i) / t[i]) / lgd[i];
     }
     DoubleArray times = DoubleArray.ofUnsafe(t);
     CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
@@ -124,14 +125,14 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
             CurveExtrapolators.PRODUCT_LINEAR);
 
     for (int i = 0; i < n; i++) {
-      ResolvedCds cds = calibrationCDSs[i].getProduct();
+      ResolvedCds cds = calibrationCDSs.get(i).getProduct();
       LocalDate stepinDate = cds.getStepinDateOffset().adjust(valuationDate, refData);
       LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
-      LocalDate settlementDate = calibrationCDSs[i].getInfo().getSettlementDate()
+      LocalDate settlementDate = calibrationCDSs.get(i).getInfo().getSettlementDate()
           .orElse(cds.getSettlementDateOffset().adjust(valuationDate, refData));
       double accrued = cds.accruedYearFraction(stepinDate);
 
-      Pricer pricer = new Pricer(cds, discountFactors, times, flactionalSpreads[i], pointsUpfront[i], lgd[i], stepinDate,
+      Pricer pricer = new Pricer(cds, discountFactors, times, flactionalSpreads.get(i), pointsUpfront.get(i), lgd[i], stepinDate,
           effectiveStartDate, settlementDate, accrued);
       Function<Double, Double> func = pricer.getPointFunction(i, creditCurve);
 
@@ -157,11 +158,12 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
               : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
           if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
             final StringBuilder msg = new StringBuilder();
-            if (pointsUpfront[i] == 0.0) {
-              msg.append("The par spread of " + flactionalSpreads[i] + " at index " + i);
+            if (pointsUpfront.get(i) == 0.0) {
+              msg.append("The par spread of " + flactionalSpreads.get(i) + " at index " + i);
             } else {
               msg.append(
-                  "The premium of " + flactionalSpreads[i] + "and points up-front of " + pointsUpfront[i] + " at index " + i);
+                  "The premium of " + flactionalSpreads.get(i) +
+                      "and points up-front of " + pointsUpfront.get(i) + " at index " + i);
             }
             msg.append(" is an arbitrage; cannot fit a curve with positive forward hazard rate. ");
             throw new IllegalArgumentException(msg.toString());

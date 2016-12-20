@@ -84,11 +84,11 @@ public class AnalyticSpreadSensitivityCalculator
     LocalDate valuationDate = ratesProvider.getValuationDate();
 
     int nBucket = bucketCds.size();
-    double[] impSp = impliedSpread(bucketCds, ratesProvider, refData);
+    DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
     NodalCurve creditCurveBase = calibrator.calibrate(
-        bucketCds.toArray(new ResolvedCdsTrade[nBucket]),
+        bucketCds,
         impSp,
-        new double[nBucket],
+        DoubleArray.filled(nBucket),
         CurveName.of("baseImpliedCreditCurve"),
         valuationDate,
         ratesProvider.discountFactors(currency),

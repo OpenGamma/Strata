@@ -28,7 +28,7 @@ import com.opengamma.strata.product.credit.ResolvedCdsTrade;
  * The spread sensitivity, also called CS01, is the sensitivity of the CDS product present value to par spreads of the bucket CDSs. 
  * The bucket CDSs do not necessarily correspond to the node point of the input credit curve.
  */
-abstract class SpreadSensitivityCalculator {
+public abstract class SpreadSensitivityCalculator {
 
   /**
    * The trade pricer.
@@ -39,6 +39,11 @@ abstract class SpreadSensitivityCalculator {
    */
   protected final IsdaCompliantCreditCurveCalibrator calibrator;
 
+  /**
+   * Constructor with accrual-on-default formula.
+   * 
+   * @param formula  the accrual-on-default formula
+   */
   public SpreadSensitivityCalculator(AccrualOnDefaultFormula formula) {
     this.pricer = new IsdaCdsTradePricer(formula);
     this.calibrator = new FastCreditCurveCalibrator(formula);
@@ -158,13 +163,9 @@ abstract class SpreadSensitivityCalculator {
     ArgChecker.isFalse(currencies.hasNext(), "currency must be common");
   }
 
-  protected double[] impliedSpread(List<ResolvedCdsTrade> bucketCds, CreditRatesProvider ratesProvider, ReferenceData refData) {
-    int n = bucketCds.size();
-    double[] impSp = new double[n];
-    for (int i = 0; i < n; ++i) {
-      impSp[i] = pricer.parSpread(bucketCds.get(i), ratesProvider, refData);
-    }
-    return impSp;
+  protected DoubleArray impliedSpread(List<ResolvedCdsTrade> bucketCds, CreditRatesProvider ratesProvider, ReferenceData refData) {
+    int size = bucketCds.size();
+    return DoubleArray.of(size, n -> pricer.parSpread(bucketCds.get(n), ratesProvider, refData));
   }
 
   private double getIndexFactor(ResolvedCds cds, CreditRatesProvider ratesProvider) {
