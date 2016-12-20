@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
@@ -72,20 +71,32 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
     LocalDate valuationDate = ratesProvider.getValuationDate();
 
     int nBucket = bucketCds.size();
-    double[] impSp = impliedSpread(bucketCds, ratesProvider, refData);
+    DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
     NodalCurve creditCurveBase = calibrator.calibrate(
-        bucketCds.toArray(new ResolvedCdsTrade[nBucket]), impSp, new double[nBucket], CurveName.of("baseImpliedCreditCurve"),
-        valuationDate, ratesProvider.discountFactors(currency), ratesProvider.recoveryRates(legalEntityId), refData);
+        bucketCds,
+        impSp,
+        DoubleArray.filled(nBucket),
+        CurveName.of("baseImpliedCreditCurve"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderBase = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
             legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
         .build();
     CurrencyAmount pvBase = pricer.presentValueOnSettle(trade, ratesProviderBase, PriceType.DIRTY, refData);
 
-    double[] bumpedSp = DoubleArray.of(nBucket, i -> impSp[i] + bumpAmount).toArray();
+    DoubleArray bumpedSp = DoubleArray.of(nBucket, i -> impSp.get(i) + bumpAmount);
     NodalCurve creditCurveBump = calibrator.calibrate(
-        bucketCds.toArray(new ResolvedCdsTrade[nBucket]), bumpedSp, new double[nBucket], CurveName.of("bumpedImpliedCreditCurve"),
-        valuationDate, ratesProvider.discountFactors(currency), ratesProvider.recoveryRates(legalEntityId), refData);
+        bucketCds,
+        bumpedSp,
+        DoubleArray.filled(nBucket),
+        CurveName.of("bumpedImpliedCreditCurve"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderBump = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
@@ -112,22 +123,33 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
 
     int nBucket = bucketCds.size();
     double[] res = new double[nBucket];
-    double[] impSp = impliedSpread(bucketCds, ratesProvider, refData);
+    DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
     NodalCurve creditCurveBase = calibrator.calibrate(
-        bucketCds.toArray(new ResolvedCdsTrade[nBucket]), impSp, new double[nBucket], CurveName.of("baseImpliedCreditCurve"),
-        valuationDate, ratesProvider.discountFactors(currency), ratesProvider.recoveryRates(legalEntityId), refData);
+        bucketCds,
+        impSp,
+        DoubleArray.filled(nBucket),
+        CurveName.of("baseImpliedCreditCurve"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderBase = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
             legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
         .build();
     double pvBase = pricer.presentValueOnSettle(trade, ratesProviderBase, PriceType.DIRTY, refData).getAmount();
     for (int i = 0; i < nBucket; ++i) {
-      double[] bumpedSp = Arrays.copyOf(impSp, nBucket);
+      double[] bumpedSp = impSp.toArray();
       bumpedSp[i] += bumpAmount;
       NodalCurve creditCurveBump = calibrator.calibrate(
-          bucketCds.toArray(new ResolvedCdsTrade[nBucket]), bumpedSp, new double[nBucket],
+          bucketCds,
+          DoubleArray.ofUnsafe(bumpedSp),
+          DoubleArray.filled(nBucket),
           CurveName.of("bumpedImpliedCreditCurve"),
-          valuationDate, ratesProvider.discountFactors(currency), ratesProvider.recoveryRates(legalEntityId), refData);
+          valuationDate,
+          ratesProvider.discountFactors(currency),
+          ratesProvider.recoveryRates(legalEntityId),
+          refData);
       CreditRatesProvider ratesProviderBump = ratesProvider.toBuilder()
           .creditCurves(ImmutableMap.of(
               Pair.of(legalEntityId, currency),

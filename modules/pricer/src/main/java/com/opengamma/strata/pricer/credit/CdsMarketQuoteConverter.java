@@ -38,9 +38,9 @@ public class CdsMarketQuoteConverter {
   public static final CdsMarketQuoteConverter DEFAULT = new CdsMarketQuoteConverter();
 
   /**
-   * The credit curve builder.
+   * The credit curve calibrator.
    */
-  private final IsdaCompliantCreditCurveCalibrator builder;
+  private final IsdaCompliantCreditCurveCalibrator calibrator;
   /**
    * The trade pricer.
    */
@@ -53,7 +53,7 @@ public class CdsMarketQuoteConverter {
    * The original ISDA accrual-on-default formula (version 1.8.2 and lower) is used.
    */
   public CdsMarketQuoteConverter() {
-    this.builder = FastCreditCurveCalibrator.DEFAULT;
+    this.calibrator = FastCreditCurveCalibrator.DEFAULT;
     this.pricer = IsdaCdsTradePricer.DEFAULT;
   }
 
@@ -63,7 +63,7 @@ public class CdsMarketQuoteConverter {
    * @param formula  the accrual-on-default formula
    */
   public CdsMarketQuoteConverter(AccrualOnDefaultFormula formula) {
-    this.builder = new FastCreditCurveCalibrator(formula);
+    this.calibrator = new FastCreditCurveCalibrator(formula);
     this.pricer = new IsdaCdsTradePricer(formula);
   }
 
@@ -76,7 +76,7 @@ public class CdsMarketQuoteConverter {
    * @param pointsUpfront  the points upfront
    * @return the clean price
    */
-  public double ceanPriceFromPointsUpfront(double pointsUpfront) {
+  public double cleanPriceFromPointsUpfront(double pointsUpfront) {
     return 1d - pointsUpfront;
   }
 
@@ -145,9 +145,15 @@ public class CdsMarketQuoteConverter {
     Currency currency = product.getCurrency();
     StandardId legalEntityId = product.getLegalEntityId();
     LocalDate valuationDate = ratesProvider.getValuationDate();
-    NodalCurve creditCurve = builder.calibrate(
-        new ResolvedCdsTrade[] {trade}, new double[] {quote.getQuotedValue()}, new double[] {0d}, CurveName.of("temp"),
-        valuationDate, ratesProvider.discountFactors(currency), ratesProvider.recoveryRates(legalEntityId), refData);
+    NodalCurve creditCurve = calibrator.calibrate(
+        ImmutableList.of(trade),
+        DoubleArray.of(quote.getQuotedValue()),
+        DoubleArray.of(0d),
+        CurveName.of("temp"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
@@ -188,10 +194,15 @@ public class CdsMarketQuoteConverter {
     Currency currency = product.getCurrency();
     StandardId legalEntityId = product.getLegalEntityId();
     LocalDate valuationDate = ratesProvider.getValuationDate();
-    NodalCurve creditCurve = builder.calibrate(
-        new ResolvedCdsTrade[] {trade}, new double[] {product.getFixedRate()}, new double[] {quote.getQuotedValue()},
-        CurveName.of("temp"), valuationDate, ratesProvider.discountFactors(currency),
-        ratesProvider.recoveryRates(legalEntityId), refData);
+    NodalCurve creditCurve = calibrator.calibrate(
+        ImmutableList.of(trade),
+        DoubleArray.of(product.getFixedRate()),
+        DoubleArray.of(quote.getQuotedValue()),
+        CurveName.of("temp"),
+        valuationDate,
+        ratesProvider.discountFactors(currency),
+        ratesProvider.recoveryRates(legalEntityId),
+        refData);
     CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
@@ -219,7 +230,7 @@ public class CdsMarketQuoteConverter {
    * @param refData  the reference data
    * @return the quotes
    */
-  public List<CdsQuote> convertFromParSpread(
+  public List<CdsQuote> quotesFromParSpread(
       List<ResolvedCdsTrade> trades,
       List<CdsQuote> quotes,
       CreditRatesProvider ratesProvider,
@@ -247,9 +258,15 @@ public class CdsMarketQuoteConverter {
     LocalDate valuationDate = ratesProvider.getValuationDate();
     CreditDiscountFactors discountFactors = ratesProvider.discountFactors(currency);
     RecoveryRates recoveryRates = ratesProvider.recoveryRates(legalEntityId);
-    NodalCurve creditCurve = builder.calibrate(trades.toArray(new ResolvedCdsTrade[nNodes]),
-        DoubleArray.of(nNodes, q -> quotes.get(q).getQuotedValue()).toArray(),
-        new double[nNodes], CurveName.of("temp"), valuationDate, discountFactors, recoveryRates, refData);
+    NodalCurve creditCurve = calibrator.calibrate(
+        trades,
+        DoubleArray.of(nNodes, q -> quotes.get(q).getQuotedValue()),
+        DoubleArray.filled(nNodes),
+        CurveName.of("temp"),
+        valuationDate,
+        discountFactors,
+        recoveryRates,
+        refData);
     CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
@@ -257,7 +274,7 @@ public class CdsMarketQuoteConverter {
                 legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurve))))
         .build();
 
-    final Function<ResolvedCdsTrade, CdsQuote> quoteValueFunction =
+    Function<ResolvedCdsTrade, CdsQuote> quoteValueFunction =
         createQuoteValueFunction(ratesProviderNew, targetConvention, refData);
     ImmutableList<CdsQuote> result = trades.stream().map(c -> quoteValueFunction.apply(c))
         .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));

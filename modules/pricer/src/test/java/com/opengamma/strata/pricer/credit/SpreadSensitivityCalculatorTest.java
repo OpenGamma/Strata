@@ -102,8 +102,8 @@ public class SpreadSensitivityCalculatorTest {
       StandardId.of("OG", "AA1"), StandardId.of("OG", "AA2"), StandardId.of("OG", "AA3"), StandardId.of("OG", "AA4"));
   private static final double INDEX_FACTOR = 0.75;
   private static final ResolvedCdsIndexTrade CDS_INDEX = CdsIndexTrade.builder()
-      .product(
-          CdsIndex.of(BuySell.BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START, END2, P3M, SAT_SUN, DEAL_SPREAD * ONE_BP))
+      .product(CdsIndex.of(
+          BuySell.BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START, END2, P3M, SAT_SUN, DEAL_SPREAD * ONE_BP))
       .info(TradeInfo.of(VALUATION_DATE))
       .build()
       .resolve(REF_DATA);
@@ -136,15 +136,15 @@ public class SpreadSensitivityCalculatorTest {
       CdsIsdaCreditCurveNode node = CdsIsdaCreditCurveNode.ofParSpread(
           DatesCdsTemplate.of(VALUATION_DATE, PAR_SPD_DATES[i], CDS_CONV), quoteId, LEGAL_ENTITY);
       MARKET_CDS[i] = CdsTrade.builder()
-          .product(Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, PAR_SPD_DATES[i], SAT_SUN,
-              PAR_SPREADS[i] * ONE_BP))
+          .product(Cds.of(
+              BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, PAR_SPD_DATES[i], SAT_SUN, PAR_SPREADS[i] * ONE_BP))
           .info(TradeInfo.of(VALUATION_DATE))
           .build()
           .resolve(REF_DATA);
       MARKET_CDS_INDEX[i] = CdsIndexTrade.builder()
-          .product(
-              CdsIndex.of(BuySell.BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, VALUATION_DATE, PAR_SPD_DATES[i],
-                  P3M, SAT_SUN, PAR_SPREADS[i] * ONE_BP))
+          .product(CdsIndex.of(
+              BuySell.BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, VALUATION_DATE, PAR_SPD_DATES[i], P3M, SAT_SUN,
+              PAR_SPREADS[i] * ONE_BP))
           .info(TradeInfo.of(VALUATION_DATE))
           .build()
           .resolve(REF_DATA);

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -32,7 +33,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.pricer.credit.CdsMarketQuoteConverter;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
@@ -137,20 +137,21 @@ public class CdsMarketQuoteConverterTest {
       products.add(Cds.of(BuySell.BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, MATURITIES[i], DEFAULT_CALENDAR, parSpreads[i]));
       quotes.add(CdsQuote.of(CdsQuoteConvention.PAR_SPREAD, parSpreads[i]));
     }
-    TradeInfo info =
-        TradeInfo.builder().tradeDate(TODAY).settlementDate(products.get(0).getSettlementDateOffset().adjust(TODAY, REF_DATA))
-            .build();
+    TradeInfo info = TradeInfo.builder()
+        .tradeDate(TODAY)
+        .settlementDate(products.get(0).getSettlementDateOffset().adjust(TODAY, REF_DATA))
+        .build();
     List<ResolvedCdsTrade> trades = products.stream()
         .map(p -> CdsTrade.builder().product(p).info(info).build().resolve(REF_DATA))
         .collect(Collectors.toList());
     List<CdsQuote> pufsComp =
-        CONV.convertFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.POINTS_UPFRONT, REF_DATA);
+        CONV.quotesFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.POINTS_UPFRONT, REF_DATA);
     List<CdsQuote> pufsMfComp =
-        CONV_MARKIT_FIX.convertFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.POINTS_UPFRONT, REF_DATA);
+        CONV_MARKIT_FIX.quotesFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.POINTS_UPFRONT, REF_DATA);
     List<CdsQuote> qssComp =
-        CONV.convertFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.QUOTED_SPREAD, REF_DATA);
+        CONV.quotesFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.QUOTED_SPREAD, REF_DATA);
     List<CdsQuote> qssMfComp =
-        CONV_MARKIT_FIX.convertFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.QUOTED_SPREAD, REF_DATA);
+        CONV_MARKIT_FIX.quotesFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.QUOTED_SPREAD, REF_DATA);
     for (int i = 0; i < nPillars; ++i) {
       assertEquals(pufsComp.get(i).getQuotedValue(), 0d, TOL);
       assertTrue(pufsComp.get(i).getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT));
@@ -171,16 +172,16 @@ public class CdsMarketQuoteConverterTest {
     TradeInfo info =
         TradeInfo.builder().tradeDate(TODAY).settlementDate(product.getSettlementDateOffset().adjust(TODAY, REF_DATA)).build();
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
-    NodalCurve cc = CALIB.calibrate(new ResolvedCdsTrade[] {trade}, new double[] {0.0123}, new double[] {0.0},
+    NodalCurve cc = CALIB.calibrate(ImmutableList.of(trade), DoubleArray.of(0.0123), DoubleArray.of(0.0),
         CurveName.of("test"), TODAY, DSC_CURVE, REC_RATES, REF_DATA);
-    CreditRatesProvider rates =
-        RATES_PROVIDER.toBuilder()
-            .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, GBP),
-                LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))
-            .build();
+    CreditRatesProvider rates = RATES_PROVIDER.toBuilder()
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY, GBP),
+            LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))
+        .build();
     double pointsUpFront = CONV.pointsUpfront(trade, rates, REF_DATA);
     double cleanPrice = CONV.cleanPrice(trade, rates, REF_DATA);
-    double cleanPriceRe = CONV.ceanPriceFromPointsUpfront(pointsUpFront);
+    double cleanPriceRe = CONV.cleanPriceFromPointsUpfront(pointsUpFront);
     assertEquals(cleanPrice, cleanPriceRe, TOL);
   }
 
