@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
@@ -76,24 +77,24 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
   //-------------------------------------------------------------------------
   @Override
   NodalCurve calibrate(
-      ResolvedCdsTrade[] calibrationCDSs,
-      double[] premiums,
-      double[] pointsUpfront,
+      List<ResolvedCdsTrade> calibrationCDSs,
+      DoubleArray premiums,
+      DoubleArray pointsUpfront,
       CurveName name,
       LocalDate valuationDate,
       CreditDiscountFactors discountFactors,
       RecoveryRates recoveryRates,
       ReferenceData refData) {
 
-    int n = calibrationCDSs.length;
+    int n = calibrationCDSs.size();
     double[] guess = new double[n];
     double[] t = new double[n];
     double[] lgd = new double[n];
     for (int i = 0; i < n; i++) {
-      LocalDate endDate = calibrationCDSs[i].getProduct().getProtectionEndDate();
+      LocalDate endDate = calibrationCDSs.get(i).getProduct().getProtectionEndDate();
       t[i] = discountFactors.relativeYearFraction(endDate);
       lgd[i] = 1d - recoveryRates.recoveryRate(endDate);
-      guess[i] = (premiums[i] + pointsUpfront[i] / t[i]) / lgd[i];
+      guess[i] = (premiums.get(i) + pointsUpfront.get(i) / t[i]) / lgd[i];
     }
     DoubleArray times = DoubleArray.ofUnsafe(t);
     CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
@@ -112,8 +113,16 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
             CurveExtrapolators.PRODUCT_LINEAR);
 
     for (int i = 0; i < n; i++) {
-      Function<Double, Double> func = getPriceFunction(i, calibrationCDSs[i], premiums[i], pointsUpfront[i], valuationDate,
-          creditCurve, discountFactors, recoveryRates, refData);
+      Function<Double, Double> func = getPriceFunction(
+          i,
+          calibrationCDSs.get(i),
+          premiums.get(i),
+          pointsUpfront.get(i),
+          valuationDate,
+          creditCurve,
+          discountFactors,
+          recoveryRates,
+          refData);
       double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], 0.0, Double.POSITIVE_INFINITY);
       double zeroRate = bracket[0] > bracket[1] ? ROOTFINDER.getRoot(func, bracket[1], bracket[0])
           : ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
