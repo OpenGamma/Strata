@@ -32,16 +32,16 @@ public final class ResultsListener extends AggregatingCalculationListener<Result
   private final List<CalculationResult> results = new ArrayList<>();
 
   /** The columns that define what values are calculated. */
-  private final List<Column> columns;
+  private List<Column> columns;
 
   /**
-   * Creates a listener that builds a set of results for the specified columns.
-   * <p>
-   * The columns must be the same columns passed to the calculation runner.
-   *
-   * @param columns the columns defining the calculated values
+   * Creates a new instance.
    */
-  public ResultsListener(List<Column> columns) {
+  public ResultsListener() {
+  }
+
+  @Override
+  public void calculationsStarted(List<Column> columns) {
     this.columns = ImmutableList.copyOf(columns);
   }
 

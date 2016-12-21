@@ -35,7 +35,7 @@ public class ListenerWrapperTest {
     CountDownLatch latch = new CountDownLatch(1);
     int expectedResultCount = nThreads * resultsPerThread;
     Listener listener = new Listener(errors, latch);
-    Consumer<CalculationResults> wrapper = new ListenerWrapper(listener, expectedResultCount);
+    Consumer<CalculationResults> wrapper = new ListenerWrapper(listener, expectedResultCount, ImmutableList.of());
     ExecutorService executor = Executors.newFixedThreadPool(nThreads);
     CalculationResult result = CalculationResult.of(0, 0, Result.failure(FailureReason.ERROR, "foo"));
     CalculationTarget target = new CalculationTarget() {};
