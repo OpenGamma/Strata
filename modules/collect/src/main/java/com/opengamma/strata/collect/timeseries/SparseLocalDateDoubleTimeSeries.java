@@ -51,7 +51,7 @@ import com.opengamma.strata.collect.function.ObjDoublePredicate;
  * <p>
  * This implementation uses arrays internally.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", metaScope = "package")
 final class SparseLocalDateDoubleTimeSeries
     implements ImmutableBean, Serializable, LocalDateDoubleTimeSeries {
 
@@ -422,7 +422,7 @@ final class SparseLocalDateDoubleTimeSeries
   /**
    * The meta-bean for {@code SparseLocalDateDoubleTimeSeries}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
