@@ -535,6 +535,68 @@
         </plugins>
       </build>
     </profile>
+    <!-- Check for incompatible changes -->
+    <profile>
+      <id>compat</id>
+      <activation>
+        <property>
+          <name>compat</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <version>${japicmp-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+                <configuration>
+                  <parameter>
+                    <onlyModified>true</onlyModified>
+                    <skipXmlReport>true</skipXmlReport>
+                  </parameter>
+                  <oldVersion>
+                    <dependency>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>${project.artifactId}</artifactId>
+                      <version>1.1.0</version>
+                    </dependency>
+                  </oldVersion>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!--  merge files, only works when mvn command run a second time -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <inherited>false</inherited>
+                <configuration>
+                  <target>
+                    <mkdir dir="${project.basedir}/target/japicmp" />
+                    <concat destfile="${project.basedir}/target/japicmp/japicmp.diff" overwrite="true">
+                      <fileset dir="${project.basedir}">
+                        <include name="*/target/japicmp/japicmp.diff"></include>
+                      </fileset>
+                    </concat>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <!-- ==================================================================== -->
@@ -548,6 +610,7 @@
     <jcommander.version>1.58</jcommander.version>
     <testng.version>6.10</testng.version>
     <mockito.version>2.4.0</mockito.version>
+    <japicmp-maven-plugin.version>0.9.3</japicmp-maven-plugin.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
     <checkstyle.config.location>checkstyle/checkstyle.xml</checkstyle.config.location>
