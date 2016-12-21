@@ -6,12 +6,14 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>com.opengamma.strata</groupId>
-    <artifactId>strata-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
-    <relativePath>../modules</relativePath>
+    <groupId>com.opengamma</groupId>
+    <artifactId>corporate-parent</artifactId>
+    <version>2.0.0</version>
+    <relativePath></relativePath>
   </parent>  
+  <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-examples</artifactId>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Strata-Examples</name>
   <description>Example code to demonstrate use of Strata</description>
@@ -22,14 +24,17 @@
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-measure</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-report</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-loader</artifactId>
+      <version>${project.version}</version>
     </dependency>
     
     <!-- External dependencies -->
@@ -43,16 +48,23 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
+      <version>${jcommander.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
     </dependency>
 
     <!-- Testing -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-collect</artifactId>
+      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -112,6 +124,10 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Versions -->
+    <slf4j.version>1.7.22</slf4j.version>
+    <jcommander.version>1.58</jcommander.version>
+    <testng.version>6.10</testng.version>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
