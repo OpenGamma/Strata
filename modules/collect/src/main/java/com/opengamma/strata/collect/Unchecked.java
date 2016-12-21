@@ -363,7 +363,8 @@ public final class Unchecked {
     } else if (throwable instanceof ReflectiveOperationException) {
       throw new UncheckedReflectiveOperationException((ReflectiveOperationException) throwable);
     } else {
-      throw Throwables.propagate(throwable);
+      Throwables.throwIfUnchecked(throwable);
+      throw new RuntimeException(throwable);
     }
   }
 
