@@ -7,8 +7,6 @@ package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -19,8 +17,6 @@ import java.util.function.Supplier;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.ColumnHeader;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -163,7 +159,7 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
       ScenarioMarketData marketData,
       ReferenceData refData) {
 
-    AggregatingListener listener = new AggregatingListener(tasks.getColumns());
+    ResultsListener listener = new ResultsListener(tasks.getColumns());
     calculateMultiScenarioAsync(tasks, marketData, refData, listener);
     return listener.result();
   }
@@ -204,56 +200,6 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculation listener that receives the results of individual calculations
-   * and builds a set of {@link Results}. This is used by the non-async methods.
-   */
-  private static final class AggregatingListener extends AggregatingCalculationListener<Results> {
-
-    /** Comparator for sorting the results by row and then column. */
-    private static final Comparator<CalculationResult> COMPARATOR =
-        Comparator.comparingInt(CalculationResult::getRowIndex)
-            .thenComparingInt(CalculationResult::getColumnIndex);
-
-    /** List that is populated with the results as they arrive. */
-    private final List<CalculationResult> results = new ArrayList<>();
-
-    /** The columns that define what values are calculated. */
-    private final List<Column> columns;
-
-    private AggregatingListener(List<Column> columns) {
-      this.columns = columns;
-    }
-
-    @Override
-    public void resultReceived(CalculationTarget target, CalculationResult result) {
-      results.add(result);
-    }
-
-    @Override
-    protected Results createAggregateResult() {
-      results.sort(COMPARATOR);
-      return buildResults(results, columns);
-    }
-
-    /**
-     * Builds a set of results from the results of the individual calculations.
-     *
-     * @param calculationResults  the results of the individual calculations
-     * @param columns  the columns that define what values are calculated
-     * @return the results
-     */
-    private static Results buildResults(List<CalculationResult> calculationResults, List<Column> columns) {
-      List<Result<?>> results =
-          calculationResults.stream()
-              .map(r -> r.getResult())
-              .collect(toImmutableList());
-      List<ColumnHeader> headers = columns.stream()
-          .map(c -> c.toHeader())
-          .collect(toImmutableList());
-      return Results.of(headers, results);
-    }
-  }
 
   //-------------------------------------------------------------------------
   /**
