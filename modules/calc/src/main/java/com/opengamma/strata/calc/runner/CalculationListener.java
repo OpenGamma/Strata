@@ -29,14 +29,15 @@ public interface CalculationListener {
    * before {@link #resultReceived(CalculationTarget, CalculationResult)} and
    * {@link #calculationsComplete()}.
    *
+   * @param targets the targets for which values are being calculated; these are often trades
    * @param columns the columns for which values are being calculated
    */
-  public default void calculationsStarted(List<Column> columns) {
+  public default void calculationsStarted(List<CalculationTarget> targets, List<Column> columns) {
     // Default implementation does nothing, required for backwards compatibility
   }
 
   /**
-   * Invoked when a calculation completes; it is guaranteed that {@link {@link #calculationsStarted(List)}} will
+   * Invoked when a calculation completes; it is guaranteed that {@link {@link #calculationsStarted(List, List) }} will
    * be called before this method and that this method will never be called after {@link #calculationsComplete()}.
    * <p>
    * It is possible that this method will never be called. This can happen if an empty list of targets
@@ -52,7 +53,7 @@ public interface CalculationListener {
    * <p>
    * This is guaranteed to be called after all results have been passed to {@link #resultReceived}.
    * <p>
-   * This method will be called immediately after {@link #calculationsStarted(List)} and without any calls
+   * This method will be called immediately after {@link #calculationsStarted(List, List)} and without any calls
    * to {@link #resultReceived(CalculationTarget, CalculationResult)} if there are no calculations to be performed.
    * This can happen if an empty list of targets is passed to the calculation runner.
    */

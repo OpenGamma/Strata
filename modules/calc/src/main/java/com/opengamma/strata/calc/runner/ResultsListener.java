@@ -41,7 +41,7 @@ public final class ResultsListener extends AggregatingCalculationListener<Result
   }
 
   @Override
-  public void calculationsStarted(List<Column> columns) {
+  public void calculationsStarted(List<CalculationTarget> targets, List<Column> columns) {
     this.columns = ImmutableList.copyOf(columns);
   }
 
