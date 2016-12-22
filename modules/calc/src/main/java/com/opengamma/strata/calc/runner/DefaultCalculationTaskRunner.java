@@ -49,7 +49,7 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
    *    // use the runner
    *  }
    * </pre>
-   * 
+   *
    * @return the calculation task runner
    */
   static DefaultCalculationTaskRunner ofMultiThreaded() {
@@ -60,7 +60,7 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
    * Creates a calculation task runner capable of performing calculations, specifying the executor.
    * <p>
    * It is the callers responsibility to manage the life-cycle of the executor.
-   * 
+   *
    * @param executor  the executor to use
    * @return the calculation task runner
    */
@@ -83,7 +83,7 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   //-------------------------------------------------------------------------
   /**
    * Creates an instance specifying the executor to use.
-   * 
+   *
    * @param executor  the executor that is used to perform the calculations
    */
   private DefaultCalculationTaskRunner(ExecutorService executor) {
@@ -159,7 +159,7 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
       ScenarioMarketData marketData,
       ReferenceData refData) {
 
-    ResultsListener listener = new ResultsListener(tasks.getColumns());
+    ResultsListener listener = new ResultsListener();
     calculateMultiScenarioAsync(tasks, marketData, refData, listener);
     return listener.result();
   }
@@ -175,9 +175,11 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
     // the listener is invoked via this wrapper
     // the wrapper ensures thread-safety for the listener
     // it also calls the listener with single CalculationResult cells, not CalculationResults
-    Consumer<CalculationResults> consumer = new ListenerWrapper(listener, taskList.size());
+    Consumer<CalculationResults> consumer =
+        new ListenerWrapper(listener, taskList.size(), tasks.getTargets(), tasks.getColumns());
+
     // run each task using the executor
-    taskList.stream().forEach(task -> runTask(task, marketData, refData, consumer));
+    taskList.forEach(task -> runTask(task, marketData, refData, consumer));
   }
 
   // submits a task to the executor to be run

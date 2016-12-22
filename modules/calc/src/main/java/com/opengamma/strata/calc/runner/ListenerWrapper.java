@@ -6,6 +6,7 @@
 package com.opengamma.strata.calc.runner;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,6 +15,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -62,16 +65,23 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
   //-------------------------------------------------------------------------
   /**
    * Creates an instance wrapping the specified listener.
-   * 
-   * @param listener  the underlying listener wrapped by this object
+   *  @param listener  the underlying listener wrapped by this object
    * @param tasksExpected  the number of tasks to be executed
+   * @param columns  the columns for which values are being calculated
    */
-  ListenerWrapper(CalculationListener listener, int tasksExpected) {
+  ListenerWrapper(CalculationListener listener, int tasksExpected, List<CalculationTarget> targets, List<Column> columns) {
     this.listener = ArgChecker.notNull(listener, "listener");
     this.tasksExpected = ArgChecker.notNegative(tasksExpected, "tasksExpected");
 
-    if (tasksExpected == 0) {
-      listener.calculationsComplete();
+    listenerLock.lock();
+    try {
+      listener.calculationsStarted(targets, columns);
+
+      if (tasksExpected == 0) {
+        listener.calculationsComplete();
+      }
+    } finally {
+      listenerLock.unlock();
     }
   }
 
