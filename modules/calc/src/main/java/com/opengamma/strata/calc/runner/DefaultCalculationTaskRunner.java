@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -215,6 +216,11 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
     private UnwrappingListener(CalculationListener delegate) {
       this.delegate = delegate;
+    }
+
+    @Override
+    public void calculationsStarted(List<CalculationTarget> targets, List<Column> columns) {
+      delegate.calculationsStarted(targets, columns);
     }
 
     @Override
