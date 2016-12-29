@@ -76,6 +76,7 @@ public final class CurveGroupDefinitionCsvLoader {
   /** Name used in the reference column of the CSV file for forward curves. */
   private static final String FORWARD = "forward";
 
+  private static final String LINE_ITEM_SEPARATOR = ",";
   //-------------------------------------------------------------------------
   /**
    * Loads the curve groups definition CSV file.
@@ -227,7 +228,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groups  the curve groups
    */
   public static void writeCurveGroupDefinition(Appendable underlying, CurveGroupDefinition... groups) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = new CsvOutput(underlying, LINE_ITEM_SEPARATOR);
     csv.writeLine(HEADERS);
     for (CurveGroupDefinition group : groups) {
       writeCurveGroupDefinition(csv, group);
@@ -239,10 +240,12 @@ public final class CurveGroupDefinitionCsvLoader {
     String groupName = group.getName().getName();
     for (CurveGroupEntry entry : group.getEntries()) {
       for (Currency currency : entry.getDiscountCurrencies()) {
-        csv.writeLine(ImmutableList.of(groupName, DISCOUNT, currency.toString(), entry.getCurveName().getName()));
+        csv.writeLine(
+            ImmutableList.of(groupName, DISCOUNT, currency.toString(), entry.getCurveName().getName()));
       }
       for (Index index : entry.getIndices()) {
-        csv.writeLine(ImmutableList.of(groupName, FORWARD, index.toString(), entry.getCurveName().getName()));
+        csv.writeLine(
+            ImmutableList.of(groupName, FORWARD, index.toString(), entry.getCurveName().getName()));
       }
     }
   }
@@ -269,7 +272,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groups  the curve groups
    */
   public static void writeCurveGroup(Appendable underlying, CurveGroup... groups) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = new CsvOutput(underlying, LINE_ITEM_SEPARATOR);
     csv.writeLine(HEADERS);
     for (CurveGroup group : groups) {
       writeCurveGroup(csv, group);

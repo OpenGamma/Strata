@@ -132,6 +132,7 @@ public final class RatesCurvesCsvLoader {
       "forward", ValueType.FORWARD_RATE,
       "priceindex", ValueType.PRICE_INDEX);
 
+  private static final String LINE_ITEM_SEPARATOR = ",";
   //-------------------------------------------------------------------------
   /**
    * Loads one or more CSV format curve files for a specific date.
@@ -351,7 +352,7 @@ public final class RatesCurvesCsvLoader {
    * @param group  the curve group
    */
   public static void writeCurveSettings(Appendable underlying, CurveGroup group) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = new CsvOutput(underlying, LINE_ITEM_SEPARATOR);
     // header
     csv.writeLine(HEADERS_SETTINGS);
     // rows
@@ -413,7 +414,7 @@ public final class RatesCurvesCsvLoader {
    * @param group  the curve group
    */
   public static void writeCurveNodes(Appendable underlying, LocalDate valuationDate, CurveGroup group) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = new CsvOutput(underlying, LINE_ITEM_SEPARATOR);
     // header
     csv.writeLine(HEADERS_NODES);
     // rows

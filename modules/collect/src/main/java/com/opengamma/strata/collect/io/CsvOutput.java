@@ -34,14 +34,19 @@ public final class CsvOutput {
    * The new line string.
    */
   private final String newLine;
+  /**
+   * The line item separator
+   */
+  private final String lineItemSeparator;
 
   /**
    * Creates an instance, using the system default line separator.
    * 
    * @param underlying  the underlying writer
+   * @param lineItemSeparator  the line item separator
    */
-  public CsvOutput(Appendable underlying) {
-    this(underlying, System.lineSeparator());
+  public CsvOutput(Appendable underlying, String lineItemSeparator) {
+    this(underlying, System.lineSeparator(), lineItemSeparator);
   }
 
   /**
@@ -49,10 +54,12 @@ public final class CsvOutput {
    * 
    * @param underlying  the underlying writer
    * @param newLine  the new line string
+   * @param lineItemSeparator  the line item separator
    */
-  public CsvOutput(Appendable underlying, String newLine) {
+  public CsvOutput(Appendable underlying, String newLine, String lineItemSeparator) {
     this.underlying = ArgChecker.notNull(underlying, "underlying");
     this.newLine = newLine;
+    this.lineItemSeparator = lineItemSeparator;
   }
 
   //------------------------------------------------------------------------
@@ -103,7 +110,7 @@ public final class CsvOutput {
   private String formatLine(List<String> line, boolean alwaysQuote) {
     return line.stream()
         .map(entry -> formatEntry(entry, alwaysQuote))
-        .collect(Collectors.joining(","));
+        .collect(Collectors.joining(lineItemSeparator));
   }
 
   // formats a single entry, quoting if necessary
