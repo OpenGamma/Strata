@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -229,6 +230,19 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
         PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
     assertTrue(computed.equalWithTolerance(expected, TOL));
     assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_jumpToDefault() {
+    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(TRADE, RATES_PROVIDER, REF_DATA);
+    SplitCurrencyAmount<StandardId> expected = PRICER_PRODUCT.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
+    assertEquals(computed, expected);
+  }
+
+  public void test_expectedLoss() {
+    CurrencyAmount computed = PRICER.expectedLoss(TRADE, RATES_PROVIDER);
+    CurrencyAmount expected = PRICER_PRODUCT.expectedLoss(PRODUCT, RATES_PROVIDER);
+    assertEquals(computed, expected);
   }
 
 }

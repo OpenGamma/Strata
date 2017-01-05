@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -42,6 +43,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
@@ -178,6 +180,11 @@ public class IsdaCdsProductPricerTest {
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
     assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
+    SplitCurrencyAmount<StandardId> jtd = PRICER.jumpToDefault(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
+    assertEquals(jtd, SplitCurrencyAmount.of(USD, ImmutableMap.of(LEGAL_ENTITY, 0d)));
+    CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT_NEXTDAY, provider);
+    assertEquals(expectedLoss, CurrencyAmount.zero(USD));
   }
 
   public void consistencyTest() {
@@ -658,6 +665,28 @@ public class IsdaCdsProductPricerTest {
     assertEquals(accAccEndDate, 2.777777777777778E-4, TOL);
     assertEquals(accEffectiveEndDateOne, 0d, TOL);
     assertEquals(accEffectiveEndDate, 1.388888888888889E-4, TOL);
+  }
+
+  //-------------------------------------------------------------------------
+  public void jumpToDefaultTest() {
+    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, REF_DATA);
+    LocalDate stepinDate = PRODUCT_BEFORE.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
+    double dirtyPv = PRICER.presentValue(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, PriceType.DIRTY, REF_DATA).getAmount();
+    double accrued = PRODUCT_BEFORE.accruedYearFraction(stepinDate) * PRODUCT_BEFORE.getFixedRate() *
+        PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL);
+    double protection = PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATES.getRecoveryRate());
+    double expected = protection - accrued - dirtyPv;
+    assertEquals(computed.getCurrency(), USD);
+    assertTrue(computed.getSplitValues().size() == 1);
+    assertEquals(computed.getSplitValues().get(LEGAL_ENTITY), expected, NOTIONAL * TOL);
+  }
+
+  public void expectedLossTest() {
+    CurrencyAmount computed = PRICER.expectedLoss(PRODUCT_BEFORE, RATES_PROVIDER);
+    double survivalProb = CREDIT_CRVE.discountFactor(PRODUCT_BEFORE.getProtectionEndDate());
+    double expected = NOTIONAL * (1d - RECOVERY_RATES.getRecoveryRate()) * (1d - survivalProb);
+    assertEquals(computed.getCurrency(), USD);
+    assertEquals(computed.getAmount(), expected, NOTIONAL * TOL);
   }
 
   //-------------------------------------------------------------------------
