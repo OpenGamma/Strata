@@ -105,7 +105,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, false);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
@@ -171,7 +171,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, false);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
@@ -262,7 +262,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, false);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();

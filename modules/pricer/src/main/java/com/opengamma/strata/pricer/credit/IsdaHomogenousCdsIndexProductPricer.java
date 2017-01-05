@@ -7,9 +7,12 @@ package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Triple;
 import com.opengamma.strata.market.curve.CurveInfoType;
@@ -49,6 +52,16 @@ public class IsdaHomogenousCdsIndexProductPricer {
    */
   public IsdaHomogenousCdsIndexProductPricer(AccrualOnDefaultFormula formula) {
     this.underlyingPricer = new IsdaCdsProductPricer(formula);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the accrual-on-default formula used in this pricer. 
+   * 
+   * @return the formula
+   */
+  public AccrualOnDefaultFormula getAccrualOnDefaultFormula() {
+    return underlyingPricer.getAccrualOnDefaultFormula();
   }
 
   //-------------------------------------------------------------------------
@@ -285,6 +298,72 @@ public class IsdaHomogenousCdsIndexProductPricer {
         underlyingPricer.protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
     double amount = -cds.getBuySell().normalize(cds.getNotional()) * protectionFull * rates.getThird();
     return CurrencyAmount.of(cds.getCurrency(), amount);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the jump-to-default of the CDS index product.
+   * <p>
+   * The jump-to-default is the value of the product in case of immediate default of a constituent single name.
+   * <p>
+   * Under the homogeneous pool assumption, the jump-to-default values are the same for all of the undefaulted names, 
+   * and zero for defaulted names. Thus the resulting object contains a single number.
+   * 
+   * @param cdsIndex  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the recovery01
+   */
+  public SplitCurrencyAmount<StandardId> jumpToDefault(
+      ResolvedCdsIndex cdsIndex,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    StandardId indexId = cdsIndex.getCdsIndexId();
+    Currency currency = cdsIndex.getCurrency();
+    if (isExpired(cdsIndex, ratesProvider)) {
+      return SplitCurrencyAmount.of(currency, ImmutableMap.of(indexId, 0d));
+    }
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = underlyingPricer.recoveryRate(cds, ratesProvider);
+    Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
+    double protectionFull = underlyingPricer.protectionFull(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
+    double rpv01 = underlyingPricer.riskyAnnuity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, PriceType.CLEAN);
+    double lgd = 1d - recoveryRate;
+    double numTotal = cdsIndex.getLegalEntityIds().size();
+    double jtd = (lgd - (lgd * protectionFull - cds.getFixedRate() * rpv01)) / numTotal;
+    return SplitCurrencyAmount.of(currency, ImmutableMap.of(indexId, cds.getBuySell().normalize(cds.getNotional()) * jtd));
+  }
+
+  /**
+   * Calculates the expected loss of the CDS index product.
+   * <p>
+   * The expected loss is the (undiscounted) expected default settlement value paid by the protection seller. 
+   * The resulting value is always positive.
+   * 
+   * @param cdsIndex  the product
+   * @param ratesProvider  the rates provider
+   * @return the expected loss
+   */
+  public CurrencyAmount expectedLoss(
+      ResolvedCdsIndex cdsIndex,
+      CreditRatesProvider ratesProvider) {
+
+    if (isExpired(cdsIndex, ratesProvider)) {
+      return CurrencyAmount.of(cdsIndex.getCurrency(), 0d);
+    }
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
+    double recoveryRate = underlyingPricer.recoveryRate(cds, ratesProvider);
+    Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
+    double survivalProbability = rates.getSecond().survivalProbability(cds.getProtectionEndDate());
+    double el = (1d - recoveryRate) * (1d - survivalProbability) * rates.getThird();
+    return CurrencyAmount.of(cds.getCurrency(), Math.abs(cds.getNotional()) * el);
   }
 
   //-------------------------------------------------------------------------

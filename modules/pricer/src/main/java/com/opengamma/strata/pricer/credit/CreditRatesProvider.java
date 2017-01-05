@@ -215,6 +215,32 @@ public final class CreditRatesProvider
     return sens.getSensitivities().get(0);
   }
 
+  /**
+   * Computes the parameter sensitivity for a specific discount curve.
+   * <p>
+   * The discount curve is specified by {@code currency}.
+   * 
+   * @param pointSensitivities  the point sensitivity
+   * @param currency  the currency
+   * @return the sensitivity to the curve parameters
+   */
+  public CurrencyParameterSensitivity singleDiscountCurveParameterSensitivity(
+      PointSensitivities pointSensitivities,
+      Currency currency) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof ZeroRateSensitivity) {
+        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
+        if (pt.getCurrency().equals(currency)) {
+          CreditDiscountFactors factors = discountFactors(pt.getCurveCurrency());
+          sens = sens.combinedWith(factors.parameterSensitivity(pt));
+        }
+      }
+    }
+    ArgChecker.isTrue(sens.size() == 1, "sensitivity must be unique");
+    return sens.getSensitivities().get(0);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Finds the market data with the specified name.

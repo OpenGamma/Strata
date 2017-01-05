@@ -12,51 +12,49 @@ import com.opengamma.strata.calc.Measure;
  * <p>
  * A measure identifies the calculation result that is required.
  * For example present value, par rate or spread.
- * <p>
- * NOTE: These measure names are subject to change.
  */
 public final class CreditMeasures {
 
   /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in par interest rates.
+   * Measure representing the PV change under a 1 bps shift to market quotes.
    */
-  public static final Measure IR01_PARALLEL_PAR = Measure.of(StandardCreditMeasures.IR01_PARALLEL_PAR.getName());
+  public static final Measure IR01_MARKET_QUOTE_PARALLEL = Measure.of(StandardCreditMeasures.IR01_MARKET_QUOTE_PARALLEL.getName());
   /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in par interest rates at each curve node.
+   * Measure representing the PV change under a series of 1 bps shifts in market quotes at each curve node.
    */
-  public static final Measure IR01_BUCKETED_PAR = Measure.of(StandardCreditMeasures.IR01_BUCKETED_PAR.getName());
+  public static final Measure IR01_MARKET_QUOTE_BUCKETED = Measure.of(StandardCreditMeasures.IR01_MARKET_QUOTE_BUCKETED.getName());
   /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in zero interest rates of calibrated curve.
+   * Measure representing the PV change under a 1 bps shift in calibrated curve.
    */
-  public static final Measure IR01_PARALLEL_ZERO = Measure.of(StandardCreditMeasures.IR01_PARALLEL_ZERO.getName());
+  public static final Measure IR01_CALIBRATED__PARALLEL = Measure.of(StandardCreditMeasures.IR01_CALIBRATED__PARALLEL.getName());
   /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in zero interest rates at each curve node.
+   * Measure representing the PV change under a series of 1 bps shifts in calibrated curve at each curve node.
    */
-  public static final Measure IR01_BUCKETED_ZERO = Measure.of(StandardCreditMeasures.IR01_BUCKETED_ZERO.getName());
+  public static final Measure IR01_CALIBRATED__BUCKETED = Measure.of(StandardCreditMeasures.IR01_CALIBRATED__BUCKETED.getName());
+
+  //-------------------------------------------------------------------------
   /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in par credit spread rates.
+   * Measure representing the PV change under a 1 bps shift in credit spread.
    */
-  public static final Measure CS01_PARALLEL_PAR = Measure.of(StandardCreditMeasures.CS01_PARALLEL_PAR.getName());
+  public static final Measure CS01_PARALLEL = Measure.of(StandardCreditMeasures.CS01_PARALLEL.getName());
   /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in par credit rates at each curve node.
+   * Measure representing the PV change under a series of 1 bps shifts in credit spread at each curve node.
    */
-  public static final Measure CS01_BUCKETED_PAR = Measure.of(StandardCreditMeasures.CS01_BUCKETED_PAR.getName());
+  public static final Measure CS01_BUCKETED = Measure.of(StandardCreditMeasures.CS01_BUCKETED.getName());
+
+  //-------------------------------------------------------------------------
   /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in hazard rates of calibrated curve.
-   */
-  public static final Measure CS01_PARALLEL_HAZARD = Measure.of(StandardCreditMeasures.CS01_PARALLEL_HAZARD.getName());
-  /**
-   * Measure representing the (vector) PV change to a series of 1 bps shifts in hazard rates at each curve node.
-   */
-  public static final Measure CS01_BUCKETED_HAZARD = Measure.of(StandardCreditMeasures.CS01_BUCKETED_HAZARD.getName());
-  /**
-   * Measure representing the (scalar) PV change to a 1 bps shift in recovery rate.
+   * Measure representing the PV change under a 1 bps shift in recovery rate.
    */
   public static final Measure RECOVERY01 = Measure.of(StandardCreditMeasures.RECOVERY01.getName());
   /**
-   * Measure representing the risk of default as opposed to the risk of change in credit spreads.
+   * Measure representing the PV change in case of immediate default.
    */
   public static final Measure JUMP_TO_DEFAULT = Measure.of(StandardCreditMeasures.JUMP_TO_DEFAULT.getName());
+  /**
+   * Measure representing the expected value of protection settlement.
+   */
+  public static final Measure EXPECTED_LOSS = Measure.of(StandardCreditMeasures.EXPECTED_LOSS.getName());
 
   //-------------------------------------------------------------------------
   private CreditMeasures() {

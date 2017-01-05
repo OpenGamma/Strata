@@ -97,6 +97,7 @@ public class IsdaCompliantIndexCurveCalibrator {
         curveDefinition.getDayCount(),
         curveDefinition.getCurrency(),
         curveDefinition.isComputeJacobian(),
+        curveDefinition.isStoreNodeTrade(),
         refData);
     NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) creditCurve.getSurvivalProbabilities()).getCurve();
     NodalCurve curveWithFactor =

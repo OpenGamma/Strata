@@ -8,8 +8,10 @@ package com.opengamma.strata.pricer.credit;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
@@ -59,6 +61,16 @@ public class IsdaHomogenousCdsIndexTradePricer {
   public IsdaHomogenousCdsIndexTradePricer(AccrualOnDefaultFormula formula) {
     this.productPricer = new IsdaHomogenousCdsIndexProductPricer(formula);
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the accrual-on-default formula used in this pricer. 
+   * 
+   * @return the formula
+   */
+  public AccrualOnDefaultFormula getAccrualOnDefaultFormula() {
+    return productPricer.getAccrualOnDefaultFormula();
   }
 
   //-------------------------------------------------------------------------
@@ -298,6 +310,48 @@ public class IsdaHomogenousCdsIndexTradePricer {
 
     LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
     return productPricer.recovery01(trade.getProduct(), ratesProvider, settlementDate, refData);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the jump-to-default of the underlying product.
+   * <p>
+   * The jump-to-default is the value of the product in case of immediate default of a constituent single name.
+   * <p>
+   * Under the homogeneous pool assumption, the jump-to-default values are the same for all of the undefaulted names, 
+   * and zero for defaulted names. Thus the resulting object contains a single number.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the recovery01
+   */
+  public SplitCurrencyAmount<StandardId> jumpToDefault(
+      ResolvedCdsIndexTrade trade,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
+    LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
+    return productPricer.jumpToDefault(trade.getProduct(), ratesProvider, settlementDate, refData);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the expected loss of the underlying product.
+   * <p>
+   * The expected loss is the (undiscounted) expected default settlement value paid by the protection seller. 
+   * The resulting value is always positive.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider
+   * @param refData  the reference data
+   * @return the recovery01
+   */
+  public CurrencyAmount expectedLoss(
+      ResolvedCdsIndexTrade trade,
+      CreditRatesProvider ratesProvider) {
+
+    return productPricer.expectedLoss(trade.getProduct(), ratesProvider);
   }
 
   //-------------------------------------------------------------------------

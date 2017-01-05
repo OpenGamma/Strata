@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -33,6 +34,8 @@ import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -165,6 +168,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
         curveDefinition.getDayCount(),
         curveDefinition.getCurrency(),
         curveDefinition.isComputeJacobian(),
+        curveDefinition.isStoreNodeTrade(),
         refData);
   }
 
@@ -176,6 +180,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       DayCount definitionDayCount,
       Currency definitionCurrency,
       boolean computeJacobian,
+      boolean storeTrade,
       ReferenceData refData) {
 
     Iterator<StandardId> legalEntities =
@@ -247,6 +252,18 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
           ImmutableList.of(CurveParameterSize.of(name, nNodes)), MATRIX_ALGEBRA.getInverse(sensi));
       nodalCurve = nodalCurve.withMetadata(nodalCurve.getMetadata().withInfo(CurveInfoType.JACOBIAN, jacobian));
     }
+
+    ImmutableList<ParameterMetadata> parameterMetadata;
+    if (storeTrade){
+      parameterMetadata = IntStream.range(0, nNodes)
+          .mapToObj(n -> ResolvedTradeParameterMetadata.of(trades.get(n), curveNodes.get(n).getLabel()))
+          .collect(Guavate.toImmutableList());
+    } else {
+      parameterMetadata = IntStream.range(0, nNodes)
+          .mapToObj(n -> curveNodes.get(n).metadata(trades.get(n).getProduct().getProtectionEndDate()))
+          .collect(Guavate.toImmutableList());
+    }
+    nodalCurve = nodalCurve.withMetadata(nodalCurve.getMetadata().withParameterMetadata(parameterMetadata));
 
     return LegalEntitySurvivalProbabilities.of(
         legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));

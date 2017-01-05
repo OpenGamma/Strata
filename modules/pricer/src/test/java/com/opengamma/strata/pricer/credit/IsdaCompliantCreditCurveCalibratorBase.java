@@ -284,7 +284,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), EUR, tradeDate, ACT_365F, DSC_NODES, false);
+        CurveName.of("yield"), EUR, tradeDate, ACT_365F, DSC_NODES, false, false);
     IsdaCompliantZeroRateDiscountFactors yc =
         IsdaCompliantDiscountCurveCalibrator.standard().calibrate(curveDefinition, quotes, REF_DATA);
     return CreditRatesProvider.builder()
@@ -348,7 +348,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           YIELD_CURVES[i],
           dayCount,
           currency,
-          false, REF_DATA);
+          false, false, REF_DATA);
       ResolvedCdsTrade[] expectedCds = EXP_NODE_CDS[i];
       CreditRatesProvider provider = YIELD_CURVES[i].toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, EUR), creditCurve))
@@ -406,10 +406,10 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       ImmutableMarketData marketDataDw = builderCreditDw.build();
       IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) builder.calibrate(
           nodes, name, marketDataUp, ratesProvider, curve.getSurvivalProbabilities().getDayCount(), curve.getCurrency(),
-          false, REF_DATA).getSurvivalProbabilities();
+          false, false, REF_DATA).getSurvivalProbabilities();
       IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) builder.calibrate(
           nodes, name, marketDataDw, ratesProvider, curve.getSurvivalProbabilities().getDayCount(), curve.getCurrency(),
-          false, REF_DATA).getSurvivalProbabilities();
+          false, false, REF_DATA).getSurvivalProbabilities();
       for (int j = 0; j < nNode; ++j) {
         double computed = df.getCurve().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix().get(j, i);
         double expected = 0.5 * (ccUp.getCurve().getYValues().get(j) - ccDw.getCurve().getYValues().get(j)) / eps;

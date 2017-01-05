@@ -13,25 +13,28 @@ import com.opengamma.strata.calc.Measure;
  */
 final class StandardCreditMeasures {
 
-  // scalar PV change to a 1 bps shift in par interest rates
-  public static final Measure IR01_PARALLEL_PAR = ImmutableMeasure.of("IR01ParallelPar");
-  // vector PV change to a series of 1 bps shifts in par interest rates at each curve node
-  public static final Measure IR01_BUCKETED_PAR = ImmutableMeasure.of("IR01BucketedPar");
-  // scalar PV change to a 1 bps shift in zero interest rates of calibrated curve
-  public static final Measure IR01_PARALLEL_ZERO = ImmutableMeasure.of("IR01ParallelZero");
-  // vector PV change to a series of 1 bps shifts in zero interest rates at each curve node
-  public static final Measure IR01_BUCKETED_ZERO = ImmutableMeasure.of("IR01BucketedZero");
-  // scalar PV change to a 1 bps shift in par credit spread rates
-  public static final Measure CS01_PARALLEL_PAR = ImmutableMeasure.of("CS01ParallelPar");
-  // vector PV change to a series of 1 bps shifts in par credit rates at each curve node
-  public static final Measure CS01_BUCKETED_PAR = ImmutableMeasure.of("CS01BucketedPar");
-  // scalar PV change to a 1 bps shift in hazard rates of calibrated curve
-  public static final Measure CS01_PARALLEL_HAZARD = ImmutableMeasure.of("CS01ParallelHazard");
-  // vector PV change to a series of 1 bps shifts in hazard rates at each curve node
-  public static final Measure CS01_BUCKETED_HAZARD = ImmutableMeasure.of("CS01BucketedHazard");
-  // scalar PV change to a 1 bps shift in recovery rate
+  //-------------------------------------------------------------------------
+  // PV change under a 1 bps shift to market quotes
+  public static final Measure IR01_MARKET_QUOTE_PARALLEL = ImmutableMeasure.of("IR01MarketQuoteParallel");
+  // PV change under a series of 1 bps shifts in market quotes at each curve node
+  public static final Measure IR01_MARKET_QUOTE_BUCKETED = ImmutableMeasure.of("IR01MarketQuoteBucketed");
+  // PV change under a 1 bps shift in calibrated curve
+  public static final Measure IR01_CALIBRATED__PARALLEL = ImmutableMeasure.of("IR01CalibratedParallel");
+  // PV change under a series of 1 bps shifts in calibrated curve at each curve node
+  public static final Measure IR01_CALIBRATED__BUCKETED = ImmutableMeasure.of("IR01CalibratedBucketed");
+
+  //-------------------------------------------------------------------------
+  // PV change under a 1 bps shift in credit spread
+  public static final Measure CS01_PARALLEL = ImmutableMeasure.of("CS01Parallel");
+  // PV change under a series of 1 bps shifts in credit spread at each curve node
+  public static final Measure CS01_BUCKETED = ImmutableMeasure.of("CS01Bucketed");
+
+  //-------------------------------------------------------------------------
+  // PV change under a 1 bps shift in recovery rate
   public static final Measure RECOVERY01 = ImmutableMeasure.of("Recovery01");
-  // risk of default as opposed to the risk of change in credit spreads
+  // PV change in case of immediate default
   public static final Measure JUMP_TO_DEFAULT = ImmutableMeasure.of("JumpToDefault");
+  // expected value of protection settlement
+  public static final Measure EXPECTED_LOSS = ImmutableMeasure.of("ExpectedLoss");
 
 }

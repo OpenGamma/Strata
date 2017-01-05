@@ -159,7 +159,7 @@ public class SpreadSensitivityCalculatorTest {
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
         .build();
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
-        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true);
+        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true, false);
     CREDIT_CURVE = BUILDER.calibrate(definition, marketData, rates, REF_DATA);
     NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) CREDIT_CURVE.getSurvivalProbabilities()).getCurve();
     NodalCurve curveWithFactor = underlyingCurve.withMetadata(
@@ -229,7 +229,7 @@ public class SpreadSensitivityCalculatorTest {
         CdsIsdaCreditCurveNode.ofParSpread(DatesCdsTemplate.of(START, END2, CDS_CONV), quoteId, LEGAL_ENTITY);
     ImmutableMarketData marketData = ImmutableMarketData.builder(VALUATION_DATE).addValue(quoteId, DEAL_SPREAD * ONE_BP).build();
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
-        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, ImmutableList.of(node), true);
+        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, ImmutableList.of(node), true, false);
     LegalEntitySurvivalProbabilities creditCurve = BUILDER.calibrate(definition, marketData, ratesProviderNoCredit, REF_DATA);
     CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)

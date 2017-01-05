@@ -50,7 +50,7 @@ public interface IsdaCreditCurveNode {
   /**
    * Returns metadata for the node from the node date. 
    * <p>
-   * The node date must be computed by {@link #getNodeDate(LocalDate, ReferenceData)}.
+   * The node date must be computed by {@link #date(LocalDate, ReferenceData)}.
    *
    * @param nodeDate  the node date used when calibrating the curve
    * @return metadata for the node
