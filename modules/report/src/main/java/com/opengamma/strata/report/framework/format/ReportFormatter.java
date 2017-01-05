@@ -37,10 +37,6 @@ public abstract class ReportFormatter<R extends Report> {
    * The format settings provider.
    */
   private final FormatSettingsProvider formatSettingsProvider = FormatSettingsProvider.INSTANCE;
-  /**
-   * The line item separator.
-   */
-  private static final String LINE_ITEM_SEPARATOR = ",";
 
   /**
    * Creates a new formatter with a set of default format settings.
@@ -61,7 +57,7 @@ public abstract class ReportFormatter<R extends Report> {
   @SuppressWarnings("resource")
   public void writeCsv(R report, OutputStream out) {
     OutputStreamWriter outputWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-    CsvOutput csvOut = new CsvOutput(outputWriter, LINE_ITEM_SEPARATOR);
+    CsvOutput csvOut = new CsvOutput(outputWriter);
     csvOut.writeLine(report.getColumnHeaders());
     IntStream.range(0, report.getRowCount())
         .mapToObj(rowIdx -> formatRow(report, rowIdx, ReportOutputFormat.CSV))
