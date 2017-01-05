@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -51,7 +52,14 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 3);
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.USNY;
   private static final StandardId INDEX_ID = StandardId.of("OG", "ABCXX");
-  private static final ImmutableList<StandardId> LEGAL_ENTITIES = ImmutableList.of();
+  private static final ImmutableList<StandardId> LEGAL_ENTITIES;
+  static {
+    Builder<StandardId> builder = ImmutableList.builder();
+    for (int i = 0; i < 97; ++i) {
+      builder.add(StandardId.of("OG", String.valueOf(i)));
+    }
+    LEGAL_ENTITIES = builder.build();
+  }
 
   private static final DoubleArray TIME_YC = DoubleArray.ofUnsafe(new double[] {0.09041095890410959, 0.16712328767123288,
       0.2547945205479452, 0.5041095890410959, 0.7534246575342466, 1.0054794520547945, 2.0054794520547947, 3.008219178082192,
