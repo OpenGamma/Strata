@@ -153,7 +153,7 @@ public class SpreadSensitivityCalculatorTest {
     }
     ImmutableMarketData marketData = dataBuilder.build();
     ImmutableList<CdsIsdaCreditCurveNode> nodes = nodesBuilder.build();
-    CreditRatesProvider rates = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider rates = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
@@ -167,7 +167,7 @@ public class SpreadSensitivityCalculatorTest {
     CREDIT_CURVE_INDEX = LegalEntitySurvivalProbabilities.of(
         INDEX_ID, IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, curveWithFactor));
   }
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE, INDEX_ID, RECOVERY_CURVE_INDEX))
       .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
@@ -219,7 +219,7 @@ public class SpreadSensitivityCalculatorTest {
   }
 
   public void bucketedCs01SingleNodeCurveTest() {
-    CreditRatesProvider ratesProviderNoCredit = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProviderNoCredit = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
@@ -231,7 +231,7 @@ public class SpreadSensitivityCalculatorTest {
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
         CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, ImmutableList.of(node), true, false);
     LegalEntitySurvivalProbabilities creditCurve = BUILDER.calibrate(definition, marketData, ratesProviderNoCredit, REF_DATA);
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))

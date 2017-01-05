@@ -69,6 +69,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
     Currency currency = product.getCurrency();
     StandardId legalEntityId = product.getLegalEntityId();
     LocalDate valuationDate = ratesProvider.getValuationDate();
+    ImmutableCreditRatesProvider immutableRatesProvider = ratesProvider.toImmutableCreditRatesProvider();
 
     int nBucket = bucketCds.size();
     DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
@@ -81,7 +82,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
-    CreditRatesProvider ratesProviderBase = ratesProvider.toBuilder()
+    CreditRatesProvider ratesProviderBase = immutableRatesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
             legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
         .build();
@@ -97,7 +98,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
-    CreditRatesProvider ratesProviderBump = ratesProvider.toBuilder()
+    CreditRatesProvider ratesProviderBump = immutableRatesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
             LegalEntitySurvivalProbabilities.of(
@@ -120,6 +121,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
     Currency currency = product.getCurrency();
     StandardId legalEntityId = product.getLegalEntityId();
     LocalDate valuationDate = ratesProvider.getValuationDate();
+    ImmutableCreditRatesProvider immutableRatesProvider = ratesProvider.toImmutableCreditRatesProvider();
 
     int nBucket = bucketCds.size();
     double[] res = new double[nBucket];
@@ -133,7 +135,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
-    CreditRatesProvider ratesProviderBase = ratesProvider.toBuilder()
+    CreditRatesProvider ratesProviderBase = immutableRatesProvider.toBuilder()
         .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
             legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
         .build();
@@ -150,7 +152,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
           ratesProvider.discountFactors(currency),
           ratesProvider.recoveryRates(legalEntityId),
           refData);
-      CreditRatesProvider ratesProviderBump = ratesProvider.toBuilder()
+      CreditRatesProvider ratesProviderBump = immutableRatesProvider.toBuilder()
           .creditCurves(ImmutableMap.of(
               Pair.of(legalEntityId, currency),
               LegalEntitySurvivalProbabilities.of(

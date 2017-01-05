@@ -23,7 +23,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
 import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 
@@ -112,7 +112,7 @@ public class CreditRatesProviderDataSets {
    * @param valuationDate  the valuation date
    * @return the rates provider
    */
-  public static CreditRatesProvider createCreditRatesProvider(LocalDate valuationDate) {
+  public static ImmutableCreditRatesProvider createCreditRatesProvider(LocalDate valuationDate) {
 
     IsdaCompliantZeroRateDiscountFactors ycUsd = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);
     IsdaCompliantZeroRateDiscountFactors ycJpy = IsdaCompliantZeroRateDiscountFactors.of(JPY, valuationDate, NODAL_YC_JPY);
@@ -120,7 +120,7 @@ public class CreditRatesProviderDataSets {
     IsdaCompliantZeroRateDiscountFactors ccJp = IsdaCompliantZeroRateDiscountFactors.of(JPY, valuationDate, NODAL_CC_JP);
     ConstantRecoveryRates rrUs = ConstantRecoveryRates.of(LEGAL_ENTITY_US, valuationDate, RECOVERY_RATE_US);
     ConstantRecoveryRates rrJp = ConstantRecoveryRates.of(LEGAL_ENTITY_JP, valuationDate, RECOVERY_RATE_JP);
-    return CreditRatesProvider.builder()
+    return ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_US, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_US, ccUs),

@@ -77,7 +77,7 @@ public class IsdaCompliantIndexCurveCalibrator {
   public LegalEntitySurvivalProbabilities calibrate(
       IsdaCreditCurveDefinition curveDefinition,
       MarketData marketData,
-      CreditRatesProvider ratesProvider,
+      ImmutableCreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
     ArgChecker.isTrue(curveDefinition.getCurveValuationDate().equals(ratesProvider.getValuationDate()),

@@ -8,7 +8,6 @@ package com.opengamma.strata.market.curve;
 import java.util.List;
 
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -198,31 +197,6 @@ public final class Curves {
         .curveName(name)
         .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
-        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
-        .build();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates curve metadata for an ISDA credit curve.
-   * <p>
-   * The x-values represent year fractions using 'Act/365F' as specified by the ISDA credit specification.
-   * 
-   * @param name  the curve name
-   * @param parameterMetadata  the parameter metadata
-   * @return the curve metadata
-   */
-  @SuppressWarnings("unchecked")
-  public static CurveMetadata isdaCredit(
-      CurveName name,
-      List<? extends ParameterMetadata> parameterMetadata) {
-
-    ArgChecker.notNull(name, "name");
-    return DefaultCurveMetadata.builder()
-        .curveName(name)
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.ISDA_CREDIT)
-        .dayCount(DayCounts.ACT_365F)
         .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
         .build();
   }

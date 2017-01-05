@@ -27,8 +27,10 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    * @param volatilityId  the volatility identifier
    * @return the swaption lookup containing the specified mapping
    */
-  public static CreditRatesMarketDataLookup of(Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
-      Map<Currency, CurveId> discountCurveIds, Map<StandardId, CurveId> recoveryRateCurveIds) {
+  public static CreditRatesMarketDataLookup of(
+      Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
+      Map<Currency, CurveId> discountCurveIds,
+      Map<StandardId, CurveId> recoveryRateCurveIds) {
 //    return DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
     return null;
   }
@@ -41,9 +43,11 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    * @param volatilityIds  the volatility identifiers, keyed by index
    * @return the swaption lookup containing the specified volatilities
    */
-  public static CreditRatesMarketDataLookup of(Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
-      Map<Currency, CurveId> discountCurveIds, Map<StandardId, CurveId> recoveryRateCurveIds,
-      ObservableSource obsSource) {
+  public static CreditRatesMarketDataLookup of(
+      Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
+      Map<Currency, CurveId> discountCurveIds,
+      Map<StandardId, CurveId> recoveryRateCurveIds,
+      ObservableSource observableSource) {
 //  return DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
     return null;
   }

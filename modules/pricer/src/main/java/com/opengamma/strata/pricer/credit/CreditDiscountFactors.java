@@ -9,8 +9,16 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -60,6 +68,41 @@ public interface CreditDiscountFactors
    * @return the parameter keys
    */
   public abstract DoubleArray getParameterKeys();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a curve.
+   * <p>
+   * If the curve satisfies the conditions for ISDA compliant curve, 
+   * {@code IsdaCompliantZeroRateDiscountFactors} is always instantiated. 
+   * <p>
+   * This must be updated once a new subclass is implemented.
+   * 
+   * @param currency  the currency
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param curve  the underlying curve
+   * @return the discount factors view
+   */
+  public static CreditDiscountFactors of(Currency currency, LocalDate valuationDate, Curve curve) {
+    CurveMetadata metadata = curve.getMetadata();
+    if (metadata.getXValueType().equals(ValueType.YEAR_FRACTION) && metadata.getYValueType().equals(ValueType.ZERO_RATE)) {
+      if (curve instanceof ConstantNodalCurve) {
+        ConstantNodalCurve constantCurve = (ConstantNodalCurve) curve;
+        return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, constantCurve);
+      }
+      if (curve instanceof InterpolatedNodalCurve) {
+        InterpolatedNodalCurve interpolatedCurve = (InterpolatedNodalCurve) curve;
+        ArgChecker.isTrue(interpolatedCurve.getInterpolator().equals(CurveInterpolators.PRODUCT_LINEAR),
+            "Interpolator must be PRODUCT_LINEAR");
+        ArgChecker.isTrue(interpolatedCurve.getExtrapolatorLeft().equals(CurveExtrapolators.FLAT),
+            "Left extrapolator must be FLAT");
+        ArgChecker.isTrue(interpolatedCurve.getExtrapolatorRight().equals(CurveExtrapolators.PRODUCT_LINEAR),
+            "Right extrapolator must be PRODUCT_LINEAR");
+        return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, interpolatedCurve);
+      }
+    }
+    throw new IllegalArgumentException("Unknown curve type");
+  }
 
   //-------------------------------------------------------------------------
   @Override

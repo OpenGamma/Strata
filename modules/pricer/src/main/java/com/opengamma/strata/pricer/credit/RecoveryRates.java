@@ -9,6 +9,9 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.ConstantCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 
@@ -20,6 +23,27 @@ import com.opengamma.strata.market.param.ParameterizedData;
 public interface RecoveryRates
     extends MarketDataView, ParameterizedData {
 
+  /**
+   * Obtains an instance from a curve.
+   * <p>
+   * If the curve is {@code ConstantCurve}, {@code ConstantRecoveryRates} is always instantiated. 
+   * <p>
+   * This must be updated once a new subclass is implemented.
+   * 
+   * @param legalEntityId  the legal entity identifier
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param curve  the underlying curve
+   * @return the instance
+   */
+  public static RecoveryRates of(StandardId legalEntityId, LocalDate valuationDate, Curve curve) {
+    if (curve.getMetadata().getYValueType().equals(ValueType.RECOVERY_RATE)) {
+      ConstantCurve constantCurve = (ConstantCurve) curve;
+      return ConstantRecoveryRates.of(legalEntityId, valuationDate, constantCurve.getYValue());
+    }
+    throw new IllegalArgumentException("Unknown curve type");
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the valuation date. 
    * 

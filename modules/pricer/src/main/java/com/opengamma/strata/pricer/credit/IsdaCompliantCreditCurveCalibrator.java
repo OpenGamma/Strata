@@ -151,7 +151,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
   public LegalEntitySurvivalProbabilities calibrate(
       IsdaCreditCurveDefinition curveDefinition,
       MarketData marketData,
-      CreditRatesProvider ratesProvider,
+      ImmutableCreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
     ArgChecker.isTrue(curveDefinition.getCurveValuationDate().equals(ratesProvider.getValuationDate()),
@@ -176,7 +176,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       List<CdsIsdaCreditCurveNode> curveNodes,
       CurveName name,
       MarketData marketData,
-      CreditRatesProvider ratesProvider,
+      ImmutableCreditRatesProvider ratesProvider,
       DayCount definitionDayCount,
       Currency definitionCurrency,
       boolean computeJacobian,
@@ -240,7 +240,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     if (computeJacobian) {
       LegalEntitySurvivalProbabilities creditCurve = LegalEntitySurvivalProbabilities.of(
           legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));
-      CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
+      ImmutableCreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), creditCurve))
           .build();
       Function<ResolvedCdsTrade, DoubleArray> sensiFunc = quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)
@@ -328,7 +328,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
           refData);
       Currency currency = calibrationCds.getProduct().getCurrency();
       StandardId legalEntityId = calibrationCds.getProduct().getLegalEntityId();
-      CreditRatesProvider rates = CreditRatesProvider.builder()
+      ImmutableCreditRatesProvider rates = ImmutableCreditRatesProvider.builder()
           .valuationDate(valuationDate)
           .discountCurves(ImmutableMap.of(currency, discountFactors))
           .recoveryRateCurves(ImmutableMap.of(legalEntityId, recoveryRates))

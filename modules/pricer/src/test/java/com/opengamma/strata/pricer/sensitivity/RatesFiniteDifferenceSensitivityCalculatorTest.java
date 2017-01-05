@@ -34,6 +34,7 @@ import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
+import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
 import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.datasets.CreditRatesProviderDataSets;
@@ -220,7 +221,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   }
 
   // private function for testing. Returns the sum of rates multiplied by time
-  private CurrencyAmount creditFunction(CreditRatesProvider provider) {
+  private CurrencyAmount creditFunction(ImmutableCreditRatesProvider provider) {
     double result = 0.0;
     // credit curve
     ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> mapCredit =

@@ -81,7 +81,7 @@ public class CdsMarketQuoteConverterTest {
   private static final double RECOVERY_RATE = 0.4;
   private static final ConstantRecoveryRates REC_RATES = ConstantRecoveryRates.of(LEGAL_ENTITY, TODAY, RECOVERY_RATE);
   // rates provider without credit curve
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .discountCurves(ImmutableMap.of(GBP, DSC_CURVE))
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, REC_RATES))
       .valuationDate(TODAY)
@@ -174,7 +174,7 @@ public class CdsMarketQuoteConverterTest {
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
     NodalCurve cc = CALIB.calibrate(ImmutableList.of(trade), DoubleArray.of(0.0123), DoubleArray.of(0.0),
         CurveName.of("test"), TODAY, DSC_CURVE, REC_RATES, REF_DATA);
-    CreditRatesProvider rates = RATES_PROVIDER.toBuilder()
+    CreditRatesProvider rates = RATES_PROVIDER.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY, GBP),
             LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))

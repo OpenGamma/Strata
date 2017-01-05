@@ -66,9 +66,9 @@ public final class ValueType
    */
   public static final ValueType PRICE_INDEX = of("PriceIndex");
   /**
-   * Type used when each value is an ISDA credit curve value - 'IsdaCredit'.
+   * Type used when each value is a recovery rate - 'RecoveryRate'.
    */
-  public static final ValueType ISDA_CREDIT = of("IsdaCredit");
+  public static final ValueType RECOVERY_RATE = of("RecoveryRate");
 
   /**
    * Type used when each value is a Black model implied volatility - 'BlackVolatility'.

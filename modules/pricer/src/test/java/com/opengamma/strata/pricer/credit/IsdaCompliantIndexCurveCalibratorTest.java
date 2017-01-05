@@ -128,7 +128,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     CURVE_NODES_PS = curveNodesPsBuilder.build();
     MARKET_DATA_PS = marketDataPsBuilder.build();
   }
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final ImmutableCreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .discountCurves(ImmutableMap.of(EUR, CURVE_YC))
       .recoveryRateCurves(ImmutableMap.of(INDEX_ID, ConstantRecoveryRates.of(INDEX_ID, VALUATION_DATE, RECOVERY_RATE_VALUE)))
@@ -197,7 +197,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
   //-------------------------------------------------------------------------
   protected void testJacobian(
       LegalEntitySurvivalProbabilities curve,
-      CreditRatesProvider ratesProvider,
+      ImmutableCreditRatesProvider ratesProvider,
       List<CdsIndexIsdaCreditCurveNode> nodes,
       double[] quotes) {
 

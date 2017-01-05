@@ -18,48 +18,48 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
-import com.opengamma.strata.product.credit.Cds;
-import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.credit.ResolvedCdsTrade;
+import com.opengamma.strata.product.credit.CdsIndex;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
+import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 
-public class CdsTradeCalculationFunction
-    implements CalculationFunction<CdsTrade> {
+public class CdsIndexTradeCalculationFunction
+    implements CalculationFunction<CdsIndexTrade> {
 
   /**
-   * The calculations by measure.
-   */
+  * The calculations by measure.
+  */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, CdsMeasureCalculations.DEFAULT::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, CdsMeasureCalculations.DEFAULT::pv01CalibratedSum)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, CdsMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
-          .put(Measures.PV01_MARKET_QUOTE_SUM, CdsMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
-          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, CdsMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
-          .put(Measures.UNIT_PRICE, CdsMeasureCalculations.DEFAULT::unitPrice)
-          .put(CreditMeasures.IR01_CALIBRATED__PARALLEL, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteParallel)
-          .put(CreditMeasures.IR01_CALIBRATED__BUCKETED, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteBucketed)
-          .put(CreditMeasures.IR01_MARKET_QUOTE_PARALLEL, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteParallel)
-          .put(CreditMeasures.IR01_MARKET_QUOTE_BUCKETED, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteBucketed)
-          .put(CreditMeasures.CS01_PARALLEL, CdsMeasureCalculations.DEFAULT::cs01Parallel)
-          .put(CreditMeasures.CS01_BUCKETED, CdsMeasureCalculations.DEFAULT::cs01Bucketed)
-          .put(CreditMeasures.RECOVERY01, CdsMeasureCalculations.DEFAULT::recovery01)
-          .put(CreditMeasures.JUMP_TO_DEFAULT, CdsMeasureCalculations.DEFAULT::jumpToDefault)
-          .put(CreditMeasures.EXPECTED_LOSS, CdsMeasureCalculations.DEFAULT::expectedLoss)
+          .put(Measures.PRESENT_VALUE, CdsIndexMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, CdsIndexMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, CdsIndexMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, CdsIndexMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, CdsIndexMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.UNIT_PRICE, CdsIndexMeasureCalculations.DEFAULT::unitPrice)
+          .put(CreditMeasures.IR01_CALIBRATED__PARALLEL, CdsIndexMeasureCalculations.DEFAULT::ir01MarketQuoteParallel)
+          .put(CreditMeasures.IR01_CALIBRATED__BUCKETED, CdsIndexMeasureCalculations.DEFAULT::ir01MarketQuoteBucketed)
+          .put(CreditMeasures.IR01_MARKET_QUOTE_PARALLEL, CdsIndexMeasureCalculations.DEFAULT::ir01MarketQuoteParallel)
+          .put(CreditMeasures.IR01_MARKET_QUOTE_BUCKETED, CdsIndexMeasureCalculations.DEFAULT::ir01MarketQuoteBucketed)
+          .put(CreditMeasures.CS01_PARALLEL, CdsIndexMeasureCalculations.DEFAULT::cs01Parallel)
+          .put(CreditMeasures.CS01_BUCKETED, CdsIndexMeasureCalculations.DEFAULT::cs01Bucketed)
+          .put(CreditMeasures.RECOVERY01, CdsIndexMeasureCalculations.DEFAULT::recovery01)
+          .put(CreditMeasures.JUMP_TO_DEFAULT, CdsIndexMeasureCalculations.DEFAULT::jumpToDefault)
+          .put(CreditMeasures.EXPECTED_LOSS, CdsIndexMeasureCalculations.DEFAULT::expectedLoss)
           .put(Measures.RESOLVED_TARGET, (rt, smd, rd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
 
   /**
-   * Creates an instance.
-   */
-  public CdsTradeCalculationFunction() {
+  * Creates an instance.
+  */
+  public CdsIndexTradeCalculationFunction() {
   }
 
-  //-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
   @Override
-  public Class<CdsTrade> targetType() {
-    return CdsTrade.class;
+  public Class<CdsIndexTrade> targetType() {
+    return CdsIndexTrade.class;
   }
 
   @Override
@@ -68,26 +68,26 @@ public class CdsTradeCalculationFunction
   }
 
   @Override
-  public Optional<String> identifier(CdsTrade target) {
+  public Optional<String> identifier(CdsIndexTrade target) {
     return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
-  public Currency naturalCurrency(CdsTrade trade, ReferenceData refData) {
+  public Currency naturalCurrency(CdsIndexTrade trade, ReferenceData refData) {
     return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(
-      CdsTrade trade,
+      CdsIndexTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
       ReferenceData refData) {
 
     // extract data from product
-    Cds product = trade.getProduct();
-    StandardId legalEntityId = product.getLegalEntityId();
+    CdsIndex product = trade.getProduct();
+    StandardId legalEntityId = product.getCdsIndexId();
     Currency currency = product.getCurrency();
     // use lookup to build requirements
     CreditRatesMarketDataLookup lookup = parameters.getParameter(CreditRatesMarketDataLookup.class);
@@ -97,14 +97,14 @@ public class CdsTradeCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      CdsTrade trade,
+      CdsIndexTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
       ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedCdsTrade resolved = trade.resolve(refData);
+    ResolvedCdsIndexTrade resolved = trade.resolve(refData);
 
     // use lookup to query market data
     CreditRatesMarketDataLookup ledLookup = parameters.getParameter(CreditRatesMarketDataLookup.class);
@@ -121,13 +121,13 @@ public class CdsTradeCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
-      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for CdsTrade: {}", measure);
+      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for CdsIndexTrade: {}", measure);
     }
     return Result.of(() -> calculator.calculate(trade, marketData, refData));
   }
@@ -136,7 +136,7 @@ public class CdsTradeCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract Object calculate(
-        ResolvedCdsTrade trade,
+        ResolvedCdsIndexTrade trade,
         CreditRatesScenarioMarketData marketData,
         ReferenceData refData);
   }

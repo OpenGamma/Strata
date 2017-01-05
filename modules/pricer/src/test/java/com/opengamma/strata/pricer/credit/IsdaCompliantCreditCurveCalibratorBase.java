@@ -68,7 +68,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   private static final ResolvedCdsTrade[][] EXP_NODE_CDS;
   private static final CdsIsdaCreditCurveNode[][] NODE_CDS;
   private static final ImmutableMarketData[] CDS_MARKET_DATA;
-  protected static final CreditRatesProvider[] YIELD_CURVES;
+  protected static final ImmutableCreditRatesProvider[] YIELD_CURVES;
   private static final double[][] SPREADS;
   protected static final BusinessDayAdjustment BUS_ADJ = BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR);
   private static final DaysAdjustment ADJ_3D = DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR);
@@ -106,7 +106,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     NODE_CDS = new CdsIsdaCreditCurveNode[NUM_TESTS][];
     CDS_MARKET_DATA = new ImmutableMarketData[NUM_TESTS];
     SPREADS = new double[NUM_TESTS][];
-    YIELD_CURVES = new CreditRatesProvider[NUM_TESTS];
+    YIELD_CURVES = new ImmutableCreditRatesProvider[NUM_TESTS];
     // case0
     LocalDate tradeDate0 = LocalDate.of(2011, 6, 19);
     LocalDate startDate0 = LocalDate.of(2011, 3, 21);
@@ -272,7 +272,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   }
 
   //-------------------------------------------------------------------------
-  private static CreditRatesProvider createRatesProvider(
+  private static ImmutableCreditRatesProvider createRatesProvider(
       LocalDate tradeDate,
       LocalDate snapDate,
       double rateScale,
@@ -287,7 +287,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         CurveName.of("yield"), EUR, tradeDate, ACT_365F, DSC_NODES, false, false);
     IsdaCompliantZeroRateDiscountFactors yc =
         IsdaCompliantDiscountCurveCalibrator.standard().calibrate(curveDefinition, quotes, REF_DATA);
-    return CreditRatesProvider.builder()
+    return ImmutableCreditRatesProvider.builder()
         .valuationDate(tradeDate)
         .discountCurves(ImmutableMap.of(EUR, yc))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, ConstantRecoveryRates.of(LEGAL_ENTITY, tradeDate, recoveryRate)))
@@ -350,7 +350,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           currency,
           false, false, REF_DATA);
       ResolvedCdsTrade[] expectedCds = EXP_NODE_CDS[i];
-      CreditRatesProvider provider = YIELD_CURVES[i].toBuilder()
+      ImmutableCreditRatesProvider provider = YIELD_CURVES[i].toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, EUR), creditCurve))
           .build();
       double[] expected = builder.getAccOnDefaultFormula() == AccrualOnDefaultFormula.MARKIT_FIX
@@ -380,7 +380,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
   protected void testJacobian(
       IsdaCompliantCreditCurveCalibrator builder,
       LegalEntitySurvivalProbabilities curve,
-      CreditRatesProvider ratesProvider,
+      ImmutableCreditRatesProvider ratesProvider,
       List<CdsIsdaCreditCurveNode> nodes,
       double[] quotes,
       double quoteScale,

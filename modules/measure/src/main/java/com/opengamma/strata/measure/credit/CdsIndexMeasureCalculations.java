@@ -18,15 +18,15 @@ import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
 import com.opengamma.strata.pricer.credit.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.credit.CdsMarketQuoteConverter;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCdsTradePricer;
+import com.opengamma.strata.pricer.credit.IsdaHomogenousCdsIndexTradePricer;
 import com.opengamma.strata.pricer.credit.SpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
-import com.opengamma.strata.product.credit.ResolvedCdsTrade;
+import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 
-final class CdsMeasureCalculations {
+public class CdsIndexMeasureCalculations {
 
-  public static final CdsMeasureCalculations DEFAULT =
-      new CdsMeasureCalculations(new IsdaCdsTradePricer(AccrualOnDefaultFormula.CORRECT));
+  public static final CdsIndexMeasureCalculations DEFAULT =
+      new CdsIndexMeasureCalculations(new IsdaHomogenousCdsIndexTradePricer(AccrualOnDefaultFormula.CORRECT));
 
   /**
    * The market quote sensitivity calculator.
@@ -37,14 +37,14 @@ final class CdsMeasureCalculations {
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
-  
-  private final IsdaCdsTradePricer tradePricer;
+
+  private final IsdaHomogenousCdsIndexTradePricer tradePricer;
 
   private final SpreadSensitivityCalculator cs01Calculator;
 
   private final CdsMarketQuoteConverter converter;
 
-  public CdsMeasureCalculations(IsdaCdsTradePricer tradePricer) {
+  public CdsIndexMeasureCalculations(IsdaHomogenousCdsIndexTradePricer tradePricer) {
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
     this.cs01Calculator = new AnalyticSpreadSensitivityCalculator(tradePricer.getAccrualOnDefaultFormula());
     this.converter = new CdsMarketQuoteConverter(tradePricer.getAccrualOnDefaultFormula());
@@ -53,7 +53,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   CurrencyScenarioArray presentValue(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -64,7 +64,7 @@ final class CdsMeasureCalculations {
 
   // calculates present value for one scenario
   CurrencyAmount presentValue(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       PriceType priceType,
       ReferenceData refData) {
@@ -75,7 +75,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates principal for all scenarios
   CurrencyScenarioArray principal(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -86,7 +86,7 @@ final class CdsMeasureCalculations {
 
   // calculates principal for one scenario
   CurrencyAmount principal(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -96,7 +96,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates principal for all scenarios
   DoubleScenarioArray unitPrice(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -107,7 +107,7 @@ final class CdsMeasureCalculations {
 
   // calculates principal for one scenario
   double unitPrice(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -118,7 +118,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates calibrated parallel IR01 for all scenarios
   CurrencyScenarioArray ir01CalibratedPrallel(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -129,7 +129,7 @@ final class CdsMeasureCalculations {
 
   // calculates calibrated parallel IR01 for one scenario
   private CurrencyAmount ir01CalibratedPrallel(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -143,7 +143,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates calibrated bucketed IR01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivity> ir01CalibratedBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -154,7 +154,7 @@ final class CdsMeasureCalculations {
 
   // calculates calibrated bucketed IR01 for one scenario
   private CurrencyParameterSensitivity ir01CalibratedBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -168,7 +168,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates market quote parallel IR01 for all scenarios
   MultiCurrencyScenarioArray ir01MarketQuoteParallel(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -179,7 +179,7 @@ final class CdsMeasureCalculations {
 
   // calculates market quote parallel IR01 for one scenario
   MultiCurrencyAmount ir01MarketQuoteParallel(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -195,7 +195,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates market quote bucketed IR01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivities> ir01MarketQuoteBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -206,7 +206,7 @@ final class CdsMeasureCalculations {
 
   // calculates market quote bucketed IR01 for one scenario
   CurrencyParameterSensitivities ir01MarketQuoteBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -223,7 +223,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates calibrated sum PV01 for all scenarios
   MultiCurrencyScenarioArray pv01CalibratedSum(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -234,7 +234,7 @@ final class CdsMeasureCalculations {
 
   // calculates calibrated sum PV01 for one scenario
   private MultiCurrencyAmount pv01CalibratedSum(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -245,7 +245,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates calibrated bucketed PV01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -256,7 +256,7 @@ final class CdsMeasureCalculations {
 
   // calculates calibrated bucketed PV01 for one scenario
   private CurrencyParameterSensitivities pv01CalibratedBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -267,7 +267,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates market quote sum PV01 for all scenarios
   MultiCurrencyScenarioArray pv01MarketQuoteSum(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -278,7 +278,7 @@ final class CdsMeasureCalculations {
 
   // calculates market quote sum PV01 for one scenario
   MultiCurrencyAmount pv01MarketQuoteSum(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -291,7 +291,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates market quote bucketed PV01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -302,7 +302,7 @@ final class CdsMeasureCalculations {
 
   // calculates market quote bucketed PV01 for one scenario
   CurrencyParameterSensitivities pv01MarketQuoteBucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -314,7 +314,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates parallel CS01 for all scenarios
   CurrencyScenarioArray cs01Parallel(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -325,7 +325,7 @@ final class CdsMeasureCalculations {
 
   // calculates parallel CS01 for one scenario
   CurrencyAmount cs01Parallel(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -335,7 +335,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates bucketed CS01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivity> cs01Bucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -346,7 +346,7 @@ final class CdsMeasureCalculations {
 
   // calculates bucketed CS01 for one scenario
   CurrencyParameterSensitivity cs01Bucketed(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -356,7 +356,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates recovery01 for all scenarios
   CurrencyScenarioArray recovery01(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -367,7 +367,7 @@ final class CdsMeasureCalculations {
 
   // calculates recovery01 for one scenario
   CurrencyAmount recovery01(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -377,7 +377,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates jump-to-default for all scenarios
   ScenarioArray<SplitCurrencyAmount<StandardId>> jumpToDefault(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -388,7 +388,7 @@ final class CdsMeasureCalculations {
 
   // calculates jump-to-default for one scenario
   SplitCurrencyAmount<StandardId> jumpToDefault(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
@@ -398,7 +398,7 @@ final class CdsMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates expected loss for all scenarios
   CurrencyScenarioArray expectedLoss(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
@@ -409,7 +409,7 @@ final class CdsMeasureCalculations {
 
   // calculates expected loss for one scenario
   CurrencyAmount expectedLoss(
-      ResolvedCdsTrade trade,
+      ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider) {
 
     return tradePricer.expectedLoss(trade, ratesProvider);

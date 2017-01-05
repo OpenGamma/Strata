@@ -42,13 +42,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCdsProductPricer;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
@@ -108,7 +101,7 @@ public class IsdaCdsProductPricerTest {
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
   private static final ConstantRecoveryRates RECOVERY_RATES =
       ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, 0.25);
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final ImmutableCreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, CREDIT_CRVE)))
       .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
@@ -616,7 +609,7 @@ public class IsdaCdsProductPricerTest {
     InterpolatedNodalCurve nodalCc = InterpolatedNodalCurve.of(METADATA_CC, timeCrd, rateCrd,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
     CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, nodalCc);
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    CreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
         .discountCurves(ImmutableMap.of(USD, yc))
@@ -672,7 +665,7 @@ public class IsdaCdsProductPricerTest {
     IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC);
     CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25);
-    return CreditRatesProvider.builder()
+    return ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
         .discountCurves(ImmutableMap.of(USD, yc))
