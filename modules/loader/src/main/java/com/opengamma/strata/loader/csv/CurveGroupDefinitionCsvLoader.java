@@ -76,7 +76,6 @@ public final class CurveGroupDefinitionCsvLoader {
   /** Name used in the reference column of the CSV file for forward curves. */
   private static final String FORWARD = "forward";
 
-  private static final String LINE_ITEM_SEPARATOR = ",";
   //-------------------------------------------------------------------------
   /**
    * Loads the curve groups definition CSV file.
@@ -228,7 +227,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groups  the curve groups
    */
   public static void writeCurveGroupDefinition(Appendable underlying, CurveGroupDefinition... groups) {
-    CsvOutput csv = new CsvOutput(underlying, LINE_ITEM_SEPARATOR);
+    CsvOutput csv = new CsvOutput(underlying);
     csv.writeLine(HEADERS);
     for (CurveGroupDefinition group : groups) {
       writeCurveGroupDefinition(csv, group);
@@ -272,7 +271,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groups  the curve groups
    */
   public static void writeCurveGroup(Appendable underlying, CurveGroup... groups) {
-    CsvOutput csv = new CsvOutput(underlying, LINE_ITEM_SEPARATOR);
+    CsvOutput csv = new CsvOutput(underlying);
     csv.writeLine(HEADERS);
     for (CurveGroup group : groups) {
       writeCurveGroup(csv, group);

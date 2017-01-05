@@ -27,7 +27,7 @@ public class CsvOutputTest {
   public void test_writeLines_alwaysQuote() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n", LINE_ITEM_SEP_COMMA).writeLines(rows, true);
+    new CsvOutput(buf, "\n").writeLines(rows, true);
     assertEquals(buf.toString(), "\"a\",\"x\"\n\"b\",\"y\"\n");
   }
 
@@ -48,7 +48,7 @@ public class CsvOutputTest {
   public void test_writeLines_systemNewLine() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, LINE_ITEM_SEP_COMMA).writeLines(rows, false);
+    new CsvOutput(buf).writeLines(rows, false);
     assertEquals(buf.toString(), "a,x" + LINE_SEP + "b,y" + LINE_SEP);
   }
 
