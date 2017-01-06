@@ -87,6 +87,23 @@ public final class CurveExtrapolators {
    */
   public static final CurveExtrapolator INTERPOLATOR =
       CurveExtrapolator.of(StandardCurveExtrapolators.INTERPOLATOR.getName());
+  /**
+   * Product linear extrapolator without sensitivity computed. 
+   * <p>
+   * Given a data set {@code (xValues[i], yValues[i])}, extrapolate {@code (x[i], x[i] * y[i])}
+   * by a linear function.
+   * <p>
+   * The gradient of the extrapolation is obtained from the gradient of the interpolated
+   * curve on {@code (x[i], x[i] * y[i])} at the first/last node.
+   * <p>
+   * The extrapolation is ambiguous at x=0. Thus the following rule applies: 
+   * The x value of the first node must be strictly negative for the left extrapolation, whereas the x value of 
+   * the last node must be strictly positive for the right extrapolation.
+  * <p>
+  * Use {@code PRODUCT_LINEAR} for parameter sensitivity. 
+   */
+  public static final CurveExtrapolator PRODUCT_LINEAR_SIMPLE =
+      CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_LINEAR_SIMPLE.getName());
 
   //-------------------------------------------------------------------------
   /**
