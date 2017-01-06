@@ -28,6 +28,10 @@ import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
+import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.DatesCdsTemplate;
@@ -105,10 +109,16 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, false);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, true);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
+    for (int i = 0; i < nPillars; ++i) {
+      ParameterMetadata param = resCurve.getParameterMetadata(i);
+      assertTrue(param instanceof ResolvedTradeParameterMetadata);
+      ResolvedTradeParameterMetadata tradeParam = (ResolvedTradeParameterMetadata) param;
+      assertTrue(tradeParam.getTrade() instanceof ResolvedCdsTrade);
+    }
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
@@ -175,6 +185,10 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
+    for (int i = 0; i < nPillars; ++i) {
+      ParameterMetadata param = resCurve.getParameterMetadata(i);
+      assertTrue(param instanceof DatedParameterMetadata);
+    }
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);

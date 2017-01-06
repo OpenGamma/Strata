@@ -149,6 +149,12 @@ public class IsdaCdsProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  public void accFormulaTest() {
+    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertEquals(PRICER_FIX.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
+    assertEquals(PRICER_CORRECT.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.CORRECT);
+  }
+
   public void endedTest() {
     LocalDate valuationDate = PRODUCT_NEXTDAY.getProtectionEndDate().plusDays(1);
     CreditRatesProvider provider = createCreditRatesProvider(valuationDate);

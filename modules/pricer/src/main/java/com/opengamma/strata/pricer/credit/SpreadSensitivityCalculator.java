@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
@@ -137,8 +138,25 @@ public abstract class SpreadSensitivityCalculator {
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
+    List<ResolvedTradeParameterMetadata> metadata = bucketCds.stream()
+        .map(t -> ResolvedTradeParameterMetadata.of(t, t.getProduct().getProtectionEndDate().toString()))
+        .collect(Guavate.toImmutableList());
+    return bucketedCs01(trade, bucketCds, metadata, ratesProvider, refData);
+  }
+
+  private CurrencyParameterSensitivity bucketedCs01(
+      ResolvedCdsTrade trade,
+      List<ResolvedCdsTrade> bucketCds,
+      List<ResolvedTradeParameterMetadata> metadata,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
     DoubleArray sensiValue = computedBucketedCs01(trade, bucketCds, ratesProvider, refData);
-    return CurrencyParameterSensitivity.of(CurveName.of("impliedSpreads"), trade.getProduct().getCurrency(), sensiValue);
+    return CurrencyParameterSensitivity.of(
+        CurveName.of("impliedSpreads"),
+        metadata,
+        trade.getProduct().getCurrency(),
+        sensiValue);
   }
 
   //-------------------------------------------------------------------------
@@ -239,7 +257,10 @@ public abstract class SpreadSensitivityCalculator {
     List<ResolvedCdsTrade> bucketCds = bucketCdsIndex.stream()
         .map(ResolvedCdsIndexTrade::toSingleNameCds)
         .collect(Collectors.toList());
-    CurrencyParameterSensitivity bucketedCs01 = bucketedCs01(cdsTrade, bucketCds, ratesProvider, refData);
+    List<ResolvedTradeParameterMetadata> metadata = bucketCdsIndex.stream()
+        .map(t -> ResolvedTradeParameterMetadata.of(t, t.getProduct().getProtectionEndDate().toString()))
+        .collect(Guavate.toImmutableList());
+    CurrencyParameterSensitivity bucketedCs01 = bucketedCs01(cdsTrade, bucketCds, metadata, ratesProvider, refData);
     double indexFactor = getIndexFactor(cdsTrade.getProduct(), ratesProvider);
     return bucketedCs01.multipliedBy(indexFactor);
   }

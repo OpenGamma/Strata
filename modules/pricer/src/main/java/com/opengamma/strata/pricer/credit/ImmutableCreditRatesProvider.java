@@ -174,7 +174,7 @@ public class ImmutableCreditRatesProvider
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof ZeroRateSensitivity) {
         ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
-        if (pt.getCurrency().equals(currency)) {
+        if (pt.getCurveCurrency().equals(currency)) {
           CreditDiscountFactors factors = discountFactors(pt.getCurveCurrency());
           sens = sens.combinedWith(factors.parameterSensitivity(pt));
         }

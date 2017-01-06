@@ -1,12 +1,12 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.market.param;
 
 import java.io.Serializable;
 import java.util.Map;
-/**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
- */
 import java.util.NoSuchElementException;
 import java.util.Set;
 

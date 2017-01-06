@@ -48,6 +48,10 @@ import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.LegalEntityInformation;
 import com.opengamma.strata.market.observable.LegalEntityInformationId;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
+import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.ImmutableCdsConvention;
@@ -147,6 +151,10 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     NodalCurve curve = (NodalCurve) creditCurve.getSurvivalProbabilities().findData(CURVE_NAME).get();
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getXValues().toArray(), expectedTimes, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getYValues().toArray(), expectedRates, TOL));
+    assertTrue(curve.getParameterMetadata(0) instanceof DatedParameterMetadata);
+    assertTrue(curve.getParameterMetadata(1) instanceof DatedParameterMetadata);
+    assertTrue(curve.getParameterMetadata(2) instanceof DatedParameterMetadata);
+    assertTrue(curve.getParameterMetadata(3) instanceof DatedParameterMetadata);
     double computedIndex = curve.getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     assertEquals(computedIndex, 93.0 / 97.0, TOL);
     testJacobian(creditCurve, RATES_PROVIDER, CURVE_NODES, PUF_QUOTES);
@@ -162,6 +170,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     NodalCurve curve = (NodalCurve) creditCurve.getSurvivalProbabilities().findData(CURVE_NAME).get();
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getXValues().toArray(), expectedTimes, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getYValues().toArray(), expectedRates, TOL));
+    assertTrue(curve.getParameterMetadata(0) instanceof DatedParameterMetadata);
     double computedIndex = curve.getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     assertEquals(computedIndex, 93.0 / 97.0, TOL);
     testJacobian(creditCurve, RATES_PROVIDER, singleNode, PUF_QUOTES);
@@ -169,7 +178,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
 
   public void test_consistency_singleName() {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, CURVE_NODES_PS, true, false);
+        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, CURVE_NODES_PS, true, true);
     LegalEntitySurvivalProbabilities creditCurveComputed = CALIBRATOR.calibrate(
         curveDefinition, MARKET_DATA_PS, RATES_PROVIDER, REF_DATA);
     NodalCurve curveComputed = (NodalCurve) creditCurveComputed.getSurvivalProbabilities().findData(CURVE_NAME).get();
@@ -182,6 +191,10 @@ public class IsdaCompliantIndexCurveCalibratorTest {
           CURVE_NODES_PS.get(i).getTemplate(),
           CURVE_NODES_PS.get(i).getObservableId(),
           CURVE_NODES_PS.get(i).getCdsIndexId()));
+      ParameterMetadata metadata = curveComputed.getParameterMetadata(i);
+      assertTrue(metadata instanceof ResolvedTradeParameterMetadata);
+      ResolvedTradeParameterMetadata tradeMetadata = (ResolvedTradeParameterMetadata) metadata;
+      assertTrue(tradeMetadata.getTrade() instanceof ResolvedCdsIndexTrade);
     }
     IsdaCreditCurveDefinition cdsCurveDefinition = IsdaCreditCurveDefinition.of(
         CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, cdsNodes, true, false);

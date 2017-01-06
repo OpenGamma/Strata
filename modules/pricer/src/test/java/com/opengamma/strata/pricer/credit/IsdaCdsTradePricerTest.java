@@ -121,6 +121,11 @@ public class IsdaCdsTradePricerTest {
 
   private static final double TOL = 1.0e-15;
 
+  public void accFormulaTest() {
+    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertEquals(PRICER_MF.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
+  }
+
   public void test_price() {
     double computed = PRICER.price(TRADE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     double expected = PRICER_PRODUCT.price(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);

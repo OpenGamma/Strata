@@ -87,6 +87,8 @@ public final class IsdaCreditCurveDefinition
   private final boolean computeJacobian;
   /**
    * The flag indicating if the node trade should be stored or not.
+   * <p>
+   * This property is used only for credit curve calibration.
    */
   @PropertyDefinition(validate = "notNull")
   private final boolean storeNodeTrade;
@@ -281,6 +283,8 @@ public final class IsdaCreditCurveDefinition
   //-----------------------------------------------------------------------
   /**
    * Gets the flag indicating if the node trade should be stored or not.
+   * <p>
+   * This property is used only for credit curve calibration.
    * @return the value of the property, not null
    */
   public boolean isStoreNodeTrade() {

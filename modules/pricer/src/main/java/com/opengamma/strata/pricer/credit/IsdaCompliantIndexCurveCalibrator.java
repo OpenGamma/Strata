@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.credit;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -14,12 +15,15 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIndexIsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.LegalEntityInformation;
 import com.opengamma.strata.market.observable.LegalEntityInformationId;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
 
 /**
  * ISDA compliant index curve calibrator.
@@ -97,11 +101,21 @@ public class IsdaCompliantIndexCurveCalibrator {
         curveDefinition.getDayCount(),
         curveDefinition.getCurrency(),
         curveDefinition.isComputeJacobian(),
-        curveDefinition.isStoreNodeTrade(),
+        false,
         refData);
     NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) creditCurve.getSurvivalProbabilities()).getCurve();
-    NodalCurve curveWithFactor =
-        underlyingCurve.withMetadata(underlyingCurve.getMetadata().withInfo(CurveInfoType.CDS_INDEX_FACTOR, indexFactor));
+    CurveMetadata metadata = underlyingCurve.getMetadata().withInfo(CurveInfoType.CDS_INDEX_FACTOR, indexFactor);
+    if (curveDefinition.isStoreNodeTrade()) {
+      int nNodes = curveDefinition.getCurveNodes().size();
+      ImmutableList<ParameterMetadata> parameterMetadata = IntStream.range(0, nNodes)
+          .mapToObj(
+              n -> ResolvedTradeParameterMetadata.of(
+                  curveNodes.get(n).trade(1d, marketData, refData).getUnderlyingTrade().resolve(refData),
+                  curveNodes.get(n).getLabel()))
+          .collect(Guavate.toImmutableList());
+      metadata = metadata.withParameterMetadata(parameterMetadata);
+    }
+    NodalCurve curveWithFactor = underlyingCurve.withMetadata(metadata);
 
     return LegalEntitySurvivalProbabilities.of(
         creditCurve.getLegalEntityId(),

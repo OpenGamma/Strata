@@ -134,6 +134,12 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  public void accFormulaTest() {
+    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertEquals(PRICER_MARKIT.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
+    assertEquals(PRICER_OG.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.CORRECT);
+  }
+
   public void test_regression() {
     CurrencyAmount cleanPvOg = PRICER_OG.presentValue(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, CLEAN, REF_DATA);
     assertEquals(cleanPvOg.getAmount(), 7305773.195876285, NOTIONAL * TOL);

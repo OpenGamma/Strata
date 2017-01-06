@@ -154,6 +154,47 @@ public class ImmutableCreditRatesProviderTest {
     assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
   }
 
+  public void test_singleCreditCurveParameterSensitivity() {
+    ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
+    CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
+    FxForwardSensitivity fxPt = FxForwardSensitivity.of(CurrencyPair.of(JPY, USD), USD, LocalDate.of(2017, 2, 14), 15d);
+    CreditRatesProvider test = ImmutableCreditRatesProvider.builder()
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
+        .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
+        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
+        .valuationDate(VALUATION)
+        .build();
+    CurrencyParameterSensitivities computed = CurrencyParameterSensitivities.of(test.singleCreditCurveParameterSensitivity(
+            zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(),
+            LEGAL_ENTITY_ABC,
+            JPY));
+    CurrencyParameterSensitivities expected =
+        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY).parameterSensitivity(creditPt);
+    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+  }
+
+  public void test_singleDiscountCurveParameterSensitivity() {
+    ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
+    CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
+    FxForwardSensitivity fxPt = FxForwardSensitivity.of(CurrencyPair.of(JPY, USD), USD, LocalDate.of(2017, 2, 14), 15d);
+    CreditRatesProvider test = ImmutableCreditRatesProvider.builder()
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
+        .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
+        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
+        .valuationDate(VALUATION)
+        .build();
+    CurrencyParameterSensitivities computed = CurrencyParameterSensitivities.of(
+        test.singleDiscountCurveParameterSensitivity(zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(), USD));
+    CurrencyParameterSensitivities expected = DSC_USD.parameterSensitivity(zeroPt);
+    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableCreditRatesProvider test1 = ImmutableCreditRatesProvider.builder()
