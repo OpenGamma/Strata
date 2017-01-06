@@ -122,6 +122,26 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator STEP_UPPER =
       CurveInterpolator.of(StandardCurveInterpolators.STEP_UPPER.getName());
+  /**
+   * Product natural cubic spline interpolator without sensitivity computed.
+   * <p>
+   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline.
+   * <p>
+   * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose
+   * the condition that all of the x data to be the same sign, such that the origin is not within data range.
+   * The x key value must not be close to zero.
+   * <p>
+   * Use {@code PRODUCT_NATURAL_SPLINE} for parameter sensitivity.
+   */
+  public static final CurveInterpolator PRODUCT_NATURAL_SPLINE_SIMPLE =
+      CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_NATURAL_SPLINE_SIMPLE.getName());
+  /**
+   * Natural spline interpolator without sensitivity computed.
+   * <p>
+   * Use {@code NATURAL_SPLINE} for parameter sensitivity.
+   */
+  public static final CurveInterpolator NATURAL_SPLINE_SIMPLE =
+      CurveInterpolator.of(StandardCurveInterpolators.NATURAL_SPLINE_SIMPLE.getName());
 
   //-------------------------------------------------------------------------
   /**
