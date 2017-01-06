@@ -47,10 +47,6 @@ final class StandardCurveInterpolators {
   public static final CurveInterpolator PRODUCT_LINEAR = ProductLinearCurveInterpolator.INSTANCE;
   // Step upper interpolator.
   public static final CurveInterpolator STEP_UPPER = StepUpperCurveInterpolator.INSTANCE;
-  // Product natural cubic spline interpolator.
-  public static final CurveInterpolator PRODUCT_NATURAL_SPLINE_SIMPLE = ProductNaturalSplineSimpleCurveInterpolator.INSTANCE;
-  // Natural spline interpolator.
-  public static final CurveInterpolator NATURAL_SPLINE_SIMPLE = NaturalSplineSimpleCurveInterpolator.INSTANCE;
 
   //-------------------------------------------------------------------------
   /**
