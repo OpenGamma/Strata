@@ -7,11 +7,14 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import java.io.Serializable;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator;
+import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
 
 /**
@@ -85,15 +88,18 @@ final class ProductNaturalSplineCurveInterpolator
   static class Bound extends AbstractBoundCurveInterpolator {
     private final double[] xValues;
     private final double[] yValues;
-    private final PiecewisePolynomialResultsWithSensitivity poly;
+    private final PiecewisePolynomialResult poly;
+    private final Supplier<PiecewisePolynomialResultsWithSensitivity> polySens;
 
     Bound(DoubleArray xValues, DoubleArray yValues) {
       super(xValues, yValues);
       ArgChecker.isTrue(xValues.get(0) > 0d || xValues.get(xValues.size() - 1) < 0d, "xValues must have the same sign");
       this.xValues = xValues.toArrayUnsafe();
       this.yValues = yValues.toArrayUnsafe();
-      double[] xyValues = getProduct(this.xValues, this.yValues);
-      this.poly = new NaturalSplineInterpolator().interpolateWithSensitivity(xValues.toArray(), xyValues);
+      NaturalSplineInterpolator underlying = new NaturalSplineInterpolator();
+      this.poly = underlying.interpolate(xValues.toArray(), getProduct(this.xValues, this.yValues));
+      this.polySens = Suppliers.memoize(
+          () -> underlying.interpolateWithSensitivity(xValues.toArray(), getProduct(this.xValues, this.yValues)));
     }
 
     Bound(Bound base, BoundCurveExtrapolator extrapolatorLeft, BoundCurveExtrapolator extrapolatorRight) {
@@ -101,6 +107,7 @@ final class ProductNaturalSplineCurveInterpolator
       this.xValues = base.xValues;
       this.yValues = base.yValues;
       this.poly = base.poly;
+      this.polySens = base.polySens;
     }
 
     //-------------------------------------------------------------------------
@@ -131,7 +138,7 @@ final class ProductNaturalSplineCurveInterpolator
     @Override
     protected DoubleArray doParameterSensitivity(double xValue) {
       ArgChecker.isTrue(Math.abs(xValue) > SMALL, "magnitude of xValue must not be small");
-      DoubleArray resSense = FUNCTION.nodeSensitivity(poly, xValue);
+      DoubleArray resSense = FUNCTION.nodeSensitivity(polySens.get(), xValue);
       return resSense.multipliedBy(DoubleArray.of(resSense.size(), i -> xValues[i] / xValue));
     }
 

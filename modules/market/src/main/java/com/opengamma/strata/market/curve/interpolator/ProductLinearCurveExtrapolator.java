@@ -7,6 +7,8 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import java.io.Serializable;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -78,14 +80,14 @@ final class ProductLinearCurveExtrapolator
     private final double lastYValue;
     private final double eps;
     private final double lastGradient;
-    private final DoubleArray lastSens;
-    private final DoubleArray lastGradSens;
+    private final Supplier<DoubleArray> lastSens;
+    private final Supplier<DoubleArray> lastGradSens;
 
     private final double firstXValue;
     private final double firstYValue;
     private final double firstGradient;
-    private final DoubleArray firstSens;
-    private final DoubleArray firstGradSens;
+    private final Supplier<DoubleArray> firstSens;
+    private final Supplier<DoubleArray> firstGradSens;
 
     Bound(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
       this.nodeCount = xValues.size();
@@ -96,12 +98,14 @@ final class ProductLinearCurveExtrapolator
       this.eps = EPS * (lastXValue - firstXValue);
       // left
       this.firstGradient = interpolator.firstDerivative(firstXValue);
-      this.firstSens = interpolator.parameterSensitivity(firstXValue);
-      this.firstGradSens = interpolator.parameterSensitivity(firstXValue + eps).minus(firstSens).dividedBy(eps);
+      this.firstSens = Suppliers.memoize(() -> interpolator.parameterSensitivity(firstXValue));
+      this.firstGradSens =
+          Suppliers.memoize(() -> interpolator.parameterSensitivity(firstXValue + eps).minus(firstSens.get()).dividedBy(eps));
       // right
       this.lastGradient = interpolator.firstDerivative(lastXValue);
-      this.lastSens = interpolator.parameterSensitivity(lastXValue);
-      this.lastGradSens = lastSens.minus(interpolator.parameterSensitivity(lastXValue - eps)).dividedBy(eps);
+      this.lastSens = Suppliers.memoize(() -> interpolator.parameterSensitivity(lastXValue));
+      this.lastGradSens =
+          Suppliers.memoize(() -> lastSens.get().minus(interpolator.parameterSensitivity(lastXValue - eps)).dividedBy(eps));
     }
 
     //-------------------------------------------------------------------------
@@ -121,7 +125,7 @@ final class ProductLinearCurveExtrapolator
     public DoubleArray leftExtrapolateParameterSensitivity(double xValue) {
       ArgChecker.isTrue(firstXValue < -EPS, "the first x value must be negative for left extrapolation");
       double factor = (1d - firstXValue / xValue) * firstXValue;
-      return firstGradSens.multipliedBy(factor).plus(firstSens);
+      return firstGradSens.get().multipliedBy(factor).plus(firstSens.get());
     }
 
     //-------------------------------------------------------------------------
@@ -141,7 +145,7 @@ final class ProductLinearCurveExtrapolator
     public DoubleArray rightExtrapolateParameterSensitivity(double xValue) {
       ArgChecker.isTrue(lastXValue > EPS, "the last x value must be positive for right extrapolation");
       double factor = (1d - lastXValue / xValue) * lastXValue;
-      return lastGradSens.multipliedBy(factor).plus(lastSens);
+      return lastGradSens.get().multipliedBy(factor).plus(lastSens.get());
     }
   }
 

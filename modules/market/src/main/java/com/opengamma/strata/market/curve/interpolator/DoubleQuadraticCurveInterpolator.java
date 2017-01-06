@@ -7,6 +7,8 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import java.io.Serializable;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 import com.opengamma.strata.math.impl.interpolation.WeightingFunction;
@@ -74,7 +76,7 @@ final class DoubleQuadraticCurveInterpolator
     private final double[] yValues;
     private final int intervalCount;
     private final RealPolynomialFunction1D[] quadratics;
-    private final RealPolynomialFunction1D[] quadraticsFirstDerivative;
+    private final Supplier<RealPolynomialFunction1D[]> quadraticsFirstDerivative;
 
     Bound(DoubleArray xValues, DoubleArray yValues) {
       super(xValues, yValues);
@@ -82,7 +84,8 @@ final class DoubleQuadraticCurveInterpolator
       this.yValues = yValues.toArrayUnsafe();
       this.intervalCount = xValues.size() - 1;
       this.quadratics = quadratics(this.xValues, this.yValues, this.intervalCount);
-      this.quadraticsFirstDerivative = quadraticsFirstDerivative(this.xValues, this.yValues, this.intervalCount);
+      this.quadraticsFirstDerivative =
+          Suppliers.memoize(() -> quadraticsFirstDerivative(this.xValues, this.yValues, this.intervalCount));
     }
 
     Bound(Bound base, BoundCurveExtrapolator extrapolatorLeft, BoundCurveExtrapolator extrapolatorRight) {
@@ -172,22 +175,23 @@ final class DoubleQuadraticCurveInterpolator
     protected double doFirstDerivative(double xValue) {
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       int higherIndex = lowerIndex + 1;
+      RealPolynomialFunction1D[] quadFirstDerivative = quadraticsFirstDerivative.get();
       // at start of curve, or only one interval
       if (lowerIndex == 0 || intervalCount == 1) {
-        RealPolynomialFunction1D quadraticFirstDerivative = quadraticsFirstDerivative[0];
+        RealPolynomialFunction1D quadraticFirstDerivative = quadFirstDerivative[0];
         double x = xValue - xValues[1];
         return quadraticFirstDerivative.applyAsDouble(x);
       }
       // at end of curve
       if (higherIndex >= intervalCount) {
-        RealPolynomialFunction1D quadraticFirstDerivative = quadraticsFirstDerivative[intervalCount - 2];
+        RealPolynomialFunction1D quadraticFirstDerivative = quadFirstDerivative[intervalCount - 2];
         double x = xValue - xValues[intervalCount - 1];
         return quadraticFirstDerivative.applyAsDouble(x);
       }
       RealPolynomialFunction1D quadratic1 = quadratics[lowerIndex - 1];
       RealPolynomialFunction1D quadratic2 = quadratics[higherIndex - 1];
-      RealPolynomialFunction1D quadratic1FirstDerivative = quadraticsFirstDerivative[lowerIndex - 1];
-      RealPolynomialFunction1D quadratic2FirstDerivative = quadraticsFirstDerivative[higherIndex - 1];
+      RealPolynomialFunction1D quadratic1FirstDerivative = quadFirstDerivative[lowerIndex - 1];
+      RealPolynomialFunction1D quadratic2FirstDerivative = quadFirstDerivative[higherIndex - 1];
       double w = WEIGHT_FUNCTION.getWeight((xValues[higherIndex] - xValue) / (xValues[higherIndex] - xValues[lowerIndex]));
       return w * quadratic1FirstDerivative.applyAsDouble(xValue - xValues[lowerIndex]) +
           (1 - w) * quadratic2FirstDerivative.applyAsDouble(xValue - xValues[higherIndex]) +
