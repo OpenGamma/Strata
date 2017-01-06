@@ -29,17 +29,17 @@ final class ProductNaturalSplineCurveInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
-  * The interpolator name.
-  */
+   * The interpolator name.
+   */
   public static final String NAME = "ProductNaturalSpline";
   /**
-  * The interpolator instance.
-  */
+   * The interpolator instance.
+   */
   public static final CurveInterpolator INSTANCE = new ProductNaturalSplineCurveInterpolator();
 
   /**
-  * The serialization version id.
-  */
+   * The serialization version id.
+   */
   private static final long serialVersionUID = 1L;
   /**
    * The small parameter.
@@ -51,8 +51,8 @@ final class ProductNaturalSplineCurveInterpolator
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNCTION = new PiecewisePolynomialWithSensitivityFunction1D();
 
   /**
-  * Restricted constructor.
-  */
+   * Restricted constructor.
+   */
   private ProductNaturalSplineCurveInterpolator() {
   }
 

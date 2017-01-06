@@ -29,30 +29,30 @@ final class ProductLinearCurveInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
-  * The interpolator name.
-  */
+   * The interpolator name.
+   */
   public static final String NAME = "ProductLinear";
   /**
-  * The interpolator instance.
-  */
+   * The interpolator instance.
+   */
   public static final CurveInterpolator INSTANCE = new ProductLinearCurveInterpolator();
 
   /**
-  * The serialization version id.
-  */
+   * The serialization version id.
+   */
   private static final long serialVersionUID = 1L;
   /**
-  * The small parameter. 
-  */
+   * The small parameter. 
+   */
   private static final double SMALL = 1e-10;
   /**
-  * The polynomial function.
-  */
+   * The polynomial function.
+   */
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNCTION = new PiecewisePolynomialWithSensitivityFunction1D();
 
   /**
-  * Restricted constructor.
-  */
+   * Restricted constructor.
+   */
   private ProductLinearCurveInterpolator() {
   }
 
