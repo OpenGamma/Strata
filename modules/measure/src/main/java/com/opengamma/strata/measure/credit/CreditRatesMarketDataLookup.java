@@ -1,9 +1,15 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.credit;
 
 import java.util.Map;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
@@ -12,53 +18,62 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveId;
-import com.opengamma.strata.measure.swaption.SwaptionMarketData;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 
+/**
+ * The lookup that provides access to credit rates in market data.
+ * <p>
+ * The credit rates market lookup provides access to credit, discount and recovery rate curves.
+ * <p>
+ * The lookup implements {@link CalculationParameter} and is used by passing it
+ * as an argument to {@link CalculationRules}. It provides the link between the
+ * data that the function needs and the data that is available in {@link ScenarioMarketData}.
+ * <p>
+ * Implementations of this interface must be immutable.
+ */
 public interface CreditRatesMarketDataLookup extends CalculationParameter {
 
   /**
-   * Obtains an instance based on a single mapping from index to volatility identifier.
-   * <p>
-   * The lookup provides volatilities for the specified index.
+   * Obtains an instance based on a maps for credit, discount and recovery rate curves.
    *
-   * @param index  the Ibor index
-   * @param volatilityId  the volatility identifier
-   * @return the swaption lookup containing the specified mapping
+   * @param creditCurveIds  the credit curve identifiers, keyed by legal entity ID and currency
+   * @param discountCurveIds  the discount curve identifiers, keyed by currency
+   * @param recoveryRateCurveIds  the recovery rate curve identifiers, keyed by legal entity ID
+   * @return the rates lookup containing the specified curves
    */
   public static CreditRatesMarketDataLookup of(
       Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
       Map<Currency, CurveId> discountCurveIds,
       Map<StandardId, CurveId> recoveryRateCurveIds) {
-//    return DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
-    return null;
+
+    return DefaultCreditRatesMarketDataLookup.of(creditCurveIds, discountCurveIds, recoveryRateCurveIds, ObservableSource.NONE);
   }
 
   /**
-   * Obtains an instance based on a map of volatility identifiers.
-   * <p>
-   * The map is used to specify the appropriate volatilities to use for each index.
+   * Obtains an instance based on a maps for credit, discount and recovery rate curves.
    *
-   * @param volatilityIds  the volatility identifiers, keyed by index
-   * @return the swaption lookup containing the specified volatilities
+   * @param creditCurveIds  the credit curve identifiers, keyed by legal entity ID and currency
+   * @param discountCurveIds  the discount curve identifiers, keyed by currency
+   * @param recoveryRateCurveIds  the recovery rate curve identifiers, keyed by legal entity ID
+   * @param observableSource  the source of market data for quotes and other observable market data
+   * @return the rates lookup containing the specified curves
    */
   public static CreditRatesMarketDataLookup of(
       Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
       Map<Currency, CurveId> discountCurveIds,
       Map<StandardId, CurveId> recoveryRateCurveIds,
       ObservableSource observableSource) {
-//  return DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
-    return null;
+
+    return DefaultCreditRatesMarketDataLookup.of(creditCurveIds, discountCurveIds, recoveryRateCurveIds, observableSource);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the type that the lookup will be queried by.
    * <p>
-   * This returns {@code SwaptionMarketLookup.class}.
+   * This returns {@code CreditRatesMarketDataLookup.class}.
    * When querying parameters using {@link CalculationParameters#findParameter(Class)},
-   * {@code SwaptionMarketLookup.class} must be passed in to find the instance.
+   * {@code CreditRatesMarketDataLookup.class} must be passed in to find the instance.
    * 
    * @return the type of the parameter implementation
    */
@@ -69,10 +84,12 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates market data requirements for the specified indices.
+   * Creates market data requirements for the specified standard ID and currency.
    * 
-   * @param indices  the indices, for which volatilities are required
+   * @param legalEntityId  legal entity ID
+   * @param currency  the currency 
    * @return the requirements
+   * @throws IllegalArgumentException if unable to create requirements
    */
   public abstract FunctionRequirements requirements(StandardId legalEntityId, Currency currency);
 
@@ -88,8 +105,7 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    * @return the filtered market data
    */
   public default CreditRatesScenarioMarketData marketDataView(ScenarioMarketData marketData) {
-//    return DefaultSwaptionScenarioMarketData.of(this, marketData);
-    return null;
+    return DefaultCreditRatesScenarioMarketData.of(this, marketData);
   }
 
   /**
@@ -101,29 +117,27 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    * @param marketData  the complete set of market data for one scenario
    * @return the filtered market data
    */
-  public default CreditRatesScenarioMarketData marketDataView(MarketData marketData) {
-//    return DefaultSwaptionMarketData.of(this, marketData);
-    return null;
+  public default CreditRatesMarketData marketDataView(MarketData marketData) {
+    return DefaultCreditRatesMarketData.of(this, marketData);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains swaption volatilities based on the specified market data.
+   * Obtains credit rates provider based on the specified market data.
    * <p>
-   * This provides {@link SwaptionVolatilities} suitable for pricing a swaption.
+   * This provides {@link CreditRatesProvider} suitable for pricing credit products.
    * Although this method can be used directly, it is typically invoked indirectly
-   * via {@link SwaptionMarketData}:
+   * via {@link CreditRatesMarketData}:
    * <pre>
    *  // bind the baseData to this lookup
-   *  SwaptionMarketData view = lookup.marketDataView(baseData);
+   *  CreditRatesMarketData view = lookup.marketView(baseData);
    *  
-   *  // pass around SwaptionMarketData within the function to use in pricing
-   *  SwaptionVolatilities vols = view.volatilities(index);
+   *  // pass around CreditRatesMarketData within the function to use in pricing
+   *  CreditRatesProvider provider = view.creditRatesProvider();
    * </pre>
    * 
-   * @param index  the Ibor index
    * @param marketData  the complete set of market data for one scenario
-   * @return the volatilities
+   * @return the rates provider
    */
   public abstract CreditRatesProvider creditRatesProvider(MarketData marketData);
 

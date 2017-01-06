@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,10 +11,14 @@ import com.opengamma.strata.calc.Measure;
  * The standard set of credit measures that can be calculated by Strata.
  * <p>
  * A measure identifies the calculation result that is required.
- * For example present value, par rate or spread.
  */
 public final class CreditMeasures {
 
+  /**
+   * Measure representing the principal.
+   */
+  public static final Measure PRINCIPAL = Measure.of(StandardCreditMeasures.PRINCIPAL.getName());
+  //-------------------------------------------------------------------------
   /**
    * Measure representing the PV change under a 1 bps shift to market quotes.
    */

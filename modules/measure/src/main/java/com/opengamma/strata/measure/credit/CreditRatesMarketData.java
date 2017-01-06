@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.credit;
 
 import java.time.LocalDate;
@@ -5,6 +10,13 @@ import java.time.LocalDate;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 
+/**
+ * Market data for credit products.
+ * <p>
+ * This interface exposes the market data necessary for pricing credit products.
+ * <p>
+ * Implementations of this interface must be immutable.
+ */
 public interface CreditRatesMarketData {
 
   /**
@@ -18,9 +30,9 @@ public interface CreditRatesMarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the lookup that provides access to repo and issuer curves.
+   * Gets the lookup that provides access to credit, discount and recovery rate curves.
    * 
-   * @return the discounting lookup
+   * @return the lookup
    */
   public abstract CreditRatesMarketDataLookup getLookup();
 
@@ -41,11 +53,11 @@ public interface CreditRatesMarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the discounting provider.
+   * Gets the credit rates provider.
    * <p>
-   * This provides access to repo and issuer curves.
+   * This provides access to credit, discount and recovery rate curves.
    * 
-   * @return the discounting provider
+   * @return the credit rates provider
    */
   public abstract CreditRatesProvider creditRatesProvider();
 

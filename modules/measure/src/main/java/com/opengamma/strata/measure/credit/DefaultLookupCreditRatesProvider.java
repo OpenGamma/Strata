@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.credit;
 
 import java.io.Serializable;
@@ -39,6 +44,11 @@ import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.credit.RecoveryRates;
 
+/**
+ * A credit rates provider based on a credit rates lookup.
+ * <p>
+ * This uses a {@link DefaultCreditRatesMarketDataLookup} to provide a view on {@link MarketData}.
+ */
 @BeanDefinition(style = "light")
 final class DefaultLookupCreditRatesProvider
     implements CreditRatesProvider, ImmutableBean, Serializable {

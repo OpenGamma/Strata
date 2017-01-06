@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.credit;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -23,28 +28,47 @@ import com.opengamma.strata.pricer.credit.SpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
+/**
+ * Multi-scenario measure calculations for CDS trades.
+ * <p>
+ * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
+ */
 final class CdsMeasureCalculations {
 
-  public static final CdsMeasureCalculations DEFAULT =
+  /**
+   * Default implementation.
+   */
+  static final CdsMeasureCalculations DEFAULT =
       new CdsMeasureCalculations(new IsdaCdsTradePricer(AccrualOnDefaultFormula.CORRECT));
 
   /**
    * The market quote sensitivity calculator.
    */
   private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
-
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
   
+  /**
+   * Pricer for {@link ResolvedCdsTrade}.
+   */
   private final IsdaCdsTradePricer tradePricer;
-
+  /**
+   * Spread sensitivity calculator.
+   */
   private final SpreadSensitivityCalculator cs01Calculator;
-
+  /**
+   * Market quote converter.
+   */
   private final CdsMarketQuoteConverter converter;
 
-  public CdsMeasureCalculations(IsdaCdsTradePricer tradePricer) {
+  /**
+   * Creates an instance. 
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedCdsTrade}
+   */
+  CdsMeasureCalculations(IsdaCdsTradePricer tradePricer) {
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
     this.cs01Calculator = new AnalyticSpreadSensitivityCalculator(tradePricer.getAccrualOnDefaultFormula());
     this.converter = new CdsMarketQuoteConverter(tradePricer.getAccrualOnDefaultFormula());
@@ -94,7 +118,7 @@ final class CdsMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates principal for all scenarios
+  // calculates price for all scenarios
   DoubleScenarioArray unitPrice(
       ResolvedCdsTrade trade,
       CreditRatesScenarioMarketData marketData,
@@ -105,7 +129,7 @@ final class CdsMeasureCalculations {
         i -> unitPrice(trade, marketData.scenario(i).creditRatesProvider(), refData));
   }
 
-  // calculates principal for one scenario
+  // calculates price for one scenario
   double unitPrice(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,

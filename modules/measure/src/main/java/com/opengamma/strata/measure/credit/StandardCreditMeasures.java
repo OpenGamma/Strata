@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,6 +13,8 @@ import com.opengamma.strata.calc.Measure;
  */
 final class StandardCreditMeasures {
 
+  // principal
+  public static final Measure PRINCIPAL = ImmutableMeasure.of("Principal");
   //-------------------------------------------------------------------------
   // PV change under a 1 bps shift to market quotes
   public static final Measure IR01_MARKET_QUOTE_PARALLEL = ImmutableMeasure.of("IR01MarketQuoteParallel");

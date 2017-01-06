@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.credit;
 
 import java.util.HashMap;
@@ -22,6 +27,31 @@ import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
+/**
+ * Perform calculations on a single {@code CdsTrade} for each of a set of scenarios.
+ * <p>
+ * The supported built-in measures are:
+ * <ul>
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum on rate curves}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed on rate curves}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum on rate curves}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
+ *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
+ *   <li>{@linkplain CreditMeasures#PRINCIPAL principal}
+ *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED__PARALLEL IR01 calibrated parallel}
+ *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED__BUCKETED IR01 calibrated bucketed}
+ *   <li>{@linkplain CreditMeasures#IR01_MARKET_QUOTE_PARALLEL IR01 market quote parallel}
+ *   <li>{@linkplain CreditMeasures#IR01_MARKET_QUOTE_BUCKETED IR01 market quote bucketed}
+ *   <li>{@linkplain CreditMeasures#CS01_PARALLEL CS01 parallel}
+ *   <li>{@linkplain CreditMeasures#CS01_BUCKETED CS01 bucketed}
+ *   <li>{@linkplain CreditMeasures#RECOVERY01 recovery01}
+ *   <li>{@linkplain CreditMeasures#JUMP_TO_DEFAULT jump to default}
+ *   <li>{@linkplain CreditMeasures#EXPECTED_LOSS expected loss}
+ * </ul>
+ * <p>
+ * An instance of {@link CreditRatesMarketDataLookup} must be specified.
+ */
 public class CdsTradeCalculationFunction
     implements CalculationFunction<CdsTrade> {
 
@@ -36,6 +66,7 @@ public class CdsTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_SUM, CdsMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, CdsMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, CdsMeasureCalculations.DEFAULT::unitPrice)
+          .put(CreditMeasures.PRINCIPAL, CdsMeasureCalculations.DEFAULT::principal)
           .put(CreditMeasures.IR01_CALIBRATED__PARALLEL, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteParallel)
           .put(CreditMeasures.IR01_CALIBRATED__BUCKETED, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteBucketed)
           .put(CreditMeasures.IR01_MARKET_QUOTE_PARALLEL, CdsMeasureCalculations.DEFAULT::ir01MarketQuoteParallel)
@@ -45,7 +76,6 @@ public class CdsTradeCalculationFunction
           .put(CreditMeasures.RECOVERY01, CdsMeasureCalculations.DEFAULT::recovery01)
           .put(CreditMeasures.JUMP_TO_DEFAULT, CdsMeasureCalculations.DEFAULT::jumpToDefault)
           .put(CreditMeasures.EXPECTED_LOSS, CdsMeasureCalculations.DEFAULT::expectedLoss)
-          .put(Measures.RESOLVED_TARGET, (rt, smd, rd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();

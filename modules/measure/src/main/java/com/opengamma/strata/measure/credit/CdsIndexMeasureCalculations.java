@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.credit;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -22,9 +27,18 @@ import com.opengamma.strata.pricer.credit.IsdaHomogenousCdsIndexTradePricer;
 import com.opengamma.strata.pricer.credit.SpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
+import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
+/**
+ * Multi-scenario measure calculations for CDS index trades.
+ * <p>
+ * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
+ */
 public class CdsIndexMeasureCalculations {
 
+  /**
+   * Default implementation.
+   */
   public static final CdsIndexMeasureCalculations DEFAULT =
       new CdsIndexMeasureCalculations(new IsdaHomogenousCdsIndexTradePricer(AccrualOnDefaultFormula.CORRECT));
 
@@ -32,18 +46,29 @@ public class CdsIndexMeasureCalculations {
    * The market quote sensitivity calculator.
    */
   private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
-
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
+  /**
+   * Pricer for {@link ResolvedCdsIndexTrade}.
+   */
   private final IsdaHomogenousCdsIndexTradePricer tradePricer;
-
+  /**
+   * Spread sensitivity calculator.
+   */
   private final SpreadSensitivityCalculator cs01Calculator;
-
+  /**
+   * Market quote converter.
+   */
   private final CdsMarketQuoteConverter converter;
 
+  /**
+   * Creates an instance. 
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedCdsTrade}
+   */
   public CdsIndexMeasureCalculations(IsdaHomogenousCdsIndexTradePricer tradePricer) {
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
     this.cs01Calculator = new AnalyticSpreadSensitivityCalculator(tradePricer.getAccrualOnDefaultFormula());
@@ -94,7 +119,7 @@ public class CdsIndexMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates principal for all scenarios
+  // calculates price for all scenarios
   DoubleScenarioArray unitPrice(
       ResolvedCdsIndexTrade trade,
       CreditRatesScenarioMarketData marketData,
@@ -105,7 +130,7 @@ public class CdsIndexMeasureCalculations {
         i -> unitPrice(trade, marketData.scenario(i).creditRatesProvider(), refData));
   }
 
-  // calculates principal for one scenario
+  // calculates price for one scenario
   double unitPrice(
       ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
