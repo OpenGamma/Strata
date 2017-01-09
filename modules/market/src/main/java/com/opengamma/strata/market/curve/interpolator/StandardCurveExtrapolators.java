@@ -30,8 +30,6 @@ final class StandardCurveExtrapolators {
   public static final CurveExtrapolator EXCEPTION = ExceptionCurveExtrapolator.INSTANCE;
   // Extrapolator that does no extrapolation and delegates to the interpolator.
   public static final CurveExtrapolator INTERPOLATOR = InterpolatorCurveExtrapolator.INSTANCE;
-  // Product linear extrapolator.
-  public static final CurveExtrapolator PRODUCT_LINEAR_SIMPLE = ProductLinearSimpleCurveExtrapolator.INSTANCE;
 
   //-------------------------------------------------------------------------
   /**

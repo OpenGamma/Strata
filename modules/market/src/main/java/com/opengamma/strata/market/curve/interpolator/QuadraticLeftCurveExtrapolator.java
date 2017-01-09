@@ -7,6 +7,8 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import java.io.Serializable;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -76,7 +78,7 @@ final class QuadraticLeftCurveExtrapolator
     private final double eps;
     private final double leftQuadCoef;
     private final double leftLinCoef;
-    private final DoubleArray leftSens;
+    private final Supplier<DoubleArray> leftSens;
 
     Bound(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
       this.nodeCount = xValues.size();
@@ -87,7 +89,7 @@ final class QuadraticLeftCurveExtrapolator
       this.eps = EPS * (lastXValue - firstXValue);
       this.leftQuadCoef = gradient / firstXValue - (firstYValue - 1d) / firstXValue / firstXValue;
       this.leftLinCoef = -gradient + 2d * (firstYValue - 1d) / firstXValue;
-      this.leftSens = interpolator.parameterSensitivity(firstXValue + eps);
+      this.leftSens = Suppliers.memoize(() -> interpolator.parameterSensitivity(firstXValue + eps));
     }
 
     //-------------------------------------------------------------------------
@@ -112,7 +114,7 @@ final class QuadraticLeftCurveExtrapolator
       if (firstXValue == 0d) {
         throw new IllegalArgumentException("The trivial point at x = 0 is already included");
       }
-      double[] result = leftSens.toArray();
+      double[] result = leftSens.get().toArray();
       for (int i = 1; i < nodeCount; i++) {
         double tmp = result[i] * xValue / eps;
         result[i] = tmp / firstXValue * xValue - tmp;
