@@ -56,12 +56,13 @@ public class IsdaCreditCurveDefinitionTest {
 
   public void test_of() {
     IsdaCreditCurveDefinition test =
-        IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true);
+        IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true, false);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurveNodes(), NODES);
     assertEquals(test.getCurveValuationDate(), CURVE_VALUATION_DATE);
     assertEquals(test.getDayCount(), ACT_ACT_ISDA);
     assertEquals(test.isComputeJacobian(), true);
+    assertEquals(test.isStoreNodeTrade(), false);
     DoubleArray time = DoubleArray.of(1, 2, 3);
     DoubleArray rate = DoubleArray.of(0.01, 0.014, 0.02);
     InterpolatedNodalCurve expectedCurve = InterpolatedNodalCurve.of(
@@ -77,16 +78,16 @@ public class IsdaCreditCurveDefinitionTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     IsdaCreditCurveDefinition test1 =
-        IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true);
+        IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true, true);
     coverImmutableBean(test1);
     IsdaCreditCurveDefinition test2 = IsdaCreditCurveDefinition.of(
-        CurveName.of("TestCurve1"), EUR, CURVE_VALUATION_DATE.plusDays(1), ACT_365F, NODES.subList(0, 2), false);
+        CurveName.of("TestCurve1"), EUR, CURVE_VALUATION_DATE.plusDays(1), ACT_365F, NODES.subList(0, 2), false, false);
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
     IsdaCreditCurveDefinition test =
-        IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true);
+        IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true, true);
     assertSerialization(test);
   }
 

@@ -16,9 +16,11 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
 
 /**
  * Test {@link ConstantRecoveryRates}.
@@ -33,6 +35,25 @@ public class ConstantRecoveryRatesTest {
 
   public void test_of() {
     ConstantRecoveryRates test = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, RECOVERY_RATE);
+    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
+    assertEquals(test.getRecoveryRate(), RECOVERY_RATE);
+    assertEquals(test.getValuationDate(), VALUATION);
+    assertEquals(test.recoveryRate(DATE_AFTER), RECOVERY_RATE);
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.getParameter(0), RECOVERY_RATE);
+    assertEquals(test.getParameterCount(), 1);
+    assertEquals(test.getParameterMetadata(0), ParameterMetadata.empty());
+    assertEquals(test.withParameter(0, 0.5), ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 0.5));
+  }
+
+  public void test_of_interface() {
+    ConstantCurve curve = ConstantCurve.of(
+        DefaultCurveMetadata.builder()
+            .yValueType(ValueType.RECOVERY_RATE)
+            .curveName("recoveryRate")
+            .build(),
+        RECOVERY_RATE);
+    ConstantRecoveryRates test = (ConstantRecoveryRates) RecoveryRates.of(LEGAL_ENTITY, VALUATION, curve);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getRecoveryRate(), RECOVERY_RATE);
     assertEquals(test.getValuationDate(), VALUATION);

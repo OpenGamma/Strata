@@ -27,18 +27,13 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditCurveZeroRateSensitivity;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.fx.FxForwardSensitivity;
 
 /**
- * Test {@link CreditRatesProvider}.
+ * Test {@link ImmutableCreditRatesProvider}.
  */
 @Test
-public class CreditRatesProviderTest {
+public class ImmutableCreditRatesProviderTest {
 
   private static final LocalDate VALUATION = LocalDate.of(2015, 2, 11);
 
@@ -78,7 +73,7 @@ public class CreditRatesProviderTest {
       IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION, NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
 
   public void test_getter() {
-    CreditRatesProvider test = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider test = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
@@ -106,7 +101,7 @@ public class CreditRatesProviderTest {
 
   public void test_valuationDateMismatch() {
     ConstantRecoveryRates rr_wrong = ConstantRecoveryRates.of(LEGAL_ENTITY_ABC, VALUATION.plusWeeks(1), RECOVERY_RATE_ABC);
-    assertThrowsIllegalArg(() -> CreditRatesProvider.builder()
+    assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
@@ -117,7 +112,7 @@ public class CreditRatesProviderTest {
         .build());
     IsdaCompliantZeroRateDiscountFactors crd_wrong =
         IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusWeeks(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
-    assertThrowsIllegalArg(() -> CreditRatesProvider.builder()
+    assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
@@ -128,7 +123,7 @@ public class CreditRatesProviderTest {
         .build());
     IsdaCompliantZeroRateDiscountFactors dsc_wrong =
         IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION.plusWeeks(1), NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
-    assertThrowsIllegalArg(() -> CreditRatesProvider.builder()
+    assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
@@ -143,7 +138,7 @@ public class CreditRatesProviderTest {
     ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
     CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
     FxForwardSensitivity fxPt = FxForwardSensitivity.of(CurrencyPair.of(JPY, USD), USD, LocalDate.of(2017, 2, 14), 15d);
-    CreditRatesProvider test = CreditRatesProvider.builder()
+    CreditRatesProvider test = ImmutableCreditRatesProvider.builder()
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
             Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
@@ -159,9 +154,50 @@ public class CreditRatesProviderTest {
     assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
   }
 
+  public void test_singleCreditCurveParameterSensitivity() {
+    ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
+    CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
+    FxForwardSensitivity fxPt = FxForwardSensitivity.of(CurrencyPair.of(JPY, USD), USD, LocalDate.of(2017, 2, 14), 15d);
+    CreditRatesProvider test = ImmutableCreditRatesProvider.builder()
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
+        .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
+        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
+        .valuationDate(VALUATION)
+        .build();
+    CurrencyParameterSensitivities computed = CurrencyParameterSensitivities.of(test.singleCreditCurveParameterSensitivity(
+            zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(),
+            LEGAL_ENTITY_ABC,
+            JPY));
+    CurrencyParameterSensitivities expected =
+        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY).parameterSensitivity(creditPt);
+    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+  }
+
+  public void test_singleDiscountCurveParameterSensitivity() {
+    ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
+    CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
+    FxForwardSensitivity fxPt = FxForwardSensitivity.of(CurrencyPair.of(JPY, USD), USD, LocalDate.of(2017, 2, 14), 15d);
+    CreditRatesProvider test = ImmutableCreditRatesProvider.builder()
+        .creditCurves(ImmutableMap.of(
+            Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
+            Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
+            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
+        .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
+        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
+        .valuationDate(VALUATION)
+        .build();
+    CurrencyParameterSensitivities computed = CurrencyParameterSensitivities.of(
+        test.singleDiscountCurveParameterSensitivity(zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(), USD));
+    CurrencyParameterSensitivities expected = DSC_USD.parameterSensitivity(zeroPt);
+    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
-    CreditRatesProvider test1 = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider test1 = ImmutableCreditRatesProvider.builder()
         .creditCurves(
             ImmutableMap.of(Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD))
@@ -174,8 +210,8 @@ public class CreditRatesProviderTest {
     IsdaCompliantZeroRateDiscountFactors hzd =
         IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY_DEF, VALUATION.plusDays(1), RECOVERY_RATE_DEF);
-    CreditRatesProvider test2 =
-        CreditRatesProvider
+    ImmutableCreditRatesProvider test2 =
+        ImmutableCreditRatesProvider
             .builder()
             .creditCurves(
                 ImmutableMap.of(Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, hzd)))

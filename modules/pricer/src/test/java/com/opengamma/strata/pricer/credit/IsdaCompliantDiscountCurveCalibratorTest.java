@@ -110,7 +110,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, true);
+        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, true, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), NUM_TOTAL);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
@@ -157,7 +157,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, true);
+        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, true, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), nInstruments);
     testZeroRates(yc, times, zeroRates);
@@ -203,7 +203,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     ImmutableMarketData quotes = builder.build();
     DayCount curveDcc = ACT_365F;
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDate, curveDcc, nodes, true);
+        CurveName.of("yield"), USD, valuationDate, curveDcc, nodes, true, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), NUM_TOTAL);
     int nSamplePoints = zeroRates.length;
@@ -336,7 +336,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       }
       ImmutableMarketData quotes = builder.build();
       IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-          CurveName.of("yield"), USD, spotDate[k], ACT_365F, nodes, false);
+          CurveName.of("yield"), USD, spotDate[k], ACT_365F, nodes, false, false);
       IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
       assertEquals(yc.getParameterCount(), nInstruments);
       testZeroRates(yc, sampleTimes[k], zeroRates[k]);
@@ -414,7 +414,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       List<IsdaCreditCurveNode> nodes =
           createsNode(ADJ_0D, BUS_ADJ, moneyMarketDcc[j], swapDcc[j], Frequency.P6M, mmMonths, swapYears, idValues);
       IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-          CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false);
+          CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false, false);
       IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
       assertEquals(yc.getParameterCount(), nInstruments);
       testZeroRates(yc, times, zeroRates[j]);
@@ -493,7 +493,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes1 = builder1.build();
     IsdaCreditCurveDefinition curveDefinition1 = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes1, false);
+        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes1, false, false);
     double[] rates2 = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
         0.0162809551414651, 0.020583125112332};
     ImmutableMarketDataBuilder builder2 = ImmutableMarketData.builder(spotDate);
@@ -502,7 +502,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes2 = builder2.build();
     IsdaCreditCurveDefinition curveDefinition2 = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes2, false);
+        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes2, false, false);
     IsdaCompliantZeroRateDiscountFactors yc1 = CALIBRATOR.calibrate(curveDefinition1, quotes1, REF_DATA);
     assertEquals(yc1.getParameterCount(), nInstruments1);
     IsdaCompliantZeroRateDiscountFactors yc2 = CALIBRATOR.calibrate(curveDefinition2, quotes2, REF_DATA);
@@ -567,7 +567,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false);
+        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), nInstruments);
     testZeroRates(yc, times, zeroRates);
@@ -602,7 +602,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false);
+        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), NUM_TOTAL);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
@@ -635,7 +635,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false);
+        CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), 2);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
@@ -667,7 +667,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, true, false);
     IsdaCompliantZeroRateDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
     assertEquals(yc.getParameterCount(), 14);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
@@ -675,7 +675,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     // after last curve node
     LocalDate valuationDateLate = LocalDate.of(2042, 6, 12);
     IsdaCreditCurveDefinition curveDefinitionSingle = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDateLate, ACT_365F, nodes, true);
+        CurveName.of("yield"), USD, valuationDateLate, ACT_365F, nodes, true, false);
     double zeroRateSingle = 0.09122545844959826;
     IsdaCompliantZeroRateDiscountFactors ycSingle = CALIBRATOR.calibrate(curveDefinitionSingle, quotes, REF_DATA);
     assertEquals(ycSingle.getParameterCount(), 1);
@@ -715,7 +715,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false);
+        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
     assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
@@ -734,7 +734,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     }
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false);
+        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
     assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
@@ -768,7 +768,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     builder.addValue(QuoteId.of(StandardId.of("OG", idValues[nInstruments])), rates[nInstruments]);
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false);
+        CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
     assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
@@ -837,7 +837,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       }
       ImmutableMarketData quotesDw = builderDw.build();
       IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-          curveName, currency, valuationDate, curveDcc, nodes, false);
+          curveName, currency, valuationDate, curveDcc, nodes, false, false);
       IsdaCompliantZeroRateDiscountFactors hcUp = CALIBRATOR.calibrate(curveDefinition, quotesUp, REF_DATA);
       IsdaCompliantZeroRateDiscountFactors hcDw = CALIBRATOR.calibrate(curveDefinition, quotesDw, REF_DATA);
       for (int j = 0; j < nCurveNode; ++j) {

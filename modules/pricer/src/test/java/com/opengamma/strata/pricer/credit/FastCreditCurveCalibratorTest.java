@@ -28,6 +28,10 @@ import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
+import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.DatesCdsTemplate;
@@ -80,7 +84,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         0.008754510260229803, 0.011030502992814844, 0.01594817866773906, 0.02060947097554756, 0.025776720596175737,
         0.030316032527460755, 0.03311839631615255, 0.03526404051997617, 0.03673513322394772, 0.03792689865945585,
         0.03893107891569398};
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, yc))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25)))
@@ -105,10 +109,16 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, true);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
+    for (int i = 0; i < nPillars; ++i) {
+      ParameterMetadata param = resCurve.getParameterMetadata(i);
+      assertTrue(param instanceof ResolvedTradeParameterMetadata);
+      ResolvedTradeParameterMetadata tradeParam = (ResolvedTradeParameterMetadata) param;
+      assertTrue(tradeParam.getTrade() instanceof ResolvedCdsTrade);
+    }
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
@@ -145,7 +155,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         0.008754510260229767, 0.011032176237293093, 0.01594092142956685, 0.02056170591864977, 0.02562102500142847,
         0.029998725498341292, 0.03268003643439498, 0.0347176862923525, 0.03611609798069609, 0.037245360881562876,
         0.0381937470380447};
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, yc))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25)))
@@ -171,10 +181,14 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, false);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();
+    for (int i = 0; i < nPillars; ++i) {
+      ParameterMetadata param = resCurve.getParameterMetadata(i);
+      assertTrue(param instanceof DatedParameterMetadata);
+    }
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getXValues().toArray(), timeNodeExp, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(resCurve.getYValues().toArray(), rateNodeExp, TOL));
     testJacobian(BUILDER_ISDA, cc, ratesProvider, nodes, quotes, 1d, EPS);
@@ -226,7 +240,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
         0.17001201556723175, 0.17062724832190826, 0.17125190473373603, 0.17233319414449558, 0.17361785479583028,
         0.1750136127341691, 0.17630530410589512, 0.17720871748506664, 0.17831270423353415, 0.17951604233911425,
         0.18070939732103264, 0.18200162521943403, 0.18351891000003046, 0.1852740041292825, 0.18691086960422418,};
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, yc))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.4)))
@@ -262,7 +276,7 @@ public class FastCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalib
     }
     ImmutableMarketData marketData = builderCredit.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true);
+        CurveName.of("cc"), EUR, valuationDate, ACT_365F, nodes, true, false);
     LegalEntitySurvivalProbabilities cc =
         BUILDER_ISDA.calibrate(curveDefinition, marketData, ratesProvider, REF_DATA);
     NodalCurve resCurve = ((IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities()).getCurve();

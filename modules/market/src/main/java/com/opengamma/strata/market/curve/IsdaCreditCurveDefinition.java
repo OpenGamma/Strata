@@ -85,6 +85,13 @@ public final class IsdaCreditCurveDefinition
    */
   @PropertyDefinition(validate = "notNull")
   private final boolean computeJacobian;
+  /**
+   * The flag indicating if the node trade should be stored or not.
+   * <p>
+   * This property is used only for credit curve calibration.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final boolean storeNodeTrade;
 
   //-------------------------------------------------------------------------
   /**
@@ -96,6 +103,7 @@ public final class IsdaCreditCurveDefinition
    * @param dayCount  the day count
    * @param curveNodes  the curve nodes
    * @param computeJacobian  the Jacobian flag
+   * @param storeNodeTrade  the node trade flag
    * @return the instance
    */
   public static IsdaCreditCurveDefinition of(
@@ -104,9 +112,17 @@ public final class IsdaCreditCurveDefinition
       LocalDate curveValuationDate,
       DayCount dayCount,
       List<? extends IsdaCreditCurveNode> curveNodes,
-      boolean computeJacobian) {
+      boolean computeJacobian,
+      boolean storeNodeTrade) {
 
-    return new IsdaCreditCurveDefinition(name, currency, curveValuationDate, dayCount, curveNodes, computeJacobian);
+    return new IsdaCreditCurveDefinition(
+        name,
+        currency,
+        curveValuationDate,
+        dayCount,
+        curveNodes,
+        computeJacobian,
+        storeNodeTrade);
   }
 
   /**
@@ -165,19 +181,22 @@ public final class IsdaCreditCurveDefinition
       LocalDate curveValuationDate,
       DayCount dayCount,
       List<? extends IsdaCreditCurveNode> curveNodes,
-      boolean computeJacobian) {
+      boolean computeJacobian,
+      boolean storeNodeTrade) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(curveValuationDate, "curveValuationDate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(curveNodes, "curveNodes");
     JodaBeanUtils.notNull(computeJacobian, "computeJacobian");
+    JodaBeanUtils.notNull(storeNodeTrade, "storeNodeTrade");
     this.name = name;
     this.currency = currency;
     this.curveValuationDate = curveValuationDate;
     this.dayCount = dayCount;
     this.curveNodes = ImmutableList.copyOf(curveNodes);
     this.computeJacobian = computeJacobian;
+    this.storeNodeTrade = storeNodeTrade;
   }
 
   @Override
@@ -262,6 +281,17 @@ public final class IsdaCreditCurveDefinition
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the flag indicating if the node trade should be stored or not.
+   * <p>
+   * This property is used only for credit curve calibration.
+   * @return the value of the property, not null
+   */
+  public boolean isStoreNodeTrade() {
+    return storeNodeTrade;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -274,7 +304,8 @@ public final class IsdaCreditCurveDefinition
           JodaBeanUtils.equal(curveValuationDate, other.curveValuationDate) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(curveNodes, other.curveNodes) &&
-          (computeJacobian == other.computeJacobian);
+          (computeJacobian == other.computeJacobian) &&
+          (storeNodeTrade == other.storeNodeTrade);
     }
     return false;
   }
@@ -288,19 +319,21 @@ public final class IsdaCreditCurveDefinition
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(curveNodes);
     hash = hash * 31 + JodaBeanUtils.hashCode(computeJacobian);
+    hash = hash * 31 + JodaBeanUtils.hashCode(storeNodeTrade);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("IsdaCreditCurveDefinition{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("curveValuationDate").append('=').append(curveValuationDate).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("curveNodes").append('=').append(curveNodes).append(',').append(' ');
-    buf.append("computeJacobian").append('=').append(JodaBeanUtils.toString(computeJacobian));
+    buf.append("computeJacobian").append('=').append(computeJacobian).append(',').append(' ');
+    buf.append("storeNodeTrade").append('=').append(JodaBeanUtils.toString(storeNodeTrade));
     buf.append('}');
     return buf.toString();
   }
@@ -347,6 +380,11 @@ public final class IsdaCreditCurveDefinition
     private final MetaProperty<Boolean> computeJacobian = DirectMetaProperty.ofImmutable(
         this, "computeJacobian", IsdaCreditCurveDefinition.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code storeNodeTrade} property.
+     */
+    private final MetaProperty<Boolean> storeNodeTrade = DirectMetaProperty.ofImmutable(
+        this, "storeNodeTrade", IsdaCreditCurveDefinition.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -356,7 +394,8 @@ public final class IsdaCreditCurveDefinition
         "curveValuationDate",
         "dayCount",
         "curveNodes",
-        "computeJacobian");
+        "computeJacobian",
+        "storeNodeTrade");
 
     /**
      * Restricted constructor.
@@ -379,6 +418,8 @@ public final class IsdaCreditCurveDefinition
           return curveNodes;
         case -1730091410:  // computeJacobian
           return computeJacobian;
+        case 561141921:  // storeNodeTrade
+          return storeNodeTrade;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -447,6 +488,14 @@ public final class IsdaCreditCurveDefinition
       return computeJacobian;
     }
 
+    /**
+     * The meta-property for the {@code storeNodeTrade} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> storeNodeTrade() {
+      return storeNodeTrade;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -463,6 +512,8 @@ public final class IsdaCreditCurveDefinition
           return ((IsdaCreditCurveDefinition) bean).getCurveNodes();
         case -1730091410:  // computeJacobian
           return ((IsdaCreditCurveDefinition) bean).isComputeJacobian();
+        case 561141921:  // storeNodeTrade
+          return ((IsdaCreditCurveDefinition) bean).isStoreNodeTrade();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -490,6 +541,7 @@ public final class IsdaCreditCurveDefinition
     private DayCount dayCount;
     private List<? extends IsdaCreditCurveNode> curveNodes = ImmutableList.of();
     private boolean computeJacobian;
+    private boolean storeNodeTrade;
 
     /**
      * Restricted constructor.
@@ -513,6 +565,8 @@ public final class IsdaCreditCurveDefinition
           return curveNodes;
         case -1730091410:  // computeJacobian
           return computeJacobian;
+        case 561141921:  // storeNodeTrade
+          return storeNodeTrade;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -539,6 +593,9 @@ public final class IsdaCreditCurveDefinition
           break;
         case -1730091410:  // computeJacobian
           this.computeJacobian = (Boolean) newValue;
+          break;
+        case 561141921:  // storeNodeTrade
+          this.storeNodeTrade = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -578,20 +635,22 @@ public final class IsdaCreditCurveDefinition
           curveValuationDate,
           dayCount,
           curveNodes,
-          computeJacobian);
+          computeJacobian,
+          storeNodeTrade);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("IsdaCreditCurveDefinition.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("curveValuationDate").append('=').append(JodaBeanUtils.toString(curveValuationDate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("curveNodes").append('=').append(JodaBeanUtils.toString(curveNodes)).append(',').append(' ');
-      buf.append("computeJacobian").append('=').append(JodaBeanUtils.toString(computeJacobian));
+      buf.append("computeJacobian").append('=').append(JodaBeanUtils.toString(computeJacobian)).append(',').append(' ');
+      buf.append("storeNodeTrade").append('=').append(JodaBeanUtils.toString(storeNodeTrade));
       buf.append('}');
       return buf.toString();
     }

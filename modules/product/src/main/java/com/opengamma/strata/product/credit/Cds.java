@@ -140,60 +140,6 @@ public final class Cds
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
-   * <p>
-   * The start date adjustment, end date adjustment, and roll convention are switched off. 
-   * Use {@link #builder()} for the full flexibility.
-   * 
-   * @param buySell  buy or sell
-   * @param legalEntityId  the legal entity ID
-   * @param currency  the currency
-   * @param notional  the notional 
-   * @param startDate  the start date
-   * @param endDate  the end date
-   * @param paymentFrequency  the coupon frequency
-   * @param businessDayAdjustment  the business day adjustment
-   * @param stubConvention  the stub convention
-   * @param fixedRate  the fixed coupon rate
-   * @param dayCount  the day count convention
-   * @param paymentOnDefault  the payment on default
-   * @param protectStart  the protection start of the day
-   * @param stepinDateOffset  the step-in date offset
-   * @param settlementDateOffset  the settlement date offset
-   * @return the instance
-   */
-  public static Cds of(
-      BuySell buySell,
-      StandardId legalEntityId,
-      Currency currency,
-      double notional,
-      LocalDate startDate,
-      LocalDate endDate,
-      Frequency paymentFrequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      double fixedRate,
-      DayCount dayCount,
-      PaymentOnDefault paymentOnDefault,
-      ProtectionStartOfDay protectStart,
-      DaysAdjustment stepinDateOffset,
-      DaysAdjustment settlementDateOffset) {
-
-    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
-        .businessDayAdjustment(businessDayAdjustment)
-        .startDate(startDate)
-        .endDate(endDate)
-        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
-        .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
-        .frequency(paymentFrequency)
-        .rollConvention(RollConventions.NONE)
-        .stubConvention(stubConvention)
-        .build();
-    return new Cds(buySell, legalEntityId, currency, notional, accrualSchedule, fixedRate, dayCount, paymentOnDefault,
-        protectStart, stepinDateOffset, settlementDateOffset);
-  }
-
-  /**
    * Creates an instance of standardized CDS.
    * 
    * @param buySell  buy or sell
@@ -204,6 +150,7 @@ public final class Cds
    * @param endDate  the end date
    * @param calendar  the calendar
    * @param fixedRate  the fixed coupon rate
+   * @param paymentFrequency  the payment frequency
    * @return the instance
    */
   public static Cds of(
@@ -213,13 +160,32 @@ public final class Cds
       double notional,
       LocalDate startDate,
       LocalDate endDate,
+      Frequency paymentFrequency,
       HolidayCalendarId calendar,
       double fixedRate) {
 
-    return of(buySell, legalEntityId, currency, notional, startDate, endDate, Frequency.P3M,
-        BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, calendar), StubConvention.SHORT_INITIAL,
-        fixedRate, DayCounts.ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING,
-        DaysAdjustment.ofCalendarDays(1), DaysAdjustment.ofBusinessDays(3, calendar));
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, calendar))
+        .startDate(startDate)
+        .endDate(endDate)
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .frequency(paymentFrequency)
+        .rollConvention(RollConventions.NONE)
+        .stubConvention(StubConvention.SHORT_INITIAL)
+        .build();
+    return new Cds(
+        buySell,
+        legalEntityId,
+        currency,
+        notional,
+        accrualSchedule,
+        fixedRate,
+        DayCounts.ACT_360,
+        PaymentOnDefault.ACCRUED_PREMIUM,
+        ProtectionStartOfDay.BEGINNING,
+        DaysAdjustment.ofCalendarDays(1),
+        DaysAdjustment.ofBusinessDays(3, calendar));
   }
 
   //-------------------------------------------------------------------------

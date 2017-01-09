@@ -14,7 +14,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterMetadata;
 
@@ -125,19 +124,6 @@ public class CurvesTest {
         .curveName(CURVE_NAME)
         .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
-        .parameterMetadata(PARAMS)
-        .build();
-    assertEquals(test, expected);
-  }
-
-  //-------------------------------------------------------------------------
-  public void isdaCredit_curveNameParams() {
-    CurveMetadata test = Curves.isdaCredit(CURVE_NAME, PARAMS);
-    CurveMetadata expected = DefaultCurveMetadata.builder()
-        .curveName(CURVE_NAME)
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.ISDA_CREDIT)
-        .dayCount(DayCounts.ACT_365F)
         .parameterMetadata(PARAMS)
         .build();
     assertEquals(test, expected);

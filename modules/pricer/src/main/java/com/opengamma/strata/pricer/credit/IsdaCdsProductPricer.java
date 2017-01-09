@@ -11,9 +11,12 @@ import static com.opengamma.strata.math.impl.util.Epsilon.epsilonPP;
 
 import java.time.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -64,6 +67,16 @@ public class IsdaCdsProductPricer {
   public IsdaCdsProductPricer(AccrualOnDefaultFormula formula) {
     this.formula = ArgChecker.notNull(formula, "formula");
     this.omega = formula.getOmega();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the accrual-on-default formula used in this pricer. 
+   * 
+   * @return the formula
+   */
+  public AccrualOnDefaultFormula getAccrualOnDefaultFormula() {
+    return formula;
   }
 
   //-------------------------------------------------------------------------
@@ -386,10 +399,68 @@ public class IsdaCdsProductPricer {
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     validateRecoveryRates(cds, ratesProvider);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
-    double protectionFull =
-        protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
+    double protectionFull = protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
 
     return CurrencyAmount.of(cds.getCurrency(), -cds.getBuySell().normalize(cds.getNotional()) * protectionFull);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the jump-to-default of the CDS product.
+   * <p>
+   * The jump-to-default is the value of the product in case of immediate default.
+   * 
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the jump-to-default
+   */
+  public SplitCurrencyAmount<StandardId> jumpToDefault(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    StandardId legalEntityId = cds.getLegalEntityId();
+    Currency currency = cds.getCurrency();
+    if (isExpired(cds, ratesProvider)) {
+      return SplitCurrencyAmount.of(currency, ImmutableMap.of(legalEntityId, 0d));
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    double protectionFull = protectionFull(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate);
+    double lgd = 1d - recoveryRate;
+    double rpv01 = riskyAnnuity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, PriceType.CLEAN);
+    double jtd = lgd - (lgd * protectionFull - cds.getFixedRate() * rpv01);
+    return SplitCurrencyAmount.of(currency, ImmutableMap.of(legalEntityId, cds.getBuySell().normalize(cds.getNotional()) * jtd));
+  }
+
+  /**
+   * Calculates the expected loss of the CDS product.
+   * <p>
+   * The expected loss is the (undiscounted) expected default settlement value paid by the protection seller. 
+   * The resulting value is always positive.
+   * 
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @return the expected loss
+   */
+  public CurrencyAmount expectedLoss(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider) {
+
+    if (isExpired(cds, ratesProvider)) {
+      return CurrencyAmount.of(cds.getCurrency(), 0d);
+    }
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    double survivalProbability = rates.getSecond().survivalProbability(cds.getProtectionEndDate());
+    double el = (1d - recoveryRate) * (1d - survivalProbability);
+    return CurrencyAmount.of(cds.getCurrency(), Math.abs(cds.getNotional()) * el);
   }
 
   //-------------------------------------------------------------------------

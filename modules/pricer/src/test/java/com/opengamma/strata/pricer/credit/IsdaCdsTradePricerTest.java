@@ -20,8 +20,10 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
@@ -32,14 +34,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
-import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCdsProductPricer;
-import com.opengamma.strata.pricer.credit.IsdaCdsTradePricer;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.ResolvedCds;
@@ -93,7 +87,7 @@ public class IsdaCdsTradePricerTest {
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
   private static final ConstantRecoveryRates RECOVERY_RATES =
       ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, 0.25);
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, CREDIT_CRVE)))
       .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
@@ -101,9 +95,9 @@ public class IsdaCdsTradePricerTest {
       .build();
 
   private static final double NOTIONAL = 1.0e7;
-  private static final ResolvedCds PRODUCT =
-      Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2020, 10, 20), CALENDAR, 0.015)
-          .resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT = Cds.of(
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2020, 10, 20), Frequency.P3M, CALENDAR, 0.015)
+      .resolve(REF_DATA);
   private static final LocalDate SETTLEMENT_DATE = PRODUCT.getSettlementDateOffset().adjust(VALUATION_DATE, REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
       .tradeDate(VALUATION_DATE)
@@ -127,6 +121,11 @@ public class IsdaCdsTradePricerTest {
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
 
   private static final double TOL = 1.0e-15;
+
+  public void accFormulaTest() {
+    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertEquals(PRICER_MF.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
+  }
 
   public void test_price() {
     double computed = PRICER.price(TRADE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
@@ -240,6 +239,19 @@ public class IsdaCdsTradePricerTest {
         PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
     assertTrue(computed.equalWithTolerance(expected, TOL));
     assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_jumpToDefault() {
+    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(TRADE, RATES_PROVIDER, REF_DATA);
+    SplitCurrencyAmount<StandardId> expected = PRICER_PRODUCT.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
+    assertEquals(computed, expected);
+  }
+
+  public void test_expectedLoss() {
+    CurrencyAmount computed = PRICER.expectedLoss(TRADE, RATES_PROVIDER);
+    CurrencyAmount expected = PRICER_PRODUCT.expectedLoss(PRODUCT, RATES_PROVIDER);
+    assertEquals(computed.getAmount(), expected.getAmount(), TOL);
   }
 
 }

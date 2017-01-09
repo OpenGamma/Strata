@@ -147,7 +147,7 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
     Currency currency = cdsProduct.getCurrency();
     StandardId legalEntityId = cdsProduct.getLegalEntityId();
     Pair<StandardId, Currency> pair = Pair.of(legalEntityId, currency);
-    CreditRatesProvider ratesbase = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesbase = ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .discountCurves(ImmutableMap.of(currency, discountFactors))
         .recoveryRateCurves(ImmutableMap.of(legalEntityId, recoveryRates))
@@ -156,7 +156,7 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
       @Override
       public Double apply(Double x) {
         NodalCurve tempCreditCurve = creditCurve.withParameter(index, x);
-        CreditRatesProvider rates = ratesbase.toBuilder()
+        ImmutableCreditRatesProvider rates = ratesbase.toBuilder()
             .creditCurves(ImmutableMap.of(pair, LegalEntitySurvivalProbabilities.of(
                 legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
             .build();

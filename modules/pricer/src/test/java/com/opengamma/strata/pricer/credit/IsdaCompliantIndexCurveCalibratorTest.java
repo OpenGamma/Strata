@@ -48,6 +48,10 @@ import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.LegalEntityInformation;
 import com.opengamma.strata.market.observable.LegalEntityInformationId;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
+import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.CdsTemplate;
 import com.opengamma.strata.product.credit.type.ImmutableCdsConvention;
@@ -128,7 +132,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     CURVE_NODES_PS = curveNodesPsBuilder.build();
     MARKET_DATA_PS = marketDataPsBuilder.build();
   }
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final ImmutableCreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .discountCurves(ImmutableMap.of(EUR, CURVE_YC))
       .recoveryRateCurves(ImmutableMap.of(INDEX_ID, ConstantRecoveryRates.of(INDEX_ID, VALUATION_DATE, RECOVERY_RATE_VALUE)))
@@ -142,11 +146,15 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     double[] expectedTimes = new double[] {2.852054794520548, 4.852054794520548, 6.854794520547945, 9.854794520547944};
     double[] expectedRates = new double[] {0.03240798261187516, 0.04858422754375164, 0.0616141083562273, 0.06235460926516589};
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, CURVE_NODES, true);
+        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, CURVE_NODES, true, false);
     LegalEntitySurvivalProbabilities creditCurve = CALIBRATOR.calibrate(curveDefinition, MARKET_DATA, RATES_PROVIDER, REF_DATA);
     NodalCurve curve = (NodalCurve) creditCurve.getSurvivalProbabilities().findData(CURVE_NAME).get();
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getXValues().toArray(), expectedTimes, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getYValues().toArray(), expectedRates, TOL));
+    assertTrue(curve.getParameterMetadata(0) instanceof DatedParameterMetadata);
+    assertTrue(curve.getParameterMetadata(1) instanceof DatedParameterMetadata);
+    assertTrue(curve.getParameterMetadata(2) instanceof DatedParameterMetadata);
+    assertTrue(curve.getParameterMetadata(3) instanceof DatedParameterMetadata);
     double computedIndex = curve.getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     assertEquals(computedIndex, 93.0 / 97.0, TOL);
     testJacobian(creditCurve, RATES_PROVIDER, CURVE_NODES, PUF_QUOTES);
@@ -157,11 +165,12 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     double[] expectedRates = new double[] {0.04666754810728295};
     ImmutableList<CdsIndexIsdaCreditCurveNode> singleNode = CURVE_NODES.subList(1, 2);
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, singleNode, true);
+        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, singleNode, true, false);
     LegalEntitySurvivalProbabilities creditCurve = CALIBRATOR.calibrate(curveDefinition, MARKET_DATA, RATES_PROVIDER, REF_DATA);
     NodalCurve curve = (NodalCurve) creditCurve.getSurvivalProbabilities().findData(CURVE_NAME).get();
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getXValues().toArray(), expectedTimes, TOL));
     assertTrue(DoubleArrayMath.fuzzyEquals(curve.getYValues().toArray(), expectedRates, TOL));
+    assertTrue(curve.getParameterMetadata(0) instanceof DatedParameterMetadata);
     double computedIndex = curve.getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     assertEquals(computedIndex, 93.0 / 97.0, TOL);
     testJacobian(creditCurve, RATES_PROVIDER, singleNode, PUF_QUOTES);
@@ -169,7 +178,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
 
   public void test_consistency_singleName() {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
-        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, CURVE_NODES_PS, true);
+        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, CURVE_NODES_PS, true, true);
     LegalEntitySurvivalProbabilities creditCurveComputed = CALIBRATOR.calibrate(
         curveDefinition, MARKET_DATA_PS, RATES_PROVIDER, REF_DATA);
     NodalCurve curveComputed = (NodalCurve) creditCurveComputed.getSurvivalProbabilities().findData(CURVE_NAME).get();
@@ -182,9 +191,13 @@ public class IsdaCompliantIndexCurveCalibratorTest {
           CURVE_NODES_PS.get(i).getTemplate(),
           CURVE_NODES_PS.get(i).getObservableId(),
           CURVE_NODES_PS.get(i).getCdsIndexId()));
+      ParameterMetadata metadata = curveComputed.getParameterMetadata(i);
+      assertTrue(metadata instanceof ResolvedTradeParameterMetadata);
+      ResolvedTradeParameterMetadata tradeMetadata = (ResolvedTradeParameterMetadata) metadata;
+      assertTrue(tradeMetadata.getTrade() instanceof ResolvedCdsIndexTrade);
     }
     IsdaCreditCurveDefinition cdsCurveDefinition = IsdaCreditCurveDefinition.of(
-        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, cdsNodes, true);
+        CURVE_NAME, EUR, VALUATION_DATE, ACT_365F, cdsNodes, true, false);
     LegalEntitySurvivalProbabilities creditCurveExpected = cdsCalibrator.calibrate(
         cdsCurveDefinition, MARKET_DATA_PS, RATES_PROVIDER, REF_DATA);
     NodalCurve curveExpected = (NodalCurve) creditCurveExpected.getSurvivalProbabilities().findData(CURVE_NAME).get();
@@ -197,7 +210,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
   //-------------------------------------------------------------------------
   protected void testJacobian(
       LegalEntitySurvivalProbabilities curve,
-      CreditRatesProvider ratesProvider,
+      ImmutableCreditRatesProvider ratesProvider,
       List<CdsIndexIsdaCreditCurveNode> nodes,
       double[] quotes) {
 
@@ -218,7 +231,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
       ImmutableMarketData marketDataUp = builderCreditUp.build();
       ImmutableMarketData marketDataDw = builderCreditDw.build();
       IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
-          df.getCurve().getName(), df.getCurrency(), df.getValuationDate(), df.getDayCount(), nodes, false);
+          df.getCurve().getName(), df.getCurrency(), df.getValuationDate(), df.getDayCount(), nodes, false, false);
       IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) CALIBRATOR
           .calibrate(definition, marketDataUp, ratesProvider, REF_DATA).getSurvivalProbabilities();
       IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) CALIBRATOR

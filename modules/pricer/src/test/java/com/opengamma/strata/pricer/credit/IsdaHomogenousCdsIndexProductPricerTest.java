@@ -25,10 +25,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
@@ -41,14 +43,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.IsdaHomogenousCdsIndexProductPricer;
-import com.opengamma.strata.pricer.credit.IsdaHomogenousCdsIndexTradePricer;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
+import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.ResolvedCdsIndex;
@@ -61,7 +56,14 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final StandardId INDEX_ID = StandardId.of("OG", "ABCXX");
-  private static final ImmutableList<StandardId> LEGAL_ENTITIES = ImmutableList.of();
+  private static final ImmutableList<StandardId> LEGAL_ENTITIES;
+  static {
+    Builder<StandardId> builder = ImmutableList.builder();
+    for (int i = 0; i < 97; ++i) {
+      builder.add(StandardId.of("OG", String.valueOf(i)));
+    }
+    LEGAL_ENTITIES = builder.build();
+  }
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 2, 13);
   private static final DoubleArray TIME_YC = DoubleArray.ofUnsafe(new double[] {
       0.08767123287671233, 0.1726027397260274, 0.2602739726027397, 0.5095890410958904, 1.010958904109589, 2.010958904109589,
@@ -132,12 +134,18 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  public void accFormulaTest() {
+    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertEquals(PRICER_MARKIT.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
+    assertEquals(PRICER_OG.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.CORRECT);
+  }
+
   public void test_regression() {
     CurrencyAmount cleanPvOg = PRICER_OG.presentValue(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, CLEAN, REF_DATA);
-    assertEquals(cleanPvOg.getAmount(), 7305773.195876285, NOTIONAL * TOL);
+    assertEquals(cleanPvOg.getAmount(), -7305773.195876285, NOTIONAL * TOL);
     assertEquals(cleanPvOg.getCurrency(), USD);
     CurrencyAmount dirtyPvOg = PRICER_OG.presentValue(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, DIRTY, REF_DATA);
-    assertEquals(dirtyPvOg.getAmount(), 8051477.663230239, NOTIONAL * TOL);
+    assertEquals(dirtyPvOg.getAmount(), -8051477.663230239, NOTIONAL * TOL);
     assertEquals(dirtyPvOg.getCurrency(), USD);
     double cleanPriceOg = PRICER_OG.price(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, CLEAN, REF_DATA);
     assertEquals(cleanPriceOg, -0.07619999999999996, TOL);
@@ -162,6 +170,10 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     PointSensitivityBuilder sensiPrice = PRICER.priceSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
     assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
+    SplitCurrencyAmount<StandardId> jumpToDefault = PRICER.jumpToDefault(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
+    assertEquals(jumpToDefault, SplitCurrencyAmount.of(USD, ImmutableMap.of(INDEX_ID, 0d)));
+    CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT, provider);
+    assertEquals(expectedLoss, CurrencyAmount.zero(USD));
   }
 
   public void consistencyTest() {
@@ -245,12 +257,37 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void jumpToDefaultTest() {
+    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    LocalDate stepinDate = PRODUCT.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
+    double dirtyPvMod =
+        PRICER.presentValue(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, PriceType.DIRTY, REF_DATA).getAmount() / INDEX_FACTOR;
+    double accrued = PRODUCT.accruedYearFraction(stepinDate) * PRODUCT.getFixedRate() *
+        PRODUCT.getBuySell().normalize(NOTIONAL);
+    double protection = PRODUCT.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATE);
+    double expected = (protection - accrued - dirtyPvMod) / ((double) LEGAL_ENTITIES.size());
+    assertEquals(computed.getCurrency(), USD);
+    assertTrue(computed.getSplitValues().size() == 1);
+    assertEquals(computed.getSplitValues().get(INDEX_ID), expected, NOTIONAL * TOL);
+
+  }
+
+  public void expectedLossTest() {
+    CurrencyAmount computed = PRICER.expectedLoss(PRODUCT, RATES_PROVIDER);
+    double survivalProbability =
+        RATES_PROVIDER.survivalProbabilities(INDEX_ID, USD).survivalProbability(PRODUCT.getProtectionEndDate());
+    double expected = (1d - RECOVERY_RATE) * (1d - survivalProbability) * NOTIONAL * INDEX_FACTOR;
+    assertEquals(computed.getCurrency(), USD);
+    assertEquals(computed.getAmount(), expected, NOTIONAL * TOL);
+  }
+
+  //-------------------------------------------------------------------------
   private static CreditRatesProvider createCreditRatesProviderSingle(LocalDate valuationDate, boolean isSingle) {
     IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC);
     CreditDiscountFactors cc = isSingle ? IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC_SINGLE)
         : IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(INDEX_ID, valuationDate, RECOVERY_RATE);
-    return CreditRatesProvider.builder()
+    return ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .creditCurves(ImmutableMap.of(Pair.of(INDEX_ID, USD), LegalEntitySurvivalProbabilities.of(INDEX_ID, cc)))
         .discountCurves(ImmutableMap.of(USD, yc))

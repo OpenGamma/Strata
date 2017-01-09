@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -40,7 +41,7 @@ import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.TradeInfo;
@@ -79,12 +80,12 @@ public class SpreadSensitivityCalculatorTest {
   private static final LocalDate END2 = LocalDate.of(2020, 2, 20);
   private static final double DEAL_SPREAD = 101;
   private static final ResolvedCdsTrade CDS1 = CdsTrade.builder()
-      .product(Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, START, END1, SAT_SUN, DEAL_SPREAD * ONE_BP))
+      .product(Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START, END1, P3M, SAT_SUN, DEAL_SPREAD * ONE_BP))
       .info(TradeInfo.of(VALUATION_DATE))
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCdsTrade CDS2 = CdsTrade.builder()
-      .product(Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, START, END2, SAT_SUN, DEAL_SPREAD * ONE_BP))
+      .product(Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START, END2, P3M, SAT_SUN, DEAL_SPREAD * ONE_BP))
       .info(TradeInfo.of(VALUATION_DATE))
       .build()
       .resolve(REF_DATA);
@@ -103,7 +104,7 @@ public class SpreadSensitivityCalculatorTest {
   private static final double INDEX_FACTOR = 0.75;
   private static final ResolvedCdsIndexTrade CDS_INDEX = CdsIndexTrade.builder()
       .product(CdsIndex.of(
-          BuySell.BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START, END2, P3M, SAT_SUN, DEAL_SPREAD * ONE_BP))
+          BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START, END2, P3M, SAT_SUN, DEAL_SPREAD * ONE_BP))
       .info(TradeInfo.of(VALUATION_DATE))
       .build()
       .resolve(REF_DATA);
@@ -124,6 +125,8 @@ public class SpreadSensitivityCalculatorTest {
       .paymentFrequency(Frequency.P3M)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
       .build();
+  private static final ImmutableList<ResolvedTradeParameterMetadata> CDS_METADATA;
+  private static final ImmutableList<ResolvedTradeParameterMetadata> CDS_INDEX_METADATA;
   static {
     double flatRate = 0.05;
     double t = 20.0;
@@ -131,13 +134,15 @@ public class SpreadSensitivityCalculatorTest {
         USD, VALUATION_DATE, CurveName.of("discount"), DoubleArray.of(t), DoubleArray.of(flatRate), ACT_365F);
     ImmutableMarketDataBuilder dataBuilder = ImmutableMarketData.builder(VALUATION_DATE);
     Builder<CdsIsdaCreditCurveNode> nodesBuilder = ImmutableList.builder();
+    Builder<ResolvedTradeParameterMetadata> cdsMetadataBuilder = ImmutableList.builder();
+    Builder<ResolvedTradeParameterMetadata> cdsIndexMetadataBuilder = ImmutableList.builder();
     for (int i = 0; i < NUM_MARKET_CDS; i++) {
       QuoteId quoteId = QuoteId.of(StandardId.of("OG", PAR_SPD_DATES[i].toString()));
       CdsIsdaCreditCurveNode node = CdsIsdaCreditCurveNode.ofParSpread(
           DatesCdsTemplate.of(VALUATION_DATE, PAR_SPD_DATES[i], CDS_CONV), quoteId, LEGAL_ENTITY);
       MARKET_CDS[i] = CdsTrade.builder()
           .product(Cds.of(
-              BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, PAR_SPD_DATES[i], SAT_SUN, PAR_SPREADS[i] * ONE_BP))
+              BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, PAR_SPD_DATES[i], P3M, SAT_SUN, PAR_SPREADS[i] * ONE_BP))
           .info(TradeInfo.of(VALUATION_DATE))
           .build()
           .resolve(REF_DATA);
@@ -150,24 +155,34 @@ public class SpreadSensitivityCalculatorTest {
           .resolve(REF_DATA);
       dataBuilder.addValue(quoteId, PAR_SPREADS[i] * ONE_BP);
       nodesBuilder.add(node);
+      cdsMetadataBuilder.add(ResolvedTradeParameterMetadata.of(
+          MARKET_CDS[i],
+          MARKET_CDS[i].getProduct().getProtectionEndDate().toString()));
+      cdsIndexMetadataBuilder.add(ResolvedTradeParameterMetadata.of(
+          MARKET_CDS_INDEX[i],
+          MARKET_CDS_INDEX[i].getProduct().getProtectionEndDate().toString()));
     }
     ImmutableMarketData marketData = dataBuilder.build();
     ImmutableList<CdsIsdaCreditCurveNode> nodes = nodesBuilder.build();
-    CreditRatesProvider rates = CreditRatesProvider.builder()
+    CDS_METADATA = cdsMetadataBuilder.build();
+    CDS_INDEX_METADATA = cdsIndexMetadataBuilder.build();
+    ImmutableCreditRatesProvider rates = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
         .build();
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
-        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true);
+        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true, true);
     CREDIT_CURVE = BUILDER.calibrate(definition, marketData, rates, REF_DATA);
     NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) CREDIT_CURVE.getSurvivalProbabilities()).getCurve();
     NodalCurve curveWithFactor = underlyingCurve.withMetadata(
-        underlyingCurve.getMetadata().withInfo(CurveInfoType.CDS_INDEX_FACTOR, INDEX_FACTOR));
+        underlyingCurve.getMetadata()
+            .withInfo(CurveInfoType.CDS_INDEX_FACTOR, INDEX_FACTOR)
+            .withParameterMetadata(CDS_INDEX_METADATA)); // replace parameter metadata
     CREDIT_CURVE_INDEX = LegalEntitySurvivalProbabilities.of(
         INDEX_ID, IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, curveWithFactor));
   }
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE, INDEX_ID, RECOVERY_CURVE_INDEX))
       .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
@@ -192,6 +207,23 @@ public class SpreadSensitivityCalculatorTest {
     assertEquals(cs01FromQuoteSensi * ONE_BP, analytic.getAmount() * ONE_BP, TOL * NOTIONAL);
   }
 
+  public void parellelCs01FromNodesTest() {
+    double fromExcel = 4238.557409;
+    CurrencyAmount fd = CS01_FD.parallelCs01(CDS1, RATES_PROVIDER, REF_DATA);
+    CurrencyAmount analytic = CS01_AN.parallelCs01(CDS1, RATES_PROVIDER, REF_DATA);
+    assertEquals(fd.getCurrency(), USD);
+    assertEquals(fd.getAmount() * ONE_BP, fromExcel, TOL * NOTIONAL);
+    assertEquals(analytic.getCurrency(), USD);
+    assertEquals(analytic.getAmount() * ONE_BP, fd.getAmount() * ONE_BP, ONE_BP * NOTIONAL);
+    // equivalence to market quote sensitivity for par spread quote
+    PointSensitivities point = PRICER.presentValueOnSettleSensitivity(CDS1, RATES_PROVIDER, REF_DATA);
+    CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, LEGAL_ENTITY, USD);
+    CurrencyParameterSensitivities quoteSensi =
+        QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
+    double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
+    assertEquals(cs01FromQuoteSensi * ONE_BP, analytic.getAmount() * ONE_BP, TOL * NOTIONAL);
+  }
+
   public void bucketedCs01Test() {
     double[] expectedFd = new double[] {
         0.02446907003406107, 0.1166137422736746, 0.5196553952424576, 1.4989046391578054, 3.5860718603647483, 4233.77162264947,
@@ -202,12 +234,12 @@ public class SpreadSensitivityCalculatorTest {
     assertEquals(fd.getCurrency(), USD);
     assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
     assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), ParameterMetadata.listOfEmpty(NUM_MARKET_CDS));
+    assertEquals(fd.getParameterMetadata(), CDS_METADATA);
     assertTrue(DoubleArrayMath.fuzzyEquals(fd.getSensitivity().multipliedBy(ONE_BP).toArray(), expectedFd, NOTIONAL * TOL));
     assertEquals(analytic.getCurrency(), USD);
     assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
     assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), ParameterMetadata.listOfEmpty(NUM_MARKET_CDS));
+    assertEquals(analytic.getParameterMetadata(), CDS_METADATA);
     assertTrue(DoubleArrayMath.fuzzyEquals(
         analytic.getSensitivity().toArray(), fd.getSensitivity().toArray(), NOTIONAL * ONE_BP * 10d));
     PointSensitivities point = PRICER.presentValueOnSettleSensitivity(CDS1, RATES_PROVIDER, REF_DATA);
@@ -219,7 +251,7 @@ public class SpreadSensitivityCalculatorTest {
   }
 
   public void bucketedCs01SingleNodeCurveTest() {
-    CreditRatesProvider ratesProviderNoCredit = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProviderNoCredit = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
@@ -229,9 +261,9 @@ public class SpreadSensitivityCalculatorTest {
         CdsIsdaCreditCurveNode.ofParSpread(DatesCdsTemplate.of(START, END2, CDS_CONV), quoteId, LEGAL_ENTITY);
     ImmutableMarketData marketData = ImmutableMarketData.builder(VALUATION_DATE).addValue(quoteId, DEAL_SPREAD * ONE_BP).build();
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
-        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, ImmutableList.of(node), true);
+        CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, ImmutableList.of(node), true, false);
     LegalEntitySurvivalProbabilities creditCurve = BUILDER.calibrate(definition, marketData, ratesProviderNoCredit, REF_DATA);
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    ImmutableCreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, RECOVERY_CURVE))
         .discountCurves(ImmutableMap.of(USD, YIELD_CURVE))
@@ -245,12 +277,12 @@ public class SpreadSensitivityCalculatorTest {
     assertEquals(fd.getCurrency(), USD);
     assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
     assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), ParameterMetadata.listOfEmpty(NUM_MARKET_CDS));
+    assertEquals(fd.getParameterMetadata(), CDS_METADATA);
     assertTrue(DoubleArrayMath.fuzzyEquals(fd.getSensitivity().multipliedBy(ONE_BP).toArray(), expectedFd, NOTIONAL * TOL));
     assertEquals(analytic.getCurrency(), USD);
     assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
     assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), ParameterMetadata.listOfEmpty(NUM_MARKET_CDS));
+    assertEquals(analytic.getParameterMetadata(), CDS_METADATA);
     assertTrue(DoubleArrayMath.fuzzyEquals(
         analytic.getSensitivity().toArray(), fd.getSensitivity().toArray(), NOTIONAL * ONE_BP * 10d));
   }
@@ -262,13 +294,31 @@ public class SpreadSensitivityCalculatorTest {
     CurrencyAmount fd = CS01_FD.parallelCs01(CDS_INDEX, ImmutableList.copyOf(MARKET_CDS_INDEX), RATES_PROVIDER, REF_DATA);
     CurrencyAmount analytic = CS01_AN.parallelCs01(CDS_INDEX, ImmutableList.copyOf(MARKET_CDS_INDEX), RATES_PROVIDER, REF_DATA);
     assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getAmount(), -fdSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
-    assertEquals(analytic.getAmount(), -analyticSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
+    assertEquals(fd.getAmount(), fdSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
+    assertEquals(analytic.getAmount(), analyticSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
     assertEquals(analytic.getCurrency(), USD);
     // equivalence to market quote sensitivity for par spread quote
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
     CurrencyParameterSensitivities quoteSensi = QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
+    double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
+    assertEquals(cs01FromQuoteSensi, analytic.getAmount(), TOL * NOTIONAL);
+  }
+
+  public void parellelCs01WithNodesIndexTest() {
+    CurrencyAmount fdSingle = CS01_FD.parallelCs01(CDS2, RATES_PROVIDER, REF_DATA);
+    CurrencyAmount analyticSingle = CS01_AN.parallelCs01(CDS2, RATES_PROVIDER, REF_DATA);
+    CurrencyAmount fd = CS01_FD.parallelCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
+    CurrencyAmount analytic = CS01_AN.parallelCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
+    assertEquals(fd.getCurrency(), USD);
+    assertEquals(fd.getAmount(), fdSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
+    assertEquals(analytic.getAmount(), analyticSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
+    assertEquals(analytic.getCurrency(), USD);
+    // equivalence to market quote sensitivity for par spread quote
+    PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
+    CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
+    CurrencyParameterSensitivities quoteSensi =
+        QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
     assertEquals(cs01FromQuoteSensi, analytic.getAmount(), TOL * NOTIONAL);
   }
@@ -285,22 +335,53 @@ public class SpreadSensitivityCalculatorTest {
     assertEquals(fd.getCurrency(), USD);
     assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
     assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), ParameterMetadata.listOfEmpty(NUM_MARKET_CDS));
+    assertEquals(fd.getParameterMetadata(), CDS_INDEX_METADATA);
     assertTrue(DoubleArrayMath.fuzzyEquals(
         fd.getSensitivity().toArray(),
-        fdSingle.getSensitivity().multipliedBy(-INDEX_FACTOR).toArray(),
+        fdSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
         NOTIONAL * TOL));
     assertEquals(analytic.getCurrency(), USD);
     assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
     assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), ParameterMetadata.listOfEmpty(NUM_MARKET_CDS));
+    assertEquals(analytic.getParameterMetadata(), CDS_INDEX_METADATA);
     assertTrue(DoubleArrayMath.fuzzyEquals(
         analytic.getSensitivity().toArray(),
-        analyticSingle.getSensitivity().multipliedBy(-INDEX_FACTOR).toArray(),
+        analyticSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
         NOTIONAL * TOL));
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
     CurrencyParameterSensitivities quoteSensi = QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
+    assertTrue(DoubleArrayMath.fuzzyEquals(
+        quoteSensi.getSensitivities().get(0).getSensitivity().toArray(),
+        analytic.getSensitivity().toArray(),
+        NOTIONAL * TOL));
+  }
+
+  public void bucketedCs01WithNodesIndexTest() {
+    CurrencyParameterSensitivity fdSingle = CS01_FD.bucketedCs01(CDS2, RATES_PROVIDER, REF_DATA);
+    CurrencyParameterSensitivity analyticSingle = CS01_AN.bucketedCs01(CDS2, RATES_PROVIDER, REF_DATA);
+    CurrencyParameterSensitivity fd = CS01_FD.bucketedCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
+    CurrencyParameterSensitivity analytic = CS01_AN.bucketedCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
+    assertEquals(fd.getCurrency(), USD);
+    assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
+    assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
+    assertEquals(fd.getParameterMetadata(), CDS_INDEX_METADATA);
+    assertTrue(DoubleArrayMath.fuzzyEquals(
+        fd.getSensitivity().toArray(),
+        fdSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
+        NOTIONAL * TOL));
+    assertEquals(analytic.getCurrency(), USD);
+    assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
+    assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
+    assertEquals(analytic.getParameterMetadata(), CDS_INDEX_METADATA);
+    assertTrue(DoubleArrayMath.fuzzyEquals(
+        analytic.getSensitivity().toArray(),
+        analyticSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
+        NOTIONAL * TOL));
+    PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
+    CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
+    CurrencyParameterSensitivities quoteSensi =
+        QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     assertTrue(DoubleArrayMath.fuzzyEquals(
         quoteSensi.getSensitivities().get(0).getSensitivity().toArray(),
         analytic.getSensitivity().toArray(),

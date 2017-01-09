@@ -11,6 +11,8 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.common.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.common.PriceType.DIRTY;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -25,12 +27,15 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -42,15 +47,8 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCdsProductPricer;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
+import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
 import com.opengamma.strata.product.credit.ProtectionStartOfDay;
@@ -67,8 +65,6 @@ public class IsdaCdsProductPricerTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 3);
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
-  private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
-  private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
 
   private static final DoubleArray TIME_YC = DoubleArray.ofUnsafe(new double[] {0.09041095890410959, 0.16712328767123288,
@@ -108,7 +104,7 @@ public class IsdaCdsProductPricerTest {
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
   private static final ConstantRecoveryRates RECOVERY_RATES =
       ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, 0.25);
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final ImmutableCreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, CREDIT_CRVE)))
       .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
@@ -116,34 +112,92 @@ public class IsdaCdsProductPricerTest {
       .build();
 
   private static final double NOTIONAL = 1.0e7;
-  private static final ResolvedCds PRODUCT_NEXTDAY =
-      Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M,
-          BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
-          PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NEXTDAY = Cds.of(
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M, CALENDAR, 0.05)
+      .resolve(REF_DATA);
   private static final ResolvedCds PRODUCT_BEFORE = Cds.of(
-      BuySell.SELL, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
+      SELL, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M, CALENDAR, 0.05)
+      .resolve(REF_DATA);
   private static final ResolvedCds PRODUCT_AFTER = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M, CALENDAR, 0.05)
+      .resolve(REF_DATA);
 
   private static final DaysAdjustment SETTLE_DAY_ADJ_NS = DaysAdjustment.ofBusinessDays(5, CALENDAR);
   private static final DaysAdjustment STEPIN_DAY_ADJ_NS = DaysAdjustment.ofCalendarDays(7);
-  private static final ResolvedCds PRODUCT_NS_TODAY = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, LocalDate.of(2021, 4, 25), Frequency.P4M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_FINAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
-  private static final ResolvedCds PRODUCT_NS_STEPIN = Cds.of(
-      BuySell.SELL, LEGAL_ENTITY, USD, NOTIONAL, STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA), LocalDate.of(2019, 1, 26),
-      Frequency.P6M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_INITIAL,
-      0.05, ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS)
+  private static final ResolvedCds PRODUCT_NS_TODAY = Cds.builder()
+      .buySell(BUY)
+      .legalEntityId(LEGAL_ENTITY)
+      .currency(USD)
+      .notional(NOTIONAL)
+      .paymentSchedule(
+          PeriodicSchedule.builder()
+              .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR))
+              .startDate(VALUATION_DATE)
+              .endDate(LocalDate.of(2021, 4, 25))
+              .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+              .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+              .frequency(Frequency.P4M)
+              .rollConvention(RollConventions.NONE)
+              .stubConvention(StubConvention.SHORT_FINAL)
+              .build())
+      .dayCount(ACT_360)
+      .fixedRate(0.05)
+      .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+      .protectionStart(ProtectionStartOfDay.NONE)
+      .stepinDateOffset(STEPIN_DAY_ADJ_NS)
+      .settlementDateOffset(SETTLE_DAY_ADJ_NS)
+      .build()
       .resolve(REF_DATA);
-  private static final ResolvedCds PRODUCT_NS_BTW = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE.plusDays(4), LocalDate.of(2026, 8, 2), Frequency.P12M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_FINAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NS_STEPIN =
+      Cds.builder()
+          .buySell(SELL)
+          .legalEntityId(LEGAL_ENTITY)
+          .currency(USD)
+          .notional(NOTIONAL)
+          .paymentSchedule(
+              PeriodicSchedule.builder()
+                  .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR))
+                  .startDate(STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA))
+                  .endDate(LocalDate.of(2019, 1, 26))
+                  .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .frequency(Frequency.P6M)
+                  .rollConvention(RollConventions.NONE)
+                  .stubConvention(StubConvention.LONG_INITIAL)
+                  .build())
+          .dayCount(ACT_360)
+          .fixedRate(0.05)
+          .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+          .protectionStart(ProtectionStartOfDay.NONE)
+          .stepinDateOffset(STEPIN_DAY_ADJ_NS)
+          .settlementDateOffset(SETTLE_DAY_ADJ_NS)
+          .build()
+          .resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NS_BTW =
+      Cds.builder()
+          .buySell(BUY)
+          .legalEntityId(LEGAL_ENTITY)
+          .currency(USD)
+          .notional(NOTIONAL)
+          .paymentSchedule(
+              PeriodicSchedule.builder()
+                  .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR))
+                  .startDate(VALUATION_DATE.plusDays(4))
+                  .endDate(LocalDate.of(2026, 8, 2))
+                  .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .frequency(Frequency.P12M)
+                  .rollConvention(RollConventions.NONE)
+                  .stubConvention(StubConvention.LONG_FINAL)
+                  .build())
+          .dayCount(ACT_360)
+          .fixedRate(0.05)
+          .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+          .protectionStart(ProtectionStartOfDay.NONE)
+          .stepinDateOffset(STEPIN_DAY_ADJ_NS)
+          .settlementDateOffset(SETTLE_DAY_ADJ_NS)
+          .build()
+          .resolve(REF_DATA);
 
   private static final double TOL = 1.0e-14;
   private static final double EPS = 1.0e-6;
@@ -154,6 +208,12 @@ public class IsdaCdsProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  public void accFormulaTest() {
+    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertEquals(PRICER_FIX.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
+    assertEquals(PRICER_CORRECT.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.CORRECT);
+  }
+
   public void endedTest() {
     LocalDate valuationDate = PRODUCT_NEXTDAY.getProtectionEndDate().plusDays(1);
     CreditRatesProvider provider = createCreditRatesProvider(valuationDate);
@@ -185,6 +245,11 @@ public class IsdaCdsProductPricerTest {
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
     assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
+    SplitCurrencyAmount<StandardId> jtd = PRICER.jumpToDefault(PRODUCT_NEXTDAY, provider,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
+    assertEquals(jtd, SplitCurrencyAmount.of(USD, ImmutableMap.of(LEGAL_ENTITY, 0d)));
+    CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT_NEXTDAY, provider);
+    assertEquals(expectedLoss, CurrencyAmount.zero(USD));
   }
 
   public void consistencyTest() {
@@ -616,7 +681,7 @@ public class IsdaCdsProductPricerTest {
     InterpolatedNodalCurve nodalCc = InterpolatedNodalCurve.of(METADATA_CC, timeCrd, rateCrd,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
     CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, nodalCc);
-    CreditRatesProvider ratesProvider = CreditRatesProvider.builder()
+    CreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
         .discountCurves(ImmutableMap.of(USD, yc))
@@ -668,11 +733,33 @@ public class IsdaCdsProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void jumpToDefaultTest() {
+    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, REF_DATA);
+    LocalDate stepinDate = PRODUCT_BEFORE.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
+    double dirtyPv = PRICER.presentValue(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, PriceType.DIRTY, REF_DATA).getAmount();
+    double accrued = PRODUCT_BEFORE.accruedYearFraction(stepinDate) * PRODUCT_BEFORE.getFixedRate() *
+        PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL);
+    double protection = PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATES.getRecoveryRate());
+    double expected = protection - accrued - dirtyPv;
+    assertEquals(computed.getCurrency(), USD);
+    assertTrue(computed.getSplitValues().size() == 1);
+    assertEquals(computed.getSplitValues().get(LEGAL_ENTITY), expected, NOTIONAL * TOL);
+  }
+
+  public void expectedLossTest() {
+    CurrencyAmount computed = PRICER.expectedLoss(PRODUCT_BEFORE, RATES_PROVIDER);
+    double survivalProb = CREDIT_CRVE.discountFactor(PRODUCT_BEFORE.getProtectionEndDate());
+    double expected = NOTIONAL * (1d - RECOVERY_RATES.getRecoveryRate()) * (1d - survivalProb);
+    assertEquals(computed.getCurrency(), USD);
+    assertEquals(computed.getAmount(), expected, NOTIONAL * TOL);
+  }
+
+  //-------------------------------------------------------------------------
   private CreditRatesProvider createCreditRatesProvider(LocalDate valuationDate) {
     IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC);
     CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25);
-    return CreditRatesProvider.builder()
+    return ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)
         .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
         .discountCurves(ImmutableMap.of(USD, yc))

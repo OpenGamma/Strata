@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -23,12 +23,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
@@ -38,8 +35,6 @@ import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsQuote;
 import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.credit.PaymentOnDefault;
-import com.opengamma.strata.product.credit.ProtectionStartOfDay;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 
@@ -81,7 +76,7 @@ public class CdsMarketQuoteConverterTest {
   private static final double RECOVERY_RATE = 0.4;
   private static final ConstantRecoveryRates REC_RATES = ConstantRecoveryRates.of(LEGAL_ENTITY, TODAY, RECOVERY_RATE);
   // rates provider without credit curve
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .discountCurves(ImmutableMap.of(GBP, DSC_CURVE))
       .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY, REC_RATES))
       .valuationDate(TODAY)
@@ -94,7 +89,7 @@ public class CdsMarketQuoteConverterTest {
     double pointsUpFront = 0.007;
     double expectedParSpread = 0.011112592882846; // taken from Excel-ISDA 1.8.2
     double premium = 100d * ONE_BP;
-    Cds product = Cds.of(BuySell.BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, END_DATE, DEFAULT_CALENDAR, premium);
+    Cds product = Cds.of(BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, END_DATE, Frequency.P3M, DEFAULT_CALENDAR, premium);
     TradeInfo info =
         TradeInfo.builder().tradeDate(TODAY).settlementDate(product.getSettlementDateOffset().adjust(TODAY, REF_DATA)).build();
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
@@ -111,10 +106,7 @@ public class CdsMarketQuoteConverterTest {
     double quotedSpread = 143.4 * ONE_BP;
     double expectedPuf = -0.2195134271137960; // taken from Excel-ISDA 1.8.2
     double premium = 500d * ONE_BP;
-    Cds product = Cds.of(BuySell.SELL, LEGAL_ENTITY, GBP, 1.0e8, START_DATE, END_DATE, Frequency.P6M,
-        BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR), StubConvention.LONG_INITIAL, premium, ACT_360,
-        PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, DaysAdjustment.ofCalendarDays(1),
-        DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR));
+    Cds product = Cds.of(SELL, LEGAL_ENTITY, GBP, 1.0e8, START_DATE, END_DATE, Frequency.P6M, DEFAULT_CALENDAR, premium);
     TradeInfo info =
         TradeInfo.builder().tradeDate(TODAY).settlementDate(product.getSettlementDateOffset().adjust(TODAY, REF_DATA)).build();
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
@@ -134,7 +126,8 @@ public class CdsMarketQuoteConverterTest {
     double[] parSpreads = new double[] {0.00769041167742121, 0.010780108645654813, 0.014587245777777417, 0.017417253343028126,
         0.01933997409465104, 0.022289540511698912, 0.025190509434219924};
     for (int i = 0; i < nPillars; ++i) {
-      products.add(Cds.of(BuySell.BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, MATURITIES[i], DEFAULT_CALENDAR, parSpreads[i]));
+      products.add(
+          Cds.of(BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, MATURITIES[i], Frequency.P3M, DEFAULT_CALENDAR, parSpreads[i]));
       quotes.add(CdsQuote.of(CdsQuoteConvention.PAR_SPREAD, parSpreads[i]));
     }
     TradeInfo info = TradeInfo.builder()
@@ -168,13 +161,13 @@ public class CdsMarketQuoteConverterTest {
 
   public void pricePufTest() {
     double premium = 150d * ONE_BP;
-    Cds product = Cds.of(BuySell.BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, END_DATE, DEFAULT_CALENDAR, premium);
+    Cds product = Cds.of(BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, END_DATE, Frequency.P3M, DEFAULT_CALENDAR, premium);
     TradeInfo info =
         TradeInfo.builder().tradeDate(TODAY).settlementDate(product.getSettlementDateOffset().adjust(TODAY, REF_DATA)).build();
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
     NodalCurve cc = CALIB.calibrate(ImmutableList.of(trade), DoubleArray.of(0.0123), DoubleArray.of(0.0),
         CurveName.of("test"), TODAY, DSC_CURVE, REC_RATES, REF_DATA);
-    CreditRatesProvider rates = RATES_PROVIDER.toBuilder()
+    CreditRatesProvider rates = RATES_PROVIDER.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY, GBP),
             LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))

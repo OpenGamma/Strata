@@ -154,7 +154,7 @@ public class CdsMarketQuoteConverter {
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
-    CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
+    CreditRatesProvider ratesProviderNew = ratesProvider.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
             LegalEntitySurvivalProbabilities.of(
@@ -203,7 +203,7 @@ public class CdsMarketQuoteConverter {
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
-    CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
+    CreditRatesProvider ratesProviderNew = ratesProvider.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
             LegalEntitySurvivalProbabilities.of(
@@ -267,7 +267,7 @@ public class CdsMarketQuoteConverter {
         discountFactors,
         recoveryRates,
         refData);
-    CreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
+    CreditRatesProvider ratesProviderNew = ratesProvider.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
             LegalEntitySurvivalProbabilities.of(

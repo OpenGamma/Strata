@@ -31,7 +31,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
 
 /**
  * Test {@link IsdaCompliantZeroRateDiscountFactors}.
@@ -87,6 +86,42 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
 
   public void test_of() {
     IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    assertEquals(test.getCurrency(), USD);
+    assertEquals(test.getCurve(), CURVE);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getParameterCount(), RATE.size());
+    assertEquals(test.getParameter(3), RATE.get(3));
+    assertEquals(test.getParameter(1), RATE.get(1));
+    assertEquals(test.getParameterKeys(), TIME);
+    assertEquals(test.getParameterMetadata(4), SimpleCurveParameterMetadata.of(METADATA.getXValueType(), TIME.get(4)));
+    assertEquals(test.getParameterMetadata(6), SimpleCurveParameterMetadata.of(METADATA.getXValueType(), TIME.get(6)));
+    assertEquals(test.getValuationDate(), VALUATION);
+    assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.toDiscountFactors(), ZeroRateDiscountFactors.of(USD, VALUATION, CURVE));
+    assertEquals(test.isIsdaCompliant(), true);
+  }
+
+  public void test_of_constant_interface() {
+    IsdaCompliantZeroRateDiscountFactors test =
+        (IsdaCompliantZeroRateDiscountFactors) CreditDiscountFactors.of(USD, VALUATION, CONST_CURVE);
+    assertEquals(test.getCurrency(), USD);
+    assertEquals(test.getCurve(), CONST_CURVE);
+    assertEquals(test.getDayCount(), ACT_365L);
+    assertEquals(test.getParameterCount(), 1);
+    assertEquals(test.getParameter(0), RATE_SINGLE);
+    assertEquals(test.getParameterKeys(), DoubleArray.of(TIME_SINGLE));
+    assertEquals(test.getParameterMetadata(0), SimpleCurveParameterMetadata.of(METADATA.getXValueType(), TIME_SINGLE));
+    assertEquals(test.getValuationDate(), VALUATION);
+    assertEquals(test.findData(CONST_CURVE.getName()), Optional.of(CONST_CURVE));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.toDiscountFactors(), ZeroRateDiscountFactors.of(USD, VALUATION, CONST_CURVE));
+    assertEquals(test.isIsdaCompliant(), true);
+  }
+
+  public void test_of_interface() {
+    IsdaCompliantZeroRateDiscountFactors test =
+        (IsdaCompliantZeroRateDiscountFactors) CreditDiscountFactors.of(USD, VALUATION, CURVE);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getDayCount(), ACT_365F);

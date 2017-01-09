@@ -17,11 +17,13 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -35,14 +37,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
-import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
-import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
-import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.IsdaHomogenousCdsIndexProductPricer;
-import com.opengamma.strata.pricer.credit.IsdaHomogenousCdsIndexTradePricer;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.ResolvedCdsIndex;
@@ -58,7 +52,14 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 3);
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.USNY;
   private static final StandardId INDEX_ID = StandardId.of("OG", "ABCXX");
-  private static final ImmutableList<StandardId> LEGAL_ENTITIES = ImmutableList.of();
+  private static final ImmutableList<StandardId> LEGAL_ENTITIES;
+  static {
+    Builder<StandardId> builder = ImmutableList.builder();
+    for (int i = 0; i < 97; ++i) {
+      builder.add(StandardId.of("OG", String.valueOf(i)));
+    }
+    LEGAL_ENTITIES = builder.build();
+  }
 
   private static final DoubleArray TIME_YC = DoubleArray.ofUnsafe(new double[] {0.09041095890410959, 0.16712328767123288,
       0.2547945205479452, 0.5041095890410959, 0.7534246575342466, 1.0054794520547945, 2.0054794520547947, 3.008219178082192,
@@ -99,7 +100,7 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
       IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
   private static final ConstantRecoveryRates RECOVERY_RATES =
       ConstantRecoveryRates.of(INDEX_ID, VALUATION_DATE, 0.25);
-  private static final CreditRatesProvider RATES_PROVIDER = CreditRatesProvider.builder()
+  private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .creditCurves(ImmutableMap.of(Pair.of(INDEX_ID, USD), LegalEntitySurvivalProbabilities.of(INDEX_ID, CREDIT_CRVE)))
       .discountCurves(ImmutableMap.of(USD, YIELD_CRVE))
@@ -237,6 +238,19 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
         PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
     assertTrue(computed.equalWithTolerance(expected, TOL));
     assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_jumpToDefault() {
+    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(TRADE, RATES_PROVIDER, REF_DATA);
+    SplitCurrencyAmount<StandardId> expected = PRICER_PRODUCT.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
+    assertEquals(computed, expected);
+  }
+
+  public void test_expectedLoss() {
+    CurrencyAmount computed = PRICER.expectedLoss(TRADE, RATES_PROVIDER);
+    CurrencyAmount expected = PRICER_PRODUCT.expectedLoss(PRODUCT, RATES_PROVIDER);
+    assertEquals(computed, expected);
   }
 
 }
