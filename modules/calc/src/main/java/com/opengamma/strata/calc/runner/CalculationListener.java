@@ -37,8 +37,10 @@ public interface CalculationListener {
   }
 
   /**
-   * Invoked when a calculation completes; it is guaranteed that {@link {@link #calculationsStarted(List, List) }} will
-   * be called before this method and that this method will never be called after {@link #calculationsComplete()}.
+   * Invoked when a calculation completes.
+   * <p>
+   * It is guaranteed that {@link #calculationsStarted(List, List)} will be called before
+   * this method and that this method will never be called after {@link #calculationsComplete()}.
    * <p>
    * It is possible that this method will never be called. This can happen if an empty list of targets
    * is passed to the calculation runner.

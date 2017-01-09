@@ -10,6 +10,7 @@ import static com.opengamma.strata.calc.ReportingCurrency.NATURAL;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -49,9 +50,7 @@ public class DefaultCalculationTaskRunnerTest {
   private static final Set<Measure> MEASURES = ImmutableSet.of(TestingMeasures.PRESENT_VALUE);
 
   //-------------------------------------------------------------------------
-  /**
-   * Test that ScenarioArrays containing a single value are unwrapped.
-   */
+  // Test that ScenarioArrays containing a single value are unwrapped.
   public void unwrapScenarioResults() throws Exception {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PRESENT_VALUE, scenarioResult);
