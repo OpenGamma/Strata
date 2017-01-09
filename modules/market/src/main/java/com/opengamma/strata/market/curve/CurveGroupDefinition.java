@@ -42,6 +42,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
@@ -374,6 +375,22 @@ public final class CurveGroupDefinition
         curveDefinitions.stream().filter(def -> curveNames.contains(def.getName())).collect(toImmutableList());
     return new CurveGroupDefinition(
         name, entries, filteredDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  /**
+   * Returns a copy of this object containing the specified seasonality definitions.
+   * <p>
+   * Seasonality definitions are ignored if there is no entry in this definition with the same curve name.
+   *
+   * @param seasonalityDefinitions  seasonality definitions
+   * @return a copy of this object containing the specified seasonality definitions
+   */
+  public CurveGroupDefinition withSeasonalityDefinitions(Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
+    Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
+    Map<CurveName, SeasonalityDefinition> filteredDefinitions = MapStream.of(seasonalityDefinitions)
+        .filterKeys(cn -> curveNames.contains(cn)).toMap();
+    return new CurveGroupDefinition(
+        name, entries, curveDefinitions, filteredDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
   /**
