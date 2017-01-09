@@ -179,7 +179,11 @@ final class DefaultLookupCreditRatesProvider
   public <T> Optional<T> findData(MarketDataName<T> name) {
     if (name instanceof CurveName) {
       return Stream
-          .concat(lookup.getCreditCurveIds().values().stream(), lookup.getCreditCurveIds().values().stream())
+          .concat(
+              lookup.getRecoveryRateCurveIds().values().stream(),
+              Stream.concat(
+                  lookup.getCreditCurveIds().values().stream(),
+                  lookup.getDiscountCurveIds().values().stream()))
           .filter(id -> id.getMarketDataName().equals(name))
           .findFirst()
           .flatMap(id -> marketData.findValue(id))

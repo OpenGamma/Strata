@@ -141,18 +141,18 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates calibrated parallel IR01 for all scenarios
-  CurrencyScenarioArray ir01CalibratedPrallel(
+  CurrencyScenarioArray ir01CalibratedParallel(
       ResolvedCdsTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
 
     return CurrencyScenarioArray.of(
         marketData.getScenarioCount(),
-        i -> ir01CalibratedPrallel(trade, marketData.scenario(i).creditRatesProvider(), refData));
+        i -> ir01CalibratedParallel(trade, marketData.scenario(i).creditRatesProvider(), refData));
   }
 
   // calculates calibrated parallel IR01 for one scenario
-  private CurrencyAmount ir01CalibratedPrallel(
+  private CurrencyAmount ir01CalibratedParallel(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {

@@ -65,8 +65,6 @@ public class IsdaCdsProductPricerTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 3);
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
-  private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
-  private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
 
   private static final DoubleArray TIME_YC = DoubleArray.ofUnsafe(new double[] {0.09041095890410959, 0.16712328767123288,

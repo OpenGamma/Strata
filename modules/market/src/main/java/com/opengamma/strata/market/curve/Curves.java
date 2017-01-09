@@ -237,4 +237,40 @@ public final class Curves {
         .build();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates curve metadata for a curve providing recovery rates.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata recoveryRates(String name, DayCount dayCount) {
+    return recoveryRates(CurveName.of(name), dayCount);
+  }
+
+  /**
+   * Creates curve metadata for a curve providing recovery rates.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata recoveryRates(CurveName name, DayCount dayCount) {
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.RECOVERY_RATE)
+        .dayCount(dayCount)
+        .build();
+  }
+
 }

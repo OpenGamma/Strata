@@ -30,11 +30,11 @@ public final class CreditMeasures {
   /**
    * Measure representing the PV change under a 1 bps shift in calibrated curve.
    */
-  public static final Measure IR01_CALIBRATED__PARALLEL = Measure.of(StandardCreditMeasures.IR01_CALIBRATED__PARALLEL.getName());
+  public static final Measure IR01_CALIBRATED_PARALLEL = Measure.of(StandardCreditMeasures.IR01_CALIBRATED_PARALLEL.getName());
   /**
    * Measure representing the PV change under a series of 1 bps shifts in calibrated curve at each curve node.
    */
-  public static final Measure IR01_CALIBRATED__BUCKETED = Measure.of(StandardCreditMeasures.IR01_CALIBRATED__BUCKETED.getName());
+  public static final Measure IR01_CALIBRATED_BUCKETED = Measure.of(StandardCreditMeasures.IR01_CALIBRATED_BUCKETED.getName());
 
   //-------------------------------------------------------------------------
   /**
