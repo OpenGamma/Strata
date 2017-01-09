@@ -13,7 +13,6 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
 import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
 import static org.testng.Assert.assertEquals;
@@ -199,7 +198,7 @@ public class ResolvedCdsIndexTest {
         .build();
     ResolvedCds test = base.toSingleNameCds();
     ResolvedCds expected = ResolvedCds.builder()
-        .buySell(SELL)
+        .buySell(BUY)
         .dayCount(ACT_360)
         .legalEntityId(INDEX_ID)
         .paymentOnDefault(ACCRUED_PREMIUM)

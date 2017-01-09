@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 
@@ -31,6 +32,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -46,7 +48,6 @@ import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
@@ -121,7 +122,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         0.00886315689995649, 0.00886315689995649, 0.0133044689825873, 0.0171490070952563, 0.0183903639181293, 0.0194721890639724};
     for (int i = 0; i < nTenors; ++i) {
       Cds product = Cds.of(
-          BUY, LEGAL_ENTITY, EUR, 1d, startDate0, LocalDate.of(2011, 6, 20).plus(tenors[i]), DEFAULT_CALENDAR, SPREADS[0][i]);
+          BUY, LEGAL_ENTITY, EUR, 1d, startDate0, LocalDate.of(2011, 6, 20).plus(tenors[i]), Frequency.P3M, DEFAULT_CALENDAR, SPREADS[0][i]);
       EXP_NODE_CDS[0][i] = CdsTrade.builder()
           .info(TradeInfo.builder().settlementDate(product.getSettlementDateOffset().adjust(tradeDate0, REF_DATA)).build())
           .product(product)
@@ -148,7 +149,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     SPREADS[1] = new double[] {0.027, 0.018, 0.012, 0.009, 0.007, 0.006};
     for (int i = 0; i < nTenors; ++i) {
       Cds product = Cds.of(
-          BUY, LEGAL_ENTITY, EUR, 1d, effDate1, LocalDate.of(2011, 6, 20).plus(tenors[i]), DEFAULT_CALENDAR, SPREADS[1][i]);
+          BUY, LEGAL_ENTITY, EUR, 1d, effDate1, LocalDate.of(2011, 6, 20).plus(tenors[i]), P3M, DEFAULT_CALENDAR, SPREADS[1][i]);
       EXP_NODE_CDS[1][i] = CdsTrade.builder()
           .info(TradeInfo.builder().settlementDate(product.getSettlementDateOffset().adjust(tradeDate1, REF_DATA)).build())
           .product(product)
@@ -158,7 +159,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           .name("conv")
           .currency(EUR)
           .dayCount(ACT_360)
-          .paymentFrequency(Frequency.P3M)
+          .paymentFrequency(P3M)
           .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
           .businessDayAdjustment(BUS_ADJ)
           .settlementDateOffset(CDS_SETTLE_STD)
@@ -182,7 +183,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     EXP_NODE_CDS[2] = new ResolvedCdsTrade[nMatDates2];
     SPREADS[2] = new double[] {0.05, 0.05, 0.05, 0.05, 0.05};
     for (int i = 0; i < nMatDates2; ++i) {
-      Cds product = Cds.of(BUY, LEGAL_ENTITY, EUR, 1d, tradeDate2.plusDays(1), matDates2[i], DEFAULT_CALENDAR, SPREADS[2][i])
+      Cds product = Cds.of(BUY, LEGAL_ENTITY, EUR, 1d, tradeDate2.plusDays(1), matDates2[i], P3M, DEFAULT_CALENDAR, SPREADS[2][i])
           .toBuilder().dayCount(THIRTY_U_360).build();
       EXP_NODE_CDS[2][i] = CdsTrade.builder()
           .info(TradeInfo.builder().settlementDate(product.getSettlementDateOffset().adjust(tradeDate2, REF_DATA)).build())
@@ -193,7 +194,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
           .name("conv")
           .currency(EUR)
           .dayCount(THIRTY_U_360)
-          .paymentFrequency(Frequency.P3M)
+          .paymentFrequency(P3M)
           .rollConvention(RollConventions.NONE)
           .businessDayAdjustment(BUS_ADJ)
           .settlementDateOffset(CDS_SETTLE_STD)
@@ -218,10 +219,29 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     EXP_NODE_CDS[3] = new ResolvedCdsTrade[nMatDates3];
     SPREADS[3] = new double[] {0.07, 0.06, 0.05, 0.055, 0.06, 0.065};
     for (int i = 0; i < nMatDates3; ++i) {
-      Cds product = Cds.of(BuySell.BUY, LEGAL_ENTITY, EUR, 1d, effDate3, matDates3[i], Frequency.P6M,
-          BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR), StubConvention.LONG_INITIAL, SPREADS[3][i], ACT_365F,
-          PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, DaysAdjustment.ofCalendarDays(1),
-          DaysAdjustment.ofBusinessDays(3, DEFAULT_CALENDAR));
+      Cds product = Cds.builder()
+          .buySell(BUY)
+          .legalEntityId(LEGAL_ENTITY)
+          .currency(EUR)
+          .dayCount(ACT_365F)
+          .fixedRate(SPREADS[3][i])
+          .notional(1d)
+          .paymentSchedule(
+              PeriodicSchedule.builder()
+                  .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, DEFAULT_CALENDAR))
+                  .startDate(effDate3)
+                  .endDate(matDates3[i])
+                  .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .frequency(Frequency.P6M)
+                  .rollConvention(RollConventions.NONE)
+                  .stubConvention(StubConvention.LONG_INITIAL)
+                  .build())
+          .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+          .protectionStart(ProtectionStartOfDay.BEGINNING)
+          .stepinDateOffset(DaysAdjustment.ofCalendarDays(1))
+          .settlementDateOffset(CDS_SETTLE_STD)
+          .build();
       EXP_NODE_CDS[3][i] = CdsTrade.builder()
           .info(TradeInfo.builder().settlementDate(product.getSettlementDateOffset().adjust(tradeDate3, REF_DATA)).build())
           .product(product)
@@ -255,14 +275,14 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     Arrays.fill(SPREADS[4], 1.0e-4);
     EXP_NODE_CDS[4] = new ResolvedCdsTrade[nSpreads4];
     for (int i = 0; i < nSpreads4; ++i) {
-      Cds product = Cds.of(BuySell.BUY, LEGAL_ENTITY, EUR, 1d, LocalDate.of(2013, 12, 20),
-          LocalDate.of(2014, 3, 20).plus(tenors[i]), DEFAULT_CALENDAR, SPREADS[4][i]);
+      Cds product = Cds.of(BUY, LEGAL_ENTITY, EUR, 1d, LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20).plus(tenors[i]),
+          P3M, DEFAULT_CALENDAR, SPREADS[4][i]);
       EXP_NODE_CDS[4][i] = CdsTrade.builder()
           .info(TradeInfo.builder().settlementDate(product.getSettlementDateOffset().adjust(tradeDate4, REF_DATA)).build())
           .product(product)
           .build()
           .resolve(REF_DATA);
-      CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, Frequency.P3M, BUS_ADJ, CDS_SETTLE_STD);
+      CdsConvention conv = ImmutableCdsConvention.of("conv", EUR, ACT_360, P3M, BUS_ADJ, CDS_SETTLE_STD);
       CdsTemplate temp = DatesCdsTemplate.of(LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20).plus(tenors[i]), conv);
       QuoteId id = QuoteId.of(StandardId.of("OG", tenors[i].toString()));
       NODE_CDS[4][i] = CdsIsdaCreditCurveNode.ofParSpread(temp, id, LEGAL_ENTITY);

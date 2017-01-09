@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
@@ -94,9 +95,9 @@ public class IsdaCdsTradePricerTest {
       .build();
 
   private static final double NOTIONAL = 1.0e7;
-  private static final ResolvedCds PRODUCT =
-      Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2020, 10, 20), CALENDAR, 0.015)
-          .resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT = Cds.of(
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2020, 10, 20), Frequency.P3M, CALENDAR, 0.015)
+      .resolve(REF_DATA);
   private static final LocalDate SETTLEMENT_DATE = PRODUCT.getSettlementDateOffset().adjust(VALUATION_DATE, REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
       .tradeDate(VALUATION_DATE)

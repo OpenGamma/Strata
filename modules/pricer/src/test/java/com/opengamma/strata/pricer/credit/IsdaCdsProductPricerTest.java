@@ -11,6 +11,8 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.common.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.common.PriceType.DIRTY;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -32,6 +34,8 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -45,7 +49,6 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
 import com.opengamma.strata.product.credit.ProtectionStartOfDay;
@@ -111,34 +114,92 @@ public class IsdaCdsProductPricerTest {
       .build();
 
   private static final double NOTIONAL = 1.0e7;
-  private static final ResolvedCds PRODUCT_NEXTDAY =
-      Cds.of(BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M,
-          BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
-          PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NEXTDAY = Cds.of(
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 10, 20), Frequency.P3M, CALENDAR, 0.05)
+      .resolve(REF_DATA);
   private static final ResolvedCds PRODUCT_BEFORE = Cds.of(
-      BuySell.SELL, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
+      SELL, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2013, 12, 20), LocalDate.of(2024, 9, 20), Frequency.P3M, CALENDAR, 0.05)
+      .resolve(REF_DATA);
   private static final ResolvedCds PRODUCT_AFTER = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_INITIAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ).resolve(REF_DATA);
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, LocalDate.of(2014, 3, 20), LocalDate.of(2029, 12, 20), Frequency.P3M, CALENDAR, 0.05)
+      .resolve(REF_DATA);
 
   private static final DaysAdjustment SETTLE_DAY_ADJ_NS = DaysAdjustment.ofBusinessDays(5, CALENDAR);
   private static final DaysAdjustment STEPIN_DAY_ADJ_NS = DaysAdjustment.ofCalendarDays(7);
-  private static final ResolvedCds PRODUCT_NS_TODAY = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE, LocalDate.of(2021, 4, 25), Frequency.P4M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.SHORT_FINAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
-  private static final ResolvedCds PRODUCT_NS_STEPIN = Cds.of(
-      BuySell.SELL, LEGAL_ENTITY, USD, NOTIONAL, STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA), LocalDate.of(2019, 1, 26),
-      Frequency.P6M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_INITIAL,
-      0.05, ACT_360, PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS)
+  private static final ResolvedCds PRODUCT_NS_TODAY = Cds.builder()
+      .buySell(BUY)
+      .legalEntityId(LEGAL_ENTITY)
+      .currency(USD)
+      .notional(NOTIONAL)
+      .paymentSchedule(
+          PeriodicSchedule.builder()
+              .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR))
+              .startDate(VALUATION_DATE)
+              .endDate(LocalDate.of(2021, 4, 25))
+              .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+              .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+              .frequency(Frequency.P4M)
+              .rollConvention(RollConventions.NONE)
+              .stubConvention(StubConvention.SHORT_FINAL)
+              .build())
+      .dayCount(ACT_360)
+      .fixedRate(0.05)
+      .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+      .protectionStart(ProtectionStartOfDay.NONE)
+      .stepinDateOffset(STEPIN_DAY_ADJ_NS)
+      .settlementDateOffset(SETTLE_DAY_ADJ_NS)
+      .build()
       .resolve(REF_DATA);
-  private static final ResolvedCds PRODUCT_NS_BTW = Cds.of(
-      BuySell.BUY, LEGAL_ENTITY, USD, NOTIONAL, VALUATION_DATE.plusDays(4), LocalDate.of(2026, 8, 2), Frequency.P12M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR), StubConvention.LONG_FINAL, 0.05, ACT_360,
-      PaymentOnDefault.ACCRUED_PREMIUM, ProtectionStartOfDay.NONE, STEPIN_DAY_ADJ_NS, SETTLE_DAY_ADJ_NS).resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NS_STEPIN =
+      Cds.builder()
+          .buySell(SELL)
+          .legalEntityId(LEGAL_ENTITY)
+          .currency(USD)
+          .notional(NOTIONAL)
+          .paymentSchedule(
+              PeriodicSchedule.builder()
+                  .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR))
+                  .startDate(STEPIN_DAY_ADJ_NS.adjust(VALUATION_DATE, REF_DATA))
+                  .endDate(LocalDate.of(2019, 1, 26))
+                  .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .frequency(Frequency.P6M)
+                  .rollConvention(RollConventions.NONE)
+                  .stubConvention(StubConvention.LONG_INITIAL)
+                  .build())
+          .dayCount(ACT_360)
+          .fixedRate(0.05)
+          .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+          .protectionStart(ProtectionStartOfDay.NONE)
+          .stepinDateOffset(STEPIN_DAY_ADJ_NS)
+          .settlementDateOffset(SETTLE_DAY_ADJ_NS)
+          .build()
+          .resolve(REF_DATA);
+  private static final ResolvedCds PRODUCT_NS_BTW =
+      Cds.builder()
+          .buySell(BUY)
+          .legalEntityId(LEGAL_ENTITY)
+          .currency(USD)
+          .notional(NOTIONAL)
+          .paymentSchedule(
+              PeriodicSchedule.builder()
+                  .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, CALENDAR))
+                  .startDate(VALUATION_DATE.plusDays(4))
+                  .endDate(LocalDate.of(2026, 8, 2))
+                  .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                  .frequency(Frequency.P12M)
+                  .rollConvention(RollConventions.NONE)
+                  .stubConvention(StubConvention.LONG_FINAL)
+                  .build())
+          .dayCount(ACT_360)
+          .fixedRate(0.05)
+          .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+          .protectionStart(ProtectionStartOfDay.NONE)
+          .stepinDateOffset(STEPIN_DAY_ADJ_NS)
+          .settlementDateOffset(SETTLE_DAY_ADJ_NS)
+          .build()
+          .resolve(REF_DATA);
 
   private static final double TOL = 1.0e-14;
   private static final double EPS = 1.0e-6;

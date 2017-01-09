@@ -142,10 +142,10 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   public void test_regression() {
     CurrencyAmount cleanPvOg = PRICER_OG.presentValue(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, CLEAN, REF_DATA);
-    assertEquals(cleanPvOg.getAmount(), 7305773.195876285, NOTIONAL * TOL);
+    assertEquals(cleanPvOg.getAmount(), -7305773.195876285, NOTIONAL * TOL);
     assertEquals(cleanPvOg.getCurrency(), USD);
     CurrencyAmount dirtyPvOg = PRICER_OG.presentValue(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, DIRTY, REF_DATA);
-    assertEquals(dirtyPvOg.getAmount(), 8051477.663230239, NOTIONAL * TOL);
+    assertEquals(dirtyPvOg.getAmount(), -8051477.663230239, NOTIONAL * TOL);
     assertEquals(dirtyPvOg.getCurrency(), USD);
     double cleanPriceOg = PRICER_OG.price(PRODUCT, RATES_PROVIDER_SINGLE, SETTLEMENT_STD, CLEAN, REF_DATA);
     assertEquals(cleanPriceOg, -0.07619999999999996, TOL);
@@ -262,9 +262,9 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     LocalDate stepinDate = PRODUCT.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
     double dirtyPvMod =
         PRICER.presentValue(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, PriceType.DIRTY, REF_DATA).getAmount() / INDEX_FACTOR;
-    double accrued = -PRODUCT.accruedYearFraction(stepinDate) * PRODUCT.getFixedRate() *
+    double accrued = PRODUCT.accruedYearFraction(stepinDate) * PRODUCT.getFixedRate() *
         PRODUCT.getBuySell().normalize(NOTIONAL);
-    double protection = -PRODUCT.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATE);
+    double protection = PRODUCT.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATE);
     double expected = (protection - accrued - dirtyPvMod) / ((double) LEGAL_ENTITIES.size());
     assertEquals(computed.getCurrency(), USD);
     assertTrue(computed.getSplitValues().size() == 1);

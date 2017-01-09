@@ -50,10 +50,10 @@ public final class ResolvedCdsIndex
   /**
    * Whether the CDS index is buy or sell.
    * <p>
-   * A value of 'Buy' implies buying credit risk, where the fixed coupon is received
-   * and the protection is paid  in the event of default.
-   * A value of 'Sell' implies selling credit risk, where the fixed coupon is paid
-   * and the protection is received in the event of default. 
+   * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+   * and the protection is received  in the event of default.
+   * A value of 'Sell' implies selling protection, where the fixed coupon is received
+   * and the protection is paid in the event of default. 
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
@@ -241,7 +241,7 @@ public final class ResolvedCdsIndex
    */
   public ResolvedCds toSingleNameCds() {
     return ResolvedCds.builder()
-        .buySell(getBuySell().isBuy() ? BuySell.SELL : BuySell.BUY)
+        .buySell(getBuySell())
         .dayCount(getDayCount())
         .legalEntityId(getCdsIndexId())
         .paymentOnDefault(getPaymentOnDefault())
@@ -332,10 +332,10 @@ public final class ResolvedCdsIndex
   /**
    * Gets whether the CDS index is buy or sell.
    * <p>
-   * A value of 'Buy' implies buying credit risk, where the fixed coupon is received
-   * and the protection is paid  in the event of default.
-   * A value of 'Sell' implies selling credit risk, where the fixed coupon is paid
-   * and the protection is received in the event of default.
+   * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+   * and the protection is received  in the event of default.
+   * A value of 'Sell' implies selling protection, where the fixed coupon is received
+   * and the protection is paid in the event of default.
    * @return the value of the property, not null
    */
   public BuySell getBuySell() {
@@ -906,10 +906,10 @@ public final class ResolvedCdsIndex
     /**
      * Sets whether the CDS index is buy or sell.
      * <p>
-     * A value of 'Buy' implies buying credit risk, where the fixed coupon is received
-     * and the protection is paid  in the event of default.
-     * A value of 'Sell' implies selling credit risk, where the fixed coupon is paid
-     * and the protection is received in the event of default.
+     * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+     * and the protection is received  in the event of default.
+     * A value of 'Sell' implies selling protection, where the fixed coupon is received
+     * and the protection is paid in the event of default.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */

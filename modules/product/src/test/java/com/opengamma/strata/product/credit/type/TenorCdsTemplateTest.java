@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.product.credit.Cds;
@@ -67,7 +68,7 @@ public class TenorCdsTemplateTest {
     LocalDate endDate2 = date(2017, 6, 20);
     CdsTrade test1 = base1.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, REF_DATA);
     CdsTrade test2 = base2.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, REF_DATA);
-    Cds expected1 = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, startDate1, endDate1,
+    Cds expected1 = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, startDate1, endDate1, Frequency.P3M,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
     PeriodicSchedule sch1 = expected1.getPaymentSchedule();
     expected1 = expected1.toBuilder()
@@ -76,7 +77,7 @@ public class TenorCdsTemplateTest {
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
-    Cds expected2 = Cds.of(BUY, LEGAL_ENTITY, CONV2.getCurrency(), NOTIONAL_2M, startDate2, endDate2,
+    Cds expected2 = Cds.of(BUY, LEGAL_ENTITY, CONV2.getCurrency(), NOTIONAL_2M, startDate2, endDate2, Frequency.P3M,
         CONV2.getSettlementDateOffset().getCalendar(), 0.05d);
     PeriodicSchedule sch2 = expected2.getPaymentSchedule();
     expected2 = expected2.toBuilder()
@@ -107,7 +108,7 @@ public class TenorCdsTemplateTest {
     LocalDate endDate2 = date(2017, 6, 20);
     CdsTrade test1 = base1.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, payment1, REF_DATA);
     CdsTrade test2 = base2.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, payment2, REF_DATA);
-    Cds expected1 = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, startDate1, endDate1,
+    Cds expected1 = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, startDate1, endDate1, Frequency.P3M,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
     PeriodicSchedule sch1 = expected1.getPaymentSchedule();
     expected1 = expected1.toBuilder()
@@ -116,7 +117,7 @@ public class TenorCdsTemplateTest {
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
-    Cds expected2 = Cds.of(BUY, LEGAL_ENTITY, CONV2.getCurrency(), NOTIONAL_2M, startDate2, endDate2,
+    Cds expected2 = Cds.of(BUY, LEGAL_ENTITY, CONV2.getCurrency(), NOTIONAL_2M, startDate2, endDate2, Frequency.P3M,
         CONV2.getSettlementDateOffset().getCalendar(), 0.05d);
     PeriodicSchedule sch2 = expected2.getPaymentSchedule();
     expected2 = expected2.toBuilder()

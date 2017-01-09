@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.product.credit.Cds;
@@ -44,12 +45,6 @@ public class DatesCdsTemplateTest {
     assertEquals(test.getStartDate(), START);
     assertEquals(test.getEndDate(), END);
     assertEquals(test.getConvention(), CONV1);
-
-    Double a = Double.POSITIVE_INFINITY;
-    Double b = Double.POSITIVE_INFINITY;
-    System.out.println(a);
-    System.out.println(b);
-    System.out.println(a == b);
   }
 
   //-------------------------------------------------------------------------
@@ -57,7 +52,7 @@ public class DatesCdsTemplateTest {
     DatesCdsTemplate base = DatesCdsTemplate.of(START, END, CONV1);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     CdsTrade test = base.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, REF_DATA);
-    Cds expected = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, START, END,
+    Cds expected = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, START, END, Frequency.P3M,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
     PeriodicSchedule sch1 = expected.getPaymentSchedule();
     expected = expected.toBuilder()
@@ -77,7 +72,7 @@ public class DatesCdsTemplateTest {
     AdjustablePayment payment =
         AdjustablePayment.of(EUR, NOTIONAL_2M, CONV1.getSettlementDateOffset().adjust(tradeDate, REF_DATA));
     CdsTrade test = base.createTrade(LEGAL_ENTITY, tradeDate, BUY, NOTIONAL_2M, 0.05d, payment, REF_DATA);
-    Cds expected = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, START, END,
+    Cds expected = Cds.of(BUY, LEGAL_ENTITY, CONV1.getCurrency(), NOTIONAL_2M, START, END, Frequency.P3M,
         CONV1.getSettlementDateOffset().getCalendar(), 0.05d);
     PeriodicSchedule sch1 = expected.getPaymentSchedule();
     expected = expected.toBuilder()

@@ -6,17 +6,12 @@
 package com.opengamma.strata.product.credit;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
-import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
-import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -27,8 +22,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.product.TradeInfo;
@@ -40,17 +33,13 @@ import com.opengamma.strata.product.TradeInfo;
 public class CdsTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
-  private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, CALENDAR);
-  private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
   private static final double COUPON = 0.05;
   private static final double NOTIONAL = 1.0e9;
   private static final LocalDate START_DATE = LocalDate.of(2013, 12, 20);
   private static final LocalDate END_DATE = LocalDate.of(2024, 9, 20);
-  private static final BusinessDayAdjustment BUSS_ADJ = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
 
-  private static final Cds PRODUCT = Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, BUSS_ADJ,
-      SHORT_INITIAL, COUPON, ACT_360, ACCRUED_PREMIUM, BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ);
+  private static final Cds PRODUCT = Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, CALENDAR, COUPON);
   private static final TradeInfo TRADE_INFO = TradeInfo.of(LocalDate.of(2014, 1, 9));
   private static final AdjustablePayment UPFRONT = AdjustablePayment.of(USD, NOTIONAL, LocalDate.of(2014, 1, 12));
 
@@ -106,7 +95,7 @@ public class CdsTradeTest {
         .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
-    Cds product = Cds.of(BUY, LEGAL_ENTITY, USD, 1.e9, START_DATE, END_DATE, SAT_SUN, 0.067);
+    Cds product = Cds.of(BUY, LEGAL_ENTITY, USD, 1.e9, START_DATE, END_DATE, P3M, SAT_SUN, 0.067);
     CdsTrade test2 = CdsTrade.builder()
         .product(product)
         .info(TradeInfo.empty())

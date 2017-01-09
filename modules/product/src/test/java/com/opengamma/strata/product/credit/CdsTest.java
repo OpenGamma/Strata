@@ -56,8 +56,7 @@ public class CdsTest {
   private static final LocalDate START_DATE = LocalDate.of(2013, 12, 20);
   private static final LocalDate END_DATE = LocalDate.of(2024, 9, 20);
   private static final Cds PRODUCT_STD = Cds.of(
-      BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, BusinessDayAdjustment.of(FOLLOWING, SAT_SUN),
-      SHORT_INITIAL, COUPON, ACT_360, ACCRUED_PREMIUM, BEGINNING, STEPIN_DAY_ADJ, SETTLE_DAY_ADJ);
+      BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
 
   public void test_builder() {
     LocalDate startDate = LocalDate.of(2014, 12, 20);
@@ -113,7 +112,7 @@ public class CdsTest {
     assertEquals(PRODUCT_STD.getProtectionStart(), BEGINNING);
     assertEquals(PRODUCT_STD.getSettlementDateOffset(), SETTLE_DAY_ADJ);
     assertEquals(PRODUCT_STD.getStepinDateOffset(), STEPIN_DAY_ADJ);
-    Cds test = Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, SAT_SUN, COUPON);
+    Cds test = Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
     assertEquals(test, PRODUCT_STD);
   }
 
@@ -174,9 +173,29 @@ public class CdsTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(PRODUCT_STD);
-    Cds other = Cds.of(SELL, StandardId.of("OG", "EFG"), JPY, 1d, LocalDate.of(2014, 1, 4), LocalDate.of(2020, 11, 20),
-        P6M, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO), StubConvention.SHORT_FINAL, 0.01, ACT_365F,
-        PaymentOnDefault.NONE, ProtectionStartOfDay.NONE, DaysAdjustment.NONE, DaysAdjustment.NONE);
+    Cds other = Cds.builder()
+        .buySell(SELL)
+        .legalEntityId(StandardId.of("OG", "EFG"))
+        .currency(JPY)
+        .notional(1d)
+        .fixedRate(0.01)
+        .dayCount(ACT_365F)
+        .paymentSchedule(
+            PeriodicSchedule.builder()
+                .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO))
+                .startDate(LocalDate.of(2014, 1, 4))
+                .endDate(LocalDate.of(2020, 11, 20))
+                .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                .frequency(P6M)
+                .rollConvention(RollConventions.NONE)
+                .stubConvention(StubConvention.SHORT_FINAL)
+                .build())
+        .paymentOnDefault(PaymentOnDefault.NONE)
+        .protectionStart(ProtectionStartOfDay.NONE)
+        .stepinDateOffset(DaysAdjustment.NONE)
+        .settlementDateOffset(DaysAdjustment.NONE)
+        .build();
     coverBeanEquals(PRODUCT_STD, other);
   }
 

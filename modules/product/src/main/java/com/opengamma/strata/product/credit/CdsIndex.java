@@ -48,8 +48,8 @@ import com.opengamma.strata.product.common.BuySell;
  * A CDS (portfolio) index product. 
  * <p>
  * A CDS index is a portofolio of single name credit default swaps. 
- * The contract periodically pays fixed coupons to the index buyer until the expiry, 
- * and in return, the index buyer receives the bond of a defaulted constituent legal entity for par.  
+ * The protection buyer periodically pays fixed coupons to the protection seller until the expiry, 
+ * and in return, the protection buyer receives the bond of a defaulted constituent legal entity for par.  
  */
 @BeanDefinition
 public final class CdsIndex
@@ -58,10 +58,10 @@ public final class CdsIndex
   /**
    * Whether the CDS index is buy or sell.
    * <p>
-   * A value of 'Buy' implies buying credit risk, where the fixed coupon is received
-   * and the protection is paid  in the event of default.
-   * A value of 'Sell' implies selling credit risk, where the fixed coupon is paid
-   * and the protection is received in the event of default. 
+   * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+   * and the protection is received  in the event of default.
+   * A value of 'Sell' implies selling protection, where the fixed coupon is received
+   * and the protection is paid in the event of default. 
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
@@ -339,10 +339,10 @@ public final class CdsIndex
   /**
    * Gets whether the CDS index is buy or sell.
    * <p>
-   * A value of 'Buy' implies buying credit risk, where the fixed coupon is received
-   * and the protection is paid  in the event of default.
-   * A value of 'Sell' implies selling credit risk, where the fixed coupon is paid
-   * and the protection is received in the event of default.
+   * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+   * and the protection is received  in the event of default.
+   * A value of 'Sell' implies selling protection, where the fixed coupon is received
+   * and the protection is paid in the event of default.
    * @return the value of the property, not null
    */
   public BuySell getBuySell() {
@@ -991,10 +991,10 @@ public final class CdsIndex
     /**
      * Sets whether the CDS index is buy or sell.
      * <p>
-     * A value of 'Buy' implies buying credit risk, where the fixed coupon is received
-     * and the protection is paid  in the event of default.
-     * A value of 'Sell' implies selling credit risk, where the fixed coupon is paid
-     * and the protection is received in the event of default.
+     * A value of 'Buy' implies buying protection, where the fixed coupon is paid
+     * and the protection is received  in the event of default.
+     * A value of 'Sell' implies selling protection, where the fixed coupon is received
+     * and the protection is paid in the event of default.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */
