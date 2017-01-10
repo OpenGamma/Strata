@@ -6,10 +6,8 @@
 package com.opengamma.strata.measure.credit;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.DoubleScenarioArray;
@@ -24,6 +22,7 @@ import com.opengamma.strata.pricer.credit.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.credit.CdsMarketQuoteConverter;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.IsdaCdsTradePricer;
+import com.opengamma.strata.pricer.credit.JumpToDefault;
 import com.opengamma.strata.pricer.credit.SpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
@@ -400,7 +399,7 @@ final class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates jump-to-default for all scenarios
-  ScenarioArray<SplitCurrencyAmount<StandardId>> jumpToDefault(
+  ScenarioArray<JumpToDefault> jumpToDefault(
       ResolvedCdsTrade trade,
       CreditRatesScenarioMarketData marketData,
       ReferenceData refData) {
@@ -411,7 +410,7 @@ final class CdsMeasureCalculations {
   }
 
   // calculates jump-to-default for one scenario
-  SplitCurrencyAmount<StandardId> jumpToDefault(
+  JumpToDefault jumpToDefault(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {

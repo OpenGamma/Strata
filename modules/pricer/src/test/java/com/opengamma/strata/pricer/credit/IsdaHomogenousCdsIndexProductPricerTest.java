@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
@@ -170,8 +169,8 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     PointSensitivityBuilder sensiPrice = PRICER.priceSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
     assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
-    SplitCurrencyAmount<StandardId> jumpToDefault = PRICER.jumpToDefault(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
-    assertEquals(jumpToDefault, SplitCurrencyAmount.of(USD, ImmutableMap.of(INDEX_ID, 0d)));
+    JumpToDefault jumpToDefault = PRICER.jumpToDefault(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
+    assertEquals(jumpToDefault, JumpToDefault.of(USD, ImmutableMap.of(INDEX_ID, 0d)));
     CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT, provider);
     assertEquals(expectedLoss, CurrencyAmount.zero(USD));
   }
@@ -258,7 +257,7 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void jumpToDefaultTest() {
-    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    JumpToDefault computed = PRICER.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
     LocalDate stepinDate = PRODUCT.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
     double dirtyPvMod =
         PRICER.presentValue(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, PriceType.DIRTY, REF_DATA).getAmount() / INDEX_FACTOR;
@@ -267,8 +266,8 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     double protection = PRODUCT.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATE);
     double expected = (protection - accrued - dirtyPvMod) / ((double) LEGAL_ENTITIES.size());
     assertEquals(computed.getCurrency(), USD);
-    assertTrue(computed.getSplitValues().size() == 1);
-    assertEquals(computed.getSplitValues().get(INDEX_ID), expected, NOTIONAL * TOL);
+    assertTrue(computed.getAmounts().size() == 1);
+    assertEquals(computed.getAmounts().get(INDEX_ID), expected, NOTIONAL * TOL);
 
   }
 

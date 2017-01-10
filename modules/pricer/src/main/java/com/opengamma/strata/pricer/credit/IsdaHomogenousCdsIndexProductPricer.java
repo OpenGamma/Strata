@@ -12,7 +12,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Triple;
 import com.opengamma.strata.market.curve.CurveInfoType;
@@ -315,7 +314,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
    * @param refData  the reference data
    * @return the recovery01
    */
-  public SplitCurrencyAmount<StandardId> jumpToDefault(
+  public JumpToDefault jumpToDefault(
       ResolvedCdsIndex cdsIndex,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
@@ -324,7 +323,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
     StandardId indexId = cdsIndex.getCdsIndexId();
     Currency currency = cdsIndex.getCurrency();
     if (isExpired(cdsIndex, ratesProvider)) {
-      return SplitCurrencyAmount.of(currency, ImmutableMap.of(indexId, 0d));
+      return JumpToDefault.of(currency, ImmutableMap.of(indexId, 0d));
     }
     ResolvedCds cds = cdsIndex.toSingleNameCds();
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
@@ -338,7 +337,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
     double lgd = 1d - recoveryRate;
     double numTotal = cdsIndex.getLegalEntityIds().size();
     double jtd = (lgd - (lgd * protectionFull - cds.getFixedRate() * rpv01)) / numTotal;
-    return SplitCurrencyAmount.of(currency, ImmutableMap.of(indexId, cds.getBuySell().normalize(cds.getNotional()) * jtd));
+    return JumpToDefault.of(currency, ImmutableMap.of(indexId, cds.getBuySell().normalize(cds.getNotional()) * jtd));
   }
 
   /**

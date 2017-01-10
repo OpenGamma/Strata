@@ -8,10 +8,8 @@ package com.opengamma.strata.pricer.credit;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
@@ -328,7 +326,7 @@ public class IsdaCdsTradePricer {
    * @param refData  the reference data
    * @return the jump-to-default
    */
-  public SplitCurrencyAmount<StandardId> jumpToDefault(
+  public JumpToDefault jumpToDefault(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {

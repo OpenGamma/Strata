@@ -16,7 +16,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -416,7 +415,7 @@ public class IsdaCdsProductPricer {
    * @param refData  the reference data
    * @return the jump-to-default
    */
-  public SplitCurrencyAmount<StandardId> jumpToDefault(
+  public JumpToDefault jumpToDefault(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
@@ -425,7 +424,7 @@ public class IsdaCdsProductPricer {
     StandardId legalEntityId = cds.getLegalEntityId();
     Currency currency = cds.getCurrency();
     if (isExpired(cds, ratesProvider)) {
-      return SplitCurrencyAmount.of(currency, ImmutableMap.of(legalEntityId, 0d));
+      return JumpToDefault.of(currency, ImmutableMap.of(legalEntityId, 0d));
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
@@ -436,7 +435,7 @@ public class IsdaCdsProductPricer {
     double rpv01 = riskyAnnuity(
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, PriceType.CLEAN);
     double jtd = lgd - (lgd * protectionFull - cds.getFixedRate() * rpv01);
-    return SplitCurrencyAmount.of(currency, ImmutableMap.of(legalEntityId, cds.getBuySell().normalize(cds.getNotional()) * jtd));
+    return JumpToDefault.of(currency, ImmutableMap.of(legalEntityId, cds.getBuySell().normalize(cds.getNotional()) * jtd));
   }
 
   /**

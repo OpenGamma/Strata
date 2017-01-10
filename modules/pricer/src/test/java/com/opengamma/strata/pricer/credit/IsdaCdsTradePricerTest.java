@@ -20,7 +20,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -243,8 +242,8 @@ public class IsdaCdsTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_jumpToDefault() {
-    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(TRADE, RATES_PROVIDER, REF_DATA);
-    SplitCurrencyAmount<StandardId> expected = PRICER_PRODUCT.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
+    JumpToDefault computed = PRICER.jumpToDefault(TRADE, RATES_PROVIDER, REF_DATA);
+    JumpToDefault expected = PRICER_PRODUCT.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
     assertEquals(computed, expected);
   }
 

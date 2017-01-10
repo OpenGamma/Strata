@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -245,9 +244,9 @@ public class IsdaCdsProductPricerTest {
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
     assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
-    SplitCurrencyAmount<StandardId> jtd = PRICER.jumpToDefault(PRODUCT_NEXTDAY, provider,
+    JumpToDefault jtd = PRICER.jumpToDefault(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(jtd, SplitCurrencyAmount.of(USD, ImmutableMap.of(LEGAL_ENTITY, 0d)));
+    assertEquals(jtd, JumpToDefault.of(USD, ImmutableMap.of(LEGAL_ENTITY, 0d)));
     CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT_NEXTDAY, provider);
     assertEquals(expectedLoss, CurrencyAmount.zero(USD));
   }
@@ -734,7 +733,7 @@ public class IsdaCdsProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void jumpToDefaultTest() {
-    SplitCurrencyAmount<StandardId> computed = PRICER.jumpToDefault(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, REF_DATA);
+    JumpToDefault computed = PRICER.jumpToDefault(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, REF_DATA);
     LocalDate stepinDate = PRODUCT_BEFORE.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
     double dirtyPv = PRICER.presentValue(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, PriceType.DIRTY, REF_DATA).getAmount();
     double accrued = PRODUCT_BEFORE.accruedYearFraction(stepinDate) * PRODUCT_BEFORE.getFixedRate() *
@@ -742,8 +741,8 @@ public class IsdaCdsProductPricerTest {
     double protection = PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATES.getRecoveryRate());
     double expected = protection - accrued - dirtyPv;
     assertEquals(computed.getCurrency(), USD);
-    assertTrue(computed.getSplitValues().size() == 1);
-    assertEquals(computed.getSplitValues().get(LEGAL_ENTITY), expected, NOTIONAL * TOL);
+    assertTrue(computed.getAmounts().size() == 1);
+    assertEquals(computed.getAmounts().get(LEGAL_ENTITY), expected, NOTIONAL * TOL);
   }
 
   public void expectedLossTest() {

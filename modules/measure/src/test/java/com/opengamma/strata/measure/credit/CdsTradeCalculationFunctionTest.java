@@ -14,10 +14,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.currency.SplitCurrencyAmount;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
@@ -34,6 +32,7 @@ import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
 import com.opengamma.strata.pricer.credit.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.IsdaCdsTradePricer;
+import com.opengamma.strata.pricer.credit.JumpToDefault;
 import com.opengamma.strata.pricer.credit.SpreadSensitivityCalculator;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
@@ -69,7 +68,7 @@ public class CdsTradeCalculationFunctionTest {
     CurrencyAmount expectedPv = PRICER.presentValue(RTRADE, RATES_PROVIDER, PriceType.DIRTY, CreditDataSet.REF_DATA);
     CurrencyAmount expectedPr = PRICER.presentValueOnSettle(RTRADE, RATES_PROVIDER, PriceType.CLEAN, CreditDataSet.REF_DATA);
     double expectedCp = 1d - PRICER.price(RTRADE, RATES_PROVIDER, PriceType.CLEAN, CreditDataSet.REF_DATA);
-    SplitCurrencyAmount<StandardId> expectedJtd = PRICER.jumpToDefault(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
+    JumpToDefault expectedJtd = PRICER.jumpToDefault(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
     CurrencyAmount expectedEl = PRICER.expectedLoss(RTRADE, RATES_PROVIDER);
     CurrencyAmount expectedR01 = PRICER.recovery01OnSettle(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
 
