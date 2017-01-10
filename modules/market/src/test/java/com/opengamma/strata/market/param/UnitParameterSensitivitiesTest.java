@@ -56,6 +56,8 @@ public class UnitParameterSensitivitiesTest {
       UnitParameterSensitivity.of(NAME0, METADATA0, VECTOR_ZERO);
   private static final UnitParameterSensitivity ENTRY_ZERO3 =
       UnitParameterSensitivity.of(NAME3, METADATA3, VECTOR_ZERO);
+  private static final UnitParameterSensitivity ENTRY_COMBINED =
+      UnitParameterSensitivity.combine(NAME3, ENTRY1, ENTRY3);
 
   private static final UnitParameterSensitivities SENSI_1 = UnitParameterSensitivities.of(ENTRY1);
   private static final UnitParameterSensitivities SENSI_2 =
@@ -178,6 +180,17 @@ public class UnitParameterSensitivitiesTest {
     UnitParameterSensitivities multiplied = SENSI_2.multipliedBy(2d);
     UnitParameterSensitivities added = SENSI_2.combinedWith(SENSI_2);
     assertEquals(multiplied, added);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_split() {
+    UnitParameterSensitivities test = UnitParameterSensitivities.of(ENTRY_COMBINED).split();
+    assertEquals(test, UnitParameterSensitivities.of(ENTRY1, ENTRY3));
+  }
+
+  public void test_split_noSplit() {
+    UnitParameterSensitivities test = SENSI_1.split();
+    assertEquals(test, SENSI_1);
   }
 
   //-------------------------------------------------------------------------

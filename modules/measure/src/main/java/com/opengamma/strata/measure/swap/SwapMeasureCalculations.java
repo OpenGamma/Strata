@@ -36,6 +36,7 @@ import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -46,10 +47,10 @@ import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Multi-scenario measure calculations for Swap trades.
@@ -67,6 +68,10 @@ final class SwapMeasureCalculations {
    * The market quote sensitivity calculator.
    */
   private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
+  /**
+   * The cross gamma sensitivity calculator.
+   */
+  private static final CurveGammaCalculator CROSS_GAMMA = CurveGammaCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
@@ -270,6 +275,28 @@ final class SwapMeasureCalculations {
     PointSensitivities pointSensitivities = tradePricer.presentValueSensitivity(trade, bumpedRatesProvider);
     CurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.parameterSensitivity(pointSensitivities);
     return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates single-node gamma PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01SingleNodeGammaBucketed(
+      ResolvedSwapTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01SingleNodeGammaBucketed(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // single-node gamma PV01 for one scenario
+  private CurrencyParameterSensitivities pv01SingleNodeGammaBucketed(
+      ResolvedSwapTrade trade,
+      RatesProvider ratesProvider) {
+
+    CrossGammaParameterSensitivities crossGamma = CROSS_GAMMA.calculateCrossGammaIntraCurve(
+        ratesProvider,
+        p -> p.parameterSensitivity(tradePricer.presentValueSensitivity(trade, p)));
+    return crossGamma.diagonal().multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------

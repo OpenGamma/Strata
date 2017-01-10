@@ -13,4 +13,3 @@
  * instances added.
  */
 package com.opengamma.strata.market.curve.interpolator;
-

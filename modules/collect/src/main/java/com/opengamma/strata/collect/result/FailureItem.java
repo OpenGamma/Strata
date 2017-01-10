@@ -35,7 +35,7 @@ import com.opengamma.strata.collect.Messages;
 /**
  * Details of a single failed item.
  * <p>
- * This is used in {@link Failure} and {@link TolerantResult} to capture details of a single failure.
+ * This is used in {@link Failure} and {@link FailureItems} to capture details of a single failure.
  * Details include the reason, message and stack trace.
  */
 @BeanDefinition(builderScope = "private")

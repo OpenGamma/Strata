@@ -12,7 +12,7 @@ import com.opengamma.strata.math.MathException;
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * http://www.netlib.org/slatec/fnlib/initds.f
  */
-class INITDS {
+final class INITDS {
 
   /**
    * Computes an orthogonal series based on coefficients "os" including sufficient terms to insure that the error is no larger than 'eta'.

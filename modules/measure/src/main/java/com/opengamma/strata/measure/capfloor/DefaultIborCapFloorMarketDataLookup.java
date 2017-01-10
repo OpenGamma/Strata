@@ -27,6 +27,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilitiesId;
@@ -109,7 +110,7 @@ final class DefaultIborCapFloorMarketDataLookup
   public IborCapletFloorletVolatilities volatilities(IborIndex index, MarketData marketData) {
     IborCapletFloorletVolatilitiesId volatilityId = volatilityIds.get(index);
     if (volatilityId == null) {
-      throw new IllegalArgumentException(msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(msgIndexNotFound(index));
     }
     return marketData.getValue(volatilityId);
   }

@@ -67,7 +67,7 @@ final class DefaultCreditRatesMarketDataLookup
    * The source of market data for quotes and other observable market data.
    */
   @PropertyDefinition(validate = "notNull")
-private final ObservableSource observableSource;
+  private final ObservableSource observableSource;
 
   //-------------------------------------------------------------------------
 

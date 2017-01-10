@@ -23,7 +23,7 @@ public class SampleNamedInstanceLookup1 {
   static final NamedLookup<SampleNamed> INSTANCE = new NamedLookup<SampleNamed>() {
     @Override
     public ImmutableMap<String, SampleNamed> lookupAll() {
-      return ImmutableMap.of("Another1", ANOTHER1);
+      return ImmutableMap.of("Another1", ANOTHER1, "ANOTHER1", ANOTHER1);
     }
   };
 

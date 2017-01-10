@@ -7,11 +7,14 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import java.io.Serializable;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
+import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -75,22 +78,16 @@ final class NaturalSplineCurveInterpolator
   static class Bound extends AbstractBoundCurveInterpolator {
     private final double[] xValues;
     private final double[] yValues;
-    private final PiecewisePolynomialResultsWithSensitivity poly;
-    private final DoubleArray knots;
-    private final DoubleMatrix coefMatrix;
-    private final int nKnots;
-    private final int dimensions;
+    private final PiecewisePolynomialResult poly;
+    private final Supplier<PiecewisePolynomialResultsWithSensitivity> polySens;
 
     Bound(DoubleArray xValues, DoubleArray yValues) {
       super(xValues, yValues);
       this.xValues = xValues.toArrayUnsafe();
       this.yValues = yValues.toArrayUnsafe();
       PiecewisePolynomialInterpolator underlying = new NaturalSplineInterpolator();
-      this.poly = underlying.interpolateWithSensitivity(xValues.toArray(), yValues.toArray());
-      this.knots = poly.getKnots();
-      this.coefMatrix = poly.getCoefMatrix();
-      this.nKnots = knots.size();
-      this.dimensions = poly.getDimensions();
+      this.poly = underlying.interpolate(xValues.toArray(), yValues.toArray());
+      this.polySens = Suppliers.memoize(() -> underlying.interpolateWithSensitivity(xValues.toArray(), yValues.toArray()));
     }
 
     Bound(Bound base, BoundCurveExtrapolator extrapolatorLeft, BoundCurveExtrapolator extrapolatorRight) {
@@ -98,38 +95,28 @@ final class NaturalSplineCurveInterpolator
       this.xValues = base.xValues;
       this.yValues = base.yValues;
       this.poly = base.poly;
-      this.knots = base.knots;
-      this.coefMatrix = base.coefMatrix;
-      this.nKnots = base.nKnots;
-      this.dimensions = base.dimensions;
+      this.polySens = base.polySens;
     }
 
     //-------------------------------------------------------------------------
-    private static DoubleArray evaluate(
+    private static double evaluate(
         double xValue,
         DoubleArray knots,
         DoubleMatrix coefMatrix,
-        int dimensions,
-        int nKnots) {
+        int dimensions) {
 
       // check for 1 less interval than knots 
       int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xValue);
-      int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
-
-      DoubleArray resArray = DoubleArray.of(dimensions, i -> {
-        DoubleArray coefs = coefMatrix.row(dimensions * indicator + i);
-        double res = getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
-        return res;
-      });
-      return resArray;
+      int indicator = lowerBound == knots.size() - 1 ? lowerBound - 1 : lowerBound;
+      DoubleArray coefs = coefMatrix.row(dimensions * indicator);
+      return getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
     }
 
-    private static DoubleArray differentiate(
+    private static double differentiate(
         double xValue,
         DoubleArray knots,
         DoubleMatrix coefMatrix,
         int dimensions,
-        int nKnots,
         int nCoefs,
         int numberOfIntervals) {
 
@@ -139,7 +126,7 @@ final class NaturalSplineCurveInterpolator
           rowCount,
           colCount,
           (i, j) -> coefMatrix.get(i, j) * (nCoefs - j - 1));
-      return evaluate(xValue, knots, coef, dimensions, nKnots);
+      return evaluate(xValue, knots, coef, dimensions);
     }
 
     /**
@@ -162,27 +149,25 @@ final class NaturalSplineCurveInterpolator
     //-------------------------------------------------------------------------
     @Override
     protected double doInterpolate(double xValue) {
-      DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
-      return resValue.get(0);
+      return evaluate(xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions());
     }
 
     @Override
     protected double doFirstDerivative(double xValue) {
       int nCoefs = poly.getOrder();
       int numberOfIntervals = poly.getNumberOfIntervals();
-      DoubleArray resValue = differentiate(xValue, knots, coefMatrix, dimensions, nKnots, nCoefs, numberOfIntervals);
-      return resValue.get(0);
+      return differentiate(xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions(), nCoefs, numberOfIntervals);
     }
 
     @Override
     protected DoubleArray doParameterSensitivity(double xValue) {
-      int interval = FunctionUtils.getLowerBoundIndex(knots, xValue);
-      if (interval == nKnots - 1) {
+      int interval = FunctionUtils.getLowerBoundIndex(poly.getKnots(), xValue);
+      if (interval == poly.getKnots().size() - 1) {
         interval--; // there is 1 less interval than knots
       }
-      DoubleMatrix coefficientSensitivity = poly.getCoefficientSensitivity(interval);
+      DoubleMatrix coefficientSensitivity = polySens.get().getCoefficientSensitivity(interval);
       int nCoefs = coefficientSensitivity.rowCount();
-      double s = xValue - knots.get(interval);
+      double s = xValue - poly.getKnots().get(interval);
       DoubleArray res = coefficientSensitivity.row(0);
       for (int i = 1; i < nCoefs; i++) {
         res = (DoubleArray) MA.scale(res, s);

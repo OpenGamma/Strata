@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -74,6 +74,39 @@
       </testResource>
     </testResources>
     <plugins>
+      <!--  checkstyle -->
+      <!--plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>7.3</version>
+          </dependency>
+          <dependency>
+            <groupId>com.opengamma</groupId>
+            <artifactId>build-config</artifactId>
+            <version>2.0.0</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>run-checkstyle</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includeResources>false</includeResources>
+          <includeTestResources>false</includeTestResources>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+        </configuration>
+      </plugin-->
       <!--  obtain git commit -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -266,12 +299,6 @@
         <groupId>org.joda</groupId>
         <artifactId>joda-beans</artifactId>
         <version>${joda-beans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>${findbugs.version}</version>
-        <optional>true</optional><!-- needed only for annotations -->
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -508,25 +535,90 @@
         </plugins>
       </build>
     </profile>
+    <!-- Check for incompatible changes -->
+    <profile>
+      <id>compat</id>
+      <activation>
+        <property>
+          <name>compat</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <version>${japicmp-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+                <configuration>
+                  <parameter>
+                    <onlyModified>true</onlyModified>
+                    <skipXmlReport>true</skipXmlReport>
+                  </parameter>
+                  <oldVersion>
+                    <dependency>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>${project.artifactId}</artifactId>
+                      <version>1.1.0</version>
+                    </dependency>
+                  </oldVersion>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!--  merge files, only works when mvn command run a second time -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <inherited>false</inherited>
+                <configuration>
+                  <target>
+                    <mkdir dir="${project.basedir}/target/japicmp" />
+                    <concat destfile="${project.basedir}/target/japicmp/japicmp.diff" overwrite="true">
+                      <fileset dir="${project.basedir}">
+                        <include name="*/target/japicmp/japicmp.diff"></include>
+                      </fileset>
+                    </concat>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <!-- ==================================================================== -->
   <properties>
     <!-- Versions -->
-    <assertj.version>3.4.1</assertj.version>
-    <findbugs.version>1.3.9</findbugs.version>
-    <guava.version>19.0</guava.version>
+    <assertj.version>3.6.1</assertj.version>
+    <guava.version>20.0</guava.version>
     <joda-convert.version>1.8.1</joda-convert.version>
-    <joda-beans.version>1.8</joda-beans.version>
-    <slf4j.version>1.7.21</slf4j.version>
-    <jcommander.version>1.48</jcommander.version>
-    <testng.version>6.9.10</testng.version>
-    <mockito.version>1.10.19</mockito.version>
+    <joda-beans.version>1.9</joda-beans.version>
+    <slf4j.version>1.7.22</slf4j.version>
+    <jcommander.version>1.58</jcommander.version>
+    <testng.version>6.10</testng.version>
+    <mockito.version>2.4.0</mockito.version>
+    <japicmp-maven-plugin.version>0.9.3</japicmp-maven-plugin.version>
+    <!-- Properties for maven-checkstyle-plugin -->
+    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+    <checkstyle.config.location>checkstyle/checkstyle.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://opengamma.github.io/StrataDocs">opengamma.github.io/StrataDocs</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
     <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
     <additionalparam>-Xdoclint:missing -Xdoclint:reference</additionalparam>
   </properties>

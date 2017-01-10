@@ -39,6 +39,7 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -82,7 +83,7 @@ public final class SimpleIborIndexRates
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   /**
    * Obtains an instance from a curve, with an empty time-series of fixings.
@@ -90,6 +91,7 @@ public final class SimpleIborIndexRates
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
    * the day count specified. The y-values must be {@linkplain ValueType#FORWARD_RATE forward rates}.
+   * A suitable metadata instance for the curve can be created by {@link Curves#forwardRates(String, DayCount)}.
    * In the curve the Ibor rates are indexed by the maturity date.
    * 
    * @param index  the index
@@ -149,6 +151,11 @@ public final class SimpleIborIndexRates
     this.curve = curve;
     this.fixings = fixings;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
 
   //-------------------------------------------------------------------------

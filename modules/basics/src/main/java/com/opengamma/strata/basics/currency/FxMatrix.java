@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -46,7 +47,7 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class FxMatrix
-    implements FxRateProvider, ImmutableBean {
+    implements FxRateProvider, ImmutableBean, Serializable {
 
   /**
    * An empty FX matrix containing neither currencies nor rates.
@@ -299,6 +300,11 @@ public final class FxMatrix
   static {
     JodaBeanUtils.registerMetaBean(FxMatrix.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

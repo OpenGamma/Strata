@@ -239,10 +239,12 @@ public final class CurveGroupDefinitionCsvLoader {
     String groupName = group.getName().getName();
     for (CurveGroupEntry entry : group.getEntries()) {
       for (Currency currency : entry.getDiscountCurrencies()) {
-        csv.writeLine(ImmutableList.of(groupName, DISCOUNT, currency.toString(), entry.getCurveName().getName()));
+        csv.writeLine(
+            ImmutableList.of(groupName, DISCOUNT, currency.toString(), entry.getCurveName().getName()));
       }
       for (Index index : entry.getIndices()) {
-        csv.writeLine(ImmutableList.of(groupName, FORWARD, index.toString(), entry.getCurveName().getName()));
+        csv.writeLine(
+            ImmutableList.of(groupName, FORWARD, index.toString(), entry.getCurveName().getName()));
       }
     }
   }

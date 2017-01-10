@@ -10,4 +10,3 @@
  * A quote is a basic observable piece of market data, expressed as a {@code double}.
  */
 package com.opengamma.strata.market.observable;
-

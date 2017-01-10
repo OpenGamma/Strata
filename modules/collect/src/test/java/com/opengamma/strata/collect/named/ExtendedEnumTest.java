@@ -27,24 +27,38 @@ public class ExtendedEnumTest {
   public void test_enum_SampleNamed() {
     ExtendedEnum<SampleNamed> test = ExtendedEnum.of(SampleNamed.class);
     assertEquals(test.lookupAll(),
-        ImmutableMap.of(
-            "Standard", SampleNameds.STANDARD,
-            "More", MoreSampleNameds.MORE,
-            "Other", OtherSampleNameds.OTHER,
-            "Another1", SampleNamedInstanceLookup1.ANOTHER1,
-            "Another2", SampleNamedInstanceLookup2.ANOTHER2));
-    assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
+        ImmutableMap.builder()
+            .put("Standard", SampleNameds.STANDARD)
+            .put("STANDARD", SampleNameds.STANDARD)
+            .put("More", MoreSampleNameds.MORE)
+            .put("MORE", MoreSampleNameds.MORE)
+            .put("Other", OtherSampleNameds.OTHER)
+            .put("Another1", SampleNamedInstanceLookup1.ANOTHER1)
+            .put("ANOTHER1", SampleNamedInstanceLookup1.ANOTHER1)
+            .put("Another2", SampleNamedInstanceLookup2.ANOTHER2)
+            .put("ANOTHER2", SampleNamedInstanceLookup2.ANOTHER2)
+            .build());
+    assertEquals(test.lookupAllNormalized(),
+        ImmutableMap.builder()
+            .put("Standard", SampleNameds.STANDARD)
+            .put("More", MoreSampleNameds.MORE)
+            .put("Other", OtherSampleNameds.OTHER)
+            .put("Another1", SampleNamedInstanceLookup1.ANOTHER1)
+            .put("Another2", SampleNamedInstanceLookup2.ANOTHER2)
+            .build());
+    assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard", "ALTERNATE", "Standard"));
     assertEquals(test.find("Standard"), Optional.of(SampleNameds.STANDARD));
+    assertEquals(test.find("STANDARD"), Optional.of(SampleNameds.STANDARD));
     assertEquals(test.find("Rubbish"), Optional.empty());
     assertEquals(test.lookup("Standard"), SampleNameds.STANDARD);
     assertEquals(test.lookup("Alternate"), SampleNameds.STANDARD);
+    assertEquals(test.lookup("ALTERNATE"), SampleNameds.STANDARD);
     assertEquals(test.lookup("More"), MoreSampleNameds.MORE);
     assertEquals(test.lookup("More", MoreSampleNameds.class), MoreSampleNameds.MORE);
     assertEquals(test.lookup("Other"), OtherSampleNameds.OTHER);
     assertEquals(test.lookup("Other", OtherSampleNameds.class), OtherSampleNameds.OTHER);
     assertEquals(test.lookup("Another1"), SampleNamedInstanceLookup1.ANOTHER1);
     assertEquals(test.lookup("Another2"), SampleNamedInstanceLookup2.ANOTHER2);
-    assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
     assertThrowsIllegalArg(() -> test.lookup("Rubbish"));
     assertThrowsIllegalArg(() -> test.lookup(null));
     assertThrowsIllegalArg(() -> test.lookup("Other", MoreSampleNameds.class));

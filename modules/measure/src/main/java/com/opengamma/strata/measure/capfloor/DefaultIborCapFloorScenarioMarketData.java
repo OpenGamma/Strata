@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.capfloor;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
@@ -27,7 +28,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  */
 @BeanDefinition(style = "light")
 final class DefaultIborCapFloorScenarioMarketData
-    implements IborCapFloorScenarioMarketData, ImmutableBean {
+    implements IborCapFloorScenarioMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -42,7 +43,7 @@ final class DefaultIborCapFloorScenarioMarketData
   /**
    * The cache of single scenario instances.
    */
-  private final AtomicReferenceArray<IborCapFloorMarketData> cache;  // derived
+  private final transient AtomicReferenceArray<IborCapFloorMarketData> cache;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -70,6 +71,11 @@ final class DefaultIborCapFloorScenarioMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultIborCapFloorScenarioMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -113,6 +119,11 @@ final class DefaultIborCapFloorScenarioMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

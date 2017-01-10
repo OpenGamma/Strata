@@ -59,7 +59,8 @@ public class CurveGroupDefinitionCsvLoaderTest {
     String expected =
         "Group Name,Curve Type,Reference,Curve Name" + System.lineSeparator() +
             "Default,discount,USD,USD-Disc" + System.lineSeparator() +
-            "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator();
+            "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator() +
+            "Default,forward,US-CPI-U,USD-CPI" + System.lineSeparator();
     assertEquals(created, expected);
   }
 

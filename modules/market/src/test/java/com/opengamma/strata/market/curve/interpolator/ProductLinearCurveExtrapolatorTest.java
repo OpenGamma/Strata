@@ -53,11 +53,11 @@ public class ProductLinearCurveExtrapolatorTest {
       double expected = xyLeft / X_LEFT_TEST.get(i);
       assertEquals(bind.interpolate(X_LEFT_TEST.get(i)), expected, 10d * Math.abs(expected) * EPS);
     }
-    double gradRight = (Y_DATA.get(SIZE - 1) * X_DATA.get(SIZE - 1)
-        - bind.interpolate(X_DATA.get(SIZE - 1) - EPS) * (X_DATA.get(SIZE - 1) - EPS)) / EPS;
+    double gradRight = (Y_DATA.get(SIZE - 1) * X_DATA.get(SIZE - 1) -
+        bind.interpolate(X_DATA.get(SIZE - 1) - EPS) * (X_DATA.get(SIZE - 1) - EPS)) / EPS;
     for (int i = 0; i < X_RIGHT_TEST.size(); ++i) {
-      double xyRight = gradRight * (X_RIGHT_TEST.get(i) - X_DATA.get(SIZE - 1))
-          + Y_DATA.get(SIZE - 1) * X_DATA.get(SIZE - 1);
+      double xyRight = gradRight * (X_RIGHT_TEST.get(i) - X_DATA.get(SIZE - 1)) +
+          Y_DATA.get(SIZE - 1) * X_DATA.get(SIZE - 1);
       double expected = xyRight / X_RIGHT_TEST.get(i);
       assertEquals(bind.interpolate(X_RIGHT_TEST.get(i)), expected, 10d * Math.abs(expected) * EPS);
     }

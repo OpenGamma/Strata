@@ -155,7 +155,7 @@ public class OvernightIborSwapConventionsTest {
         {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Tenor.of(Period.ofMonths(13))},
     };
   }
-  
+
   @Test(dataProvider = "stubOn")
   public void test_stub_overnight(OvernightIborSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);

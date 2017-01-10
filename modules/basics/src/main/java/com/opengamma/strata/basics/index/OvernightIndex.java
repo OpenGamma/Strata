@@ -11,8 +11,6 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -60,33 +58,6 @@ public interface OvernightIndex
   public static ExtendedEnum<OvernightIndex> extendedEnum() {
     return OvernightIndices.ENUM_LOOKUP;
   }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets whether the index is active.
-   * <p>
-   * Over time some indices become inactive and are no longer produced.
-   * If this occurs, this method will return false.
-   * 
-   * @return true if the index is active, false if inactive
-   */
-  public abstract boolean isActive();
-
-  /**
-   * Gets the day count convention of the index.
-   * 
-   * @return the day count convention
-   */
-  public abstract DayCount getDayCount();
-
-  /**
-   * Gets the calendar that determines which dates are fixing dates.
-   * <p>
-   * The rate will be fixed on each business day in this calendar.
-   * 
-   * @return the calendar used to determine the fixing dates of the index
-   */
-  public abstract HolidayCalendarId getFixingCalendar();
 
   //-------------------------------------------------------------------------
   /**

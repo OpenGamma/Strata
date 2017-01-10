@@ -10,10 +10,12 @@ import static com.opengamma.strata.calc.ReportingCurrency.NATURAL;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.testng.annotations.Test;
 
@@ -48,10 +50,8 @@ public class DefaultCalculationTaskRunnerTest {
   private static final Set<Measure> MEASURES = ImmutableSet.of(TestingMeasures.PRESENT_VALUE);
 
   //-------------------------------------------------------------------------
-  /**
-   * Test that ScenarioArrays containing a single value are unwrapped.
-   */
-  public void unwrapScenarioResults() {
+  // Test that ScenarioArrays containing a single value are unwrapped.
+  public void unwrapScenarioResults() throws Exception {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PRESENT_VALUE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
@@ -72,6 +72,16 @@ public class DefaultCalculationTaskRunnerTest {
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
+
+    ResultsListener resultsListener = new ResultsListener();
+    test.calculateAsync(tasks, marketData, REF_DATA, resultsListener);
+    CompletableFuture<Results> future = resultsListener.getFuture();
+    // The future is guaranteed to be done because everything is running on a single thread
+    assertThat(future.isDone()).isTrue();
+    Results results3 = future.get();
+    Result<?> result3 = results3.get(0, 0);
+    // Check the result contains the string directly, not the result wrapping the string
+    assertThat(result3).hasValue("foo");
   }
 
   /**
@@ -166,6 +176,23 @@ public class DefaultCalculationTaskRunnerTest {
       ScenarioArray<String> array = ScenarioArray.of("bar");
       return ImmutableMap.of(TestingMeasures.PRESENT_VALUE, Result.success(array));
     }
+  }
+
+  /**
+   * Tests that running an empty list of tasks completes and returns a set of results with zero rows.
+   */
+  public void runWithNoTasks() {
+    Column column = Column.of(TestingMeasures.PRESENT_VALUE);
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(), ImmutableList.of(column));
+
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
+
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    Results results = test.calculate(tasks, marketData, REF_DATA);
+    assertThat(results.getRowCount()).isEqualTo(0);
+    assertThat(results.getColumnCount()).isEqualTo(1);
+    assertThat(results.getColumns().get(0).getMeasure()).isEqualTo(TestingMeasures.PRESENT_VALUE);
   }
 
   //-------------------------------------------------------------------------

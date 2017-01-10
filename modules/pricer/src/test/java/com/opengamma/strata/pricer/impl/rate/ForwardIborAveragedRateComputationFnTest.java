@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndexObservation;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -58,8 +59,16 @@ public class ForwardIborAveragedRateComputationFnTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
 
   public void test_rate() {
-    IborIndexRates mockIbor = mock(IborIndexRates.class);
-    SimpleRatesProvider prov = new SimpleRatesProvider();
+    LocalDate fixingDate = OBSERVATIONS[0].getFixingDate();
+    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(fixingDate, FIXING_VALUES[0]);
+    LocalDateDoubleTimeSeries rates = LocalDateDoubleTimeSeries.builder()
+        .put(OBSERVATIONS[1].getFixingDate(), FIXING_VALUES[1])
+        .put(OBSERVATIONS[2].getFixingDate(), FIXING_VALUES[2])
+        .put(OBSERVATIONS[3].getFixingDate(), FIXING_VALUES[3])
+        .build();
+    IborIndexRates mockIbor = new TestingIborIndexRates(
+        GBP_LIBOR_3M, fixingDate, rates, timeSeries);
+    SimpleRatesProvider prov = new SimpleRatesProvider(fixingDate);
     prov.setIborRates(mockIbor);
 
     List<IborAveragedFixing> fixings = new ArrayList<>();
@@ -74,7 +83,6 @@ public class ForwardIborAveragedRateComputationFnTest {
       fixings.add(fixing);
       totalWeightedRate += FIXING_VALUES[i] * WEIGHTS[i];
       totalWeight += WEIGHTS[i];
-      when(mockIbor.rate(obs)).thenReturn(FIXING_VALUES[i]);
     }
 
     double rateExpected = totalWeightedRate / totalWeight;
@@ -96,6 +104,7 @@ public class ForwardIborAveragedRateComputationFnTest {
       assertEquals(childMap.get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
       assertEquals(childMap.get(ExplainKey.INDEX_VALUE), Optional.of(FIXING_VALUES[i]));
       assertEquals(childMap.get(ExplainKey.WEIGHT), Optional.of(WEIGHTS[i]));
+      assertEquals(childMap.get(ExplainKey.FROM_FIXING_SERIES), i == 0 ? Optional.of(true) : Optional.empty());
     }
     assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(rateExpected));
   }

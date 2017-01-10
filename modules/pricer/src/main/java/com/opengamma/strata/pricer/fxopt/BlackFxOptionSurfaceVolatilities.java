@@ -77,7 +77,7 @@ public final class BlackFxOptionSurfaceVolatilities
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -129,6 +129,11 @@ public final class BlackFxOptionSurfaceVolatilities
     this.valuationDateTime = valuationDateTime;
     this.surface = surface;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new BlackFxOptionSurfaceVolatilities(currencyPair, valuationDateTime, surface);
   }
 
   //-------------------------------------------------------------------------

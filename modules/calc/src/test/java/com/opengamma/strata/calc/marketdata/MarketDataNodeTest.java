@@ -425,7 +425,8 @@ public class MarketDataNodeTest {
     }
   }
 
-  private static final class TestMarketDataB { }
+  private static final class TestMarketDataB {
+  }
 
   private static final class TestMarketDataFunctionB implements MarketDataFunction<TestMarketDataB, TestIdB> {
 

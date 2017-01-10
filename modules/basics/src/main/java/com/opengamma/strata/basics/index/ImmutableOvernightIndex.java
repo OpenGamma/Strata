@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.Tenor;
 
 /**
  * An overnight index, such as Sonia or Eonia.
@@ -100,6 +101,16 @@ public final class ImmutableOvernightIndex
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.active = true;
+  }
+
+  @Override
+  public Tenor getTenor() {
+    return Tenor.TENOR_1D;
+  }
+
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(name);
   }
 
   //-------------------------------------------------------------------------

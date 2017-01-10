@@ -79,11 +79,11 @@ public final class ResolvedSwap
   /**
    * The set of currencies.
    */
-  private final ImmutableSet<Currency> currencies;  // not a property, derived and cached from input data
+  private final transient ImmutableSet<Currency> currencies;  // not a property, derived and cached from input data
   /**
    * The set of indices.
    */
-  private final ImmutableSet<Index> indices;  // not a property, derived and cached from input data
+  private final transient ImmutableSet<Index> indices;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   /**
@@ -108,6 +108,13 @@ public final class ResolvedSwap
     this.indices = buildIndices(legs);
   }
 
+  // trusted constructor
+  ResolvedSwap(ImmutableList<ResolvedSwapLeg> legs, ImmutableSet<Currency> currencies, ImmutableSet<Index> indices) {
+    this.legs = legs;
+    this.currencies = currencies;
+    this.indices = indices;
+  }
+
   // collect the set of currencies
   private static ImmutableSet<Currency> buildCurrencies(List<ResolvedSwapLeg> legs) {
     // avoid streams as profiling showed a hotspot
@@ -126,6 +133,11 @@ public final class ResolvedSwap
       leg.collectIndices(builder);
     }
     return builder.build();
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedSwap(legs);
   }
 
   //-------------------------------------------------------------------------

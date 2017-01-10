@@ -147,6 +147,9 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   // normal vols
   private static final NormalIborCapletFloorletExpiryStrikeVolatilities VOLS_NORMAL = IborCapletFloorletDataSet
       .createNormalVolatilities(VALUATION, EUR_EURIBOR_3M);
+  // shifted Black vols
+  private static final ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities SHIFTED_VOLS = IborCapletFloorletDataSet
+      .createShiftedBlackVolatilities(VALUATION, EUR_EURIBOR_3M);
 
   private static final double TOL = 1.0e-14;
   private static final double EPS_FD = 1.0e-6;
@@ -165,7 +168,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
     double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
         BlackFormulaRepository.price(forward, STRIKE, expiry, volatility, true);
-    double expectedFloorlet = -NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.price(forward, STRIKE, expiry, volatility, false);
     assertEquals(computedCaplet.getCurrency(), EUR);
     assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
@@ -216,6 +219,24 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertEquals(computedFloorlet.getAmount(), 0d, NOTIONAL * TOL);
   }
 
+  public void test_presentValue_formula_shift() {
+    CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES, SHIFTED_VOLS);
+    CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES, SHIFTED_VOLS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    double expiry = SHIFTED_VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
+    double volatility = SHIFTED_VOLS.volatility(expiry, STRIKE, forward);
+    double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
+    double shift = IborCapletFloorletDataSet.SHIFT;
+    double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+        BlackFormulaRepository.price(forward + shift, STRIKE + shift, expiry, volatility, true);
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
+        BlackFormulaRepository.price(forward + shift, STRIKE + shift, expiry, volatility, false);
+    assertEquals(computedCaplet.getCurrency(), EUR);
+    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
+    assertEquals(computedFloorlet.getCurrency(), EUR);
+    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+  }
+
   //-------------------------------------------------------------------------
   public void test_impliedVolatility() {
     double computed = PRICER.impliedVolatility(CAPLET_LONG, RATES, VOLS);
@@ -244,7 +265,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
     double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
         BlackFormulaRepository.delta(forward, STRIKE, expiry, volatility, true);
-    double expectedFloorlet = -NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.delta(forward, STRIKE, expiry, volatility, false);
     assertEquals(computedCaplet.getCurrency(), EUR);
     assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
@@ -284,6 +305,24 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertEquals(computedFloorlet.getAmount(), 0d, TOL);
   }
 
+  public void test_presentValueDelta_formula_shift() {
+    CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES, SHIFTED_VOLS);
+    CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES, SHIFTED_VOLS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    double expiry = SHIFTED_VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
+    double volatility = SHIFTED_VOLS.volatility(expiry, STRIKE, forward);
+    double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
+    double shift = IborCapletFloorletDataSet.SHIFT;
+    double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+        BlackFormulaRepository.delta(forward + shift, STRIKE + shift, expiry, volatility, true);
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
+        BlackFormulaRepository.delta(forward + shift, STRIKE + shift, expiry, volatility, false);
+    assertEquals(computedCaplet.getCurrency(), EUR);
+    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
+    assertEquals(computedFloorlet.getCurrency(), EUR);
+    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValueGamma_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueGamma(CAPLET_LONG, RATES, VOLS);
@@ -294,7 +333,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
     double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
         BlackFormulaRepository.gamma(forward, STRIKE, expiry, volatility);
-    double expectedFloorlet = -NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.gamma(forward, STRIKE, expiry, volatility);
     assertEquals(computedCaplet.getCurrency(), EUR);
     assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
@@ -322,6 +361,24 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertEquals(computedFloorlet.getAmount(), 0d, TOL);
   }
 
+  public void test_presentValueGamma_formula_shift() {
+    CurrencyAmount computedCaplet = PRICER.presentValueGamma(CAPLET_LONG, RATES, SHIFTED_VOLS);
+    CurrencyAmount computedFloorlet = PRICER.presentValueGamma(FLOORLET_SHORT, RATES, SHIFTED_VOLS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    double expiry = SHIFTED_VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
+    double volatility = SHIFTED_VOLS.volatility(expiry, STRIKE, forward);
+    double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
+    double shift = IborCapletFloorletDataSet.SHIFT;
+    double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+        BlackFormulaRepository.gamma(forward + shift, STRIKE + shift, expiry, volatility);
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
+        BlackFormulaRepository.gamma(forward + shift, STRIKE + shift, expiry, volatility);
+    assertEquals(computedCaplet.getCurrency(), EUR);
+    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
+    assertEquals(computedFloorlet.getCurrency(), EUR);
+    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValueTheta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS);
@@ -332,7 +389,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
     double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
         BlackFormulaRepository.driftlessTheta(forward, STRIKE, expiry, volatility);
-    double expectedFloorlet = -NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.driftlessTheta(forward, STRIKE, expiry, volatility);
     assertEquals(computedCaplet.getCurrency(), EUR);
     assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
@@ -369,6 +426,24 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertEquals(computedCaplet.getAmount(), 0d, TOL);
     assertEquals(computedFloorlet.getCurrency(), EUR);
     assertEquals(computedFloorlet.getAmount(), 0d, TOL);
+  }
+
+  public void test_presentValueTheta_formula_shift() {
+    CurrencyAmount computedCaplet = PRICER.presentValueTheta(CAPLET_LONG, RATES, SHIFTED_VOLS);
+    CurrencyAmount computedFloorlet = PRICER.presentValueTheta(FLOORLET_SHORT, RATES, SHIFTED_VOLS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    double expiry = SHIFTED_VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
+    double volatility = SHIFTED_VOLS.volatility(expiry, STRIKE, forward);
+    double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
+    double shift = IborCapletFloorletDataSet.SHIFT;
+    double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+        BlackFormulaRepository.driftlessTheta(forward + shift, STRIKE + shift, expiry, volatility);
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
+        BlackFormulaRepository.driftlessTheta(forward + shift, STRIKE + shift, expiry, volatility);
+    assertEquals(computedCaplet.getCurrency(), EUR);
+    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
+    assertEquals(computedFloorlet.getCurrency(), EUR);
+    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
   }
 
   //-------------------------------------------------------------------------
@@ -422,6 +497,19 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertEquals(computedFloorlet, PointSensitivityBuilder.none());
   }
 
+  public void test_presentValueSensitivity_shifted() {
+    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES, SHIFTED_VOLS);
+    CurrencyParameterSensitivities computedCaplet = RATES.parameterSensitivity(pointCaplet.build());
+    PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivityRates(FLOORLET_SHORT, RATES, SHIFTED_VOLS);
+    CurrencyParameterSensitivities computedFloorlet = RATES.parameterSensitivity(pointFloorlet.build());
+    CurrencyParameterSensitivities expectedCaplet =
+        FD_CAL.sensitivity(RATES, p -> PRICER_BASE.presentValue(CAPLET_LONG, p, SHIFTED_VOLS));
+    CurrencyParameterSensitivities expectedFloorlet =
+        FD_CAL.sensitivity(RATES, p -> PRICER_BASE.presentValue(FLOORLET_SHORT, p, SHIFTED_VOLS));
+    assertTrue(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL * 50d));
+    assertTrue(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL * 50d));
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityVolatility() {
     PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, VOLS);
@@ -468,6 +556,39 @@ public class BlackIborCapletFloorletPeriodPricerTest {
         PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     assertEquals(computedCaplet, PointSensitivityBuilder.none());
     assertEquals(computedFloorlet, PointSensitivityBuilder.none());
+  }
+
+  public void test_presentValueSensitivityVolatility_shifted() {
+    PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, SHIFTED_VOLS);
+    CurrencyParameterSensitivity computedCaplet =
+        SHIFTED_VOLS.parameterSensitivity(pointCaplet.build()).getSensitivities().get(0);
+    PointSensitivityBuilder pointFloorlet =
+        PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES, SHIFTED_VOLS);
+    CurrencyParameterSensitivity computedFloorlet =
+        SHIFTED_VOLS.parameterSensitivity(pointFloorlet.build()).getSensitivities().get(0);
+    testSurfaceSensitivity(computedCaplet, SHIFTED_VOLS, v -> PRICER.presentValue(CAPLET_LONG, RATES, v));
+    testSurfaceSensitivity(computedFloorlet, SHIFTED_VOLS, v -> PRICER.presentValue(FLOORLET_SHORT, RATES, v));
+  }
+
+  private void testSurfaceSensitivity(
+      CurrencyParameterSensitivity computed,
+      ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities vols,
+      Function<IborCapletFloorletVolatilities, CurrencyAmount> valueFn) {
+    double pvBase = valueFn.apply(vols).getAmount();
+    InterpolatedNodalSurface surfaceBase = (InterpolatedNodalSurface) vols.getSurface();
+    int nParams = surfaceBase.getParameterCount();
+    for (int i = 0; i < nParams; i++) {
+      DoubleArray zBumped = surfaceBase.getZValues().with(i, surfaceBase.getZValues().get(i) + EPS_FD);
+      InterpolatedNodalSurface surfaceBumped = surfaceBase.withZValues(zBumped);
+      ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities volsBumped =
+          ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
+              vols.getIndex(),
+              vols.getValuationDateTime(),
+              surfaceBumped,
+              vols.getShiftCurve());
+      double fd = (valueFn.apply(volsBumped).getAmount() - pvBase) / EPS_FD;
+      assertEquals(computed.getSensitivity().get(i), fd, NOTIONAL * EPS_FD);
+    }
   }
 
   //-------------------------------------------------------------------------

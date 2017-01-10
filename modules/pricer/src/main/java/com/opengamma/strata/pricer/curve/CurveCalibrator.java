@@ -57,7 +57,7 @@ public final class CurveCalibrator {
   /**
    * The standard curve calibrator.
    */
-  private static final CurveCalibrator STANDARD = 
+  private static final CurveCalibrator STANDARD =
       CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   /**
    * The matrix algebra used for matrix inversion.
@@ -239,27 +239,28 @@ public final class CurveCalibrator {
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
+      CurveGroupDefinition groupDefnBound = groupDefn.bindTimeSeries(knownData.getValuationDate(), knownData.getTimeSeries());
       // combine all data in the group into flat lists
-      ImmutableList<ResolvedTrade> trades = groupDefn.resolvedTrades(marketData, refData);
-      ImmutableList<Double> initialGuesses = groupDefn.initialGuesses(marketData);
-      ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefn);
+      ImmutableList<ResolvedTrade> trades = groupDefnBound.resolvedTrades(marketData, refData);
+      ImmutableList<Double> initialGuesses = groupDefnBound.initialGuesses(marketData);
+      ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefnBound);
       ImmutableList<CurveParameterSize> orderPrevAndGroup = ImmutableList.<CurveParameterSize>builder()
           .addAll(orderPrev)
           .addAll(orderGroup)
           .build();
 
       // calibrate
-      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn, refData);
+      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefnBound, refData);
       DoubleArray calibratedGroupParams = calibrateGroup(providerGenerator, trades, initialGuesses, orderGroup);
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 
       // use calibration to build Jacobian matrices
-      if (groupDefn.isComputeJacobian()) {
+      if (groupDefnBound.isComputeJacobian()) {
         jacobians = updateJacobiansForGroup(
             calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
       }
       ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuote = ImmutableMap.of();
-      if (groupDefn.isComputePvSensitivityToMarketQuote()) {
+      if (groupDefnBound.isComputePvSensitivityToMarketQuote()) {
         ImmutableRatesProvider providerWithJacobian = providerGenerator.generate(calibratedGroupParams, jacobians);
         sensitivityToMarketQuote = sensitivityToMarketQuoteForGroup(providerWithJacobian, trades, orderGroup);
       }

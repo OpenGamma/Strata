@@ -500,8 +500,8 @@ public class DiscountingRatePaymentPeriodPricer
     cpaAccumulatedBar[nbCmp] = paymentPeriod.getNotional() * df * rBar;
     double spreadBar = 0.0d;
     for (int j = nbCmp - 1; j >= 0; j--) {
-      cpaAccumulatedBar[j] = (1.0d + paymentPeriod.getAccrualPeriods().get(j).getYearFraction() * rate[j]
-          * paymentPeriod.getAccrualPeriods().get(j).getGearing()) * cpaAccumulatedBar[j + 1];
+      cpaAccumulatedBar[j] = (1.0d + paymentPeriod.getAccrualPeriods().get(j).getYearFraction() * rate[j] *
+          paymentPeriod.getAccrualPeriods().get(j).getGearing()) * cpaAccumulatedBar[j + 1];
       spreadBar += paymentPeriod.getAccrualPeriods().get(j).getYearFraction() * cpaAccumulatedBar[j + 1];
     }
     return spreadBar;
@@ -520,8 +520,8 @@ public class DiscountingRatePaymentPeriodPricer
     cpaAccumulatedB1[nbCmp] = paymentPeriod.getNotional() * df * rB1;
     for (int j = nbCmp - 1; j >= 0; j--) {
       RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(j);
-      cpaAccumulatedB1[j] = (1.0d + accrualPeriod.getYearFraction() * rate[j]
-          * accrualPeriod.getGearing()) * cpaAccumulatedB1[j + 1];
+      cpaAccumulatedB1[j] =
+          (1.0d + accrualPeriod.getYearFraction() * rate[j] * accrualPeriod.getGearing()) * cpaAccumulatedB1[j + 1];
     }
     // backward sweep
     double pvbpB2 = 1.0d;
@@ -530,8 +530,8 @@ public class DiscountingRatePaymentPeriodPricer
     for (int j = 0; j < nbCmp; j++) {
       RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(j);
       cpaAccumulatedB1B2[j + 1] += accrualPeriod.getYearFraction() * pvbpB2;
-      cpaAccumulatedB1B2[j + 1] += (1.0d + accrualPeriod.getYearFraction() * rate[j]
-          * accrualPeriod.getGearing()) * cpaAccumulatedB1B2[j];
+      cpaAccumulatedB1B2[j + 1] +=
+          (1.0d + accrualPeriod.getYearFraction() * rate[j] * accrualPeriod.getGearing()) * cpaAccumulatedB1B2[j];
       rateB2[j] += accrualPeriod.getYearFraction() * accrualPeriod.getGearing() *
           cpaAccumulatedB1[j + 1] * cpaAccumulatedB1B2[j];
     }

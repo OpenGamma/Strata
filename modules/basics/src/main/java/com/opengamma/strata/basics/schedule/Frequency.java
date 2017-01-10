@@ -168,11 +168,11 @@ public final class Frequency
   /**
    * The number of events per year.
    */
-  private transient final int eventsPerYear;
+  private final transient int eventsPerYear;
   /**
    * The number of events per year.
    */
-  private transient final double eventsPerYearEstimate;
+  private final transient double eventsPerYearEstimate;
 
   //-------------------------------------------------------------------------
   /**
@@ -318,7 +318,7 @@ public final class Frequency
   @FromString
   public static Frequency parse(String toParse) {
     ArgChecker.notNull(toParse, "toParse");
-    if (toParse.equalsIgnoreCase("Term")) {
+    if (toParse.equalsIgnoreCase("Term") || toParse.equalsIgnoreCase("0T") || toParse.equalsIgnoreCase("1T")) {
       return TERM;
     }
     String prefixed = toParse.startsWith("P") ? toParse : "P" + toParse;

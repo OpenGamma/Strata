@@ -12,4 +12,3 @@
  * and the other a floating rate. Many other more complex swaps can also be represented.
  */
 package com.opengamma.strata.product.swap;
-

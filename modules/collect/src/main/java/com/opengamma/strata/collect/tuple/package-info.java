@@ -11,4 +11,3 @@
  * Variations are provided for some combinations of primitive types.
  */
 package com.opengamma.strata.collect.tuple;
-

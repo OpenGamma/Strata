@@ -8,4 +8,3 @@
  * Calculation functions for index products.
  */
 package com.opengamma.strata.measure.index;
-

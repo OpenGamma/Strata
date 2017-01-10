@@ -17,7 +17,7 @@ import com.opengamma.strata.report.framework.format.ValueFormatters;
 /**
  * Formatter for cash flow reports.
  */
-public class CashFlowReportFormatter
+public final class CashFlowReportFormatter
     extends ReportFormatter<CashFlowReport> {
 
   /**

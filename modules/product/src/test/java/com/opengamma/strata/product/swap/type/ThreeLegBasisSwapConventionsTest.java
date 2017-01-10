@@ -38,7 +38,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, 2 }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, 2}
     };
   }
 
@@ -51,7 +51,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "period")
   static Object[][] data_period() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Frequency.P3M },
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Frequency.P3M},
     };
   }
 
@@ -64,7 +64,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "dayCount")
   static Object[][] data_day_count() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, CompoundingMethod.NONE }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, CompoundingMethod.NONE}
     };
   }
 
@@ -77,7 +77,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "spreadFloatingLeg")
   static Object[][] data_spread_floating_leg() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_3M }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_3M}
     };
   }
 
@@ -90,7 +90,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "flatFloatingLeg")
   static Object[][] data_flat_floating_leg() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_6M }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_6M}
     };
   }
 
@@ -103,7 +103,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "dayConvention")
   static Object[][] data_day_convention() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING}
     };
   }
 
@@ -116,7 +116,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "stubIbor")
   static Object[][] data_stub_ibor() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Tenor.TENOR_8M }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Tenor.TENOR_8M}
     };
   }
 

@@ -14,4 +14,3 @@
  * the shape of the curve. Each curve node is considered to be a parameter.
  */
 package com.opengamma.strata.market.param;
-

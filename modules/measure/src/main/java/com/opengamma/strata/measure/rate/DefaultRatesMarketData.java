@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.rate;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -27,7 +28,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultRatesMarketData
-    implements RatesMarketData, ImmutableBean {
+    implements RatesMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -42,7 +43,7 @@ final class DefaultRatesMarketData
   /**
    * The rates provider.
    */
-  private final RatesProvider ratesProvider;  // derived
+  private final transient RatesProvider ratesProvider;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -66,10 +67,15 @@ final class DefaultRatesMarketData
     this.ratesProvider = lookup.ratesProvider(marketData);
   }
 
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultRatesMarketData(lookup, marketData);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public RatesMarketData withMarketData(MarketData marketData) {
-    return DefaultRatesMarketData.of((DefaultRatesMarketDataLookup) lookup, marketData);
+    return DefaultRatesMarketData.of(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -96,6 +102,11 @@ final class DefaultRatesMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

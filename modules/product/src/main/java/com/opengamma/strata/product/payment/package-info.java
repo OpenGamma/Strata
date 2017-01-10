@@ -8,4 +8,3 @@
  * Entity objects describing simple payment financial instruments.
  */
 package com.opengamma.strata.product.payment;
-

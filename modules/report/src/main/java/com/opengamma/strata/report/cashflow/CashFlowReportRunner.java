@@ -35,7 +35,7 @@ import com.opengamma.strata.report.ReportRunner;
 /**
  * Report runner for cash flow reports.
  */
-public class CashFlowReportRunner
+public final class CashFlowReportRunner
     implements ReportRunner<CashFlowReportTemplate> {
 
   // TODO - when the cashflow report INI file supports specific columns, the following maps should

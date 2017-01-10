@@ -20,8 +20,14 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.index.FxIndexObservation;
+import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -29,8 +35,16 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.impl.swap.DiscountingRatePaymentPeriodPricer;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.swap.FxReset;
+import com.opengamma.strata.product.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
 
 /**
  * Test {@link DiscountFxForwardRates}.
@@ -38,6 +52,7 @@ import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 @Test
 public class DiscountFxForwardRatesTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
   private static final LocalDate DATE_REF = date(2015, 7, 30);
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
@@ -54,7 +69,12 @@ public class DiscountFxForwardRatesTest {
   private static final ZeroRateDiscountFactors DFCURVE_GBP2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE2);
   private static final ZeroRateDiscountFactors DFCURVE_USD = ZeroRateDiscountFactors.of(USD, DATE_VAL, CURVE2);
   private static final ZeroRateDiscountFactors DFCURVE_USD2 = ZeroRateDiscountFactors.of(USD, DATE_VAL, CURVE1);
-
+  private static final RatesProvider PROVIDER = ImmutableRatesProvider.builder(DATE_VAL)
+      .discountCurve(GBP, CURVE1).discountCurve(USD, CURVE2)
+      .fxRateProvider(FX_RATE).build();
+  private static final DiscountingRatePaymentPeriodPricer PERIOD_PRICER = DiscountingRatePaymentPeriodPricer.DEFAULT;
+  private static final double TOLERANCE = 1.0E-6;
+  
   //-------------------------------------------------------------------------
   public void test_of() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
@@ -165,6 +185,63 @@ public class DiscountFxForwardRatesTest {
     assertEquals(test.parameterSensitivity(point).size(), 2);
     FxForwardSensitivity point2 = FxForwardSensitivity.of(CURRENCY_PAIR, USD, DATE_VAL, 1d);
     assertEquals(test.parameterSensitivity(point2).size(), 2);
+  }
+
+  //-------------------------------------------------------------------------
+  public void currency_exposure_GBP() {
+    LocalDate startDate = LocalDate.of(2016, 8, 2);
+    LocalDate fixingDate = LocalDate.of(2016, 11, 2);
+    LocalDate endDate = LocalDate.of(2016, 11, 4);
+    double yearFraction = 0.25;
+    double rate = 0.10;
+    RateAccrualPeriod accrual = RateAccrualPeriod.builder().startDate(startDate)
+        .endDate(endDate).yearFraction(yearFraction).rateComputation(FixedRateComputation.of(rate)).build();
+    double notional = 1000000;
+    RatePaymentPeriod fixedFx = RatePaymentPeriod.builder()
+        .accrualPeriods(accrual)
+        .fxReset(FxReset.of(FxIndexObservation.of(FxIndices.GBP_USD_WM, fixingDate, REF_DATA), GBP))
+        .notional(notional)
+        .paymentDate(endDate)
+        .dayCount(DayCounts.ONE_ONE)
+        .currency(USD).build(); // 1_000_000 GBP paid in USD at maturity
+    PointSensitivityBuilder pts = PERIOD_PRICER.presentValueSensitivity(fixedFx, PROVIDER);
+    MultiCurrencyAmount ceComputed = PERIOD_PRICER.currencyExposure(fixedFx, PROVIDER);
+    double dfGbp = PROVIDER.discountFactor(GBP, endDate);
+    double ceGbpExpected = notional * yearFraction * rate * dfGbp;
+    assertEquals(ceComputed.getAmount(GBP).getAmount(), ceGbpExpected, 1.0E-6);
+    MultiCurrencyAmount ceWithoutPvComputed = PROVIDER.currencyExposure(pts.build().convertedTo(GBP, PROVIDER));
+    CurrencyAmount pvComputed = CurrencyAmount.of(USD, PERIOD_PRICER.presentValue(fixedFx, PROVIDER));
+    MultiCurrencyAmount ceComputed2 = ceWithoutPvComputed.plus(pvComputed);
+    assertEquals(ceComputed2.getAmount(GBP).getAmount(), ceGbpExpected, TOLERANCE);
+    assertEquals(ceComputed2.getAmount(USD).getAmount(), 0.0, TOLERANCE);
+  }
+  
+  public void currency_exposure_USD() {
+    LocalDate startDate = LocalDate.of(2016, 8, 2);
+    LocalDate fixingDate = LocalDate.of(2016, 11, 2);
+    LocalDate endDate = LocalDate.of(2016, 11, 4);
+    double yearFraction = 0.25;
+    double rate = 0.10;
+    RateAccrualPeriod accrual = RateAccrualPeriod.builder().startDate(startDate)
+        .endDate(endDate).yearFraction(yearFraction).rateComputation(FixedRateComputation.of(rate)).build();
+    double notional = 1000000;
+    RatePaymentPeriod fixedFx = RatePaymentPeriod.builder()
+        .accrualPeriods(accrual)
+        .fxReset(FxReset.of(FxIndexObservation.of(FxIndices.GBP_USD_WM, fixingDate, REF_DATA), USD))
+        .notional(notional)
+        .paymentDate(endDate)
+        .dayCount(DayCounts.ONE_ONE)
+        .currency(GBP).build(); // 1_000_000 USD paid in GBP at maturity
+    PointSensitivityBuilder pts = PERIOD_PRICER.presentValueSensitivity(fixedFx, PROVIDER);
+    MultiCurrencyAmount ceComputed = PERIOD_PRICER.currencyExposure(fixedFx, PROVIDER);
+    double dfUsd = PROVIDER.discountFactor(USD, endDate);
+    double ceUsdExpected = notional * yearFraction * rate * dfUsd;
+    assertEquals(ceComputed.getAmount(USD).getAmount(), ceUsdExpected, 1.0E-6);
+    MultiCurrencyAmount ceWithoutPvComputed = PROVIDER.currencyExposure(pts.build().convertedTo(USD, PROVIDER));
+    CurrencyAmount pvComputed = CurrencyAmount.of(GBP, PERIOD_PRICER.presentValue(fixedFx, PROVIDER));
+    MultiCurrencyAmount ceComputed2 = ceWithoutPvComputed.plus(pvComputed);
+    assertEquals(ceComputed2.getAmount(USD).getAmount(), ceUsdExpected, TOLERANCE);
+    assertEquals(ceComputed2.getAmount(GBP).getAmount(), 0.0, TOLERANCE);
   }
 
   //-------------------------------------------------------------------------

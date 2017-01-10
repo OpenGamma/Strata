@@ -8,4 +8,3 @@
  * Common code for pricing.
  */
 package com.opengamma.strata.pricer.common;
-

@@ -10,4 +10,3 @@
  * These functional interfaces follow the naming conventions of Java SE 8.
  */
 package com.opengamma.strata.collect.function;
-

@@ -8,4 +8,3 @@
  * Entity objects describing Ibor cap/floor.
  */
 package com.opengamma.strata.product.capfloor;
-

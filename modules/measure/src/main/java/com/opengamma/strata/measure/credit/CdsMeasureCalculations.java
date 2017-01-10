@@ -49,7 +49,7 @@ final class CdsMeasureCalculations {
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
-  
+
   /**
    * Pricer for {@link ResolvedCdsTrade}.
    */

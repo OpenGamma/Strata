@@ -30,6 +30,7 @@ import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 /**
  * Perform calculations on a single {@code CdsIndexTrade} for each of a set of scenarios.
  * <p>
+ * An instance of {@link CreditRatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
@@ -39,8 +40,8 @@ import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain CreditMeasures#PRINCIPAL principal}
- *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED__PARALLEL IR01 calibrated parallel}
- *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED__BUCKETED IR01 calibrated bucketed}
+ *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED_PARALLEL IR01 calibrated parallel}
+ *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED_BUCKETED IR01 calibrated bucketed}
  *   <li>{@linkplain CreditMeasures#IR01_MARKET_QUOTE_PARALLEL IR01 market quote parallel}
  *   <li>{@linkplain CreditMeasures#IR01_MARKET_QUOTE_BUCKETED IR01 market quote bucketed}
  *   <li>{@linkplain CreditMeasures#CS01_PARALLEL CS01 parallel}
@@ -50,14 +51,14 @@ import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
  *   <li>{@linkplain CreditMeasures#EXPECTED_LOSS expected loss}
  * </ul>
  * <p>
- * An instance of {@link CreditRatesMarketDataLookup} must be specified.
+ * The "natural" currency is the currency of the CDS index, which is limited to be single-currency.
  */
 public class CdsIndexTradeCalculationFunction
     implements CalculationFunction<CdsIndexTrade> {
 
   /**
-  * The calculations by measure.
-  */
+   * The calculations by measure.
+   */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, CdsIndexMeasureCalculations.DEFAULT::presentValue)
@@ -82,12 +83,12 @@ public class CdsIndexTradeCalculationFunction
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
 
   /**
-  * Creates an instance.
-  */
+   * Creates an instance.
+   */
   public CdsIndexTradeCalculationFunction() {
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public Class<CdsIndexTrade> targetType() {
     return CdsIndexTrade.class;
@@ -120,6 +121,7 @@ public class CdsIndexTradeCalculationFunction
     CdsIndex product = trade.getProduct();
     StandardId legalEntityId = product.getCdsIndexId();
     Currency currency = product.getCurrency();
+
     // use lookup to build requirements
     CreditRatesMarketDataLookup lookup = parameters.getParameter(CreditRatesMarketDataLookup.class);
     return lookup.requirements(legalEntityId, currency);

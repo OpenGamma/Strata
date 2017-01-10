@@ -8,4 +8,3 @@
  * Entity objects describing common option concepts.
  */
 package com.opengamma.strata.product.option;
-

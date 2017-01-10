@@ -8,4 +8,3 @@
  * Calculators for payment instruments.
  */
 package com.opengamma.strata.pricer.payment;
-

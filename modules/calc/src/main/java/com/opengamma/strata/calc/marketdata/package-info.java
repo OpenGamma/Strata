@@ -11,4 +11,3 @@
  * It provides two "build" methods that process a set of requirements to produce market data.
  */
 package com.opengamma.strata.calc.marketdata;
-

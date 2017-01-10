@@ -109,7 +109,7 @@ public class FxSingleTradeCalculationFunctionTest {
         .containsEntry(
             Measures.FORWARD_FX_RATE, Result.success(ScenarioArray.of(ImmutableList.of(expectedForwardFx))))
         .containsEntry(
-            Measures.RESOLVED_TARGET, Result.success(ScenarioArray.ofSingleValue(1, TRADE.resolve(REF_DATA))));
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   public void test_pv01() {

@@ -12,8 +12,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.SwapPaymentPeriodPricer;
 import com.opengamma.strata.product.swap.KnownAmountSwapPaymentPeriod;
-import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Pricer implementation for payment periods using multiple dispatch.

@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
@@ -17,6 +18,8 @@ import java.util.List;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@code GlobalHolidayCalendars}.
@@ -271,7 +274,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "gblo")
   public void test_gblo(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(GBLO.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -314,7 +318,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "frpa")
   public void test_frpa(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(FRPA.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -344,7 +349,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "chzu")
   public void test_chzu(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(CHZU.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -365,7 +371,7 @@ public class GlobalHolidayCalendarsTest {
         // in 2000, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26
         {2000, mds(2000, md(1, 1), md(4, 21), md(4, 24), md(5, 1), md(12, 25), md(12, 26))},
         // in 2001, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26, Dec 31
-        {2001, mds(2001, md(1, 1), md(4, 13), md(4, 16), md(5, 1), md(12, 25), md(12, 26))},
+        {2001, mds(2001, md(1, 1), md(4, 13), md(4, 16), md(5, 1), md(12, 25), md(12, 26), md(12, 31))},
         // from 2002, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26
         {2002, mds(2002, md(1, 1), md(3, 29), md(4, 1), md(5, 1), md(12, 25), md(12, 26))},
         {2003, mds(2003, md(1, 1), md(4, 18), md(4, 21), md(5, 1), md(12, 25), md(12, 26))},
@@ -378,7 +384,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "euta")
   public void test_euta(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(EUTA.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -438,7 +445,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "usgs")
   public void test_usgs(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(USGS.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -475,7 +483,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "usny")
   public void test_usny(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(USNY.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -531,7 +540,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "nyfd")
   public void test_nyfd(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(NYFD.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -569,7 +579,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "nyse")
   public void test_nyse(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(NYSE.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -619,9 +630,72 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "jpto")
   public void test_jpto(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(JPTO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar AUSY = GlobalHolidayCalendars.generateSydney();
+
+  @DataProvider(name = "ausy")
+  Object[][] data_ausy() {
+    return new Object[][] {
+        {2012, mds(2012, md(1, 1), md(1, 2), md(1, 26), md(4, 6), md(4, 7), md(4, 8), md(4, 9),
+            md(4, 25), md(6, 11), md(8, 6), md(10, 1), md(12, 25), md(12, 26))},
+        {2013, mds(2013, md(1, 1), md(1, 26), md(1, 28), md(3, 29), md(3, 30), md(3, 31), md(4, 1),
+            md(4, 25), md(6, 10), md(8, 5), md(10, 7), md(12, 25), md(12, 26))},
+        {2014, mds(2014, md(1, 1), md(1, 26), md(1, 27), md(4, 18), md(4, 19), md(4, 20), md(4, 21),
+            md(4, 25), md(6, 9), md(8, 4), md(10, 6), md(12, 25), md(12, 26))},
+        {2015, mds(2015, md(1, 1), md(1, 26), md(4, 3), md(4, 4), md(4, 5), md(4, 6), md(4, 25),
+            md(6, 8), md(8, 3), md(10, 5), md(12, 25), md(12, 26), md(12, 27), md(12, 28))},
+        {2016, mds(2016, md(1, 1), md(1, 26), md(3, 25), md(3, 26), md(3, 27), md(3, 28),
+            md(4, 25), md(6, 13), md(8, 1), md(10, 3), md(12, 25), md(12, 26), md(12, 27))},
+        {2017, mds(2017, md(1, 1), md(1, 2), md(1, 26), md(4, 14), md(4, 15), md(4, 16), md(4, 17),
+            md(4, 25), md(6, 12), md(8, 7), md(10, 2), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "ausy")
+  public void test_ausy(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(AUSY.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar BRBD = GlobalHolidayCalendars.generateBrazil();
+
+  @DataProvider(name = "brbd")
+  Object[][] data_brbd() {
+    // http://www.planalto.gov.br/ccivil_03/leis/2002/L10607.htm
+    // fixing data
+    return new Object[][] {
+        {2013, mds(2013, md(1, 1), md(2, 11), md(2, 12), md(3, 29), md(4, 21), md(5, 1),
+            md(5, 30), md(9, 7), md(10, 12), md(11, 2), md(11, 15), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(3, 3), md(3, 4), md(4, 18), md(4, 21), md(5, 1),
+            md(6, 19), md(9, 7), md(10, 12), md(11, 2), md(11, 15), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(2, 16), md(2, 17), md(4, 3), md(4, 21), md(5, 1),
+            md(6, 4), md(9, 7), md(10, 12), md(11, 2), md(11, 15), md(12, 25))},
+        {2016, mds(2016, md(1, 1), md(2, 8), md(2, 9), md(3, 25), md(4, 21), md(5, 1),
+            md(5, 26), md(9, 7), md(10, 12), md(11, 2), md(11, 15), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "brbd")
+  public void test_brbd(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(BRBD.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
     }
   }
@@ -632,21 +706,21 @@ public class GlobalHolidayCalendarsTest {
   @DataProvider(name = "cato")
   Object[][] data_cato() {
     return new Object[][] {
-        {2009, mds(2009, md(1, 1), md(2, 16), md(4, 10), md(4, 13),
+        {2009, mds(2009, md(1, 1), md(2, 16), md(4, 10),
             md(5, 18), md(7, 1), md(8, 3), md(9, 7), md(10, 12), md(11, 11), md(12, 25), md(12, 28))},
-        {2010, mds(2010, md(1, 1), md(2, 15), md(4, 2), md(4, 5),
+        {2010, mds(2010, md(1, 1), md(2, 15), md(4, 2),
             md(5, 24), md(7, 1), md(8, 2), md(9, 6), md(10, 11), md(11, 11), md(12, 27), md(12, 28))},
-        {2011, mds(2011, md(1, 3), md(2, 21), md(4, 22), md(4, 25),
+        {2011, mds(2011, md(1, 3), md(2, 21), md(4, 22),
             md(5, 23), md(7, 1), md(8, 1), md(9, 5), md(10, 10), md(11, 11), md(12, 26), md(12, 27))},
-        {2012, mds(2012, md(1, 2), md(2, 20), md(4, 6), md(4, 9),
+        {2012, mds(2012, md(1, 2), md(2, 20), md(4, 6),
             md(5, 21), md(7, 2), md(8, 6), md(9, 3), md(10, 8), md(11, 12), md(12, 25), md(12, 26))},
-        {2013, mds(2013, md(1, 1), md(2, 18), md(3, 29), md(4, 1),
+        {2013, mds(2013, md(1, 1), md(2, 18), md(3, 29),
             md(5, 20), md(7, 1), md(8, 5), md(9, 2), md(10, 14), md(11, 11), md(12, 25), md(12, 26))},
-        {2014, mds(2014, md(1, 1), md(2, 17), md(4, 18), md(4, 21),
+        {2014, mds(2014, md(1, 1), md(2, 17), md(4, 18),
             md(5, 19), md(7, 1), md(8, 4), md(9, 1), md(10, 13), md(11, 11), md(12, 25), md(12, 26))},
-        {2015, mds(2015, md(1, 1), md(2, 16), md(4, 3), md(4, 6),
+        {2015, mds(2015, md(1, 1), md(2, 16), md(4, 3),
             md(5, 18), md(7, 1), md(8, 3), md(9, 7), md(10, 12), md(11, 11), md(12, 25), md(12, 28))},
-        {2016, mds(2016, md(1, 1), md(2, 15), md(3, 25), md(3, 28),
+        {2016, mds(2016, md(1, 1), md(2, 15), md(3, 25),
             md(5, 23), md(7, 1), md(8, 1), md(9, 5), md(10, 10), md(11, 11), md(12, 26), md(12, 27))},
     };
   }
@@ -654,9 +728,151 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "cato")
   public void test_cato(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(CATO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar CZPR = GlobalHolidayCalendars.generatePrague();
+
+  @DataProvider(name = "czpr")
+  Object[][] data_czpr() {
+    // official data from Czech National Bank
+    // https://www.cnb.cz/en/public/media_service/schedules/media_svatky.html
+    return new Object[][] {
+        {2008, mds(2008, md(1, 1), md(3, 24), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2009, mds(2009, md(1, 1), md(4, 13), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2010, mds(2010, md(1, 1), md(4, 5), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2011, mds(2011, md(1, 1), md(4, 25), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2012, mds(2012, md(1, 1), md(4, 9), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2013, mds(2013, md(1, 1), md(4, 1), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2014, mds(2014, md(1, 1), md(4, 21), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2015, mds(2015, md(1, 1), md(4, 6), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2016, mds(2016, md(1, 1), md(3, 25), md(3, 28), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+        {2017, mds(2017, md(1, 1), md(4, 14), md(4, 17), md(5, 1), md(5, 8),
+            md(7, 5), md(7, 6), md(9, 28), md(10, 28), md(11, 17), md(12, 24), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "czpr")
+  public void test_czpr(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(CZPR.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar DKCO = GlobalHolidayCalendars.generateCopenhagen();
+
+  @DataProvider(name = "dkco")
+  Object[][] data_dkco() {
+    // official data from Danish Bankers association via web archive
+    return new Object[][] {
+        {2013, mds(2013, md(1, 1), md(3, 28), md(3, 29), md(4, 1),
+            md(4, 26), md(5, 9), md(5, 10), md(5, 20), md(6, 5), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2014, mds(2014, md(1, 1), md(4, 17), md(4, 18), md(4, 21),
+            md(5, 16), md(5, 29), md(5, 30), md(6, 5), md(6, 9), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2015, mds(2015, md(1, 1), md(4, 2), md(4, 3), md(4, 6),
+            md(5, 1), md(5, 14), md(5, 15), md(5, 25), md(6, 5), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2016, mds(2016, md(1, 1), md(3, 24), md(3, 25), md(3, 28),
+            md(4, 22), md(5, 5), md(5, 6), md(5, 16), md(6, 5), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+    };
+  }
+
+  @Test(dataProvider = "dkco")
+  public void test_dkco(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(DKCO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar HUBU = GlobalHolidayCalendars.generateBudapest();
+
+  @DataProvider(name = "hubu")
+  Object[][] data_hubu() {
+    // http://www.mnb.hu/letoltes/bubor2.xls
+    // http://holidays.kayaposoft.com/public_holidays.php?year=2013&country=hun&region=#
+    return new Object[][] {
+        {2012, mds(2012, md(3, 15), md(3, 16), md(4, 9), md(4, 30), md(5, 1), md(5, 28),
+            md(8, 20), md(10, 22), md(10, 23), md(11, 1), md(11, 2), md(12, 24), md(12, 25), md(12, 26), md(12, 31)),
+            ImmutableList.of(date(2012, 3, 24), date(2012, 5, 5), date(2012, 10, 27),
+                date(2012, 11, 10), date(2012, 12, 15), date(2012, 12, 29))},
+        {2013, mds(2013, md(1, 1), md(3, 15), md(4, 1), md(5, 1), md(5, 20),
+            md(8, 19), md(8, 20), md(10, 23), md(11, 1), md(12, 24), md(12, 25), md(12, 26), md(12, 27)),
+            ImmutableList.of(date(2013, 8, 24), date(2013, 12, 7), date(2013, 12, 21))},
+        {2014, mds(2014, md(1, 1), md(3, 15), md(4, 21), md(5, 1), md(5, 2),
+            md(6, 9), md(8, 20), md(10, 23), md(10, 24), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2014, 5, 10), date(2014, 10, 18))},
+        {2015, mds(2015, md(1, 1), md(1, 2), md(3, 15), md(4, 6), md(5, 1), md(5, 25),
+            md(8, 20), md(8, 21), md(10, 23), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2015, 1, 10), date(2015, 8, 8), date(2015, 12, 12))},
+        {2016, mds(2016, md(1, 1), md(3, 14), md(3, 15), md(3, 28), md(5, 1), md(5, 16),
+            md(10, 31), md(11, 1), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2016, 3, 5), date(2016, 10, 15))},
+    };
+  }
+
+  @Test(dataProvider = "hubu")
+  public void test_hubu(int year, List<LocalDate> holidays, List<LocalDate> workDays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = (holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY) &&
+          !workDays.contains(date);
+      assertEquals(HUBU.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar MXMC = GlobalHolidayCalendars.generateMexicoCity();
+
+  @DataProvider(name = "mxmc")
+  Object[][] data_mxmc() {
+    // http://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF111&locale=en
+    return new Object[][] {
+        {2012, mds(2012, md(1, 1), md(2, 6), md(3, 19), md(4, 5), md(4, 6),
+            md(5, 1), md(9, 16), md(11, 2), md(11, 19), md(12, 12), md(12, 25))},
+        {2013, mds(2013, md(1, 1), md(2, 4), md(3, 18), md(3, 28), md(3, 29),
+            md(5, 1), md(9, 16), md(11, 2), md(11, 18), md(12, 12), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(2, 3), md(3, 17), md(4, 17), md(4, 18),
+            md(5, 1), md(9, 16), md(11, 2), md(11, 17), md(12, 12), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(2, 2), md(3, 16), md(4, 2), md(4, 3),
+            md(5, 1), md(9, 16), md(11, 2), md(11, 16), md(12, 12), md(12, 25))},
+        {2016, mds(2016, md(1, 1), md(2, 1), md(3, 21), md(3, 24), md(3, 25),
+            md(5, 1), md(9, 16), md(11, 2), md(11, 21), md(12, 12), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "mxmc")
+  public void test_mxmc(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(MXMC.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
     }
   }
@@ -690,7 +906,8 @@ public class GlobalHolidayCalendarsTest {
   @Test(dataProvider = "noos")
   public void test_noos(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(NOOS.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
@@ -698,32 +915,87 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
-  private static final HolidayCalendar AUSY = GlobalHolidayCalendars.generateSydney();
+  private static final HolidayCalendar PLWA = GlobalHolidayCalendars.generateWarsaw();
 
-  @DataProvider(name = "ausy")
-  Object[][] data_ausy() {
+  @DataProvider(name = "plwa")
+  Object[][] data_plwa() {
+    // based on government law data and stock exchange holidays
     return new Object[][] {
-        {2012, mds(2012, md(1, 1), md(1, 2), md(1, 26), md(4, 6), md(4, 7), md(4, 8), md(4, 9),
-            md(4, 25), md(6, 11), md(8, 6), md(10, 1), md(12, 25), md(12, 26))},
-        {2013, mds(2013, md(1, 1), md(1, 26), md(1, 28), md(3, 29), md(3, 30), md(3, 31), md(4, 1),
-            md(4, 25), md(6, 10), md(8, 5), md(10, 7), md(12, 25), md(12, 26))},
-        {2014, mds(2014, md(1, 1), md(1, 26), md(1, 27), md(4, 18), md(4, 19), md(4, 20), md(4, 21),
-            md(4, 25), md(6, 9), md(8, 4), md(10, 6), md(12, 25), md(12, 26))},
-        {2015, mds(2015, md(1, 1), md(1, 26), md(4, 3), md(4, 4), md(4, 5), md(4, 6), md(4, 25),
-            md(6, 8), md(8, 3), md(10, 5), md(12, 25), md(12, 26), md(12, 27), md(12, 28))},
-        {2016, mds(2016, md(1, 1), md(1, 26), md(3, 25), md(3, 26), md(3, 27), md(3, 28),
-            md(4, 25), md(6, 13), md(8, 1), md(10, 3), md(12, 25), md(12, 26), md(12, 27))},
-        {2017, mds(2017, md(1, 1), md(1, 2), md(1, 26), md(4, 14), md(4, 15), md(4, 16), md(4, 17),
-            md(4, 25), md(6, 12), md(8, 7), md(10, 2), md(12, 25), md(12, 26))},
+        {2013, mds(2013, md(1, 1), md(3, 29), md(4, 1),
+            md(5, 1), md(5, 3), md(5, 30), md(8, 15), md(11, 1), md(11, 11), md(12, 24), md(12, 25), md(12, 26))},
+        {2014, mds(2014, md(1, 1), md(1, 6), md(4, 18), md(4, 21),
+            md(5, 1), md(6, 19), md(8, 15), md(11, 11), md(12, 24), md(12, 25), md(12, 26))},
+        {2015, mds(2015, md(1, 1), md(1, 6), md(4, 3), md(4, 6),
+            md(5, 1), md(6, 4), md(11, 11), md(12, 24), md(12, 25), md(12, 31))},
+        {2016, mds(2016, md(1, 1), md(1, 6), md(3, 25), md(3, 28),
+            md(5, 3), md(5, 26), md(8, 15), md(11, 1), md(11, 11), md(12, 26))},
+        {2017, mds(2017, md(1, 6), md(4, 14), md(4, 17),
+            md(5, 1), md(5, 3), md(6, 15), md(8, 15), md(11, 1), md(12, 25), md(12, 26))},
     };
   }
 
-  @Test(dataProvider = "ausy")
-  public void test_ausy(int year, List<LocalDate> holidays) {
+  @Test(dataProvider = "plwa")
+  public void test_plwa(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
-    for (int i = 1; i < date.lengthOfYear(); i++) {
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(AUSY.isHoliday(date), isHoliday, date.toString());
+      assertEquals(PLWA.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar SEST = GlobalHolidayCalendars.generateStockholm();
+
+  @DataProvider(name = "sest")
+  Object[][] data_sest() {
+    // official data from published fixing dates
+    return new Object[][] {
+        {2014, mds(2014, md(1, 1), md(1, 6), md(4, 18), md(4, 21),
+            md(5, 1), md(5, 29), md(6, 6), md(6, 20), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2015, mds(2015, md(1, 1), md(1, 6), md(4, 3), md(4, 6),
+            md(5, 1), md(5, 14), md(6, 19), md(12, 24), md(12, 25), md(12, 31))},
+        {2016, mds(2016, md(1, 1), md(1, 6), md(3, 25), md(3, 28),
+            md(5, 5), md(6, 6), md(6, 24), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "sest")
+  public void test_sest(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(SEST.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar ZAJO = GlobalHolidayCalendars.generateJohannesburg();
+
+  @DataProvider(name = "zajo")
+  Object[][] data_zajo() {
+    // http://www.gov.za/about-sa/public-holidays
+    // https://web.archive.org/web/20151230214958/http://www.gov.za/about-sa/public-holidays
+    return new Object[][] {
+        {2015, mds(2015, md(1, 1), md(3, 21), md(4, 3), md(4, 6), md(4, 27), md(5, 1),
+            md(6, 16), md(8, 10), md(9, 24), md(12, 16), md(12, 25), md(12, 26))},
+        {2016, mds(2016, md(1, 1), md(3, 21), md(3, 25), md(3, 28), md(4, 27), md(5, 2),
+            md(6, 16), md(8, 3), md(8, 9), md(9, 24), md(12, 16), md(12, 26), md(12, 27))},
+        {2017, mds(2017, md(1, 1), md(1, 2), md(3, 21), md(4, 14), md(4, 17), md(4, 27), md(5, 1),
+            md(6, 16), md(8, 9), md(9, 25), md(12, 16), md(12, 16), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "zajo")
+  public void test_zajo(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(ZAJO.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
     }
   }

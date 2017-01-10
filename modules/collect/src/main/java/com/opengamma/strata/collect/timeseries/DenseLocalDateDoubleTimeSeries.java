@@ -53,8 +53,8 @@ import com.opengamma.strata.collect.function.ObjDoublePredicate;
  * <p>
  * This implementation uses arrays internally.
  */
-@BeanDefinition(builderScope = "private")
-class DenseLocalDateDoubleTimeSeries
+@BeanDefinition(builderScope = "private", metaScope = "package")
+final class DenseLocalDateDoubleTimeSeries
     implements ImmutableBean, LocalDateDoubleTimeSeries, Serializable {
 
   /**
@@ -291,8 +291,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToObj(this::calculateDateFromPosition)
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest date, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest date, time-series is empty"));
   }
 
   @Override
@@ -300,8 +299,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToDouble(i -> points[i])
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest value, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest value, time-series is empty"));
   }
 
   //-------------------------------------------------------------------------
@@ -444,8 +442,7 @@ class DenseLocalDateDoubleTimeSeries
 
   @Override
   public void forEach(ObjDoubleConsumer<LocalDate> action) {
-    validIndices().forEach(i ->
-        action.accept(calculateDateFromPosition(i), points[i]));
+    validIndices().forEach(i -> action.accept(calculateDateFromPosition(i), points[i]));
   }
 
   @Override
@@ -568,26 +565,18 @@ class DenseLocalDateDoubleTimeSeries
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("DenseLocalDateDoubleTimeSeries{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("points").append('=').append(points).append(',').append(' ');
+    buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(dateCalculation));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
-    buf.append("points").append('=').append(JodaBeanUtils.toString(points)).append(',').append(' ');
-    buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(dateCalculation)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DenseLocalDateDoubleTimeSeries}.
    */
-  public static class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -620,7 +609,7 @@ class DenseLocalDateDoubleTimeSeries
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -656,7 +645,7 @@ class DenseLocalDateDoubleTimeSeries
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> startDate() {
+    public MetaProperty<LocalDate> startDate() {
       return startDate;
     }
 
@@ -664,7 +653,7 @@ class DenseLocalDateDoubleTimeSeries
      * The meta-property for the {@code points} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<double[]> points() {
+    public MetaProperty<double[]> points() {
       return points;
     }
 
@@ -672,7 +661,7 @@ class DenseLocalDateDoubleTimeSeries
      * The meta-property for the {@code dateCalculation} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DenseTimeSeriesCalculation> dateCalculation() {
+    public MetaProperty<DenseTimeSeriesCalculation> dateCalculation() {
       return dateCalculation;
     }
 
@@ -705,7 +694,7 @@ class DenseLocalDateDoubleTimeSeries
   /**
    * The bean-builder for {@code DenseLocalDateDoubleTimeSeries}.
    */
-  private static class Builder extends DirectFieldsBeanBuilder<DenseLocalDateDoubleTimeSeries> {
+  private static final class Builder extends DirectFieldsBeanBuilder<DenseLocalDateDoubleTimeSeries> {
 
     private LocalDate startDate;
     private double[] points;
@@ -714,7 +703,7 @@ class DenseLocalDateDoubleTimeSeries
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -787,19 +776,11 @@ class DenseLocalDateDoubleTimeSeries
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("DenseLocalDateDoubleTimeSeries.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("points").append('=').append(JodaBeanUtils.toString(points)).append(',').append(' ');
-      buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(dateCalculation)).append(',').append(' ');
+      buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(dateCalculation));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

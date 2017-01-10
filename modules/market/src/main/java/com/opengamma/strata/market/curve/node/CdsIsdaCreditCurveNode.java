@@ -187,6 +187,7 @@ public final class CdsIsdaCreditCurveNode
   }
 
   //-------------------------------------------------------------------------
+  @Override
   public LocalDate date(LocalDate tradeDate, ReferenceData refData) {
     CdsTrade trade = template.createTrade(legalEntityId, tradeDate, BuySell.BUY, 1, 1, refData);
     return trade.getProduct().resolve(refData).getProtectionEndDate();

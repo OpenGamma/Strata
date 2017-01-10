@@ -7,6 +7,7 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
+import com.google.common.io.CharStreams;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
 
@@ -61,7 +63,7 @@ public final class CsvFile {
 
   //------------------------------------------------------------------------
   /**
-   * Parses the specified source as a CSV file.
+   * Parses the specified source as a CSV file, using a comma as the separator.
    * 
    * @param source  the CSV file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
@@ -82,13 +84,61 @@ public final class CsvFile {
    * @param source  the file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
-   * @return the TSV file
+   * @return the CSV file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
   public static CsvFile of(CharSource source, boolean headerRow, char separator) {
     ArgChecker.notNull(source, "source");
-    ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
+    List<String> lines = Unchecked.wrap(() -> source.readLines());
+    return create(lines, headerRow, separator);
+  }
+
+  /**
+   * Parses the specified reader as a CSV file, using a comma as the separator.
+   * <p>
+   * This factory method takes a {@link Reader}.
+   * Callers are encouraged to use {@link CharSource} instead of {@code Reader}
+   * as it allows the resource to be safely managed.
+   * <p>
+   * This factory method allows the separator to be controlled.
+   * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * 
+   * @param reader  the file resource
+   * @param headerRow  whether the source has a header row, an empty source must still contain the header
+   * @return the CSV file
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public static CsvFile of(Reader reader, boolean headerRow) {
+    return of(reader, headerRow, ',');
+  }
+
+  /**
+   * Parses the specified reader as a CSV file where the separator is specified and might not be a comma.
+   * <p>
+   * This factory method takes a {@link Reader}.
+   * Callers are encouraged to use {@link CharSource} instead of {@code Reader}
+   * as it allows the resource to be safely managed.
+   * <p>
+   * This factory method allows the separator to be controlled.
+   * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * 
+   * @param reader  the file resource
+   * @param headerRow  whether the source has a header row, an empty source must still contain the header
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   * @return the CSV file
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public static CsvFile of(Reader reader, boolean headerRow, char separator) {
+    ArgChecker.notNull(reader, "source");
+    List<String> lines = Unchecked.wrap(() -> CharStreams.readLines(reader));
+    return create(lines, headerRow, separator);
+  }
+
+  // creates the file
+  private static CsvFile create(List<String> lines, boolean headerRow, char separator) {
     ArrayList<ImmutableList<String>> parsedCsv = parseAll(lines, separator);
     if (!headerRow) {
       return new CsvFile(ImmutableList.of(), ImmutableMap.of(), ImmutableList.copyOf(parsedCsv));
@@ -128,7 +178,7 @@ public final class CsvFile {
 
   //------------------------------------------------------------------------
   // parses the CSV file format
-  private static ArrayList<ImmutableList<String>> parseAll(ImmutableList<String> lines, char separator) {
+  private static ArrayList<ImmutableList<String>> parseAll(List<String> lines, char separator) {
     ArrayList<ImmutableList<String>> parsedLines = new ArrayList<>();
     for (String line : lines) {
       ImmutableList<String> parsed = parseLine(line, separator);

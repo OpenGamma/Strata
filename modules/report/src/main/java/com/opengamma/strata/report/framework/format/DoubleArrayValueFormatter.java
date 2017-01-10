@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * Formats primitive double arrays.
  */
-class DoubleArrayValueFormatter
+final class DoubleArrayValueFormatter
     implements ValueFormatter<double[]> {
 
   /**

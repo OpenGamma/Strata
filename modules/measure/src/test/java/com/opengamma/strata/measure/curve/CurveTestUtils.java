@@ -66,11 +66,11 @@ final class CurveTestUtils {
     String fra12x15 = "fra12x15";
     String fra18x21 = "fra18x21";
 
-    FraCurveNode fra1x4Node   = fraNode(1, fra1x4);
-    FraCurveNode fra2x5Node   = fraNode(2, fra2x5);
-    FraCurveNode fra3x6Node   = fraNode(3, fra3x6);
-    FraCurveNode fra6x9Node   = fraNode(6, fra6x9);
-    FraCurveNode fra9x12Node  = fraNode(9, fra9x12);
+    FraCurveNode fra1x4Node = fraNode(1, fra1x4);
+    FraCurveNode fra2x5Node = fraNode(2, fra2x5);
+    FraCurveNode fra3x6Node = fraNode(3, fra3x6);
+    FraCurveNode fra6x9Node = fraNode(6, fra6x9);
+    FraCurveNode fra9x12Node = fraNode(9, fra9x12);
     FraCurveNode fra12x15Node = fraNode(12, fra12x15);
     FraCurveNode fra18x21Node = fraNode(18, fra18x21);
 
@@ -119,14 +119,13 @@ final class CurveTestUtils {
         .build();
   }
 
-
   static FraCurveNode fraNode(int startMonths, String id) {
     Period periodToStart = Period.ofMonths(startMonths);
     QuoteId quoteId = QuoteId.of(StandardId.of(TEST_SCHEME, id));
     return FraCurveNode.of(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteId);
   }
 
-   static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
+  static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
     QuoteId quoteId = QuoteId.of(StandardId.of(TEST_SCHEME, id));
     FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Period.ZERO, tenor, SWAP_CONVENTION);
     return FixedIborSwapCurveNode.of(template, quoteId);

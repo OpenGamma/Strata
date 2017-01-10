@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
@@ -60,7 +62,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultLookupRatesProvider
-    implements RatesProvider, ImmutableBean {
+    implements RatesProvider, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -75,7 +77,7 @@ final class DefaultLookupRatesProvider
   /**
    * The FX rate provider.
    */
-  private final FxRateProvider fxRateProvider;  // derived
+  private final transient FxRateProvider fxRateProvider;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -97,6 +99,11 @@ final class DefaultLookupRatesProvider
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.fxRateProvider = lookup.fxRateProvider(marketData);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultLookupRatesProvider(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -166,7 +173,7 @@ final class DefaultLookupRatesProvider
   public DiscountFactors discountFactors(Currency currency) {
     CurveId curveId = lookup.getDiscountCurves().get(currency);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgCurrencyNotFound(currency));
+      throw new MarketDataNotFoundException(lookup.msgCurrencyNotFound(currency));
     }
     Curve curve = marketData.getValue(curveId);
     return DiscountFactors.of(currency, getValuationDate(), curve);
@@ -193,7 +200,7 @@ final class DefaultLookupRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
     Curve curve = marketData.getValue(curveId);
     return IborIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
@@ -204,7 +211,7 @@ final class DefaultLookupRatesProvider
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
     Curve curve = marketData.getValue(curveId);
     return OvernightIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
@@ -215,7 +222,7 @@ final class DefaultLookupRatesProvider
   public PriceIndexValues priceIndexValues(PriceIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
     Curve curve = marketData.getValue(curveId);
     return PriceIndexValues.of(index, getValuationDate(), curve, timeSeries(index));
@@ -275,6 +282,11 @@ final class DefaultLookupRatesProvider
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

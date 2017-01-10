@@ -93,7 +93,6 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    */
   public abstract FunctionRequirements requirements(StandardId legalEntityId, Currency currency);
 
-
   //-------------------------------------------------------------------------
   /**
    * Obtains a filtered view of the complete set of market data.

@@ -68,7 +68,8 @@ public class IborCapFloorDataSet {
       PutCall putCall,
       PayReceive payRec) {
 
-    IborCapFloorLeg leg = createCapFloorLegUnresolved(index, startDate, endDate, strikeSchedule, notionalSchedule, putCall, payRec);
+    IborCapFloorLeg leg =
+        createCapFloorLegUnresolved(index, startDate, endDate, strikeSchedule, notionalSchedule, putCall, payRec);
     return leg.resolve(REF_DATA);
   }
 

@@ -102,7 +102,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
       double level, 
       DoubleArray sample, 
       boolean isExtrapolated,
-      boolean isEs){
+      boolean isEs) {
     int nbData = sample.size();
     double[] w = weights(nbData);
     /* Sorting data and keeping weight information. The arrays are modified */
@@ -122,7 +122,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
       index--;
       runningWeight += w[index];
     }
-    if(isEs){
+    if (isEs) {
       return esFromIndexRunningWeight(index, runningWeight, s2, w, order, level);
     }
     return quantileFromIndexRunningWeight(index, runningWeight, isExtrapolated, s2, w, order, level);
@@ -146,7 +146,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
       double[] s,
       double[] w,
       double[] order,
-      double level){    
+      double level) {
     int nbData = s.length;
     if ((index == nbData - 1) || (index == nbData)) {
       ArgChecker.isTrue(isExtrapolated, "Quantile can not be computed above the highest probability level.");
@@ -220,8 +220,8 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
    * @param size  the sample size
    * @return the weights
    */
-  public double[] weights(int size){
-    double w1 = (1.0 - 1.0D/lambda) / (1.0d - Math.pow(lambda, -size));
+  public double[] weights(int size) {
+    double w1 = (1.0 - 1.0D / lambda) / (1.0d - Math.pow(lambda, -size));
     double[] w = new double[size];
     for (int i = 0; i < size; i++) {
       w[i] = w1 / Math.pow(lambda, i);

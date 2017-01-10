@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.rate;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
@@ -27,7 +28,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  */
 @BeanDefinition(style = "light")
 final class DefaultRatesScenarioMarketData
-    implements RatesScenarioMarketData, ImmutableBean {
+    implements RatesScenarioMarketData, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -42,7 +43,7 @@ final class DefaultRatesScenarioMarketData
   /**
    * The cache of single scenario instances.
    */
-  private final AtomicReferenceArray<RatesMarketData> cache;  // derived
+  private final transient AtomicReferenceArray<RatesMarketData> cache;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -64,6 +65,11 @@ final class DefaultRatesScenarioMarketData
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultRatesScenarioMarketData(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -107,6 +113,11 @@ final class DefaultRatesScenarioMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

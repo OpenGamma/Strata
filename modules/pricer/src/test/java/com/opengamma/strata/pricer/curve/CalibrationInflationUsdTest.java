@@ -97,7 +97,7 @@ public class CalibrationInflationUsdTest {
   /** Curves associations to currencies and indices. */
   private static final Map<CurveName, Currency> DSC_NAMES = new HashMap<>();
   private static final Map<CurveName, Set<Index>> IDX_NAMES = new HashMap<>();
-  private static final LocalDateDoubleTimeSeries TS_USD_CPI = 
+  private static final LocalDateDoubleTimeSeries TS_USD_CPI =
       LocalDateDoubleTimeSeries.builder().put(LocalDate.of(2015, 6, 30), 123.4).build();
   static {
     DSC_NAMES.put(DSCON_CURVE_NAME, USD);
@@ -112,33 +112,33 @@ public class CalibrationInflationUsdTest {
   /** Data for USD-DSCON curve */
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
-    0.0005, 0.0005,
-    0.00072000, 0.00082000, 0.00093000, 0.00090000, 0.00105000,
-    0.00118500, 0.00318650, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
-    0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500 };
+      0.0005, 0.0005,
+      0.00072000, 0.00082000, 0.00093000, 0.00090000, 0.00105000,
+      0.00118500, 0.00318650, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
+      0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500};
   private static final int DSC_NB_NODES = DSC_MARKET_QUOTES.length;
   private static final String[] DSC_ID_VALUE = new String[] {
-    "USD-ON", "USD-TN",
-    "USD-OIS-1M", "USD-OIS-2M", "USD-OIS-3M", "USD-OIS-6M", "USD-OIS-9M",
-    "USD-OIS-1Y", "USD-OIS-18M", "USD-OIS-2Y", "USD-OIS-3Y", "USD-OIS-4Y", "USD-OIS-5Y",
-    "USD-OIS-6Y", "USD-OIS-7Y", "USD-OIS-8Y", "USD-OIS-9Y", "USD-OIS-10Y" };
+      "USD-ON", "USD-TN",
+      "USD-OIS-1M", "USD-OIS-2M", "USD-OIS-3M", "USD-OIS-6M", "USD-OIS-9M",
+      "USD-OIS-1Y", "USD-OIS-18M", "USD-OIS-2Y", "USD-OIS-3Y", "USD-OIS-4Y", "USD-OIS-5Y",
+      "USD-OIS-6Y", "USD-OIS-7Y", "USD-OIS-8Y", "USD-OIS-9Y", "USD-OIS-10Y"};
   /* Nodes */
   private static final CurveNode[] DSC_NODES = new CurveNode[DSC_NB_NODES];
   /* Tenors */
   private static final int[] DSC_DEPO_OFFSET = new int[] {0, 1};
-  private static final int DSC_NB_DEPO_NODES = DSC_DEPO_OFFSET.length;  
+  private static final int DSC_NB_DEPO_NODES = DSC_DEPO_OFFSET.length;
   private static final Period[] DSC_OIS_TENORS = new Period[] {
       Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofMonths(18), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
       Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10)};
   private static final int DSC_NB_OIS_NODES = DSC_OIS_TENORS.length;
   static {
-    for(int i = 0; i < DSC_NB_DEPO_NODES; i++) {
+    for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
-      TermDepositConvention convention = 
+      TermDepositConvention convention =
           ImmutableTermDepositConvention.of(
               "USD-Dep", USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
-      DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention), 
+      DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention),
           QuoteId.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
     }
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
@@ -182,7 +182,6 @@ public class CalibrationInflationUsdTest {
     }
     builder.addTimeSeries(IndexQuoteId.of(US_CPI_U), TS_USD_CPI);
     ALL_QUOTES = builder.build();
-    
   }
 
   /** All nodes by groups. */
@@ -217,7 +216,7 @@ public class CalibrationInflationUsdTest {
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
           .extrapolatorRight(EXTRAPOLATOR_FLAT)
           .nodes(DSC_NODES).build();
-  private static final InterpolatedNodalCurveDefinition CPI_CURVE_DEFN =
+  private static final InterpolatedNodalCurveDefinition CPI_CURVE_UNDER_DEFN =
       InterpolatedNodalCurveDefinition.builder()
           .name(CPI_CURVE_NAME)
           .xValueType(ValueType.MONTHS)
@@ -231,7 +230,7 @@ public class CalibrationInflationUsdTest {
       CurveGroupDefinition.builder()
           .name(CURVE_GROUP_NAME)
           .addCurve(DSC_CURVE_DEFN, USD, USD_FED_FUND)
-          .addForwardCurve(CPI_CURVE_DEFN, US_CPI_U).build();
+          .addForwardCurve(CPI_CURVE_UNDER_DEFN, US_CPI_U).build();
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {

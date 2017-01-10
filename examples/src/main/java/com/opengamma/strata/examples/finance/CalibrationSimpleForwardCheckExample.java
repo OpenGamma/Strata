@@ -120,14 +120,14 @@ public class CalibrationSimpleForwardCheckExample {
     // optionally test performance
     if (args.length > 0) {
       if (args[0].equals("-p")) {
-        performance_calibration_pricing();
+        performanceCalibrationPricing();
       }
     }
     System.out.println("Checked PV for all instruments used in the calibration set are near to zero");
   }
 
   // Example of performance: loading data from file, calibration and PV
-  private static void performance_calibration_pricing() {
+  private static void performanceCalibrationPricing() {
     int nbTests = 10;
     int nbRep = 3;
     int count = 0;
@@ -139,8 +139,8 @@ public class CalibrationSimpleForwardCheckExample {
         count += r.getColumnCount() + r.getRowCount();
       }
       long endTime = System.currentTimeMillis();
-      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in "
-          + (endTime - startTime) + " ms");
+      System.out.println("Performance: " + nbTests + " config load + curve calibrations + pv check (1 thread) in " +
+          (endTime - startTime) + " ms");
       // Previous run: 400 ms for 10 cycles
     }
     if (count == 0) {
@@ -189,7 +189,6 @@ public class CalibrationSimpleForwardCheckExample {
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
         .add(CURVE_GROUP_NAME, curveGroupDefinition)
         .build();
-
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();

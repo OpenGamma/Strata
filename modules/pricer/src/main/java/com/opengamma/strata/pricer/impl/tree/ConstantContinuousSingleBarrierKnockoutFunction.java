@@ -59,7 +59,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
    * The number of time steps.
    */
   @PropertyDefinition(overrideGet = true)
-  final int numberOfSteps;
+  private final int numberOfSteps;
 
   /**
    * The barrier type.

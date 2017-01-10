@@ -146,7 +146,7 @@ public interface MarketData {
    * @return the set of observable identifiers
    */
   public abstract Set<ObservableId> getTimeSeriesIds();
-  
+
   /**
    * Gets the time-series identified by the specified identifier, empty if not found.
    *
@@ -162,6 +162,8 @@ public interface MarketData {
    * The result combines both sets of market data.
    * Values are taken from this set of market data if available, otherwise they are taken
    * from the other set.
+   * <p>
+   * The valuation dates of the sets of market data must be the same.
    *
    * @param other  the other market data
    * @return the combined market data

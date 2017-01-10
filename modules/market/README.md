@@ -8,7 +8,8 @@ This module provides a domain model for market data used by Strata:
 
 * curves
 * surfaces
-* keys and IDs
+* interpolators
+* identifiers
 * sensitivity
 * amounts
 

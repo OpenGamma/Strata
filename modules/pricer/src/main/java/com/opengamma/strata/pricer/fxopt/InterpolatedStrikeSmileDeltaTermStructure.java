@@ -107,11 +107,11 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
    * This set must be consistent with the expiry values in {@code volatilityTerm},
    * thus can be derived if {@code volatilityTerm} is the primary input.
    */
-  private transient final DoubleArray expiries;  // derived
+  private final transient DoubleArray expiries;  // derived
   /**
    * The parameter combiner.
    */
-  private transient final ParameterizedDataCombiner paramCombiner;  // not a property
+  private final transient ParameterizedDataCombiner paramCombiner;  // not a property
 
   //-------------------------------------------------------------------------
   /**

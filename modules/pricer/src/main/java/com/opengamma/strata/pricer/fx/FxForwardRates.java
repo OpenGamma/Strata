@@ -52,10 +52,10 @@ public interface FxForwardRates
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the forward rate at the specified fixing date.
+   * Gets the forward rate at the specified payment date.
    * <p>
    * The exchange rate of the currency pair varies over time.
-   * This method obtains the estimated rate for the fixing date.
+   * This method obtains the estimated rate for the payment date.
    * <p>
    * This method specifies which of the two currencies in the currency pair is to be treated
    * as the base currency for the purposes of the returned rate.
@@ -76,7 +76,7 @@ public interface FxForwardRates
   public abstract double rate(Currency baseCurrency, LocalDate referenceDate);
 
   /**
-   * Calculates the point sensitivity of the forward rate at the specified fixing date.
+   * Calculates the point sensitivity of the forward rate at the specified payment date.
    * <p>
    * This returns a sensitivity instance referring to the points that were queried in the market data.
    * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.
@@ -89,14 +89,14 @@ public interface FxForwardRates
   public abstract PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate referenceDate);
 
   /**
-   * Calculates the sensitivity of the forward rate to the spot FX rate.
+   * Calculates the sensitivity of the forward rate to the current FX rate.
    * <p>
-   * This returns the sensitivity to the FX spot rate used to determine the forward rate.
+   * This returns the sensitivity to the current FX rate that was used to determine the FX forward rate.
    * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.
    * 
    * @param baseCurrency  the base currency that the rate should be expressed against
    * @param referenceDate  the date to find the sensitivity for
-   * @return the spot sensitivity of the rate
+   * @return the sensitivity of the FX forward rate to the current FX rate
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double rateFxSpotSensitivity(Currency baseCurrency, LocalDate referenceDate);

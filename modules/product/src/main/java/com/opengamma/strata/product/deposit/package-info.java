@@ -8,4 +8,3 @@
  * Entity objects describing financial instruments representing a simple deposit with interest.
  */
 package com.opengamma.strata.product.deposit;
-

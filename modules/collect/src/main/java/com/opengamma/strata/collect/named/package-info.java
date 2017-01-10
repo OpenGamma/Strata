@@ -10,4 +10,3 @@
  * This package contains support for named data structures.
  */
 package com.opengamma.strata.collect.named;
-

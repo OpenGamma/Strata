@@ -53,6 +53,23 @@ public enum ShiftType {
     public ValueAdjustment toValueAdjustment(double shiftAmount) {
       return ValueAdjustment.ofDeltaAmount(shiftAmount);
     }
+  },
+
+  /**
+   * A scaled shift where the value is multiplied by the shift.
+   * <p>
+   * {@code shiftedValue = (value * shiftAmount)}
+   */
+  SCALED {
+    @Override
+    public double applyShift(double value, double shiftAmount) {
+      return value * shiftAmount;
+    }
+
+    @Override
+    public ValueAdjustment toValueAdjustment(double shiftAmount) {
+      return ValueAdjustment.ofMultiplier(shiftAmount);
+    }
   };
 
   //-------------------------------------------------------------------------

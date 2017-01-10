@@ -108,19 +108,6 @@ public final class FxIndexSensitivity
   }
 
   //-------------------------------------------------------------------------
-//  /**
-//   * Gets the currency counter to the reference currency.
-//   * <p>
-//   * The index contains two currencies. One is the reference currency.
-//   * This method returns the other.
-//   * 
-//   * @return the counter currency
-//   */
-//  public Currency getReferenceCounterCurrency() {
-//    boolean inverse = referenceCurrency.equals(index.getCurrencyPair().getBase());
-//    return inverse ? index.getCurrencyPair().getCounter() : index.getCurrencyPair().getBase();
-//  }
-
   /**
    * Converts this sensitivity to an {@code FxForwardSensitivity}.
    * <p>

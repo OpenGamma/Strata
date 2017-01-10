@@ -10,4 +10,3 @@
  * Code in this package and subpackages may change in a non-backwards compatible way.
  */
 package com.opengamma.strata.pricer.impl.option;
-

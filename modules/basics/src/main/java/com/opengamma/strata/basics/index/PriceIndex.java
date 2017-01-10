@@ -92,6 +92,13 @@ public interface PriceIndex
    */
   public abstract Frequency getPublicationFrequency();
 
+  /**
+   * Gets the floating rate name for this index.
+   * 
+   * @return the floating rate name
+   */
+  public abstract FloatingRateName getFloatingRateName();
+
   //-------------------------------------------------------------------------
   /**
    * Gets the name that uniquely identifies this index.

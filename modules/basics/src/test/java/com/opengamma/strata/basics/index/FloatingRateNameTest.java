@@ -13,12 +13,15 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
@@ -57,8 +60,8 @@ public class FloatingRateNameTest {
         {"USD-FED-FUND", "USD-FED-FUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"USD-Federal Funds-H.15-OIS-COMPOUND", "USD-FED-FUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
 
-        {"USD-FED-FUND-AVG", "USD-FED-FUND", FloatingRateType.OVERNIGHT_AVERAGED},
-        {"USD-Federal Funds-H.15", "USD-FED-FUND", FloatingRateType.OVERNIGHT_AVERAGED},
+        {"USD-FED-FUND-AVG", "USD-FED-FUND-AVG", FloatingRateType.OVERNIGHT_AVERAGED},
+        {"USD-Federal Funds-H.15", "USD-FED-FUND-AVG", FloatingRateType.OVERNIGHT_AVERAGED},
 
         {"GB-HICP", "GB-HICP", FloatingRateType.PRICE},
         {"UK-HICP", "GB-HICP", FloatingRateType.PRICE},
@@ -109,17 +112,42 @@ public class FloatingRateNameTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_defaultIborIndex() {
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.GBP), FloatingRateName.of("GBP-LIBOR"));
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.EUR), FloatingRateName.of("EUR-EURIBOR"));
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.USD), FloatingRateName.of("USD-LIBOR"));
+  }
+
+  public void test_defaultOvernightIndex() {
+    assertEquals(FloatingRateName.defaultOvernightIndex(Currency.GBP), FloatingRateName.of("GBP-SONIA"));
+    assertEquals(FloatingRateName.defaultOvernightIndex(Currency.EUR), FloatingRateName.of("EUR-EONIA"));
+    assertEquals(FloatingRateName.defaultOvernightIndex(Currency.USD), FloatingRateName.of("USD-FED-FUND"));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_normalized() {
+    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").normalized(), FloatingRateName.of("GBP-LIBOR"));
+    assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").normalized(), FloatingRateName.of("GBP-SONIA"));
+    for (FloatingRateName name : FloatingRateName.extendedEnum().lookupAll().values()) {
+      assertNotNull(name.normalized());
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toIborIndex_tenor() {
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_6M), IborIndices.GBP_LIBOR_6M);
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_12M), IborIndices.GBP_LIBOR_12M);
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_1Y), IborIndices.GBP_LIBOR_12M);
     assertThrows(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndex(Tenor.TENOR_6M), IllegalStateException.class);
-    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").getTenors(), ImmutableSet.of(
-        Tenor.TENOR_1W, Tenor.TENOR_1M, Tenor.TENOR_2M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_12M));
+    assertEquals(
+        ImmutableList.copyOf(FloatingRateName.of("GBP-LIBOR-BBA").getTenors()),
+        ImmutableList.of(Tenor.TENOR_1W, Tenor.TENOR_1M, Tenor.TENOR_2M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_12M));
   }
 
   public void test_toOvernightIndex() {
     assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toOvernightIndex(), OvernightIndices.GBP_SONIA);
+    assertEquals(FloatingRateNames.USD_FED_FUND.toOvernightIndex(), OvernightIndices.USD_FED_FUND);
+    assertEquals(FloatingRateNames.USD_FED_FUND_AVG.toOvernightIndex(), OvernightIndices.USD_FED_FUND);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toOvernightIndex(), IllegalStateException.class);
     assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").getTenors(), ImmutableSet.of());
   }

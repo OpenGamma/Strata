@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -81,8 +82,6 @@ public final class FxVanillaOption
    * The underlying foreign exchange transaction.
    * <p>
    * At expiry, if the option is in the money, this foreign exchange will occur.
-   * A call option permits the transaction as specified to occur.
-   * A put option permits the inverse transaction to occur.
    */
   @PropertyDefinition(validate = "notNull")
   private final FxSingle underlying;
@@ -94,6 +93,17 @@ public final class FxVanillaOption
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets currency pair of the base currency and counter currency.
+   * <p>
+   * This currency pair is conventional, thus indifferent to the direction of FX.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return underlying.getCurrencyPair();
+  }
+
   /**
    * Gets the expiry date-time.
    * <p>
@@ -228,8 +238,6 @@ public final class FxVanillaOption
    * Gets the underlying foreign exchange transaction.
    * <p>
    * At expiry, if the option is in the money, this foreign exchange will occur.
-   * A call option permits the transaction as specified to occur.
-   * A put option permits the inverse transaction to occur.
    * @return the value of the property, not null
    */
   public FxSingle getUnderlying() {
@@ -604,8 +612,6 @@ public final class FxVanillaOption
      * Sets the underlying foreign exchange transaction.
      * <p>
      * At expiry, if the option is in the money, this foreign exchange will occur.
-     * A call option permits the transaction as specified to occur.
-     * A put option permits the inverse transaction to occur.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */

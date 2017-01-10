@@ -103,8 +103,8 @@ public class SabrSwaptionCashParYieldProductPricer
         ratesProvider.discountFactors(fixedLeg.getCurrency()).zeroRatePointSensitivity(settlementDate);
     double sign = swaption.getLongShort().sign();
     return forwardSensi.multipliedBy(
-        sign * discountSettle * (annuityCash * (delta + vega * volatilityAdj.getDerivative(0))
-            + annuityCashDr * price)).combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
+        sign * discountSettle * (annuityCash * (delta + vega * volatilityAdj.getDerivative(0)) + annuityCashDr * price))
+        .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
   }
 
   //-------------------------------------------------------------------------

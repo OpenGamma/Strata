@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -33,8 +32,9 @@ public class IniFileTest {
   private final String INI1 = "" +
       "# comment\n" +
       "[section]\n" +
-      "a = x\n" +
+      "c = x\n" +
       "b = y\n" +
+      "a = z\n" +
       "\n" +
       "; comment\n" +
       "[name]\n" +
@@ -51,27 +51,27 @@ public class IniFileTest {
 
   public void test_of_noLists() {
     IniFile test = IniFile.of(CharSource.wrap(INI1));
-    Multimap<String, String> keyValues1 = ArrayListMultimap.create();
-    keyValues1.put("a", "x");
-    keyValues1.put("b", "y");
-    Multimap<String, String> keyValues2 = ArrayListMultimap.create();
-    keyValues2.put("a", "m");
-    keyValues2.put("b", "n");
+    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("c", "x", "b", "y", "a", "z");
+    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("a", "m", "b", "n");
     assertEquals(
         test.asMap(),
         ImmutableMap.of("section", PropertySet.of(keyValues1), "name", PropertySet.of(keyValues2)));
 
     assertEquals(test.contains("section"), true);
     assertEquals(test.section("section"), PropertySet.of(keyValues1));
-    assertEquals(test.section("section").contains("a"), true);
-    assertEquals(test.section("section").value("a"), "x");
-    assertEquals(test.section("section").valueList("a"), ImmutableList.of("x"));
+    assertEquals(test.section("section").contains("c"), true);
+    assertEquals(test.section("section").value("c"), "x");
+    assertEquals(test.section("section").valueList("c"), ImmutableList.of("x"));
     assertEquals(test.section("section").contains("b"), true);
     assertEquals(test.section("section").value("b"), "y");
     assertEquals(test.section("section").valueList("b"), ImmutableList.of("y"));
-    assertEquals(test.section("section").contains("c"), false);
-    assertEquals(test.section("section").keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.section("section").contains("a"), true);
+    assertEquals(test.section("section").value("a"), "z");
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of("z"));
+    assertEquals(test.section("section").contains("d"), false);
+    // order must be retained
+    assertEquals(ImmutableList.copyOf(test.section("section").keys()), ImmutableList.of("c", "b", "a"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("c", "x", "b", "y", "a", "z"));
 
     assertEquals(test.contains("name"), true);
     assertEquals(test.section("name"), PropertySet.of(keyValues2));
@@ -82,21 +82,19 @@ public class IniFileTest {
     assertEquals(test.section("name").value("b"), "n");
     assertEquals(test.section("name").valueList("b"), ImmutableList.of("n"));
     assertEquals(test.section("name").contains("c"), false);
-    assertEquals(test.section("name").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(ImmutableList.copyOf(test.section("name").keys()), ImmutableList.of("a", "b"));
     assertEquals(test.section("name").asMultimap(), ImmutableListMultimap.of("a", "m", "b", "n"));
 
     assertEquals(test.contains("unknown"), false);
     assertThrowsIllegalArg(() -> test.section("unknown"));
     assertEquals(test.section("section").valueList("unknown"), ImmutableList.of());
     assertThrowsIllegalArg(() -> test.section("section").value("unknown"));
-    assertEquals(test.toString(), "{section={a=[x], b=[y]}, name={a=[m], b=[n]}}");
+    assertEquals(test.toString(), "{section={c=[x], b=[y], a=[z]}, name={a=[m], b=[n]}}");
   }
 
   public void test_of_list() {
     IniFile test = IniFile.of(CharSource.wrap(INI3));
-    Multimap<String, String> keyValues1 = ArrayListMultimap.create();
-    keyValues1.put("a", "x");
-    keyValues1.put("a", "y");
+    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "x", "a", "y");
     assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
 
     assertEquals(test.section("section"), PropertySet.of(keyValues1));
@@ -111,8 +109,7 @@ public class IniFileTest {
 
   public void test_of_propertyNoEquals() {
     IniFile test = IniFile.of(CharSource.wrap("[section]\na\n"));
-    Multimap<String, String> keyValues1 = ArrayListMultimap.create();
-    keyValues1.put("a", "");
+    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "");
     assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
 
     assertEquals(test.section("section"), PropertySet.of(keyValues1));

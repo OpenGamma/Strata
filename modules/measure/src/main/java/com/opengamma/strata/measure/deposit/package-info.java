@@ -8,4 +8,3 @@
  * Calculation functions for deposit products.
  */
 package com.opengamma.strata.measure.deposit;
-

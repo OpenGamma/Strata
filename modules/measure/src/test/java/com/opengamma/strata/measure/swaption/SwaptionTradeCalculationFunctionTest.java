@@ -36,7 +36,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -130,7 +129,7 @@ public class SwaptionTradeCalculationFunctionTest {
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.RESOLVED_TARGET, Result.success(ScenarioArray.ofSingleValue(1, TRADE.resolve(REF_DATA))));
+            Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
   //-------------------------------------------------------------------------

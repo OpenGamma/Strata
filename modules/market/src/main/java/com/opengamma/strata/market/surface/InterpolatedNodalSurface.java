@@ -93,11 +93,11 @@ public final class InterpolatedNodalSurface
   /**
    * The bound interpolator.
    */
-  private transient final BoundSurfaceInterpolator boundInterpolator;  // derived and cached, not a property
+  private final transient BoundSurfaceInterpolator boundInterpolator;  // derived and cached, not a property
   /**
    * The parameter metadata.
    */
-  private transient final List<ParameterMetadata> parameterMetadata;  // derived, not a property
+  private final transient List<ParameterMetadata> parameterMetadata;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**

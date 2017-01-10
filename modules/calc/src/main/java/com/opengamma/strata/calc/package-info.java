@@ -15,4 +15,3 @@
  * It provides four "calculate" methods taking the trades, measures, market data and calculation rules.
  */
 package com.opengamma.strata.calc;
-

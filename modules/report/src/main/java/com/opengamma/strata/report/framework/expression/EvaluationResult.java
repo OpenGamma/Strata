@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.result.Result;
  * <p>
  * The result contains the result of the evaluation and the remaining tokens in the expression.
  */
-public class EvaluationResult {
+public final class EvaluationResult {
 
   /**
    * The result of evaluating the expression against the object.

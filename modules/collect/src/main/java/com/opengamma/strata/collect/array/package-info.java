@@ -10,4 +10,3 @@
  * Wrappers are provided for {@code double[]} and {@code double[][]}.
  */
 package com.opengamma.strata.collect.array;
-

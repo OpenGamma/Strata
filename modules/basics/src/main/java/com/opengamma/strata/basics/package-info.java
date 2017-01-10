@@ -13,4 +13,3 @@
  * which is keyed by {@link com.opengamma.strata.basics.ReferenceDataId ReferenceDataId}.
  */
 package com.opengamma.strata.basics;
-

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
@@ -254,7 +253,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     }
 
     ImmutableList<ParameterMetadata> parameterMetadata;
-    if (storeTrade){
+    if (storeTrade) {
       parameterMetadata = IntStream.range(0, nNodes)
           .mapToObj(n -> ResolvedTradeParameterMetadata.of(trades.get(n), curveNodes.get(n).getLabel()))
           .collect(Guavate.toImmutableList());

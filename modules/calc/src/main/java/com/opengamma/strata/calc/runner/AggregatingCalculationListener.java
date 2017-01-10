@@ -47,8 +47,19 @@ public abstract class AggregatingCalculationListener<T>
    *
    * @return a completion stage providing asynchronous notification when the aggregate result of the
    *   calculations is available
+   * @deprecated use {@link #getFuture()}
    */
+  @Deprecated
   public CompletionStage<T> completionStage() {
+    return future;
+  }
+
+  /**
+   * A future providing asynchronous notification when the results are available.
+   *
+   * @return a future providing asynchronous notification when the results are available
+   */
+  public CompletableFuture<T> getFuture() {
     return future;
   }
 

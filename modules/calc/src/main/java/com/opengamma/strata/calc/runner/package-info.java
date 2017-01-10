@@ -18,4 +18,3 @@
  * {@link com.opengamma.strata.calc.runner.CalculationParameter CalculationParameter}.
  */
 package com.opengamma.strata.calc.runner;
-

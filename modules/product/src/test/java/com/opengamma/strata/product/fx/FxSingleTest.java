@@ -121,7 +121,7 @@ public class FxSingleTest {
     assertEquals(test.getCounterCurrencyAmount().getAmount(), CurrencyAmount.zero(USD).getAmount(), 1e-12);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
     assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.of(USD, -0d));
+    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.of(USD, 0d));
   }
 
   public void test_of_rate_wrongCurrency() {

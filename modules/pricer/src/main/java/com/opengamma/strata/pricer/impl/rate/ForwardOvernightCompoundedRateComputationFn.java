@@ -84,7 +84,7 @@ public class ForwardOvernightCompoundedRateComputationFn
 
   //-------------------------------------------------------------------------
   // Internal class. Observation details stored in a separate class to clarify the construction.
-  private static class ObservationDetails {
+  private static final class ObservationDetails {
 
     private final OvernightCompoundedRateComputation computation;
     private final OvernightIndexRates rates;
@@ -253,8 +253,8 @@ public class ForwardOvernightCompoundedRateComputationFn
           compositionFactorAndSensitivityNonCutoff();
       ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff = compositionFactorAndSensitivityCutoff();
 
-      PointSensitivityBuilder combinedPointSensitivity = compositionFactorAndSensitivityNonCutoff.getFirst().
-          multipliedBy(compositionFactorAndSensitivityCutoff.getSecond() * factor);
+      PointSensitivityBuilder combinedPointSensitivity = compositionFactorAndSensitivityNonCutoff.getFirst()
+          .multipliedBy(compositionFactorAndSensitivityCutoff.getSecond() * factor);
       combinedPointSensitivity = combinedPointSensitivity.combinedWith(compositionFactorAndSensitivityCutoff
           .getFirst().multipliedBy(compositionFactorAndSensitivityNonCutoff.getSecond() * factor));
 
@@ -268,9 +268,8 @@ public class ForwardOvernightCompoundedRateComputationFn
         OvernightIndex index) {
 
       OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
-      return fixedRate.orElseThrow(() ->
-          new PricingException("Could not get fixing value of index " + index.getName() +
-              " for date " + currentFixingTs));
+      return fixedRate.orElseThrow(() -> new PricingException(
+          "Could not get fixing value of index " + index.getName() + " for date " + currentFixingTs));
     }
   }
 

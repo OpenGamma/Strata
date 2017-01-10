@@ -10,4 +10,3 @@
  * Defines the API for pricing financial instruments.
  */
 package com.opengamma.strata.pricer;
-

@@ -70,7 +70,7 @@ public final class SecurityPriceInfo
   /**
    * Multiplier to apply to the price.
    */
-  private final double tradeUnitValue;  // derived, not a property
+  private final transient double tradeUnitValue;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -137,6 +137,11 @@ public final class SecurityPriceInfo
     this.tickValue = tickValue;
     this.contractSize = contractSize;
     this.tradeUnitValue = (tickValue.getAmount() * contractSize) / tickSize;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SecurityPriceInfo(tickSize, tickValue, contractSize);
   }
 
   //-----------------------------------------------------------------------

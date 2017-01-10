@@ -8,4 +8,3 @@
  * Entity objects describing options in the foreign exchange market.
  */
 package com.opengamma.strata.product.fxopt;
-

@@ -34,6 +34,7 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -54,11 +55,6 @@ public final class ZeroRateDiscountFactors
     implements DiscountFactors, ImmutableBean, Serializable {
 
   /**
-   * Year fraction used as an effective zero.
-   */
-  private static final double EFFECTIVE_ZERO = 1e-10;
-
-  /**
    * The currency that the discount factors are for.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -77,7 +73,7 @@ public final class ZeroRateDiscountFactors
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -86,6 +82,7 @@ public final class ZeroRateDiscountFactors
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must contain {@linkplain ValueType#YEAR_FRACTION year fractions}
    * against {@linkplain ValueType#ZERO_RATE zero rates}, and the day count must be present.
+   * A suitable metadata instance for the curve can be created by {@link Curves#zeroRates(String, DayCount)}.
    * 
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid
@@ -116,6 +113,11 @@ public final class ZeroRateDiscountFactors
     this.valuationDate = valuationDate;
     this.curve = curve;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ZeroRateDiscountFactors(currency, valuationDate, curve);
   }
 
   //-------------------------------------------------------------------------
@@ -165,24 +167,10 @@ public final class ZeroRateDiscountFactors
   }
 
   @Override
-  public double discountFactorWithSpread(
-      double yearFraction,
-      double zSpread,
-      CompoundedRateType compoundedRateType,
-      int periodPerYear) {
-
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return 1d;
-    }
-    double df = discountFactor(yearFraction);
-    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
-      ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
-      double ratePeriodicAnnualPlusOne =
-          Math.pow(df, -1.0 / periodPerYear / yearFraction) + zSpread / periodPerYear;
-      return Math.pow(ratePeriodicAnnualPlusOne, -periodPerYear * yearFraction);
-    } else {
-      return df * Math.exp(-zSpread * yearFraction);
-    }
+  public double discountFactorTimeDerivative(double yearFraction) {
+    double zr = curve.yValue(yearFraction);    
+    return -Math.exp(-yearFraction * curve.yValue(yearFraction)) 
+        * (zr + curve.firstDerivative(yearFraction) * yearFraction);
   }
 
   @Override
@@ -195,29 +183,6 @@ public final class ZeroRateDiscountFactors
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     double discountFactor = discountFactor(yearFraction);
     return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
-  }
-
-  @Override
-  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
-      double yearFraction,
-      Currency sensitivityCurrency,
-      double zSpread,
-      CompoundedRateType compoundedRateType,
-      int periodPerYear) {
-
-    ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return sensi;
-    }
-    double factor;
-    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
-      double df = discountFactor(yearFraction);
-      double dfRoot = Math.pow(df, -1d / periodPerYear / yearFraction);
-      factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodPerYear, periodPerYear * yearFraction + 1d);
-    } else {
-      factor = Math.exp(-zSpread * yearFraction);
-    }
-    return sensi.multipliedBy(factor);
   }
 
   @Override

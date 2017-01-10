@@ -16,4 +16,3 @@
  * which is formed from one or more {@linkplain com.opengamma.strata.basics.schedule.SchedulePeriod periods}.
  */
 package com.opengamma.strata.basics.schedule;
-

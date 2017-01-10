@@ -10,4 +10,3 @@
  * The main parser is for FpML. See {@link com.opengamma.strata.loader.fpml.FpmlDocumentParser}.
  */
 package com.opengamma.strata.loader.fpml;
-

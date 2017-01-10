@@ -8,4 +8,3 @@
  * Additional calculation parameters.
  */
 package com.opengamma.strata.measure.calc;
-

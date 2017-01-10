@@ -30,6 +30,7 @@ import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 /**
  * Perform calculations on a single {@code CdsTrade} for each of a set of scenarios.
  * <p>
+ * An instance of {@link CreditRatesMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
@@ -39,8 +40,8 @@ import com.opengamma.strata.product.credit.ResolvedCdsTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain CreditMeasures#PRINCIPAL principal}
- *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED__PARALLEL IR01 calibrated parallel}
- *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED__BUCKETED IR01 calibrated bucketed}
+ *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED_PARALLEL IR01 calibrated parallel}
+ *   <li>{@linkplain CreditMeasures#IR01_CALIBRATED_BUCKETED IR01 calibrated bucketed}
  *   <li>{@linkplain CreditMeasures#IR01_MARKET_QUOTE_PARALLEL IR01 market quote parallel}
  *   <li>{@linkplain CreditMeasures#IR01_MARKET_QUOTE_BUCKETED IR01 market quote bucketed}
  *   <li>{@linkplain CreditMeasures#CS01_PARALLEL CS01 parallel}
@@ -48,9 +49,10 @@ import com.opengamma.strata.product.credit.ResolvedCdsTrade;
  *   <li>{@linkplain CreditMeasures#RECOVERY01 recovery01}
  *   <li>{@linkplain CreditMeasures#JUMP_TO_DEFAULT jump to default}
  *   <li>{@linkplain CreditMeasures#EXPECTED_LOSS expected loss}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
- * An instance of {@link CreditRatesMarketDataLookup} must be specified.
+ * The "natural" currency is the currency of the CDS, which is limited to be single-currency.
  */
 public class CdsTradeCalculationFunction
     implements CalculationFunction<CdsTrade> {
@@ -76,6 +78,7 @@ public class CdsTradeCalculationFunction
           .put(CreditMeasures.RECOVERY01, CdsMeasureCalculations.DEFAULT::recovery01)
           .put(CreditMeasures.JUMP_TO_DEFAULT, CdsMeasureCalculations.DEFAULT::jumpToDefault)
           .put(CreditMeasures.EXPECTED_LOSS, CdsMeasureCalculations.DEFAULT::expectedLoss)
+          .put(Measures.RESOLVED_TARGET, (rt, smd, rd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -119,6 +122,7 @@ public class CdsTradeCalculationFunction
     Cds product = trade.getProduct();
     StandardId legalEntityId = product.getLegalEntityId();
     Currency currency = product.getCurrency();
+
     // use lookup to build requirements
     CreditRatesMarketDataLookup lookup = parameters.getParameter(CreditRatesMarketDataLookup.class);
     return lookup.requirements(legalEntityId, currency);

@@ -53,6 +53,15 @@ public class VolatilityIborCapFloorProductPricer {
     this.payLegPricer = ArgChecker.notNull(payLegPricer, "payLegPricer");
   }
 
+  /**
+   * Gets the pay leg pricer.
+   * 
+   * @return the pay leg pricer
+   */
+  protected DiscountingSwapLegPricer getPayLegPricer() {
+    return payLegPricer;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the Ibor cap/floor product.

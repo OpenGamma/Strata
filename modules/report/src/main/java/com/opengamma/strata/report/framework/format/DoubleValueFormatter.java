@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Formatter for double amounts.
  */
-class DoubleValueFormatter
+final class DoubleValueFormatter
     implements ValueFormatter<Double> {
 
   /**

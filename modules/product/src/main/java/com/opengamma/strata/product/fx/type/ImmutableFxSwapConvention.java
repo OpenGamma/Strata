@@ -147,7 +147,8 @@ public final class ImmutableFxSwapConvention
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment != null ?
-        businessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, spotDateOffset.getCalendar());
+        businessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, spotDateOffset.getCalendar());
   }
 
   //-------------------------------------------------------------------------

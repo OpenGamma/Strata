@@ -101,7 +101,7 @@ public final class ResolvedSwapLeg
   /**
    * The currency of the leg.
    */
-  private final Currency currency;  // not a property, derived and cached from input data
+  private final transient Currency currency;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
@@ -123,6 +123,26 @@ public final class ResolvedSwapLeg
       throw new IllegalArgumentException("Swap leg must have a single currency, found: " + currencies);
     }
     this.currency = Iterables.getOnlyElement(currencies);
+  }
+
+  // trusted constructor
+  ResolvedSwapLeg(
+      SwapLegType type,
+      PayReceive payReceive,
+      List<? extends SwapPaymentPeriod> paymentPeriods,
+      List<? extends SwapPaymentEvent> paymentEvents,
+      Currency currency) {
+
+    this.type = type;
+    this.payReceive = payReceive;
+    this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
+    this.paymentEvents = ImmutableList.copyOf(paymentEvents);
+    this.currency = currency;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedSwapLeg(type, payReceive, paymentPeriods, paymentEvents);
   }
 
   //-------------------------------------------------------------------------

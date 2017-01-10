@@ -16,7 +16,7 @@ import com.opengamma.strata.report.framework.expression.ValuePathEvaluator;
  * Catch-all formatter that outputs the type of the value in angular brackets,
  * e.g. {@literal <MyCustomType>}, along with details of the valid tokens that could be used.
  */
-class UnsupportedValueFormatter
+final class UnsupportedValueFormatter
     implements ValueFormatter<Object> {
 
   /**

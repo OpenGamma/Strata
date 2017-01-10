@@ -87,16 +87,16 @@ public final class DiscountingBondFutureProductPricer {
    * For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param future  the future
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @return the price of the product, in decimal form
    */
-  public double price(ResolvedBondFuture future, LegalEntityDiscountingProvider provider) {
+  public double price(ResolvedBondFuture future, LegalEntityDiscountingProvider discountingProvider) {
     ImmutableList<ResolvedFixedCouponBond> basket = future.getDeliveryBasket();
     int size = basket.size();
     double[] priceBonds = new double[size];
     for (int i = 0; i < size; ++i) {
       ResolvedFixedCouponBond bond = basket.get(i);
-      double dirtyPrice = bondPricer.dirtyPriceFromCurves(bond, provider, future.getLastDeliveryDate());
+      double dirtyPrice = bondPricer.dirtyPriceFromCurves(bond, discountingProvider, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
           bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
     }
@@ -115,7 +115,7 @@ public final class DiscountingBondFutureProductPricer {
    * For example, a price of 99.32% is represented in Strata by 0.9932.
    * 
    * @param future  the future
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
@@ -123,7 +123,7 @@ public final class DiscountingBondFutureProductPricer {
    */
   public double priceWithZSpread(
       ResolvedBondFuture future,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
@@ -134,7 +134,7 @@ public final class DiscountingBondFutureProductPricer {
     for (int i = 0; i < size; ++i) {
       ResolvedFixedCouponBond bond = basket.get(i);
       double dirtyPrice = bondPricer.dirtyPriceFromCurvesWithZSpread(
-          bond, provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
+          bond, discountingProvider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
           bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
     }
@@ -150,10 +150,10 @@ public final class DiscountingBondFutureProductPricer {
    * Note that the price sensitivity should be no currency.
    * 
    * @param future  the future
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivity(ResolvedBondFuture future, LegalEntityDiscountingProvider provider) {
+  public PointSensitivities priceSensitivity(ResolvedBondFuture future, LegalEntityDiscountingProvider discountingProvider) {
     ImmutableList<ResolvedFixedCouponBond> basket = future.getDeliveryBasket();
     int size = basket.size();
     double[] priceBonds = new double[size];
@@ -161,7 +161,7 @@ public final class DiscountingBondFutureProductPricer {
     double priceMin = 2d;
     for (int i = 0; i < size; i++) {
       ResolvedFixedCouponBond bond = basket.get(i);
-      double dirtyPrice = bondPricer.dirtyPriceFromCurves(bond, provider, future.getLastDeliveryDate());
+      double dirtyPrice = bondPricer.dirtyPriceFromCurves(bond, discountingProvider, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
           bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
       if (priceBonds[i] < priceMin) {
@@ -171,7 +171,7 @@ public final class DiscountingBondFutureProductPricer {
     }
     ResolvedFixedCouponBond bond = basket.get(indexCTD);
     PointSensitivityBuilder pointSensi = bondPricer.dirtyPriceSensitivity(
-        bond, provider, future.getLastDeliveryDate());
+        bond, discountingProvider, future.getLastDeliveryDate());
     return pointSensi.multipliedBy(1d / future.getConversionFactors().get(indexCTD)).build();
   }
 
@@ -186,7 +186,7 @@ public final class DiscountingBondFutureProductPricer {
    * Note that the price sensitivity should be no currency.
    * 
    * @param future  the future
-   * @param provider  the rates provider
+   * @param discountingProvider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
@@ -194,7 +194,7 @@ public final class DiscountingBondFutureProductPricer {
    */
   public PointSensitivities priceSensitivityWithZSpread(
       ResolvedBondFuture future,
-      LegalEntityDiscountingProvider provider,
+      LegalEntityDiscountingProvider discountingProvider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
@@ -207,7 +207,7 @@ public final class DiscountingBondFutureProductPricer {
     for (int i = 0; i < size; i++) {
       ResolvedFixedCouponBond bond = basket.get(i);
       double dirtyPrice = bondPricer.dirtyPriceFromCurvesWithZSpread(
-          bond, provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
+          bond, discountingProvider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
           bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
       if (priceBonds[i] < priceMin) {
@@ -217,7 +217,7 @@ public final class DiscountingBondFutureProductPricer {
     }
     ResolvedFixedCouponBond bond = basket.get(indexCTD);
     PointSensitivityBuilder pointSensi = bondPricer.dirtyPriceSensitivityWithZspread(
-        bond, provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
+        bond, discountingProvider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
     return pointSensi.multipliedBy(1d / future.getConversionFactors().get(indexCTD)).build();
   }
 

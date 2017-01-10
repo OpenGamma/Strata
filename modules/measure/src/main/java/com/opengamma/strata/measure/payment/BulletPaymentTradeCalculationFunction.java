@@ -20,8 +20,8 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
@@ -46,6 +46,7 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
+ *   <li>{@linkplain AdvancedMeasures#PV01_SINGLE_NODE_GAMMA_BUCKETED PV01 single node gamma bucketed}
  * </ul>
  */
 public class BulletPaymentTradeCalculationFunction
@@ -65,7 +66,9 @@ public class BulletPaymentTradeCalculationFunction
           .put(Measures.CASH_FLOWS, BulletPaymentMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.CURRENCY_EXPOSURE, BulletPaymentMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, BulletPaymentMeasureCalculations.DEFAULT::currentCash)
-          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
+          .put(AdvancedMeasures.PV01_SINGLE_NODE_GAMMA_BUCKETED,
+              BulletPaymentMeasureCalculations.DEFAULT::pv01SingleNodeGammaBucketed)
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -154,7 +157,7 @@ public class BulletPaymentTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedBulletPaymentTrade trade,
         RatesScenarioMarketData marketData);
   }

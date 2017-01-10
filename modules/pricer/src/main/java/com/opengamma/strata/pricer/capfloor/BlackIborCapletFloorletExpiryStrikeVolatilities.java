@@ -80,7 +80,7 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
   /**
    * The day count convention of the surface.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -132,6 +132,11 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
     this.valuationDateTime = valuationDateTime;
     this.surface = surface;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new BlackIborCapletFloorletExpiryStrikeVolatilities(index, valuationDateTime, surface);
   }
 
   //-------------------------------------------------------------------------

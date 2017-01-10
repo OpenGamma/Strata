@@ -6,24 +6,39 @@
 package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.CZK;
+import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
+import static com.opengamma.strata.basics.currency.Currency.MXN;
+import static com.opengamma.strata.basics.currency.Currency.PLN;
+import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.currency.Currency.ZAR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CZPR;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.HUBU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.MXMC;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.ZAJO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_4M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_4W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_5M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
@@ -45,6 +60,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.PeriodAdditionConventions;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 
 /**
@@ -69,6 +85,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)));
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GBP-LIBOR"));
     assertEquals(test.toString(), "GBP-LIBOR-3M");
   }
 
@@ -95,6 +112,14 @@ public class IborIndexTest {
     assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 13)), IborIndexObservation.of(test, date(2014, 10, 13), REF_DATA));
   }
 
+  public void test_getFloatingRateName() {
+    for (IborIndex index : IborIndex.extendedEnum().lookupAll().values()) {
+      String name = index.getName().substring(0, index.getName().lastIndexOf('-'));
+      assertEquals(index.getFloatingRateName(), FloatingRateName.of(name));
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_usdLibor3m() {
     IborIndex test = IborIndex.of("USD-LIBOR-3M");
     assertEquals(test.getCurrency(), USD);
@@ -107,6 +132,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combinedWith(USNY))));
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("USD-LIBOR"));
     assertEquals(test.toString(), "USD-LIBOR-3M");
   }
 
@@ -138,7 +164,7 @@ public class IborIndexTest {
     assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 27)), IborIndexObservation.of(test, date(2014, 10, 27), REF_DATA));
   }
 
-  public void test_euibor3m() {
+  public void test_euribor3m() {
     IborIndex test = IborIndex.of("EUR-EURIBOR-3M");
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getName(), "EUR-EURIBOR-3M");
@@ -149,6 +175,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)));
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("EUR-EURIBOR"));
     assertEquals(test.toString(), "EUR-EURIBOR-3M");
   }
 
@@ -184,6 +211,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("JPY-TIBOR-JAPAN"));
     assertEquals(test.toString(), "JPY-TIBOR-JAPAN-3M");
   }
 
@@ -219,6 +247,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("JPY-TIBOR-EUROYEN"));
     assertEquals(test.toString(), "JPY-TIBOR-EUROYEN-3M");
   }
 
@@ -267,7 +296,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_1M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+        TenorAdjustment.of(TENOR_1M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-1M");
   }
@@ -281,7 +310,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_2M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+        TenorAdjustment.of(TENOR_2M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-2M");
   }
@@ -295,7 +324,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-3M");
   }
@@ -309,7 +338,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_4M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+        TenorAdjustment.of(TENOR_4M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-4M");
   }
@@ -323,7 +352,7 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_5M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+        TenorAdjustment.of(TENOR_5M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-5M");
   }
@@ -337,9 +366,109 @@ public class IborIndexTest {
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
     assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)));
+        TenorAdjustment.of(TENOR_6M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-BBSW-6M");
+  }
+
+  public void test_czk_pribor() {
+    IborIndex test = IborIndex.of("CZK-PRIBOR-3M");
+    assertEquals(test.getCurrency(), CZK);
+    assertEquals(test.getName(), "CZK-PRIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), CZPR);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, CZPR));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, CZPR));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, CZPR)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "CZK-PRIBOR-3M");
+  }
+
+  public void test_dkk_cibor() {
+    IborIndex test = IborIndex.of("DKK-CIBOR-3M");
+    assertEquals(test.getCurrency(), DKK);
+    assertEquals(test.getName(), "DKK-CIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), DKCO);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, DKCO)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, DKCO)));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, DKCO)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "DKK-CIBOR-3M");
+  }
+
+  public void test_huf_bubor() {
+    IborIndex test = IborIndex.of("HUF-BUBOR-3M");
+    assertEquals(test.getCurrency(), HUF);
+    assertEquals(test.getName(), "HUF-BUBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), HUBU);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, HUBU));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, HUBU));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, HUBU)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "HUF-BUBOR-3M");
+  }
+
+  public void test_mxn_tiie() {
+    IborIndex test = IborIndex.of("MXN-TIIE-4W");
+    assertEquals(test.getCurrency(), MXN);
+    assertEquals(test.getName(), "MXN-TIIE-4W");
+    assertEquals(test.getTenor(), TENOR_4W);
+    assertEquals(test.getFixingCalendar(), MXMC);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, MXMC));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, MXMC));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_4W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, MXMC)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "MXN-TIIE-4W");
+  }
+
+  public void test_pln_wibor() {
+    IborIndex test = IborIndex.of("PLN-WIBOR-3M");
+    assertEquals(test.getCurrency(), PLN);
+    assertEquals(test.getName(), "PLN-WIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), PLWA);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, PLWA));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, PLWA));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, PLWA)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "PLN-WIBOR-3M");
+  }
+
+  public void test_sek_stibor() {
+    IborIndex test = IborIndex.of("SEK-STIBOR-3M");
+    assertEquals(test.getCurrency(), SEK);
+    assertEquals(test.getName(), "SEK-STIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), SEST);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, SEST));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, SEST));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, SEST)));
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "SEK-STIBOR-3M");
+  }
+
+  public void test_zar_jibar() {
+    IborIndex test = IborIndex.of("ZAR-JIBAR-3M");
+    assertEquals(test.getCurrency(), ZAR);
+    assertEquals(test.getName(), "ZAR-JIBAR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), ZAJO);
+    assertEquals(test.getFixingDateOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, ZAJO)));
+    assertEquals(test.getEffectiveDateOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, ZAJO)));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, ZAJO)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "ZAR-JIBAR-3M");
   }
 
   //-------------------------------------------------------------------------
@@ -395,7 +524,7 @@ public class IborIndexTest {
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableIborIndex a = ImmutableIborIndex.builder()
-        .name("Test")
+        .name("Test-3M")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -405,14 +534,14 @@ public class IborIndexTest {
         .fixingTime(LocalTime.NOON)
         .fixingZone(ZoneId.of("Europe/London"))
         .build();
-    IborIndex b = a.toBuilder().name("Rubbish").build();
+    IborIndex b = a.toBuilder().name("Rubbish-3M").build();
     assertEquals(a.equals(b), false);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableIborIndex index = ImmutableIborIndex.builder()
-        .name("Test")
+        .name("Test-3M")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -432,7 +561,7 @@ public class IborIndexTest {
 
   public void test_serialization() {
     IborIndex index = ImmutableIborIndex.builder()
-        .name("Test")
+        .name("Test-3M")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))

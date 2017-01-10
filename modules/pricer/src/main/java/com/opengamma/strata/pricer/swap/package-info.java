@@ -8,4 +8,3 @@
  * Calculators for interest rate swaps.
  */
 package com.opengamma.strata.pricer.swap;
-

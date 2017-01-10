@@ -8,4 +8,3 @@
  * Conventions and templates to aid the construction of deposits.
  */
 package com.opengamma.strata.product.deposit.type;
-

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
@@ -173,4 +174,9 @@ public class StandardIdTest {
   public void coverage() {
     coverImmutableBean(StandardId.of(SCHEME, "123"));
   }
+
+  public void test_serialization() {
+    assertSerialization(StandardId.of(SCHEME, "123"));
+  }
+
 }

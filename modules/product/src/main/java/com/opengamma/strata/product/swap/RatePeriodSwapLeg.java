@@ -160,7 +160,7 @@ public final class RatePeriodSwapLeg
   /**
    * The currency of the leg.
    */
-  private final Currency currency;  // not a property, derived and cached from input data
+  private final transient Currency currency;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
@@ -194,6 +194,19 @@ public final class RatePeriodSwapLeg
       throw new IllegalArgumentException("Swap leg must have a single currency, found: " + currencies);
     }
     this.currency = Iterables.getOnlyElement(currencies);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new RatePeriodSwapLeg(
+        type,
+        payReceive,
+        paymentPeriods,
+        initialExchange,
+        intermediateExchange,
+        finalExchange,
+        paymentEvents,
+        paymentBusinessDayAdjustment);
   }
 
   //-------------------------------------------------------------------------
@@ -234,12 +247,8 @@ public final class RatePeriodSwapLeg
     ImmutableList<NotionalPaymentPeriod> adjusted = paymentPeriods.stream()
         .map(pp -> pp.adjustPaymentDate(paymentDateAdjuster))
         .collect(toImmutableList());
-    return ResolvedSwapLeg.builder()
-        .type(type)
-        .payReceive(payReceive)
-        .paymentPeriods(adjusted)
-        .paymentEvents(createEvents(adjusted, paymentDateAdjuster, refData))
-        .build();
+    ImmutableList<SwapPaymentEvent> payEvents = createEvents(adjusted, paymentDateAdjuster, refData);
+    return new ResolvedSwapLeg(type, payReceive, adjusted, payEvents, currency);
   }
 
   // notional exchange events

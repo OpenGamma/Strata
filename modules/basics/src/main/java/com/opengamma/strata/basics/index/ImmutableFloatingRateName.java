@@ -38,6 +38,11 @@ public final class ImmutableFloatingRateName
     implements FloatingRateName, ImmutableBean, Serializable {
 
   /**
+   * Special suffix that can be used to distinguish averaged indices.
+   */
+  private static final String AVERAGE_SUFFIX = "-AVG";
+
+  /**
    * The external name, typically from FpML, such as 'GBP-LIBOR-BBA'.
    */
   @PropertyDefinition(validate = "notEmpty")
@@ -84,7 +89,16 @@ public final class ImmutableFloatingRateName
         .filter(index -> index.getName().startsWith(indexName))
         .filter(index -> index.isActive())
         .map(index -> index.getTenor())
+        .sorted()
         .collect(toImmutableSet());
+  }
+
+  @Override
+  public FloatingRateName normalized() {
+    if (type.isIbor() && indexName.endsWith("-")) {
+      return FloatingRateName.of(indexName.substring(0, indexName.length() - 1));
+    }
+    return FloatingRateName.of(indexName);
   }
 
   //-------------------------------------------------------------------------
@@ -100,6 +114,9 @@ public final class ImmutableFloatingRateName
   public OvernightIndex toOvernightIndex() {
     if (!type.isOvernight()) {
       throw new IllegalStateException("Incorrect index type, expected Overnight: " + externalName);
+    }
+    if (indexName.endsWith(AVERAGE_SUFFIX)) {
+      return OvernightIndex.of(indexName.substring(0, indexName.length() - 4));
     }
     return OvernightIndex.of(indexName);
   }

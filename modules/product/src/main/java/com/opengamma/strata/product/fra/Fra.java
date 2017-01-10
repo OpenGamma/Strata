@@ -63,6 +63,12 @@ import com.opengamma.strata.product.rate.RateComputation;
  * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * <li>Payment date, the date on which payment is made, typically the same as the start date
  * </ul>
+ * <p>
+ * The start date, end date and payment date are determined when the trade if created,
+ * adjusting to valid business days based on the holiday calendar dates known on the trade trade.
+ * The payment date may be further adjusted when the FRA is resolved if an additional holiday has been added.
+ * The data model does allow for the start and end dates to be adjusted when the FRA is resolved,
+ * but this is typically not used.
  */
 @BeanDefinition
 public final class Fra
@@ -235,8 +241,9 @@ public final class Fra
     DateAdjuster bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).resolve(refData);
     LocalDate start = bda.adjust(startDate);
     LocalDate end = bda.adjust(endDate);
+    LocalDate pay = paymentDate.adjusted(refData);
     return ResolvedFra.builder()
-        .paymentDate(getPaymentDate().adjusted(refData))
+        .paymentDate(pay)
         .startDate(start)
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))

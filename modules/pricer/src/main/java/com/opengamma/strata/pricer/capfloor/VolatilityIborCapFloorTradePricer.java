@@ -56,6 +56,15 @@ public class VolatilityIborCapFloorTradePricer {
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
 
+  /**
+   * Gets the payment pricer.
+   * 
+   * @return the payment pricer
+   */
+  protected DiscountingPaymentPricer getPaymentPricer() {
+    return paymentPricer;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the Ibor cap/floor trade.

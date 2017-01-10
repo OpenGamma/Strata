@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.index;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -52,7 +53,7 @@ import com.opengamma.strata.market.surface.Surfaces;
  */
 @BeanDefinition
 public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
-    implements NormalIborFutureOptionVolatilities, ImmutableBean {
+    implements NormalIborFutureOptionVolatilities, ImmutableBean, Serializable {
 
   /**
    * The index of the underlying future.
@@ -77,11 +78,11 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
   /**
    * Whether the moneyness is on the price (true) or on the rate (false).
    */
-  private final boolean moneynessOnPrice;  // cached, not a property
+  private final transient boolean moneynessOnPrice;  // cached, not a property
   /**
    * The day count convention of the surface.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -136,6 +137,11 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
     this.surface = surface;
     this.moneynessOnPrice = moneynessType == MoneynessType.PRICE;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new NormalIborFutureOptionExpirySimpleMoneynessVolatilities(index, valuationDateTime, surface);
   }
 
   //-------------------------------------------------------------------------
@@ -202,7 +208,8 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
 
   private CurrencyParameterSensitivity parameterSensitivity(IborFutureOptionSensitivity point) {
     double simpleMoneyness = moneynessOnPrice ?
-        point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
+        point.getStrikePrice() - point.getFuturePrice() :
+        point.getFuturePrice() - point.getStrikePrice();
     UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(point.getExpiry(), simpleMoneyness);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
@@ -227,6 +234,11 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
   static {
     JodaBeanUtils.registerMetaBean(NormalIborFutureOptionExpirySimpleMoneynessVolatilities.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

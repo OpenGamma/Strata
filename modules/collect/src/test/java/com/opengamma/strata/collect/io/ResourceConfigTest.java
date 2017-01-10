@@ -42,7 +42,8 @@ public class ResourceConfigTest {
   }
 
   public void test_orderedResources_notFound() throws Exception {
-    String captured = caputureSystemErr(() -> assertThrows(IllegalStateException.class, () -> ResourceConfig.orderedResources("NotFound.txt")));
+    String captured =
+        caputureSystemErr(() -> assertThrows(IllegalStateException.class, () -> ResourceConfig.orderedResources("NotFound.txt")));
     assertTrue(captured.contains("No resource files found on the classpath"));
   }
 

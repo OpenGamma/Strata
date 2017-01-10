@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PutCall;
@@ -81,6 +82,17 @@ public final class ResolvedFxVanillaOption
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets currency pair of the base currency and counter currency.
+   * <p>
+   * This currency pair is conventional, thus indifferent to the direction of FX.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return underlying.getCurrencyPair();
+  }
+
   /**
    * Gets the expiry date of the option.
    * 

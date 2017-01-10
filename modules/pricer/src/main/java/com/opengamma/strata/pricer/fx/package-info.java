@@ -8,4 +8,3 @@
  * Calculators for FX instruments, such as FX forward and FX swap.
  */
 package com.opengamma.strata.pricer.fx;
-

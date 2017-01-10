@@ -8,4 +8,3 @@
  * Representations of a geographic location.
  */
 package com.opengamma.strata.basics.location;
-

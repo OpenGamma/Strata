@@ -234,7 +234,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     assertEquals(computedPvPutUp.getAmount(), pvPut.getAmount(), NOTIONAL * TOL);
     assertEquals(computedPvPutDw.getAmount(), pvPut.getAmount(), NOTIONAL * TOL);
     // curve sensitivity
-    PointSensitivities pvSensiCall = VANILLA_PRICER.presentValueSensitivityRates(CALL, RATE_PROVIDER, VOLS);
+    PointSensitivities pvSensiCall = VANILLA_PRICER.presentValueSensitivityRatesStickyStrike(CALL, RATE_PROVIDER, VOLS);
     PointSensitivities computedPvSensiCallUp = PRICER.presentValueSensitivityRatesStickyStrike(callUKO, RATE_PROVIDER, VOLS)
         .combinedWith(PRICER.presentValueSensitivityRatesStickyStrike(callUKI, RATE_PROVIDER, VOLS)).build();
     PointSensitivities computedPvSensiCallDw = PRICER.presentValueSensitivityRatesStickyStrike(callDKO, RATE_PROVIDER, VOLS)
@@ -243,7 +243,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         RATE_PROVIDER.parameterSensitivity(computedPvSensiCallUp), TOL * NOTIONAL));
     assertTrue(RATE_PROVIDER.parameterSensitivity(pvSensiCall).equalWithTolerance(
         RATE_PROVIDER.parameterSensitivity(computedPvSensiCallDw), TOL * NOTIONAL));
-    PointSensitivities pvSensiPut = VANILLA_PRICER.presentValueSensitivityRates(PUT, RATE_PROVIDER, VOLS);
+    PointSensitivities pvSensiPut = VANILLA_PRICER.presentValueSensitivityRatesStickyStrike(PUT, RATE_PROVIDER, VOLS);
     PointSensitivities computedPvSensiPutUp = PRICER.presentValueSensitivityRatesStickyStrike(putUKO, RATE_PROVIDER, VOLS)
         .combinedWith(PRICER.presentValueSensitivityRatesStickyStrike(putUKI, RATE_PROVIDER, VOLS)).build();
     PointSensitivities computedPvSensiPutDw = PRICER.presentValueSensitivityRatesStickyStrike(putDKO, RATE_PROVIDER, VOLS)

@@ -6,12 +6,20 @@
 package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.BRL;
+import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.PLN;
+import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -27,6 +35,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DayCount;
 
 /**
  * Test Overnight Index.
@@ -45,6 +54,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GBP-SONIA"));
     assertEquals(test.toString(), "GBP-SONIA");
   }
 
@@ -69,6 +79,13 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 14));
   }
 
+  public void test_getFloatingRateName() {
+    for (OvernightIndex index : OvernightIndex.extendedEnum().lookupAll().values()) {
+      assertEquals(index.getFloatingRateName(), FloatingRateName.of(index.getName()));
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_usdFedFund3m() {
     OvernightIndex test = OvernightIndex.of("USD-FED-FUND");
     assertEquals(test.getCurrency(), USD);
@@ -101,7 +118,7 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
   }
 
-  public void test_AudAonia() {
+  public void test_audAonia() {
     OvernightIndex test = OvernightIndex.of("AUD-AONIA");
     assertEquals(test.getName(), "AUD-AONIA");
     assertEquals(test.getCurrency(), AUD);
@@ -111,6 +128,54 @@ public class OvernightIndexTest {
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-AONIA");
+  }
+
+  public void test_brlCdi() {
+    OvernightIndex test = OvernightIndex.of("BRL-CDI");
+    assertEquals(test.getName(), "BRL-CDI");
+    assertEquals(test.getCurrency(), BRL);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), BRBD);
+    assertEquals(test.getPublicationDateOffset(), 1);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), DayCount.ofBus252(BRBD));
+    assertEquals(test.toString(), "BRL-CDI");
+  }
+
+  public void test_dkkOis() {
+    OvernightIndex test = OvernightIndex.of("DKK-TNR");
+    assertEquals(test.getName(), "DKK-TNR");
+    assertEquals(test.getCurrency(), DKK);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), DKCO);
+    assertEquals(test.getPublicationDateOffset(), 1);
+    assertEquals(test.getEffectiveDateOffset(), 1);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "DKK-TNR");
+  }
+
+  public void test_plnOis() {
+    OvernightIndex test = OvernightIndex.of("PLN-POLONIA");
+    assertEquals(test.getName(), "PLN-POLONIA");
+    assertEquals(test.getCurrency(), PLN);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), PLWA);
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.toString(), "PLN-POLONIA");
+  }
+
+  public void test_sekOis() {
+    OvernightIndex test = OvernightIndex.of("SEK-SIOR");
+    assertEquals(test.getName(), "SEK-SIOR");
+    assertEquals(test.getCurrency(), SEK);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), SEST);
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 1);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "SEK-SIOR");
   }
 
   //-------------------------------------------------------------------------
@@ -123,6 +188,8 @@ public class OvernightIndexTest {
         {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
         {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},
         {OvernightIndices.AUD_AONIA, "AUD-AONIA"},
+        {OvernightIndices.BRL_CDI, "BRL-CDI"},
+        {OvernightIndices.DKK_TNR, "DKK-TNR"},
     };
   }
 

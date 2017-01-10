@@ -25,7 +25,7 @@ import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
  */
 public class NewtonVectorRootFinder extends VectorRootFinder {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(NewtonVectorRootFinder.class);
+  private static final Logger log = LoggerFactory.getLogger(NewtonVectorRootFinder.class);
   private static final double ALPHA = 1e-4;
   private static final double BETA = 1.5;
   private static final int FULL_RECALC_FREQ = 20;
@@ -112,7 +112,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
           }
           String msg = "Failed to converge in backtracking, even after a Jacobian recalculation." +
               getErrorMessage(data, jacobianFunction);
-          s_logger.info(msg);
+          log.info(msg);
           throw new MathException(msg);
         }
       }

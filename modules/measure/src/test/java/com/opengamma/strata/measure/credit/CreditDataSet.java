@@ -153,7 +153,7 @@ public class CreditDataSet {
       .paymentFrequency(Frequency.P3M)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
       .build();
-  private static final ImmutableList<ResolvedTradeParameterMetadata> CDS_METADATA;
+  static final ImmutableList<ResolvedTradeParameterMetadata> CDS_METADATA;
   private static final ImmutableList<ResolvedTradeParameterMetadata> CDS_INDEX_METADATA;
   static {
     double flatRate = 0.05;

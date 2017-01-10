@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -128,7 +129,8 @@ public final class RatesCurvesCsvLoader {
   private static final BiMap<String, ValueType> VALUE_TYPE_MAP = ImmutableBiMap.of(
       "zero", ValueType.ZERO_RATE,
       "df", ValueType.DISCOUNT_FACTOR,
-      "forward", ValueType.FORWARD_RATE);
+      "forward", ValueType.FORWARD_RATE,
+      "priceindex", ValueType.PRICE_INDEX);
 
   //-------------------------------------------------------------------------
   /**
@@ -258,20 +260,21 @@ public final class RatesCurvesCsvLoader {
       String leftExtrapolatorStr = row.getField(SETTINGS_LEFT_EXTRAPOLATOR);
       String rightExtrapolatorStr = row.getField(SETTINGS_RIGHT_EXTRAPOLATOR);
 
-      CurveName curveName = CurveName.of(curveNameStr);
-      ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
-      DayCount dayCount = DayCount.of(dayCountStr);
-      CurveInterpolator interpolator = CurveInterpolator.of(interpolatorStr);
-      CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorStr);
-      CurveExtrapolator rightExtrapolator = CurveExtrapolator.of(rightExtrapolatorStr);
-
       if (!VALUE_TYPE_MAP.containsKey(valueTypeStr.toLowerCase(Locale.ENGLISH))) {
         throw new IllegalArgumentException(
             Messages.format("Unsupported {} in curve settings: {}", SETTINGS_VALUE_TYPE, valueTypeStr));
       }
 
-      LoadedCurveSettings settings = LoadedCurveSettings.of(
-          curveName, valueType, dayCount, interpolator, leftExtrapolator, rightExtrapolator);
+      CurveName curveName = CurveName.of(curveNameStr);
+      ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
+      CurveInterpolator interpolator = CurveInterpolator.of(interpolatorStr);
+      CurveExtrapolator leftExtrap = CurveExtrapolator.of(leftExtrapolatorStr);
+      CurveExtrapolator rightExtrap = CurveExtrapolator.of(rightExtrapolatorStr);
+      // ONE_ONE day count is not used
+      LoadedCurveSettings settings = (valueType.equals(ValueType.PRICE_INDEX)) ?
+          LoadedCurveSettings.of(curveName, ValueType.MONTHS, valueType, ONE_ONE, interpolator, leftExtrap, rightExtrap) :
+          LoadedCurveSettings.of(
+              curveName, ValueType.YEAR_FRACTION, valueType, DayCount.of(dayCountStr), interpolator, leftExtrap, rightExtrap);
       builder.put(curveName, settings);
     }
     return builder.build();

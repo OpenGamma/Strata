@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.model;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -41,7 +42,7 @@ import com.opengamma.strata.market.surface.Surfaces;
  */
 @BeanDefinition(style = "light")
 public final class SabrInterestRateParameters
-    implements ParameterizedData, ImmutableBean {
+    implements ParameterizedData, ImmutableBean, Serializable {
 
   /**
    * A surface used to apply no shift.
@@ -92,11 +93,11 @@ public final class SabrInterestRateParameters
   /**
    * The day count convention of the surfaces.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
   /**
    * The parameter combiner.
    */
-  private final ParameterizedDataCombiner paramCombiner;  // cached, not a property
+  private final transient ParameterizedDataCombiner paramCombiner;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -120,7 +121,7 @@ public final class SabrInterestRateParameters
    * @param rhoSurface  the rho surface
    * @param nuSurface  the nu surface
    * @param sabrFormula  the SABR formula
-   * @return {@code SABRInterestRateParameters}
+   * @return {@code SabrInterestRateParameters}
    */
   @SuppressWarnings("javadoc")
   public static SabrInterestRateParameters of(
@@ -159,7 +160,7 @@ public final class SabrInterestRateParameters
    * @param nuSurface  the nu surface
    * @param shiftSurface  the shift surface
    * @param sabrFormula  the SABR formula
-   * @return {@code SABRInterestRateParameters}
+   * @return {@code SabrInterestRateParameters}
    */
   public static SabrInterestRateParameters of(
       Surface alphaSurface,
@@ -222,6 +223,11 @@ public final class SabrInterestRateParameters
     if (!surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT).orElse(dayCount).equals(dayCount)) {
       throw new IllegalArgumentException("SABR surfaces must have the same day count");
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SabrInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrVolatilityFormula);
   }
 
   //-------------------------------------------------------------------------
@@ -393,6 +399,11 @@ public final class SabrInterestRateParameters
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

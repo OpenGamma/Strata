@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,8 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
@@ -218,10 +221,55 @@ public final class CalculationTask implements ImmutableBean {
   // calculates the result
   private Map<Measure, Result<?>> calculate(ScenarioMarketData marketData, ReferenceData refData) {
     try {
-      return function.calculate(target, getMeasures(), parameters, marketData, refData);
+      Set<Measure> requestedMeasures = getMeasures();
+      Set<Measure> supportedMeasures = function.supportedMeasures();
+      Set<Measure> measures = Sets.intersection(requestedMeasures, supportedMeasures);
+      Map<Measure, Result<?>> map = ImmutableMap.of();
+      if (!measures.isEmpty()) {
+        map = function.calculate(target, measures, parameters, marketData, refData);
+      }
+      // check if result does not contain all requested measures
+      if (!map.keySet().containsAll(requestedMeasures)) {
+        return handleMissing(requestedMeasures, supportedMeasures, map);
+      }
+      return map;
+
     } catch (RuntimeException ex) {
       return handleFailure(ex);
     }
+  }
+
+  // populate the result with failures
+  private Map<Measure, Result<?>> handleMissing(
+      Set<Measure> requestedMeasures,
+      Set<Measure> supportedMeasures,
+      Map<Measure, Result<?>> calculatedResults) {
+
+    // need to add missing measures
+    Map<Measure, Result<?>> updated = new HashMap<>(calculatedResults);
+    String fnName = function.getClass().getSimpleName();
+    for (Measure requestedMeasure : requestedMeasures) {
+      if (!calculatedResults.containsKey(requestedMeasure)) {
+        if (supportedMeasures.contains(requestedMeasure)) {
+          String msg = function.identifier(target)
+              .map(v -> "for ID '" + v + "'")
+              .orElse("for target '" + target.toString() + "'");
+          updated.put(requestedMeasure, Result.failure(
+              FailureReason.CALCULATION_FAILED,
+              "Function '{}' did not return requested measure '{}' {}",
+              fnName,
+              requestedMeasure,
+              msg));
+        } else {
+          updated.put(requestedMeasure, Result.failure(
+              FailureReason.UNSUPPORTED,
+              "Measure '{}' is not supported by function '{}'",
+              requestedMeasure,
+              fnName));
+        }
+      }
+    }
+    return updated;
   }
 
   // handle the failure, extracted to aid inlining
@@ -230,42 +278,38 @@ public final class CalculationTask implements ImmutableBean {
     String fnName = function.getClass().getSimpleName();
     String exMsg = ex.getMessage();
     Optional<String> id = function.identifier(target);
-    String targetMsg = id.map(v -> "for ID '" + v + "'").orElse("for target '" + target.toString() + "'");
+    String msg = id.map(v -> " for ID '" + v + "': " + exMsg).orElse(": " + exMsg + ": for target '" + target.toString() + "'");
     if (ex instanceof MarketDataNotFoundException) {
       failure = Result.failure(
           FailureReason.MISSING_DATA,
           ex,
-          "Missing market data when invoking function '{}' {}: {}",
+          "Missing market data when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          exMsg);
+          msg);
 
     } else if (ex instanceof ReferenceDataNotFoundException) {
       failure = Result.failure(
           FailureReason.MISSING_DATA,
           ex,
-          "Missing reference data when invoking function '{}' {}: {}",
+          "Missing reference data when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          exMsg);
+          msg);
 
     } else if (ex instanceof UnsupportedOperationException) {
       failure = Result.failure(
           FailureReason.UNSUPPORTED,
           ex,
-          "Unsupported operation when invoking function '{}' {}: {}",
+          "Unsupported operation when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          exMsg);
+          msg);
 
     } else {
       failure = Result.failure(
           FailureReason.CALCULATION_FAILED,
           ex,
-          "Error when invoking function '{}' {}: {}",
+          "Error when invoking function '{}'{}",
           fnName,
-          targetMsg,
-          ex.toString());
+          msg);
     }
     return getMeasures().stream().collect(toImmutableMap(m -> m, m -> failure));
   }

@@ -101,7 +101,8 @@ public class SwaptionMarketDataLookupTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DefaultSwaptionMarketDataLookup test = DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
+    DefaultSwaptionMarketDataLookup test =
+        DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
     coverImmutableBean(test);
     DefaultSwaptionMarketDataLookup test2 = DefaultSwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     coverBeanEquals(test, test2);
@@ -111,7 +112,8 @@ public class SwaptionMarketDataLookupTest {
   }
 
   public void test_serialization() {
-    DefaultSwaptionMarketDataLookup test = DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
+    DefaultSwaptionMarketDataLookup test =
+        DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
     assertSerialization(test);
   }
 

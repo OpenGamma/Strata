@@ -181,6 +181,20 @@ public interface RollConvention
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the day-of-month that the roll convention implies.
+   * <p>
+   * This extracts the day-of-month for simple roll conventions.
+   * The numeric roll conventions will return their day-of-month.
+   * The 'EOM' convention will return 31.
+   * All other conventions will return zero.
+   * 
+   * @return the day-of-month that the roll convention implies, zero if not applicable
+   */
+  public default int getDayOfMonth() {
+    return 0;
+  }
+
+  /**
    * Gets the name that uniquely identifies this convention.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.

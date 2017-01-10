@@ -18,6 +18,7 @@ import java.util.function.Function;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -38,6 +39,8 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.date.TenorAdjustment;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * An Ibor index implementation based on an immutable set of rules.
@@ -124,22 +127,73 @@ public final class ImmutableIborIndex
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
+  /**
+   * The floating rate name, such as 'GBP-LIBOR'.
+   */
+  private final transient String floatingRateName;  // derived
 
   //-------------------------------------------------------------------------
+  // creates an instance
+  @ImmutableConstructor
+  private ImmutableIborIndex(
+      String name,
+      Currency currency,
+      boolean active,
+      HolidayCalendarId fixingCalendar,
+      LocalTime fixingTime,
+      ZoneId fixingZone,
+      DaysAdjustment fixingDateOffset,
+      DaysAdjustment effectiveDateOffset,
+      TenorAdjustment maturityDateOffset,
+      DayCount dayCount) {
+    this.name = ArgChecker.notNull(name, "name");
+    this.currency = ArgChecker.notNull(currency, "currency");
+    this.active = active;
+    this.fixingCalendar = ArgChecker.notNull(fixingCalendar, "fixingCalendar");
+    this.fixingTime = ArgChecker.notNull(fixingTime, "fixingTime");
+    this.fixingZone = ArgChecker.notNull(fixingZone, "fixingZone");
+    this.fixingDateOffset = ArgChecker.notNull(fixingDateOffset, "fixingDateOffset");
+    this.effectiveDateOffset = ArgChecker.notNull(effectiveDateOffset, "effectiveDateOffset");
+    this.maturityDateOffset = ArgChecker.notNull(maturityDateOffset, "maturityDateOffset");
+    this.dayCount = ArgChecker.notNull(dayCount, "dayCount");
+    // derive from name, but don't store FloatingRateName, to avoid directly linking data at this point
+    String suffix = "-" + maturityDateOffset.getTenor().toString();
+    if (!name.endsWith(suffix)) {
+      throw new IllegalArgumentException(Messages.format(
+          "IborIndex name '{}' must end with tenor '{}'", name, maturityDateOffset.getTenor().toString()));
+    }
+    this.floatingRateName = name.substring(0, name.length() - suffix.length());
+  }
+
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.active = true;
   }
 
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ImmutableIborIndex(
+        name,
+        currency,
+        active,
+        fixingCalendar,
+        fixingTime,
+        fixingZone,
+        fixingDateOffset,
+        effectiveDateOffset,
+        maturityDateOffset,
+        dayCount);
+  }
+
   //-------------------------------------------------------------------------
-  /**
-   * Gets the tenor of the index.
-   * 
-   * @return the tenor
-   */
   @Override
   public Tenor getTenor() {
     return maturityDateOffset.getTenor();
+  }
+
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(floatingRateName);
   }
 
   //-------------------------------------------------------------------------
@@ -256,38 +310,6 @@ public final class ImmutableIborIndex
    */
   public static ImmutableIborIndex.Builder builder() {
     return new ImmutableIborIndex.Builder();
-  }
-
-  private ImmutableIborIndex(
-      String name,
-      Currency currency,
-      boolean active,
-      HolidayCalendarId fixingCalendar,
-      LocalTime fixingTime,
-      ZoneId fixingZone,
-      DaysAdjustment fixingDateOffset,
-      DaysAdjustment effectiveDateOffset,
-      TenorAdjustment maturityDateOffset,
-      DayCount dayCount) {
-    JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
-    JodaBeanUtils.notNull(fixingTime, "fixingTime");
-    JodaBeanUtils.notNull(fixingZone, "fixingZone");
-    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
-    JodaBeanUtils.notNull(effectiveDateOffset, "effectiveDateOffset");
-    JodaBeanUtils.notNull(maturityDateOffset, "maturityDateOffset");
-    JodaBeanUtils.notNull(dayCount, "dayCount");
-    this.name = name;
-    this.currency = currency;
-    this.active = active;
-    this.fixingCalendar = fixingCalendar;
-    this.fixingTime = fixingTime;
-    this.fixingZone = fixingZone;
-    this.fixingDateOffset = fixingDateOffset;
-    this.effectiveDateOffset = effectiveDateOffset;
-    this.maturityDateOffset = maturityDateOffset;
-    this.dayCount = dayCount;
   }
 
   @Override

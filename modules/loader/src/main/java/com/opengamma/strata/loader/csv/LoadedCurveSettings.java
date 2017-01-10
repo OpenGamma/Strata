@@ -30,8 +30,8 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Represents curve settings, used when loading curves.
@@ -47,6 +47,11 @@ final class LoadedCurveSettings
    */
   @PropertyDefinition(validate = "notNull")
   private final CurveName curveName;
+  /**
+   * The x-value type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ValueType xValueType;
   /**
    * The y-value type.
    */
@@ -87,13 +92,15 @@ final class LoadedCurveSettings
    */
   static LoadedCurveSettings of(
       CurveName curveName,
+      ValueType xValueType,
       ValueType yValueType,
       DayCount dayCount,
       CurveInterpolator interpolator,
       CurveExtrapolator extrapolatorLeft,
       CurveExtrapolator extrapolatorRight) {
 
-    return new LoadedCurveSettings(curveName, yValueType, dayCount, interpolator, extrapolatorLeft, extrapolatorRight);
+    return new LoadedCurveSettings(
+        curveName, xValueType, yValueType, dayCount, interpolator, extrapolatorLeft, extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
@@ -106,7 +113,7 @@ final class LoadedCurveSettings
     // build each node
     double[] xValues = new double[nodes.size()];
     double[] yValues = new double[nodes.size()];
-    List<ParameterMetadata> pointsMetadata = new ArrayList<ParameterMetadata>(nodes.size());
+    List<ParameterMetadata> pointsMetadata = new ArrayList<>(nodes.size());
     for (int i = 0; i < nodes.size(); i++) {
       LoadedCurveNode point = nodes.get(i);
       double yearFraction = dayCount.yearFraction(date, point.getDate());
@@ -119,7 +126,7 @@ final class LoadedCurveSettings
     // create metadata
     CurveMetadata curveMetadata = DefaultCurveMetadata.builder()
         .curveName(curveName)
-        .xValueType(ValueType.YEAR_FRACTION)
+        .xValueType(xValueType)
         .yValueType(yValueType)
         .dayCount(dayCount)
         .parameterMetadata(pointsMetadata)
@@ -138,7 +145,7 @@ final class LoadedCurveSettings
   InterpolatedNodalCurveDefinition createCurveDefinition(List<CurveNode> nodes) {
     return InterpolatedNodalCurveDefinition.builder()
         .name(curveName)
-        .xValueType(ValueType.YEAR_FRACTION)
+        .xValueType(xValueType)
         .yValueType(yValueType)
         .dayCount(dayCount)
         .nodes(nodes)
@@ -169,18 +176,21 @@ final class LoadedCurveSettings
 
   private LoadedCurveSettings(
       CurveName curveName,
+      ValueType xValueType,
       ValueType yValueType,
       DayCount dayCount,
       CurveInterpolator interpolator,
       CurveExtrapolator extrapolatorLeft,
       CurveExtrapolator extrapolatorRight) {
     JodaBeanUtils.notNull(curveName, "curveName");
+    JodaBeanUtils.notNull(xValueType, "xValueType");
     JodaBeanUtils.notNull(yValueType, "yValueType");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(interpolator, "interpolator");
     JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
     JodaBeanUtils.notNull(extrapolatorRight, "extrapolatorRight");
     this.curveName = curveName;
+    this.xValueType = xValueType;
     this.yValueType = yValueType;
     this.dayCount = dayCount;
     this.interpolator = interpolator;
@@ -210,6 +220,15 @@ final class LoadedCurveSettings
    */
   public CurveName getCurveName() {
     return curveName;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the x-value type.
+   * @return the value of the property, not null
+   */
+  public ValueType getXValueType() {
+    return xValueType;
   }
 
   //-----------------------------------------------------------------------
@@ -266,6 +285,7 @@ final class LoadedCurveSettings
     if (obj != null && obj.getClass() == this.getClass()) {
       LoadedCurveSettings other = (LoadedCurveSettings) obj;
       return JodaBeanUtils.equal(curveName, other.curveName) &&
+          JodaBeanUtils.equal(xValueType, other.xValueType) &&
           JodaBeanUtils.equal(yValueType, other.yValueType) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(interpolator, other.interpolator) &&
@@ -279,6 +299,7 @@ final class LoadedCurveSettings
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
+    hash = hash * 31 + JodaBeanUtils.hashCode(xValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(yValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
@@ -289,9 +310,10 @@ final class LoadedCurveSettings
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("LoadedCurveSettings{");
     buf.append("curveName").append('=').append(curveName).append(',').append(' ');
+    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
     buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');

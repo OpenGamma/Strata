@@ -10,4 +10,3 @@
  * <b>This package is currently being reviewed and refactored. Incompatible changes are expected.</b>
  */
 package com.opengamma.strata.pricer.credit;
-

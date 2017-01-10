@@ -48,12 +48,13 @@ public final class SplitCurrencyAmount<T>
   /**
    * Obtains an instance from currency and map.
    * 
+   * @param <T>  the type of key for each value
    * @param currency  the currency of the values
    * @param splitValues  the split values
    * @return the instance
    */
   public static <T> SplitCurrencyAmount<T> of(Currency currency, Map<T, Double> splitValues) {
-    return new SplitCurrencyAmount<T>(currency, splitValues);
+    return new SplitCurrencyAmount<>(currency, splitValues);
   }
 
   //-------------------------------------------------------------------------

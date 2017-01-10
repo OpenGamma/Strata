@@ -9,12 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -193,7 +191,8 @@ public final class PropertySet {
   /**
    * Combines this property set with another.
    * <p>
-   * The specified property set takes precedence.
+   * This property set takes precedence.
+   * Any order of any additional keys will be retained, with those keys located after the base set of keys.
    * 
    * @param other  the other property set
    * @return the combined property set
@@ -206,12 +205,53 @@ public final class PropertySet {
     if (isEmpty()) {
       return other;
     }
-    ListMultimap<String, String> map = ArrayListMultimap.create(keyValueMap);
-    for (String key : other.asMultimap().keySet()) {
-      map.removeAll(key);
-      map.putAll(key, other.valueList(key));
+    // cannot use ArrayListMultiMap as it does not retain the order of the keys
+    // whereas ImmutableListMultimap does retain the order of the keys
+    ImmutableListMultimap.Builder<String, String> map = ImmutableListMultimap.builder();
+    map.putAll(this.keyValueMap);
+    for (String key : other.keyValueMap.keySet()) {
+      if (!this.contains(key)) {
+        map.putAll(key, other.valueList(key));
+      }
     }
-    return new PropertySet(ImmutableListMultimap.copyOf(map));
+    return new PropertySet(map.build());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Overrides this property set with another.
+   * <p>
+   * The specified property set takes precedence.
+   * The order of any existing keys will be retained, with the value replaced.
+   * Any order of any additional keys will be retained, with those keys located after the base set of keys.
+   * 
+   * @param other  the other property set
+   * @return the combined property set
+   */
+  public PropertySet overrideWith(PropertySet other) {
+    ArgChecker.notNull(other, "other");
+    if (other.isEmpty()) {
+      return this;
+    }
+    if (isEmpty()) {
+      return other;
+    }
+    // cannot use ArrayListMultiMap as it does not retain the order of the keys
+    // whereas ImmutableListMultimap does retain the order of the keys
+    ImmutableListMultimap.Builder<String, String> map = ImmutableListMultimap.builder();
+    for (String key : this.keyValueMap.keySet()) {
+      if (other.contains(key)) {
+        map.putAll(key, other.valueList(key));
+      } else {
+        map.putAll(key, this.valueList(key));
+      }
+    }
+    for (String key : other.keyValueMap.keySet()) {
+      if (!this.contains(key)) {
+        map.putAll(key, other.valueList(key));
+      }
+    }
+    return new PropertySet(map.build());
   }
 
   //-------------------------------------------------------------------------

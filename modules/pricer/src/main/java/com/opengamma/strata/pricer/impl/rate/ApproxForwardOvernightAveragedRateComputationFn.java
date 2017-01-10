@@ -209,11 +209,11 @@ public class ApproxForwardOvernightAveragedRateComputationFn
 
   //-------------------------------------------------------------------------
   // Internal class representing all the details related to the computation
-  private static class ObservationDetails {
+  private static final class ObservationDetails {
     // The list below are created in the constructor and never modified after.
     private final OvernightIndexRates rates;
     private final List<OvernightIndexObservation> observations;  // one observation per fixing date
-    private int fixedPeriod = 0; // Note this is mutable 
+    private int fixedPeriod; // Note this is mutable 
     private final double accrualFactorTotal;
     private final int nbPeriods;
     private final OvernightIndex index;
@@ -335,9 +335,8 @@ public class ApproxForwardOvernightAveragedRateComputationFn
 
     // Calculate the total rate.
     private double calculateRate() {
-      return (pastAccumulation() + valuationDateAccumulation()
-          + approximatedForwardAccumulation() + cutOffAccumulation())
-          / accrualFactorTotal;
+      return (pastAccumulation() + valuationDateAccumulation() +
+          approximatedForwardAccumulation() + cutOffAccumulation()) / accrualFactorTotal;
     }
 
     // Calculate the total rate sensitivity.
@@ -360,9 +359,8 @@ public class ApproxForwardOvernightAveragedRateComputationFn
         OvernightIndex index) {
 
       OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
-      return fixedRate.orElseThrow(() ->
-          new PricingException("Could not get fixing value of index " + index.getName() +
-              " for date " + currentFixingTs));
+      return fixedRate.orElseThrow(() -> new PricingException(
+          "Could not get fixing value of index " + index.getName() + " for date " + currentFixingTs));
     }
   }
 

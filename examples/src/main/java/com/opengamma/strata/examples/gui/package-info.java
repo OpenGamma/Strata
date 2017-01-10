@@ -10,4 +10,3 @@
  * This package contains an example GUI designed to assist with schedule generation.
  */
 package com.opengamma.strata.examples.gui;
-

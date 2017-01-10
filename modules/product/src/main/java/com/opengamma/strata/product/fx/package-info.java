@@ -8,4 +8,3 @@
  * Entity objects describing financial instruments in the foreign exchange market.
  */
 package com.opengamma.strata.product.fx;
-

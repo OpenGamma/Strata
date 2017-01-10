@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
@@ -56,6 +57,41 @@ public class CurvesTest {
         .curveName(CURVE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
+        .dayCount(ACT_360)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void forwardRates_string() {
+    CurveMetadata test = Curves.forwardRates(NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void forwardRates_curveName() {
+    CurveMetadata test = Curves.forwardRates(CURVE_NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void forwardRates_curveNameParams() {
+    CurveMetadata test = Curves.forwardRates(CURVE_NAME, ACT_360, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
         .dayCount(ACT_360)
         .parameterMetadata(PARAMS)
         .build();
@@ -124,6 +160,41 @@ public class CurvesTest {
         .curveName(CURVE_NAME)
         .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void sabrParameterByExpiry_string() {
+    CurveMetadata test = Curves.sabrParameterByExpiry(NAME, ACT_365F, ValueType.SABR_ALPHA);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SABR_ALPHA)
+        .dayCount(ACT_365F)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void sabrParameterByExpiry_curveName() {
+    CurveMetadata test = Curves.sabrParameterByExpiry(CURVE_NAME, ACT_365F, ValueType.SABR_BETA);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SABR_BETA)
+        .dayCount(ACT_365F)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void sabrParameterByExpiry_curveNameParams() {
+    CurveMetadata test = Curves.sabrParameterByExpiry(CURVE_NAME, ACT_365F, ValueType.SABR_NU, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.SABR_NU)
+        .dayCount(ACT_365F)
         .parameterMetadata(PARAMS)
         .build();
     assertEquals(test, expected);

@@ -21,7 +21,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -67,7 +66,7 @@ public class FxSwapTradeCalculationFunction
           .put(Measures.PAR_SPREAD, FxSwapMeasureCalculations.DEFAULT::parSpread)
           .put(Measures.CURRENCY_EXPOSURE, FxSwapMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FxSwapMeasureCalculations.DEFAULT::currentCash)
-          .put(Measures.RESOLVED_TARGET, (rt, smd) -> ScenarioArray.ofSingleValue(smd.getScenarioCount(), rt))
+          .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -161,7 +160,7 @@ public class FxSwapTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedFxSwapTrade trade,
         RatesScenarioMarketData marketData);
   }

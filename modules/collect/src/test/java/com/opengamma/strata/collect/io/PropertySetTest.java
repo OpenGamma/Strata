@@ -79,9 +79,9 @@ public class PropertySetTest {
 
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
-    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb"));
-    PropertySet expected = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb", "c", "z"));
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "c", "z"));
+    PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb", "d", "dd"));
+    PropertySet expected = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "c", "z", "b", "bb", "d", "dd"));
     assertEquals(base.combinedWith(other), expected);
   }
 
@@ -93,6 +93,24 @@ public class PropertySetTest {
   public void test_combinedWith_emptyOther() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
     assertEquals(PropertySet.empty().combinedWith(base), base);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_overrideWith() {
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
+    PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "c", "cc", "d", "dd", "e", "ee"));
+    PropertySet expected = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "y", "c", "cc", "d", "dd", "e", "ee"));
+    assertEquals(base.overrideWith(other), expected);
+  }
+
+  public void test_overrideWith_emptyBase() {
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
+    assertEquals(base.overrideWith(PropertySet.empty()), base);
+  }
+
+  public void test_overrideWith_emptyOther() {
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
+    assertEquals(PropertySet.empty().overrideWith(base), base);
   }
 
   //-------------------------------------------------------------------------

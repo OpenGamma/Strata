@@ -68,4 +68,3 @@
  * Details for pricing against the model are held in the product.
  */
 package com.opengamma.strata.product;
-

@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -51,7 +52,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class CurvePointShifts
-    implements ScenarioPerturbation<Curve>, ImmutableBean {
+    implements ScenarioPerturbation<Curve>, ImmutableBean, Serializable {
 
   /** Logger. */
   private static final Logger log = LoggerFactory.getLogger(CurvePointShifts.class);
@@ -156,6 +157,11 @@ public final class CurvePointShifts
   static {
     JodaBeanUtils.registerMetaBean(CurvePointShifts.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

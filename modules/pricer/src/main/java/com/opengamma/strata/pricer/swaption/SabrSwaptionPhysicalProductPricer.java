@@ -133,8 +133,8 @@ public class SabrSwaptionPhysicalProductPricer
     DoubleArray derivative =
         swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
     // Backward sweep
-    double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility)
-        * swaption.getLongShort().sign();
+    double vega = Math.abs(pvbp) * BlackFormulaRepository.vega(forward + shift, strike + shift, expiry, volatility) *
+        swaption.getLongShort().sign();
     // sensitivities
     Currency ccy = fixedLeg.getCurrency();
     SwaptionVolatilitiesName name = swaptionVolatilities.getName();
