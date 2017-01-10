@@ -85,7 +85,7 @@ public class AnalyticSpreadSensitivityCalculator
 
     int nBucket = bucketCds.size();
     DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
-    NodalCurve creditCurveBase = calibrator.calibrate(
+    NodalCurve creditCurveBase = getCalibrator().calibrate(
         bucketCds,
         impSp,
         DoubleArray.filled(nBucket),
@@ -94,17 +94,17 @@ public class AnalyticSpreadSensitivityCalculator
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
+    IsdaCompliantZeroRateDiscountFactors df = IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase);
     CreditRatesProvider ratesProviderBase = ratesProvider.toImmutableCreditRatesProvider().toBuilder()
-        .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
-            legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
+        .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(legalEntityId, df)))
         .build();
 
     double[][] res = new double[nBucket][];
-    PointSensitivities pointPv = pricer.presentValueOnSettleSensitivity(trade, ratesProviderBase, refData);
+    PointSensitivities pointPv = getPricer().presentValueOnSettleSensitivity(trade, ratesProviderBase, refData);
     DoubleArray vLambda =
         ratesProviderBase.singleCreditCurveParameterSensitivity(pointPv, legalEntityId, currency).getSensitivity();
     for (int i = 0; i < nBucket; i++) {
-      PointSensitivities pointSp = pricer.parSpreadSensitivity(bucketCds.get(i), ratesProviderBase, refData);
+      PointSensitivities pointSp = getPricer().parSpreadSensitivity(bucketCds.get(i), ratesProviderBase, refData);
       res[i] = ratesProviderBase.singleCreditCurveParameterSensitivity(pointSp, legalEntityId, currency)
           .getSensitivity().toArray();
     }

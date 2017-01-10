@@ -132,7 +132,7 @@ public class CdsTest {
           .startDate(start)
           .endDate(end)
           .unadjustedStartDate(dates[i])
-          .unadjustedEndDate(dates[i +  1])
+          .unadjustedEndDate(dates[i + 1])
           .effectiveStartDate(start.minusDays(1))
           .effectiveEndDate(end.minusDays(1))
           .paymentDate(end).currency(USD)

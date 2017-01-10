@@ -38,7 +38,7 @@ import com.opengamma.strata.product.TradeInfo;
  * and in return, the index buyer receives the bond of a defaulted constituent legal entity for par.  
  */
 @BeanDefinition
-public class CdsIndexTrade
+public final class CdsIndexTrade
     implements ResolvableTrade<ResolvedCdsIndexTrade>, ImmutableBean, Serializable {
 
   /**
@@ -103,16 +103,15 @@ public class CdsIndexTrade
     return new CdsIndexTrade.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected CdsIndexTrade(CdsIndexTrade.Builder builder) {
-    JodaBeanUtils.notNull(builder.info, "info");
-    JodaBeanUtils.notNull(builder.product, "product");
-    this.info = builder.info;
-    this.product = builder.product;
-    this.upfrontFee = builder.upfrontFee;
+  private CdsIndexTrade(
+      TradeInfo info,
+      CdsIndex product,
+      AdjustablePayment upfrontFee) {
+    JodaBeanUtils.notNull(info, "info");
+    JodaBeanUtils.notNull(product, "product");
+    this.info = info;
+    this.product = product;
+    this.upfrontFee = upfrontFee;
   }
 
   @Override
@@ -203,26 +202,18 @@ public class CdsIndexTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CdsIndexTrade{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-    buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CdsIndexTrade}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -255,7 +246,7 @@ public class CdsIndexTrade
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -291,7 +282,7 @@ public class CdsIndexTrade
      * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TradeInfo> info() {
+    public MetaProperty<TradeInfo> info() {
       return info;
     }
 
@@ -299,7 +290,7 @@ public class CdsIndexTrade
      * The meta-property for the {@code product} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CdsIndex> product() {
+    public MetaProperty<CdsIndex> product() {
       return product;
     }
 
@@ -307,7 +298,7 @@ public class CdsIndexTrade
      * The meta-property for the {@code upfrontFee} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<AdjustablePayment> upfrontFee() {
+    public MetaProperty<AdjustablePayment> upfrontFee() {
       return upfrontFee;
     }
 
@@ -340,7 +331,7 @@ public class CdsIndexTrade
   /**
    * The bean-builder for {@code CdsIndexTrade}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<CdsIndexTrade> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CdsIndexTrade> {
 
     private TradeInfo info;
     private CdsIndex product;
@@ -349,14 +340,14 @@ public class CdsIndexTrade
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(CdsIndexTrade beanToCopy) {
+    private Builder(CdsIndexTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.upfrontFee = beanToCopy.upfrontFee;
@@ -421,7 +412,10 @@ public class CdsIndexTrade
 
     @Override
     public CdsIndexTrade build() {
-      return new CdsIndexTrade(this);
+      return new CdsIndexTrade(
+          info,
+          product,
+          upfrontFee);
     }
 
     //-----------------------------------------------------------------------
@@ -471,19 +465,11 @@ public class CdsIndexTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("CdsIndexTrade.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-      buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee)).append(',').append(' ');
+      buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

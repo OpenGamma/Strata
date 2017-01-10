@@ -21,10 +21,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.pricer.credit.CreditCurveZeroRateSensitivity;
-import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 
 /**
  * Test {@link LegalEntitySurvivalProbabilities}.
@@ -75,14 +71,14 @@ public class LegalEntitySurvivalProbabilitiesTest {
   public void test_zeroRatePointSensitivity() {
     LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
-        CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(DATE_AFTER), LEGAL_ENTITY);
+        CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, DFS.zeroRatePointSensitivity(DATE_AFTER));
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER), expected);
   }
 
   public void test_zeroRatePointSensitivity_sensitivityCurrency() {
     LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
-        CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(DATE_AFTER, GBP), LEGAL_ENTITY);
+        CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, DFS.zeroRatePointSensitivity(DATE_AFTER, GBP));
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER, GBP), expected);
   }
 
@@ -90,7 +86,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
     double yearFraction = DFS.relativeYearFraction(DATE_AFTER);
     LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
-        CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(yearFraction), LEGAL_ENTITY);
+        CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, DFS.zeroRatePointSensitivity(yearFraction));
     assertEquals(test.zeroRatePointSensitivity(yearFraction), expected);
   }
 
@@ -98,7 +94,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
     double yearFraction = DFS.relativeYearFraction(DATE_AFTER);
     LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity expected =
-        CreditCurveZeroRateSensitivity.of(DFS.zeroRatePointSensitivity(yearFraction, GBP), LEGAL_ENTITY);
+        CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, DFS.zeroRatePointSensitivity(yearFraction, GBP));
     assertEquals(test.zeroRatePointSensitivity(yearFraction, GBP), expected);
   }
 
@@ -116,7 +112,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
   public void test_parameterSensitivity() {
     LegalEntitySurvivalProbabilities test = LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, DFS);
     CreditCurveZeroRateSensitivity point =
-        CreditCurveZeroRateSensitivity.of(ZeroRateSensitivity.of(USD, 1d, 1d), LEGAL_ENTITY);
+        CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, ZeroRateSensitivity.of(USD, 1d, 1d));
     assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 

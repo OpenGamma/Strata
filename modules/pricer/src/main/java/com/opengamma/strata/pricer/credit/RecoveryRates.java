@@ -27,8 +27,6 @@ public interface RecoveryRates
    * Obtains an instance from a curve.
    * <p>
    * If the curve is {@code ConstantCurve}, {@code ConstantRecoveryRates} is always instantiated. 
-   * <p>
-   * This must be updated once a new subclass is implemented.
    * 
    * @param legalEntityId  the legal entity identifier
    * @param valuationDate  the valuation date for which the curve is valid

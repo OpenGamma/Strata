@@ -42,9 +42,9 @@ import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveCalibrator {
 
   /**
-   * The default implementation.
+   * The standard implementation.
    */
-  public static final SimpleCreditCurveCalibrator DEFAULT = new SimpleCreditCurveCalibrator();
+  private static final SimpleCreditCurveCalibrator STANDARD = new SimpleCreditCurveCalibrator();
 
   /**
    * The root bracket finder.
@@ -57,11 +57,23 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains the standard calibrator.
+   * <p>
+   * The original ISDA accrual-on-default formula (version 1.8.2 and lower) is used.
+   * 
+   * @return the standard calibrator
+   */
+  public static SimpleCreditCurveCalibrator standard() {
+    return SimpleCreditCurveCalibrator.STANDARD;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Constructs a default credit curve builder. 
    * <p>
    * The original ISDA accrual-on-default formula (version 1.8.2 and lower) is used.
    */
-  public SimpleCreditCurveCalibrator() {
+  private SimpleCreditCurveCalibrator() {
     super();
   }
 
@@ -103,14 +115,13 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
         .curveName(name)
         .dayCount(discountFactors.getDayCount())
         .build();
-    NodalCurve creditCurve = n == 1 ? ConstantNodalCurve.of(baseMetadata, t[0], guess[0])
-        : InterpolatedNodalCurve.of(
-            baseMetadata,
-            times,
-            DoubleArray.ofUnsafe(guess),
-            CurveInterpolators.PRODUCT_LINEAR,
-            CurveExtrapolators.FLAT,
-            CurveExtrapolators.PRODUCT_LINEAR);
+    NodalCurve creditCurve = n == 1 ? ConstantNodalCurve.of(baseMetadata, t[0], guess[0]) : InterpolatedNodalCurve.of(
+        baseMetadata,
+        times,
+        DoubleArray.ofUnsafe(guess),
+        CurveInterpolators.PRODUCT_LINEAR,
+        CurveExtrapolators.FLAT,
+        CurveExtrapolators.PRODUCT_LINEAR);
 
     for (int i = 0; i < n; i++) {
       Function<Double, Double> func = getPriceFunction(
@@ -124,8 +135,9 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
           recoveryRates,
           refData);
       double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], 0.0, Double.POSITIVE_INFINITY);
-      double zeroRate = bracket[0] > bracket[1] ? ROOTFINDER.getRoot(func, bracket[1], bracket[0])
-          : ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
+      double zeroRate = bracket[0] > bracket[1] ?
+          ROOTFINDER.getRoot(func, bracket[1], bracket[0]) :
+          ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
       creditCurve = creditCurve.withParameter(i, zeroRate);
     }
 

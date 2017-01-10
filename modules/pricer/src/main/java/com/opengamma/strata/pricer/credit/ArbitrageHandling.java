@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.credit.type;
+package com.opengamma.strata.pricer.credit;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -12,23 +12,35 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The accrual start for credit default swaps.
+ * The formula for accrual on default.
  * <p>
- * The accrual start is the next day or the previous IMM date.
+ * This specifies which formula is used in {@code IsdaCdsProductPricer} for computing the accrued payment on default. 
+ * The formula is 'original ISDA', 'Markit fix' or 'correct'.
  */
-public enum AccrualStart {
+public enum ArbitrageHandling {
 
   /**
-   * The accrual starts on T+1, i.e., the next day.
-   */
-  NEXT_DAY,
-
-  /**
-   * The accrual starts on the previous IMM date.
+   * Ignore.
    * <p>
-   * The IMM date must be computed based on {@link CdsImmDateLogic}.
+   * If the market data has arbitrage, the curve will still build. 
+   * The survival probability will not be monotonically decreasing 
+   * (equivalently, some forward hazard rates will be negative). 
    */
-  IMM_DATE;
+  IGNORE,
+  /**
+   * Fail.
+   * <p>
+   * An exception is thrown if an arbitrage is found. 
+   */
+  FAIL,
+  /**
+   * Zero hazard rate.
+   * <p>
+   * If a particular spread implies a negative forward hazard rate, 
+   * the hazard rate is set to zero, and the calibration continues. 
+   * The resultant curve will not exactly reprice the input CDSs, but will find new spreads that just avoid arbitrage.   
+   */
+  ZERO_HAZARD_RATE;
 
   //-------------------------------------------------------------------------
   /**
@@ -39,7 +51,7 @@ public enum AccrualStart {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static AccrualStart of(String uniqueName) {
+  public static ArbitrageHandling of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

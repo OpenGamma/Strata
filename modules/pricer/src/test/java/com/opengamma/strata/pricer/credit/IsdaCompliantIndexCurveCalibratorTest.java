@@ -110,8 +110,9 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     ImmutableMarketDataBuilder marketDataPsBuilder = ImmutableMarketData.builder(VALUATION_DATE);
     for (Integer i = 0; i < INDEX_SIZE; ++i) {
       StandardId legalEntityId = StandardId.of("OG", "ABC" + i.toString());
-      LegalEntityInformation information = DEFAULTED_NAMES.contains(i) ? LegalEntityInformation.isDefaulted(legalEntityId)
-          : LegalEntityInformation.isNotDefaulted(legalEntityId);
+      LegalEntityInformation information = DEFAULTED_NAMES.contains(i) ?
+          LegalEntityInformation.isDefaulted(legalEntityId) :
+          LegalEntityInformation.isNotDefaulted(legalEntityId);
       legalEntityIdsbuilder.add(legalEntityId);
       marketDataBuilder.addValue(LegalEntityInformationId.of(legalEntityId), information);
       marketDataPsBuilder.addValue(LegalEntityInformationId.of(legalEntityId), information);
@@ -138,7 +139,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
       .recoveryRateCurves(ImmutableMap.of(INDEX_ID, ConstantRecoveryRates.of(INDEX_ID, VALUATION_DATE, RECOVERY_RATE_VALUE)))
       .build();
   private static final CurveName CURVE_NAME = CurveName.of("test_credit");
-  private static final IsdaCompliantIndexCurveCalibrator CALIBRATOR = IsdaCompliantIndexCurveCalibrator.DEFAULT;
+  private static final IsdaCompliantIndexCurveCalibrator CALIBRATOR = IsdaCompliantIndexCurveCalibrator.standard();
   private static final double TOL = 1.0e-14;
   private static final double EPS = 1.0e-4;
 
@@ -184,7 +185,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
     NodalCurve curveComputed = (NodalCurve) creditCurveComputed.getSurvivalProbabilities().findData(CURVE_NAME).get();
     double computedIndex = curveComputed.getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     assertEquals(computedIndex, 93.0 / 97.0, TOL);
-    IsdaCompliantCreditCurveCalibrator cdsCalibrator = FastCreditCurveCalibrator.DEFAULT;
+    IsdaCompliantCreditCurveCalibrator cdsCalibrator = FastCreditCurveCalibrator.standard();
     List<CdsIsdaCreditCurveNode> cdsNodes = new ArrayList<>();
     for (int i = 0; i < CURVE_NODES_PS.size(); ++i) {
       cdsNodes.add(CdsIsdaCreditCurveNode.ofParSpread(

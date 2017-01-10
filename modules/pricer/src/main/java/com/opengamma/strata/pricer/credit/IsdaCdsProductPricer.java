@@ -60,8 +60,8 @@ public class IsdaCdsProductPricer {
    * Constructor specifying the formula to use for the accrued on default calculation.  
    * <p>
    * Options are the formula given in the ISDA model (version 1.8.2 and lower); 
-   * the proposed fix by Markit (given as a comment in  version 1.8.2), or the mathematically correct formula. 
-   * <p>
+   * the proposed fix by Markit (given as a comment in version 1.8.2), or the mathematically correct formula. 
+   *
    * @param formula  the formula
    */
   public IsdaCdsProductPricer(AccrualOnDefaultFormula formula) {
@@ -221,7 +221,7 @@ public class IsdaCdsProductPricer {
             .multipliedBy(signedNotional);
     PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
-        .multipliedBy(-cds.getFixedRate() * signedNotional);
+            .multipliedBy(-cds.getFixedRate() * signedNotional);
 
     return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }
@@ -290,7 +290,7 @@ public class IsdaCdsProductPricer {
             .multipliedBy(riskyAnnuityInv);
     PointSensitivityBuilder riskyAnnuitySensi = riskyAnnuitySensitivity(
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
-        .multipliedBy(-protectionLeg * riskyAnnuityInv * riskyAnnuityInv);
+            .multipliedBy(-protectionLeg * riskyAnnuityInv * riskyAnnuityInv);
 
     return protectionLegSensi.combinedWith(riskyAnnuitySensi);
   }

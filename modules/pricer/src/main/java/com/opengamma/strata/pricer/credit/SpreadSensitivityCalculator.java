@@ -40,11 +40,11 @@ public abstract class SpreadSensitivityCalculator {
   /**
    * The trade pricer.
    */
-  protected final IsdaCdsTradePricer pricer;
+  private final IsdaCdsTradePricer pricer;
   /**
    * The credit curve calibrator.
    */
-  protected final IsdaCompliantCreditCurveCalibrator calibrator;
+  private final IsdaCompliantCreditCurveCalibrator calibrator;
 
   /**
    * Constructor with accrual-on-default formula.
@@ -58,6 +58,25 @@ public abstract class SpreadSensitivityCalculator {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the pricer.
+   * 
+   * @return the pricer
+   */
+  protected IsdaCdsTradePricer getPricer() {
+    return pricer;
+  }
+
+  /**
+   * Gets the calibrator.
+   * 
+   * @return the calibrator
+   */
+  protected IsdaCompliantCreditCurveCalibrator getCalibrator() {
+    return calibrator;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Computes parallel CS01 for CDS. 
    * <p>
    * The relevant credit curve must be stored in {@code RatesProvider}.
@@ -66,7 +85,6 @@ public abstract class SpreadSensitivityCalculator {
    * Thus the credit curve must store {@link ResolvedTradeParameterMetadata}.
    * 
    * @param trade  the trade
-   * @param bucketCds  the CDS bucket
    * @param ratesProvider  the rates provider
    * @param refData  the reference data
    * @return the parallel CS01
@@ -107,7 +125,6 @@ public abstract class SpreadSensitivityCalculator {
    * Thus the credit curve must store {@link ResolvedTradeParameterMetadata}.
    * 
    * @param trade  the trade
-   * @param bucketCds  the CDS bucket
    * @param ratesProvider  the rates provider
    * @param refData  the reference data
    * @return the bucketed CS01
@@ -170,7 +187,6 @@ public abstract class SpreadSensitivityCalculator {
    * Thus the credit curve must store {@link ResolvedTradeParameterMetadata}.
    * 
    * @param trade  the trade
-   * @param bucketCdsIndex  the CDS index bucket
    * @param ratesProvider  the rates provider
    * @param refData  the reference data
    * @return the parallel CS01
@@ -221,7 +237,6 @@ public abstract class SpreadSensitivityCalculator {
    * Thus the credit curve must store {@link ResolvedTradeParameterMetadata}.
    * 
    * @param trade  the trade
-   * @param bucketCdsIndex  the CDS index bucket
    * @param ratesProvider  the rates provider
    * @param refData  the reference data
    * @return the bucketed CS01
@@ -322,7 +337,11 @@ public abstract class SpreadSensitivityCalculator {
     ArgChecker.isFalse(currencies.hasNext(), "currency must be common");
   }
 
-  protected DoubleArray impliedSpread(List<ResolvedCdsTrade> bucketCds, CreditRatesProvider ratesProvider, ReferenceData refData) {
+  protected DoubleArray impliedSpread(
+      List<ResolvedCdsTrade> bucketCds,
+      CreditRatesProvider ratesProvider,
+      ReferenceData refData) {
+
     int size = bucketCds.size();
     return DoubleArray.of(size, n -> pricer.parSpread(bucketCds.get(n), ratesProvider, refData));
   }

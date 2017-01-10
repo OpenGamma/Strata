@@ -65,7 +65,7 @@ public class SpreadSensitivityCalculatorTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double ONE_BP = 1.0e-4;
 
-  private static final IsdaCompliantCreditCurveCalibrator BUILDER = FastCreditCurveCalibrator.DEFAULT;
+  private static final IsdaCompliantCreditCurveCalibrator BUILDER = FastCreditCurveCalibrator.standard();
   private static final IsdaCdsTradePricer PRICER = IsdaCdsTradePricer.DEFAULT;
   private static final IsdaHomogenousCdsIndexTradePricer PRICER_INDEX = IsdaHomogenousCdsIndexTradePricer.DEFAULT;
   private static final FiniteDifferenceSpreadSensitivityCalculator CS01_FD = FiniteDifferenceSpreadSensitivityCalculator.DEFAULT;
@@ -300,7 +300,8 @@ public class SpreadSensitivityCalculatorTest {
     // equivalence to market quote sensitivity for par spread quote
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
-    CurrencyParameterSensitivities quoteSensi = QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
+    CurrencyParameterSensitivities quoteSensi =
+        QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
     assertEquals(cs01FromQuoteSensi, analytic.getAmount(), TOL * NOTIONAL);
   }
@@ -350,7 +351,8 @@ public class SpreadSensitivityCalculatorTest {
         NOTIONAL * TOL));
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
-    CurrencyParameterSensitivities quoteSensi = QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
+    CurrencyParameterSensitivities quoteSensi =
+        QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     assertTrue(DoubleArrayMath.fuzzyEquals(
         quoteSensi.getSensitivities().get(0).getSensitivity().toArray(),
         analytic.getSensitivity().toArray(),

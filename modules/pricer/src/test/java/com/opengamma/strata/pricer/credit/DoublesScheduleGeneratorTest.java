@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.pricer.credit.DoublesScheduleGenerator;
 
 /**
  * Test {@link DoublesScheduleGenerator}.

@@ -53,7 +53,7 @@ public final class ResolvedCds
    * A value of 'Buy' implies buying protection, where the fixed coupon is paid
    * and the protection is received  in the event of default.
    * A value of 'Sell' implies selling protection, where the fixed coupon is received
-   * and the protection is paid in the event of default. 
+   * and the protection is paid in the event of default.
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;

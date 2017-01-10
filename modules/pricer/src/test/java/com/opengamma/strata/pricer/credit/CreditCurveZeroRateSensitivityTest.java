@@ -27,7 +27,6 @@ import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.pricer.credit.CreditCurveZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.IborRateSensitivity;
 
 /**
@@ -61,13 +60,13 @@ public class CreditCurveZeroRateSensitivityTest {
 
   public void test_of_ZeroRateSensitivity() {
     ZeroRateSensitivity zeroPoint = ZeroRateSensitivity.of(USD, YEAR_FRACTION, GBP, VALUE);
-    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(zeroPoint, LEGAL_ENTITY);
+    CreditCurveZeroRateSensitivity test = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY, zeroPoint);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getCurveCurrency(), USD);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getSensitivity(), VALUE);
     assertEquals(test.getYearFraction(), YEAR_FRACTION);
-    assertEquals(test.createZeroRateSensitivity(), zeroPoint);
+    assertEquals(test.toZeroRateSensitivity(), zeroPoint);
   }
 
   //-------------------------------------------------------------------------

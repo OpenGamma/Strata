@@ -45,7 +45,7 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
   /**
    * The default implementation.
    */
-  public static final FastCreditCurveCalibrator DEFAULT = new FastCreditCurveCalibrator();
+  private static final FastCreditCurveCalibrator STANDARD = new FastCreditCurveCalibrator();
 
   /**
    * The root bracket finder.
@@ -58,11 +58,23 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains the standard calibrator.
+   * <p>
+   * The original ISDA accrual-on-default formula (version 1.8.2 and lower) is used.
+   * 
+   * @return the standard calibrator
+   */
+  public static FastCreditCurveCalibrator standard() {
+    return FastCreditCurveCalibrator.STANDARD;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Constructs a default credit curve builder. 
    * <p>
    * The original ISDA accrual-on-default formula (version 1.8.2 and lower) and the arbitrage handling 'ignore' are used.
    */
-  public FastCreditCurveCalibrator() {
+  private FastCreditCurveCalibrator() {
     super();
   }
 
@@ -87,6 +99,7 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
     super(formula, arbHandling);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   NodalCurve calibrate(
       List<ResolvedCdsTrade> calibrationCDSs,
@@ -115,14 +128,13 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
         .curveName(name)
         .dayCount(discountFactors.getDayCount())
         .build();
-    NodalCurve creditCurve = n == 1 ? ConstantNodalCurve.of(baseMetadata, t[0], guess[0])
-        : InterpolatedNodalCurve.of(
-            baseMetadata,
-            times,
-            DoubleArray.ofUnsafe(guess),
-            CurveInterpolators.PRODUCT_LINEAR,
-            CurveExtrapolators.FLAT,
-            CurveExtrapolators.PRODUCT_LINEAR);
+    NodalCurve creditCurve = n == 1 ? ConstantNodalCurve.of(baseMetadata, t[0], guess[0]) : InterpolatedNodalCurve.of(
+        baseMetadata,
+        times,
+        DoubleArray.ofUnsafe(guess),
+        CurveInterpolators.PRODUCT_LINEAR,
+        CurveExtrapolators.FLAT,
+        CurveExtrapolators.PRODUCT_LINEAR);
 
     for (int i = 0; i < n; i++) {
       ResolvedCds cds = calibrationCDSs.get(i).getProduct();
@@ -136,13 +148,14 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
           effectiveStartDate, settlementDate, accrued);
       Function<Double, Double> func = pricer.getPointFunction(i, creditCurve);
 
-      switch (getArbHanding()) {
+      switch (getArbitrageHandling()) {
         case IGNORE: {
           try {
             double[] bracket = BRACKETER.getBracketedPoints(
                 func, 0.8 * guess[i], 1.25 * guess[i], Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            double zeroRate = bracket[0] > bracket[1] ? ROOTFINDER.getRoot(func, bracket[1], bracket[0])
-                : ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
+            double zeroRate = bracket[0] > bracket[1] ?
+                ROOTFINDER.getRoot(func, bracket[1], bracket[0]) :
+                ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
             creditCurve = creditCurve.withParameter(i, zeroRate);
           } catch (final MathException e) { //handling bracketing failure due to small survival probability
             if (Math.abs(func.apply(creditCurve.getYValues().get(i - 1))) < 1.e-12) {
@@ -154,8 +167,9 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
           break;
         }
         case FAIL: {
-          final double minValue = i == 0 ? 0d
-              : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
+          final double minValue = i == 0 ?
+              0d :
+              creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
           if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
             final StringBuilder msg = new StringBuilder();
             if (pointsUpfront.get(i) == 0.0) {
@@ -175,8 +189,9 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
           break;
         }
         case ZERO_HAZARD_RATE: {
-          final double minValue = i == 0 ? 0.0
-              : creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
+          final double minValue = i == 0 ?
+              0.0 :
+              creditCurve.getYValues().get(i - 1) * creditCurve.getXValues().get(i - 1) / creditCurve.getXValues().get(i);
           if (i > 0 && func.apply(minValue) > 0.0) { //can never fail on the first spread
             creditCurve = creditCurve.withParameter(i, minValue);
           } else {
@@ -189,14 +204,14 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
           break;
         }
         default:
-          throw new IllegalArgumentException("unknown case " + getArbHanding());
+          throw new IllegalArgumentException("unknown case " + getArbitrageHandling());
       }
     }
     return creditCurve;
   }
 
   /* Prices the CDS */
-  protected class Pricer {
+  final class Pricer {
 
     private final ResolvedCds cds;
     private final double lgdDF;
@@ -363,7 +378,7 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
       double ht0 = creditCurve.yValue(t) * t;
       double rt0 = rtCurrent[0];
       double b0 = df[0] * Math.exp(-ht0);
-      double t0 = t - accStart + getAccOnDefaultFormula().getOmega();
+      double t0 = t - accStart + getAccrualOnDefaultFormula().getOmega();
       double pv = 0d;
       int nItems = knots.length;
       for (int j = 1; j < nItems; ++j) {
@@ -376,14 +391,14 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
         double drt = rt1 - rt0;
         double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
         double tPV;
-        if (getAccOnDefaultFormula() == AccrualOnDefaultFormula.MARKIT_FIX) {
+        if (getAccrualOnDefaultFormula() == AccrualOnDefaultFormula.MARKIT_FIX) {
           if (Math.abs(dhrt) < 1e-5) {
             tPV = dht * dt * b0 * epsilonP(-dhrt);
           } else {
             tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
           }
         } else {
-          double t1 = t - accStart + getAccOnDefaultFormula().getOmega();
+          double t1 = t - accStart + getAccrualOnDefaultFormula().getOmega();
           if (Math.abs(dhrt) < 1e-5) {
             tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
           } else {

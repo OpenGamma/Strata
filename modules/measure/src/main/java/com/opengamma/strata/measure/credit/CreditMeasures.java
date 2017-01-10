@@ -18,7 +18,18 @@ public final class CreditMeasures {
    * Measure representing the principal.
    */
   public static final Measure PRINCIPAL = Measure.of(StandardCreditMeasures.PRINCIPAL.getName());
+
   //-------------------------------------------------------------------------
+  /**
+   * Measure representing the PV change under a 1 bps shift in calibrated curve.
+   */
+  public static final Measure IR01_CALIBRATED_PARALLEL =
+      Measure.of(StandardCreditMeasures.IR01_CALIBRATED_PARALLEL.getName());
+  /**
+   * Measure representing the PV change under a series of 1 bps shifts in calibrated curve at each curve node.
+   */
+  public static final Measure IR01_CALIBRATED_BUCKETED =
+      Measure.of(StandardCreditMeasures.IR01_CALIBRATED_BUCKETED.getName());
   /**
    * Measure representing the PV change under a 1 bps shift to market quotes.
    */
@@ -29,14 +40,6 @@ public final class CreditMeasures {
    */
   public static final Measure IR01_MARKET_QUOTE_BUCKETED =
       Measure.of(StandardCreditMeasures.IR01_MARKET_QUOTE_BUCKETED.getName());
-  /**
-   * Measure representing the PV change under a 1 bps shift in calibrated curve.
-   */
-  public static final Measure IR01_CALIBRATED_PARALLEL = Measure.of(StandardCreditMeasures.IR01_CALIBRATED_PARALLEL.getName());
-  /**
-   * Measure representing the PV change under a series of 1 bps shifts in calibrated curve at each curve node.
-   */
-  public static final Measure IR01_CALIBRATED_BUCKETED = Measure.of(StandardCreditMeasures.IR01_CALIBRATED_BUCKETED.getName());
 
   //-------------------------------------------------------------------------
   /**

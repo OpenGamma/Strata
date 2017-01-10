@@ -14,8 +14,6 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.pricer.credit.AccrualOnDefaultFormula;
-
 /**
  * Test {@link AccrualOnDefaultFormula}.
  */

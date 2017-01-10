@@ -261,9 +261,9 @@ public final class IsdaCompliantDiscountCurveCalibrator {
     if (guess == 0.0 && func.apply(guess) == 0.0) {
       return curve;
     }
-    double[] bracket = guess > 0d
-        ? BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)
-        : BRACKETER.getBracketedPoints(func, 1.25 * guess, 0.8 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+    double[] bracket = guess > 0d ?
+        BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY) :
+        BRACKETER.getBracketedPoints(func, 1.25 * guess, 0.8 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     double r = rootFinder.getRoot(func, grad, bracket[0], bracket[1]);
     return curve.withParameter(curveIndex, r);
   }

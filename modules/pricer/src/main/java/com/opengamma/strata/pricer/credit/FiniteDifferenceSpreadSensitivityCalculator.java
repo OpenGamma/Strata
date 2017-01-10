@@ -73,7 +73,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
 
     int nBucket = bucketCds.size();
     DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
-    NodalCurve creditCurveBase = calibrator.calibrate(
+    NodalCurve creditCurveBase = getCalibrator().calibrate(
         bucketCds,
         impSp,
         DoubleArray.filled(nBucket),
@@ -82,14 +82,16 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
+    Pair<StandardId, Currency> lePair = Pair.of(legalEntityId, currency);
+
+    IsdaCompliantZeroRateDiscountFactors df = IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase);
     CreditRatesProvider ratesProviderBase = immutableRatesProvider.toBuilder()
-        .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
-            legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
+        .creditCurves(ImmutableMap.of(lePair, LegalEntitySurvivalProbabilities.of(legalEntityId, df)))
         .build();
-    CurrencyAmount pvBase = pricer.presentValueOnSettle(trade, ratesProviderBase, PriceType.DIRTY, refData);
+    CurrencyAmount pvBase = getPricer().presentValueOnSettle(trade, ratesProviderBase, PriceType.DIRTY, refData);
 
     DoubleArray bumpedSp = DoubleArray.of(nBucket, i -> impSp.get(i) + bumpAmount);
-    NodalCurve creditCurveBump = calibrator.calibrate(
+    NodalCurve creditCurveBump = getCalibrator().calibrate(
         bucketCds,
         bumpedSp,
         DoubleArray.filled(nBucket),
@@ -98,13 +100,12 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
+    IsdaCompliantZeroRateDiscountFactors dfb = IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBump);
     CreditRatesProvider ratesProviderBump = immutableRatesProvider.toBuilder()
-        .creditCurves(ImmutableMap.of(
-            Pair.of(legalEntityId, currency),
-            LegalEntitySurvivalProbabilities.of(
-                legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBump))))
+        .creditCurves(
+            ImmutableMap.of(lePair, LegalEntitySurvivalProbabilities.of(legalEntityId, dfb)))
         .build();
-    CurrencyAmount pvBumped = pricer.presentValueOnSettle(trade, ratesProviderBump, PriceType.DIRTY, refData);
+    CurrencyAmount pvBumped = getPricer().presentValueOnSettle(trade, ratesProviderBump, PriceType.DIRTY, refData);
 
     return CurrencyAmount.of(currency, (pvBumped.getAmount() - pvBase.getAmount()) / bumpAmount);
   }
@@ -126,7 +127,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
     int nBucket = bucketCds.size();
     double[] res = new double[nBucket];
     DoubleArray impSp = impliedSpread(bucketCds, ratesProvider, refData);
-    NodalCurve creditCurveBase = calibrator.calibrate(
+    NodalCurve creditCurveBase = getCalibrator().calibrate(
         bucketCds,
         impSp,
         DoubleArray.filled(nBucket),
@@ -135,15 +136,17 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
+    Pair<StandardId, Currency> lePair = Pair.of(legalEntityId, currency);
+
+    IsdaCompliantZeroRateDiscountFactors df = IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase);
     CreditRatesProvider ratesProviderBase = immutableRatesProvider.toBuilder()
-        .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(
-            legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase))))
+        .creditCurves(ImmutableMap.of(lePair, LegalEntitySurvivalProbabilities.of(legalEntityId, df)))
         .build();
-    double pvBase = pricer.presentValueOnSettle(trade, ratesProviderBase, PriceType.DIRTY, refData).getAmount();
+    double pvBase = getPricer().presentValueOnSettle(trade, ratesProviderBase, PriceType.DIRTY, refData).getAmount();
     for (int i = 0; i < nBucket; ++i) {
       double[] bumpedSp = impSp.toArray();
       bumpedSp[i] += bumpAmount;
-      NodalCurve creditCurveBump = calibrator.calibrate(
+      NodalCurve creditCurveBump = getCalibrator().calibrate(
           bucketCds,
           DoubleArray.ofUnsafe(bumpedSp),
           DoubleArray.filled(nBucket),
@@ -152,13 +155,12 @@ public class FiniteDifferenceSpreadSensitivityCalculator extends SpreadSensitivi
           ratesProvider.discountFactors(currency),
           ratesProvider.recoveryRates(legalEntityId),
           refData);
+      IsdaCompliantZeroRateDiscountFactors dfb =
+          IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBump);
       CreditRatesProvider ratesProviderBump = immutableRatesProvider.toBuilder()
-          .creditCurves(ImmutableMap.of(
-              Pair.of(legalEntityId, currency),
-              LegalEntitySurvivalProbabilities.of(
-                  legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBump))))
+          .creditCurves(ImmutableMap.of(lePair, LegalEntitySurvivalProbabilities.of(legalEntityId, dfb)))
           .build();
-      double pvBumped = pricer.presentValueOnSettle(trade, ratesProviderBump, PriceType.DIRTY, refData).getAmount();
+      double pvBumped = getPricer().presentValueOnSettle(trade, ratesProviderBump, PriceType.DIRTY, refData).getAmount();
       res[i] = (pvBumped - pvBase) / bumpAmount;
     }
     return DoubleArray.ofUnsafe(res);

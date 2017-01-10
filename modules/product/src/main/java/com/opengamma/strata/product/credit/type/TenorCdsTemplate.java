@@ -108,9 +108,9 @@ public final class TenorCdsTemplate
       double fixedRate,
       ReferenceData refData) {
 
-    return accrualStart.equals(AccrualStart.IMM_DATE)
-        ? convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData)
-        : convention.createTrade(legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, refData);
+    return accrualStart.equals(AccrualStart.IMM_DATE) ?
+        convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, refData) :
+        convention.createTrade(legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, refData);
   }
 
   @Override
@@ -123,9 +123,9 @@ public final class TenorCdsTemplate
       AdjustablePayment upFrontFee,
       ReferenceData refData) {
 
-    return accrualStart.equals(AccrualStart.IMM_DATE)
-        ? convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, upFrontFee, refData)
-        : convention.createTrade(
+    return accrualStart.equals(AccrualStart.IMM_DATE) ?
+        convention.createTrade(legalEntityId, tradeDate, tenor, buySell, notional, fixedRate, upFrontFee, refData) :
+        convention.createTrade(
             legalEntityId, tradeDate, tradeDate.plusDays(1), tenor, buySell, notional, fixedRate, upFrontFee, refData);
   }
 

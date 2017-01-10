@@ -53,7 +53,7 @@ public class CdsMarketQuoteConverter {
    * The original ISDA accrual-on-default formula (version 1.8.2 and lower) is used.
    */
   public CdsMarketQuoteConverter() {
-    this.calibrator = FastCreditCurveCalibrator.DEFAULT;
+    this.calibrator = FastCreditCurveCalibrator.standard();
     this.pricer = IsdaCdsTradePricer.DEFAULT;
   }
 

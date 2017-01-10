@@ -31,7 +31,6 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsQuote;
 import com.opengamma.strata.product.credit.CdsTrade;
@@ -47,7 +46,7 @@ public class CdsMarketQuoteConverterTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CdsMarketQuoteConverter CONV = CdsMarketQuoteConverter.DEFAULT;
   private static final CdsMarketQuoteConverter CONV_MARKIT_FIX = new CdsMarketQuoteConverter(AccrualOnDefaultFormula.MARKIT_FIX);
-  private static final IsdaCompliantCreditCurveCalibrator CALIB = FastCreditCurveCalibrator.DEFAULT;
+  private static final IsdaCompliantCreditCurveCalibrator CALIB = FastCreditCurveCalibrator.standard();
 
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "AAB");
   private static final HolidayCalendarId DEFAULT_CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -122,7 +121,7 @@ public class CdsMarketQuoteConverterTest {
   public void parSpreadQuoteTest() {
     int nPillars = MATURITIES.length;
     List<Cds> products = new ArrayList<>(nPillars);
-    List<CdsQuote> quotes = new ArrayList<CdsQuote>(nPillars);
+    List<CdsQuote> quotes = new ArrayList<>(nPillars);
     double[] parSpreads = new double[] {0.00769041167742121, 0.010780108645654813, 0.014587245777777417, 0.017417253343028126,
         0.01933997409465104, 0.022289540511698912, 0.025190509434219924};
     for (int i = 0; i < nPillars; ++i) {

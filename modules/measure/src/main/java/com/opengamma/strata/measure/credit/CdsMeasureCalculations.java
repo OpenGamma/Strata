@@ -152,7 +152,7 @@ final class CdsMeasureCalculations {
   }
 
   // calculates calibrated parallel IR01 for one scenario
-  private CurrencyAmount ir01CalibratedParallel(
+  CurrencyAmount ir01CalibratedParallel(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
@@ -177,7 +177,7 @@ final class CdsMeasureCalculations {
   }
 
   // calculates calibrated bucketed IR01 for one scenario
-  private CurrencyParameterSensitivity ir01CalibratedBucketed(
+  CurrencyParameterSensitivity ir01CalibratedBucketed(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
@@ -257,7 +257,7 @@ final class CdsMeasureCalculations {
   }
 
   // calculates calibrated sum PV01 for one scenario
-  private MultiCurrencyAmount pv01CalibratedSum(
+  MultiCurrencyAmount pv01CalibratedSum(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
@@ -279,7 +279,7 @@ final class CdsMeasureCalculations {
   }
 
   // calculates calibrated bucketed PV01 for one scenario
-  private CurrencyParameterSensitivities pv01CalibratedBucketed(
+  CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedCdsTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {

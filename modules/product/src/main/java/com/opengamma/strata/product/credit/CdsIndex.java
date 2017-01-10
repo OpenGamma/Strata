@@ -61,7 +61,7 @@ public final class CdsIndex
    * A value of 'Buy' implies buying protection, where the fixed coupon is paid
    * and the protection is received  in the event of default.
    * A value of 'Sell' implies selling protection, where the fixed coupon is received
-   * and the protection is paid in the event of default. 
+   * and the protection is paid in the event of default.
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
@@ -132,8 +132,8 @@ public final class CdsIndex
   /**
    * The number of days between valuation date and step-in date.
    * <p>
-   * The step-in date is also called protection effective date. 
-   * It is usually 1 calendar day for standardized CDS index contracts. 
+   * The step-in date is also called protection effective date.
+   * It is usually 1 calendar day for standardized CDS index contracts.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment stepinDateOffset;
@@ -147,7 +147,7 @@ public final class CdsIndex
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance of standardized CDS index.
+   * Creates an instance of a standardized CDS index.
    * 
    * @param buySell  buy or sell
    * @param cdsIndexId  the CDS index ID

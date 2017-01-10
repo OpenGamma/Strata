@@ -122,7 +122,15 @@ public class IsdaCompliantCreditCurveCalibratorBase {
         0.00886315689995649, 0.00886315689995649, 0.0133044689825873, 0.0171490070952563, 0.0183903639181293, 0.0194721890639724};
     for (int i = 0; i < nTenors; ++i) {
       Cds product = Cds.of(
-          BUY, LEGAL_ENTITY, EUR, 1d, startDate0, LocalDate.of(2011, 6, 20).plus(tenors[i]), Frequency.P3M, DEFAULT_CALENDAR, SPREADS[0][i]);
+          BUY,
+          LEGAL_ENTITY,
+          EUR,
+          1d,
+          startDate0,
+          LocalDate.of(2011, 6, 20).plus(tenors[i]),
+          Frequency.P3M,
+          DEFAULT_CALENDAR,
+          SPREADS[0][i]);
       EXP_NODE_CDS[0][i] = CdsTrade.builder()
           .info(TradeInfo.builder().settlementDate(product.getSettlementDateOffset().adjust(tradeDate0, REF_DATA)).build())
           .product(product)
@@ -359,7 +367,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       Currency currency,
       double tol) {
 
-    IsdaCdsProductPricer pricer = new IsdaCdsProductPricer(builder.getAccOnDefaultFormula());
+    IsdaCdsProductPricer pricer = new IsdaCdsProductPricer(builder.getAccrualOnDefaultFormula());
     for (int i = 0; i < NUM_TESTS; i++) {
       LegalEntitySurvivalProbabilities creditCurve = builder.calibrate(
           ImmutableList.copyOf(NODE_CDS[i]),
@@ -373,8 +381,8 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       ImmutableCreditRatesProvider provider = YIELD_CURVES[i].toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, EUR), creditCurve))
           .build();
-      double[] expected = builder.getAccOnDefaultFormula() == AccrualOnDefaultFormula.MARKIT_FIX
-          ? EXP_PROB_MARKIT_FIX[i] : EXP_PROB_ISDA[i];
+      double[] expected =
+          builder.getAccrualOnDefaultFormula() == AccrualOnDefaultFormula.MARKIT_FIX ? EXP_PROB_MARKIT_FIX[i] : EXP_PROB_ISDA[i];
       for (int k = 0; k < N_OBS; k++) {
         assertEquals(creditCurve.getSurvivalProbabilities().discountFactor(OBS_TIMES[k]), expected[k], tol);
       }

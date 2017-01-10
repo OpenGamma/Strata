@@ -449,7 +449,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     int nMoneyMarket1 = 0;
     int nSwaps1 = 14;
     int nInstruments1 = nMoneyMarket1 + nSwaps1;
-    List<IsdaCreditCurveNode> nodes1 = new ArrayList(nInstruments1);
+    List<IsdaCreditCurveNode> nodes1 = new ArrayList<>(nInstruments1);
     int[] mmMonths1 = new int[] {};
     int[] swapYears1 = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
     String[] idValues1 = new String[] {"swap2Y", "swap3Y", "swap4Y", "swap5Y", "swap6Y", "swap7Y", "swap8Y", "swap9Y",
@@ -470,7 +470,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     int nMoneyMarket2 = 6;
     int nSwaps2 = 0;
     int nInstruments2 = nMoneyMarket2 + nSwaps2;
-    List<IsdaCreditCurveNode> nodes2 = new ArrayList(nInstruments2);
+    List<IsdaCreditCurveNode> nodes2 = new ArrayList<>(nInstruments2);
     int[] mmMonths2 = new int[] {1, 2, 3, 6, 9, 12};
     int[] swapYears2 = new int[] {};
     String[] idValues2 = new String[] {"mm1M", "mm2M", "mm3M", "mm6M", "mm9M", "mm12M"};
@@ -690,7 +690,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     int nMoneyMarket = 6;
     int nSwaps = 14;
     int nInstruments = nMoneyMarket + nSwaps;
-    List<IsdaCreditCurveNode> nodes = new ArrayList(nInstruments);
+    List<IsdaCreditCurveNode> nodes = new ArrayList<>(nInstruments);
     int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
     int[] swapYears = new int[] {1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
     double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
@@ -744,7 +744,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     int nMoneyMarket = 5;
     int nSwaps = 1;
     int nInstruments = nMoneyMarket + nSwaps;
-    List<IsdaCreditCurveNode> nodes = new ArrayList(nInstruments + 1);
+    List<IsdaCreditCurveNode> nodes = new ArrayList<>(nInstruments + 1);
     int[] mmMonths = new int[] {1, 2, 3, 6, 9};
     int[] swapYears = new int[] {1};
     double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251,
@@ -785,7 +785,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
 
     int nInstruments = idValues.length;
     int nTerms = termMonths.length;
-    List<IsdaCreditCurveNode> nodes = new ArrayList(nInstruments);
+    List<IsdaCreditCurveNode> nodes = new ArrayList<>(nInstruments);
     for (int i = 0; i < nTerms; i++) {
       Tenor tenor = Tenor.ofMonths(termMonths[i]);
       nodes.add(DepositIsdaCreditCurveNode.of(

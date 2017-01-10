@@ -63,9 +63,12 @@ import com.opengamma.strata.product.credit.type.CdsConvention;
 import com.opengamma.strata.product.credit.type.DatesCdsTemplate;
 import com.opengamma.strata.product.credit.type.ImmutableCdsConvention;
 
+/**
+ * Testing data.
+ */
 public class CreditDataSet {
 
-  private static final IsdaCompliantCreditCurveCalibrator BUILDER = FastCreditCurveCalibrator.DEFAULT;
+  private static final IsdaCompliantCreditCurveCalibrator BUILDER = FastCreditCurveCalibrator.standard();
 
   static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double ONE_BP = 1.0e-4;

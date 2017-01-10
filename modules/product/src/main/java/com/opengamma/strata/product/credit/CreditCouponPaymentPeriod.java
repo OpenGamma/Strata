@@ -32,7 +32,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * A period over which a fixed coupon is paid.
  * <p>
  * A single payment period within a CDS, {@link ResolvedCds}.
- * The payments of the CDS consist periodic coupon payments and protection payment on default.
+ * The payments of the CDS consist of periodic coupon payments and protection payment on default.
  * This class represents a single payment of the periodic payments.
  */
 @BeanDefinition

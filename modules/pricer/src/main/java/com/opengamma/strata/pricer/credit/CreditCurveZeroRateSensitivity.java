@@ -102,13 +102,13 @@ public final class CreditCurveZeroRateSensitivity
   /**
    * Obtains an instance from {@code ZeroRateSensitivity} and {@code StandardId}.
    * 
-   * @param zeroRateSensitivity  the zero rate sensitivity
    * @param legalEntityId  the legal entity identifier
+   * @param zeroRateSensitivity  the zero rate sensitivity
    * @return the point sensitivity object
    */
   public static CreditCurveZeroRateSensitivity of(
-      ZeroRateSensitivity zeroRateSensitivity,
-      StandardId legalEntityId) {
+      StandardId legalEntityId,
+      ZeroRateSensitivity zeroRateSensitivity) {
 
     return new CreditCurveZeroRateSensitivity(legalEntityId, zeroRateSensitivity);
   }
@@ -201,6 +201,7 @@ public final class CreditCurveZeroRateSensitivity
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains the underlying {@code ZeroRateSensitivity}. 
    * <p>
@@ -208,7 +209,7 @@ public final class CreditCurveZeroRateSensitivity
    * 
    * @return the point sensitivity object
    */
-  public ZeroRateSensitivity createZeroRateSensitivity() {
+  public ZeroRateSensitivity toZeroRateSensitivity() {
     return zeroRateSensitivity;
   }
 

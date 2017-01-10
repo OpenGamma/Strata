@@ -16,14 +16,14 @@ final class StandardCreditMeasures {
   // principal
   public static final Measure PRINCIPAL = ImmutableMeasure.of("Principal");
   //-------------------------------------------------------------------------
-  // PV change under a 1 bps shift to market quotes
-  public static final Measure IR01_MARKET_QUOTE_PARALLEL = ImmutableMeasure.of("IR01MarketQuoteParallel");
-  // PV change under a series of 1 bps shifts in market quotes at each curve node
-  public static final Measure IR01_MARKET_QUOTE_BUCKETED = ImmutableMeasure.of("IR01MarketQuoteBucketed");
   // PV change under a 1 bps shift in calibrated curve
   public static final Measure IR01_CALIBRATED_PARALLEL = ImmutableMeasure.of("IR01CalibratedParallel");
   // PV change under a series of 1 bps shifts in calibrated curve at each curve node
   public static final Measure IR01_CALIBRATED_BUCKETED = ImmutableMeasure.of("IR01CalibratedBucketed");
+  // PV change under a 1 bps shift to market quotes
+  public static final Measure IR01_MARKET_QUOTE_PARALLEL = ImmutableMeasure.of("IR01MarketQuoteParallel");
+  // PV change under a series of 1 bps shifts in market quotes at each curve node
+  public static final Measure IR01_MARKET_QUOTE_BUCKETED = ImmutableMeasure.of("IR01MarketQuoteBucketed");
 
   //-------------------------------------------------------------------------
   // PV change under a 1 bps shift in credit spread

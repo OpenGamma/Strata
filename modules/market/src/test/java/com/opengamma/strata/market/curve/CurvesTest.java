@@ -166,6 +166,76 @@ public class CurvesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void blackVolatilityByExpiry_string() {
+    CurveMetadata test = Curves.blackVolatilityByExpiry(NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void blackVolatilityByExpiry_curveName() {
+    CurveMetadata test = Curves.blackVolatilityByExpiry(CURVE_NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void blackVolatilityByExpiry_curveNameParams() {
+    CurveMetadata test = Curves.blackVolatilityByExpiry(CURVE_NAME, ACT_360, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void recoveryRates_string() {
+    CurveMetadata test = Curves.recoveryRates(NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.RECOVERY_RATE)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void recoveryRates_curveName() {
+    CurveMetadata test = Curves.recoveryRates(CURVE_NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.RECOVERY_RATE)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void recoveryRates_curveNameParams() {
+    CurveMetadata test = Curves.recoveryRates(CURVE_NAME, ACT_360, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.RECOVERY_RATE)
+        .dayCount(ACT_360)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void sabrParameterByExpiry_string() {
     CurveMetadata test = Curves.sabrParameterByExpiry(NAME, ACT_365F, ValueType.SABR_ALPHA);
     CurveMetadata expected = DefaultCurveMetadata.builder()

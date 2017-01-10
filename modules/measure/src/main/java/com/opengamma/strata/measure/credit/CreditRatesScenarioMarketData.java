@@ -57,4 +57,5 @@ public interface CreditRatesScenarioMarketData {
    * @throws IndexOutOfBoundsException if the scenario index is invalid
    */
   public abstract CreditRatesMarketData scenario(int scenarioIndex);
+
 }

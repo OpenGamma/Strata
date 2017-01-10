@@ -65,7 +65,13 @@ final class DefaultLookupCreditRatesProvider
   private final MarketData marketData;
 
   //-------------------------------------------------------------------------
-
+  /**
+   * Obtains an instance based on a lookup and market data.
+   *
+   * @param lookup  the lookup
+   * @param marketData  the market data
+   * @return the credit rates provider
+   */
   public static DefaultLookupCreditRatesProvider of(
       DefaultCreditRatesMarketDataLookup lookup,
       MarketData marketData) {
@@ -80,6 +86,11 @@ final class DefaultLookupCreditRatesProvider
 
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultLookupCreditRatesProvider(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------

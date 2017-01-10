@@ -47,7 +47,7 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
  * This includes credit curves, discounting curves and recovery rate curves.
  */
 @BeanDefinition
-public class ImmutableCreditRatesProvider
+public final class ImmutableCreditRatesProvider
     implements CreditRatesProvider, ImmutableBean, Serializable {
 
   /**
@@ -55,7 +55,7 @@ public class ImmutableCreditRatesProvider
    * <p>
    * All curves and other data items in this provider are calibrated for this date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
   /**
    * The credit curves.
@@ -231,19 +231,19 @@ public class ImmutableCreditRatesProvider
     return new ImmutableCreditRatesProvider.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected ImmutableCreditRatesProvider(ImmutableCreditRatesProvider.Builder builder) {
-    JodaBeanUtils.notNull(builder.valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(builder.creditCurves, "creditCurves");
-    JodaBeanUtils.notEmpty(builder.discountCurves, "discountCurves");
-    JodaBeanUtils.notEmpty(builder.recoveryRateCurves, "recoveryRateCurves");
-    this.valuationDate = builder.valuationDate;
-    this.creditCurves = ImmutableMap.copyOf(builder.creditCurves);
-    this.discountCurves = ImmutableMap.copyOf(builder.discountCurves);
-    this.recoveryRateCurves = ImmutableMap.copyOf(builder.recoveryRateCurves);
+  private ImmutableCreditRatesProvider(
+      LocalDate valuationDate,
+      Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves,
+      Map<Currency, CreditDiscountFactors> discountCurves,
+      Map<StandardId, RecoveryRates> recoveryRateCurves) {
+    JodaBeanUtils.notNull(valuationDate, "valuationDate");
+    JodaBeanUtils.notNull(creditCurves, "creditCurves");
+    JodaBeanUtils.notEmpty(discountCurves, "discountCurves");
+    JodaBeanUtils.notEmpty(recoveryRateCurves, "recoveryRateCurves");
+    this.valuationDate = valuationDate;
+    this.creditCurves = ImmutableMap.copyOf(creditCurves);
+    this.discountCurves = ImmutableMap.copyOf(discountCurves);
+    this.recoveryRateCurves = ImmutableMap.copyOf(recoveryRateCurves);
     validate();
   }
 
@@ -269,6 +269,7 @@ public class ImmutableCreditRatesProvider
    * All curves and other data items in this provider are calibrated for this date.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getValuationDate() {
     return valuationDate;
   }
@@ -344,27 +345,19 @@ public class ImmutableCreditRatesProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ImmutableCreditRatesProvider{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("creditCurves").append('=').append(creditCurves).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
+    buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
-    buf.append("creditCurves").append('=').append(JodaBeanUtils.toString(creditCurves)).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
-    buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ImmutableCreditRatesProvider}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -406,7 +399,7 @@ public class ImmutableCreditRatesProvider
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -444,7 +437,7 @@ public class ImmutableCreditRatesProvider
      * The meta-property for the {@code valuationDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> valuationDate() {
+    public MetaProperty<LocalDate> valuationDate() {
       return valuationDate;
     }
 
@@ -452,7 +445,7 @@ public class ImmutableCreditRatesProvider
      * The meta-property for the {@code creditCurves} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities>> creditCurves() {
+    public MetaProperty<ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities>> creditCurves() {
       return creditCurves;
     }
 
@@ -460,7 +453,7 @@ public class ImmutableCreditRatesProvider
      * The meta-property for the {@code discountCurves} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<Currency, CreditDiscountFactors>> discountCurves() {
+    public MetaProperty<ImmutableMap<Currency, CreditDiscountFactors>> discountCurves() {
       return discountCurves;
     }
 
@@ -468,7 +461,7 @@ public class ImmutableCreditRatesProvider
      * The meta-property for the {@code recoveryRateCurves} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<StandardId, RecoveryRates>> recoveryRateCurves() {
+    public MetaProperty<ImmutableMap<StandardId, RecoveryRates>> recoveryRateCurves() {
       return recoveryRateCurves;
     }
 
@@ -503,7 +496,7 @@ public class ImmutableCreditRatesProvider
   /**
    * The bean-builder for {@code ImmutableCreditRatesProvider}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ImmutableCreditRatesProvider> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ImmutableCreditRatesProvider> {
 
     private LocalDate valuationDate;
     private Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves = ImmutableMap.of();
@@ -513,14 +506,14 @@ public class ImmutableCreditRatesProvider
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ImmutableCreditRatesProvider beanToCopy) {
+    private Builder(ImmutableCreditRatesProvider beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
       this.creditCurves = beanToCopy.getCreditCurves();
       this.discountCurves = beanToCopy.getDiscountCurves();
@@ -592,7 +585,11 @@ public class ImmutableCreditRatesProvider
 
     @Override
     public ImmutableCreditRatesProvider build() {
-      return new ImmutableCreditRatesProvider(this);
+      return new ImmutableCreditRatesProvider(
+          valuationDate,
+          creditCurves,
+          discountCurves,
+          recoveryRateCurves);
     }
 
     //-----------------------------------------------------------------------
@@ -653,20 +650,12 @@ public class ImmutableCreditRatesProvider
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutableCreditRatesProvider.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("creditCurves").append('=').append(JodaBeanUtils.toString(creditCurves)).append(',').append(' ');
       buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
-      buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves)).append(',').append(' ');
+      buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

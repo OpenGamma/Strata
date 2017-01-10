@@ -168,9 +168,9 @@ public class ImmutableCreditRatesProviderTest {
         .valuationDate(VALUATION)
         .build();
     CurrencyParameterSensitivities computed = CurrencyParameterSensitivities.of(test.singleCreditCurveParameterSensitivity(
-            zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(),
-            LEGAL_ENTITY_ABC,
-            JPY));
+        zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(),
+        LEGAL_ENTITY_ABC,
+        JPY));
     CurrencyParameterSensitivities expected =
         LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY).parameterSensitivity(creditPt);
     assertTrue(computed.equalWithTolerance(expected, 1.0e-14));

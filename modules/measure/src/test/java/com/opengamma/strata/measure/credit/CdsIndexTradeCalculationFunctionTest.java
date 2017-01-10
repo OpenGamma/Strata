@@ -60,7 +60,10 @@ public class CdsIndexTradeCalculationFunctionTest {
     FunctionRequirements reqs = FUNCTION.requirements(TRADE, measures, CreditDataSet.INDEX_PARAMS, CreditDataSet.REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(USD);
     assertThat(reqs.getValueRequirements()).isEqualTo(
-        ImmutableSet.of(CreditDataSet.INDEX_CREDIT_CURVE_ID, CreditDataSet.USD_DSC_CURVE_ID, CreditDataSet.INDEX_RECOVERY_CURVE_ID));
+        ImmutableSet.of(
+            CreditDataSet.INDEX_CREDIT_CURVE_ID,
+            CreditDataSet.USD_DSC_CURVE_ID,
+            CreditDataSet.INDEX_RECOVERY_CURVE_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(FUNCTION.naturalCurrency(TRADE, CreditDataSet.REF_DATA)).isEqualTo(USD);
   }
@@ -97,7 +100,8 @@ public class CdsIndexTradeCalculationFunctionTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(oneBp);
     CurrencyParameterSensitivity expectedCs01Bucketed = CS01_CALC.bucketedCs01(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
     CurrencyAmount expectedCs01Parallel = CS01_CALC.parallelCs01(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
-    PointSensitivities pvPointSensOnSettle = PRICER.presentValueOnSettleSensitivity(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
+    PointSensitivities pvPointSensOnSettle =
+        PRICER.presentValueOnSettleSensitivity(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
     CurrencyParameterSensitivity ir01 = RATES_PROVIDER.singleDiscountCurveParameterSensitivity(pvPointSensOnSettle, USD);
     CurrencyAmount expectedIr01Cal = ir01.total().multipliedBy(oneBp);
     CurrencyParameterSensitivity expectedIr01CalBucketed = ir01.multipliedBy(oneBp);

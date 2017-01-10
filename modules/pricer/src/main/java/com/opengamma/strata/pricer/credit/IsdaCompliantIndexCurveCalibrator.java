@@ -45,13 +45,25 @@ public class IsdaCompliantIndexCurveCalibrator {
   /**
    * Default implementation.
    */
-  public static final IsdaCompliantIndexCurveCalibrator DEFAULT =
-      new IsdaCompliantIndexCurveCalibrator(FastCreditCurveCalibrator.DEFAULT);
+  private static final IsdaCompliantIndexCurveCalibrator STANDARD =
+      new IsdaCompliantIndexCurveCalibrator(FastCreditCurveCalibrator.standard());
 
   /**
    * The underlying credit curve calibrator.
    */
   private final IsdaCompliantCreditCurveCalibrator creditCurveCalibrator;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains the standard curve calibrator.
+   * <p>
+   * The accuracy of the root finder is set to be its default, 1.0e-12;
+   * 
+   * @return the standard curve calibrator
+   */
+  public static IsdaCompliantIndexCurveCalibrator standard() {
+    return IsdaCompliantIndexCurveCalibrator.STANDARD;
+  }
 
   /**
    * Constructor with the underlying credit curve calibrator specified. 
@@ -59,7 +71,7 @@ public class IsdaCompliantIndexCurveCalibrator {
    * @param creditCurveCalibrator  the credit curve calibrator
    */
   public IsdaCompliantIndexCurveCalibrator(IsdaCompliantCreditCurveCalibrator creditCurveCalibrator) {
-    this.creditCurveCalibrator = creditCurveCalibrator;
+    this.creditCurveCalibrator = ArgChecker.notNull(creditCurveCalibrator, "creditCurveCalibrator");
   }
 
   //-------------------------------------------------------------------------

@@ -17,14 +17,12 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
-import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 
 /**
  * Pricer for CDS portfolio index trade based on ISDA standard model. 
  * <p>
  * The underlying CDS index product is priced as a single name CDS using a single credit curve rather than 
  * credit curves of constituent single names. 
- * See {@link IsdaSimpleCdsIndexTradePricer} for detail.
  */
 public class IsdaHomogenousCdsIndexTradePricer {
 
@@ -80,7 +78,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * This method can calculate the clean or dirty price, see {@link PriceType}. 
    * If calculating the clean price, the accrued interest is calculated based on the step-in date.
    * <p>
-   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
+   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsIndexTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -124,7 +122,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * The par spread is a coupon rate such that the clean price is 0. 
    * The result is represented in decimal form. 
    * <p>
-   * This is coherent to {@link #price(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
+   * This is coherent to {@link #price(ResolvedCdsIndexTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -248,7 +246,7 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * The present value sensitivity of the product is the sensitivity of present value to the underlying curves.
    * The present value sensitivity is computed based on the settlement date rather than the valuation date.
    * <p>
-   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsTrade, CreditRatesProvider, PriceType, ReferenceData)}.
+   * This is coherent to {@link #presentValueOnSettle(ResolvedCdsIndexTrade, CreditRatesProvider, PriceType, ReferenceData)}.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
@@ -344,7 +342,6 @@ public class IsdaHomogenousCdsIndexTradePricer {
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider
-   * @param refData  the reference data
    * @return the recovery01
    */
   public CurrencyAmount expectedLoss(

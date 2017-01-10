@@ -97,7 +97,8 @@ public class CdsTradeCalculationFunctionTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(oneBp);
     CurrencyParameterSensitivity expectedCs01Bucketed = CS01_CALC.bucketedCs01(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
     CurrencyAmount expectedCs01Parallel = CS01_CALC.parallelCs01(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
-    PointSensitivities pvPointSensOnSettle = PRICER.presentValueOnSettleSensitivity(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
+    PointSensitivities pvPointSensOnSettle =
+        PRICER.presentValueOnSettleSensitivity(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);
     CurrencyParameterSensitivity ir01 = RATES_PROVIDER.singleDiscountCurveParameterSensitivity(pvPointSensOnSettle, USD);
     CurrencyAmount expectedIr01Cal = ir01.total().multipliedBy(oneBp);
     CurrencyParameterSensitivity expectedIr01CalBucketed = ir01.multipliedBy(oneBp);

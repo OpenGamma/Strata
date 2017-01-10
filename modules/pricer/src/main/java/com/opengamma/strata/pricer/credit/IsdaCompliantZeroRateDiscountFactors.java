@@ -141,9 +141,9 @@ public final class IsdaCompliantZeroRateDiscountFactors
         .curveName(curveName)
         .dayCount(dayCount)
         .build();
-    NodalCurve curve = (yearFractions.size() == 1 && zeroRates.size() == 1)
-        ? ConstantNodalCurve.of(metadata, yearFractions.get(0), zeroRates.get(0))
-        : InterpolatedNodalCurve.of(metadata, yearFractions, zeroRates,
+    NodalCurve curve = (yearFractions.size() == 1 && zeroRates.size() == 1) ?
+        ConstantNodalCurve.of(metadata, yearFractions.get(0), zeroRates.get(0)) :
+        InterpolatedNodalCurve.of(metadata, yearFractions, zeroRates,
             CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
 
     return new IsdaCompliantZeroRateDiscountFactors(currency, valuationDate, curve);

@@ -29,6 +29,7 @@ import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.IsdaCreditCurveDefinition;
+import com.opengamma.strata.market.curve.IsdaCreditCurveNode;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
@@ -49,7 +50,7 @@ import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
  * <p>
  * A single credit curve is calibrated for credit default swaps on a legal entity.
  * <p>
- * The curve is defined using one or more {@linkplain CdsCurveNode nodes}.
+ * The curve is defined using one or more {@linkplain IsdaCreditCurveNode nodes}.
  * Each node primarily defines enough information to produce a reference CDS trade.
  * All of the curve nodes must be based on a common legal entity and currency.
  * <p>
@@ -101,29 +102,29 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the arbitrage handling. 
+   * Obtains the arbitrage handling.
    * <p>
    * See {@link ArbitrageHandling} for detail.
    * 
-   * @return
+   * @return the arbitrage handling
    */
-  protected ArbitrageHandling getArbHanding() {
+  protected ArbitrageHandling getArbitrageHandling() {
     return arbHandling;
   }
 
   /**
-   * Obtains the accrual-on-default formula. 
+   * Obtains the accrual-on-default formula.
    * <p>
    * See {@link AccrualOnDefaultFormula} for detail.
    * 
-   * @return
+   * @return the formula
    */
-  protected AccrualOnDefaultFormula getAccOnDefaultFormula() {
+  protected AccrualOnDefaultFormula getAccrualOnDefaultFormula() {
     return formula;
   }
 
   /**
-   * Obtains the trade pricer used in this calibration. 
+   * Obtains the trade pricer used in this calibration.
    * 
    * @return the trade pricer
    */
@@ -242,9 +243,9 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       ImmutableCreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), creditCurve))
           .build();
-      Function<ResolvedCdsTrade, DoubleArray> sensiFunc = quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD)
-          ? getParSpreadSensitivityFunction(ratesProviderNew, refData)
-          : getPointsUpfrontSensitivityFunction(ratesProviderNew, refData);
+      Function<ResolvedCdsTrade, DoubleArray> sensiFunc = quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD) ?
+          getParSpreadSensitivityFunction(ratesProviderNew, refData) :
+          getPointsUpfrontSensitivityFunction(ratesProviderNew, refData);
       DoubleMatrix sensi = DoubleMatrix.ofArrayObjects(nNodes, nNodes, i -> sensiFunc.apply(trades.get(i)));
       sensi = (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(diag), sensi);
       JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
@@ -355,34 +356,6 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
       throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
     }
     return res;
-  }
-
-  /**
-   * How should any arbitrage in the input data be handled. 
-   */
-  enum ArbitrageHandling {
-    /**
-     * Ignore.
-     * <p>
-     * If the market data has arbitrage, the curve will still build. 
-     * The survival probability will not be monotonically decreasing 
-     * (equivalently, some forward hazard rates will be negative). 
-     */
-    IGNORE,
-    /**
-     * Fail.
-     * <p>
-     * An exception is thrown if an arbitrage is found. 
-     */
-    FAIL,
-    /**
-     * Zero hazard rate.
-     * <p>
-     * If a particular spread implies a negative forward hazard rate, 
-     * the hazard rate is set to zero, and the calibration continues. 
-     * The resultant curve will not exactly reprice the input CDSs, but will find new spreads that just avoid arbitrage.   
-     */
-    ZERO_HAZARD_RATE
   }
 
 }

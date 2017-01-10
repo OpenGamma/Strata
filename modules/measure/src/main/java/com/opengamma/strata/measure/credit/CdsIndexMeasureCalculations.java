@@ -34,7 +34,7 @@ import com.opengamma.strata.product.credit.ResolvedCdsTrade;
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-public class CdsIndexMeasureCalculations {
+final class CdsIndexMeasureCalculations {
 
   /**
    * Default implementation.
@@ -153,7 +153,7 @@ public class CdsIndexMeasureCalculations {
   }
 
   // calculates calibrated parallel IR01 for one scenario
-  private CurrencyAmount ir01CalibratedParallel(
+  CurrencyAmount ir01CalibratedParallel(
       ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
@@ -178,7 +178,7 @@ public class CdsIndexMeasureCalculations {
   }
 
   // calculates calibrated bucketed IR01 for one scenario
-  private CurrencyParameterSensitivity ir01CalibratedBucketed(
+  CurrencyParameterSensitivity ir01CalibratedBucketed(
       ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
@@ -258,7 +258,7 @@ public class CdsIndexMeasureCalculations {
   }
 
   // calculates calibrated sum PV01 for one scenario
-  private MultiCurrencyAmount pv01CalibratedSum(
+  MultiCurrencyAmount pv01CalibratedSum(
       ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
@@ -280,7 +280,7 @@ public class CdsIndexMeasureCalculations {
   }
 
   // calculates calibrated bucketed PV01 for one scenario
-  private CurrencyParameterSensitivities pv01CalibratedBucketed(
+  CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedCdsIndexTrade trade,
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
