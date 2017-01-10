@@ -170,7 +170,7 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
         NodalCurve tempCreditCurve = creditCurve.withParameter(index, x);
         ImmutableCreditRatesProvider rates = ratesbase.toBuilder()
             .creditCurves(ImmutableMap.of(pair, LegalEntitySurvivalProbabilities.of(
-                legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
+                legalEntityId, IsdaCreditDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
             .build();
         double price = getTradePricer().price(cds, rates, flactionalSpread, PriceType.CLEAN, refData);
         return price - pointsUpfront;

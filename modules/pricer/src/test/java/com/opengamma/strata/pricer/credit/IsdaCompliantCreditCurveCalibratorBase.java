@@ -313,7 +313,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), EUR, tradeDate, ACT_365F, DSC_NODES, false, false);
-    IsdaCompliantZeroRateDiscountFactors yc =
+    IsdaCreditDiscountFactors yc =
         IsdaCompliantDiscountCurveCalibrator.standard().calibrate(curveDefinition, quotes, REF_DATA);
     return ImmutableCreditRatesProvider.builder()
         .valuationDate(tradeDate)
@@ -416,7 +416,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
 
     LocalDate valuationDate = curve.getValuationDate();
     int nNode = nodes.size();
-    IsdaCompliantZeroRateDiscountFactors df = (IsdaCompliantZeroRateDiscountFactors) curve.getSurvivalProbabilities();
+    IsdaCreditDiscountFactors df = (IsdaCreditDiscountFactors) curve.getSurvivalProbabilities();
     CurveName name = df.getCurve().getName();
     int nCurveNode = df.getParameterCount();
     for (int i = 0; i < nCurveNode; ++i) {
@@ -432,10 +432,10 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       }
       ImmutableMarketData marketDataUp = builderCreditUp.build();
       ImmutableMarketData marketDataDw = builderCreditDw.build();
-      IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) builder.calibrate(
+      IsdaCreditDiscountFactors ccUp = (IsdaCreditDiscountFactors) builder.calibrate(
           nodes, name, marketDataUp, ratesProvider, curve.getSurvivalProbabilities().getDayCount(), curve.getCurrency(),
           false, false, REF_DATA).getSurvivalProbabilities();
-      IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) builder.calibrate(
+      IsdaCreditDiscountFactors ccDw = (IsdaCreditDiscountFactors) builder.calibrate(
           nodes, name, marketDataDw, ratesProvider, curve.getSurvivalProbabilities().getDayCount(), curve.getCurrency(),
           false, false, REF_DATA).getSurvivalProbabilities();
       for (int j = 0; j < nNode; ++j) {

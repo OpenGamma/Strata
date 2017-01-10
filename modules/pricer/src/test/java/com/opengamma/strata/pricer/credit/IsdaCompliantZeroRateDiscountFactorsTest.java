@@ -33,7 +33,7 @@ import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 
 /**
- * Test {@link IsdaCompliantZeroRateDiscountFactors}.
+ * Test {@link IsdaCreditDiscountFactors}.
  */
 @Test
 public class IsdaCompliantZeroRateDiscountFactorsTest {
@@ -69,7 +69,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   private static final LocalDate DATE_AFTER = LocalDate.of(2017, 2, 24);
 
   public void test_of_constant() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CONST_CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CONST_CURVE);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurve(), CONST_CURVE);
     assertEquals(test.getDayCount(), ACT_365L);
@@ -85,7 +85,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   }
 
   public void test_of() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getDayCount(), ACT_365F);
@@ -103,8 +103,8 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   }
 
   public void test_of_constant_interface() {
-    IsdaCompliantZeroRateDiscountFactors test =
-        (IsdaCompliantZeroRateDiscountFactors) CreditDiscountFactors.of(USD, VALUATION, CONST_CURVE);
+    IsdaCreditDiscountFactors test =
+        (IsdaCreditDiscountFactors) CreditDiscountFactors.of(USD, VALUATION, CONST_CURVE);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurve(), CONST_CURVE);
     assertEquals(test.getDayCount(), ACT_365L);
@@ -120,8 +120,8 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   }
 
   public void test_of_interface() {
-    IsdaCompliantZeroRateDiscountFactors test =
-        (IsdaCompliantZeroRateDiscountFactors) CreditDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test =
+        (IsdaCreditDiscountFactors) CreditDiscountFactors.of(USD, VALUATION, CURVE);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getDayCount(), ACT_365F);
@@ -139,16 +139,16 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   }
 
   public void test_ofValue() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(
         USD, VALUATION, METADATA_SINGLE.getCurveName(), DoubleArray.of(TIME_SINGLE), DoubleArray.of(RATE_SINGLE), ACT_365L);
-    IsdaCompliantZeroRateDiscountFactors expected = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CONST_CURVE);
+    IsdaCreditDiscountFactors expected = IsdaCreditDiscountFactors.of(USD, VALUATION, CONST_CURVE);
     assertEquals(test, expected);
   }
 
   public void test_ofValues() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(
         USD, VALUATION, METADATA.getCurveName(), TIME, RATE, ACT_365F);
-    IsdaCompliantZeroRateDiscountFactors expected = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors expected = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     assertEquals(test, expected);
   }
 
@@ -160,28 +160,28 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
         .build();
     InterpolatedNodalCurve curveNoDcc = InterpolatedNodalCurve.of(metadata, TIME, RATE,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-    assertThrowsIllegalArg(() -> IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, curveNoDcc));
+    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveNoDcc));
     InterpolatedNodalCurve curveWrongLeft = InterpolatedNodalCurve.of(METADATA, TIME, RATE,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.PRODUCT_LINEAR, CurveExtrapolators.PRODUCT_LINEAR);
-    assertThrowsIllegalArg(() -> IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, curveWrongLeft));
+    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongLeft));
     InterpolatedNodalCurve curveWrongInterp = InterpolatedNodalCurve.of(METADATA, TIME, RATE,
         CurveInterpolators.NATURAL_SPLINE, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-    assertThrowsIllegalArg(() -> IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, curveWrongInterp));
+    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongInterp));
     InterpolatedNodalCurve curveWrongRight = InterpolatedNodalCurve.of(METADATA, TIME, RATE,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertThrowsIllegalArg(() -> IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, curveWrongRight));
+    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongRight));
   }
 
   //-------------------------------------------------------------------------
   public void test_discountFactor() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VALUATION, DATE_AFTER);
     double expected = Math.exp(-relativeYearFraction * CURVE.yValue(relativeYearFraction));
     assertEquals(test.discountFactor(DATE_AFTER), expected);
   }
 
   public void test_zeroRate() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VALUATION, DATE_AFTER);
     double discountFactor = test.discountFactor(DATE_AFTER);
     double zeroRate = test.zeroRate(DATE_AFTER);
@@ -190,7 +190,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
 
   //-------------------------------------------------------------------------
   public void test_zeroRatePointSensitivity() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VALUATION, DATE_AFTER);
     double df = Math.exp(-relativeYearFraction * CURVE.yValue(relativeYearFraction));
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(USD, relativeYearFraction, -df * relativeYearFraction);
@@ -198,7 +198,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   }
 
   public void test_zeroRatePointSensitivity_sensitivityCurrency() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VALUATION, DATE_AFTER);
     double df = Math.exp(-relativeYearFraction * CURVE.yValue(relativeYearFraction));
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(USD, relativeYearFraction, GBP, -df * relativeYearFraction);
@@ -207,7 +207,7 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
 
   //-------------------------------------------------------------------------
   public void test_unitParameterSensitivity() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_AFTER);
 
     double relativeYearFraction = ACT_365F.relativeYearFraction(VALUATION, DATE_AFTER);
@@ -220,14 +220,14 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
   //-------------------------------------------------------------------------
   // proper end-to-end FD tests are in pricer test
   public void test_parameterSensitivity() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     ZeroRateSensitivity point = ZeroRateSensitivity.of(USD, 1d, 1d);
     assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------
   public void test_createParameterSensitivity() {
-    IsdaCompliantZeroRateDiscountFactors test = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.1, 0.49, 0.15, 0.56, 0.17, 0.32, 0.118, 0.456, 5.0, 12.0, 0.65,
         0.34, 0.75, 0.12, 0.15, 0.12, 0.15, 0.04);
     CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
@@ -236,34 +236,34 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
 
   //-------------------------------------------------------------------------
   public void test_withCurve() {
-    IsdaCompliantZeroRateDiscountFactors test =
-        IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE).withCurve(CONST_CURVE);
+    IsdaCreditDiscountFactors test =
+        IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE).withCurve(CONST_CURVE);
     assertEquals(test.getCurve(), CONST_CURVE);
     assertEquals(test.getDayCount(), ACT_365L);
   }
 
   public void test_withParameter() {
-    IsdaCompliantZeroRateDiscountFactors test =
-        IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE).withParameter(1, 0.55);
-    IsdaCompliantZeroRateDiscountFactors exp =
-        IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE.withParameter(1, 0.55));
+    IsdaCreditDiscountFactors test =
+        IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE).withParameter(1, 0.55);
+    IsdaCreditDiscountFactors exp =
+        IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE.withParameter(1, 0.55));
     assertEquals(test, exp);
   }
 
   public void test_withPerturbation() {
-    IsdaCompliantZeroRateDiscountFactors test =
-        IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE).withPerturbation((i, v, m) -> v + 1d);
-    IsdaCompliantZeroRateDiscountFactors exp =
-        IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE.withPerturbation((i, v, m) -> v + 1d));
+    IsdaCreditDiscountFactors test =
+        IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE).withPerturbation((i, v, m) -> v + 1d);
+    IsdaCreditDiscountFactors exp =
+        IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE.withPerturbation((i, v, m) -> v + 1d));
     assertEquals(test, exp);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IsdaCompliantZeroRateDiscountFactors test1 = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE);
+    IsdaCreditDiscountFactors test1 = IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE);
     coverImmutableBean(test1);
-    IsdaCompliantZeroRateDiscountFactors test2 =
-        IsdaCompliantZeroRateDiscountFactors.of(GBP, VALUATION.plusDays(1), CONST_CURVE);
+    IsdaCreditDiscountFactors test2 =
+        IsdaCreditDiscountFactors.of(GBP, VALUATION.plusDays(1), CONST_CURVE);
     coverBeanEquals(test1, test2);
   }
 

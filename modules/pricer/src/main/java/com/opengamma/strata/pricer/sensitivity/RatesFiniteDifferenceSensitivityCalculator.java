@@ -29,7 +29,7 @@ import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.IsdaCreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -270,8 +270,8 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
   // return correct instance of CreditDiscountFactors
   private CreditDiscountFactors createCreditDiscountFactors(CreditDiscountFactors originalDsc, Curve bumpedCurve) {
-    if (originalDsc instanceof IsdaCompliantZeroRateDiscountFactors && bumpedCurve instanceof NodalCurve) {
-      IsdaCompliantZeroRateDiscountFactors isdaDsc = (IsdaCompliantZeroRateDiscountFactors) originalDsc;
+    if (originalDsc instanceof IsdaCreditDiscountFactors && bumpedCurve instanceof NodalCurve) {
+      IsdaCreditDiscountFactors isdaDsc = (IsdaCreditDiscountFactors) originalDsc;
       return isdaDsc.withCurve((NodalCurve) bumpedCurve);
     }
     throw new IllegalArgumentException("Not supported");

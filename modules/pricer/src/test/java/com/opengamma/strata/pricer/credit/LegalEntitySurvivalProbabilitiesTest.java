@@ -40,7 +40,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
       0.012196853322376243, 0.01441082634734099, 0.016236611610989507, 0.01652439910865982});
   private static final CurveName CURVE_NAME = CurveName.of("yieldUsd");
   private static final CreditDiscountFactors DFS =
-      IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, CURVE_NAME, TIME, RATE, ACT_365F);
+      IsdaCreditDiscountFactors.of(USD, VALUATION, CURVE_NAME, TIME, RATE, ACT_365F);
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
   private static final LocalDate DATE_AFTER = LocalDate.of(2017, 2, 24);
 
@@ -122,7 +122,7 @@ public class LegalEntitySurvivalProbabilitiesTest {
     coverImmutableBean(test1);
     LegalEntitySurvivalProbabilities test2 = LegalEntitySurvivalProbabilities.of(
         StandardId.of("OG", "CCC"),
-        IsdaCompliantZeroRateDiscountFactors.of(
+        IsdaCreditDiscountFactors.of(
             GBP, VALUATION, CURVE_NAME, DoubleArray.of(5.0), DoubleArray.of(0.014), ACT_365F));
     coverBeanEquals(test1, test2);
   }

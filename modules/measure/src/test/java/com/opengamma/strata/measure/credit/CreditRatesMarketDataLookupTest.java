@@ -43,7 +43,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.IsdaCreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 
 /**
@@ -167,12 +167,12 @@ public class CreditRatesMarketDataLookupTest {
     assertEquals(provider.findData(CurveName.of("Rubbish")), Optional.empty());
     // check credit curve
     LegalEntitySurvivalProbabilities cc = provider.survivalProbabilities(ISSUER_A, GBP);
-    IsdaCompliantZeroRateDiscountFactors ccUnder = (IsdaCompliantZeroRateDiscountFactors) cc.getSurvivalProbabilities();
+    IsdaCreditDiscountFactors ccUnder = (IsdaCreditDiscountFactors) cc.getSurvivalProbabilities();
     assertEquals(ccUnder.getCurve().getName(), ccAGbp.getName());
     assertThrowsRuntime(() -> provider.survivalProbabilities(ISSUER_B, USD));
     assertThrowsRuntime(() -> provider.survivalProbabilities(ISSUER_C, USD));
     // check discount curve
-    IsdaCompliantZeroRateDiscountFactors dc = (IsdaCompliantZeroRateDiscountFactors) provider.discountFactors(USD);
+    IsdaCreditDiscountFactors dc = (IsdaCreditDiscountFactors) provider.discountFactors(USD);
     assertEquals(dc.getCurve().getName(), dcUsd.getName());
     assertThrowsRuntime(() -> provider.discountFactors(EUR));
     // check recovery rate curve

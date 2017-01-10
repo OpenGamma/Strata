@@ -384,7 +384,7 @@ public class IsdaHomogenousCdsIndexProductPricer {
         "survival probabilities must be IsdaCompliantZeroRateDiscountFactors");
     ArgChecker.isTrue(discountFactors.getDayCount().equals(survivalProbabilities.getSurvivalProbabilities().getDayCount()),
         "day count conventions of discounting curve and credit curve must be the same");
-    double indexFactor = ((IsdaCompliantZeroRateDiscountFactors) survivalProbabilities.getSurvivalProbabilities())
+    double indexFactor = ((IsdaCreditDiscountFactors) survivalProbabilities.getSurvivalProbabilities())
         .getCurve().getMetadata().getInfo(CurveInfoType.CDS_INDEX_FACTOR);
     return Triple.of(discountFactors, survivalProbabilities, indexFactor);
   }

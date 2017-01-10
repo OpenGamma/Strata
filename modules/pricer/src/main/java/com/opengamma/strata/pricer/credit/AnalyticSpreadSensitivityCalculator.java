@@ -94,7 +94,7 @@ public class AnalyticSpreadSensitivityCalculator
         ratesProvider.discountFactors(currency),
         ratesProvider.recoveryRates(legalEntityId),
         refData);
-    IsdaCompliantZeroRateDiscountFactors df = IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurveBase);
+    IsdaCreditDiscountFactors df = IsdaCreditDiscountFactors.of(currency, valuationDate, creditCurveBase);
     CreditRatesProvider ratesProviderBase = ratesProvider.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), LegalEntitySurvivalProbabilities.of(legalEntityId, df)))
         .build();

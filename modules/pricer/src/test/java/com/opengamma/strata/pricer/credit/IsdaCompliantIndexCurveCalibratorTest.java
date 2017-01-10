@@ -83,8 +83,8 @@ public class IsdaCompliantIndexCurveCalibratorTest {
       .build();
   private static final InterpolatedNodalCurve NODAL_YC = InterpolatedNodalCurve.of(METADATA_YC, TIME_YC, RATE_YC,
       CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-  private static final IsdaCompliantZeroRateDiscountFactors CURVE_YC =
-      IsdaCompliantZeroRateDiscountFactors.of(EUR, VALUATION_DATE, NODAL_YC);
+  private static final IsdaCreditDiscountFactors CURVE_YC =
+      IsdaCreditDiscountFactors.of(EUR, VALUATION_DATE, NODAL_YC);
 
   private static final BusinessDayAdjustment BUS_ADJ = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
   private static final DaysAdjustment CDS_SETTLE_STD = DaysAdjustment.ofBusinessDays(3, SAT_SUN);
@@ -216,7 +216,7 @@ public class IsdaCompliantIndexCurveCalibratorTest {
       double[] quotes) {
 
     int nNode = nodes.size();
-    IsdaCompliantZeroRateDiscountFactors df = (IsdaCompliantZeroRateDiscountFactors) curve.getSurvivalProbabilities();
+    IsdaCreditDiscountFactors df = (IsdaCreditDiscountFactors) curve.getSurvivalProbabilities();
     int nCurveNode = df.getParameterCount();
     for (int i = 0; i < nCurveNode; ++i) {
       double[] quotesUp = Arrays.copyOf(quotes, nNode);
@@ -233,9 +233,9 @@ public class IsdaCompliantIndexCurveCalibratorTest {
       ImmutableMarketData marketDataDw = builderCreditDw.build();
       IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
           df.getCurve().getName(), df.getCurrency(), df.getValuationDate(), df.getDayCount(), nodes, false, false);
-      IsdaCompliantZeroRateDiscountFactors ccUp = (IsdaCompliantZeroRateDiscountFactors) CALIBRATOR
+      IsdaCreditDiscountFactors ccUp = (IsdaCreditDiscountFactors) CALIBRATOR
           .calibrate(definition, marketDataUp, ratesProvider, REF_DATA).getSurvivalProbabilities();
-      IsdaCompliantZeroRateDiscountFactors ccDw = (IsdaCompliantZeroRateDiscountFactors) CALIBRATOR
+      IsdaCreditDiscountFactors ccDw = (IsdaCreditDiscountFactors) CALIBRATOR
           .calibrate(definition, marketDataDw, ratesProvider, REF_DATA).getSurvivalProbabilities();
       for (int j = 0; j < nNode; ++j) {
         double computed = df.getCurve().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix().get(j, i);

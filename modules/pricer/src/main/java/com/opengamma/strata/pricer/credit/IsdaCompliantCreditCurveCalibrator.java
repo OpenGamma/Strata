@@ -239,7 +239,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
 
     if (computeJacobian) {
       LegalEntitySurvivalProbabilities creditCurve = LegalEntitySurvivalProbabilities.of(
-          legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));
+          legalEntityId, IsdaCreditDiscountFactors.of(currency, valuationDate, nodalCurve));
       ImmutableCreditRatesProvider ratesProviderNew = ratesProvider.toBuilder()
           .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), creditCurve))
           .build();
@@ -266,7 +266,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     nodalCurve = nodalCurve.withMetadata(nodalCurve.getMetadata().withParameterMetadata(parameterMetadata));
 
     return LegalEntitySurvivalProbabilities.of(
-        legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, nodalCurve));
+        legalEntityId, IsdaCreditDiscountFactors.of(currency, valuationDate, nodalCurve));
   }
 
   private Function<ResolvedCdsTrade, DoubleArray> getPointsUpfrontSensitivityFunction(
@@ -337,7 +337,7 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
                   Pair.of(legalEntityId, currency),
                   LegalEntitySurvivalProbabilities.of(
                       legalEntityId,
-                      IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
+                      IsdaCreditDiscountFactors.of(currency, valuationDate, tempCreditCurve))))
           .build();
       res[0] = calibrationCds.getProduct().getFixedRate();
       res[1] = tradePricer.price(calibrationCds, rates, PriceType.CLEAN, refData);

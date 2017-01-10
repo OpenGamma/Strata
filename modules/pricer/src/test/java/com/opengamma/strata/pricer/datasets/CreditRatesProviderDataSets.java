@@ -24,7 +24,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
 import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.IsdaCreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 
 /**
@@ -114,10 +114,10 @@ public class CreditRatesProviderDataSets {
    */
   public static ImmutableCreditRatesProvider createCreditRatesProvider(LocalDate valuationDate) {
 
-    IsdaCompliantZeroRateDiscountFactors ycUsd = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);
-    IsdaCompliantZeroRateDiscountFactors ycJpy = IsdaCompliantZeroRateDiscountFactors.of(JPY, valuationDate, NODAL_YC_JPY);
-    IsdaCompliantZeroRateDiscountFactors ccUs = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC_US);
-    IsdaCompliantZeroRateDiscountFactors ccJp = IsdaCompliantZeroRateDiscountFactors.of(JPY, valuationDate, NODAL_CC_JP);
+    IsdaCreditDiscountFactors ycUsd = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);
+    IsdaCreditDiscountFactors ycJpy = IsdaCreditDiscountFactors.of(JPY, valuationDate, NODAL_YC_JPY);
+    IsdaCreditDiscountFactors ccUs = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_CC_US);
+    IsdaCreditDiscountFactors ccJp = IsdaCreditDiscountFactors.of(JPY, valuationDate, NODAL_CC_JP);
     ConstantRecoveryRates rrUs = ConstantRecoveryRates.of(LEGAL_ENTITY_US, valuationDate, RECOVERY_RATE_US);
     ConstantRecoveryRates rrJp = ConstantRecoveryRates.of(LEGAL_ENTITY_JP, valuationDate, RECOVERY_RATE_JP);
     return ImmutableCreditRatesProvider.builder()
@@ -136,12 +136,12 @@ public class CreditRatesProviderDataSets {
    * @param valuationDate  the valuation date
    * @return the discount factors
    */
-  public static List<IsdaCompliantZeroRateDiscountFactors> getAllDiscountFactors(LocalDate valuationDate) {
+  public static List<IsdaCreditDiscountFactors> getAllDiscountFactors(LocalDate valuationDate) {
 
-    IsdaCompliantZeroRateDiscountFactors ycUsd = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);
-    IsdaCompliantZeroRateDiscountFactors ycJpy = IsdaCompliantZeroRateDiscountFactors.of(JPY, valuationDate, NODAL_YC_JPY);
-    IsdaCompliantZeroRateDiscountFactors ccUs = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC_US);
-    IsdaCompliantZeroRateDiscountFactors ccJp = IsdaCompliantZeroRateDiscountFactors.of(JPY, valuationDate, NODAL_CC_JP);
+    IsdaCreditDiscountFactors ycUsd = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_YC_USD);
+    IsdaCreditDiscountFactors ycJpy = IsdaCreditDiscountFactors.of(JPY, valuationDate, NODAL_YC_JPY);
+    IsdaCreditDiscountFactors ccUs = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_CC_US);
+    IsdaCreditDiscountFactors ccJp = IsdaCreditDiscountFactors.of(JPY, valuationDate, NODAL_CC_JP);
     return ImmutableList.of(ycUsd, ycJpy, ccUs, ccJp);
   }
 

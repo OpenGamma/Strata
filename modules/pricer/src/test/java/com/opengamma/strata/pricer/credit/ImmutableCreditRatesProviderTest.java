@@ -48,29 +48,29 @@ public class ImmutableCreditRatesProviderTest {
   private static final DoubleArray TIME_DSC_USD = DoubleArray.ofUnsafe(new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 30.0});
   private static final DoubleArray RATE_DSC_USD = DoubleArray.ofUnsafe(new double[] {0.015, 0.019, 0.016, 0.012, 0.01, 0.005});
   private static final CurveName NAME_DSC_USD = CurveName.of("yieldUsd");
-  private static final IsdaCompliantZeroRateDiscountFactors DSC_USD =
-      IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
+  private static final IsdaCreditDiscountFactors DSC_USD =
+      IsdaCreditDiscountFactors.of(USD, VALUATION, NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
   private static final DoubleArray TIME_DSC_JPY = DoubleArray.ofUnsafe(new double[] {1.0, 5.0, 10.0, 20.0});
   private static final DoubleArray RATE_DSC_JPY = DoubleArray.ofUnsafe(new double[] {0.01, 0.011, 0.007, 0.002});
   private static final CurveName NAME_DSC_JPY = CurveName.of("yieldJpy");
-  private static final IsdaCompliantZeroRateDiscountFactors DSC_JPY =
-      IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION, NAME_DSC_JPY, TIME_DSC_JPY, RATE_DSC_JPY, ACT_365F);
+  private static final IsdaCreditDiscountFactors DSC_JPY =
+      IsdaCreditDiscountFactors.of(JPY, VALUATION, NAME_DSC_JPY, TIME_DSC_JPY, RATE_DSC_JPY, ACT_365F);
   // credit curves
   private static final DoubleArray TIME_CRD_ABC_USD = DoubleArray.ofUnsafe(new double[] {1.0, 3.0, 5.0, 7.0, 10.0});
   private static final DoubleArray RATE_CRD_ABC_USD = DoubleArray.ofUnsafe(new double[] {0.005, 0.006, 0.004, 0.012, 0.01});
   private static final CurveName NAME_CRD_ABC_USD = CurveName.of("creditAbc_usd");
-  private static final IsdaCompliantZeroRateDiscountFactors CRD_ABC_USD =
-      IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION, NAME_CRD_ABC_USD, TIME_CRD_ABC_USD, RATE_CRD_ABC_USD, ACT_365F);
+  private static final IsdaCreditDiscountFactors CRD_ABC_USD =
+      IsdaCreditDiscountFactors.of(USD, VALUATION, NAME_CRD_ABC_USD, TIME_CRD_ABC_USD, RATE_CRD_ABC_USD, ACT_365F);
   private static final DoubleArray TIME_CRD_ABC_JPY = DoubleArray.ofUnsafe(new double[] {1.0, 3.0, 5.0, 7.0, 10.0});
   private static final DoubleArray RATE_CRD_ABC_JPY = DoubleArray.ofUnsafe(new double[] {0.005, 0.006, 0.004, 0.012, 0.01});
   private static final CurveName NAME_CRD_ABC_JPY = CurveName.of("creditAbc_jpy");
-  private static final IsdaCompliantZeroRateDiscountFactors CRD_ABC_JPY =
-      IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION, NAME_CRD_ABC_JPY, TIME_CRD_ABC_JPY, RATE_CRD_ABC_JPY, ACT_365F);
+  private static final IsdaCreditDiscountFactors CRD_ABC_JPY =
+      IsdaCreditDiscountFactors.of(JPY, VALUATION, NAME_CRD_ABC_JPY, TIME_CRD_ABC_JPY, RATE_CRD_ABC_JPY, ACT_365F);
   private static final DoubleArray TIME_CRD_DEF = DoubleArray.ofUnsafe(new double[] {3.0, 5.0, 10.0});
   private static final DoubleArray RATE_CRD_DEF = DoubleArray.ofUnsafe(new double[] {0.005, 0.006, 0.004});
   private static final CurveName NAME_CRD_DEF = CurveName.of("creditDef");
-  private static final IsdaCompliantZeroRateDiscountFactors CRD_DEF =
-      IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION, NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
+  private static final IsdaCreditDiscountFactors CRD_DEF =
+      IsdaCreditDiscountFactors.of(JPY, VALUATION, NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
 
   public void test_getter() {
     ImmutableCreditRatesProvider test = ImmutableCreditRatesProvider.builder()
@@ -110,8 +110,8 @@ public class ImmutableCreditRatesProviderTest {
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, rr_wrong, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
-    IsdaCompliantZeroRateDiscountFactors crd_wrong =
-        IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusWeeks(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
+    IsdaCreditDiscountFactors crd_wrong =
+        IsdaCreditDiscountFactors.of(JPY, VALUATION.plusWeeks(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
     assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
@@ -121,8 +121,8 @@ public class ImmutableCreditRatesProviderTest {
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
-    IsdaCompliantZeroRateDiscountFactors dsc_wrong =
-        IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION.plusWeeks(1), NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
+    IsdaCreditDiscountFactors dsc_wrong =
+        IsdaCreditDiscountFactors.of(USD, VALUATION.plusWeeks(1), NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
     assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
@@ -205,10 +205,10 @@ public class ImmutableCreditRatesProviderTest {
         .valuationDate(VALUATION)
         .build();
     coverImmutableBean(test1);
-    IsdaCompliantZeroRateDiscountFactors dsc =
-        IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_DSC_JPY, TIME_DSC_JPY, RATE_DSC_JPY, ACT_365F);
-    IsdaCompliantZeroRateDiscountFactors hzd =
-        IsdaCompliantZeroRateDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
+    IsdaCreditDiscountFactors dsc =
+        IsdaCreditDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_DSC_JPY, TIME_DSC_JPY, RATE_DSC_JPY, ACT_365F);
+    IsdaCreditDiscountFactors hzd =
+        IsdaCreditDiscountFactors.of(JPY, VALUATION.plusDays(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY_DEF, VALUATION.plusDays(1), RECOVERY_RATE_DEF);
     ImmutableCreditRatesProvider test2 =
         ImmutableCreditRatesProvider

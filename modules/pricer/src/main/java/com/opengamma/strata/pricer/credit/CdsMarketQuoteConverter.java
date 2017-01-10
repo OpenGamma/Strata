@@ -157,8 +157,8 @@ public class CdsMarketQuoteConverter {
     CreditRatesProvider ratesProviderNew = ratesProvider.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
-            LegalEntitySurvivalProbabilities.of(
-                legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurve))))
+            LegalEntitySurvivalProbabilities.of(legalEntityId,
+                IsdaCreditDiscountFactors.of(currency, valuationDate, creditCurve))))
         .build();
     double puf = pointsUpfront(trade, ratesProviderNew, refData);
     return CdsQuote.of(CdsQuoteConvention.POINTS_UPFRONT, puf);
@@ -207,7 +207,7 @@ public class CdsMarketQuoteConverter {
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
             LegalEntitySurvivalProbabilities.of(
-                legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurve))))
+                legalEntityId, IsdaCreditDiscountFactors.of(currency, valuationDate, creditCurve))))
         .build();
     double sp = pricer.parSpread(trade, ratesProviderNew, refData);
     return CdsQuote.of(CdsQuoteConvention.QUOTED_SPREAD, sp);
@@ -271,7 +271,7 @@ public class CdsMarketQuoteConverter {
         .creditCurves(ImmutableMap.of(
             Pair.of(legalEntityId, currency),
             LegalEntitySurvivalProbabilities.of(
-                legalEntityId, IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, creditCurve))))
+                legalEntityId, IsdaCreditDiscountFactors.of(currency, valuationDate, creditCurve))))
         .build();
 
     Function<ResolvedCdsTrade, CdsQuote> quoteValueFunction =

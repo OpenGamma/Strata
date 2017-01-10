@@ -283,10 +283,10 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   //-------------------------------------------------------------------------
   private static CreditRatesProvider createCreditRatesProviderSingle(LocalDate valuationDate, boolean isSingle) {
-    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC);
+    IsdaCreditDiscountFactors yc = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_YC);
     CreditDiscountFactors cc = isSingle ?
-        IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC_SINGLE) :
-        IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC);
+        IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_CC_SINGLE) :
+        IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_CC);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(INDEX_ID, valuationDate, RECOVERY_RATE);
     return ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)

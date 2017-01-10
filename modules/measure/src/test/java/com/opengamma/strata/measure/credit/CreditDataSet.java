@@ -48,7 +48,7 @@ import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
 import com.opengamma.strata.pricer.credit.FastCreditCurveCalibrator;
 import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
 import com.opengamma.strata.pricer.credit.IsdaCompliantCreditCurveCalibrator;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.IsdaCreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.credit.RecoveryRates;
 import com.opengamma.strata.product.TradeInfo;
@@ -161,7 +161,7 @@ public class CreditDataSet {
   static {
     double flatRate = 0.05;
     double t = 20.0;
-    IsdaCompliantZeroRateDiscountFactors yieldCurve = IsdaCompliantZeroRateDiscountFactors.of(
+    IsdaCreditDiscountFactors yieldCurve = IsdaCreditDiscountFactors.of(
         USD, VALUATION_DATE, CurveName.of("discount"), DoubleArray.of(t), DoubleArray.of(flatRate), ACT_365F);
     DISCOUNT_CUVE = yieldCurve.getCurve();
     RecoveryRates recoveryRate = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, RECOVERY_RATE);
@@ -207,7 +207,7 @@ public class CreditDataSet {
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
         CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true, true);
     LegalEntitySurvivalProbabilities calibrated = BUILDER.calibrate(definition, marketData, rates, REF_DATA);
-    NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) calibrated.getSurvivalProbabilities()).getCurve();
+    NodalCurve underlyingCurve = ((IsdaCreditDiscountFactors) calibrated.getSurvivalProbabilities()).getCurve();
     CDS_CREDIT_CURVE = underlyingCurve;
     INCDEX_CREDIT_CURVE = underlyingCurve.withMetadata(
         underlyingCurve.getMetadata()

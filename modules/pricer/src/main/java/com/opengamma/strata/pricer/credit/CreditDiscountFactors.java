@@ -53,7 +53,7 @@ public interface CreditDiscountFactors
     if (metadata.getXValueType().equals(ValueType.YEAR_FRACTION) && metadata.getYValueType().equals(ValueType.ZERO_RATE)) {
       if (curve instanceof ConstantNodalCurve) {
         ConstantNodalCurve constantCurve = (ConstantNodalCurve) curve;
-        return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, constantCurve);
+        return IsdaCreditDiscountFactors.of(currency, valuationDate, constantCurve);
       }
       if (curve instanceof InterpolatedNodalCurve) {
         InterpolatedNodalCurve interpolatedCurve = (InterpolatedNodalCurve) curve;
@@ -63,7 +63,7 @@ public interface CreditDiscountFactors
             "Left extrapolator must be FLAT");
         ArgChecker.isTrue(interpolatedCurve.getExtrapolatorRight().equals(CurveExtrapolators.PRODUCT_LINEAR),
             "Right extrapolator must be PRODUCT_LINEAR");
-        return IsdaCompliantZeroRateDiscountFactors.of(currency, valuationDate, interpolatedCurve);
+        return IsdaCreditDiscountFactors.of(currency, valuationDate, interpolatedCurve);
       }
     }
     throw new IllegalArgumentException("Unknown curve type");

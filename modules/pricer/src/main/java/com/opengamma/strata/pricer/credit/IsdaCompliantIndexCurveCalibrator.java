@@ -115,7 +115,7 @@ public class IsdaCompliantIndexCurveCalibrator {
         curveDefinition.isComputeJacobian(),
         false,
         refData);
-    NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) creditCurve.getSurvivalProbabilities()).getCurve();
+    NodalCurve underlyingCurve = ((IsdaCreditDiscountFactors) creditCurve.getSurvivalProbabilities()).getCurve();
     CurveMetadata metadata = underlyingCurve.getMetadata().withInfo(CurveInfoType.CDS_INDEX_FACTOR, indexFactor);
     if (curveDefinition.isStoreNodeTrade()) {
       int nNodes = curveDefinition.getCurveNodes().size();
@@ -131,7 +131,7 @@ public class IsdaCompliantIndexCurveCalibrator {
 
     return LegalEntitySurvivalProbabilities.of(
         creditCurve.getLegalEntityId(),
-        IsdaCompliantZeroRateDiscountFactors.of(creditCurve.getCurrency(), creditCurve.getValuationDate(), curveWithFactor));
+        IsdaCreditDiscountFactors.of(creditCurve.getCurrency(), creditCurve.getValuationDate(), curveWithFactor));
   }
 
   //-------------------------------------------------------------------------

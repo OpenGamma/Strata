@@ -69,8 +69,8 @@ public class CdsMarketQuoteConverterTest {
       0.03249979503727117, 0.033314372450170285, 0.034875344837724434, 0.03532470846114178, 0.03501411934224827,
       0.03490957722439039,});
   private static final CurveName DSC_NAME = CurveName.of("gbp_dsc");
-  private static final IsdaCompliantZeroRateDiscountFactors DSC_CURVE =
-      IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, DSC_NAME, DSC_TIME, DSC_RATE, ACT_365F);
+  private static final IsdaCreditDiscountFactors DSC_CURVE =
+      IsdaCreditDiscountFactors.of(GBP, TODAY, DSC_NAME, DSC_TIME, DSC_RATE, ACT_365F);
   // recovery rate
   private static final double RECOVERY_RATE = 0.4;
   private static final ConstantRecoveryRates REC_RATES = ConstantRecoveryRates.of(LEGAL_ENTITY, TODAY, RECOVERY_RATE);
@@ -169,7 +169,7 @@ public class CdsMarketQuoteConverterTest {
     CreditRatesProvider rates = RATES_PROVIDER.toImmutableCreditRatesProvider().toBuilder()
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY, GBP),
-            LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCompliantZeroRateDiscountFactors.of(GBP, TODAY, cc))))
+            LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, IsdaCreditDiscountFactors.of(GBP, TODAY, cc))))
         .build();
     double pointsUpFront = CONV.pointsUpfront(trade, rates, REF_DATA);
     double cleanPrice = CONV.cleanPrice(trade, rates, REF_DATA);

@@ -84,8 +84,8 @@ public class IsdaCdsProductPricerTest {
       .build();
   private static final InterpolatedNodalCurve NODAL_YC = InterpolatedNodalCurve.of(METADATA_YC, TIME_YC, RATE_YC,
       CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-  private static final IsdaCompliantZeroRateDiscountFactors YIELD_CRVE =
-      IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_YC);
+  private static final IsdaCreditDiscountFactors YIELD_CRVE =
+      IsdaCreditDiscountFactors.of(USD, VALUATION_DATE, NODAL_YC);
 
   private static final DoubleArray TIME_CC = DoubleArray.ofUnsafe(new double[] {1.2054794520547945, 1.7095890410958905,
       2.712328767123288, 3.712328767123288, 4.712328767123288, 5.712328767123288, 7.715068493150685, 10.717808219178082});
@@ -101,7 +101,7 @@ public class IsdaCdsProductPricerTest {
   private static final InterpolatedNodalCurve NODAL_CC = InterpolatedNodalCurve.of(METADATA_CC, TIME_CC, RATE_CC,
       CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
   private static final CreditDiscountFactors CREDIT_CRVE =
-      IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
+      IsdaCreditDiscountFactors.of(USD, VALUATION_DATE, NODAL_CC);
   private static final ConstantRecoveryRates RECOVERY_RATES =
       ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, 0.25);
   private static final ImmutableCreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
@@ -677,10 +677,10 @@ public class IsdaCdsProductPricerTest {
         -0.010001132580906982, -0.0050024950914495684, -0.0050025781457872075);
     InterpolatedNodalCurve nodalYc = InterpolatedNodalCurve.of(METADATA_YC, timeDsc, rateDsc,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, nodalYc);
+    IsdaCreditDiscountFactors yc = IsdaCreditDiscountFactors.of(USD, VALUATION_DATE, nodalYc);
     InterpolatedNodalCurve nodalCc = InterpolatedNodalCurve.of(METADATA_CC, timeCrd, rateCrd,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-    CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, nodalCc);
+    CreditDiscountFactors cc = IsdaCreditDiscountFactors.of(USD, VALUATION_DATE, nodalCc);
     CreditRatesProvider ratesProvider = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .creditCurves(ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY, cc)))
@@ -756,8 +756,8 @@ public class IsdaCdsProductPricerTest {
 
   //-------------------------------------------------------------------------
   private CreditRatesProvider createCreditRatesProvider(LocalDate valuationDate) {
-    IsdaCompliantZeroRateDiscountFactors yc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_YC);
-    CreditDiscountFactors cc = IsdaCompliantZeroRateDiscountFactors.of(USD, valuationDate, NODAL_CC);
+    IsdaCreditDiscountFactors yc = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_YC);
+    CreditDiscountFactors cc = IsdaCreditDiscountFactors.of(USD, valuationDate, NODAL_CC);
     ConstantRecoveryRates rr = ConstantRecoveryRates.of(LEGAL_ENTITY, valuationDate, 0.25);
     return ImmutableCreditRatesProvider.builder()
         .valuationDate(valuationDate)

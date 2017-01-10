@@ -35,7 +35,7 @@ import com.opengamma.strata.pricer.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.credit.CreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
-import com.opengamma.strata.pricer.credit.IsdaCompliantZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.credit.IsdaCreditDiscountFactors;
 import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 import com.opengamma.strata.pricer.datasets.CreditRatesProviderDataSets;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
@@ -208,9 +208,9 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     CreditRatesProvider rates = CreditRatesProviderDataSets.createCreditRatesProvider(valuationDate);
     CurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(
         rates, this::creditFunction);
-    List<IsdaCompliantZeroRateDiscountFactors> curves = CreditRatesProviderDataSets.getAllDiscountFactors(valuationDate);
+    List<IsdaCreditDiscountFactors> curves = CreditRatesProviderDataSets.getAllDiscountFactors(valuationDate);
     assertEquals(sensiComputed.size(), curves.size());
-    for (IsdaCompliantZeroRateDiscountFactors curve : curves) {
+    for (IsdaCreditDiscountFactors curve : curves) {
       DoubleArray time = curve.getParameterKeys();
       DoubleArray sensiValueComputed = sensiComputed.getSensitivity(curve.getCurve().getName(), USD).getSensitivity();
       assertEquals(sensiValueComputed.size(), time.size());

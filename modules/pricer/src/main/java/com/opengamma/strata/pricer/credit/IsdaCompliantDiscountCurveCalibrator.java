@@ -113,7 +113,7 @@ public final class IsdaCompliantDiscountCurveCalibrator {
    * @param refData  the reference data
    * @return the ISDA compliant discount curve
    */
-  public IsdaCompliantZeroRateDiscountFactors calibrate(
+  public IsdaCreditDiscountFactors calibrate(
       IsdaCreditCurveDefinition curveDefinition,
       MarketData marketData,
       ReferenceData refData) {
@@ -188,13 +188,13 @@ public final class IsdaCompliantDiscountCurveCalibrator {
             ImmutableList.of(CurveParameterSize.of(curveDefinition.getName(), nNodes)), MATRIX_ALGEBRA.getInverse(sensi));
         NodalCurve curveWithParamMetadata = curve.withMetadata(
             curve.getMetadata().withInfo(CurveInfoType.JACOBIAN, jacobian).withParameterMetadata(parameterMetadata));
-        return IsdaCompliantZeroRateDiscountFactors.of(currency, curveValuationDate, curveWithParamMetadata);
+        return IsdaCreditDiscountFactors.of(currency, curveValuationDate, curveWithParamMetadata);
       }
       NodalCurve curveWithParamMetadata = curve.withMetadata(curve.getMetadata().withParameterMetadata(parameterMetadata));
-      return IsdaCompliantZeroRateDiscountFactors.of(currency, curveValuationDate, curveWithParamMetadata);
+      return IsdaCreditDiscountFactors.of(currency, curveValuationDate, curveWithParamMetadata);
     }
     double offset = curveDayCount.relativeYearFraction(curveSpotDate, curveValuationDate);
-    return IsdaCompliantZeroRateDiscountFactors.of(
+    return IsdaCreditDiscountFactors.of(
         currency, curveValuationDate, withShift(curve, parameterMetadata, sensi, curveDefinition.isComputeJacobian(), offset));
   }
 

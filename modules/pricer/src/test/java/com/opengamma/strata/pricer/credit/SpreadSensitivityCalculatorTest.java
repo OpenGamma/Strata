@@ -112,7 +112,7 @@ public class SpreadSensitivityCalculatorTest {
   private static final double RECOVERY_RATE = 0.4;
   private static final RecoveryRates RECOVERY_CURVE = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, RECOVERY_RATE);
   private static final RecoveryRates RECOVERY_CURVE_INDEX = ConstantRecoveryRates.of(INDEX_ID, VALUATION_DATE, RECOVERY_RATE);
-  private static final IsdaCompliantZeroRateDiscountFactors YIELD_CURVE;
+  private static final IsdaCreditDiscountFactors YIELD_CURVE;
   private static final LegalEntitySurvivalProbabilities CREDIT_CURVE;
   private static final LegalEntitySurvivalProbabilities CREDIT_CURVE_INDEX;
   private static final CurveName CREDIT_CURVE_NAME = CurveName.of("credit");
@@ -130,7 +130,7 @@ public class SpreadSensitivityCalculatorTest {
   static {
     double flatRate = 0.05;
     double t = 20.0;
-    YIELD_CURVE = IsdaCompliantZeroRateDiscountFactors.of(
+    YIELD_CURVE = IsdaCreditDiscountFactors.of(
         USD, VALUATION_DATE, CurveName.of("discount"), DoubleArray.of(t), DoubleArray.of(flatRate), ACT_365F);
     ImmutableMarketDataBuilder dataBuilder = ImmutableMarketData.builder(VALUATION_DATE);
     Builder<CdsIsdaCreditCurveNode> nodesBuilder = ImmutableList.builder();
@@ -174,13 +174,13 @@ public class SpreadSensitivityCalculatorTest {
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
         CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true, true);
     CREDIT_CURVE = BUILDER.calibrate(definition, marketData, rates, REF_DATA);
-    NodalCurve underlyingCurve = ((IsdaCompliantZeroRateDiscountFactors) CREDIT_CURVE.getSurvivalProbabilities()).getCurve();
+    NodalCurve underlyingCurve = ((IsdaCreditDiscountFactors) CREDIT_CURVE.getSurvivalProbabilities()).getCurve();
     NodalCurve curveWithFactor = underlyingCurve.withMetadata(
         underlyingCurve.getMetadata()
             .withInfo(CurveInfoType.CDS_INDEX_FACTOR, INDEX_FACTOR)
             .withParameterMetadata(CDS_INDEX_METADATA)); // replace parameter metadata
     CREDIT_CURVE_INDEX = LegalEntitySurvivalProbabilities.of(
-        INDEX_ID, IsdaCompliantZeroRateDiscountFactors.of(USD, VALUATION_DATE, curveWithFactor));
+        INDEX_ID, IsdaCreditDiscountFactors.of(USD, VALUATION_DATE, curveWithFactor));
   }
   private static final CreditRatesProvider RATES_PROVIDER = ImmutableCreditRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
