@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
@@ -28,8 +27,6 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
   public LeastSquareWithPenaltyResults(double chiSqr, double penalty, DoubleArray parameters,
       DoubleMatrix covariance) {
     super(chiSqr, parameters, covariance);
-    //other arguments checked in super class 
-    ArgChecker.notNegative(penalty, "penalty");
     _penalty = penalty;
   }
 
@@ -46,8 +43,6 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
   public LeastSquareWithPenaltyResults(double chiSqr, double penalty, DoubleArray parameters,
       DoubleMatrix covariance, DoubleMatrix inverseJacobian) {
     super(chiSqr, parameters, covariance, inverseJacobian);
-    //other arguments checked in super class 
-    ArgChecker.notNegative(penalty, "penalty");
     _penalty = penalty;
   }
 

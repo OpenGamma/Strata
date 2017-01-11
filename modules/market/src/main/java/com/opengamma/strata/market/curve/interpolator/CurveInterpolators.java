@@ -122,6 +122,11 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator STEP_UPPER =
       CurveInterpolator.of(StandardCurveInterpolators.STEP_UPPER.getName());
+  /**
+   * Piecewise cubic Hermite interpolator with monotonicity.
+   */
+  public static final CurveInterpolator PCHIP =
+      CurveInterpolator.of(StandardCurveInterpolators.PCHIP.getName());
 
   //-------------------------------------------------------------------------
   /**

@@ -38,8 +38,6 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
 
   private static final SurfaceIborCapletFloorletVolatilityBootstrapper CALIBRATOR =
       SurfaceIborCapletFloorletVolatilityBootstrapper.DEFAULT;
-  private static final BlackIborCapFloorLegPricer LEG_PRICER_BLACK = BlackIborCapFloorLegPricer.DEFAULT;
-  private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
   private static final double TOL = 1.0e-14;
 
   public void recovery_test_blackSurface() {
