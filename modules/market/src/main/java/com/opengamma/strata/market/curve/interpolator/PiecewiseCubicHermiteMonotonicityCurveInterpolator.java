@@ -7,12 +7,14 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import java.io.Serializable;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.interpolation.PiecewiseCubicHermiteSplineInterpolatorWithSensitivity;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
-import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
+import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
@@ -81,18 +83,18 @@ final class PiecewiseCubicHermiteMonotonicityCurveInterpolator
     private final double[] yValues;
     private final DoubleArray knots;
     private final DoubleMatrix coefMatrix;
-    private final DoubleMatrix[] coefMatrixSensi;
+    private final Supplier<DoubleMatrix[]> coefMatrixSensi;
 
     Bound(DoubleArray xValues, DoubleArray yValues) {
       super(xValues, yValues);
       this.xValues = xValues.toArrayUnsafe();
       this.yValues = yValues.toArrayUnsafe();
       PiecewisePolynomialInterpolator underlying = new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity();
-      PiecewisePolynomialResultsWithSensitivity poly =
-          underlying.interpolateWithSensitivity(xValues.toArray(), yValues.toArray());
+      PiecewisePolynomialResult poly = underlying.interpolate(xValues.toArray(), yValues.toArray());
       this.knots = poly.getKnots();
       this.coefMatrix = poly.getCoefMatrix();
-      this.coefMatrixSensi = poly.getCoefficientSensitivityAll();
+      this.coefMatrixSensi = Suppliers.memoize(
+          () -> underlying.interpolateWithSensitivity(xValues.toArray(), yValues.toArray()).getCoefficientSensitivityAll());
     }
 
     Bound(Bound base, BoundCurveExtrapolator extrapolatorLeft, BoundCurveExtrapolator extrapolatorRight) {
@@ -179,7 +181,7 @@ final class PiecewiseCubicHermiteMonotonicityCurveInterpolator
     @Override
     protected DoubleArray doParameterSensitivity(double xValue) {
       int indicator = getIndicator(xValue, knots);
-      DoubleMatrix coefficientSensitivity = coefMatrixSensi[indicator];
+      DoubleMatrix coefficientSensitivity = coefMatrixSensi.get()[indicator];
       int nCoefs = coefficientSensitivity.rowCount();
       double s = xValue - knots.get(indicator);
       DoubleArray res = coefficientSensitivity.row(0);

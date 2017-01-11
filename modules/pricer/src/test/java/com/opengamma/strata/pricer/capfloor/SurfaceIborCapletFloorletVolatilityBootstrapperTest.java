@@ -285,5 +285,5 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
     }
     return Pair.of(resExpiries, DoubleMatrix.of(resExpiries.size(), 1, DoubleArray.copyOf(resVols).toArray()));
   }
-  
+
 }

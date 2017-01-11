@@ -160,7 +160,7 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             NAME, USD_LIBOR_3M, ACT_ACT_ISDA, shift, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, initial, PCHIP, FLAT, FLAT, HAGAN);
     ImmutableList<Period> maturities = createBlackMaturities();
     DoubleArray strikes = createBlackStrikes();
-    DoubleMatrix volData =createFullBlackDataMatrix();
+    DoubleMatrix volData = createFullBlackDataMatrix();
     DoubleMatrix error = DoubleMatrix.filled(volData.rowCount(), volData.columnCount(), 1.0e-3);
     RawOptionData data = RawOptionData.of(maturities, strikes, ValueType.STRIKE, volData, error, ValueType.BLACK_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);

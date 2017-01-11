@@ -108,7 +108,6 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
     assertEquals(test.getShiftCurve(), ConstantCurve.of("Shift curve", SHIFT));
   }
 
-
   public void test_ofFixedRho() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedRho(
@@ -195,8 +194,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         CurveInterpolators.PCHIP);
     Curve shiftCurve = ConstantCurve.of("shift curve", 0.03d);
     DoubleArray initial = DoubleArray.of(0.34, 0.5, -0.22, 1.2);
-    ImmutableList<DoubleArray> knotsEmptyBeta = ImmutableList.of(ALPHA_KNOTS, DoubleArray.of(), BETA_RHO_KNOTS,  NU_KNOTS);
-    ImmutableList<DoubleArray> knotsEmptyRho = ImmutableList.of(ALPHA_KNOTS,  BETA_RHO_KNOTS,DoubleArray.of(),  NU_KNOTS);
+    ImmutableList<DoubleArray> knotsEmptyBeta = ImmutableList.of(ALPHA_KNOTS, DoubleArray.of(), BETA_RHO_KNOTS, NU_KNOTS);
+    ImmutableList<DoubleArray> knotsEmptyRho = ImmutableList.of(ALPHA_KNOTS, BETA_RHO_KNOTS, DoubleArray.of(), NU_KNOTS);
     // beta, rho not set
     assertThrowsIllegalArg(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
         .dayCount(ACT_365F)

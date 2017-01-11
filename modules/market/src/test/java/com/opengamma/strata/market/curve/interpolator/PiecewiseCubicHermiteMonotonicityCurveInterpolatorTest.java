@@ -72,9 +72,9 @@ public class PiecewiseCubicHermiteMonotonicityCurveInterpolatorTest {
   }
 
   public void sensitivityTest() {
-     int nExamples = Y.length;
-     int n = XX.length;
-     int nData = X.length;
+    int nExamples = Y.length;
+    int n = XX.length;
+    int nData = X.length;
     for (int example = 0; example < nExamples; example++) {
       PiecewisePolynomialResultsWithSensitivity pp = BASE.interpolateWithSensitivity(X, Y[example]);
       BoundCurveInterpolator bound = PCHIP.bind(

@@ -56,9 +56,9 @@ public class DirectIborCapletFloorletVolatilityCalibrator
     extends IborCapletFloorletVolatilityCalibrator {
 
   /**
-   * Default implementation. 
+   * Standard implementation. 
    */
-  public static final DirectIborCapletFloorletVolatilityCalibrator DEFAULT =
+  private static final DirectIborCapletFloorletVolatilityCalibrator STANDARD =
       of(VolatilityIborCapFloorLegPricer.DEFAULT, 1.0e-8, ReferenceData.standard());
 
   /**
@@ -81,10 +81,19 @@ public class DirectIborCapletFloorletVolatilityCalibrator
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance. 
+   * Obtains the standard instance. 
+   * 
+   * @return the instance
+   */
+  public static DirectIborCapletFloorletVolatilityCalibrator standard() {
+    return DirectIborCapletFloorletVolatilityCalibrator.STANDARD;
+  }
+
+  /**
+   * Obtains an instance. 
    * <p>
-   * The epsilon is the parameter used in {@link NonLinearLeastSquareWithPenalty}, where the iteration stops when certain 
-   * quantities are smaller than this parameter.
+   * The epsilon is the parameter used in {@link NonLinearLeastSquareWithPenalty},
+   * where the iteration stops when certain quantities are smaller than this parameter.
    * 
    * @param pricer  the cap pricer
    * @param epsilon  the epsilon parameter
@@ -161,9 +170,9 @@ public class DirectIborCapletFloorletVolatilityCalibrator
       metadata = Surfaces.blackVolatilityByExpiryStrike(directDefinition.getName().getName(), directDefinition.getDayCount());
       Curve shiftCurve = directDefinition.getShiftCurve().get();
       if (capFloorData.getDataType().equals(NORMAL_VOLATILITY)) {
-      initialVols = DoubleArray.of(capList.size(), n -> volList.get(n) /
-          (ratesProvider.iborIndexRates(index).rate(capList.get(n).getFinalPeriod().getIborRate().getObservation()) +
-              shiftCurve.yValue(timeList.get(n))));
+        initialVols = DoubleArray.of(capList.size(), n -> volList.get(n) /
+            (ratesProvider.iborIndexRates(index).rate(capList.get(n).getFinalPeriod().getIborRate().getObservation()) +
+                shiftCurve.yValue(timeList.get(n))));
       }
       InterpolatedNodalSurface capVolSurface = InterpolatedNodalSurface.of(
           metadata, DoubleArray.copyOf(timeList), DoubleArray.copyOf(strikeList), initialVols, INTERPOLATOR);

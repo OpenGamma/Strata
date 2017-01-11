@@ -56,7 +56,7 @@ import com.opengamma.strata.pricer.option.RawOptionData;
 /**
  * Definition of caplet volatilities calibration.
  * <p>
- * This definition is used with {@link SabrTermStructureIborCapletFloorletVolatilityCalibrator}. 
+ * This definition is used with {@link SabrIborCapletFloorletVolatilityCalibrator}. 
  * The term structure of SABR model parameters is calibrated to cap volatilities. 
  * The SABR parameters are represented by {@code NodalCurve} and the node positions on the curves are flexible.
  * <p>
@@ -561,7 +561,7 @@ public final class SabrIborCapletFloorletVolatilityCalibrationDefinition
     } else { // beta fixed
       ArgChecker.isTrue(rhoCurve == null, "Only betaCurve or rhoCurve must be set, not both");
       ArgChecker.isFalse(parameterCurveNodes.get(2).isEmpty(), "The rho curve nodes must not be empty");
-    } 
+    }
   }
 
   //-------------------------------------------------------------------------

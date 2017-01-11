@@ -42,7 +42,7 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
   private static final GridSurfaceInterpolator INTERPOLATOR =
       GridSurfaceInterpolator.of(CurveInterpolators.LINEAR, CurveInterpolators.LINEAR);
   private static final DirectIborCapletFloorletVolatilityCalibrator CALIBRATOR =
-      DirectIborCapletFloorletVolatilityCalibrator.DEFAULT;
+      DirectIborCapletFloorletVolatilityCalibrator.standard();
   private static final BlackIborCapFloorLegPricer LEG_PRICER_BLACK = BlackIborCapFloorLegPricer.DEFAULT;
   private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
   private static final double TOL = 1.0e-4;
