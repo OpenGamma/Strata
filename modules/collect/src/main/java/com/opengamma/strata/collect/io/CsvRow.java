@@ -184,7 +184,7 @@ public final class CsvRow {
    * <p>
    * This returns the value of the first column where the header matches the specified header pattern.
    * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
-
+   *
    * @param headerPattern the header pattern to match
    * @return the trimmed field value
    * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
