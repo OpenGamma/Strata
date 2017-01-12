@@ -42,6 +42,7 @@ import com.opengamma.strata.market.curve.CurveNodeClashAction;
 import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedInflationSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
@@ -201,6 +202,32 @@ public final class RatesCalibrationCsvLoader {
     return parse(groupsResource.getCharSource(), settingsResource.getCharSource(), curveNodeCharSources);
   }
 
+  /**
+   * Loads one or more CSV format curve calibration files with seasonality.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param groupsResource  the curve groups CSV resource
+   * @param settingsResource  the curve settings CSV resource
+   * @param seasonalityResource  the curve seasonality CSV resource
+   * @param curveNodeResources  the CSV resources for curve nodes
+   * @return the group definitions, mapped by name
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> loadWithSeasonality(
+      ResourceLocator groupsResource,
+      ResourceLocator settingsResource,
+      ResourceLocator seasonalityResource,
+      Collection<ResourceLocator> curveNodeResources) {
+
+    Collection<CharSource> curveNodeCharSources = curveNodeResources.stream().map(r -> r.getCharSource()).collect(toList());
+    return parseWithSeasonality(
+        groupsResource.getCharSource(),
+        settingsResource.getCharSource(),
+        seasonalityResource.getCharSource(),
+        curveNodeCharSources);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses one or more CSV format curve calibration files.
@@ -218,6 +245,39 @@ public final class RatesCalibrationCsvLoader {
       CharSource settingsCharSource,
       Collection<CharSource> curveNodeCharSources) {
 
+    return parse0(groupsCharSource, settingsCharSource, ImmutableMap.of(), curveNodeCharSources);
+  }
+
+  /**
+   * Parses one or more CSV format curve calibration files with seasonality.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param groupsCharSource  the curve groups CSV character source
+   * @param settingsCharSource  the curve settings CSV character source
+   * @param seasonalityResource  the seasonality CSV character source
+   * @param curveNodeCharSources  the CSV character sources for curve nodes
+   * @return the group definitions, mapped by name
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> parseWithSeasonality(
+      CharSource groupsCharSource,
+      CharSource settingsCharSource,
+      CharSource seasonalityResource,
+      Collection<CharSource> curveNodeCharSources) {
+
+    Map<CurveName, SeasonalityDefinition> seasonality =
+        SeasonalityDefinitionCsvLoader.parseSeasonalityDefinitions(seasonalityResource);
+    return parse0(groupsCharSource, settingsCharSource, seasonality, curveNodeCharSources);
+  }
+
+  // parse based on pre-parsed seasonality
+  private static ImmutableMap<CurveGroupName, CurveGroupDefinition> parse0(
+      CharSource groupsCharSource,
+      CharSource settingsCharSource,
+      Map<CurveName, SeasonalityDefinition> seasonality,
+      Collection<CharSource> curveNodeCharSources) {
+
     // load curve groups and settings
     List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.parseCurveSettings(settingsCharSource);
@@ -229,7 +289,7 @@ public final class RatesCalibrationCsvLoader {
 
     // Add the curve definitions to the curve group definitions
     return curveGroups.stream()
-        .map(groupDefinition -> groupDefinition.withCurveDefinitions(curveDefinitions))
+        .map(groupDefinition -> groupDefinition.withCurveDefinitions(curveDefinitions).withSeasonalityDefinitions(seasonality))
         .collect(toImmutableMap(groupDefinition -> groupDefinition.getName()));
   }
 
