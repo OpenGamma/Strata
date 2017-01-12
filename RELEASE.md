@@ -23,7 +23,7 @@ Being a release tag, beginning with `v`, additional operations are triggered dur
 will perform the deployment to Bintray and upload the build artifacts to the GitHub Releases page.
 Note that there will be a concurrent build for the earlier push to master which will behave normally.
 
-1. At GutHub, update the release with a proper description and release notes.
+1. At GitHub, update the release with a proper description and release notes.
 
 1. At Bintray, publish the files.
 Edit the description of the version, adding the release date, description and VCS tag.
