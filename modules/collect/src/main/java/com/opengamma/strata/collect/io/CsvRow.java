@@ -179,6 +179,80 @@ public final class CsvRow {
     return Optional.empty();
   }
 
+  /**
+   * Gets a single field value from the row by header pattern
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
+   *
+   * @param headerPattern the header pattern to match
+   * @return the trimmed field value
+   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   */
+  public String getValue(Pattern headerPattern) {
+    String value = getField(headerPattern);
+    if (value.isEmpty()) {
+      throw new IllegalArgumentException("No value was found for header pattern" + headerPattern);
+    } else {
+      return value;
+    }
+  }
+
+  /**
+   * Gets a single field value from the row by header
+   * <p>
+   * This returns the value of the first column where the header matches the specified header.
+   * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
+   *
+   * @param header the column header
+   * @return the trimmed field value, empty
+   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   */
+  public String getValue(String header) {
+    String value = getField(header);
+    if (value.isEmpty()) {
+      throw new IllegalArgumentException("No value was found for field " + header);
+    } else {
+      return value;
+    }
+  }
+
+  /**
+   * Gets a single value from the row by header pattern.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the value is an empty string, then an empty optional is returned.
+   *
+   * @param headerPattern the header pattern to match
+   * @return the trimmed field value, empty
+   */
+  public Optional<String> findValue(Pattern headerPattern) {
+    Optional<String> value = findField(headerPattern);
+    if (value.isPresent() && !value.get().isEmpty()) {
+      return value;
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Gets a single value from the row by header.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the value is an empty string, then an empty optional is returned.
+   *
+   * @param header the column header
+   * @return the trimmed field value, empty
+   */
+  public Optional<String> findValue(String header) {
+    Optional<String> value = findField(header);
+    if (value.isPresent() && !value.get().isEmpty()) {
+      return value;
+    } else {
+      return Optional.empty();
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Obtains a sub-row, containing a selection of fields by index.

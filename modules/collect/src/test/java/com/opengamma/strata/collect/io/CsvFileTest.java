@@ -35,7 +35,8 @@ public class CsvFileTest {
   private final String CSV1 = "" +
       "h1,h2\n" +
       "r11,r12\n" +
-      "r21,r22";
+      "r21,r22\n" +
+      "r31,";
 
   private final String CSV1T = "" +
       "h1\th2\n" +
@@ -88,7 +89,7 @@ public class CsvFileTest {
   public void test_of_simple_no_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.headers().size(), 0);
-    assertEquals(csvFile.rowCount(), 3);
+    assertEquals(csvFile.rowCount(), 4);
     assertEquals(csvFile.row(0).headers().size(), 0);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "h1");
@@ -131,7 +132,7 @@ public class CsvFileTest {
     assertEquals(headers.size(), 2);
     assertEquals(headers.get(0), "h1");
     assertEquals(headers.get(1), "h2");
-    assertEquals(csvFile.rowCount(), 2);
+    assertEquals(csvFile.rowCount(), 3);
     assertEquals(csvFile.row(0).headers(), headers);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "r11");
@@ -147,19 +148,43 @@ public class CsvFileTest {
     assertEquals(csvFile.row(1).getField("h2"), "r22");
     assertThrowsIllegalArg(() -> csvFile.row(0).getField("zzz"));
 
+    assertEquals(csvFile.row(0).getValue("h1"), "r11");
+    assertEquals(csvFile.row(0).getValue("h2"), "r12");
+    assertEquals(csvFile.row(1).getValue("h1"), "r21");
+    assertEquals(csvFile.row(1).getValue("h2"), "r22");
+    assertThrowsIllegalArg(() -> csvFile.row(0).getValue("zzz"));
+    assertThrowsIllegalArg(() -> csvFile.row(2).getValue("h2"));
+
     assertEquals(csvFile.row(0).findField("h1"), Optional.of("r11"));
     assertEquals(csvFile.row(0).findField("h2"), Optional.of("r12"));
     assertEquals(csvFile.row(1).findField("h1"), Optional.of("r21"));
     assertEquals(csvFile.row(1).findField("h2"), Optional.of("r22"));
     assertEquals(csvFile.row(0).findField("zzz"), Optional.empty());
 
+    assertEquals(csvFile.row(0).findValue("h1"), Optional.of("r11"));
+    assertEquals(csvFile.row(0).findValue("h2"), Optional.of("r12"));
+    assertEquals(csvFile.row(1).findValue("h1"), Optional.of("r21"));
+    assertEquals(csvFile.row(1).findValue("h2"), Optional.of("r22"));
+    assertEquals(csvFile.row(0).findValue("zzz"), Optional.empty());
+    assertEquals(csvFile.row(2).findValue("h2"), Optional.empty());
+
     assertEquals(csvFile.row(0).getField(Pattern.compile("h[13]")), "r11");
     assertEquals(csvFile.row(0).getField(Pattern.compile("h[24]")), "r12");
     assertThrowsIllegalArg(() -> csvFile.row(0).getField(Pattern.compile("zzz")));
 
+    assertEquals(csvFile.row(0).getValue(Pattern.compile("h[13]")), "r11");
+    assertEquals(csvFile.row(0).getValue(Pattern.compile("h[24]")), "r12");
+    assertThrowsIllegalArg(() -> csvFile.row(0).getValue(Pattern.compile("zzz")));
+    assertThrowsIllegalArg(() -> csvFile.row(2).getValue(Pattern.compile("h2")));
+
     assertEquals(csvFile.row(0).findField(Pattern.compile("h[13]")), Optional.of("r11"));
     assertEquals(csvFile.row(0).findField(Pattern.compile("h[24]")), Optional.of("r12"));
     assertEquals(csvFile.row(0).findField(Pattern.compile("zzz")), Optional.empty());
+
+    assertEquals(csvFile.row(0).findValue(Pattern.compile("h[13]")), Optional.of("r11"));
+    assertEquals(csvFile.row(0).findValue(Pattern.compile("h[24]")), Optional.of("r12"));
+    assertEquals(csvFile.row(0).findValue(Pattern.compile("zzz")), Optional.empty());
+    assertEquals(csvFile.row(2).findValue(Pattern.compile("h2")), Optional.empty());
 
     assertEquals(csvFile.row(0).subRow(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).subRow(1).fieldCount(), 1);
