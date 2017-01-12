@@ -192,7 +192,7 @@ public final class CsvRow {
   public String getValue(Pattern headerPattern) {
     String value = getField(headerPattern);
     if (value.isEmpty()) {
-      throw new IllegalArgumentException("No value was provided for header pattern" + headerPattern);
+      throw new IllegalArgumentException("No value was found for header pattern" + headerPattern);
     } else {
       return value;
     }
@@ -211,7 +211,7 @@ public final class CsvRow {
   public String getValue(String header) {
     String value = getField(header);
     if (value.isEmpty()) {
-      throw new IllegalArgumentException("No value was provided for field " + header);
+      throw new IllegalArgumentException("No value was found for field " + header);
     } else {
       return value;
     }
