@@ -140,7 +140,7 @@ final class CombinedScenarioMarketData
   /**
    * The meta-bean for {@code CombinedScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CombinedScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CombinedScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code CombinedScenarioMarketData}.

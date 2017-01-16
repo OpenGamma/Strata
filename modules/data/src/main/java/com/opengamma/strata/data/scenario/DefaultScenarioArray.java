@@ -24,10 +24,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -231,7 +231,7 @@ final class DefaultScenarioArray<T>
    * The meta-bean for {@code DefaultScenarioArray}.
    * @param <T>  the type
    */
-  public static final class Meta<T> extends DirectMetaBean {
+  static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -317,7 +317,7 @@ final class DefaultScenarioArray<T>
    * The bean-builder for {@code DefaultScenarioArray}.
    * @param <T>  the type
    */
-  private static final class Builder<T> extends DirectFieldsBeanBuilder<DefaultScenarioArray<T>> {
+  private static final class Builder<T> extends DirectPrivateBeanBuilder<DefaultScenarioArray<T>> {
 
     private List<T> values = ImmutableList.of();
 
@@ -325,6 +325,7 @@ final class DefaultScenarioArray<T>
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -348,30 +349,6 @@ final class DefaultScenarioArray<T>
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder<T> set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

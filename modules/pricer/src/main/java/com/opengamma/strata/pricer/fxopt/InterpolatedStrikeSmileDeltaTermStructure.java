@@ -25,10 +25,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
@@ -1050,7 +1050,7 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
   /**
    * The bean-builder for {@code InterpolatedStrikeSmileDeltaTermStructure}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<InterpolatedStrikeSmileDeltaTermStructure> {
+  private static final class Builder extends DirectPrivateBeanBuilder<InterpolatedStrikeSmileDeltaTermStructure> {
 
     private List<SmileDeltaParameters> volatilityTerm = ImmutableList.of();
     private DayCount dayCount;
@@ -1065,6 +1065,7 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -1123,30 +1124,6 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

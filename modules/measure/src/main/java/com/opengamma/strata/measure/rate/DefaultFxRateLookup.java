@@ -65,7 +65,7 @@ final class DefaultFxRateLookup
   /**
    * The meta-bean for {@code DefaultFxRateLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultFxRateLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultFxRateLookup.class);
 
   /**
    * The meta-bean for {@code DefaultFxRateLookup}.

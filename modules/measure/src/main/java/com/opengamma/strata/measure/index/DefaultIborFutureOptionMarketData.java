@@ -86,7 +86,7 @@ final class DefaultIborFutureOptionMarketData
   /**
    * The meta-bean for {@code DefaultIborFutureOptionMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultIborFutureOptionMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultIborFutureOptionMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultIborFutureOptionMarketData}.

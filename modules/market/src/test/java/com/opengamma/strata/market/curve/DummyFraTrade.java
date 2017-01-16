@@ -54,7 +54,7 @@ public final class DummyFraTrade
   /**
    * The meta-bean for {@code DummyFraTrade}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DummyFraTrade.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DummyFraTrade.class);
 
   /**
    * The meta-bean for {@code DummyFraTrade}.

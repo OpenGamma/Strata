@@ -160,7 +160,7 @@ final class LoadedCurveSettings
   /**
    * The meta-bean for {@code LoadedCurveSettings}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(LoadedCurveSettings.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(LoadedCurveSettings.class);
 
   /**
    * The meta-bean for {@code LoadedCurveSettings}.

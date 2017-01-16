@@ -124,7 +124,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static SingleTypeMarketDataConfig.Builder builder() {
+  static SingleTypeMarketDataConfig.Builder builder() {
     return new SingleTypeMarketDataConfig.Builder();
   }
 
@@ -175,7 +175,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder toBuilder() {
+  Builder toBuilder() {
     return new Builder(this);
   }
 
@@ -214,7 +214,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   /**
    * The meta-bean for {@code SingleTypeMarketDataConfig}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -316,7 +316,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code SingleTypeMarketDataConfig}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<SingleTypeMarketDataConfig> {
+  static final class Builder extends DirectFieldsBeanBuilder<SingleTypeMarketDataConfig> {
 
     private Class<?> configType;
     private Map<String, Object> configObjects = ImmutableMap.of();

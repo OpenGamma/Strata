@@ -49,7 +49,7 @@ final class MatrixFxRateLookup
   /**
    * The meta-bean for {@code MatrixFxRateLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(MatrixFxRateLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(MatrixFxRateLookup.class);
 
   /**
    * The meta-bean for {@code MatrixFxRateLookup}.

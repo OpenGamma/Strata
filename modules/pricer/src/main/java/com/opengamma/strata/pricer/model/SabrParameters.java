@@ -372,7 +372,7 @@ public final class SabrParameters
   /**
    * The meta-bean for {@code SabrParameters}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SabrParameters.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SabrParameters.class);
 
   /**
    * The meta-bean for {@code SabrParameters}.

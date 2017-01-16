@@ -106,7 +106,7 @@ final class DefaultIborCapFloorScenarioMarketData
   /**
    * The meta-bean for {@code DefaultIborCapFloorScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultIborCapFloorScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultIborCapFloorScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultIborCapFloorScenarioMarketData}.

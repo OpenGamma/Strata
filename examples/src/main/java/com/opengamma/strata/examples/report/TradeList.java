@@ -50,7 +50,7 @@ public final class TradeList implements ImmutableBean {
   /**
    * The meta-bean for {@code TradeList}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(TradeList.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(TradeList.class);
 
   /**
    * The meta-bean for {@code TradeList}.

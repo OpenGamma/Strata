@@ -829,7 +829,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantInterestRateModel.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantInterestRateModel.class);
 
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.

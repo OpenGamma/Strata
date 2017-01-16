@@ -46,7 +46,7 @@ final class NoOpScenarioPerturbation<T>
   /**
    * The meta-bean for {@code NoOpScenarioPerturbation}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(NoOpScenarioPerturbation.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(NoOpScenarioPerturbation.class);
 
   /**
    * The meta-bean for {@code NoOpScenarioPerturbation}.

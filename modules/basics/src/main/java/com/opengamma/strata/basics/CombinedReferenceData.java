@@ -62,7 +62,7 @@ final class CombinedReferenceData
   /**
    * The meta-bean for {@code CombinedReferenceData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CombinedReferenceData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CombinedReferenceData.class);
 
   /**
    * The meta-bean for {@code CombinedReferenceData}.

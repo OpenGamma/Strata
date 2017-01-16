@@ -211,7 +211,7 @@ final class ScenarioMarketDataBox<T>
    * @param <T>  the type
    * @return the builder, not null
    */
-  public static <T> ScenarioMarketDataBox.Builder<T> builder() {
+  static <T> ScenarioMarketDataBox.Builder<T> builder() {
     return new ScenarioMarketDataBox.Builder<T>();
   }
 
@@ -251,7 +251,7 @@ final class ScenarioMarketDataBox<T>
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder<T> toBuilder() {
+  Builder<T> toBuilder() {
     return new Builder<T>(this);
   }
 
@@ -288,7 +288,7 @@ final class ScenarioMarketDataBox<T>
    * The meta-bean for {@code ScenarioMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Meta<T> extends DirectMetaBean {
+  static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -374,7 +374,7 @@ final class ScenarioMarketDataBox<T>
    * The bean-builder for {@code ScenarioMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Builder<T> extends DirectFieldsBeanBuilder<ScenarioMarketDataBox<T>> {
+  static final class Builder<T> extends DirectFieldsBeanBuilder<ScenarioMarketDataBox<T>> {
 
     private ScenarioArray<T> value;
 

@@ -116,7 +116,7 @@ final class SingleScenarioMarketData
   /**
    * The meta-bean for {@code SingleScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SingleScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SingleScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code SingleScenarioMarketData}.

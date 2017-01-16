@@ -50,7 +50,7 @@ final class IdFilter<T>
   /**
    * The meta-bean for {@code IdFilter}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(IdFilter.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(IdFilter.class);
 
   /**
    * The meta-bean for {@code IdFilter}.

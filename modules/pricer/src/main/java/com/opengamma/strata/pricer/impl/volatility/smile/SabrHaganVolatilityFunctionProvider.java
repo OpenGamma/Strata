@@ -609,7 +609,7 @@ public final class SabrHaganVolatilityFunctionProvider
   /**
    * The meta-bean for {@code SabrHaganVolatilityFunctionProvider}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SabrHaganVolatilityFunctionProvider.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SabrHaganVolatilityFunctionProvider.class);
 
   /**
    * The meta-bean for {@code SabrHaganVolatilityFunctionProvider}.

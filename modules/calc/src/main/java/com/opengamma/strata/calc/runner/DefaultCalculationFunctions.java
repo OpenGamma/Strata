@@ -136,7 +136,7 @@ final class DefaultCalculationFunctions
   /**
    * The meta-bean for {@code DefaultCalculationFunctions}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultCalculationFunctions.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultCalculationFunctions.class);
 
   /**
    * The meta-bean for {@code DefaultCalculationFunctions}.

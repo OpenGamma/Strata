@@ -111,7 +111,7 @@ final class CombinedMarketData
   /**
    * The meta-bean for {@code CombinedMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CombinedMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CombinedMarketData.class);
 
   /**
    * The meta-bean for {@code CombinedMarketData}.

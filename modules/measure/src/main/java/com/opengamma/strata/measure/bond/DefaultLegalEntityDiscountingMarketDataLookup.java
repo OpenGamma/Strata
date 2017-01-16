@@ -178,7 +178,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
   /**
    * The meta-bean for {@code DefaultLegalEntityDiscountingMarketDataLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultLegalEntityDiscountingMarketDataLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultLegalEntityDiscountingMarketDataLookup.class);
 
   /**
    * The meta-bean for {@code DefaultLegalEntityDiscountingMarketDataLookup}.

@@ -220,7 +220,7 @@ public final class CalculationTasks implements ImmutableBean {
   /**
    * The meta-bean for {@code CalculationTasks}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationTasks.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationTasks.class);
 
   /**
    * The meta-bean for {@code CalculationTasks}.
