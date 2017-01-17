@@ -162,7 +162,7 @@ public final class MarketDataFxRateProvider
   /**
    * The meta-bean for {@code MarketDataFxRateProvider}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(MarketDataFxRateProvider.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(MarketDataFxRateProvider.class);
 
   /**
    * The meta-bean for {@code MarketDataFxRateProvider}.

@@ -153,7 +153,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantParameters}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantParameters.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantParameters.class);
 
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantParameters}.

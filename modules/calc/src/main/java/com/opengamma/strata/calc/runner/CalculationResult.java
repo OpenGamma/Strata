@@ -111,7 +111,7 @@ public final class CalculationResult
   /**
    * The meta-bean for {@code CalculationResult}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationResult.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationResult.class);
 
   /**
    * The meta-bean for {@code CalculationResult}.

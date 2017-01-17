@@ -116,7 +116,7 @@ public final class SsviVolatilityFunction
   /**
    * The meta-bean for {@code SsviVolatilityFunction}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SsviVolatilityFunction.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SsviVolatilityFunction.class);
 
   /**
    * The meta-bean for {@code SsviVolatilityFunction}.

@@ -130,7 +130,7 @@ final class DefaultBondFutureOptionMarketDataLookup
   /**
    * The meta-bean for {@code DefaultBondFutureOptionMarketDataLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionMarketDataLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionMarketDataLookup.class);
 
   /**
    * The meta-bean for {@code DefaultBondFutureOptionMarketDataLookup}.

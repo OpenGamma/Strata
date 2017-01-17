@@ -106,7 +106,7 @@ final class DefaultLegalEntityDiscountingScenarioMarketData
   /**
    * The meta-bean for {@code DefaultLegalEntityDiscountingScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultLegalEntityDiscountingScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultLegalEntityDiscountingScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultLegalEntityDiscountingScenarioMarketData}.

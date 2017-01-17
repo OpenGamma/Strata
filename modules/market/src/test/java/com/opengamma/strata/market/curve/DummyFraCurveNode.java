@@ -126,7 +126,7 @@ public final class DummyFraCurveNode
   /**
    * The meta-bean for {@code DummyFraCurveNode}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DummyFraCurveNode.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DummyFraCurveNode.class);
 
   /**
    * The meta-bean for {@code DummyFraCurveNode}.

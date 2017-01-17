@@ -219,7 +219,7 @@ public final class RawOptionData
   /**
    * The meta-bean for {@code RawOptionData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(RawOptionData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(RawOptionData.class);
 
   /**
    * The meta-bean for {@code RawOptionData}.

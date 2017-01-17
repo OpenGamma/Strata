@@ -386,7 +386,7 @@ public final class SabrInterestRateParameters
   /**
    * The meta-bean for {@code SabrInterestRateParameters}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SabrInterestRateParameters.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SabrInterestRateParameters.class);
 
   /**
    * The meta-bean for {@code SabrInterestRateParameters}.

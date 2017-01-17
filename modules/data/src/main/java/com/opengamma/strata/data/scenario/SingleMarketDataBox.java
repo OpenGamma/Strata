@@ -170,7 +170,7 @@ final class SingleMarketDataBox<T>
    * @param <T>  the type
    * @return the builder, not null
    */
-  public static <T> SingleMarketDataBox.Builder<T> builder() {
+  static <T> SingleMarketDataBox.Builder<T> builder() {
     return new SingleMarketDataBox.Builder<T>();
   }
 
@@ -210,7 +210,7 @@ final class SingleMarketDataBox<T>
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder<T> toBuilder() {
+  Builder<T> toBuilder() {
     return new Builder<T>(this);
   }
 
@@ -247,7 +247,7 @@ final class SingleMarketDataBox<T>
    * The meta-bean for {@code SingleMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Meta<T> extends DirectMetaBean {
+  static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -333,7 +333,7 @@ final class SingleMarketDataBox<T>
    * The bean-builder for {@code SingleMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Builder<T> extends DirectFieldsBeanBuilder<SingleMarketDataBox<T>> {
+  static final class Builder<T> extends DirectFieldsBeanBuilder<SingleMarketDataBox<T>> {
 
     private T value;
 

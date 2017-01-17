@@ -148,7 +148,7 @@ public final class DummyPointSensitivity
   /**
    * The meta-bean for {@code DummyPointSensitivity}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DummyPointSensitivity.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DummyPointSensitivity.class);
 
   /**
    * The meta-bean for {@code DummyPointSensitivity}.

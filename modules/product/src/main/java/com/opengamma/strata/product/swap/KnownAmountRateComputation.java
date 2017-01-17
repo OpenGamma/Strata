@@ -63,7 +63,7 @@ final class KnownAmountRateComputation
   /**
    * The meta-bean for {@code KnownAmountRateComputation}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(KnownAmountRateComputation.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(KnownAmountRateComputation.class);
 
   /**
    * The meta-bean for {@code KnownAmountRateComputation}.

@@ -269,7 +269,7 @@ final class DefaultLookupRatesProvider
   /**
    * The meta-bean for {@code DefaultLookupRatesProvider}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultLookupRatesProvider.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultLookupRatesProvider.class);
 
   /**
    * The meta-bean for {@code DefaultLookupRatesProvider}.

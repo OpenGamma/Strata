@@ -61,7 +61,7 @@ public final class NormalFunctionData
   /**
    * The meta-bean for {@code NormalFunctionData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(NormalFunctionData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(NormalFunctionData.class);
 
   /**
    * The meta-bean for {@code NormalFunctionData}.

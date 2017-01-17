@@ -60,7 +60,7 @@ public final class CalculationTargetList implements ImmutableBean, Serializable 
   /**
    * The meta-bean for {@code CalculationTargetList}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationTargetList.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationTargetList.class);
 
   /**
    * The meta-bean for {@code CalculationTargetList}.

@@ -211,7 +211,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
   /**
    * The meta-bean for {@code DefaultLookupLegalEntityDiscountingProvider}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultLookupLegalEntityDiscountingProvider.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultLookupLegalEntityDiscountingProvider.class);
 
   /**
    * The meta-bean for {@code DefaultLookupLegalEntityDiscountingProvider}.

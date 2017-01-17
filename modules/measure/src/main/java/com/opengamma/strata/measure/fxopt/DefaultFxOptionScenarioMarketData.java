@@ -106,7 +106,7 @@ final class DefaultFxOptionScenarioMarketData
   /**
    * The meta-bean for {@code DefaultFxOptionScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultFxOptionScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultFxOptionScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultFxOptionScenarioMarketData}.

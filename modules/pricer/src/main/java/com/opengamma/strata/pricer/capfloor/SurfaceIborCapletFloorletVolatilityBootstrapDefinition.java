@@ -25,10 +25,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
@@ -508,7 +508,7 @@ public final class SurfaceIborCapletFloorletVolatilityBootstrapDefinition
   /**
    * The bean-builder for {@code SurfaceIborCapletFloorletVolatilityBootstrapDefinition}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SurfaceIborCapletFloorletVolatilityBootstrapDefinition> {
+  private static final class Builder extends DirectPrivateBeanBuilder<SurfaceIborCapletFloorletVolatilityBootstrapDefinition> {
 
     private IborCapletFloorletVolatilitiesName name;
     private IborIndex index;
@@ -520,6 +520,7 @@ public final class SurfaceIborCapletFloorletVolatilityBootstrapDefinition
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -562,30 +563,6 @@ public final class SurfaceIborCapletFloorletVolatilityBootstrapDefinition
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

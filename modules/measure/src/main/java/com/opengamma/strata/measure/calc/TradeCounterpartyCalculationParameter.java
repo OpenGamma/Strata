@@ -108,7 +108,7 @@ public final class TradeCounterpartyCalculationParameter
   /**
    * The meta-bean for {@code TradeCounterpartyCalculationParameter}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(TradeCounterpartyCalculationParameter.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(TradeCounterpartyCalculationParameter.class);
 
   /**
    * The meta-bean for {@code TradeCounterpartyCalculationParameter}.
