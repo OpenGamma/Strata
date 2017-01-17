@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.strata</groupId>
@@ -190,7 +190,6 @@
       <plugin>
         <groupId>de.thetaphi</groupId>
         <artifactId>forbiddenapis</artifactId>
-        <version>2.0</version>
         <configuration>
           <internalRuntimeForbidden>true</internalRuntimeForbidden>
           <failOnUnsupportedJava>false</failOnUnsupportedJava>
@@ -463,7 +462,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
-            <version>${maven-enforcer-plugin.version}</version>
             <executions>
               <execution>
                 <id>enforce</id>
@@ -519,7 +517,6 @@
           <plugin>
             <groupId>org.joda</groupId>
             <artifactId>joda-beans-maven-plugin</artifactId>
-            <version>${joda-beans-maven-plugin.version}</version>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -548,7 +545,6 @@
           <plugin>
             <groupId>com.github.siom79.japicmp</groupId>
             <artifactId>japicmp-maven-plugin</artifactId>
-            <version>${japicmp-maven-plugin.version}</version>
             <executions>
               <execution>
                 <phase>verify</phase>
@@ -610,17 +606,12 @@
     <jcommander.version>1.58</jcommander.version>
     <testng.version>6.10</testng.version>
     <mockito.version>2.4.0</mockito.version>
-    <japicmp-maven-plugin.version>0.9.3</japicmp-maven-plugin.version>
-    <!-- Properties for maven-checkstyle-plugin -->
-    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-    <checkstyle.config.location>checkstyle/checkstyle.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
     <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
     <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
-    <additionalparam>-Xdoclint:missing -Xdoclint:reference</additionalparam>
   </properties>
 
 </project>
