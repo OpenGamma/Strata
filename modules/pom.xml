@@ -75,14 +75,14 @@
     </testResources>
     <plugins>
       <!--  checkstyle -->
-      <!--plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>7.3</version>
+            <version>7.4</version>
           </dependency>
           <dependency>
             <groupId>com.opengamma</groupId>
@@ -106,7 +106,7 @@
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
         </configuration>
-      </plugin-->
+      </plugin>
       <!--  obtain git commit -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
