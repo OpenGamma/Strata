@@ -186,7 +186,7 @@ final class DefaultRatesMarketDataLookup
   /**
    * The meta-bean for {@code DefaultRatesMarketDataLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultRatesMarketDataLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultRatesMarketDataLookup.class);
 
   /**
    * The meta-bean for {@code DefaultRatesMarketDataLookup}.

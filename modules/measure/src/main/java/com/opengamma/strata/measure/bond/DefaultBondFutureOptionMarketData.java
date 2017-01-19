@@ -86,7 +86,7 @@ final class DefaultBondFutureOptionMarketData
   /**
    * The meta-bean for {@code DefaultBondFutureOptionMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultBondFutureOptionMarketData}.

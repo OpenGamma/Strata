@@ -125,7 +125,7 @@ final class DefaultSwaptionMarketDataLookup
   /**
    * The meta-bean for {@code DefaultSwaptionMarketDataLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultSwaptionMarketDataLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultSwaptionMarketDataLookup.class);
 
   /**
    * The meta-bean for {@code DefaultSwaptionMarketDataLookup}.

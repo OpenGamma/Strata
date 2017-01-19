@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * A holiday calendar implementation that combines two other calendars.
@@ -157,7 +157,7 @@ final class CombinedHolidayCalendar
   /**
    * The meta-bean for {@code CombinedHolidayCalendar}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -257,7 +257,7 @@ final class CombinedHolidayCalendar
   /**
    * The bean-builder for {@code CombinedHolidayCalendar}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CombinedHolidayCalendar> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CombinedHolidayCalendar> {
 
     private HolidayCalendar calendar1;
     private HolidayCalendar calendar2;
@@ -266,6 +266,7 @@ final class CombinedHolidayCalendar
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -293,30 +294,6 @@ final class CombinedHolidayCalendar
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

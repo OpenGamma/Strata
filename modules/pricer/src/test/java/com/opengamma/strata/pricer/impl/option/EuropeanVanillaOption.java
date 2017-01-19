@@ -70,7 +70,7 @@ public final class EuropeanVanillaOption
   /**
    * The meta-bean for {@code EuropeanVanillaOption}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(EuropeanVanillaOption.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(EuropeanVanillaOption.class);
 
   /**
    * The meta-bean for {@code EuropeanVanillaOption}.

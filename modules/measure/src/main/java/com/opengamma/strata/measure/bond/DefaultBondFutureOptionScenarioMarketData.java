@@ -106,7 +106,7 @@ final class DefaultBondFutureOptionScenarioMarketData
   /**
    * The meta-bean for {@code DefaultBondFutureOptionScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultBondFutureOptionScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultBondFutureOptionScenarioMarketData}.

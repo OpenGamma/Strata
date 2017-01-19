@@ -53,7 +53,7 @@ final class LoadedCurveKey
   /**
    * The meta-bean for {@code LoadedCurveKey}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(LoadedCurveKey.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(LoadedCurveKey.class);
 
   /**
    * The meta-bean for {@code LoadedCurveKey}.

@@ -75,7 +75,7 @@ final class LoadedCurveNode
   /**
    * The meta-bean for {@code LoadedCurveNode}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(LoadedCurveNode.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(LoadedCurveNode.class);
 
   /**
    * The meta-bean for {@code LoadedCurveNode}.

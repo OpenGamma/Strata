@@ -79,7 +79,7 @@ final class DefaultCreditRatesMarketData
   /**
    * The meta-bean for {@code DefaultCreditRatesMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultCreditRatesMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultCreditRatesMarketData.class);
 
   /**
    * The meta-bean for {@code DefaultCreditRatesMarketData}.

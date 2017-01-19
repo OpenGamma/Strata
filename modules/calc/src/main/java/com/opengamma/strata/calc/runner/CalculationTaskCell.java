@@ -182,7 +182,7 @@ public final class CalculationTaskCell implements ImmutableBean {
   /**
    * The meta-bean for {@code CalculationTaskCell}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationTaskCell.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationTaskCell.class);
 
   /**
    * The meta-bean for {@code CalculationTaskCell}.

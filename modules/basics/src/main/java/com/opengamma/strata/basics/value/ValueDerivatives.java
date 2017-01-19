@@ -68,7 +68,7 @@ public final class ValueDerivatives
   /**
    * The meta-bean for {@code ValueDerivatives}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(ValueDerivatives.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(ValueDerivatives.class);
 
   /**
    * The meta-bean for {@code ValueDerivatives}.

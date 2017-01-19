@@ -251,7 +251,7 @@ final class DefaultLookupCreditRatesProvider
   /**
    * The meta-bean for {@code DefaultLookupCreditRatesProvider}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultLookupCreditRatesProvider.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultLookupCreditRatesProvider.class);
 
   /**
    * The meta-bean for {@code DefaultLookupCreditRatesProvider}.

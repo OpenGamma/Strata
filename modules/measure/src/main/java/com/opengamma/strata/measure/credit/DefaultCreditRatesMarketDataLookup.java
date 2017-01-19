@@ -119,7 +119,7 @@ final class DefaultCreditRatesMarketDataLookup
   /**
    * The meta-bean for {@code DefaultCreditRatesMarketDataLookup}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultCreditRatesMarketDataLookup.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultCreditRatesMarketDataLookup.class);
 
   /**
    * The meta-bean for {@code DefaultCreditRatesMarketDataLookup}.

@@ -56,7 +56,7 @@ public final class SmileAndBucketedSensitivities
   /**
    * The meta-bean for {@code SmileAndBucketedSensitivities}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SmileAndBucketedSensitivities.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SmileAndBucketedSensitivities.class);
 
   /**
    * The meta-bean for {@code SmileAndBucketedSensitivities}.

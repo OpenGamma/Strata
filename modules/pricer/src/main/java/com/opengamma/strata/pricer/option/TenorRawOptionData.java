@@ -77,7 +77,7 @@ public final class TenorRawOptionData
   /**
    * The meta-bean for {@code TenorRawOptionData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(TenorRawOptionData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(TenorRawOptionData.class);
 
   /**
    * The meta-bean for {@code TenorRawOptionData}.

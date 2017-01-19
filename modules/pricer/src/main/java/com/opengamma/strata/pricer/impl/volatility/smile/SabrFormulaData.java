@@ -196,7 +196,7 @@ public final class SabrFormulaData
   /**
    * The meta-bean for {@code SabrFormulaData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SabrFormulaData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SabrFormulaData.class);
 
   /**
    * The meta-bean for {@code SabrFormulaData}.
