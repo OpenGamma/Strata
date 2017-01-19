@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-8-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2014-2015 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!--5.0:Message type is a Root of the message-->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-8" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-8.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.swapswire.com/spec/2001/trade-id-1-0">37262</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <tradeId tradeIdScheme="http://www.swapswire.com/spec/2001/trade-id-1-0">37262</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2002-12-02</tradeDate>
+    </tradeHeader>
+    <creditDefaultSwap>
+      <generalTerms>
+        <effectiveDate>
+          <unadjustedDate>2002-12-03</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>NONE</businessDayConvention>
+          </dateAdjustments>
+        </effectiveDate>
+        <scheduledTerminationDate>
+          <unadjustedDate>2008-01-15</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>NONE</businessDayConvention>
+          </dateAdjustments>
+        </scheduledTerminationDate>
+        <buyerPartyReference href="party2" />
+        <sellerPartyReference href="party1" />
+        <dateAdjustments>
+          <businessDayConvention>FOLLOWING</businessDayConvention>
+          <businessCenters>
+            <businessCenter>GBLO</businessCenter>
+            <businessCenter>EUTA</businessCenter>
+          </businessCenters>
+        </dateAdjustments>
+        <referenceInformation>
+          <referenceEntity id="referenceEntity">
+            <entityName>Invensys plc</entityName>
+            <entityId entityIdScheme="http://www.fpml.org/spec/2003/entity-id-RED-1-0">4A7324</entityId>
+          </referenceEntity>
+          <referenceObligation>
+            <bond>
+              <instrumentId instrumentIdScheme="http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0">US826166AA89</instrumentId>
+              <couponRate>0.07125</couponRate>
+              <maturity>2007-01-15</maturity>
+            </bond>
+            <primaryObligorReference href="referenceEntity" />
+          </referenceObligation>
+          <allGuarantees>true</allGuarantees>
+          <referencePrice>1.0</referencePrice>
+        </referenceInformation>
+<!-- The ISDA2003Credit60BusinessDaySettlementCap scheme value became an actual element within physicalSettlementTerms in version 4.2. See physicalSettlementTerms element below.
+                                <additionalTerm additionalTermScheme="http://www.fpml.org/spec/2003/additional-term-1-0">ISDA2003Credit60BusinessDaySettlementCap</additionalTerm>
+                                        -->
+      </generalTerms>
+      <feeLeg>
+        <periodicPayment>
+          <paymentFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <firstPaymentDate>2003-01-15</firstPaymentDate>
+          <rollConvention>15</rollConvention>
+          <fixedAmountCalculation>
+            <calculationAmount>
+              <currency>EUR</currency>
+              <amount>5000000.0</amount>
+            </calculationAmount>
+            <fixedRate>0.009</fixedRate>
+            <dayCountFraction>ACT/360</dayCountFraction>
+          </fixedAmountCalculation>
+        </periodicPayment>
+      </feeLeg>
+      <protectionTerms>
+        <calculationAmount>
+          <currency>EUR</currency>
+          <amount>5000000.0</amount>
+        </calculationAmount>
+        <creditEvents>
+          <bankruptcy>true</bankruptcy>
+          <failureToPay>
+            <applicable>true</applicable>
+            <paymentRequirement>
+              <currency>USD</currency>
+              <amount>1000000.0</amount>
+            </paymentRequirement>
+          </failureToPay>
+          <restructuring>
+            <applicable>true</applicable>
+            <restructuringType>ModModR</restructuringType>
+            <multipleHolderObligation>true</multipleHolderObligation>
+            <multipleCreditEventNotices>true</multipleCreditEventNotices>
+          </restructuring>
+          <defaultRequirement>
+            <currency>USD</currency>
+            <amount>10000000.0</amount>
+          </defaultRequirement>
+          <creditEventNotice>
+            <notifyingParty>
+              <buyerPartyReference href="party2" />
+              <sellerPartyReference href="party1" />
+            </notifyingParty>
+            <publiclyAvailableInformation>
+              <standardPublicSources>true</standardPublicSources>
+              <specifiedNumber>2</specifiedNumber>
+            </publiclyAvailableInformation>
+          </creditEventNotice>
+        </creditEvents>
+        <obligations>
+          <category>BorrowedMoney</category>
+        </obligations>
+      </protectionTerms>
+      <physicalSettlementTerms>
+        <settlementCurrency>EUR</settlementCurrency>
+        <physicalSettlementPeriod>
+          <businessDays>30</businessDays>
+        </physicalSettlementPeriod>
+        <deliverableObligations>
+          <accruedInterest>false</accruedInterest>
+          <category>BondOrLoan</category>
+          <notSubordinated>true</notSubordinated>
+          <specifiedCurrency>
+            <applicable>true</applicable>
+          </specifiedCurrency>
+          <notContingent>true</notContingent>
+          <assignableLoan>
+            <applicable>true</applicable>
+          </assignableLoan>
+          <consentRequiredLoan>
+            <applicable>true</applicable>
+          </consentRequiredLoan>
+          <transferable>true</transferable>
+          <maximumMaturity>
+            <periodMultiplier>30</periodMultiplier>
+            <period>Y</period>
+          </maximumMaturity>
+          <notBearer>true</notBearer>
+        </deliverableObligations>
+        <escrow>true</escrow>
+        <sixtyBusinessDaySettlementCap>true</sixtyBusinessDaySettlementCap>
+      </physicalSettlementTerms>
+    </creditDefaultSwap>
+    <calculationAgent>
+      <calculationAgentPartyReference href="party1" />
+    </calculationAgent>
+    <calculationAgentBusinessCenter>GBLO</calculationAgentBusinessCenter>
+    <documentation>
+      <masterAgreement>
+        <masterAgreementType>ISDA</masterAgreementType>
+        <masterAgreementVersion>1992</masterAgreementVersion>
+      </masterAgreement>
+      <contractualDefinitions>ISDA2003Credit</contractualDefinitions>
+      <contractualTermsSupplement>
+        <type>ISDA2003CreditMay2003</type>
+      </contractualTermsSupplement>
+    </documentation>
+  </trade>
+  <party id="party1">
+    <partyId>Party1</partyId>
+  </party>
+  <party id="party2">
+    <partyId>Party2</partyId>
+  </party>
+</dataDocument>
