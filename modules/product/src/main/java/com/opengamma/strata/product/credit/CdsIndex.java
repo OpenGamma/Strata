@@ -15,6 +15,8 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -112,6 +114,8 @@ public final class CdsIndex
    * The day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
+   * <p>
+   * When building, this will default to 'Act/360'.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
@@ -119,6 +123,8 @@ public final class CdsIndex
    * The payment on default.
    * <p>
    * Whether the accrued premium is paid in the event of a default.
+   * <p>
+   * When building, this will default to 'AccruedPremium'.
    */
   @PropertyDefinition(validate = "notNull")
   private final PaymentOnDefault paymentOnDefault;
@@ -126,6 +132,8 @@ public final class CdsIndex
    * The protection start of the day.
    * <p>
    * When the protection starts on the start date.
+   * <p>
+   * When building, this will default to 'Beginning'.
    */
   @PropertyDefinition(validate = "notNull")
   private final ProtectionStartOfDay protectionStart;
@@ -134,6 +142,8 @@ public final class CdsIndex
    * <p>
    * The step-in date is also called protection effective date.
    * It is usually 1 calendar day for standardized CDS index contracts.
+   * <p>
+   * When building, this will default to 1 calendar day.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment stepinDateOffset;
@@ -141,6 +151,8 @@ public final class CdsIndex
    * The number of days between valuation date and settlement date.
    * <p>
    * It is usually 3 business days for standardized CDS index contracts.
+   * <p>
+   * When building, this will default to 3 business days in the calendar of the payment schedule.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
@@ -183,7 +195,6 @@ public final class CdsIndex
         .rollConvention(RollConventions.NONE)
         .stubConvention(StubConvention.SHORT_INITIAL)
         .build();
-
     return new CdsIndex(
         buySell,
         cdsIndexId,
@@ -197,6 +208,22 @@ public final class CdsIndex
         ProtectionStartOfDay.BEGINNING,
         DaysAdjustment.ofCalendarDays(1),
         DaysAdjustment.ofBusinessDays(3, calendar));
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.dayCount = DayCounts.ACT_360;
+    builder.paymentOnDefault = PaymentOnDefault.ACCRUED_PREMIUM;
+    builder.protectionStart = ProtectionStartOfDay.BEGINNING;
+    builder.stepinDateOffset = DaysAdjustment.ofCalendarDays(1);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.settlementDateOffset == null && builder.paymentSchedule != null) {
+      builder.settlementDateOffset =
+          DaysAdjustment.ofBusinessDays(3, builder.paymentSchedule.getBusinessDayAdjustment().getCalendar());
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -421,6 +448,8 @@ public final class CdsIndex
    * Gets the day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
+   * <p>
+   * When building, this will default to 'Act/360'.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -432,6 +461,8 @@ public final class CdsIndex
    * Gets the payment on default.
    * <p>
    * Whether the accrued premium is paid in the event of a default.
+   * <p>
+   * When building, this will default to 'AccruedPremium'.
    * @return the value of the property, not null
    */
   public PaymentOnDefault getPaymentOnDefault() {
@@ -443,6 +474,8 @@ public final class CdsIndex
    * Gets the protection start of the day.
    * <p>
    * When the protection starts on the start date.
+   * <p>
+   * When building, this will default to 'Beginning'.
    * @return the value of the property, not null
    */
   public ProtectionStartOfDay getProtectionStart() {
@@ -455,6 +488,8 @@ public final class CdsIndex
    * <p>
    * The step-in date is also called protection effective date.
    * It is usually 1 calendar day for standardized CDS index contracts.
+   * <p>
+   * When building, this will default to 1 calendar day.
    * @return the value of the property, not null
    */
   public DaysAdjustment getStepinDateOffset() {
@@ -466,6 +501,8 @@ public final class CdsIndex
    * Gets the number of days between valuation date and settlement date.
    * <p>
    * It is usually 3 business days for standardized CDS index contracts.
+   * <p>
+   * When building, this will default to 3 business days in the calendar of the payment schedule.
    * @return the value of the property, not null
    */
   public DaysAdjustment getSettlementDateOffset() {
@@ -846,6 +883,7 @@ public final class CdsIndex
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -972,6 +1010,7 @@ public final class CdsIndex
 
     @Override
     public CdsIndex build() {
+      preBuild(this);
       return new CdsIndex(
           buySell,
           cdsIndexId,
@@ -1097,6 +1136,8 @@ public final class CdsIndex
      * Sets the day count convention.
      * <p>
      * This is used to convert dates to a numerical value.
+     * <p>
+     * When building, this will default to 'Act/360'.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1110,6 +1151,8 @@ public final class CdsIndex
      * Sets the payment on default.
      * <p>
      * Whether the accrued premium is paid in the event of a default.
+     * <p>
+     * When building, this will default to 'AccruedPremium'.
      * @param paymentOnDefault  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1123,6 +1166,8 @@ public final class CdsIndex
      * Sets the protection start of the day.
      * <p>
      * When the protection starts on the start date.
+     * <p>
+     * When building, this will default to 'Beginning'.
      * @param protectionStart  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1137,6 +1182,8 @@ public final class CdsIndex
      * <p>
      * The step-in date is also called protection effective date.
      * It is usually 1 calendar day for standardized CDS index contracts.
+     * <p>
+     * When building, this will default to 1 calendar day.
      * @param stepinDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1150,6 +1197,8 @@ public final class CdsIndex
      * Sets the number of days between valuation date and settlement date.
      * <p>
      * It is usually 3 business days for standardized CDS index contracts.
+     * <p>
+     * When building, this will default to 3 business days in the calendar of the payment schedule.
      * @param settlementDateOffset  the new value, not null
      * @return this, for chaining, not null
      */

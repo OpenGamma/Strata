@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.INR;
+import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -19,6 +20,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_3M;
@@ -50,6 +52,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.joda.beans.Bean;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -59,6 +62,7 @@ import com.google.common.io.ByteSource;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -84,6 +88,10 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.credit.Cds;
+import com.opengamma.strata.product.credit.CdsIndex;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
+import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.Fra;
@@ -130,6 +138,7 @@ public class FpmlDocumentParserTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
+  private static final HolidayCalendarId GBLO_USNY_JPTO = GBLO.combinedWith(USNY).combinedWith(JPTO);
 
   //-------------------------------------------------------------------------
   public void bulletPayment() {
@@ -1198,6 +1207,143 @@ public class FpmlDocumentParserTest {
         .build();
     assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
     assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  public void cds01() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/cd-ex01-long-asia-corp-fixreg.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    CdsTrade cdsTrade = (CdsTrade) trades.get(0);
+    assertEquals(cdsTrade.getInfo().getTradeDate(), Optional.of(date(2002, 12, 4)));
+
+    Cds expected = Cds.builder()
+        .buySell(BUY)
+        .legalEntityId(StandardId.of("http://www.fpml.org/spec/2003/entity-id-RED-1-0", "004CC9"))
+        .currency(JPY)
+        .notional(500000000d)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2002, 12, 5))
+            .endDate(date(2007, 12, 5))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDateBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY_JPTO))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY_JPTO))
+            .firstRegularStartDate(date(2003, 3, 5))
+            .frequency(Frequency.P3M)
+            .rollConvention(RollConventions.DAY_5)
+            .build())
+        .fixedRate(0.007)
+        .dayCount(ACT_360)
+        .build();
+    assertEqualsBean(cdsTrade.getProduct(), expected);
+    assertEquals(cdsTrade.getUpfrontFee().isPresent(), false);
+  }
+
+  //-------------------------------------------------------------------------
+  public void cds02() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/cd-ex02-2003-short-asia-corp-fixreg.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    CdsTrade cdsTrade = (CdsTrade) trades.get(0);
+    assertEquals(cdsTrade.getInfo().getTradeDate(), Optional.of(date(2002, 12, 4)));
+
+    Cds expected = Cds.builder()
+        .buySell(SELL)
+        .legalEntityId(StandardId.of("http://www.fpml.org/coding-scheme/external/entity-id-RED-1-0", "008FAQ"))
+        .currency(JPY)
+        .notional(500000000d)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2002, 12, 5))
+            .endDate(date(2007, 12, 5))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .firstRegularStartDate(date(2003, 3, 5))
+            .frequency(Frequency.P3M)
+            .rollConvention(RollConventions.DAY_5)
+            .build())
+        .fixedRate(0.007)
+        .dayCount(ACT_360)
+        .build();
+    assertEqualsBean(cdsTrade.getProduct(), expected);
+    assertEquals(cdsTrade.getUpfrontFee().isPresent(), false);
+  }
+
+  //-------------------------------------------------------------------------
+  public void cdsIndex01() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/cdindex-ex01-cdx.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    CdsIndexTrade cdsTrade = (CdsIndexTrade) trades.get(0);
+    assertEquals(cdsTrade.getInfo().getTradeDate(), Optional.of(date(2005, 1, 24)));
+
+    CdsIndex expected = CdsIndex.builder()
+        .buySell(BUY)
+        .cdsIndexId(StandardId.of("CDX-Name", "Dow Jones CDX NA IG.2"))
+        .currency(USD)
+        .notional(25000000d)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2004, 3, 23))
+            .endDate(date(2009, 3, 20))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .frequency(Frequency.P3M)
+            .build())
+        .fixedRate(0.0060)
+        .dayCount(ACT_360)
+        .build();
+    assertEqualsBean(cdsTrade.getProduct(), expected);
+    assertEquals(cdsTrade.getUpfrontFee().get(), AdjustablePayment.of(USD, 16000, AdjustableDate.of(date(2004, 3, 23))));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "parse")
+  Object[][] data_parse() {
+    return new Object[][] {
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex01-long-asia-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex02-2003-short-asia-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex02-short-asia-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex03-long-aussie-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex04-short-aussie-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex05-long-emasia-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex06-long-emeur-sov-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex07-2003-long-euro-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex07-long-euro-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex08-2003-short-euro-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex08-short-euro-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex09-long-euro-sov-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex10-2003-long-us-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex10-long-us-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex11-2003-short-us-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex11-short-us-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex12-long-emasia-sov-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex13-long-asia-sov-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex14-long-emlatin-corp-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex15-long-emlatin-sov-fixreg.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex16-short-us-corp-fixreg-recovery-factor.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex17-short-us-corp-portfolio-compression.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cd-ex18-standard-north-american-corp.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/cdindex-ex01-cdx.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex01-fx-spot.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex02-spot-cross-w-side-rates.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex03-fx-fwd.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex04-fx-fwd-w-settlement.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex05-fx-fwd-w-ssi.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex06-fx-fwd-w-splits.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex07-non-deliverable-forward.xml"},
+        {"classpath:com/opengamma/strata/loader/fpml/fx-ex08-fx-swap.xml"},
+    };
+  }
+
+  @Test(dataProvider = "parse")
+  public void parse(String location) {
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
   }
 
   //-------------------------------------------------------------------------
