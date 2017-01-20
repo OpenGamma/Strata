@@ -141,7 +141,7 @@ public final class CdsIndex
    * The number of days between valuation date and step-in date.
    * <p>
    * The step-in date is also called protection effective date.
-   * It is usually 1 calendar day for standardized CDS contracts.
+   * It is usually 1 calendar day for standardized CDS index contracts.
    * <p>
    * When building, this will default to 1 calendar day.
    */
@@ -487,7 +487,7 @@ public final class CdsIndex
    * Gets the number of days between valuation date and step-in date.
    * <p>
    * The step-in date is also called protection effective date.
-   * It is usually 1 calendar day for standardized CDS contracts.
+   * It is usually 1 calendar day for standardized CDS index contracts.
    * <p>
    * When building, this will default to 1 calendar day.
    * @return the value of the property, not null
@@ -1181,7 +1181,7 @@ public final class CdsIndex
      * Sets the number of days between valuation date and step-in date.
      * <p>
      * The step-in date is also called protection effective date.
-     * It is usually 1 calendar day for standardized CDS contracts.
+     * It is usually 1 calendar day for standardized CDS index contracts.
      * <p>
      * When building, this will default to 1 calendar day.
      * @param stepinDateOffset  the new value, not null

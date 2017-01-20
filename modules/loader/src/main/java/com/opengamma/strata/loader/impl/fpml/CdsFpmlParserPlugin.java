@@ -34,22 +34,6 @@ import com.opengamma.strata.product.credit.CdsTrade;
  * FpML parser for CDS.
  * <p>
  * This parser handles the subset of FpML necessary to populate the trade model.
- * <p>
- * The following features are not available in the Strata trade model:
- * <ul>
- * <li>initial fixing date
- * <li>first payment date
- * <li>last regular payment date
- * <li>weekly reset frequency
- * <li>spread/gearing in a stub
- * <li>overnight leg first rate is known
- * <li>overnight leg stubs
- * <li>FRA discounting
- * <li>future value notional
- * <li>non-delivered settlement
- * <li>rate treatment
- * <li>FX reset first rate is known
- * </ul>
  */
 final class CdsFpmlParserPlugin
     implements FpmlParserPlugin {
