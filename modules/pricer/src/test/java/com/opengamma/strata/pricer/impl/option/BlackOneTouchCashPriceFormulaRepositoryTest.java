@@ -37,7 +37,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   private static final SimpleConstantContinuousBarrier BARRIER_UP_OUT =
       SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, 110);
   private static final SimpleConstantContinuousBarrier[] BARRIERS =
-      new SimpleConstantContinuousBarrier[] {BARRIER_UP_IN, BARRIER_UP_OUT, BARRIER_DOWN_IN, BARRIER_DOWN_OUT };
+      new SimpleConstantContinuousBarrier[] {BARRIER_UP_IN, BARRIER_UP_OUT, BARRIER_DOWN_IN, BARRIER_DOWN_OUT};
   private static final double SPOT = 105;
   private static final double RATE_DOM = 0.05; // Domestic rate
   private static final double RATE_FOR = 0.02; // Foreign rate
@@ -161,7 +161,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
         COST_OF_CARRY, RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   private void assertRelative(double val1, double val2) {
     assertEquals(val1, val2, Math.max(Math.abs(val2), 1d) * TOL);
   }

@@ -1,33 +1,48 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.credit.type;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
-import static com.opengamma.strata.basics.schedule.RollConventions.DAY_20;
-import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
-import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.basics.schedule.Frequency.P6M;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 
-import java.time.Period;
+import java.time.LocalDate;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.product.credit.CdsTestUtils;
-import com.opengamma.strata.product.credit.IndexReferenceInformation;
-import com.opengamma.strata.product.credit.RestructuringClause;
-import com.opengamma.strata.product.credit.SeniorityLevel;
-import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.credit.Cds;
+import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.credit.PaymentOnDefault;
+import com.opengamma.strata.product.credit.ProtectionStartOfDay;
 
 /**
  * Test {@link CdsConvention}.
@@ -36,105 +51,190 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 public class CdsConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final DaysAdjustment SETTLE_DAY_ADJ = DaysAdjustment.ofBusinessDays(3, GBLO);
+  private static final DaysAdjustment SETTLE_DAY_ADJ_STD = DaysAdjustment.ofBusinessDays(3, SAT_SUN);
+  private static final DaysAdjustment STEPIN_DAY_ADJ = DaysAdjustment.ofCalendarDays(1);
+  private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
+  private static final double COUPON = 0.05;
+  private static final double NOTIONAL = 1.0e9;
 
-  //-------------------------------------------------------------------------
+  private static final BusinessDayAdjustment BUSI_ADJ = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
+  private static final BusinessDayAdjustment BUSI_ADJ_STD = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
+  private static final String NAME = "GB_CDS";
+
   public void test_of() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut, CdsConvention.of("USD-NorthAmerican"));
-    assertEquals(sut.getName(), "USD-NorthAmerican");
-    assertEquals(sut.getCurrency(), USD);
-    assertEquals(sut.getDayCount(), ACT_360);
-    assertEquals(sut.getBusinessDayAdjustment(), BusinessDayAdjustment.of(FOLLOWING, USNY));
-    assertEquals(sut.getPaymentFrequency(), P3M);
-    assertEquals(sut.getRollConvention(), DAY_20);
-    assertEquals(sut.isPayAccruedOnDefault(), true);
-    assertEquals(sut.getStubConvention(), SHORT_INITIAL);
-    assertEquals(sut.getStepInDays(), 1);
-    assertEquals(sut.getSettleLagDays(), 3);
+    ImmutableCdsConvention test = ImmutableCdsConvention.of(NAME, GBP, ACT_365F, P3M, BUSI_ADJ, SETTLE_DAY_ADJ);
+    assertEquals(test.getBusinessDayAdjustment(), BUSI_ADJ);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), BUSI_ADJ);
+    assertEquals(test.getEndDateBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getName(), NAME);
+    assertEquals(test.getPaymentFrequency(), P3M);
+    assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.ACCRUED_PREMIUM);
+    assertEquals(test.getProtectionStart(), ProtectionStartOfDay.BEGINNING);
+    assertEquals(test.getRollConvention(), RollConventions.DAY_20);
+    assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
+    assertEquals(test.getStepinDateOffset(), DaysAdjustment.ofCalendarDays(1));
+    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
+  }
+
+  public void test_builder() {
+    ImmutableCdsConvention test = ImmutableCdsConvention.builder()
+        .businessDayAdjustment(BUSI_ADJ)
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .endDateBusinessDayAdjustment(BUSI_ADJ)
+        .currency(GBP)
+        .dayCount(ACT_365F)
+        .name(NAME)
+        .paymentFrequency(P6M)
+        .paymentOnDefault(PaymentOnDefault.NONE)
+        .protectionStart(ProtectionStartOfDay.NONE)
+        .rollConvention(RollConventions.NONE)
+        .settlementDateOffset(DaysAdjustment.ofCalendarDays(7))
+        .stepinDateOffset(DaysAdjustment.NONE)
+        .stubConvention(StubConvention.LONG_INITIAL)
+        .build();
+    assertEquals(test.getBusinessDayAdjustment(), BUSI_ADJ);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
+    assertEquals(test.getEndDateBusinessDayAdjustment(), BUSI_ADJ);
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getName(), NAME);
+    assertEquals(test.getPaymentFrequency(), P6M);
+    assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.NONE);
+    assertEquals(test.getProtectionStart(), ProtectionStartOfDay.NONE);
+    assertEquals(test.getRollConvention(), RollConventions.NONE);
+    assertEquals(test.getSettlementDateOffset(), DaysAdjustment.ofCalendarDays(7));
+    assertEquals(test.getStepinDateOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getStubConvention(), StubConvention.LONG_INITIAL);
   }
 
   //-------------------------------------------------------------------------
-  public void test_unadjusted_maturity_date_from_valuation_date() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut.calculateUnadjustedMaturityDateFromValuationDate(date(2014, 9, 19), Period.ofYears(5)), date(2019, 9, 20));
-    assertEquals(sut.calculateUnadjustedMaturityDateFromValuationDate(date(2014, 9, 20), Period.ofYears(5)), date(2019, 9, 20));
-    assertEquals(sut.calculateUnadjustedMaturityDateFromValuationDate(date(2014, 9, 21), Period.ofYears(5)), date(2019, 12, 20));
-    assertEquals(sut.calculateUnadjustedMaturityDateFromValuationDate(date(2014, 10, 16), Period.ofYears(5)), date(2019, 12, 20));
-    assertEquals(sut.calculateUnadjustedMaturityDateFromValuationDate(date(2015, 10, 16), Period.ofYears(5)), date(2020, 12, 20));
-  }
+  public void test_toTrade() {
+    LocalDate tradeDate = LocalDate.of(2015, 12, 21); // 19, 20 weekend
+    LocalDate startDate = LocalDate.of(2015, 12, 20);
+    LocalDate endDate = LocalDate.of(2020, 12, 20);
+    LocalDate settlementDate = LocalDate.of(2015, 12, 24);
+    TradeInfo info = TradeInfo.builder().tradeDate(tradeDate).settlementDate(settlementDate).build();
+    Tenor tenor = Tenor.TENOR_5Y;
+    ImmutableCdsConvention base = ImmutableCdsConvention.of(NAME, GBP, ACT_360, P3M, BUSI_ADJ_STD, SETTLE_DAY_ADJ_STD);
+    Cds product = Cds.builder()
+        .legalEntityId(LEGAL_ENTITY)
+        .paymentSchedule(
+            PeriodicSchedule.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .frequency(P3M)
+                .businessDayAdjustment(BUSI_ADJ_STD)
+                .startDateBusinessDayAdjustment(BUSI_ADJ_STD)
+                .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+                .stubConvention(StubConvention.SHORT_INITIAL)
+                .rollConvention(RollConventions.DAY_20)
+                .build())
+        .buySell(BUY)
+        .currency(GBP)
+        .dayCount(ACT_360)
+        .notional(NOTIONAL)
+        .fixedRate(COUPON)
+        .paymentOnDefault(PaymentOnDefault.ACCRUED_PREMIUM)
+        .protectionStart(ProtectionStartOfDay.BEGINNING)
+        .stepinDateOffset(STEPIN_DAY_ADJ)
+        .settlementDateOffset(SETTLE_DAY_ADJ_STD)
+        .build();
+    CdsTrade expected = CdsTrade.builder()
+        .info(info)
+        .product(product)
+        .build();
+    CdsTrade test1 = base.createTrade(LEGAL_ENTITY, tradeDate, tenor, BUY, NOTIONAL, COUPON, REF_DATA);
+    assertEquals(test1, expected);
+    CdsTrade test2 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, tenor, BUY, NOTIONAL, COUPON, REF_DATA);
+    assertEquals(test2, expected);
+    CdsTrade test3 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, endDate, BUY, NOTIONAL, COUPON, REF_DATA);
+    assertEquals(test3, expected);
+    CdsTrade test4 = base.toTrade(LEGAL_ENTITY, info, startDate, endDate, BUY, NOTIONAL, COUPON);
+    assertEquals(test4, expected);
 
-  public void test_unadjusted_maturity_date() {
-    assertEquals(CdsConvention.calculateUnadjustedMaturityDate(date(2014, 9, 19), P3M, Period.ofYears(5)), date(2019, 9, 20));
-    assertEquals(CdsConvention.calculateUnadjustedMaturityDate(date(2014, 9, 20), P3M, Period.ofYears(5)), date(2019, 9, 20));
-    assertEquals(CdsConvention.calculateUnadjustedMaturityDate(date(2014, 9, 21), P3M, Period.ofYears(5)), date(2019, 12, 20));
-    assertEquals(CdsConvention.calculateUnadjustedMaturityDate(date(2014, 10, 16), P3M, Period.ofYears(5)), date(2019, 12, 20));
-  }
-
-  public void test_unadjusted_start_date() {
-    assertEquals(CdsConvention.calculateUnadjustedAccrualStartDate(date(2014, 9, 19)), date(2014, 6, 20));
-    assertEquals(CdsConvention.calculateUnadjustedAccrualStartDate(date(2014, 9, 20)), date(2014, 6, 20));
-    assertEquals(CdsConvention.calculateUnadjustedAccrualStartDate(date(2014, 9, 21)), date(2014, 9, 20));
-    assertEquals(CdsConvention.calculateUnadjustedAccrualStartDate(date(2014, 10, 16)), date(2014, 9, 20));
-  }
-
-  public void test_adjusted_start_date() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 19), REF_DATA), date(2014, 6, 20));
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 20), REF_DATA), date(2014, 6, 20));
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 21), REF_DATA), date(2014, 9, 22));
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 10, 16), REF_DATA), date(2014, 9, 22));
-  }
-
-  public void test_adjusted_settle_date() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 19), REF_DATA), date(2014, 9, 24));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 20), REF_DATA), date(2014, 9, 24));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 21), REF_DATA), date(2014, 9, 24));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 22), REF_DATA), date(2014, 9, 25));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 10, 16), REF_DATA), date(2014, 10, 21));
-  }
-
-  public void test_unadjusted_step_in_date() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut.calculateUnadjustedStepInDate(date(2014, 9, 19)), date(2014, 9, 20));
-    assertEquals(sut.calculateUnadjustedStepInDate(date(2014, 9, 20)), date(2014, 9, 21));
-    assertEquals(sut.calculateUnadjustedStepInDate(date(2014, 9, 21)), date(2014, 9, 22));
-    assertEquals(sut.calculateUnadjustedStepInDate(date(2014, 10, 16)), date(2014, 10, 17));
+    AdjustablePayment upfront = AdjustablePayment.of(CurrencyAmount.of(GBP, 0.1 * NOTIONAL), settlementDate);
+    CdsTrade expectedWithUf = CdsTrade.builder()
+        .info(info)
+        .product(product)
+        .upfrontFee(upfront)
+        .build();
+    CdsTrade test5 = base.createTrade(LEGAL_ENTITY, tradeDate, tenor, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
+    assertEquals(test5, expectedWithUf);
+    CdsTrade test6 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, tenor, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
+    assertEquals(test6, expectedWithUf);
+    CdsTrade test7 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, endDate, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
+    assertEquals(test7, expectedWithUf);
+    CdsTrade test8 = base.toTrade(LEGAL_ENTITY, info, startDate, endDate, BUY, NOTIONAL, COUPON, upfront);
+    assertEquals(test8, expectedWithUf);
   }
 
   //-------------------------------------------------------------------------
-  public void test_toTrade_singleName() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(
-        sut.toTrade(
-            date(2014, 3, 20),
-            date(2019, 6, 20),
-            BUY,
-            100_000_000d,
-            0.00100,
-            SingleNameReferenceInformation.of(
-                StandardId.of("Test", "Test1"),
-                SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                USD,
-                RestructuringClause.NO_RESTRUCTURING_2014),
-            1_000_000d,
-            date(2014, 3, 23)),
-        CdsTestUtils.singleNameTrade());
+  @DataProvider(name = "name")
+  static Object[][] data_name() {
+    return new Object[][] {
+        {CdsConventions.USD_STANDARD, "USD-STANDARD"},
+        {CdsConventions.JPY_US_GB_STANDARD, "JPY-US-GB-STANDARD"},
+    };
   }
 
-  public void test_toTrade_index() {
-    CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(
-        sut.toTrade(
-            date(2014, 3, 20),
-            date(2019, 6, 20),
-            BUY,
-            100_000_000d,
-            0.00100,
-            IndexReferenceInformation.of(StandardId.of("Test", "Test1"), 32, 8),
-            1_000_000d,
-            date(2014, 3, 23)),
-        CdsTestUtils.indexTrade());
+  @Test(dataProvider = "name")
+  public void test_name(CdsConvention convention, String name) {
+    assertEquals(convention.getName(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_toString(CdsConvention convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookup(CdsConvention convention, String name) {
+    assertEquals(CdsConvention.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(CdsConvention convention, String name) {
+    CdsConvention.of(name);  // ensures map is populated
+    ImmutableMap<String, CdsConvention> map = CdsConvention.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
+  public void test_of_lookup_notFound() {
+    assertThrowsIllegalArg(() -> CdsConvention.of("Rubbish"));
+  }
+
+  public void test_of_lookup_null() {
+    assertThrowsIllegalArg(() -> CdsConvention.of((String) null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    ImmutableCdsConvention test1 = ImmutableCdsConvention.of(NAME, GBP, ACT_360, P3M, BUSI_ADJ_STD, SETTLE_DAY_ADJ_STD);
+    coverImmutableBean(test1);
+    ImmutableCdsConvention test2 = ImmutableCdsConvention.builder()
+        .businessDayAdjustment(BUSI_ADJ)
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .endDateBusinessDayAdjustment(BUSI_ADJ)
+        .currency(USD)
+        .dayCount(ACT_365F)
+        .name("another")
+        .paymentFrequency(P6M)
+        .paymentOnDefault(PaymentOnDefault.NONE)
+        .protectionStart(ProtectionStartOfDay.NONE)
+        .rollConvention(RollConventions.NONE)
+        .settlementDateOffset(DaysAdjustment.ofCalendarDays(7))
+        .stepinDateOffset(DaysAdjustment.NONE)
+        .stubConvention(StubConvention.LONG_INITIAL)
+        .build();
+    coverBeanEquals(test1, test2);
+  }
+
+  public void test_serialization() {
+    ImmutableCdsConvention test = ImmutableCdsConvention.of(NAME, GBP, ACT_360, P3M, BUSI_ADJ_STD, SETTLE_DAY_ADJ_STD);
+    assertSerialization(test);
   }
 
 }

@@ -1,42 +1,31 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.credit.type;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.RollConvention;
-import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.credit.CdsDatesLogic;
 import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.credit.IndexReferenceInformation;
-import com.opengamma.strata.product.credit.ReferenceInformation;
-import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
- * A market convention for credit default swap (CDS) trades.
- * <p>
- * This defines the market convention for CDS trades in different regions and currencies.
- * <p>
- * To manually create a convention, see {@link ImmutableCdsConvention}.
- * To register a specific convention, see {@code CdsConvention.ini}.
+ * A market convention for credit default swap trades.
  */
 public interface CdsConvention
     extends TradeConvention, Named {
@@ -68,176 +57,258 @@ public interface CdsConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the currency.
+   * Get the number of days between valuation date and settlement date.
+   * <p>
+   * It is usually 3 business days for standardised CDS contracts.
+   * 
+   * @return days adjustment
+   */
+  public abstract DaysAdjustment getSettlementDateOffset();
+
+  /**
+   * Get the currency of the CDS.
+   * <p>
+   * The amounts of the notional are expressed in terms of this currency.
    * 
    * @return the currency
    */
   public abstract Currency getCurrency();
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the day count convention.
-   * 
-   * @return the day count convention
-   */
-  public abstract DayCount getDayCount();
-
-  /**
-   * Gets the business day adjustment.
-   * 
-   * @return the business day adjustment
-   */
-  public abstract BusinessDayAdjustment getBusinessDayAdjustment();
-
-  /**
-   * Gets the payment frequency.
-   * 
-   * @return the payment frequency
-   */
-  public abstract Frequency getPaymentFrequency();
-
-  /**
-   * Gets the roll convention.
-   * 
-   * @return the roll convention
-   */
-  public abstract RollConvention getRollConvention();
-
-  /**
-   * Gets whether the accrued premium is paid in the event of a default.
-   * 
-   * @return whether the accrued premium is paid in the event of a default
-   */
-  public abstract boolean isPayAccruedOnDefault();
-
-  /**
-   * Gets the stub convention.
-   * 
-   * @return the stub convention
-   */
-  public abstract StubConvention getStubConvention();
-
-  /**
-   * Gets the number of step-in days.
+   * Creates a CDS trade based on the trade date and the IMM date logic. 
    * <p>
-   * This is the date from which the issuer is deemed to be on risk.
+   * The start date and end date are computed from trade date with the standard semi-annual roll convention.
    * 
-   * @return the number of step-in days
-   */
-  public abstract int getStepInDays();
-
-  /**
-   * Gets the settlement lag in days.
-   * <p>
-   * This is the number of days after the start date that any upfront fees are paid.
-   * 
-   * @return the settlement lag in days
-   */
-  public abstract int getSettleLagDays();
-
-  //-----------------------------------------------------------------------
-  /**
-   * Creates a CDS from the convention.
-   * <p>
-   * A single name CDS can be specified using {@link SingleNameReferenceInformation}.
-   * An index CDS can be specified using {@link IndexReferenceInformation}.
-   * 
-   * @param startDate  the date that the CDS starts
-   * @param endDate  the date that the CDS ends
-   * @param buySell  whether protection is being bought or sold
-   * @param notional  the notional amount
-   * @param coupon  the coupon amount
-   * @param referenceInformation  the reference information of the CDS
-   * @param upfrontFeeAmount  the amount of the upfront fee
-   * @param upfrontFeePaymentDate  the payment date of the upfront fee
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param tenor  the tenor
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param refData  the reference data
    * @return the CDS trade
    */
-  public abstract CdsTrade toTrade(
+  public default CdsTrade createTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      Tenor tenor,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+
+    LocalDate startDate = CdsImmDateLogic.getPreviousImmDate(tradeDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(tradeDate);
+    LocalDate endDate = roll.plus(tenor).minusMonths(3);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
+  }
+
+  /**
+   * Creates a CDS trade based on the trade date, start date and the IMM date logic. 
+   * <p>
+   * The end date is computed from the start date with the standard semi-annual roll convention.
+   * 
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param startDate  the start date
+   * @param tenor  the tenor
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param refData  the reference data
+   * @return the CDS trade
+   */
+  public default CdsTrade createTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      LocalDate startDate,
+      Tenor tenor,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(startDate);
+    LocalDate endDate = roll.plus(tenor).minusMonths(3);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, refData);
+  }
+
+  /**
+   * Creates a CDS trade from trade date, start date and end date.
+   * <p>
+   * The settlement date is computed from the trade date using {@code settlementDateOffset} defined in the convention.
+   * 
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param refData  the reference data
+   * @return the CDS trade
+   */
+  public default CdsTrade createTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
       double notional,
-      double coupon,
-      ReferenceInformation referenceInformation,
-      double upfrontFeeAmount,
-      LocalDate upfrontFeePaymentDate);
+      double fixedRate,
+      ReferenceData refData) {
+
+    LocalDate settlementDate = getSettlementDateOffset().adjust(tradeDate, refData);
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .tradeDate(tradeDate)
+        .settlementDate(settlementDate)
+        .build();
+    return toTrade(legalEntityId, tradeInfo, startDate, endDate, buySell, notional, fixedRate);
+  }
+
+  /**
+   * Creates a CDS trade with {@code TradeInfo}.
+   * 
+   * @param legalEntityId  the legal entity ID
+   * @param tradeInfo  the trade info
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @return the CDS trade
+   */
+  public abstract CdsTrade toTrade(
+      StandardId legalEntityId,
+      TradeInfo tradeInfo,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate);
 
   //-------------------------------------------------------------------------
   /**
-   * Used in curve point calculation.
-   *
-   * @param valuationDate  the date of the curve calibration
-   * @param period  the term for this point
-   * @return unadjusted maturity date
-   */
-  public default LocalDate calculateUnadjustedMaturityDateFromValuationDate(LocalDate valuationDate, Period period) {
-    return calculateUnadjustedMaturityDate(valuationDate, getPaymentFrequency(), period);
-  }
-
-  /**
-   * Gets the unadjusted maturity date.
+   * Creates a CDS trade with upfront fee based on the trade date and the IMM date logic. 
    * <p>
-   * Standard maturity dates are unadjusted, always Mar/Jun/Sep/Dec 20th.
-   * For example, from February 2009 the 1y standard CDS contract would protect the buyer until 20 March 2010.
+   * The start date and end date are computed from trade date with the standard semi-annual roll convention.
    * 
-   * @param valuationDate  the valuation date
-   * @param paymentFrequency  the payment frequency
-   * @param period  the term for this point
-   * @return unadjusted accrual maturity date
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param tenor  the tenor
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param upFrontFee  the upFront fee
+   * @param refData  the reference data
+   * @return the CDS trade
    */
-  public static LocalDate calculateUnadjustedMaturityDate(
-      LocalDate valuationDate,
-      Frequency paymentFrequency,
-      Period period) {
+  public default CdsTrade createTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      Tenor tenor,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      AdjustablePayment upFrontFee,
+      ReferenceData refData) {
 
-    return calculateUnadjustedAccrualStartDate(valuationDate)
-        .plus(period)
-        .plus(paymentFrequency.getPeriod());
+    LocalDate startDate = CdsImmDateLogic.getPreviousImmDate(tradeDate);
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(tradeDate);
+    LocalDate endDate = roll.plus(tenor).minusMonths(3);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
   }
 
   /**
-   * Gets the previous CDS date.
+   * Creates a CDS trade with upfront fee based on the trade date, start date and the IMM date logic. 
+   * <p>
+   * The end date is computed from the start date with the standard semi-annual roll convention.
    * 
-   * @param valuationDate  the valuation date
-   * @return unadjusted accrual start date
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param startDate  the start date
+   * @param tenor  the tenor
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param upFrontFee  the upFront fee
+   * @param refData  the reference data
+   * @return the CDS trade
    */
-  public static LocalDate calculateUnadjustedAccrualStartDate(LocalDate valuationDate) {
-    return CdsDatesLogic.getPreviousCdsDate(valuationDate);
+  public default CdsTrade createTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      LocalDate startDate,
+      Tenor tenor,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      AdjustablePayment upFrontFee,
+      ReferenceData refData) {
+
+    LocalDate roll = CdsImmDateLogic.getNextSemiAnnualRollDate(startDate);
+    LocalDate endDate = roll.plus(tenor).minusMonths(3);
+    return createTrade(legalEntityId, tradeDate, startDate, endDate, buySell, notional, fixedRate, upFrontFee, refData);
   }
 
   /**
-   * Gets the adjusted start date.
+   * Creates a CDS trade with upfront fee from trade date, start date and end date.
+   * <p>
+   * The settlement date is computed from the trade date using {@code settlementDateOffset} defined in the convention.
    * 
-   * @param valuationDate  the valuation date
-   * @param refData  the reference data to use
-   * @return adjusted start date
+   * @param legalEntityId  the legal entity ID
+   * @param tradeDate  the trade date
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param upFrontFee  the upFront fee
+   * @param refData  the reference data
+   * @return the CDS trade
    */
-  public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate, ReferenceData refData) {
-    return getBusinessDayAdjustment().adjust(
-        calculateUnadjustedAccrualStartDate(valuationDate), refData);
+  public default CdsTrade createTrade(
+      StandardId legalEntityId,
+      LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      AdjustablePayment upFrontFee,
+      ReferenceData refData) {
+
+    LocalDate settlementDate = getSettlementDateOffset().adjust(tradeDate, refData);
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .tradeDate(tradeDate)
+        .settlementDate(settlementDate)
+        .build();
+    return toTrade(legalEntityId, tradeInfo, startDate, endDate, buySell, notional, fixedRate, upFrontFee);
   }
 
   /**
-   * Gets the adjusted settlement date.
+   * Creates a CDS trade with upfront fee and {@code TradeInfo}.
    * 
-   * @param valuationDate  the valuation date
-   * @param refData  the reference data to use
-   * @return unadjusted settle date
+   * @param legalEntityId  the legal entity ID
+   * @param tradeInfo  the trade info
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  buy or sell
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate
+   * @param upFrontFee  the upFront fee
+   * @return the CDS trade
    */
-  public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate, ReferenceData refData) {
-    DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(
-        getSettleLagDays(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
-    return daysAdjustment.adjust(valuationDate, refData);
-  }
-
-  /**
-   * Gets the unadjusted step-in date.
-   * 
-   * @param valuationDate  the valuation date
-   * @return unadjusted step in date
-   */
-  public default LocalDate calculateUnadjustedStepInDate(LocalDate valuationDate) {
-    return valuationDate.plusDays(getStepInDays());
-  }
+  public abstract CdsTrade toTrade(
+      StandardId legalEntityId,
+      TradeInfo tradeInfo,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      AdjustablePayment upFrontFee);
 
   //-------------------------------------------------------------------------
   /**

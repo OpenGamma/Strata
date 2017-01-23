@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,12 +8,12 @@ package com.opengamma.strata.product.credit;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -24,60 +24,48 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A trade in a credit default swap (CDS).
+ * A trade in a single-name credit default swap (CDS).
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link Cds}.
  * <p>
  * A CDS is a financial instrument where the protection seller agrees to compensate
- * the protection buyer if a specified specified company or Sovereign entity experiences
- * a credit event, indicating it is or may be unable to service its debts.
- * The protection seller is typically paid a fee and/or premium, expressed as an annualized
- * percentage of the notional in basis points, regularly over the life of the transaction or
- * otherwise as agreed by the parties.
- * <p>
- * For example, a company engaged in another financial instrument with a counterparty may
- * wish to protect itself against the risk of the counterparty defaulting.
+ * the protection buyer when the reference entity suffers a default.
+ * The protection seller is paid premium regularly from the protection buyer until
+ * the expiry of the CDS contract or the reference entity defaults before the expiry.
  */
 @BeanDefinition
 public final class CdsTrade
-    implements ProductTrade, ResolvableTrade<ResolvedCdsTrade>, ImmutableBean, Serializable {
+    implements ResolvableTrade<ResolvedCdsTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
-   * The credit default swap that was agreed when the trade occurred.
+   * The CDS product that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final Cds product;
-
-  //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of a CDS trade.
-   * 
-   * @param info  the trade info
-   * @param product  the product
-   * @return the trade
+   * The upfront fee of the product.
+   * <p>
+   * This specifies a single amount payable by the buyer to the seller.
+   * Thus the sign must be compatible with the product Pay/Receive flag.
+   * <p>
+   * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
    */
-  public static CdsTrade of(TradeInfo info, Cds product) {
-    return new CdsTrade(info, product);
-  }
-
-  @ImmutableDefaults
-  private static void applyDefaults(Builder builder) {
-    builder.info = TradeInfo.empty();
-  }
+  @PropertyDefinition(get = "optional")
+  private final AdjustablePayment upfrontFee;
 
   //-------------------------------------------------------------------------
   @Override
@@ -85,6 +73,7 @@ public final class CdsTrade
     return ResolvedCdsTrade.builder()
         .info(info)
         .product(product.resolve(refData))
+        .upfrontFee(upfrontFee != null ? upfrontFee.resolve(refData) : null)
         .build();
   }
 
@@ -117,10 +106,13 @@ public final class CdsTrade
 
   private CdsTrade(
       TradeInfo info,
-      Cds product) {
+      Cds product,
+      AdjustablePayment upfrontFee) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
     this.product = product;
+    this.upfrontFee = upfrontFee;
   }
 
   @Override
@@ -143,7 +135,7 @@ public final class CdsTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -152,14 +144,27 @@ public final class CdsTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the credit default swap that was agreed when the trade occurred.
+   * Gets the CDS product that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null
    */
-  @Override
   public Cds getProduct() {
     return product;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the upfront fee of the product.
+   * <p>
+   * This specifies a single amount payable by the buyer to the seller.
+   * Thus the sign must be compatible with the product Pay/Receive flag.
+   * <p>
+   * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
+   * @return the optional value of the property, not null
+   */
+  public Optional<AdjustablePayment> getUpfrontFee() {
+    return Optional.ofNullable(upfrontFee);
   }
 
   //-----------------------------------------------------------------------
@@ -179,7 +184,8 @@ public final class CdsTrade
     if (obj != null && obj.getClass() == this.getClass()) {
       CdsTrade other = (CdsTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
-          JodaBeanUtils.equal(product, other.product);
+          JodaBeanUtils.equal(product, other.product) &&
+          JodaBeanUtils.equal(upfrontFee, other.upfrontFee);
     }
     return false;
   }
@@ -189,15 +195,17 @@ public final class CdsTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
+    hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFee);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CdsTrade{");
     buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
     buf.append('}');
     return buf.toString();
   }
@@ -223,12 +231,18 @@ public final class CdsTrade
     private final MetaProperty<Cds> product = DirectMetaProperty.ofImmutable(
         this, "product", CdsTrade.class, Cds.class);
     /**
+     * The meta-property for the {@code upfrontFee} property.
+     */
+    private final MetaProperty<AdjustablePayment> upfrontFee = DirectMetaProperty.ofImmutable(
+        this, "upfrontFee", CdsTrade.class, AdjustablePayment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "info",
-        "product");
+        "product",
+        "upfrontFee");
 
     /**
      * Restricted constructor.
@@ -243,6 +257,8 @@ public final class CdsTrade
           return info;
         case -309474065:  // product
           return product;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -279,6 +295,14 @@ public final class CdsTrade
       return product;
     }
 
+    /**
+     * The meta-property for the {@code upfrontFee} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<AdjustablePayment> upfrontFee() {
+      return upfrontFee;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -287,6 +311,8 @@ public final class CdsTrade
           return ((CdsTrade) bean).getInfo();
         case -309474065:  // product
           return ((CdsTrade) bean).getProduct();
+        case 963468344:  // upfrontFee
+          return ((CdsTrade) bean).upfrontFee;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -310,12 +336,12 @@ public final class CdsTrade
 
     private TradeInfo info;
     private Cds product;
+    private AdjustablePayment upfrontFee;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
-      applyDefaults(this);
     }
 
     /**
@@ -325,6 +351,7 @@ public final class CdsTrade
     private Builder(CdsTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
+      this.upfrontFee = beanToCopy.upfrontFee;
     }
 
     //-----------------------------------------------------------------------
@@ -335,6 +362,8 @@ public final class CdsTrade
           return info;
         case -309474065:  // product
           return product;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -348,6 +377,9 @@ public final class CdsTrade
           break;
         case -309474065:  // product
           this.product = (Cds) newValue;
+          break;
+        case 963468344:  // upfrontFee
+          this.upfrontFee = (AdjustablePayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -383,7 +415,8 @@ public final class CdsTrade
     public CdsTrade build() {
       return new CdsTrade(
           info,
-          product);
+          product,
+          upfrontFee);
     }
 
     //-----------------------------------------------------------------------
@@ -391,16 +424,17 @@ public final class CdsTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
 
     /**
-     * Sets the credit default swap that was agreed when the trade occurred.
+     * Sets the CDS product that was agreed when the trade occurred.
      * <p>
      * The product captures the contracted financial details of the trade.
      * @param product  the new value, not null
@@ -412,13 +446,29 @@ public final class CdsTrade
       return this;
     }
 
+    /**
+     * Sets the upfront fee of the product.
+     * <p>
+     * This specifies a single amount payable by the buyer to the seller.
+     * Thus the sign must be compatible with the product Pay/Receive flag.
+     * <p>
+     * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
+     * @param upfrontFee  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder upfrontFee(AdjustablePayment upfrontFee) {
+      this.upfrontFee = upfrontFee;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("CdsTrade.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
-      buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+      buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
       buf.append('}');
       return buf.toString();
     }

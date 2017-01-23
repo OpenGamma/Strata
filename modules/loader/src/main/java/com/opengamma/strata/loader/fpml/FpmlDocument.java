@@ -490,7 +490,7 @@ public final class FpmlDocument {
 
   //-------------------------------------------------------------------------
   /**
-   * Converts an FpML 'AdjustableDate' to an {@code AdjustableDate}.
+   * Converts an FpML 'AdjustableDate' or 'AdjustableDate2' to an {@code AdjustableDate}.
    * 
    * @param baseEl  the FpML adjustable date element
    * @return the adjustable date
@@ -501,7 +501,14 @@ public final class FpmlDocument {
     Optional<XmlElement> unadjOptEl = baseEl.findChild("unadjustedDate");
     if (unadjOptEl.isPresent()) {
       LocalDate unadjustedDate = parseDate(unadjOptEl.get());
-      BusinessDayAdjustment adjustment = parseBusinessDayAdjustments(baseEl.getChild("dateAdjustments"));
+      Optional<XmlElement> adjustmentOptEl = baseEl.findChild("dateAdjustments");
+      Optional<XmlElement> adjustmentRefOptEl = baseEl.findChild("dateAdjustmentsReference");
+      if (!adjustmentOptEl.isPresent() && !adjustmentRefOptEl.isPresent()) {
+        return AdjustableDate.of(unadjustedDate);
+      }
+      XmlElement adjustmentEl =
+          adjustmentRefOptEl.isPresent() ? lookupReference(adjustmentRefOptEl.get()) : adjustmentOptEl.get();
+      BusinessDayAdjustment adjustment = parseBusinessDayAdjustments(adjustmentEl);
       return AdjustableDate.of(unadjustedDate, adjustment);
     }
     LocalDate adjustedDate = parseDate(baseEl.getChild("adjustedDate"));

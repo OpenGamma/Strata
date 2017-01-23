@@ -199,7 +199,7 @@ public class CalibrationDiscountingSimpleEur3Test {
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
     ImmutableList<NodalCurveDefinition> definitions = config.getCurveDefinitions();
-// Test PV Dsc
+    // Test PV Dsc
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {

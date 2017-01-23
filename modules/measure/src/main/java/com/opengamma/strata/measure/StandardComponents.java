@@ -15,6 +15,7 @@ import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.measure.capfloor.IborCapFloorTradeCalculationFunction;
+import com.opengamma.strata.measure.credit.CdsIndexTradeCalculationFunction;
 import com.opengamma.strata.measure.credit.CdsTradeCalculationFunction;
 import com.opengamma.strata.measure.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
@@ -39,6 +40,7 @@ import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.dsf.DsfTrade;
@@ -73,6 +75,7 @@ public final class StandardComponents {
   private static final CalculationFunctions STANDARD = CalculationFunctions.of(
       new BulletPaymentTradeCalculationFunction(),
       new CdsTradeCalculationFunction(),
+      new CdsIndexTradeCalculationFunction(),
       new DsfTradeCalculationFunction(),
       new FraTradeCalculationFunction(),
       new FxNdfTradeCalculationFunction(),
@@ -158,6 +161,7 @@ public final class StandardComponents {
    *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Cap/floor (Ibor) - {@link IborCapFloorTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
+   *  <li>CDS Index - {@link CdsIndexTrade}
    *  <li>Deliverable Swap Future - {@link DsfTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
    *  <li>FX spot and FX forward - {@link FxSingleTrade}

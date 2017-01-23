@@ -8,6 +8,7 @@ package com.opengamma.strata.product.credit;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,11 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A trade in a credit default swap (CDS), resolved for pricing.
+ * A trade in a single-name credit default swap (CDS), resolved for pricing.
  * <p>
  * This is the resolved form of {@link CdsTrade} and is the primary input to the pricers.
  * Applications will typically create a {@code ResolvedCdsTrade} from a {@code CdsTrade}
@@ -47,7 +49,7 @@ public final class ResolvedCdsTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The resolved CDS product.
@@ -56,19 +58,18 @@ public final class ResolvedCdsTrade
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ResolvedCds product;
+  /**
+   * The upfront fee of the product.
+   * <p>
+   * This specifies a single amount payable by the buyer to the seller
+   * Thus the sign must be compatible with the product Pay/Receive flag.
+   * <p>
+   * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Payment upfrontFee;
 
   //-------------------------------------------------------------------------
-  /**
-   * Obtains an instance of a resolved CDS trade.
-   * 
-   * @param info  the trade info
-   * @param product  the product
-   * @return the resolved trade
-   */
-  public static ResolvedCdsTrade of(TradeInfo info, ResolvedCds product) {
-    return new ResolvedCdsTrade(info, product);
-  }
-
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.info = TradeInfo.empty();
@@ -103,10 +104,13 @@ public final class ResolvedCdsTrade
 
   private ResolvedCdsTrade(
       TradeInfo info,
-      ResolvedCds product) {
+      ResolvedCds product,
+      Payment upfrontFee) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
     this.product = product;
+    this.upfrontFee = upfrontFee;
   }
 
   @Override
@@ -129,7 +133,7 @@ public final class ResolvedCdsTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -150,6 +154,20 @@ public final class ResolvedCdsTrade
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the upfront fee of the product.
+   * <p>
+   * This specifies a single amount payable by the buyer to the seller
+   * Thus the sign must be compatible with the product Pay/Receive flag.
+   * <p>
+   * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
+   * @return the optional value of the property, not null
+   */
+  public Optional<Payment> getUpfrontFee() {
+    return Optional.ofNullable(upfrontFee);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -165,7 +183,8 @@ public final class ResolvedCdsTrade
     if (obj != null && obj.getClass() == this.getClass()) {
       ResolvedCdsTrade other = (ResolvedCdsTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
-          JodaBeanUtils.equal(product, other.product);
+          JodaBeanUtils.equal(product, other.product) &&
+          JodaBeanUtils.equal(upfrontFee, other.upfrontFee);
     }
     return false;
   }
@@ -175,15 +194,17 @@ public final class ResolvedCdsTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
+    hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFee);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("ResolvedCdsTrade{");
     buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
     buf.append('}');
     return buf.toString();
   }
@@ -209,12 +230,18 @@ public final class ResolvedCdsTrade
     private final MetaProperty<ResolvedCds> product = DirectMetaProperty.ofImmutable(
         this, "product", ResolvedCdsTrade.class, ResolvedCds.class);
     /**
+     * The meta-property for the {@code upfrontFee} property.
+     */
+    private final MetaProperty<Payment> upfrontFee = DirectMetaProperty.ofImmutable(
+        this, "upfrontFee", ResolvedCdsTrade.class, Payment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "info",
-        "product");
+        "product",
+        "upfrontFee");
 
     /**
      * Restricted constructor.
@@ -229,6 +256,8 @@ public final class ResolvedCdsTrade
           return info;
         case -309474065:  // product
           return product;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -265,6 +294,14 @@ public final class ResolvedCdsTrade
       return product;
     }
 
+    /**
+     * The meta-property for the {@code upfrontFee} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Payment> upfrontFee() {
+      return upfrontFee;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -273,6 +310,8 @@ public final class ResolvedCdsTrade
           return ((ResolvedCdsTrade) bean).getInfo();
         case -309474065:  // product
           return ((ResolvedCdsTrade) bean).getProduct();
+        case 963468344:  // upfrontFee
+          return ((ResolvedCdsTrade) bean).upfrontFee;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -296,6 +335,7 @@ public final class ResolvedCdsTrade
 
     private TradeInfo info;
     private ResolvedCds product;
+    private Payment upfrontFee;
 
     /**
      * Restricted constructor.
@@ -311,6 +351,7 @@ public final class ResolvedCdsTrade
     private Builder(ResolvedCdsTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
+      this.upfrontFee = beanToCopy.upfrontFee;
     }
 
     //-----------------------------------------------------------------------
@@ -321,6 +362,8 @@ public final class ResolvedCdsTrade
           return info;
         case -309474065:  // product
           return product;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -334,6 +377,9 @@ public final class ResolvedCdsTrade
           break;
         case -309474065:  // product
           this.product = (ResolvedCds) newValue;
+          break;
+        case 963468344:  // upfrontFee
+          this.upfrontFee = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -369,7 +415,8 @@ public final class ResolvedCdsTrade
     public ResolvedCdsTrade build() {
       return new ResolvedCdsTrade(
           info,
-          product);
+          product,
+          upfrontFee);
     }
 
     //-----------------------------------------------------------------------
@@ -377,10 +424,11 @@ public final class ResolvedCdsTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
@@ -398,13 +446,29 @@ public final class ResolvedCdsTrade
       return this;
     }
 
+    /**
+     * Sets the upfront fee of the product.
+     * <p>
+     * This specifies a single amount payable by the buyer to the seller
+     * Thus the sign must be compatible with the product Pay/Receive flag.
+     * <p>
+     * Some CDSs, especially legacy products, are traded at par and the upfront fee is not paid.
+     * @param upfrontFee  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder upfrontFee(Payment upfrontFee) {
+      this.upfrontFee = upfrontFee;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("ResolvedCdsTrade.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
-      buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+      buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
       buf.append('}');
       return buf.toString();
     }

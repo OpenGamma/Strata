@@ -15,22 +15,12 @@ import java.io.FileInputStream;
 import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.examples.CdsPricingExample;
-import com.opengamma.strata.examples.DsfPricingExample;
-import com.opengamma.strata.examples.FraPricingExample;
-import com.opengamma.strata.examples.FxPricingExample;
-import com.opengamma.strata.examples.GenericSecurityPricingExample;
-import com.opengamma.strata.examples.StirFuturePricingExample;
-import com.opengamma.strata.examples.SwapPricingExample;
-import com.opengamma.strata.examples.TermDepositPricingExample;
 import com.opengamma.strata.examples.finance.CalibrationCheckExample;
 import com.opengamma.strata.examples.finance.CalibrationEur3CheckExample;
 import com.opengamma.strata.examples.finance.CalibrationSimpleForwardCheckExample;
 import com.opengamma.strata.examples.finance.CalibrationUsdCpiExample;
 import com.opengamma.strata.examples.finance.CalibrationUsdFfsExample;
 import com.opengamma.strata.examples.finance.CalibrationXCcyCheckExample;
-import com.opengamma.strata.examples.finance.CdsScenarioExample;
-import com.opengamma.strata.examples.finance.CdsTradeExample;
 import com.opengamma.strata.examples.finance.CurveScenarioExample;
 import com.opengamma.strata.examples.finance.HistoricalScenarioExample;
 import com.opengamma.strata.examples.finance.SabrSwaptionCubeCalibrationExample;
@@ -48,15 +38,6 @@ import com.opengamma.strata.examples.report.TradeList;
 public class ExamplesTest {
 
   private static final String[] NO_ARGS = new String[0];
-
-  //-------------------------------------------------------------------------
-  public void test_cdsPricing_standalone() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> CdsPricingExample.main(NO_ARGS)));
-  }
-
-  public void test_cdsPricing_tool() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> ReportRunnerTool.main(toolArgs("cds"))));
-  }
 
   //-------------------------------------------------------------------------
   public void test_dsfPricing_standalone() {
@@ -146,13 +127,6 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_cdsTrade() {
-    String captured = caputureSystemOut(() -> CdsTradeExample.main(NO_ARGS));
-    assertTrue(captured.contains("<product>"));
-    assertValidCaptured(captured);
-  }
-
-  //-------------------------------------------------------------------------
   public void test_swapTrade() {
     String captured = caputureSystemOut(() -> SwapTradeExample.main(NO_ARGS));
     assertTrue(captured.contains("<product>"));
@@ -224,13 +198,6 @@ public class ExamplesTest {
   public void test_sabr_swaption_calibration_pv_risk() throws Exception {
     String captured = caputureSystemOut(() -> SabrSwaptionCubePvRiskExample.main(NO_ARGS));
     assertTrue(captured.contains("PV and risk time"));
-    assertFalse(captured.contains("ERROR"));
-    assertFalse(captured.contains("Exception"));
-  }
-
-  public void test_cds_scenario() throws Exception {
-    String captured = caputureSystemOut(() -> CdsScenarioExample.main(NO_ARGS));
-    assertTrue(captured.contains("95% VaR"));
     assertFalse(captured.contains("ERROR"));
     assertFalse(captured.contains("Exception"));
   }
