@@ -39,7 +39,7 @@ public final class LegalEntityInformationId
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
   * Obtains an identifier used to find legal entity information.
   *
@@ -60,7 +60,7 @@ public final class LegalEntityInformationId
     return new LegalEntityInformationId(legalEntityId);
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public Class<LegalEntityInformation> getMarketDataType() {
     return LegalEntityInformation.class;
