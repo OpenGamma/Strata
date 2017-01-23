@@ -88,7 +88,7 @@ final class StepUpperCurveInterpolator
       this.maxIndex = base.maxIndex;
     }
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     @Override
     protected double doInterpolate(double xValue) {
       int upperIndex = getUpperBoundIndex(xValue);
