@@ -88,7 +88,7 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
 
   //-------------------------------------------------------------------------
   @Override
-  NodalCurve calibrate(
+  public NodalCurve calibrate(
       List<ResolvedCdsTrade> calibrationCDSs,
       DoubleArray premiums,
       DoubleArray pointsUpfront,
