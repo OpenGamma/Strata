@@ -297,7 +297,20 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
     return func;
   }
 
-  abstract NodalCurve calibrate(
+  /**
+   * Calibrate the ISDA compliant credit curve to points upfront and fractional spread.
+   * 
+   * @param calibrationCDSs  the calibration CDS
+   * @param flactionalSpreads  the fractional spreads
+   * @param pointsUpfront  the points upfront values
+   * @param name  the curve name
+   * @param valuationDate  the valuation date
+   * @param discountFactors  the discount factors
+   * @param recoveryRates  the recovery rates
+   * @param refData  the reference data
+   * @return the ISDA compliant credit curve
+   */
+  public abstract NodalCurve calibrate(
       List<ResolvedCdsTrade> calibrationCDSs,
       DoubleArray flactionalSpreads,
       DoubleArray pointsUpfront,

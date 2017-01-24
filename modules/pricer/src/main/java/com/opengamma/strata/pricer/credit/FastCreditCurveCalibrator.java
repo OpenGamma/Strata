@@ -101,7 +101,7 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
 
   //-------------------------------------------------------------------------
   @Override
-  NodalCurve calibrate(
+  public NodalCurve calibrate(
       List<ResolvedCdsTrade> calibrationCDSs,
       DoubleArray flactionalSpreads,
       DoubleArray pointsUpfront,
