@@ -36,7 +36,7 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
  * Calibrates one set of curve, computes sensitivity (Bucketed PV01) and estimate computation time.
  * <p>
  * Code used for the blog "Strata and multi-curve - Blog 1: Curve calibration and bucketed PV01" available at
- * XXX
+ * http://www.opengamma.com/blog/strata-and-multi-curve-curve-calibration-and-bucketed-pv01
  */
 public class CalibrationPVPerformanceExample {
 
@@ -88,7 +88,6 @@ public class CalibrationPVPerformanceExample {
   private static final int NB_TENORS = 20;
   private static final int TENOR_START = 1;
 
-  @SuppressWarnings("null")
   public static void main(String[] arg) {
 
     int nbRrpWarm = 2;
