@@ -45,7 +45,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 
 /**
- * An immutable implementation of {@code DoubleTimeSeries} where the
+ * An immutable implementation of {@code LocalDateDoubleTimeSeries} where the
  * data stored is expected to be dense. For example, points for every
  * working day in a month. If sparser data is being used then
  * {@link SparseLocalDateDoubleTimeSeries} is likely to be a better
