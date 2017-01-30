@@ -51,6 +51,8 @@ public class DiscountOvernightIndexRatesTest {
       OvernightIndexObservation.of(GBP_SONIA, DATE_VAL, REF_DATA);
   private static final OvernightIndexObservation GBP_SONIA_BEFORE =
       OvernightIndexObservation.of(GBP_SONIA, DATE_BEFORE, REF_DATA);
+  private static final OvernightIndexObservation USD_FEDFUND_BEFORE =
+      OvernightIndexObservation.of(USD_FED_FUND, DATE_BEFORE, REF_DATA);
   private static final OvernightIndexObservation GBP_SONIA_AFTER =
       OvernightIndexObservation.of(GBP_SONIA, DATE_AFTER, REF_DATA);
   private static final OvernightIndexObservation GBP_SONIA_AFTER_END =
@@ -192,10 +194,18 @@ public class DiscountOvernightIndexRatesTest {
     double expected = (DFCURVE.discountFactor(DATE_AFTER) / DFCURVE.discountFactor(DATE_AFTER_END) - 1) / accrualFactor;
     assertEquals(test.periodRate(GBP_SONIA_AFTER, DATE_AFTER_END), expected, 1e-8);
   }
+  
+  // This type of "forward" for the day before is required when the publication offset is 1.
+  // The fixing for the previous day will still be unknown at the beginning of the day and need to be computed from the curve.
+  public void test_periodRate_publication_1() {
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(USD_FED_FUND, DFCURVE, SERIES);
+    double accrualFactor = USD_FED_FUND.getDayCount().yearFraction(DATE_BEFORE, DATE_VAL);
+    double expected = (DFCURVE.discountFactor(DATE_BEFORE) / DFCURVE.discountFactor(DATE_VAL) - 1) / accrualFactor;
+    assertEquals(test.periodRate(USD_FEDFUND_BEFORE, DATE_VAL), expected, 1e-8);
+  }
 
   public void test_periodRate_badDates() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertThrowsIllegalArg(() -> test.periodRate(GBP_SONIA_BEFORE, DATE_VAL));
     assertThrowsIllegalArg(() -> test.periodRate(GBP_SONIA_AFTER_END, DATE_AFTER));
   }
 
