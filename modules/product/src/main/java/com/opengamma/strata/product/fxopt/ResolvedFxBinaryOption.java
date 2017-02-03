@@ -73,7 +73,7 @@ public final class ResolvedFxBinaryOption
      * A put option permits the inverse transaction to occur.
      */
     @PropertyDefinition(validate = "notNull")
-    private final ResolvedFxSingle underlying;
+    private final ResolvedPayment underlying;
 
     //-------------------------------------------------------------------------
     @ImmutableValidator

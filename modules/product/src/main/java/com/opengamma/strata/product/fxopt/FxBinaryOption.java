@@ -31,10 +31,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.fx.FxSingle;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.Payment;
 
 /**
  * A vanilla FX option.
@@ -84,12 +85,12 @@ public final class FxBinaryOption
      * At expiry, if the option is in the money, this foreign exchange will occur.
      */
     @PropertyDefinition(validate = "notNull")
-    private final FxSingle underlying;
+    private final Payment underlying;
 
     //-------------------------------------------------------------------------
     @ImmutableValidator
     private void validate() {
-        inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.paymentDate");
+        inOrderOrEqual(expiryDate, underlying.getDate(), "expiryDate", "underlying.paymentDate");
     }
 
     //-------------------------------------------------------------------------
@@ -100,8 +101,8 @@ public final class FxBinaryOption
      *
      * @return the currency pair
      */
-    public CurrencyPair getCurrencyPair() {
-        return underlying.getCurrencyPair();
+    public Currency getCurrency() {
+        return underlying.getCurrency();
     }
 
     /**
@@ -239,7 +240,7 @@ public final class FxBinaryOption
    * At expiry, if the option is in the money, this foreign exchange will occur.
    * @return the value of the property, not null
    */
-  public FxSingle getUnderlying() {
+  public Payment getUnderlying() {
     return underlying;
   }
 
