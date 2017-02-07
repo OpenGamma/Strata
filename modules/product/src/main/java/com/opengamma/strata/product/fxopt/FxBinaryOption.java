@@ -35,6 +35,7 @@ import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.Payment;
 
 /**
@@ -85,12 +86,18 @@ public final class FxBinaryOption
      * At expiry, if the option is in the money, this foreign exchange will occur.
      */
     @PropertyDefinition(validate = "notNull")
-    private final Payment underlying;
+    private final FxSingle underlying;
+
+    @PropertyDefinition(validate = "notNull")
+    private final double strikePrice;
+
+    @PropertyDefinition(validate = "notNull")
+    private final Payment payoff;
 
     //-------------------------------------------------------------------------
     @ImmutableValidator
     private void validate() {
-        inOrderOrEqual(expiryDate, underlying.getDate(), "expiryDate", "underlying.paymentDate");
+        inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.paymentDate");
     }
 
     //-------------------------------------------------------------------------
@@ -101,9 +108,7 @@ public final class FxBinaryOption
      *
      * @return the currency pair
      */
-    public Currency getCurrency() {
-        return underlying.getCurrency();
-    }
+    public CurrencyPair getCurrencyPair() { return underlying.getCurrencyPair(); }
 
     /**
      * Gets the expiry date-time.
@@ -159,17 +164,23 @@ public final class FxBinaryOption
       LocalDate expiryDate,
       LocalTime expiryTime,
       ZoneId expiryZone,
-      FxSingle underlying) {
+      FxSingle underlying,
+      double strikePrice,
+      Payment payoff) {
     JodaBeanUtils.notNull(longShort, "longShort");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(expiryTime, "expiryTime");
     JodaBeanUtils.notNull(expiryZone, "expiryZone");
     JodaBeanUtils.notNull(underlying, "underlying");
+    JodaBeanUtils.notNull(strikePrice, "strikePrice");
+    JodaBeanUtils.notNull(payoff, "payoff");
     this.longShort = longShort;
     this.expiryDate = expiryDate;
     this.expiryTime = expiryTime;
     this.expiryZone = expiryZone;
     this.underlying = underlying;
+    this.strikePrice = strikePrice;
+    this.payoff = payoff;
     validate();
   }
 
@@ -240,8 +251,26 @@ public final class FxBinaryOption
    * At expiry, if the option is in the money, this foreign exchange will occur.
    * @return the value of the property, not null
    */
-  public Payment getUnderlying() {
+  public FxSingle getUnderlying() {
     return underlying;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the strikePrice.
+   * @return the value of the property, not null
+   */
+  public double getStrikePrice() {
+    return strikePrice;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payoff.
+   * @return the value of the property, not null
+   */
+  public Payment getPayoff() {
+    return payoff;
   }
 
   //-----------------------------------------------------------------------
@@ -264,7 +293,9 @@ public final class FxBinaryOption
           JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
           JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
           JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
-          JodaBeanUtils.equal(underlying, other.underlying);
+          JodaBeanUtils.equal(underlying, other.underlying) &&
+          JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
+          JodaBeanUtils.equal(payoff, other.payoff);
     }
     return false;
   }
@@ -277,18 +308,22 @@ public final class FxBinaryOption
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
     hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
+    hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(payoff);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("FxBinaryOption{");
     buf.append("longShort").append('=').append(longShort).append(',').append(' ');
     buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
     buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
     buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
-    buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
+    buf.append("underlying").append('=').append(underlying).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
+    buf.append("payoff").append('=').append(JodaBeanUtils.toString(payoff));
     buf.append('}');
     return buf.toString();
   }
@@ -329,6 +364,16 @@ public final class FxBinaryOption
     private final MetaProperty<FxSingle> underlying = DirectMetaProperty.ofImmutable(
         this, "underlying", FxBinaryOption.class, FxSingle.class);
     /**
+     * The meta-property for the {@code strikePrice} property.
+     */
+    private final MetaProperty<Double> strikePrice = DirectMetaProperty.ofImmutable(
+        this, "strikePrice", FxBinaryOption.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code payoff} property.
+     */
+    private final MetaProperty<Payment> payoff = DirectMetaProperty.ofImmutable(
+        this, "payoff", FxBinaryOption.class, Payment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -337,7 +382,9 @@ public final class FxBinaryOption
         "expiryDate",
         "expiryTime",
         "expiryZone",
-        "underlying");
+        "underlying",
+        "strikePrice",
+        "payoff");
 
     /**
      * Restricted constructor.
@@ -358,6 +405,10 @@ public final class FxBinaryOption
           return expiryZone;
         case -1770633379:  // underlying
           return underlying;
+        case 50946231:  // strikePrice
+          return strikePrice;
+        case -995206201:  // payoff
+          return payoff;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -418,6 +469,22 @@ public final class FxBinaryOption
       return underlying;
     }
 
+    /**
+     * The meta-property for the {@code strikePrice} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> strikePrice() {
+      return strikePrice;
+    }
+
+    /**
+     * The meta-property for the {@code payoff} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Payment> payoff() {
+      return payoff;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -432,6 +499,10 @@ public final class FxBinaryOption
           return ((FxBinaryOption) bean).getExpiryZone();
         case -1770633379:  // underlying
           return ((FxBinaryOption) bean).getUnderlying();
+        case 50946231:  // strikePrice
+          return ((FxBinaryOption) bean).getStrikePrice();
+        case -995206201:  // payoff
+          return ((FxBinaryOption) bean).getPayoff();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -458,6 +529,8 @@ public final class FxBinaryOption
     private LocalTime expiryTime;
     private ZoneId expiryZone;
     private FxSingle underlying;
+    private double strikePrice;
+    private Payment payoff;
 
     /**
      * Restricted constructor.
@@ -475,6 +548,8 @@ public final class FxBinaryOption
       this.expiryTime = beanToCopy.getExpiryTime();
       this.expiryZone = beanToCopy.getExpiryZone();
       this.underlying = beanToCopy.getUnderlying();
+      this.strikePrice = beanToCopy.getStrikePrice();
+      this.payoff = beanToCopy.getPayoff();
     }
 
     //-----------------------------------------------------------------------
@@ -491,6 +566,10 @@ public final class FxBinaryOption
           return expiryZone;
         case -1770633379:  // underlying
           return underlying;
+        case 50946231:  // strikePrice
+          return strikePrice;
+        case -995206201:  // payoff
+          return payoff;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -513,6 +592,12 @@ public final class FxBinaryOption
           break;
         case -1770633379:  // underlying
           this.underlying = (FxSingle) newValue;
+          break;
+        case 50946231:  // strikePrice
+          this.strikePrice = (Double) newValue;
+          break;
+        case -995206201:  // payoff
+          this.payoff = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -551,7 +636,9 @@ public final class FxBinaryOption
           expiryDate,
           expiryTime,
           expiryZone,
-          underlying);
+          underlying,
+          strikePrice,
+          payoff);
     }
 
     //-----------------------------------------------------------------------
@@ -621,16 +708,40 @@ public final class FxBinaryOption
       return this;
     }
 
+    /**
+     * Sets the strikePrice.
+     * @param strikePrice  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder strikePrice(double strikePrice) {
+      JodaBeanUtils.notNull(strikePrice, "strikePrice");
+      this.strikePrice = strikePrice;
+      return this;
+    }
+
+    /**
+     * Sets the payoff.
+     * @param payoff  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder payoff(Payment payoff) {
+      JodaBeanUtils.notNull(payoff, "payoff");
+      this.payoff = payoff;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("FxBinaryOption.Builder{");
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
-      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
+      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
+      buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
+      buf.append("payoff").append('=').append(JodaBeanUtils.toString(payoff));
       buf.append('}');
       return buf.toString();
     }
