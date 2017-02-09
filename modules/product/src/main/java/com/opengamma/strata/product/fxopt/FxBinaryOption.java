@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.index.FxIndex;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -40,11 +40,13 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 /**
  * A binary FX option.
  * <p>
- * A binary FX option is a financial instrument that provides an option based on the future value of
- * a foreign exchange. The option is European, exercised only on the exercise date.
+ * A binary FX option is a financial instrument that provides a payoff based on the future value of
+ * a foreign exchange index. The currency unit of the payoff can be in either currency unit of the foreign exchange.
+ * The option is European, exercised only on the exercise date.
  * <p>
- * For example, a call on a 'EUR 1.00 / USD -1.41' exchange is the option to
- * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00.
+ * For example, a binary call with a strike rate 'EUR 1.00 / USD 1.1' and a payment amount USD 100 pays
+ * this amount at expiry if the future value of the foreign exchange index is at least as great as the
+ * strike rate.
  */
 @BeanDefinition
 public final class FxBinaryOption
@@ -53,8 +55,9 @@ public final class FxBinaryOption
     /**
      * Whether the option is long or short.
      * <p>
-     * At expiry, the long party will have the option to enter in this transaction;
-     * the short party will, at the option of the long party, potentially enter into the inverse transaction.
+     * At expiry, the long party will receive the payment amount in the specified currency if the level of the
+     * foreign exchange index is at or above the strike rate; in this case, the short party will have to deliver
+     * the payment amount in the specified currency to the long party.
      */
     @PropertyDefinition(validate = "notNull")
     private final LongShort longShort;
@@ -79,20 +82,27 @@ public final class FxBinaryOption
      */
     @PropertyDefinition(validate = "notNull")
     private final ZoneId expiryZone;
-
+    /**
+     * The reference FX Index of the option.
+     * <p>
+     * The reference FX Index is used to determine whether or not a payment event has occurred at the expiry
+     * of the option.
+     */
     @PropertyDefinition(validate = "notNull")
     private final FxIndex underlying;
-
+    /**
+     * The amount and currency of the option payment.
+     * <p>
+     * The payment amount that will be made to the long party in the specified currency, if at expiry, a payment
+     * event has occurred.
+     */
     @PropertyDefinition(validate = "notNull")
-    private final CurrencyAmount paymentCurrencyAmount;
-
-    @PropertyDefinition(validate = "notNull")
-    private final LocalDate paymentDate;
+    private final Payment paymentCurrencyAmount;
 
     //-------------------------------------------------------------------------
     @ImmutableValidator
     private void validate() {
-        inOrderOrEqual(expiryDate, paymentDate, "expiryDate", "underlying.paymentDate");
+        inOrderOrEqual(expiryDate, paymentCurrencyAmount.getDate(), "expiryDate", "underlying.paymentDate");
     }
 
     //-------------------------------------------------------------------------
@@ -161,22 +171,19 @@ public final class FxBinaryOption
       LocalTime expiryTime,
       ZoneId expiryZone,
       FxIndex underlying,
-      CurrencyAmount paymentCurrencyAmount,
-      LocalDate paymentDate) {
+      Payment paymentCurrencyAmount) {
     JodaBeanUtils.notNull(longShort, "longShort");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(expiryTime, "expiryTime");
     JodaBeanUtils.notNull(expiryZone, "expiryZone");
     JodaBeanUtils.notNull(underlying, "underlying");
     JodaBeanUtils.notNull(paymentCurrencyAmount, "paymentCurrencyAmount");
-    JodaBeanUtils.notNull(paymentDate, "paymentDate");
     this.longShort = longShort;
     this.expiryDate = expiryDate;
     this.expiryTime = expiryTime;
     this.expiryZone = expiryZone;
     this.underlying = underlying;
     this.paymentCurrencyAmount = paymentCurrencyAmount;
-    this.paymentDate = paymentDate;
     validate();
   }
 
@@ -199,8 +206,9 @@ public final class FxBinaryOption
   /**
    * Gets whether the option is long or short.
    * <p>
-   * At expiry, the long party will have the option to enter in this transaction;
-   * the short party will, at the option of the long party, potentially enter into the inverse transaction.
+   * At expiry, the long party will receive the payment amount in the specified currency if the level of the
+   * foreign exchange index is at or above the strike rate; in this case, the short party will have to deliver
+   * the payment amount in the specified currency to the long party.
    * @return the value of the property, not null
    */
   public LongShort getLongShort() {
@@ -242,7 +250,10 @@ public final class FxBinaryOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying.
+   * Gets the reference FX Index of the option.
+   * <p>
+   * The reference FX Index is used to determine whether or not a payment event has occurred at the expiry
+   * of the option.
    * @return the value of the property, not null
    */
   public FxIndex getUnderlying() {
@@ -251,20 +262,14 @@ public final class FxBinaryOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the paymentCurrencyAmount.
+   * Gets the amount and currency of the option payment.
+   * <p>
+   * The payment amount that will be made to the long party in the specified currency, if at expiry, a payment
+   * event has occurred.
    * @return the value of the property, not null
    */
-  public CurrencyAmount getPaymentCurrencyAmount() {
+  public Payment getPaymentCurrencyAmount() {
     return paymentCurrencyAmount;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the paymentDate.
-   * @return the value of the property, not null
-   */
-  public LocalDate getPaymentDate() {
-    return paymentDate;
   }
 
   //-----------------------------------------------------------------------
@@ -288,8 +293,7 @@ public final class FxBinaryOption
           JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
           JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
           JodaBeanUtils.equal(underlying, other.underlying) &&
-          JodaBeanUtils.equal(paymentCurrencyAmount, other.paymentCurrencyAmount) &&
-          JodaBeanUtils.equal(paymentDate, other.paymentDate);
+          JodaBeanUtils.equal(paymentCurrencyAmount, other.paymentCurrencyAmount);
     }
     return false;
   }
@@ -303,21 +307,19 @@ public final class FxBinaryOption
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
     hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentCurrencyAmount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("FxBinaryOption{");
     buf.append("longShort").append('=').append(longShort).append(',').append(' ');
     buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
     buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
     buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
     buf.append("underlying").append('=').append(underlying).append(',').append(' ');
-    buf.append("paymentCurrencyAmount").append('=').append(paymentCurrencyAmount).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
+    buf.append("paymentCurrencyAmount").append('=').append(JodaBeanUtils.toString(paymentCurrencyAmount));
     buf.append('}');
     return buf.toString();
   }
@@ -360,13 +362,8 @@ public final class FxBinaryOption
     /**
      * The meta-property for the {@code paymentCurrencyAmount} property.
      */
-    private final MetaProperty<CurrencyAmount> paymentCurrencyAmount = DirectMetaProperty.ofImmutable(
-        this, "paymentCurrencyAmount", FxBinaryOption.class, CurrencyAmount.class);
-    /**
-     * The meta-property for the {@code paymentDate} property.
-     */
-    private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
-        this, "paymentDate", FxBinaryOption.class, LocalDate.class);
+    private final MetaProperty<Payment> paymentCurrencyAmount = DirectMetaProperty.ofImmutable(
+        this, "paymentCurrencyAmount", FxBinaryOption.class, Payment.class);
     /**
      * The meta-properties.
      */
@@ -377,8 +374,7 @@ public final class FxBinaryOption
         "expiryTime",
         "expiryZone",
         "underlying",
-        "paymentCurrencyAmount",
-        "paymentDate");
+        "paymentCurrencyAmount");
 
     /**
      * Restricted constructor.
@@ -401,8 +397,6 @@ public final class FxBinaryOption
           return underlying;
         case 944314223:  // paymentCurrencyAmount
           return paymentCurrencyAmount;
-        case -1540873516:  // paymentDate
-          return paymentDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -467,16 +461,8 @@ public final class FxBinaryOption
      * The meta-property for the {@code paymentCurrencyAmount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> paymentCurrencyAmount() {
+    public MetaProperty<Payment> paymentCurrencyAmount() {
       return paymentCurrencyAmount;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> paymentDate() {
-      return paymentDate;
     }
 
     //-----------------------------------------------------------------------
@@ -495,8 +481,6 @@ public final class FxBinaryOption
           return ((FxBinaryOption) bean).getUnderlying();
         case 944314223:  // paymentCurrencyAmount
           return ((FxBinaryOption) bean).getPaymentCurrencyAmount();
-        case -1540873516:  // paymentDate
-          return ((FxBinaryOption) bean).getPaymentDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -523,8 +507,7 @@ public final class FxBinaryOption
     private LocalTime expiryTime;
     private ZoneId expiryZone;
     private FxIndex underlying;
-    private CurrencyAmount paymentCurrencyAmount;
-    private LocalDate paymentDate;
+    private Payment paymentCurrencyAmount;
 
     /**
      * Restricted constructor.
@@ -543,7 +526,6 @@ public final class FxBinaryOption
       this.expiryZone = beanToCopy.getExpiryZone();
       this.underlying = beanToCopy.getUnderlying();
       this.paymentCurrencyAmount = beanToCopy.getPaymentCurrencyAmount();
-      this.paymentDate = beanToCopy.getPaymentDate();
     }
 
     //-----------------------------------------------------------------------
@@ -562,8 +544,6 @@ public final class FxBinaryOption
           return underlying;
         case 944314223:  // paymentCurrencyAmount
           return paymentCurrencyAmount;
-        case -1540873516:  // paymentDate
-          return paymentDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -588,10 +568,7 @@ public final class FxBinaryOption
           this.underlying = (FxIndex) newValue;
           break;
         case 944314223:  // paymentCurrencyAmount
-          this.paymentCurrencyAmount = (CurrencyAmount) newValue;
-          break;
-        case -1540873516:  // paymentDate
-          this.paymentDate = (LocalDate) newValue;
+          this.paymentCurrencyAmount = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -631,16 +608,16 @@ public final class FxBinaryOption
           expiryTime,
           expiryZone,
           underlying,
-          paymentCurrencyAmount,
-          paymentDate);
+          paymentCurrencyAmount);
     }
 
     //-----------------------------------------------------------------------
     /**
      * Sets whether the option is long or short.
      * <p>
-     * At expiry, the long party will have the option to enter in this transaction;
-     * the short party will, at the option of the long party, potentially enter into the inverse transaction.
+     * At expiry, the long party will receive the payment amount in the specified currency if the level of the
+     * foreign exchange index is at or above the strike rate; in this case, the short party will have to deliver
+     * the payment amount in the specified currency to the long party.
      * @param longShort  the new value, not null
      * @return this, for chaining, not null
      */
@@ -690,7 +667,10 @@ public final class FxBinaryOption
     }
 
     /**
-     * Sets the underlying.
+     * Sets the reference FX Index of the option.
+     * <p>
+     * The reference FX Index is used to determine whether or not a payment event has occurred at the expiry
+     * of the option.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
@@ -701,39 +681,30 @@ public final class FxBinaryOption
     }
 
     /**
-     * Sets the paymentCurrencyAmount.
+     * Sets the amount and currency of the option payment.
+     * <p>
+     * The payment amount that will be made to the long party in the specified currency, if at expiry, a payment
+     * event has occurred.
      * @param paymentCurrencyAmount  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentCurrencyAmount(CurrencyAmount paymentCurrencyAmount) {
+    public Builder paymentCurrencyAmount(Payment paymentCurrencyAmount) {
       JodaBeanUtils.notNull(paymentCurrencyAmount, "paymentCurrencyAmount");
       this.paymentCurrencyAmount = paymentCurrencyAmount;
-      return this;
-    }
-
-    /**
-     * Sets the paymentDate.
-     * @param paymentDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentDate(LocalDate paymentDate) {
-      JodaBeanUtils.notNull(paymentDate, "paymentDate");
-      this.paymentDate = paymentDate;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("FxBinaryOption.Builder{");
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
       buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
-      buf.append("paymentCurrencyAmount").append('=').append(JodaBeanUtils.toString(paymentCurrencyAmount)).append(',').append(' ');
-      buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
+      buf.append("paymentCurrencyAmount").append('=').append(JodaBeanUtils.toString(paymentCurrencyAmount));
       buf.append('}');
       return buf.toString();
     }
