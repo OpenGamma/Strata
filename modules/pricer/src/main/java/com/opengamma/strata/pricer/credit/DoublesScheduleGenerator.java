@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * This is a utility for combining and truncating ascending arrays of doubles.
  * The main application of this class is {@code IsdaCdsProductPricer}.
  */
-final class DoublesScheduleGenerator {
+public class DoublesScheduleGenerator {
 
   /**
    * The tolerance.
@@ -37,7 +37,7 @@ final class DoublesScheduleGenerator {
    * @param creditCurveNodes  the credit curve node
    * @return the combined list between start and end
    */
-  static DoubleArray getIntegrationsPoints(
+  public static DoubleArray getIntegrationsPoints(
       double start,
       double end,
       DoubleArray discountCurveNodes,
@@ -122,7 +122,7 @@ final class DoublesScheduleGenerator {
    * @param set  the numbers must be sorted in ascending order
    * @return the truncated array 
    */
-  static DoubleArray truncateSetInclusive(double lower, double upper, DoubleArray set) {
+  public static DoubleArray truncateSetInclusive(double lower, double upper, DoubleArray set) {
 
     double[] temp = truncateSetExclusive(lower, upper, set.toArray());
     int n = temp.length;
