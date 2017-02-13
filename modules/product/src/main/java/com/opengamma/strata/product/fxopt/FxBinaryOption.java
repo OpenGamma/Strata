@@ -130,7 +130,9 @@ public final class FxBinaryOption
      *
      * @return the currency pair
      */
-    public CurrencyPair getCurrencyPair() { return underlying.getCurrencyPair(); }
+    public CurrencyPair getCurrencyPair() {
+      return underlying.getCurrencyPair();
+    }
 
     /**
      * Gets the expiry date-time.
