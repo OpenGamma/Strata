@@ -66,7 +66,9 @@ public final class FxBinaryOptionTrade
 
     //-------------------------------------------------------------------------
     @ImmutableDefaults
-    private static void applyDefaults(Builder builder) { builder.info = TradeInfo.empty(); }
+    private static void applyDefaults(Builder builder) {
+      builder.info = TradeInfo.empty();
+    }
 
     @Override
     public ResolvedFxBinaryOptionTrade resolve(ReferenceData refData) {

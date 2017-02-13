@@ -113,7 +113,9 @@ public final class ResolvedFxBinaryOption
      *
      * @return the currency pair
      */
-    public CurrencyPair getCurrencyPair() { return underlying.getCurrencyPair(); }
+    public CurrencyPair getCurrencyPair() {
+      return underlying.getCurrencyPair();
+    }
 
     /**
      * Gets the expiry date of the option.
