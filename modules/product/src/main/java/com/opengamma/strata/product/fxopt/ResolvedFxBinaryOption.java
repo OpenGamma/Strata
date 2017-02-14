@@ -79,7 +79,7 @@ public final class ResolvedFxBinaryOption
    * The amount and currency of the option payment.
    * <p>
    * The payment amount that will be made to the long party in the specified currency, if at expiry, a payment
-   * event has occurred. The strike value is based on {@param CurrencyPair} in {@link FxIndex}.
+   * event has occurred.
    */
   @PropertyDefinition(validate = "notNull")
   private final Payment paymentCurrencyAmount;
@@ -95,7 +95,7 @@ public final class ResolvedFxBinaryOption
    * The strike FX rate for the binary option.
    * <p>
    * At expiry, the strike rate of the option will be compared to the reference FX Index to determine whether or not
-   * a payment event has occurred.
+   * a payment event has occurred. The strike value is based on {@param CurrencyPair} in {@link FxIndex}.
    */
   @PropertyDefinition(validate = "notNull")
   private final double strike;
@@ -104,8 +104,7 @@ public final class ResolvedFxBinaryOption
   @ImmutableValidator
   private void validate() {
     inOrderOrEqual(expiry.toLocalDate(), paymentCurrencyAmount.getDate(), "expiry.date", "underlying.paymentDate");
-    ArgChecker.isTrue(paymentCurrencyAmount.getCurrency().equals(index.getCurrencyPair().getBase())
-            || paymentCurrencyAmount.getCurrency().equals(index.getCurrencyPair().getCounter()),
+    ArgChecker.isTrue(index.getCurrencyPair().contains(paymentCurrencyAmount.getCurrency()),
         "The payment currency must be one of the underlying currency pairs");
   }
 
