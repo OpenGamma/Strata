@@ -234,7 +234,7 @@ public final class ResolvedFxBinaryOption
    * Gets the amount and currency of the option payment.
    * <p>
    * The payment amount that will be made to the long party in the specified currency, if at expiry, a payment
-   * event has occurred. The strike value is based on {@param CurrencyPair} in {@link FxIndex}.
+   * event has occurred.
    * @return the value of the property, not null
    */
   public Payment getPaymentCurrencyAmount() {
@@ -258,7 +258,7 @@ public final class ResolvedFxBinaryOption
    * Gets the strike FX rate for the binary option.
    * <p>
    * At expiry, the strike rate of the option will be compared to the reference FX Index to determine whether or not
-   * a payment event has occurred.
+   * a payment event has occurred. The strike value is based on {@param CurrencyPair} in {@link FxIndex}.
    * @return the value of the property, not null
    */
   public double getStrike() {
@@ -650,7 +650,7 @@ public final class ResolvedFxBinaryOption
      * Sets the amount and currency of the option payment.
      * <p>
      * The payment amount that will be made to the long party in the specified currency, if at expiry, a payment
-     * event has occurred. The strike value is based on {@param CurrencyPair} in {@link FxIndex}.
+     * event has occurred.
      * @param paymentCurrencyAmount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -678,7 +678,7 @@ public final class ResolvedFxBinaryOption
      * Sets the strike FX rate for the binary option.
      * <p>
      * At expiry, the strike rate of the option will be compared to the reference FX Index to determine whether or not
-     * a payment event has occurred.
+     * a payment event has occurred. The strike value is based on {@param CurrencyPair} in {@link FxIndex}.
      * @param strike  the new value, not null
      * @return this, for chaining, not null
      */
