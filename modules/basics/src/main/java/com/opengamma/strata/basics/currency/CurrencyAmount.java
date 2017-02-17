@@ -6,6 +6,8 @@
 package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
@@ -96,6 +98,43 @@ public final class CurrencyAmount
    */
   public static CurrencyAmount of(String currencyCode, double amount) {
     return of(Currency.of(currencyCode), amount);
+  }
+
+  /**
+   * Obtains an instance of {@link CurrencyAmount} for the specified ISO-4217
+   * three letter currency code and amount, rounded to the currency specification.
+   * <p>
+   * A currency is uniquely identified by ISO-4217 three letter code.
+   * This method creates the currency if it is not known.
+   *
+   * @param currency the currency the amount is in
+   * @param amount the amount of the currency to represent
+   * @return the currency amount
+   * @throws IllegalArgumentException if the currency code is invalid
+   */
+  public static CurrencyAmount ofRounded(Currency currency, double amount) {
+    int unitDigits = currency.getMinorUnitDigits();
+    BigDecimal bigDecimal = new BigDecimal(amount).setScale(unitDigits, RoundingMode.HALF_EVEN);
+    return new CurrencyAmount(currency, bigDecimal.doubleValue());
+  }
+
+  /**
+   * Obtains an instance of {@link CurrencyAmount} for the specified ISO-4217
+   * three letter currency code and amount, rounded to the currency specification.
+   * <p>
+   * A currency is uniquely identified by ISO-4217 three letter code.
+   * This method creates the currency if it is not known.
+   *
+   * @param currencyCode the three letter currency code, ASCII and upper case
+   * @param amount the amount of the currency to represent
+   * @return the currency amount
+   * @throws IllegalArgumentException if the currency code is invalid
+   */
+  public static CurrencyAmount ofRounded(String currencyCode, double amount) {
+    Currency currency = Currency.of(currencyCode);
+    int unitDigits = currency.getMinorUnitDigits();
+    BigDecimal bigDecimal = new BigDecimal(amount).setScale(unitDigits, RoundingMode.HALF_EVEN);
+    return new CurrencyAmount(currency, bigDecimal.doubleValue());
   }
 
   //-------------------------------------------------------------------------
