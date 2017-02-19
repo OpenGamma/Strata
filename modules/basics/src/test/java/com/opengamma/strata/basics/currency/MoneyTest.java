@@ -30,13 +30,13 @@ public class MoneyTest {
 
   @Test
   public void testConvertedToWithExplicitRate() throws Exception {
-    assertEquals(Money.of(Currency.RON, 260), MONEY_100_AUD.convertedTo(CCY_RON, 2.6d));
+    assertEquals(Money.of(Currency.RON, 260.31), MONEY_100_AUD.convertedTo(CCY_RON, 2.6d));
   }
 
   @Test
   public void testConvertedToWithRateProvider() throws Exception {
     FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
-    assertEquals(Money.of(Currency.RON, 250), MONEY_100_AUD.convertedTo(CCY_RON, provider));
+    assertEquals(Money.of(Currency.RON, 250.30), MONEY_100_AUD.convertedTo(CCY_RON, provider));
   }
 
   @Test
@@ -59,7 +59,7 @@ public class MoneyTest {
 
   @Test
   public void testToString() throws Exception {
-    assertEquals("RON 200.00", MONEY_200_RON.toString());
+    assertEquals("RON 200.23", MONEY_200_RON.toString());
   }
 
 }
