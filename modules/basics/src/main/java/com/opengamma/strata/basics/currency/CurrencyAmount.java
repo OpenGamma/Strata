@@ -311,7 +311,7 @@ public final class CurrencyAmount
    * @return The newly created instance of {@link Money}.
    */
   public Money toMoney() {
-    return Money.of(this.currency, this.getAmount());
+    return Money.of(this.getCurrency(), this.getAmount());
   }
 
   /**

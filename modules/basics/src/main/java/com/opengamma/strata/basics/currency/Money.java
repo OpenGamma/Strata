@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,18 +7,22 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.joda.beans.JodaBeanUtils;
+import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An amount of a currency, rounded to match the currency specifications.
  * <p>
  * This class is similar to {@link CurrencyAmount}, but only exposes the rounded amounts.
- * The rounding is done using {@link BigDecimal}, as BigDecimal.ROUND_HALF_EVEN. Given this operation,
+ * The rounding is done using {@link BigDecimal}, as BigDecimal.ROUND_HALF_UP. Given this operation,
  * it should be assumed that the numbers are an approximation, and not an exact figure.
  * <p>
  * This class is immutable and thread-safe.
@@ -30,40 +34,54 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
 
   /**
    * The currency.
+   * <p>
    * For example, in the value 'GBP 12.34' the currency is 'GBP'.
    */
   private final Currency currency;
 
   /**
    * The amount of the currency.
+   * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
    */
   private final BigDecimal amount;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of {@code Money} for the specified currency and amount.
-   *
+   * Obtains an instance of {@code Money} for the specified {@link CurrencyAmount}.
+   * <p>
    * @param currencyAmount the instance of {@link CurrencyAmount} wrapping the currency and amount.
    * @return the currency amount
    */
   public static Money of(CurrencyAmount currencyAmount) {
     Currency currency = currencyAmount.getCurrency();
-    BigDecimal roundedAmount = new BigDecimal(currencyAmount.getAmount())
-        .setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_EVEN);
+    BigDecimal roundedAmount = BigDecimal.valueOf(currencyAmount.getAmount())
+        .setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_UP);
     return new Money(currency, roundedAmount);
   }
 
   /**
    * Obtains an instance of {@code Money} for the specified currency and amount.
-   *
+   * <p>
    * @param currency the currency the amount is in
    * @param amount the amount of the currency to represent
    * @return the currency amount
    */
   public static Money of(Currency currency, double amount) {
-    BigDecimal roundedAmount = new BigDecimal(amount)
-        .setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_EVEN);
+    BigDecimal roundedAmount = BigDecimal.valueOf(amount)
+        .setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_UP);
+    return new Money(currency, roundedAmount);
+  }
+
+  /**
+   * Obtains an instance of {@code Money} for the specified currency and amount.
+   * <p>
+   * @param currency the currency the amount is in
+   * @param amount the amount of the currency to represent, as an instance of {@link BigDecimal}
+   * @return the currency amount
+   */
+  public static Money of(Currency currency, BigDecimal amount) {
+    BigDecimal roundedAmount = amount.setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_UP);
     return new Money(currency, roundedAmount);
   }
 
@@ -75,6 +93,8 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
    * @param amount the amount
    */
   private Money(Currency currency, BigDecimal amount) {
+    ArgChecker.notNull(currency, "currency");
+    ArgChecker.notNull(amount, "amount");
     this.currency = currency;
     this.amount = amount;
   }
@@ -93,6 +113,7 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
 
   /**
    * Gets the amount of the currency as an instance of {@link BigDecimal}.
+   * <p>
    * The amount will be rounded to the currency specifications.
    * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
@@ -101,18 +122,6 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
    */
   public BigDecimal getAmount() {
     return amount;
-  }
-
-  /**
-   * Gets the amount of the currency as a double primitive.
-   * The amount will be rounded to the currency specifications.
-   * <p>
-   * For example, in the value 'GBP 12.34' the amount is 12.34.
-   *
-   * @return the amount
-   */
-  public double getAmountAsDouble() {
-    return amount.doubleValue();
   }
 
 
@@ -131,14 +140,14 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
    * @return the converted instance, which should be expressed in the specified currency
    * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
    */
-  public Money convertedTo(Currency resultCurrency, double fxRate) {
+  public Money convertedTo(Currency resultCurrency, BigDecimal fxRate) {
     if (currency.equals(resultCurrency)) {
-      if (DoubleMath.fuzzyEquals(fxRate, 1d, 1e-8)) {
+      if (DoubleMath.fuzzyEquals(fxRate.doubleValue(), 1d, 1e-8)) {
         return this;
       }
       throw new IllegalArgumentException("FX rate must be 1 when no conversion required");
     }
-    return Money.of(resultCurrency, amount.multiply(new BigDecimal(fxRate)).doubleValue());
+    return Money.of(resultCurrency, amount.multiply(fxRate));
   }
 
   /**
@@ -177,7 +186,32 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
         .result();
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Parses the string to produce a {@link Money}.
+   * <p>
+   * This parses the {@code toString} format of '${currency} ${amount}'.
+   *
+   * @param amountStr  the amount string
+   * @return the currency amount
+   * @throws IllegalArgumentException if the amount cannot be parsed
+   */
+  @FromString
+  public static Money parse(String amountStr) {
+    ArgChecker.notNull(amountStr, "amountStr");
+    List<String> split = Splitter.on(' ').splitToList(amountStr);
+    if (split.size() != 2) {
+      throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
+    }
+    try {
+      Currency cur = Currency.parse(split.get(0));
+      double amount = Double.parseDouble(split.get(1));
+      return new Money(cur, BigDecimal.valueOf(amount));
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
+    }
+  }
+
+    //-------------------------------------------------------------------------
   /**
    * Checks if this instance of {@link Money} equals another.
    *
