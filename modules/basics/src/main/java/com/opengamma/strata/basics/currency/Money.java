@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
@@ -9,6 +14,15 @@ import org.joda.convert.ToString;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.math.DoubleMath;
 
+/**
+ * An amount of a currency, rounded to match the currency specifications.
+ * <p>
+ * This class is similar to {@link CurrencyAmount}, but only exposes the rounded amounts.
+ * The rounding is done using {@link BigDecimal}, as BigDecimal.ROUND_HALF_EVEN. Given this operation,
+ * it should be assumed that the numbers are an approximation, and not an exact figure.
+ * <p>
+ * This class is immutable and thread-safe.
+ */
 public class Money implements FxConvertible<Money>, Comparable<Money>, Serializable {
 
   /** Serialization version. */
@@ -204,6 +218,6 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
   @Override
   @ToString
   public String toString() {
-    return currency + " " +amount.toString();
+    return currency + " " + amount.toString();
   }
 }

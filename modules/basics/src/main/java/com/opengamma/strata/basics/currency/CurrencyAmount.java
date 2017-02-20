@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * It is specifically named "CurrencyAmount" and not "Money" to indicate that
  * it simply holds a currency and an amount. By contrast, naming it "Money"
  * would imply it was a suitable choice for accounting purposes, which it is not.
+ * Such a behaviour is exposed in the {@link Money} class.
  * <p>
  * This design approach has been chosen primarily for performance reasons.
  * Using a {@code BigDecimal} is markedly slower.
