@@ -4,39 +4,64 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.testng.annotations.Test;
 
 public class MoneyTest {
   private static final Currency CCY_AUD = Currency.AUD;
-  private static final double AMT_100 = 100.12;
+  private static final double AMT_100_12 = 100.12;
+  private static final double AMT_100_MORE_DECIMALS = 100.1249;
   private static final Currency CCY_RON = Currency.RON;
-  private static final double AMT_200 = 200.23;
-  private static final CurrencyAmount CCYAMT = CurrencyAmount.of(CCY_RON, AMT_200);
+  private static final double AMT_200_23 = 200.23;
+  private static final Currency CCY_BHD = Currency.BHD; //3 decimals
+  private static final CurrencyAmount CCYAMT = CurrencyAmount.of(CCY_RON, AMT_200_23);
+  //Not the Money instances
   private static final Money MONEY_200_RON = Money.of(CCYAMT);
-  private static final Money MONEY_100_AUD = Money.of(CCY_AUD, AMT_100);
-  private static final Money MONEY_200_RON_ALTERNATIVE = Money.of(CCY_RON, AMT_200);
+  private static final Money MONEY_100_AUD = Money.of(CCY_AUD, AMT_100_12);
+  private static final Money MONEY_100_13_AUD = Money.of(CCY_AUD, AMT_100_MORE_DECIMALS);
+  private static final Money MONEY_200_RON_ALTERNATIVE = Money.of(CCY_RON, AMT_200_23);
+  private static final Money MONEY_100_12_BHD = Money.of(CCY_BHD, AMT_100_12);
+  private static final Money MONEY_100_125_BHD = Money.of(CCY_BHD, AMT_100_MORE_DECIMALS);
 
   @Test
   public void testOfCurrencyAndAmount() throws Exception {
     assertEquals(MONEY_100_AUD.getCurrency(), CCY_AUD);
-    assertEquals(MONEY_100_AUD.getAmountAsDouble(), AMT_100);
+    assertEquals(MONEY_100_AUD.getAmount(), new BigDecimal(AMT_100_12).setScale(2, RoundingMode.HALF_EVEN));
+    assertEquals(MONEY_100_AUD.getAmountAsDouble(), AMT_100_12);
+    assertEquals(MONEY_100_13_AUD.getCurrency(), CCY_AUD);
+    assertEquals(MONEY_100_13_AUD.getAmountAsDouble(), AMT_100_12); //Testing the rounding from 3 to 2 decimals
+    assertEquals(MONEY_100_12_BHD.getCurrency(), CCY_BHD);
+    assertEquals(MONEY_100_12_BHD.getAmountAsDouble(), AMT_100_12);
+    assertEquals(MONEY_100_125_BHD.getCurrency(), CCY_BHD);
+    assertEquals(MONEY_100_125_BHD.getAmountAsDouble(), 100.125); //Testing the rounding from 4 to 3 decimals
+
   }
 
   @Test
   public void testOfCurrencyAmount() throws Exception {
     assertEquals(MONEY_200_RON.getCurrency(), CCY_RON);
-    assertEquals(MONEY_200_RON.getAmountAsDouble(), AMT_200);
+    assertEquals(MONEY_200_RON.getAmount(), new BigDecimal(AMT_200_23).setScale(2, RoundingMode.HALF_EVEN));
+    assertEquals(MONEY_200_RON.getAmountAsDouble(), AMT_200_23);
   }
 
   @Test
   public void testConvertedToWithExplicitRate() throws Exception {
+    assertEquals(Money.of(Currency.RON, 200.23), MONEY_200_RON.convertedTo(CCY_RON, 1));
     assertEquals(Money.of(Currency.RON, 260.31), MONEY_100_AUD.convertedTo(CCY_RON, 2.6d));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "FX rate must be 1 when no conversion required")
+  public void testConvertedToWithExplicitRateForSameCurrency() throws Exception {
+    assertEquals(Money.of(Currency.RON, 200.23), MONEY_200_RON.convertedTo(CCY_RON, 1.1));
   }
 
   @Test
   public void testConvertedToWithRateProvider() throws Exception {
     FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
     assertEquals(Money.of(Currency.RON, 250.30), MONEY_100_AUD.convertedTo(CCY_RON, provider));
+    assertEquals(Money.of(Currency.RON, 200.23), MONEY_200_RON.convertedTo(CCY_RON, provider));
   }
 
   @Test
@@ -47,6 +72,8 @@ public class MoneyTest {
 
   @Test
   public void testEquals() throws Exception {
+    assertTrue(MONEY_200_RON.equals(MONEY_200_RON));
+    assertFalse(MONEY_200_RON.equals(null));
     assertTrue(MONEY_200_RON.equals(MONEY_200_RON_ALTERNATIVE));
     assertFalse(MONEY_100_AUD.equals(MONEY_200_RON));
   }
