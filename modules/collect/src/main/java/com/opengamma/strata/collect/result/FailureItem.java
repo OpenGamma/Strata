@@ -193,7 +193,8 @@ public final class FailureItem
     if (stackTrace.startsWith(FAILURE_EXCEPTION)) {
       return reason + ": " + message;
     }
-    String firstLine = stackTrace.substring(0, stackTrace.indexOf(System.lineSeparator()));
+    int endLine = stackTrace.indexOf(System.lineSeparator());
+    String firstLine = endLine < 0 ? stackTrace : stackTrace.substring(0, endLine);
     if (firstLine.endsWith(": " + message)) {
       return reason + ": " + message + ": " + firstLine.substring(0, firstLine.length() - message.length() - 2);
     }

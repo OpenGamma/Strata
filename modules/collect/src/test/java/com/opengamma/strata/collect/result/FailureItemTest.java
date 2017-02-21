@@ -29,6 +29,17 @@ public class FailureItemTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_of_reasonMessageShortStackTrace() {
+    FailureItem test = FailureItem.meta().builder()
+        .setString("reason", "INVALID")
+        .setString("message", "my issue")
+        .setString("stackTrace", "Short stack trace")
+        .setString("causeType", "java.lang.IllegalArgumentException")
+        .build();
+    assertEquals(test.toString(), "INVALID: my issue: Short stack trace");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_of_reasonException() {
     IllegalArgumentException ex = new IllegalArgumentException("message");
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex);
