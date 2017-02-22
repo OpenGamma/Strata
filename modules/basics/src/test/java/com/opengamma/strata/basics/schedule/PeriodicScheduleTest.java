@@ -372,6 +372,11 @@ public class PeriodicScheduleTest {
         {date(2011, 7, 31), date(2011, 10, 10), P1M, null, null, null, date(2011, 9, 30), null,
             ImmutableList.of(date(2011, 7, 31), date(2011, 8, 31), date(2011, 9, 30), date(2011, 10, 10)),
             ImmutableList.of(date(2011, 7, 29), date(2011, 8, 31), date(2011, 9, 30), date(2011, 10, 10)), EOM},
+        // EOM flag false, explicit stub, implies EOM true
+        {date(2011, 2, 2), date(2011, 5, 30), P1M, null, null, date(2011, 2, 28), null, null,
+            ImmutableList.of(date(2011, 2, 2), date(2011, 2, 28), date(2011, 3, 30), date(2011, 4, 30), date(2011, 5, 30)),
+            ImmutableList.of(date(2011, 2, 2), date(2011, 2, 28), date(2011, 3, 30), date(2011, 4, 29), date(2011, 5, 30)),
+            DAY_30},
 
         // pre-adjusted start date, no change needed
         {JUL_17, OCT_17, P1M, null, DAY_17, null, null, BDA_NONE,
