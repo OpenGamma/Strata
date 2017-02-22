@@ -244,16 +244,26 @@ public enum StubConvention {
     ArgChecker.notNull(end, "end");
     ArgChecker.notNull(frequency, "frequency");
     if (isCalculateBackwards()) {
-      return toRollConvention(end, frequency, preferEndOfMonth);
+      return impliedRollConvention(end, start, frequency, preferEndOfMonth);
     } else {
-      return toRollConvention(start, frequency, preferEndOfMonth);
+      return impliedRollConvention(start, end, frequency, preferEndOfMonth);
     }
   }
 
   // helper for converting to roll convention
-  private static RollConvention toRollConvention(LocalDate date, Frequency frequency, boolean preferEndOfMonth) {
+  private static RollConvention impliedRollConvention(
+      LocalDate date,
+      LocalDate otherDate,
+      Frequency frequency,
+      boolean preferEndOfMonth) {
+
     if (frequency.isMonthBased()) {
       if (preferEndOfMonth && date.getDayOfMonth() == date.lengthOfMonth()) {
+        return RollConventions.EOM;
+      }
+      if (date.getDayOfMonth() != otherDate.getDayOfMonth() &&
+          date.getDayOfMonth() == date.lengthOfMonth() &&
+          otherDate.getDayOfMonth() == otherDate.lengthOfMonth()) {
         return RollConventions.EOM;
       }
       return RollConvention.ofDayOfMonth(date.getDayOfMonth());
