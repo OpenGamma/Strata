@@ -33,7 +33,7 @@ public final class CurveGroupDefinitionBuilder {
   /**
    * The definitions specifying how the curves are calibrated.
    */
-  private final Map<CurveName, NodalCurveDefinition> curveDefinitions;
+  private final Map<CurveName, CurveDefinition> curveDefinitions;
   /**
    * The definitions specifying which seasonality should be used some some price index curves.
    */
@@ -58,7 +58,7 @@ public final class CurveGroupDefinitionBuilder {
   CurveGroupDefinitionBuilder(
       CurveGroupName name,
       Map<CurveName, CurveGroupEntry> entries,
-      Map<CurveName, NodalCurveDefinition> curveDefinitions,
+      Map<CurveName, CurveDefinition> curveDefinitions,
       Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
       boolean computePvSensitivityToMarketQuote) {
@@ -118,7 +118,7 @@ public final class CurveGroupDefinitionBuilder {
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addDiscountCurve(
-      NodalCurveDefinition curveDefinition,
+      CurveDefinition curveDefinition,
       Currency currency,
       Currency... otherCurrencies) {
 
@@ -166,7 +166,7 @@ public final class CurveGroupDefinitionBuilder {
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addForwardCurve(
-      NodalCurveDefinition curveDefinition,
+      CurveDefinition curveDefinition,
       Index index,
       Index... otherIndices) {
 
@@ -217,7 +217,7 @@ public final class CurveGroupDefinitionBuilder {
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addCurve(
-      NodalCurveDefinition curveDefinition,
+      CurveDefinition curveDefinition,
       Currency currency,
       RateIndex index,
       RateIndex... otherIndices) {
@@ -275,7 +275,7 @@ public final class CurveGroupDefinitionBuilder {
     return this;
   }
 
-  private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, NodalCurveDefinition curveDefinition) {
+  private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, CurveDefinition curveDefinition) {
     curveDefinitions.put(curveDefinition.getName(), curveDefinition);
     return mergeEntry(newEntry);
   }

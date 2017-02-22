@@ -274,7 +274,7 @@ public class CurveGroupDefinitionTest {
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
     CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
-    List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
+    List<CurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
     assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
@@ -304,7 +304,7 @@ public class CurveGroupDefinitionTest {
             .put(lastFixingDate, lastFixingValue).put(otherFixingDate, lastFixingValue - 1.0)
             .put(other2FixingDate, lastFixingValue - 2.0).build());
     CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
-    List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
+    List<CurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
     assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
@@ -331,7 +331,7 @@ public class CurveGroupDefinitionTest {
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
     CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
-    List<NodalCurveDefinition> list = testBound.getCurveDefinitions();
+    List<CurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
     assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);

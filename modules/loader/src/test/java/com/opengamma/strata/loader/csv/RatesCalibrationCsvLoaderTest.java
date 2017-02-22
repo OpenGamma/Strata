@@ -20,11 +20,11 @@ import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 
 /**
  * Test {@link RatesCalibrationCsvLoader}.
@@ -89,9 +89,9 @@ public class RatesCalibrationCsvLoaderTest {
     CurveGroupEntry entry0 = findEntry(defn, "USD-Disc");
     CurveGroupEntry entry1 = findEntry(defn, "USD-3ML");
     CurveGroupEntry entry2 = findEntry(defn, "USD-CPI");
-    NodalCurveDefinition defn0 = defn.findCurveDefinition(entry0.getCurveName()).get();
-    NodalCurveDefinition defn1 = defn.findCurveDefinition(entry1.getCurveName()).get();
-    NodalCurveDefinition defn2 = defn.findCurveDefinition(entry2.getCurveName()).get();
+    CurveDefinition defn0 = defn.findCurveDefinition(entry0.getCurveName()).get();
+    CurveDefinition defn1 = defn.findCurveDefinition(entry1.getCurveName()).get();
+    CurveDefinition defn2 = defn.findCurveDefinition(entry2.getCurveName()).get();
 
     assertEquals(entry0.getDiscountCurrencies(), ImmutableSet.of(Currency.USD));
     assertEquals(entry0.getIndices(), ImmutableSet.of());

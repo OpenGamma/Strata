@@ -27,13 +27,13 @@ import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveInputsId;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -307,7 +307,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @return the input data required for the curve if available
    */
   private MarketDataBox<CurveInputs> curveInputs(
-      NodalCurveDefinition curveDefn,
+      CurveDefinition curveDefn,
       ScenarioMarketData marketData,
       CurveGroupName groupName,
       ObservableSource obsSource) {
@@ -331,7 +331,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param curveDefn  the curve definition
    * @return true if the curve requires market data for calibration
    */
-  private boolean requiresMarketData(NodalCurveDefinition curveDefn) {
+  private boolean requiresMarketData(CurveDefinition curveDefn) {
     return curveDefn.getNodes().stream().anyMatch(node -> !node.requirements().isEmpty());
   }
 }

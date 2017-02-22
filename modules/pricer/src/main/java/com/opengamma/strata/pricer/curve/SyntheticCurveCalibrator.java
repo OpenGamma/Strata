@@ -25,10 +25,10 @@ import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
@@ -158,10 +158,10 @@ public final class SyntheticCurveCalibrator {
     }
 
     LocalDate valuationDate = inputProvider.getValuationDate();
-    ImmutableList<NodalCurveDefinition> curveGroups = group.getCurveDefinitions();
+    ImmutableList<CurveDefinition> curveGroups = group.getCurveDefinitions();
     // Create fake market quotes of 0, only to be able to generate trades
     Map<MarketDataId<?>, Double> mapId0 = new HashMap<>();
-    for (NodalCurveDefinition entry : curveGroups) {
+    for (CurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (int i = 0; i < nodes.size(); i++) {
         for (MarketDataId<?> key : nodes.get(i).requirements()) {
@@ -172,7 +172,7 @@ public final class SyntheticCurveCalibrator {
     ImmutableMarketData marketQuotes0 = ImmutableMarketData.of(valuationDate, mapId0);
     // Generate market quotes from the trades
     Map<MarketDataId<?>, Object> mapIdSy = new HashMap<>();
-    for (NodalCurveDefinition entry : curveGroups) {
+    for (CurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         ResolvedTrade trade = node.resolvedTrade(1d, marketQuotes0, refData);
