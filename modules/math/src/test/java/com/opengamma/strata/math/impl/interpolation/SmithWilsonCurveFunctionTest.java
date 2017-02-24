@@ -34,6 +34,7 @@ public class SmithWilsonCurveFunctionTest {
   private static final SmithWilsonCurveFunction SW_FUNCTION = SmithWilsonCurveFunction.DEFAULT;
 
   public void test_function() {
+    /* Source: EIOPA - European Insurance and Occupational Pensions Authority */
     DoubleArray weights = DoubleArray.of(2.66199573146653, -2.69394271301803, 0.484066828515597, 0.690098457608931,
         -0.380409008626438, 0.228249649568978, -0.160902407241201);
     DoubleArray nodes = DoubleArray.of(3d, 5d, 7d, 10d, 15d, 20d, 30d);

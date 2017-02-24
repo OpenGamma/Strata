@@ -11,6 +11,7 @@ import java.time.Period;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
 
 /**
@@ -122,5 +123,16 @@ public interface CurveDefinition {
   public default CurveParameterSize toCurveParameterSize() {
     return CurveParameterSize.of(getName(), getParameterCount());
   }
+
+  /**
+   * Gets the list of all initial guesses.
+   * <p>
+   * This returns initial guess for the curve parameters.
+   * The valuation date is defined by the market data.
+   * 
+   * @param marketData  the market data required to build a trade for the instrument, including the valuation date
+   * @return the initial guess
+   */
+  public abstract ImmutableList<Double> initialGuess(MarketData marketData);
 
 }

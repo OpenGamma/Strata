@@ -131,7 +131,6 @@ public class SmithWilsonCurveFunction {
    * @param x  the x value
    * @param alpha  the alpha parameter
    * @param nodes  the nodes
-   * @param weights  the weights
    * @return the value
    */
   public DoubleArray parameterSensitivity(double x, double alpha, DoubleArray nodes) {

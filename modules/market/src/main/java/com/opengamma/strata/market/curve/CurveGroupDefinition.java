@@ -45,7 +45,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.product.ResolvedTrade;
 
 /**
@@ -352,18 +351,10 @@ public final class CurveGroupDefinition
    * @param marketData  the market data required to build a trade for the instrument, including the valuation date
    * @return the list of all initial guesses
    */
-  public ImmutableList<Double> initialGuesses(MarketData marketData) {
+  public List<Double> initialGuesses(MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
     for (CurveDefinition defn : curveDefinitions) {
-      if (defn instanceof ParameterizedFunctionalCurveDefinition) {
-        ParameterizedFunctionalCurveDefinition casted = (ParameterizedFunctionalCurveDefinition) defn;  
-        result.addAll(casted.getInitialGuess().toList().iterator());
-      } else {
-        ValueType valueType = defn.getYValueType();
-        for (CurveNode node : defn.getNodes()) {
-          result.add(node.initialGuess(marketData, valueType));
-        }
-      }
+      result.addAll(defn.initialGuess(marketData));
     }
     return result.build();
   }

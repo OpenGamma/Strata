@@ -19,6 +19,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -57,7 +58,7 @@ public class ParameterizedFunctionalCurveDefinitionTest {
   private static final CurveNodeDateOrder DROP_OTHER_2D = CurveNodeDateOrder.of(2, DROP_OTHER);
   private static final CurveNodeDateOrder EXCEPTION_2D = CurveNodeDateOrder.of(2, EXCEPTION);
 
-  private static final DoubleArray INITIAL_PARAMS = DoubleArray.of(1.0, 1.0, 1.0);
+  private static final List<Double> INITIAL_PARAMS = DoubleArray.of(1.0, 1.0, 1.0).toList();
   private static final ImmutableList<ParameterMetadata> PARAM_METADATA;
   private static final CurveMetadata METADATA;
   static {
@@ -442,7 +443,7 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .yValueType(ValueType.ZERO_RATE)
         .build();
     coverImmutableBean(test);
-    DoubleArray initial = DoubleArray.of(12d);
+    ImmutableList<Double> initial = ImmutableList.of(12d);
     BiFunction<DoubleArray, Double, Double> value =
         new BiFunction<DoubleArray, Double, Double>() {
           @Override

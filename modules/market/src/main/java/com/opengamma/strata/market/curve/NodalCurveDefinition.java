@@ -7,8 +7,10 @@ package com.opengamma.strata.market.curve;
 
 import java.time.LocalDate;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketData;
 
 /**
  * Provides the definition of how to calibrate a nodal curve.
@@ -30,5 +32,13 @@ public interface NodalCurveDefinition extends CurveDefinition {
   @Override
   public abstract NodalCurve curve(LocalDate valuationDate, CurveMetadata metadata, DoubleArray parameters);
 
+  @Override
+  public default ImmutableList<Double> initialGuess(MarketData marketData) {
+    ImmutableList.Builder<Double> result = ImmutableList.builder();
+    for (CurveNode node : getNodes()) {
+      result.add(node.initialGuess(marketData, getYValueType()));
+    }
+    return result.build();
+  }
 
 }

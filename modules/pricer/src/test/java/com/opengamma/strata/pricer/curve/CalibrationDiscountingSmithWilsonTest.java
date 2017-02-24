@@ -162,7 +162,7 @@ public class CalibrationDiscountingSmithWilsonTest {
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.DISCOUNT_FACTOR)
       .dayCount(CURVE_DC)
-      .initialGuess(DoubleArray.filled(FWD6_NB_NODES, 0d))
+      .initialGuess(DoubleArray.filled(FWD6_NB_NODES, 0d).toList())
       .valueFunction(VALUE_FUNCTION)
       .derivativeFunction(DERIVATIVE_FUNCTION)
       .sensitivityFunction(SENSI_FUNCTION)
@@ -172,7 +172,7 @@ public class CalibrationDiscountingSmithWilsonTest {
       .name(CURVE_GROUP_NAME)
       .addCurve(CURVE_DEFN, GBP, GBP_LIBOR_6M)
       .build();
-  /** expected discount factor values */
+  /** expected discount factor values (Source: EIOPA - European Insurance and Occupational Pensions Authority) */
   private static final DoubleArray DSC_EXP = DoubleArray.ofUnsafe(new double[] {
       1d, 0.9784596573108600, 0.9540501162514210, 0.9242332228570250, 0.8885036235533640, 0.8529525938462010,
       0.8225785258044620, 0.7955993406787280, 0.7693449840658110, 0.7422694544490090, 0.7132193803280200, 0.6816197350030370,
