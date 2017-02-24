@@ -34,6 +34,7 @@ import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -41,7 +42,6 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeClashAction;
 import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.curve.CurveNodeDateOrder;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedInflationSwapCurveNode;
@@ -283,7 +283,7 @@ public final class RatesCalibrationCsvLoader {
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.parseCurveSettings(settingsCharSource);
 
     // load curve definitions
-    List<NodalCurveDefinition> curveDefinitions = curveNodeCharSources.stream()
+    List<CurveDefinition> curveDefinitions = curveNodeCharSources.stream()
         .flatMap(res -> parseSingle(res, settingsMap).stream())
         .collect(toImmutableList());
 
@@ -296,7 +296,7 @@ public final class RatesCalibrationCsvLoader {
   //-------------------------------------------------------------------------
   // loads a single curves CSV file
   // requestedDate can be null, meaning load all dates
-  private static List<NodalCurveDefinition> parseSingle(
+  private static List<CurveDefinition> parseSingle(
       CharSource resource,
       Map<CurveName, LoadedCurveSettings> settingsMap) {
 
@@ -366,11 +366,11 @@ public final class RatesCalibrationCsvLoader {
   }
 
   // build the curves
-  private static List<NodalCurveDefinition> buildCurveDefinition(
+  private static List<CurveDefinition> buildCurveDefinition(
       Map<CurveName, LoadedCurveSettings> settingsMap,
       Map<CurveName, List<CurveNode>> allNodes) {
 
-    ImmutableList.Builder<NodalCurveDefinition> results = ImmutableList.builder();
+    ImmutableList.Builder<CurveDefinition> results = ImmutableList.builder();
 
     for (Map.Entry<CurveName, List<CurveNode>> entry : allNodes.entrySet()) {
       CurveName name = entry.getKey();

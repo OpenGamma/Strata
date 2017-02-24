@@ -30,13 +30,13 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -103,8 +103,8 @@ public class CalibrationNotionalEquivalentTest {
         CALIBRATOR.calibrate(GROUP_DEFINITION, MARKET_QUOTES, REF_DATA);
     // the trades used for calibration
     List<ResolvedTrade> trades = new ArrayList<>();
-    ImmutableList<NodalCurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
-    for (NodalCurveDefinition entry : curveGroups) {
+    ImmutableList<CurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
+    for (CurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         trades.add(node.resolvedTrade(1d, MARKET_QUOTES, REF_DATA));
@@ -123,9 +123,9 @@ public class CalibrationNotionalEquivalentTest {
     // the trades used for calibration
     Map<CurveName, List<Trade>> trades = new HashMap<>();
     Map<CurveName, List<ResolvedTrade>> resolvedTrades = new HashMap<>();
-    ImmutableList<NodalCurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
+    ImmutableList<CurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
     ImmutableList.Builder<CurveParameterSize> builder = ImmutableList.builder();
-    for (NodalCurveDefinition entry : curveGroups) {
+    for (CurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       List<Trade> tradesCurve = new ArrayList<>();
       List<ResolvedTrade> resolvedTradesCurve = new ArrayList<>();
@@ -179,9 +179,9 @@ public class CalibrationNotionalEquivalentTest {
     // Check sensitivity: trade sensitivity = sum(notional equivalent sensitivities)
     int totalNbParameters = 0;
     Map<CurveName, List<ResolvedTrade>> equivalentTrades = new HashMap<>();
-    ImmutableList<NodalCurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
+    ImmutableList<CurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
     ImmutableList.Builder<CurveParameterSize> builder = ImmutableList.builder();
-    for (NodalCurveDefinition entry : curveGroups) {
+    for (CurveDefinition entry : curveGroups) {
       totalNbParameters += entry.getParameterCount();
       DoubleArray notionalCurve = notionalEquivalent.getSensitivity(entry.getName(), Currency.EUR).getSensitivity();
       ImmutableList<CurveNode> nodes = entry.getNodes();

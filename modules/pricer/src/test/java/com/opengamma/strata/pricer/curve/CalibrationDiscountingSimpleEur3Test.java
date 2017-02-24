@@ -22,9 +22,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -120,7 +120,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
-    ImmutableList<NodalCurveDefinition> definitions = config.getCurveDefinitions();
+    ImmutableList<CurveDefinition> definitions = config.getCurveDefinitions();
     // Test PV Dsc
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<ResolvedTrade> dscTrades = new ArrayList<>();
@@ -198,7 +198,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
-    ImmutableList<NodalCurveDefinition> definitions = config.getCurveDefinitions();
+    ImmutableList<CurveDefinition> definitions = config.getCurveDefinitions();
     // Test PV Dsc
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<ResolvedTrade> dscTrades = new ArrayList<>();

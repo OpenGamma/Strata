@@ -45,7 +45,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.product.ResolvedTrade;
 
 /**
@@ -76,8 +75,8 @@ public final class CurveGroupDefinition
    * Curve definitions are required for curves that need to be calibrated. A definition is not necessary if
    * the curve is not built by the Strata curve calibrator.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<NodalCurveDefinition> curveDefinitions;
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends CurveDefinition>")
+  private final ImmutableList<CurveDefinition> curveDefinitions;
   /**
    * Definitions which specify which seasonality should be used for some price index curves.
    * <p>
@@ -103,7 +102,7 @@ public final class CurveGroupDefinition
   /**
    * Definitions for the curves, keyed by the curve name.
    */
-  private final transient ImmutableMap<CurveName, NodalCurveDefinition> curveDefinitionsByName;  // not a property
+  private final transient ImmutableMap<CurveName, CurveDefinition> curveDefinitionsByName;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -128,7 +127,7 @@ public final class CurveGroupDefinition
   public static CurveGroupDefinition of(
       CurveGroupName name,
       Collection<CurveGroupEntry> entries,
-      Collection<NodalCurveDefinition> curveDefinitions) {
+      Collection<CurveDefinition> curveDefinitions) {
 
     return new CurveGroupDefinition(name, entries, curveDefinitions, ImmutableMap.of(), true, false);
   }
@@ -147,7 +146,7 @@ public final class CurveGroupDefinition
   public static CurveGroupDefinition of(
       CurveGroupName name,
       Collection<CurveGroupEntry> entries,
-      Collection<NodalCurveDefinition> curveDefinitions,
+      Collection<CurveDefinition> curveDefinitions,
       Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
 
     return new CurveGroupDefinition(name, entries, curveDefinitions, seasonalityDefinitions, true, false);
@@ -164,7 +163,7 @@ public final class CurveGroupDefinition
   CurveGroupDefinition(
       CurveGroupName name,
       Collection<CurveGroupEntry> entries,
-      Collection<NodalCurveDefinition> curveDefinitions,
+      Collection<? extends CurveDefinition> curveDefinitions,
       Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
       boolean computePvSensitivityToMarketQuote) {
@@ -216,7 +215,7 @@ public final class CurveGroupDefinition
    * @throws IllegalArgumentException if the curve nodes are invalid
    */
   public CurveGroupDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
-    List<NodalCurveDefinition> filtered = curveDefinitions.stream()
+    List<CurveDefinition> filtered = curveDefinitions.stream()
         .map(ncd -> ncd.filtered(valuationDate, refData))
         .collect(toImmutableList());
     return new CurveGroupDefinition(
@@ -238,10 +237,10 @@ public final class CurveGroupDefinition
    * @return the new instance
    */
   public CurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
-    ImmutableList.Builder<NodalCurveDefinition> boundCurveDefinitions = ImmutableList.builder();
+    ImmutableList.Builder<CurveDefinition> boundCurveDefinitions = ImmutableList.builder();
     for (CurveGroupEntry entry : entries) {
       CurveName name = entry.getCurveName();
-      NodalCurveDefinition curveDef = curveDefinitionsByName.get(name);
+      CurveDefinition curveDef = curveDefinitionsByName.get(name);
       Set<Index> indices = entry.getIndices();
       boolean containsPriceIndex = indices.stream().anyMatch(i -> i instanceof PriceIndex);
       if (containsPriceIndex) {
@@ -254,10 +253,12 @@ public final class CurveGroupDefinition
         LocalDateDoubleTimeSeries tsPast = ts.subSeries(ts.getEarliestDate(), valuationDate);
         ArgChecker.isFalse(ts.isEmpty(),
             "Price index curve must have associated time-series with at least one element in the past:" + index.toString());
+        ArgChecker.isTrue(curveDef instanceof NodalCurveDefinition,
+            "curve definition for inflation curve must be NodalCurveDefinition");
         YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
         double lastFixingValue = tsPast.getLatestValue();
         InflationNodalCurveDefinition seasonalCurveDef = new InflationNodalCurveDefinition(
-            curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
+            (NodalCurveDefinition) curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
         boundCurveDefinitions.add(seasonalCurveDef);
       } else {
         // no price index
@@ -288,7 +289,7 @@ public final class CurveGroupDefinition
    * @param curveName  the name of the curve
    * @return the definition for the curve with the specified name
    */
-  public Optional<NodalCurveDefinition> findCurveDefinition(CurveName curveName) {
+  public Optional<CurveDefinition> findCurveDefinition(CurveName curveName) {
     return Optional.ofNullable(curveDefinitionsByName.get(curveName));
   }
 
@@ -319,7 +320,7 @@ public final class CurveGroupDefinition
    * @return the number of parameters
    */
   public int getTotalParameterCount() {
-    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum();
+    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum(); 
   }
 
   /**
@@ -352,11 +353,8 @@ public final class CurveGroupDefinition
    */
   public ImmutableList<Double> initialGuesses(MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
-    for (NodalCurveDefinition defn : curveDefinitions) {
-      ValueType valueType = defn.getYValueType();
-      for (CurveNode node : defn.getNodes()) {
-        result.add(node.initialGuess(marketData, valueType));
-      }
+    for (CurveDefinition defn : curveDefinitions) {
+      result.addAll(defn.initialGuess(marketData));
     }
     return result.build();
   }
@@ -369,9 +367,9 @@ public final class CurveGroupDefinition
    * @param curveDefinitions  curve definitions
    * @return a copy of this object containing the specified curve definitions
    */
-  public CurveGroupDefinition withCurveDefinitions(List<NodalCurveDefinition> curveDefinitions) {
+  public CurveGroupDefinition withCurveDefinitions(List<CurveDefinition> curveDefinitions) {
     Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
-    List<NodalCurveDefinition> filteredDefinitions =
+    List<CurveDefinition> filteredDefinitions =
         curveDefinitions.stream().filter(def -> curveNames.contains(def.getName())).collect(toImmutableList());
     return new CurveGroupDefinition(
         name, entries, filteredDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
@@ -404,6 +402,11 @@ public final class CurveGroupDefinition
         name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
+  /**
+   * Converts to builder.
+   * 
+   * @return the builder
+   */
   public CurveGroupDefinitionBuilder toBuilder() {
     return new CurveGroupDefinitionBuilder(
         name,
@@ -474,7 +477,7 @@ public final class CurveGroupDefinition
    * the curve is not built by the Strata curve calibrator.
    * @return the value of the property, not null
    */
-  public ImmutableList<NodalCurveDefinition> getCurveDefinitions() {
+  public ImmutableList<CurveDefinition> getCurveDefinitions() {
     return curveDefinitions;
   }
 
@@ -576,7 +579,7 @@ public final class CurveGroupDefinition
      * The meta-property for the {@code curveDefinitions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<NodalCurveDefinition>> curveDefinitions = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<CurveDefinition>> curveDefinitions = DirectMetaProperty.ofImmutable(
         this, "curveDefinitions", CurveGroupDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code seasonalityDefinitions} property.
@@ -667,7 +670,7 @@ public final class CurveGroupDefinition
      * The meta-property for the {@code curveDefinitions} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<NodalCurveDefinition>> curveDefinitions() {
+    public MetaProperty<ImmutableList<CurveDefinition>> curveDefinitions() {
       return curveDefinitions;
     }
 
@@ -734,7 +737,7 @@ public final class CurveGroupDefinition
 
     private CurveGroupName name;
     private List<CurveGroupEntry> entries = ImmutableList.of();
-    private List<NodalCurveDefinition> curveDefinitions = ImmutableList.of();
+    private List<? extends CurveDefinition> curveDefinitions = ImmutableList.of();
     private Map<CurveName, SeasonalityDefinition> seasonalityDefinitions = ImmutableMap.of();
     private boolean computeJacobian;
     private boolean computePvSensitivityToMarketQuote;
@@ -778,7 +781,7 @@ public final class CurveGroupDefinition
           this.entries = (List<CurveGroupEntry>) newValue;
           break;
         case -336166639:  // curveDefinitions
-          this.curveDefinitions = (List<NodalCurveDefinition>) newValue;
+          this.curveDefinitions = (List<? extends CurveDefinition>) newValue;
           break;
         case 1051792832:  // seasonalityDefinitions
           this.seasonalityDefinitions = (Map<CurveName, SeasonalityDefinition>) newValue;

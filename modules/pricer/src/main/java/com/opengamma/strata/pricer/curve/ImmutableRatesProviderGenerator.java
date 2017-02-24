@@ -21,13 +21,13 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -47,7 +47,7 @@ public final class ImmutableRatesProviderGenerator
   /**
    * The curve definitions for the new curves to be generated.
    */
-  private final ImmutableList<NodalCurveDefinition> curveDefinitions;
+  private final ImmutableList<CurveDefinition> curveDefinitions;
   /**
    * The list of curve metadata associated with each definition.
    * The size of this list must match the size of the definition list.
@@ -79,12 +79,12 @@ public final class ImmutableRatesProviderGenerator
       CurveGroupDefinition groupDefn,
       ReferenceData refData) {
 
-    List<NodalCurveDefinition> curveDefns = new ArrayList<>();
+    List<CurveDefinition> curveDefns = new ArrayList<>();
     List<CurveMetadata> curveMetadata = new ArrayList<>();
     SetMultimap<CurveName, Currency> discountNames = HashMultimap.create();
     SetMultimap<CurveName, Index> indexNames = HashMultimap.create();
 
-    for (NodalCurveDefinition curveDefn : groupDefn.getCurveDefinitions()) {
+    for (CurveDefinition curveDefn : groupDefn.getCurveDefinitions()) {
       curveDefns.add(curveDefn);
       curveMetadata.add(curveDefn.metadata(knownProvider.getValuationDate(), refData));
       CurveName curveName = curveDefn.getName();
@@ -109,7 +109,7 @@ public final class ImmutableRatesProviderGenerator
    */
   private ImmutableRatesProviderGenerator(
       ImmutableRatesProvider knownProvider,
-      List<NodalCurveDefinition> curveDefinitions,
+      List<CurveDefinition> curveDefinitions,
       List<CurveMetadata> curveMetadata,
       SetMultimap<CurveName, Currency> discountCurveNames,
       SetMultimap<CurveName, Index> forwardCurveNames) {
@@ -137,7 +137,7 @@ public final class ImmutableRatesProviderGenerator
     // generate curves from combined parameter array
     int startIndex = 0;
     for (int i = 0; i < curveDefinitions.size(); i++) {
-      NodalCurveDefinition curveDefn = curveDefinitions.get(i);
+      CurveDefinition curveDefn = curveDefinitions.get(i);
       CurveMetadata metadata = curveMetadata.get(i);
       CurveName name = curveDefn.getName();
       // extract parameters for the child curve
@@ -166,7 +166,7 @@ public final class ImmutableRatesProviderGenerator
   // build the map of additional info
   private CurveMetadata childMetadata(
       CurveMetadata metadata,
-      NodalCurveDefinition curveDefn,
+      CurveDefinition curveDefn,
       Map<CurveName, JacobianCalibrationMatrix> jacobians,
       Map<CurveName, DoubleArray> sensitivitiesMarketQuote) {
 

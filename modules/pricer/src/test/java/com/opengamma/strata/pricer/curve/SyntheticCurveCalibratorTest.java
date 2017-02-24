@@ -29,10 +29,10 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.loader.csv.FxRatesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
+import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -142,7 +142,7 @@ public class SyntheticCurveCalibratorTest {
     MarketData madTsEmpty = CALIBRATOR_SYNTHETIC.marketData(group, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
     MarketData madTsLarge = CALIBRATOR_SYNTHETIC.marketData(group, multicurveTsLarge, REF_DATA);
     assertEquals(madTsEmpty.getValuationDate(), VALUATION_DATE);
-    for (NodalCurveDefinition entry : group.getCurveDefinitions()) {
+    for (CurveDefinition entry : group.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         ResolvedTrade tradeTsEmpty = node.resolvedTrade(1d, madTsEmpty, REF_DATA);
@@ -164,7 +164,7 @@ public class SyntheticCurveCalibratorTest {
   public void calibrate_ts_empty() {
     MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
-    for (NodalCurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {
+    for (CurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
@@ -180,7 +180,7 @@ public class SyntheticCurveCalibratorTest {
     SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
-    for (NodalCurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {
+    for (CurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
