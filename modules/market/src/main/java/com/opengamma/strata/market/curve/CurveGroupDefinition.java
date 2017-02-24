@@ -351,7 +351,7 @@ public final class CurveGroupDefinition
    * @param marketData  the market data required to build a trade for the instrument, including the valuation date
    * @return the list of all initial guesses
    */
-  public List<Double> initialGuesses(MarketData marketData) {
+  public ImmutableList<Double> initialGuesses(MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
     for (CurveDefinition defn : curveDefinitions) {
       result.addAll(defn.initialGuess(marketData));
