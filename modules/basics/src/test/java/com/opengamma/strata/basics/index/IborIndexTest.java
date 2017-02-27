@@ -410,8 +410,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "DKK-CIBOR-3M");
     assertEquals(test.getTenor(), TENOR_3M);
     assertEquals(test.getFixingCalendar(), DKCO);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, DKCO)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, DKCO)));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, DKCO));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, DKCO));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, DKCO)));
     assertEquals(test.getDayCount(), ACT_360);
