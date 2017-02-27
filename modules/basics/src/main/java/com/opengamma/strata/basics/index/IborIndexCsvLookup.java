@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
@@ -123,18 +124,25 @@ final class IborIndexCsvLookup
     HolidayCalendarId offsetCal = HolidayCalendarId.of(row.getField(OFFSET_CALENDAR_FIELD));
     HolidayCalendarId effectiveCal = HolidayCalendarId.of(row.getField(EFFECTIVE_DATE_CALENDAR_FIELD));
     Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
-    PeriodAdditionConvention tenorConvention = PeriodAdditionConvention.of(row.getField(TENOR_CONVENTION_FIELD));
     LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
     ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
+
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(
         -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalized();
     DaysAdjustment effectiveOffset = DaysAdjustment.ofBusinessDays(
         offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalized();
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(
-        isEndOfMonth(tenorConvention) ? MODIFIED_FOLLOWING : FOLLOWING,
-        effectiveCal);
-    TenorAdjustment tenorAdjustment = TenorAdjustment.of(tenor, tenorConvention, adj);
+
+    // convention can be two different things
+    PeriodAdditionConvention periodAdditionConvention =
+        PeriodAdditionConvention.extendedEnum().find(row.getField(TENOR_CONVENTION_FIELD))
+            .orElse(PeriodAdditionConventions.NONE);
+    BusinessDayConvention tenorBusinessConvention =
+        BusinessDayConvention.extendedEnum().find(row.getField(TENOR_CONVENTION_FIELD))
+            .orElse(isEndOfMonth(periodAdditionConvention) ? MODIFIED_FOLLOWING : FOLLOWING);
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(tenorBusinessConvention, effectiveCal);
+    TenorAdjustment tenorAdjustment = TenorAdjustment.of(tenor, periodAdditionConvention, adj);
+
     // build result
     return ImmutableIborIndex.builder()
         .name(name)
