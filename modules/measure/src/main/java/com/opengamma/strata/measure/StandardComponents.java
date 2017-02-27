@@ -31,11 +31,13 @@ import com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionTradeCalculationF
 import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
+import com.opengamma.strata.measure.security.GenericSecurityPositionCalculationFunction;
 import com.opengamma.strata.measure.security.GenericSecurityTradeCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityPositionCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityTradeCalculationFunction;
 import com.opengamma.strata.measure.swap.SwapTradeCalculationFunction;
 import com.opengamma.strata.measure.swaption.SwaptionTradeCalculationFunction;
+import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
@@ -83,6 +85,7 @@ public final class StandardComponents {
       new FxSingleTradeCalculationFunction(),
       new FxSwapTradeCalculationFunction(),
       new FxVanillaOptionTradeCalculationFunction(),
+      new GenericSecurityPositionCalculationFunction(),
       new GenericSecurityTradeCalculationFunction(),
       new IborCapFloorTradeCalculationFunction(),
       new IborFutureTradeCalculationFunction(),
@@ -169,7 +172,7 @@ public final class StandardComponents {
    *  <li>FX swap - {@link FxSwapTrade}
    *  <li>FX vanilla option - {@link FxVanillaOptionTrade}
    *  <li>FX single barrier option - {@link FxSingleBarrierOptionTrade}
-   *  <li>Generic Security - {@link GenericSecurityTrade}
+   *  <li>Generic Security - {@link GenericSecurityTrade} and {@link GenericSecurityPosition}
    *  <li>Rate Swap - {@link SwapTrade}
    *  <li>Swaption - {@link SwaptionTrade}
    *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}

@@ -7,7 +7,6 @@ package com.opengamma.strata.product;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -36,7 +35,7 @@ public class GenericSecurityTest {
     assertEquals(test.getCurrency(), INFO.getPriceInfo().getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(test, GenericSecurity.of(INFO));
-    assertThrows(() -> test.createProduct(ReferenceData.empty()), UnsupportedOperationException.class);
+    assertEquals(test.createProduct(ReferenceData.empty()), test);
     assertEquals(
         test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
         GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
