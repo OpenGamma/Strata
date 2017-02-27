@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.bond.BondFutureOptionSecurity;
 import com.opengamma.strata.product.bond.FixedCouponBondSecurity;
 import com.opengamma.strata.product.index.IborFutureSecurity;
@@ -40,7 +41,7 @@ import com.opengamma.strata.product.index.IborFutureSecurity;
  */
 @BeanDefinition(builderScope = "private")
 public final class GenericSecurity
-    implements Security, ImmutableBean, Serializable {
+    implements Security, SecuritizedProduct, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -63,14 +64,34 @@ public final class GenericSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public SecurityId getSecurityId() {
+    return Security.super.getSecurityId();
+  }
+
+  @Override
+  public Currency getCurrency() {
+    return Security.super.getCurrency();
+  }
+
+  @Override
   public ImmutableSet<SecurityId> getUnderlyingIds() {
     return ImmutableSet.of();
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates the associated product, which simply returns {@code this}.
+   * <p>
+   * The product associated with a security normally returns the financial model used for pricing.
+   * In the case of a {@code GenericSecurity}, no underlying financial model is available.
+   * As such, the {@code GenericSecurity} is the product.
+   * 
+   * @param refData  the reference data to use
+   * @return this security
+   */
   @Override
-  public SecuritizedProduct createProduct(ReferenceData refData) {
-    throw new UnsupportedOperationException("Unable to create product, GenericSecurity does not have a product model");
+  public GenericSecurity createProduct(ReferenceData refData) {
+    return this;
   }
 
   @Override
