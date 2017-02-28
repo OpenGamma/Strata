@@ -11,6 +11,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -139,6 +140,25 @@ public interface FloatingRateName
    * @throws IllegalStateException if the type is not an Ibor index type
    */
   public abstract IborIndex toIborIndex(Tenor tenor);
+
+  /**
+   * Checks and returns the fixing offset associated with the Ibor index.
+   * <p>
+   * If this name represents an Ibor index, then this method returns the associated fixing offset.
+   * If not, an exception is thrown.
+   * <p>
+   * This method exists primarily to handle DKK CIBOR, where there are two floating rate names but
+   * only one underlying index. The CIBOR index itself has a convention where the fixing date is 2 days
+   * before the reset date and the effective date is 2 days after the fixing date, matching the name "DKK-CIBOR2-DKNA13".
+   * The alternative name, "DKK-CIBOR-DKNA13", has the fixing date equal to the reset date, but with
+   * the effective date two days later.
+   * 
+   * @return the fixing offset applicable to the index
+   * @throws IllegalStateException if the type is not an Ibor index type
+   */
+  public default DaysAdjustment toIborIndexFixingOffset() {
+    return toIborIndex(Tenor.TENOR_3M).getFixingDateOffset();
+  }
 
   /**
    * Converts to an {@link OvernightIndex}.
