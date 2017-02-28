@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
-import org.joda.beans.PropertyDefinition;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -46,7 +45,6 @@ public final class HolidayCalendarId
   /**
    * The identifier, expressed as a normalized unique name.
    */
-  @PropertyDefinition(validate = "notNull")
   private final String name;
   /**
    * The hash code.
