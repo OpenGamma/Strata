@@ -28,15 +28,27 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.index.IborFuture;
 
 /**
  * Defines the meaning of the security price.
  * <p>
- * This provides information about the price of a security.
+ * A value of a security is measured in terms of a <i>price</i> which is not typically a monetary amount.
+ * Instead the price is an arbitrary number that can be converted to a monetary amount.
+ * The price will move up and down in <i>ticks</i>. This class provides the size and monetary
+ * value of each tick, allowing changes in the the price to be converted to a monetary amount.
  * <p>
- * Tick size is the minimum movement in the price of the security.
- * Tick value is the monetary value of the minimum movement in the price of the security.
- * Contract size is the quantity of the underlying present in each derivative contract.
+ * Three properties define the necessary information:
+ * Tick size is the minimum movement in the price of the security (the tick).
+ * Tick value is the monetary value gained or lost when the price changes by one tick.
+ * Contract size is the quantity of the underlying present in each derivative contract,
+ * which acts as a multiplier.
+ * <p>
+ * For example, the price of an {@link IborFuture Ibor future} is based on the interest rate of the
+ * underlying index, with the price defined as {@code (100 - percentRate)}.
+ * Note that Strata uses decimal prices, thus a price of 99.32, that implies an interest rate
+ * of 0.68%, is represented in Strata by 0.9932.
+ * See each security type for information on how pricing works for that instrument.
  */
 @BeanDefinition(builderScope = "private")
 public final class SecurityPriceInfo
