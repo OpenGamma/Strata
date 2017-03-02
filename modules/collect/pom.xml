@@ -40,7 +40,28 @@
   </dependencies>
 
   <!-- ==================================================================== -->
+  <build>
+    <plugins>
+      <!-- Update Version.java -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>templating-maven-plugin</artifactId>
+        <version>${templating-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>generate-verion-class</id>
+            <goals>
+              <goal>filter-sources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
   <properties>
+    <templating-maven-plugin.version>1.0.0</templating-maven-plugin.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Collect</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Collect API</h1>]]></doctitle>
