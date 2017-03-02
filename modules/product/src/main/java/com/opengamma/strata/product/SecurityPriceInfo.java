@@ -32,11 +32,21 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * Defines the meaning of the security price.
  * <p>
- * This provides information about the price of a security.
+ * A value of a security is measured in terms of a <i>price</i> which is not typically a monetary amount.
+ * Instead the price is an arbitrary number that can be converted to a monetary amount.
+ * The price will move up and down in <i>ticks</i>. This class provides the size and monetary
+ * value of each tick, allowing changes in the price to be converted to a monetary amount.
  * <p>
- * Tick size is the minimum movement in the price of the security.
- * Tick value is the monetary value of the minimum movement in the price of the security.
- * Contract size is the quantity of the underlying present in each derivative contract.
+ * Three properties define the necessary information:
+ * Tick size is the minimum movement in the price of the security (the tick).
+ * Tick value is the monetary value gained or lost when the price changes by one tick.
+ * Contract size is the quantity of the underlying present in each derivative contract,
+ * which acts as a multiplier.
+ * <p>
+ * For example, the price of an ICE Brent Crude future is based on the price of a barrel of crude oil in USD.
+ * The tick size of this contract is 0.01 (equivalent to 1 cent).
+ * The contract size is 1,000 barrels.
+ * Therefore the tick value is 0.01 * 1,000 = 10 USD.
  */
 @BeanDefinition(builderScope = "private")
 public final class SecurityPriceInfo
