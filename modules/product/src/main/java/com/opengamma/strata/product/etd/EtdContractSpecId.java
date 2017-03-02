@@ -1,9 +1,9 @@
-/**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+/*
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product;
+package com.opengamma.strata.product.etd;
 
 import java.io.Serializable;
 
@@ -16,25 +16,21 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * An identifier for a security.
+ * An identifier for an ETD product.
  * <p>
- * This identifier is used to obtain a {@link Security} from {@link ReferenceData}.
+ * This identifier is used to obtain a {@link EtdContractSpec} from {@link ReferenceData}.
  * <p>
- * A security identifier uniquely identifies a security within the system.
- * A real-world security will typically have multiple identifiers.
+ * An ETD product identifier uniquely identifies an ETD product within the system.
  * The only restriction placed on the identifier is that it is sufficiently
  * unique for the reference data lookup. As such, it is acceptable to use
  * an identifier from a well-known global or vendor symbology.
  */
-public final class SecurityId
-    implements ReferenceDataId<Security>, Serializable {
+public final class EtdContractSpecId implements ReferenceDataId<EtdContractSpec>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The identifier, expressed as a standard two-part identifier.
-   */
+  /** The identifier, expressed as a standard two-part identifier. */
   private final StandardId standardId;
 
   //-------------------------------------------------------------------------
@@ -52,10 +48,10 @@ public final class SecurityId
    *
    * @param scheme  the scheme of the identifier, not empty
    * @param value  the value of the identifier, not empty
-   * @return the security identifier
+   * @return the identifier
    * @throws IllegalArgumentException if the scheme or value is invalid
    */
-  public static SecurityId of(String scheme, String value) {
+  public static EtdContractSpecId of(String scheme, String value) {
     return of(StandardId.of(scheme, value));
   }
 
@@ -63,10 +59,10 @@ public final class SecurityId
    * Creates an instance from a standard two-part identifier.
    *
    * @param standardId  the underlying standard two-part identifier
-   * @return the security identifier
+   * @return the identifier
    */
-  public static SecurityId of(StandardId standardId) {
-    return new SecurityId(standardId);
+  public static EtdContractSpecId of(StandardId standardId) {
+    return new EtdContractSpecId(standardId);
   }
 
   /**
@@ -76,16 +72,16 @@ public final class SecurityId
    * which is '{@code $scheme~$value}'.
    *
    * @param str  the identifier to parse
-   * @return the security identifier
+   * @return the identifier
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
   @FromString
-  public static SecurityId parse(String str) {
-    return new SecurityId(StandardId.parse(str));
+  public static EtdContractSpecId parse(String str) {
+    return new EtdContractSpecId(StandardId.parse(str));
   }
 
   // creates an identifier
-  private SecurityId(StandardId standardId) {
+  private EtdContractSpecId(StandardId standardId) {
     this.standardId = ArgChecker.notNull(standardId, "standardId");
   }
 
@@ -97,7 +93,7 @@ public final class SecurityId
   //-------------------------------------------------------------------------
   /**
    * Gets the standard two-part identifier.
-   * 
+   *
    * @return the standard two-part identifier
    */
   public StandardId getStandardId() {
@@ -107,13 +103,13 @@ public final class SecurityId
   /**
    * Gets the type of data this identifier refers to.
    * <p>
-   * A {@code SecurityId} refers to a {@code Security}.
+   * A {@code EtdProductId} refers to a {@code Security}.
    *
    * @return the type of the reference data this identifier refers to
    */
   @Override
-  public Class<Security> getReferenceDataType() {
-    return Security.class;
+  public Class<EtdContractSpec> getReferenceDataType() {
+    return EtdContractSpec.class;
   }
 
   //-------------------------------------------------------------------------
@@ -121,7 +117,7 @@ public final class SecurityId
    * Checks if this identifier equals another identifier.
    * <p>
    * The comparison checks the name.
-   * 
+   *
    * @param obj  the other identifier, null returns false
    * @return true if equal
    */
@@ -130,15 +126,15 @@ public final class SecurityId
     if (obj == this) {
       return true;
     }
-    if (obj instanceof SecurityId) {
-      return standardId.equals(((SecurityId) obj).standardId);
+    if (obj instanceof EtdContractSpecId) {
+      return standardId.equals(((EtdContractSpecId) obj).standardId);
     }
     return false;
   }
 
   /**
    * Returns a suitable hash code for the identifier.
-   * 
+   *
    * @return the hash code
    */
   @Override
@@ -153,7 +149,7 @@ public final class SecurityId
    * This is suitable for use with {@link #parse(String)}.
    * For example, if the scheme is 'OG-Future' and the value is 'Eurex-FGBL-Mar14'
    * then the result is 'OG-Future~Eurex-FGBL-Mar14'.
-   * 
+   *
    * @return a parsable representation of the identifier
    */
   @ToString
@@ -161,5 +157,6 @@ public final class SecurityId
   public String toString() {
     return standardId.toString();
   }
+
 
 }
