@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,4 +11,3 @@
  * Applications should not depend on the strata-math "impl" packages.
  */
 package com.opengamma.strata.math;
-
