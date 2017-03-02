@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -44,8 +43,6 @@ public class ParameterizedFunctionalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 9, 9);
-  private static final LocalDate DATE1 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(2));
-  private static final LocalDate DATE2 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(4));
   private static final CurveName CURVE_NAME = CurveName.of("Test");
   private static final QuoteId TICKER = QuoteId.of(StandardId.of("OG", "Ticker"));
   private static final ImmutableList<DummyFraCurveNode> NODES = ImmutableList.of(
@@ -60,18 +57,11 @@ public class ParameterizedFunctionalCurveDefinitionTest {
 
   private static final List<Double> INITIAL_PARAMS = DoubleArray.of(1.0, 1.0, 1.0).toList();
   private static final ImmutableList<ParameterMetadata> PARAM_METADATA;
-  private static final CurveMetadata METADATA;
   static {
     TenorParameterMetadata param1 = TenorParameterMetadata.of(Tenor.TENOR_1Y);
     TenorParameterMetadata param2 = TenorParameterMetadata.of(Tenor.TENOR_5Y);
     TenorParameterMetadata param3 = TenorParameterMetadata.of(Tenor.TENOR_10Y);
     PARAM_METADATA = ImmutableList.of(param1, param2, param3);
-    METADATA = DefaultCurveMetadata.builder()
-        .curveName("test")
-        .yValueType(ValueType.DISCOUNT_FACTOR)
-        .xValueType(ValueType.YEAR_FRACTION)
-        .parameterMetadata(param1, param2, param3)
-        .build();
   }
 
   private static final BiFunction<DoubleArray, Double, Double> VALUE_FUNCTION =
