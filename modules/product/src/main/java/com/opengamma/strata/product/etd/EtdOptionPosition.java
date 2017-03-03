@@ -47,17 +47,18 @@ import com.opengamma.strata.product.SecurityQuantity;
 public final class EtdOptionPosition
     implements Position, SecurityQuantity, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
-  /** Information about the position. */
-  @PropertyDefinition(validate = "notNull")
+  /**
+   * The additional position information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the position.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PositionInfo info;
-
-  /** The underlying option. */
+  /**
+   * The underlying security.
+   */
   @PropertyDefinition(validate = "notNull")
   private final EtdOptionSecurity security;
-
   /**
    * The long quantity of the security.
    * <p>
@@ -66,7 +67,6 @@ public final class EtdOptionPosition
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double longQuantity;
-
   /**
    * The short quantity of the security.
    * <p>
@@ -76,8 +76,7 @@ public final class EtdOptionPosition
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double shortQuantity;
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the security and net quantity.
    * <p>
@@ -147,7 +146,6 @@ public final class EtdOptionPosition
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the security identifier.
    * <p>
@@ -203,6 +201,11 @@ public final class EtdOptionPosition
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -242,16 +245,19 @@ public final class EtdOptionPosition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets information about the position.
+   * Gets the additional position information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the position.
    * @return the value of the property, not null
    */
+  @Override
   public PositionInfo getInfo() {
     return info;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying option.
+   * Gets the underlying security.
    * @return the value of the property, not null
    */
   public EtdOptionSecurity getSecurity() {
@@ -585,7 +591,9 @@ public final class EtdOptionPosition
 
     //-----------------------------------------------------------------------
     /**
-     * Sets information about the position.
+     * Sets the additional position information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the position.
      * @param info  the new value, not null
      * @return this, for chaining, not null
      */
@@ -596,7 +604,7 @@ public final class EtdOptionPosition
     }
 
     /**
-     * Sets the underlying option.
+     * Sets the underlying security.
      * @param security  the new value, not null
      * @return this, for chaining, not null
      */

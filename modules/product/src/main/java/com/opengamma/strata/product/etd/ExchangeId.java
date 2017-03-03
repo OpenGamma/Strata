@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.etd;
 
+import java.io.Serializable;
+
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -13,12 +15,15 @@ import com.opengamma.strata.collect.named.Named;
 
 /**
  * An identifier for an exchange based on the ISO Market Identifier Code (MIC).
- *
- * @see ExchangeIds
+ * <p>
+ * Identifiers for common exchanges are provided in {@link ExchangeIds}.
  */
-public final class ExchangeId implements Named {
+public final class ExchangeId implements Named, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
   /**
+
    * The Market Identifier Code (MIC) identifying the exchange.
    */
   private final String name;
@@ -53,4 +58,5 @@ public final class ExchangeId implements Named {
   public String toString() {
     return name;
   }
+
 }

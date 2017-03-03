@@ -25,12 +25,15 @@ import com.opengamma.strata.collect.ArgChecker;
  * unique for the reference data lookup. As such, it is acceptable to use
  * an identifier from a well-known global or vendor symbology.
  */
-public final class EtdContractSpecId implements ReferenceDataId<EtdContractSpec>, Serializable {
+public final class EtdContractSpecId
+    implements ReferenceDataId<EtdContractSpec>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /** The identifier, expressed as a standard two-part identifier. */
+  /**
+   * The identifier, expressed as a standard two-part identifier.
+   */
   private final StandardId standardId;
 
   //-------------------------------------------------------------------------
@@ -147,8 +150,8 @@ public final class EtdContractSpecId implements ReferenceDataId<EtdContractSpec>
    * <p>
    * The returned string is in the form '{@code $scheme~$value}'.
    * This is suitable for use with {@link #parse(String)}.
-   * For example, if the scheme is 'OG-Future' and the value is 'Eurex-FGBL-Mar14'
-   * then the result is 'OG-Future~Eurex-FGBL-Mar14'.
+   * For example, if the scheme is 'OG-Future' and the value is 'ECAG-FGBL-Mar14'
+   * then the result is 'OG-Future~ECAG-FGBL-Mar14'.
    *
    * @return a parsable representation of the identifier
    */
@@ -157,6 +160,5 @@ public final class EtdContractSpecId implements ReferenceDataId<EtdContractSpec>
   public String toString() {
     return standardId.toString();
   }
-
 
 }

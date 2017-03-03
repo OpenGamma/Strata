@@ -34,21 +34,34 @@ import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A security representing a standardised contact between two parties to buy or sell an asset at a
+ * An instrument representing an exchange traded derivative (ETD) future.
+ * <p>
+ * A security representing a standardized contact between two parties to buy or sell an asset at a
  * future date for an agreed price.
  */
 @BeanDefinition
 public final class EtdFutureSecurity
     implements Security, SecuritizedProduct, ImmutableBean {
 
-  /** The ID of the contract specification from which this security is derived. */
+  /**
+   * The standard security information.
+   * <p>
+   * This includes the security identifier.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final SecurityInfo info;
+  /**
+   * The ID of the contract specification from which this security is derived.
+   */
   @PropertyDefinition(validate = "notNull")
   private final EtdContractSpecId contractSpecId;
-
-  /** The expiry. */
+  /**
+   * The expiry month.
+   * <p>
+   * This is used to describe the instance of the option.
+   */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth expiry;
-
   /**
    * The optional code representing the actual day of expiry.
    * <p>
@@ -60,16 +73,7 @@ public final class EtdFutureSecurity
   @PropertyDefinition(get = "optional")
   private final String expiryDateCode;
 
-  /**
-   * The standard security information.
-   * <p>
-   * This includes the security identifier.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo info;
-
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   @Override
   public SecurityId getSecurityId() {
     return Security.super.getSecurityId();
@@ -123,17 +127,17 @@ public final class EtdFutureSecurity
   }
 
   private EtdFutureSecurity(
+      SecurityInfo info,
       EtdContractSpecId contractSpecId,
       YearMonth expiry,
-      String expiryDateCode,
-      SecurityInfo info) {
+      String expiryDateCode) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(contractSpecId, "contractSpecId");
     JodaBeanUtils.notNull(expiry, "expiry");
-    JodaBeanUtils.notNull(info, "info");
+    this.info = info;
     this.contractSpecId = contractSpecId;
     this.expiry = expiry;
     this.expiryDateCode = expiryDateCode;
-    this.info = info;
   }
 
   @Override
@@ -153,6 +157,18 @@ public final class EtdFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the standard security information.
+   * <p>
+   * This includes the security identifier.
+   * @return the value of the property, not null
+   */
+  @Override
+  public SecurityInfo getInfo() {
+    return info;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the ID of the contract specification from which this security is derived.
    * @return the value of the property, not null
    */
@@ -162,7 +178,9 @@ public final class EtdFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry.
+   * Gets the expiry month.
+   * <p>
+   * This is used to describe the instance of the option.
    * @return the value of the property, not null
    */
   public YearMonth getExpiry() {
@@ -185,18 +203,6 @@ public final class EtdFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the standard security information.
-   * <p>
-   * This includes the security identifier.
-   * @return the value of the property, not null
-   */
-  @Override
-  public SecurityInfo getInfo() {
-    return info;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -211,10 +217,10 @@ public final class EtdFutureSecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       EtdFutureSecurity other = (EtdFutureSecurity) obj;
-      return JodaBeanUtils.equal(contractSpecId, other.contractSpecId) &&
+      return JodaBeanUtils.equal(info, other.info) &&
+          JodaBeanUtils.equal(contractSpecId, other.contractSpecId) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
-          JodaBeanUtils.equal(expiryDateCode, other.expiryDateCode) &&
-          JodaBeanUtils.equal(info, other.info);
+          JodaBeanUtils.equal(expiryDateCode, other.expiryDateCode);
     }
     return false;
   }
@@ -222,10 +228,10 @@ public final class EtdFutureSecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(contractSpecId);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryDateCode);
-    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     return hash;
   }
 
@@ -233,10 +239,10 @@ public final class EtdFutureSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("EtdFutureSecurity{");
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("contractSpecId").append('=').append(contractSpecId).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("expiryDateCode").append('=').append(expiryDateCode).append(',').append(' ');
-    buf.append("info").append('=').append(JodaBeanUtils.toString(info));
+    buf.append("expiryDateCode").append('=').append(JodaBeanUtils.toString(expiryDateCode));
     buf.append('}');
     return buf.toString();
   }
@@ -251,6 +257,11 @@ public final class EtdFutureSecurity
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code info} property.
+     */
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", EtdFutureSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code contractSpecId} property.
      */
@@ -267,19 +278,14 @@ public final class EtdFutureSecurity
     private final MetaProperty<String> expiryDateCode = DirectMetaProperty.ofImmutable(
         this, "expiryDateCode", EtdFutureSecurity.class, String.class);
     /**
-     * The meta-property for the {@code info} property.
-     */
-    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
-        this, "info", EtdFutureSecurity.class, SecurityInfo.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "info",
         "contractSpecId",
         "expiry",
-        "expiryDateCode",
-        "info");
+        "expiryDateCode");
 
     /**
      * Restricted constructor.
@@ -290,14 +296,14 @@ public final class EtdFutureSecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return info;
         case 948987368:  // contractSpecId
           return contractSpecId;
         case -1289159373:  // expiry
           return expiry;
         case -1523840754:  // expiryDateCode
           return expiryDateCode;
-        case 3237038:  // info
-          return info;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -318,6 +324,14 @@ public final class EtdFutureSecurity
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code info} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityInfo> info() {
+      return info;
+    }
+
     /**
      * The meta-property for the {@code contractSpecId} property.
      * @return the meta-property, not null
@@ -342,26 +356,18 @@ public final class EtdFutureSecurity
       return expiryDateCode;
     }
 
-    /**
-     * The meta-property for the {@code info} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<SecurityInfo> info() {
-      return info;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return ((EtdFutureSecurity) bean).getInfo();
         case 948987368:  // contractSpecId
           return ((EtdFutureSecurity) bean).getContractSpecId();
         case -1289159373:  // expiry
           return ((EtdFutureSecurity) bean).getExpiry();
         case -1523840754:  // expiryDateCode
           return ((EtdFutureSecurity) bean).expiryDateCode;
-        case 3237038:  // info
-          return ((EtdFutureSecurity) bean).getInfo();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -383,10 +389,10 @@ public final class EtdFutureSecurity
    */
   public static final class Builder extends DirectFieldsBeanBuilder<EtdFutureSecurity> {
 
+    private SecurityInfo info;
     private EtdContractSpecId contractSpecId;
     private YearMonth expiry;
     private String expiryDateCode;
-    private SecurityInfo info;
 
     /**
      * Restricted constructor.
@@ -399,24 +405,24 @@ public final class EtdFutureSecurity
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(EtdFutureSecurity beanToCopy) {
+      this.info = beanToCopy.getInfo();
       this.contractSpecId = beanToCopy.getContractSpecId();
       this.expiry = beanToCopy.getExpiry();
       this.expiryDateCode = beanToCopy.expiryDateCode;
-      this.info = beanToCopy.getInfo();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return info;
         case 948987368:  // contractSpecId
           return contractSpecId;
         case -1289159373:  // expiry
           return expiry;
         case -1523840754:  // expiryDateCode
           return expiryDateCode;
-        case 3237038:  // info
-          return info;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -425,6 +431,9 @@ public final class EtdFutureSecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
+          break;
         case 948987368:  // contractSpecId
           this.contractSpecId = (EtdContractSpecId) newValue;
           break;
@@ -433,9 +442,6 @@ public final class EtdFutureSecurity
           break;
         case -1523840754:  // expiryDateCode
           this.expiryDateCode = (String) newValue;
-          break;
-        case 3237038:  // info
-          this.info = (SecurityInfo) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -470,13 +476,26 @@ public final class EtdFutureSecurity
     @Override
     public EtdFutureSecurity build() {
       return new EtdFutureSecurity(
+          info,
           contractSpecId,
           expiry,
-          expiryDateCode,
-          info);
+          expiryDateCode);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the standard security information.
+     * <p>
+     * This includes the security identifier.
+     * @param info  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
+      return this;
+    }
+
     /**
      * Sets the ID of the contract specification from which this security is derived.
      * @param contractSpecId  the new value, not null
@@ -489,7 +508,9 @@ public final class EtdFutureSecurity
     }
 
     /**
-     * Sets the expiry.
+     * Sets the expiry month.
+     * <p>
+     * This is used to describe the instance of the option.
      * @param expiry  the new value, not null
      * @return this, for chaining, not null
      */
@@ -514,28 +535,15 @@ public final class EtdFutureSecurity
       return this;
     }
 
-    /**
-     * Sets the standard security information.
-     * <p>
-     * This includes the security identifier.
-     * @param info  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder info(SecurityInfo info) {
-      JodaBeanUtils.notNull(info, "info");
-      this.info = info;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("EtdFutureSecurity.Builder{");
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("contractSpecId").append('=').append(JodaBeanUtils.toString(contractSpecId)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
-      buf.append("expiryDateCode").append('=').append(JodaBeanUtils.toString(expiryDateCode)).append(',').append(' ');
-      buf.append("info").append('=').append(JodaBeanUtils.toString(info));
+      buf.append("expiryDateCode").append('=').append(JodaBeanUtils.toString(expiryDateCode));
       buf.append('}');
       return buf.toString();
     }

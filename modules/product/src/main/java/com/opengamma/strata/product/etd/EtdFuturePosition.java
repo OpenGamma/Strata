@@ -47,17 +47,18 @@ import com.opengamma.strata.product.SecurityQuantity;
 public final class EtdFuturePosition
     implements Position, SecurityQuantity, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
-  /** Information about the position. */
-  @PropertyDefinition(validate = "notNull")
+  /**
+   * The additional position information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the position.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PositionInfo info;
-
-  /** The underlying future. */
+  /**
+   * The underlying security.
+   */
   @PropertyDefinition(validate = "notNull")
   private final EtdFutureSecurity security;
-
   /**
    * The long quantity of the security.
    * <p>
@@ -67,7 +68,7 @@ public final class EtdFuturePosition
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double longQuantity;
   /**
-   * The quantity that was traded.
+   * The short quantity of the security.
    * <p>
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
@@ -75,8 +76,7 @@ public final class EtdFuturePosition
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double shortQuantity;
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the security and net quantity.
    * <p>
@@ -146,7 +146,6 @@ public final class EtdFuturePosition
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the security identifier.
    * <p>
@@ -202,6 +201,11 @@ public final class EtdFuturePosition
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -241,16 +245,19 @@ public final class EtdFuturePosition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets information about the position.
+   * Gets the additional position information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the position.
    * @return the value of the property, not null
    */
+  @Override
   public PositionInfo getInfo() {
     return info;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying future.
+   * Gets the underlying security.
    * @return the value of the property, not null
    */
   public EtdFutureSecurity getSecurity() {
@@ -271,7 +278,7 @@ public final class EtdFuturePosition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity that was traded.
+   * Gets the short quantity of the security.
    * <p>
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
@@ -584,7 +591,9 @@ public final class EtdFuturePosition
 
     //-----------------------------------------------------------------------
     /**
-     * Sets information about the position.
+     * Sets the additional position information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the position.
      * @param info  the new value, not null
      * @return this, for chaining, not null
      */
@@ -595,7 +604,7 @@ public final class EtdFuturePosition
     }
 
     /**
-     * Sets the underlying future.
+     * Sets the underlying security.
      * @param security  the new value, not null
      * @return this, for chaining, not null
      */
@@ -620,7 +629,7 @@ public final class EtdFuturePosition
     }
 
     /**
-     * Sets the quantity that was traded.
+     * Sets the short quantity of the security.
      * <p>
      * This is the quantity of the underlying security that has been short sold.
      * The quantity cannot be negative, as that would imply the position is long.

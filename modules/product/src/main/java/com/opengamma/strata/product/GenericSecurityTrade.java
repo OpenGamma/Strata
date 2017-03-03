@@ -52,12 +52,13 @@ public final class GenericSecurityTrade
   /**
    * The quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition(overrideGet = true)
   private final double quantity;
   /**
-   * The price agreed when the trade occurred.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    */
@@ -198,6 +199,7 @@ public final class GenericSecurityTrade
   /**
    * Gets the quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
@@ -208,7 +210,7 @@ public final class GenericSecurityTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price agreed when the trade occurred.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
@@ -526,6 +528,7 @@ public final class GenericSecurityTrade
     /**
      * Sets the quantity that was traded.
      * <p>
+     * This is the number of contracts that were traded.
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
@@ -536,7 +539,7 @@ public final class GenericSecurityTrade
     }
 
     /**
-     * Sets the price agreed when the trade occurred.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
      * @param price  the new value

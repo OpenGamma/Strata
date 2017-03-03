@@ -12,9 +12,6 @@ package com.opengamma.strata.product.etd;
  */
 public final class ExchangeIds {
 
-  private ExchangeIds() {
-  }
-
   /** Eurex Clearing AG. */
   public static final ExchangeId ECAG = ExchangeId.of("ECAG");
 
@@ -44,4 +41,12 @@ public final class ExchangeIds {
 
   /** ICE Futures Europe - Oil and Refined Products Division. */
   public static final ExchangeId IFEN = ExchangeId.of("IFEN");
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
+  private ExchangeIds() {
+  }
+
 }

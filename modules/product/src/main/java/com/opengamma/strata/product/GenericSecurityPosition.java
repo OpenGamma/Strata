@@ -65,7 +65,7 @@ public final class GenericSecurityPosition
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double longQuantity;
   /**
-   * The quantity that was traded.
+   * The short quantity of the security.
    * <p>
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
@@ -80,7 +80,7 @@ public final class GenericSecurityPosition
    * The net quantity is the long quantity minus the short quantity, which may be negative.
    * If the quantity is positive it is treated as a long quantity.
    * Otherwise it is treated as a short quantity.
-   * 
+   *
    * @param security  the underlying security
    * @param netQuantity  the net quantity of the underlying security
    * @return the position
@@ -93,7 +93,7 @@ public final class GenericSecurityPosition
    * Obtains an instance from position information, security and net quantity.
    * <p>
    * The net quantity is the long quantity minus the short quantity, which may be negative.
-   * 
+   *
    * @param positionInfo  the position information
    * @param security  the underlying security
    * @param netQuantity  the net quantity of the underlying security
@@ -109,7 +109,7 @@ public final class GenericSecurityPosition
    * Obtains an instance from the security, long quantity and short quantity.
    * <p>
    * The long quantity and short quantity must be zero or positive, not negative.
-   * 
+   *
    * @param security  the underlying security
    * @param longQuantity  the long quantity of the underlying security
    * @param shortQuantity  the short quantity of the underlying security
@@ -121,7 +121,7 @@ public final class GenericSecurityPosition
 
   /**
    * Obtains an instance from position information, security, long quantity and short quantity.
-   * 
+   *
    * @param positionInfo  the position information
    * @param security  the underlying security
    * @param longQuantity  the long quantity of the underlying security
@@ -147,7 +147,7 @@ public final class GenericSecurityPosition
    * Gets the security identifier.
    * <p>
    * This identifier uniquely identifies the security within the system.
-   * 
+   *
    * @return the security identifier
    */
   @Override
@@ -159,7 +159,7 @@ public final class GenericSecurityPosition
    * Gets the currency of the trade.
    * <p>
    * This is the currency of the security.
-   * 
+   *
    * @return the trading currency
    */
   public Currency getCurrency() {
@@ -174,7 +174,7 @@ public final class GenericSecurityPosition
    * if the net position is <i>short</i>.
    * <p>
    * This is calculated by subtracting the short quantity from the long quantity.
-   * 
+   *
    * @return the net quantity of the underlying security
    */
   @Override
@@ -281,7 +281,7 @@ public final class GenericSecurityPosition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity that was traded.
+   * Gets the short quantity of the security.
    * <p>
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
@@ -631,7 +631,7 @@ public final class GenericSecurityPosition
     }
 
     /**
-     * Sets the quantity that was traded.
+     * Sets the short quantity of the security.
      * <p>
      * This is the quantity of the underlying security that has been short sold.
      * The quantity cannot be negative, as that would imply the position is long.

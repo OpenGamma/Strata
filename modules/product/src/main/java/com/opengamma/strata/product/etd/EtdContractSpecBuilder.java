@@ -56,14 +56,7 @@ public final class EtdContractSpecBuilder {
    * @return a template instance built from the data in this builder
    */
   public EtdContractSpec build() {
-    return new EtdContractSpec(
-        id,
-        contractCode,
-        productType,
-        exchangeId,
-        description,
-        priceInfo,
-        attributes);
+    return new EtdContractSpec(id, productType, exchangeId, contractCode, description, priceInfo, attributes);
   }
 
   /**
@@ -155,4 +148,5 @@ public final class EtdContractSpecBuilder {
     attributes.put(attributeType, attributeValue);
     return this;
   }
+
 }
