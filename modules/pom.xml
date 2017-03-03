@@ -64,13 +64,33 @@
   <!-- standard build setup -->
   <build>
     <resources>
+      <!-- Include all standard resources -->
       <resource>
         <directory>src/main/resources</directory>
       </resource>
+      <!-- Include LICENSE/NOTICE in jar files -->
+      <resource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+      </resource>
     </resources>
     <testResources>
+      <!-- Include all standard resources -->
       <testResource>
         <directory>src/test/resources</directory>
+      </testResource>
+      <!-- Include LICENSE/NOTICE in test jar files -->
+      <testResource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
       </testResource>
     </testResources>
     <plugins>
@@ -597,6 +617,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.6.2</assertj.version>
     <guava.version>20.0</guava.version>

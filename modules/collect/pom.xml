@@ -42,6 +42,14 @@
   <!-- ==================================================================== -->
   <build>
     <resources>
+      <!-- Include all standard resources -->
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>com/opengamma/strata/collect/version.properties</exclude>
+        </excludes>
+      </resource>
+      <!-- Include filtered version.properties -->
       <resource>
         <directory>src/main/resources</directory>
         <includes>
@@ -49,11 +57,22 @@
         </includes>
         <filtering>true</filtering>
       </resource>
+      <!-- Include LICENSE/NOTICE in jar files -->
+      <resource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/../..</root.dir>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Collect</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Collect API</h1>]]></doctitle>
