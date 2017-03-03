@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.etd;
+package com.opengamma.strata.product.common;
 
 /**
  * Identifiers for common exchanges.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.etd;
 
+import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,6 +31,7 @@ import com.opengamma.strata.product.SecurityAttributeType;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
+import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.PutCall;
 
 /**
@@ -40,7 +42,8 @@ import com.opengamma.strata.product.common.PutCall;
  * required to fully define the contract such as the expiry, strike price and put / call.
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class EtdContractSpec implements ImmutableBean {
+public final class EtdContractSpec
+    implements ImmutableBean, Serializable {
 
   /**
    * The ID of this template.
@@ -51,7 +54,7 @@ public final class EtdContractSpec implements ImmutableBean {
    * The type of the contract - future or option.
    */
   @PropertyDefinition(validate = "notNull")
-  private final EtdProductType productType;
+  private final EtdType type;
   /**
    * The ID of the exchange where the instruments derived from the product are traded.
    */
@@ -132,8 +135,7 @@ public final class EtdContractSpec implements ImmutableBean {
   /**
    * Creates a future security based on this template.
    * <p>
-   * The {@link #getProductType() product type} must be {@link EtdProductType#FUTURE}
-   * otherwise an exception will be thrown.
+   * The {@link #getType() type} must be {@link EtdType#FUTURE} otherwise an exception will be thrown.
    * <p>
    * The future is a standard monthly contract.
    *
@@ -143,8 +145,9 @@ public final class EtdContractSpec implements ImmutableBean {
    * @throws IllegalStateException if the product type of the template is not {@code FUTURE}
    */
   public EtdFutureSecurity createFuture(SecurityId securityId, YearMonth expiry) {
-    if (productType != EtdProductType.FUTURE) {
-      throw new IllegalStateException("Cannot create a future from a template with product type " + productType);
+    if (type != EtdType.FUTURE) {
+      throw new IllegalStateException(
+          Messages.format("Cannot create a Future from a contract specification of type '{}'", type));
     }
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(securityId, priceInfo))
@@ -156,8 +159,7 @@ public final class EtdContractSpec implements ImmutableBean {
   /**
    * Creates a future security based on this template.
    * <p>
-   * The {@link #getProductType() product type} must be {@link EtdProductType#FUTURE}
-   * otherwise an exception will be thrown.
+   * The {@link #getType() type} must be {@link EtdType#FUTURE} otherwise an exception will be thrown.
    * <p>
    * The expiry day of the contract is specified by {@code expiryDateCode}.
    *
@@ -168,8 +170,9 @@ public final class EtdContractSpec implements ImmutableBean {
    * @throws IllegalStateException if the product type of the template is not {@code FUTURE}
    */
   public EtdFutureSecurity createFuture(SecurityId securityId, YearMonth expiry, String expiryDateCode) {
-    if (productType != EtdProductType.FUTURE) {
-      throw new IllegalStateException("Cannot create a future from a template with product type " + productType);
+    if (type != EtdType.FUTURE) {
+      throw new IllegalStateException(
+          Messages.format("Cannot create a Future from a contract specification of type '{}'", type));
     }
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(securityId, priceInfo))
@@ -182,8 +185,7 @@ public final class EtdContractSpec implements ImmutableBean {
   /**
    * Creates an option security based on this template.
    * <p>
-   * The {@link #getProductType() product type} must be {@link EtdProductType#OPTION}
-   * otherwise an exception will be thrown.
+   * The {@link #getType() type} must be {@link EtdType#OPTION} otherwise an exception will be thrown.
    * <p>
    * The option is a standard monthly contract.
    *
@@ -195,8 +197,9 @@ public final class EtdContractSpec implements ImmutableBean {
    * @throws IllegalStateException if the product type of the template is not {@code OPTION}
    */
   public EtdOptionSecurity createOption(SecurityId securityId, PutCall putCall, double strikePrice, YearMonth expiry) {
-    if (productType != EtdProductType.OPTION) {
-      throw new IllegalStateException("Cannot create an option from a template with product type " + productType);
+    if (type != EtdType.OPTION) {
+      throw new IllegalStateException(
+          Messages.format("Cannot create an Option from a contract specification of type '{}'", type));
     }
     return EtdOptionSecurity.builder()
         .info(SecurityInfo.of(securityId, priceInfo))
@@ -210,8 +213,7 @@ public final class EtdContractSpec implements ImmutableBean {
   /**
    * Creates an option security based on this template.
    * <p>
-   * The {@link #getProductType() product type} must be {@link EtdProductType#OPTION}
-   * otherwise an exception will be thrown.
+   * The {@link #getType() type} must be {@link EtdType#OPTION} otherwise an exception will be thrown.
    * <p>
    * The expiry day of the contract is specified by {@code expiryDateCode}.
    *
@@ -230,8 +232,9 @@ public final class EtdContractSpec implements ImmutableBean {
       YearMonth expiry,
       String expiryDateCode) {
 
-    if (productType != EtdProductType.OPTION) {
-      throw new IllegalStateException("Cannot create an option from a template with product type " + productType);
+    if (type != EtdType.OPTION) {
+      throw new IllegalStateException(
+          Messages.format("Cannot create an Option from a contract specification of type '{}'", type));
     }
     return EtdOptionSecurity.builder()
         .info(SecurityInfo.of(securityId, priceInfo))
@@ -258,9 +261,14 @@ public final class EtdContractSpec implements ImmutableBean {
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Creates an instance.
    * @param id  the value of the property, not null
-   * @param productType  the value of the property, not null
+   * @param type  the value of the property, not null
    * @param exchangeId  the value of the property, not null
    * @param contractCode  the value of the property, not empty
    * @param description  the value of the property, not empty
@@ -269,21 +277,21 @@ public final class EtdContractSpec implements ImmutableBean {
    */
   EtdContractSpec(
       EtdContractSpecId id,
-      EtdProductType productType,
+      EtdType type,
       ExchangeId exchangeId,
       String contractCode,
       String description,
       SecurityPriceInfo priceInfo,
       Map<SecurityAttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(id, "id");
-    JodaBeanUtils.notNull(productType, "productType");
+    JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(exchangeId, "exchangeId");
     JodaBeanUtils.notEmpty(contractCode, "contractCode");
     JodaBeanUtils.notEmpty(description, "description");
     JodaBeanUtils.notNull(priceInfo, "priceInfo");
     JodaBeanUtils.notNull(attributes, "attributes");
     this.id = id;
-    this.productType = productType;
+    this.type = type;
     this.exchangeId = exchangeId;
     this.contractCode = contractCode;
     this.description = description;
@@ -320,8 +328,8 @@ public final class EtdContractSpec implements ImmutableBean {
    * Gets the type of the contract - future or option.
    * @return the value of the property, not null
    */
-  public EtdProductType getProductType() {
-    return productType;
+  public EtdType getType() {
+    return type;
   }
 
   //-----------------------------------------------------------------------
@@ -382,7 +390,7 @@ public final class EtdContractSpec implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       EtdContractSpec other = (EtdContractSpec) obj;
       return JodaBeanUtils.equal(id, other.id) &&
-          JodaBeanUtils.equal(productType, other.productType) &&
+          JodaBeanUtils.equal(type, other.type) &&
           JodaBeanUtils.equal(exchangeId, other.exchangeId) &&
           JodaBeanUtils.equal(contractCode, other.contractCode) &&
           JodaBeanUtils.equal(description, other.description) &&
@@ -396,7 +404,7 @@ public final class EtdContractSpec implements ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(id);
-    hash = hash * 31 + JodaBeanUtils.hashCode(productType);
+    hash = hash * 31 + JodaBeanUtils.hashCode(type);
     hash = hash * 31 + JodaBeanUtils.hashCode(exchangeId);
     hash = hash * 31 + JodaBeanUtils.hashCode(contractCode);
     hash = hash * 31 + JodaBeanUtils.hashCode(description);
@@ -410,7 +418,7 @@ public final class EtdContractSpec implements ImmutableBean {
     StringBuilder buf = new StringBuilder(256);
     buf.append("EtdContractSpec{");
     buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("productType").append('=').append(productType).append(',').append(' ');
+    buf.append("type").append('=').append(type).append(',').append(' ');
     buf.append("exchangeId").append('=').append(exchangeId).append(',').append(' ');
     buf.append("contractCode").append('=').append(contractCode).append(',').append(' ');
     buf.append("description").append('=').append(description).append(',').append(' ');
@@ -436,10 +444,10 @@ public final class EtdContractSpec implements ImmutableBean {
     private final MetaProperty<EtdContractSpecId> id = DirectMetaProperty.ofImmutable(
         this, "id", EtdContractSpec.class, EtdContractSpecId.class);
     /**
-     * The meta-property for the {@code productType} property.
+     * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<EtdProductType> productType = DirectMetaProperty.ofImmutable(
-        this, "productType", EtdContractSpec.class, EtdProductType.class);
+    private final MetaProperty<EtdType> type = DirectMetaProperty.ofImmutable(
+        this, "type", EtdContractSpec.class, EtdType.class);
     /**
      * The meta-property for the {@code exchangeId} property.
      */
@@ -472,7 +480,7 @@ public final class EtdContractSpec implements ImmutableBean {
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "id",
-        "productType",
+        "type",
         "exchangeId",
         "contractCode",
         "description",
@@ -490,8 +498,8 @@ public final class EtdContractSpec implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return id;
-        case -1491615543:  // productType
-          return productType;
+        case 3575610:  // type
+          return type;
         case 913218206:  // exchangeId
           return exchangeId;
         case -1402840545:  // contractCode
@@ -531,11 +539,11 @@ public final class EtdContractSpec implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code productType} property.
+     * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<EtdProductType> productType() {
-      return productType;
+    public MetaProperty<EtdType> type() {
+      return type;
     }
 
     /**
@@ -584,8 +592,8 @@ public final class EtdContractSpec implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return ((EtdContractSpec) bean).getId();
-        case -1491615543:  // productType
-          return ((EtdContractSpec) bean).getProductType();
+        case 3575610:  // type
+          return ((EtdContractSpec) bean).getType();
         case 913218206:  // exchangeId
           return ((EtdContractSpec) bean).getExchangeId();
         case -1402840545:  // contractCode
@@ -618,7 +626,7 @@ public final class EtdContractSpec implements ImmutableBean {
   private static final class Builder extends DirectPrivateBeanBuilder<EtdContractSpec> {
 
     private EtdContractSpecId id;
-    private EtdProductType productType;
+    private EtdType type;
     private ExchangeId exchangeId;
     private String contractCode;
     private String description;
@@ -638,8 +646,8 @@ public final class EtdContractSpec implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return id;
-        case -1491615543:  // productType
-          return productType;
+        case 3575610:  // type
+          return type;
         case 913218206:  // exchangeId
           return exchangeId;
         case -1402840545:  // contractCode
@@ -662,8 +670,8 @@ public final class EtdContractSpec implements ImmutableBean {
         case 3355:  // id
           this.id = (EtdContractSpecId) newValue;
           break;
-        case -1491615543:  // productType
-          this.productType = (EtdProductType) newValue;
+        case 3575610:  // type
+          this.type = (EtdType) newValue;
           break;
         case 913218206:  // exchangeId
           this.exchangeId = (ExchangeId) newValue;
@@ -690,7 +698,7 @@ public final class EtdContractSpec implements ImmutableBean {
     public EtdContractSpec build() {
       return new EtdContractSpec(
           id,
-          productType,
+          type,
           exchangeId,
           contractCode,
           description,
@@ -704,7 +712,7 @@ public final class EtdContractSpec implements ImmutableBean {
       StringBuilder buf = new StringBuilder(256);
       buf.append("EtdContractSpec.Builder{");
       buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
-      buf.append("productType").append('=').append(JodaBeanUtils.toString(productType)).append(',').append(' ');
+      buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("exchangeId").append('=').append(JodaBeanUtils.toString(exchangeId)).append(',').append(' ');
       buf.append("contractCode").append('=').append(JodaBeanUtils.toString(contractCode)).append(',').append(' ');
       buf.append("description").append('=').append(JodaBeanUtils.toString(description)).append(',').append(' ');

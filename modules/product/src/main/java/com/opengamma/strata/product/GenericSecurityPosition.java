@@ -49,7 +49,7 @@ public final class GenericSecurityPosition
    * <p>
    * This allows additional information to be attached to the position.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PositionInfo info;
   /**
    * The underlying security.
@@ -212,7 +212,7 @@ public final class GenericSecurityPosition
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param security  the value of the property, not null
    * @param longQuantity  the value of the property
    * @param shortQuantity  the value of the property
@@ -222,6 +222,7 @@ public final class GenericSecurityPosition
       GenericSecurity security,
       double longQuantity,
       double shortQuantity) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(security, "security");
     ArgChecker.notNegative(longQuantity, "longQuantity");
     ArgChecker.notNegative(shortQuantity, "shortQuantity");
@@ -251,7 +252,7 @@ public final class GenericSecurityPosition
    * Gets the additional position information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the position.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public PositionInfo getInfo() {
@@ -597,10 +598,11 @@ public final class GenericSecurityPosition
      * Sets the additional position information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the position.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(PositionInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

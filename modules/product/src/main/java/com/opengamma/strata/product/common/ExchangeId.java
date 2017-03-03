@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.etd;
+package com.opengamma.strata.product.common;
 
 import java.io.Serializable;
 
@@ -51,6 +51,37 @@ public final class ExchangeId implements Named, Serializable {
   @FromString
   public static ExchangeId of(String name) {
     return new ExchangeId(name);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this identifier equals another identifier.
+   * <p>
+   * The comparison checks the name.
+   * 
+   * @param obj  the other identifier, null returns false
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    ExchangeId that = (ExchangeId) obj;
+    return name.equals(that.name);
+  }
+
+  /**
+   * Returns a suitable hash code for the identifier.
+   * 
+   * @return the hash code
+   */
+  @Override
+  public int hashCode() {
+    return name.hashCode();
   }
 
   @ToString
