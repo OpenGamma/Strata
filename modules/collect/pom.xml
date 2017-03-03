@@ -40,7 +40,21 @@
   </dependencies>
 
   <!-- ==================================================================== -->
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>com/opengamma/strata/collect/version.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
+
+  <!-- ==================================================================== -->
   <properties>
+    <templating-maven-plugin.version>1.0.0</templating-maven-plugin.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Collect</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Collect API</h1>]]></doctitle>
