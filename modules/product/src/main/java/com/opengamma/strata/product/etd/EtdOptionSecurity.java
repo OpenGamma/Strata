@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.etd;
 
+import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -43,7 +44,7 @@ import com.opengamma.strata.product.common.PutCall;
  */
 @BeanDefinition
 public final class EtdOptionSecurity
-    implements Security, SecuritizedProduct, ImmutableBean {
+    implements Security, SecuritizedProduct, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -129,6 +130,11 @@ public final class EtdOptionSecurity
   static {
     JodaBeanUtils.registerMetaBean(EtdOptionSecurity.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

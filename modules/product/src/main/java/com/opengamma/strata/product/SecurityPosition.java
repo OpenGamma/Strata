@@ -49,7 +49,7 @@ public final class SecurityPosition
    * <p>
    * This allows additional information to be attached to the position.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PositionInfo info;
   /**
    * The identifier of the underlying security.
@@ -191,7 +191,7 @@ public final class SecurityPosition
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param securityId  the value of the property, not null
    * @param longQuantity  the value of the property
    * @param shortQuantity  the value of the property
@@ -201,6 +201,7 @@ public final class SecurityPosition
       SecurityId securityId,
       double longQuantity,
       double shortQuantity) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(securityId, "securityId");
     ArgChecker.notNegative(longQuantity, "longQuantity");
     ArgChecker.notNegative(shortQuantity, "shortQuantity");
@@ -230,7 +231,7 @@ public final class SecurityPosition
    * Gets the additional position information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the position.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public PositionInfo getInfo() {
@@ -579,10 +580,11 @@ public final class SecurityPosition
      * Sets the additional position information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the position.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(PositionInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

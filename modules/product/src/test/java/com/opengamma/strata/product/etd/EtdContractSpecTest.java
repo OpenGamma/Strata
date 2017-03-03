@@ -3,9 +3,11 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.strata.product.etd;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -16,29 +18,19 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityPriceInfo;
+import com.opengamma.strata.product.common.ExchangeIds;
 import com.opengamma.strata.product.common.PutCall;
 
+/**
+ * Test {@link EtdContractSpec}.
+ */
 @Test
 public class EtdContractSpecTest {
 
-  private static final EtdContractSpec FUTURE_CONTRACT = EtdContractSpec.builder()
-      .id(EtdContractSpecId.of("test", "123"))
-      .contractCode("FOO")
-      .productType(EtdProductType.FUTURE)
-      .exchangeId(ExchangeIds.ECAG)
-      .description("A test future template")
-      .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
-      .build();
+  private static final EtdContractSpec FUTURE_CONTRACT = sut();
+  private static final EtdContractSpec OPTION_CONTRACT = sut2();
 
-  private static final EtdContractSpec OPTION_CONTRACT = EtdContractSpec.builder()
-      .id(EtdContractSpecId.of("test", "234"))
-      .contractCode("BAR")
-      .productType(EtdProductType.OPTION)
-      .exchangeId(ExchangeIds.IFEN)
-      .description("A test option template")
-      .priceInfo(SecurityPriceInfo.of(Currency.EUR, 10))
-      .build();
-
+  //-------------------------------------------------------------------------
   public void createStandardOption() {
     EtdOptionSecurity security = OPTION_CONTRACT.createOption(
         SecurityId.of("test", "option"),
@@ -73,9 +65,13 @@ public class EtdContractSpecTest {
   }
 
   public void createFutureFromOptionContractSpec() {
-    assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(SecurityId.of("test", "future"), YearMonth.of(2015, 6)))
+    SecurityId secId = SecurityId.of("test", "future");
+    assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(secId, YearMonth.of(2015, 6)))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Cannot create a future from a template with product type OPTION");
+        .hasMessage("Cannot create a Future from a contract specification of type 'Option'");
+    assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(secId, YearMonth.of(2015, 6), "W1"))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Cannot create a Future from a contract specification of type 'Option'");
   }
 
   public void createStandardFuture() {
@@ -104,14 +100,48 @@ public class EtdContractSpecTest {
   }
 
   public void createOptionFromFutureContractSpec() {
+    SecurityId secId = SecurityId.of("test", "option");
     assertThatThrownBy(
-        () -> FUTURE_CONTRACT.createOption(
-            SecurityId.of("test", "option"),
-            PutCall.CALL,
-            123.45,
-            YearMonth.of(2015, 6),
-            "W1"))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Cannot create an option from a template with product type FUTURE");
+        () -> FUTURE_CONTRACT.createOption(secId, PutCall.CALL, 123.45, YearMonth.of(2015, 6)))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot create an Option from a contract specification of type 'Future'");
+    assertThatThrownBy(
+        () -> FUTURE_CONTRACT.createOption(secId, PutCall.CALL, 123.45, YearMonth.of(2015, 6), "W1"))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot create an Option from a contract specification of type 'Future'");
   }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static EtdContractSpec sut() {
+    return EtdContractSpec.builder()
+        .id(EtdContractSpecId.of("test", "123"))
+        .type(EtdType.FUTURE)
+        .exchangeId(ExchangeIds.ECAG)
+        .contractCode("FOO")
+        .description("A test future template")
+        .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
+        .build();
+  }
+
+  static EtdContractSpec sut2() {
+    return EtdContractSpec.builder()
+        .id(EtdContractSpecId.of("test", "234"))
+        .type(EtdType.OPTION)
+        .exchangeId(ExchangeIds.IFEN)
+        .contractCode("BAR")
+        .description("A test option template")
+        .priceInfo(SecurityPriceInfo.of(Currency.EUR, 10))
+        .build();
+  }
+
 }

@@ -12,6 +12,7 @@ import org.joda.beans.JodaBeanUtils;
 
 import com.opengamma.strata.product.SecurityAttributeType;
 import com.opengamma.strata.product.SecurityPriceInfo;
+import com.opengamma.strata.product.common.ExchangeId;
 
 /**
  * A builder for building instances of {@link EtdContractSpec}.
@@ -25,7 +26,7 @@ public final class EtdContractSpecBuilder {
   private String contractCode;
 
   /** The type of the product. */
-  private EtdProductType productType;
+  private EtdType type;
 
   /** The ID of the exchange where the instruments derived from the product are traded. */
   private ExchangeId exchangeId;
@@ -56,7 +57,7 @@ public final class EtdContractSpecBuilder {
    * @return a template instance built from the data in this builder
    */
   public EtdContractSpec build() {
-    return new EtdContractSpec(id, productType, exchangeId, contractCode, description, priceInfo, attributes);
+    return new EtdContractSpec(id, type, exchangeId, contractCode, description, priceInfo, attributes);
   }
 
   /**
@@ -72,26 +73,14 @@ public final class EtdContractSpecBuilder {
   }
 
   /**
-   * Sets the code of the product as given by the exchange in clearing and margining.
-   *
-   * @param contractCode  the new value, not empty
-   * @return this, for chaining, not null
-   */
-  public EtdContractSpecBuilder contractCode(String contractCode) {
-    JodaBeanUtils.notEmpty(contractCode, "contractCode");
-    this.contractCode = contractCode;
-    return this;
-  }
-
-  /**
    * Sets the type of the product.
    *
    * @param productType  the new value, not null
    * @return this, for chaining, not null
    */
-  public EtdContractSpecBuilder productType(EtdProductType productType) {
+  public EtdContractSpecBuilder type(EtdType productType) {
     JodaBeanUtils.notNull(productType, "productType");
-    this.productType = productType;
+    this.type = productType;
     return this;
   }
 
@@ -104,6 +93,18 @@ public final class EtdContractSpecBuilder {
   public EtdContractSpecBuilder exchangeId(ExchangeId exchangeId) {
     JodaBeanUtils.notNull(exchangeId, "exchangeId");
     this.exchangeId = exchangeId;
+    return this;
+  }
+
+  /**
+   * Sets the code of the product as given by the exchange in clearing and margining.
+   *
+   * @param contractCode  the new value, not empty
+   * @return this, for chaining, not null
+   */
+  public EtdContractSpecBuilder contractCode(String contractCode) {
+    JodaBeanUtils.notEmpty(contractCode, "contractCode");
+    this.contractCode = contractCode;
     return this;
   }
 
