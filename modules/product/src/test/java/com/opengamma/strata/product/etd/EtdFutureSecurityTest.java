@@ -31,6 +31,7 @@ public class EtdFutureSecurityTest {
 
   public void test() {
     EtdFutureSecurity test = sut();
+    assertEquals(test.getStyle(), EtdStyle.MONTHLY);
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(test.createProduct(REF_DATA), test);
@@ -51,7 +52,7 @@ public class EtdFutureSecurityTest {
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(SecurityId.of("A", "B"), SecurityPriceInfo.of(Currency.GBP, 100)))
         .contractSpecId(EtdContractSpecId.of("test", "123"))
-        .expiry(YearMonth.of(2017, 6))
+        .expiryMonth(YearMonth.of(2017, 6))
         .build();
   }
 
@@ -59,8 +60,8 @@ public class EtdFutureSecurityTest {
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(SecurityId.of("B", "C"), SecurityPriceInfo.of(Currency.EUR, 10)))
         .contractSpecId(EtdContractSpecId.of("test", "234"))
-        .expiry(YearMonth.of(2017, 9))
-        .expiryDateCode("W1")
+        .expiryMonth(YearMonth.of(2017, 9))
+        .style(EtdStyle.ofWeekly(2))
         .build();
   }
 

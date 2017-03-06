@@ -9,12 +9,12 @@ import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
@@ -62,17 +63,49 @@ public final class EtdFutureSecurity
    * This is used to describe the instance of the option.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth expiry;
+  private final YearMonth expiryMonth;
   /**
-   * The optional code representing the actual day of expiry.
+   * The style of ETD.
    * <p>
-   * For example 'W2' for the second weekly contract of the month or '12' for an expiry date of the 12th of
-   * the month.
+   * This captures the style of the ETD. The most common style is 'Monthly'.
+   * Other styles are 'Weekly', 'Daily' and 'Flex'.
    * <p>
-   * If this code is not present then it is a standard monthly contract.
+   * When building, this defaults to 'Monthly'.
    */
-  @PropertyDefinition(get = "optional")
-  private final String expiryDateCode;
+  @PropertyDefinition(validate = "notNull")
+  private final EtdStyle style;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a contract specification, expiry year-month and style.
+   * <p>
+   * The security identifier will be automatically created using {@link EtdIdUtils}.
+   * The specification must be for a future.
+   *
+   * @param spec  the future contract specification
+   * @param expiryMonth  the expiry month of the future
+   * @param style  the style of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @return a future security based on this contract specification
+   * @throws IllegalStateException if the product type of the contract specification is not {@code FUTURE}
+   */
+  public static EtdFutureSecurity of(EtdContractSpec spec, YearMonth expiryMonth, EtdStyle style) {
+    if (spec.getType() != EtdType.FUTURE) {
+      throw new IllegalStateException(
+          Messages.format("Cannot create an EtdFutureSecurity from a contract specification of type '{}'", spec.getType()));
+    }
+    SecurityId securityId = EtdIdUtils.futureId(spec.getExchangeId(), spec.getContractCode(), expiryMonth, style);
+    return EtdFutureSecurity.builder()
+        .info(SecurityInfo.of(securityId, spec.getPriceInfo()))
+        .contractSpecId(spec.getId())
+        .expiryMonth(expiryMonth)
+        .style(style)
+        .build();
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.style = EtdStyle.MONTHLY;
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -135,15 +168,16 @@ public final class EtdFutureSecurity
   private EtdFutureSecurity(
       SecurityInfo info,
       EtdContractSpecId contractSpecId,
-      YearMonth expiry,
-      String expiryDateCode) {
+      YearMonth expiryMonth,
+      EtdStyle style) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(contractSpecId, "contractSpecId");
-    JodaBeanUtils.notNull(expiry, "expiry");
+    JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
+    JodaBeanUtils.notNull(style, "style");
     this.info = info;
     this.contractSpecId = contractSpecId;
-    this.expiry = expiry;
-    this.expiryDateCode = expiryDateCode;
+    this.expiryMonth = expiryMonth;
+    this.style = style;
   }
 
   @Override
@@ -189,22 +223,22 @@ public final class EtdFutureSecurity
    * This is used to describe the instance of the option.
    * @return the value of the property, not null
    */
-  public YearMonth getExpiry() {
-    return expiry;
+  public YearMonth getExpiryMonth() {
+    return expiryMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional code representing the actual day of expiry.
+   * Gets the style of ETD.
    * <p>
-   * For example 'W2' for the second weekly contract of the month or '12' for an expiry date of the 12th of
-   * the month.
+   * This captures the style of the ETD. The most common style is 'Monthly'.
+   * Other styles are 'Weekly', 'Daily' and 'Flex'.
    * <p>
-   * If this code is not present then it is a standard monthly contract.
-   * @return the optional value of the property, not null
+   * When building, this defaults to 'Monthly'.
+   * @return the value of the property, not null
    */
-  public Optional<String> getExpiryDateCode() {
-    return Optional.ofNullable(expiryDateCode);
+  public EtdStyle getStyle() {
+    return style;
   }
 
   //-----------------------------------------------------------------------
@@ -225,8 +259,8 @@ public final class EtdFutureSecurity
       EtdFutureSecurity other = (EtdFutureSecurity) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(contractSpecId, other.contractSpecId) &&
-          JodaBeanUtils.equal(expiry, other.expiry) &&
-          JodaBeanUtils.equal(expiryDateCode, other.expiryDateCode);
+          JodaBeanUtils.equal(expiryMonth, other.expiryMonth) &&
+          JodaBeanUtils.equal(style, other.style);
     }
     return false;
   }
@@ -236,8 +270,8 @@ public final class EtdFutureSecurity
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(contractSpecId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
-    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDateCode);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(style);
     return hash;
   }
 
@@ -247,8 +281,8 @@ public final class EtdFutureSecurity
     buf.append("EtdFutureSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("contractSpecId").append('=').append(contractSpecId).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("expiryDateCode").append('=').append(JodaBeanUtils.toString(expiryDateCode));
+    buf.append("expiryMonth").append('=').append(expiryMonth).append(',').append(' ');
+    buf.append("style").append('=').append(JodaBeanUtils.toString(style));
     buf.append('}');
     return buf.toString();
   }
@@ -274,15 +308,15 @@ public final class EtdFutureSecurity
     private final MetaProperty<EtdContractSpecId> contractSpecId = DirectMetaProperty.ofImmutable(
         this, "contractSpecId", EtdFutureSecurity.class, EtdContractSpecId.class);
     /**
-     * The meta-property for the {@code expiry} property.
+     * The meta-property for the {@code expiryMonth} property.
      */
-    private final MetaProperty<YearMonth> expiry = DirectMetaProperty.ofImmutable(
-        this, "expiry", EtdFutureSecurity.class, YearMonth.class);
+    private final MetaProperty<YearMonth> expiryMonth = DirectMetaProperty.ofImmutable(
+        this, "expiryMonth", EtdFutureSecurity.class, YearMonth.class);
     /**
-     * The meta-property for the {@code expiryDateCode} property.
+     * The meta-property for the {@code style} property.
      */
-    private final MetaProperty<String> expiryDateCode = DirectMetaProperty.ofImmutable(
-        this, "expiryDateCode", EtdFutureSecurity.class, String.class);
+    private final MetaProperty<EtdStyle> style = DirectMetaProperty.ofImmutable(
+        this, "style", EtdFutureSecurity.class, EtdStyle.class);
     /**
      * The meta-properties.
      */
@@ -290,8 +324,8 @@ public final class EtdFutureSecurity
         this, null,
         "info",
         "contractSpecId",
-        "expiry",
-        "expiryDateCode");
+        "expiryMonth",
+        "style");
 
     /**
      * Restricted constructor.
@@ -306,10 +340,10 @@ public final class EtdFutureSecurity
           return info;
         case 948987368:  // contractSpecId
           return contractSpecId;
-        case -1289159373:  // expiry
-          return expiry;
-        case -1523840754:  // expiryDateCode
-          return expiryDateCode;
+        case 459635981:  // expiryMonth
+          return expiryMonth;
+        case 109780401:  // style
+          return style;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -347,19 +381,19 @@ public final class EtdFutureSecurity
     }
 
     /**
-     * The meta-property for the {@code expiry} property.
+     * The meta-property for the {@code expiryMonth} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YearMonth> expiry() {
-      return expiry;
+    public MetaProperty<YearMonth> expiryMonth() {
+      return expiryMonth;
     }
 
     /**
-     * The meta-property for the {@code expiryDateCode} property.
+     * The meta-property for the {@code style} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> expiryDateCode() {
-      return expiryDateCode;
+    public MetaProperty<EtdStyle> style() {
+      return style;
     }
 
     //-----------------------------------------------------------------------
@@ -370,10 +404,10 @@ public final class EtdFutureSecurity
           return ((EtdFutureSecurity) bean).getInfo();
         case 948987368:  // contractSpecId
           return ((EtdFutureSecurity) bean).getContractSpecId();
-        case -1289159373:  // expiry
-          return ((EtdFutureSecurity) bean).getExpiry();
-        case -1523840754:  // expiryDateCode
-          return ((EtdFutureSecurity) bean).expiryDateCode;
+        case 459635981:  // expiryMonth
+          return ((EtdFutureSecurity) bean).getExpiryMonth();
+        case 109780401:  // style
+          return ((EtdFutureSecurity) bean).getStyle();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -397,13 +431,14 @@ public final class EtdFutureSecurity
 
     private SecurityInfo info;
     private EtdContractSpecId contractSpecId;
-    private YearMonth expiry;
-    private String expiryDateCode;
+    private YearMonth expiryMonth;
+    private EtdStyle style;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -413,8 +448,8 @@ public final class EtdFutureSecurity
     private Builder(EtdFutureSecurity beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.contractSpecId = beanToCopy.getContractSpecId();
-      this.expiry = beanToCopy.getExpiry();
-      this.expiryDateCode = beanToCopy.expiryDateCode;
+      this.expiryMonth = beanToCopy.getExpiryMonth();
+      this.style = beanToCopy.getStyle();
     }
 
     //-----------------------------------------------------------------------
@@ -425,10 +460,10 @@ public final class EtdFutureSecurity
           return info;
         case 948987368:  // contractSpecId
           return contractSpecId;
-        case -1289159373:  // expiry
-          return expiry;
-        case -1523840754:  // expiryDateCode
-          return expiryDateCode;
+        case 459635981:  // expiryMonth
+          return expiryMonth;
+        case 109780401:  // style
+          return style;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -443,11 +478,11 @@ public final class EtdFutureSecurity
         case 948987368:  // contractSpecId
           this.contractSpecId = (EtdContractSpecId) newValue;
           break;
-        case -1289159373:  // expiry
-          this.expiry = (YearMonth) newValue;
+        case 459635981:  // expiryMonth
+          this.expiryMonth = (YearMonth) newValue;
           break;
-        case -1523840754:  // expiryDateCode
-          this.expiryDateCode = (String) newValue;
+        case 109780401:  // style
+          this.style = (EtdStyle) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -484,8 +519,8 @@ public final class EtdFutureSecurity
       return new EtdFutureSecurity(
           info,
           contractSpecId,
-          expiry,
-          expiryDateCode);
+          expiryMonth,
+          style);
     }
 
     //-----------------------------------------------------------------------
@@ -517,27 +552,28 @@ public final class EtdFutureSecurity
      * Sets the expiry month.
      * <p>
      * This is used to describe the instance of the option.
-     * @param expiry  the new value, not null
+     * @param expiryMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expiry(YearMonth expiry) {
-      JodaBeanUtils.notNull(expiry, "expiry");
-      this.expiry = expiry;
+    public Builder expiryMonth(YearMonth expiryMonth) {
+      JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
+      this.expiryMonth = expiryMonth;
       return this;
     }
 
     /**
-     * Sets the optional code representing the actual day of expiry.
+     * Sets the style of ETD.
      * <p>
-     * For example 'W2' for the second weekly contract of the month or '12' for an expiry date of the 12th of
-     * the month.
+     * This captures the style of the ETD. The most common style is 'Monthly'.
+     * Other styles are 'Weekly', 'Daily' and 'Flex'.
      * <p>
-     * If this code is not present then it is a standard monthly contract.
-     * @param expiryDateCode  the new value
+     * When building, this defaults to 'Monthly'.
+     * @param style  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expiryDateCode(String expiryDateCode) {
-      this.expiryDateCode = expiryDateCode;
+    public Builder style(EtdStyle style) {
+      JodaBeanUtils.notNull(style, "style");
+      this.style = style;
       return this;
     }
 
@@ -548,8 +584,8 @@ public final class EtdFutureSecurity
       buf.append("EtdFutureSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("contractSpecId").append('=').append(JodaBeanUtils.toString(contractSpecId)).append(',').append(' ');
-      buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
-      buf.append("expiryDateCode").append('=').append(JodaBeanUtils.toString(expiryDateCode));
+      buf.append("expiryMonth").append('=').append(JodaBeanUtils.toString(expiryMonth)).append(',').append(' ');
+      buf.append("style").append('=').append(JodaBeanUtils.toString(style));
       buf.append('}');
       return buf.toString();
     }
