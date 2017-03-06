@@ -103,8 +103,9 @@ final class FloatingRateNameIniLookup
 
     // parse the config file FloatingRateName.ini
     private static ImmutableMap<String, FloatingRateName> parseIndices(IniFile ini) {
-      HashMap<String, FloatingRateName> map = new HashMap<>();
+      HashMap<String, ImmutableFloatingRateName> map = new HashMap<>();
       parseSection(ini.section("ibor"), "-", FloatingRateType.IBOR, map);
+      parseFixingDateOffset(ini.section("iborFixingDateOffset"), map);
       parseSection(ini.section("overnightCompounded"), "", FloatingRateType.OVERNIGHT_COMPOUNDED, map);
       parseSection(ini.section("overnightAveraged"), "", FloatingRateType.OVERNIGHT_AVERAGED, map);
       parseSection(ini.section("price"), "", FloatingRateType.PRICE, map);
@@ -116,13 +117,24 @@ final class FloatingRateNameIniLookup
         PropertySet section,
         String indexNameSuffix,
         FloatingRateType type,
-        HashMap<String, FloatingRateName> mutableMap) {
+        HashMap<String, ImmutableFloatingRateName> mutableMap) {
 
       // find our names from the RHS of the key/value pairs
       for (String key : section.keys()) {
         ImmutableFloatingRateName name = ImmutableFloatingRateName.of(key, section.value(key) + indexNameSuffix, type);
         mutableMap.put(key, name);
         mutableMap.putIfAbsent(key.toUpperCase(Locale.ENGLISH), name);
+      }
+    }
+
+    // parse the fixing date offset section
+    private static void parseFixingDateOffset(PropertySet section, HashMap<String, ImmutableFloatingRateName> mutableMap) {
+      // find our names from the RHS of the key/value pairs
+      for (String key : section.keys()) {
+        Integer days = Integer.parseInt(section.value(key));
+        ImmutableFloatingRateName name = mutableMap.get(key.toUpperCase(Locale.ENGLISH));
+        ImmutableFloatingRateName updated = name.toBuilder().fixingDateOffsetDays(days).build();
+        mutableMap.put(key.toUpperCase(Locale.ENGLISH), updated);
       }
     }
 

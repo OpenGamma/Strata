@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.basics.index;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
@@ -22,6 +25,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
@@ -142,6 +147,9 @@ public class FloatingRateNameTest {
     assertEquals(
         ImmutableList.copyOf(FloatingRateName.of("GBP-LIBOR-BBA").getTenors()),
         ImmutableList.of(Tenor.TENOR_1W, Tenor.TENOR_1M, Tenor.TENOR_2M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_12M));
+    assertEquals(
+        FloatingRateName.of("GBP-LIBOR-BBA").toIborIndexFixingOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
   }
 
   public void test_toOvernightIndex() {
@@ -150,12 +158,26 @@ public class FloatingRateNameTest {
     assertEquals(FloatingRateNames.USD_FED_FUND_AVG.toOvernightIndex(), OvernightIndices.USD_FED_FUND);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toOvernightIndex(), IllegalStateException.class);
     assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").getTenors(), ImmutableSet.of());
+    assertThrows(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndexFixingOffset(), IllegalStateException.class);
   }
 
   public void test_toPriceIndex() {
     assertEquals(FloatingRateName.of("UK-HICP").toPriceIndex(), PriceIndices.GB_HICP);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toPriceIndex(), IllegalStateException.class);
     assertEquals(FloatingRateName.of("UK-HICP").getTenors(), ImmutableSet.of());
+    assertThrows(() -> FloatingRateName.of("UK-HICP").toIborIndexFixingOffset(), IllegalStateException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toIborIndex_cibor() {
+    assertEquals(FloatingRateName.of("DKK-CIBOR-DKNA13").toIborIndex(Tenor.TENOR_6M), IborIndices.DKK_CIBOR_6M);
+    assertEquals(FloatingRateName.of("DKK-CIBOR2-DKNA13").toIborIndex(Tenor.TENOR_6M), IborIndices.DKK_CIBOR_6M);
+    assertEquals(
+        FloatingRateName.of("DKK-CIBOR-DKNA13").toIborIndexFixingOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, DKCO)));
+    assertEquals(
+        FloatingRateName.of("DKK-CIBOR2-DKNA13").toIborIndexFixingOffset(),
+        DaysAdjustment.ofBusinessDays(-2, DKCO));
   }
 
   //-------------------------------------------------------------------------
