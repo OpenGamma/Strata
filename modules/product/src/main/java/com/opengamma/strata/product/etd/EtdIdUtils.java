@@ -31,7 +31,7 @@ public final class EtdIdUtils {
   /**
    * The separator to use.
    */
-  private static final String SEPARATOR = ":";
+  private static final String SEPARATOR = "-";
   /**
    * Prefix for futures.
    */
@@ -144,7 +144,7 @@ public final class EtdIdUtils {
     NumberFormat f = NumberFormat.getIntegerInstance(Locale.ENGLISH);
     f.setGroupingUsed(false);
     f.setMaximumFractionDigits(8);
-    String strikeStr = f.format(strikePrice);
+    String strikeStr = f.format(strikePrice).replace('-', 'M');
 
     String id = OPT_PREFIX +
         exchangeId + SEPARATOR +

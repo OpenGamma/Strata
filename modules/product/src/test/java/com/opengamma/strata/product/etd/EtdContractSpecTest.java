@@ -44,7 +44,7 @@ public class EtdContractSpecTest {
   public void createFutureAutoId() {
     EtdFutureSecurity security = FUTURE_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdStyle.MONTHLY);
 
-    assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "F:ECAG:FOO:201506"));
+    assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "F-ECAG-FOO-201506"));
     assertThat(security.getExpiry()).isEqualTo(YearMonth.of(2015, 6));
     assertThat(security.getContractSpecId()).isEqualTo(FUTURE_CONTRACT.getId());
     assertThat(security.getStyle()).isEqualTo(EtdStyle.MONTHLY);
@@ -61,7 +61,7 @@ public class EtdContractSpecTest {
   public void createOptionAutoId() {
     EtdOptionSecurity security = OPTION_CONTRACT.createOption(YearMonth.of(2015, 6), EtdStyle.MONTHLY, 0, PutCall.CALL, 123.45);
 
-    assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "O:IFEN:BAR:201506:C123.45"));
+    assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "O-IFEN-BAR-201506-C123.45"));
     assertThat(security.getExpiry()).isEqualTo(YearMonth.of(2015, 6));
     assertThat(security.getContractSpecId()).isEqualTo(OPTION_CONTRACT.getId());
     assertThat(security.getStyle()).isEqualTo(EtdStyle.MONTHLY);
