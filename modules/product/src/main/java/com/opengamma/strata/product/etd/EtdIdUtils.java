@@ -29,20 +29,24 @@ public final class EtdIdUtils {
    */
   public static final String ETD_SCHEME = "OG-ETD";
   /**
+   * The separator to use.
+   */
+  private static final String SEPARATOR = ":";
+  /**
    * Prefix for futures.
    */
-  private static final String FUT_PREFIX = "F/";
+  private static final String FUT_PREFIX = "F" + SEPARATOR;
   /**
    * Prefix for option.
    */
-  private static final String OPT_PREFIX = "O/";
+  private static final String OPT_PREFIX = "O" + SEPARATOR;
 
   //-------------------------------------------------------------------------
   /**
    * Creates an identifier for a contract specification.
    * <p>
    * This will have the format:
-   * {@code 'OG-Etd~F/ECAG/FGBS'} or {@code 'OG-Etd~O/ECAG/OGBS'}.
+   * {@code 'OG-ETD~F:ECAG:FGBS'} or {@code 'OG-ETD~O:ECAG:OGBS'}.
    *
    * @param type  type of the contract - future or option
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
@@ -55,9 +59,9 @@ public final class EtdIdUtils {
     ArgChecker.notEmpty(contractCode, "contractCode");
     switch (type) {
       case FUTURE:
-        return EtdContractSpecId.of(ETD_SCHEME, FUT_PREFIX + exchangeId + "/" + contractCode);
+        return EtdContractSpecId.of(ETD_SCHEME, FUT_PREFIX + exchangeId + SEPARATOR + contractCode);
       case OPTION:
-        return EtdContractSpecId.of(ETD_SCHEME, OPT_PREFIX + exchangeId + "/" + contractCode);
+        return EtdContractSpecId.of(ETD_SCHEME, OPT_PREFIX + exchangeId + SEPARATOR + contractCode);
       default:
         throw new IllegalArgumentException("Unknown ETD type: " + type);
     }
@@ -67,10 +71,10 @@ public final class EtdIdUtils {
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD will have the format:
-   * {@code 'OG-Etd~O/ECAG/OGBS/201706'}.
+   * {@code 'OG-ETD~O:ECAG:OGBS:201706'}.
    * <p>
    * A more complex flex ETD (12th of the month, Physical settlement) will have the format:
-   * {@code 'OG-Etd~O/ECAG/OGBS/20170612E'}.
+   * {@code 'OG-ETD~O:ECAG:OGBS:20170612E'}.
    *
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
@@ -86,12 +90,13 @@ public final class EtdIdUtils {
 
     ArgChecker.notNull(exchangeId, "exchangeId");
     ArgChecker.notEmpty(contractCode, "contractCode");
+    ArgChecker.notNull(expiryMonth, "expiryMonth");
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
     ArgChecker.notNull(style, "style");
 
     String id = FUT_PREFIX +
-        exchangeId + "/" +
-        contractCode + "/" +
+        exchangeId + SEPARATOR +
+        contractCode + SEPARATOR +
         expiryMonth.getYear() +
         ((char) ((expiryMonth.getMonthValue() / 10) + '0')) +
         ((char) ((expiryMonth.getMonthValue() % 10) + '0')) +
@@ -103,10 +108,10 @@ public final class EtdIdUtils {
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD with version zero will have the format:
-   * {@code 'OG-Etd~O/ECAG/OGBS/201706/P1.50'}.
+   * {@code 'OG-ETD~O:ECAG:OGBS:201706:P1.50'}.
    * <p>
    * A more complex flex ETD (12th of the month, Cash settlement, European) with version two will have the format:
-   * {@code 'OG-Etd~O/ECAG/OGBS/20170612CE/V2/P1.50'}.
+   * {@code 'OG-ETD~O:ECAG:OGBS:20170612CE:V2:P1.50'}.
    *
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
@@ -128,11 +133,13 @@ public final class EtdIdUtils {
 
     ArgChecker.notNull(exchangeId, "exchangeId");
     ArgChecker.notEmpty(contractCode, "contractCode");
+    ArgChecker.notNull(expiryMonth, "expiryMonth");
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
     ArgChecker.notNull(style, "style");
+    ArgChecker.notNull(putCall, "putCall");
 
     String putCallStr = putCall == PutCall.PUT ? "P" : "C";
-    String versionCode = version > 0 ? "V" + version + "/" : "";
+    String versionCode = version > 0 ? "V" + version + SEPARATOR : "";
 
     NumberFormat f = NumberFormat.getIntegerInstance(Locale.ENGLISH);
     f.setGroupingUsed(false);
@@ -140,12 +147,12 @@ public final class EtdIdUtils {
     String strikeStr = f.format(strikePrice);
 
     String id = OPT_PREFIX +
-        exchangeId + "/" +
-        contractCode + "/" +
+        exchangeId + SEPARATOR +
+        contractCode + SEPARATOR +
         expiryMonth.getYear() +
         ((char) ((expiryMonth.getMonthValue() / 10) + '0')) +
         ((char) ((expiryMonth.getMonthValue() % 10) + '0')) +
-        style.getCode() + "/" +
+        style.getCode() + SEPARATOR +
         versionCode +
         putCallStr +
         strikeStr;

@@ -52,7 +52,7 @@ public class EtdFutureSecurityTest {
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(SecurityId.of("A", "B"), SecurityPriceInfo.of(Currency.GBP, 100)))
         .contractSpecId(EtdContractSpecId.of("test", "123"))
-        .expiryMonth(YearMonth.of(2017, 6))
+        .expiry(YearMonth.of(2017, 6))
         .build();
   }
 
@@ -60,7 +60,7 @@ public class EtdFutureSecurityTest {
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(SecurityId.of("B", "C"), SecurityPriceInfo.of(Currency.EUR, 10)))
         .contractSpecId(EtdContractSpecId.of("test", "234"))
-        .expiryMonth(YearMonth.of(2017, 9))
+        .expiry(YearMonth.of(2017, 9))
         .style(EtdStyle.ofWeekly(2))
         .build();
   }

@@ -54,17 +54,17 @@ public final class EtdStyle
   /**
    * The optional date code, populated for Weekly, Daily and Flex.
    * <p>
-   * This will be the week number for weekly, or the day-of-week for Daily and Flex.
+   * This will be the week number for Weekly, or the day-of-week for Daily and Flex.
    */
   @PropertyDefinition(get = "optional")
   private final Integer dateCode;
   /**
-   * The optional settlement type, populated for Flex.
+   * The optional settlement type, such as 'Cash' or 'Physical', populated for Flex.
    */
   @PropertyDefinition(get = "optional")
   private final EtdSettlementType settlementType;
   /**
-   * The optional settlement type, populated for Flex options.
+   * The optional option type, 'American' or 'European', populated for Flex options.
    */
   @PropertyDefinition(get = "optional")
   private final EtdOptionType optionType;
@@ -234,7 +234,7 @@ public final class EtdStyle
   /**
    * Gets the optional date code, populated for Weekly, Daily and Flex.
    * <p>
-   * This will be the week number for weekly, or the day-of-week for Daily and Flex.
+   * This will be the week number for Weekly, or the day-of-week for Daily and Flex.
    * @return the optional value of the property, not null
    */
   public OptionalInt getDateCode() {
@@ -243,7 +243,7 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional settlement type, populated for Flex.
+   * Gets the optional settlement type, such as 'Cash' or 'Physical', populated for Flex.
    * @return the optional value of the property, not null
    */
   public Optional<EtdSettlementType> getSettlementType() {
@@ -252,7 +252,7 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional settlement type, populated for Flex options.
+   * Gets the optional option type, 'American' or 'European', populated for Flex options.
    * @return the optional value of the property, not null
    */
   public Optional<EtdOptionType> getOptionType() {

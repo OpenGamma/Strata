@@ -60,12 +60,12 @@ public final class EtdOptionSecurity
   @PropertyDefinition(validate = "notNull")
   private final EtdContractSpecId contractSpecId;
   /**
-   * The expiry month.
+   * The year-month of the expiry.
    * <p>
-   * This is used to describe the instance of the option.
+   * Expiry will occur on a date implied by the style of the ETD.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth expiryMonth;
+  private final YearMonth expiry;
   /**
    * The style of ETD.
    * <p>
@@ -103,7 +103,7 @@ public final class EtdOptionSecurity
    * The specification must be for an option.
    *
    * @param spec  the option contract specification
-   * @param expiryMonth  the expiry month of the future
+   * @param expiry  the expiry year-month of the option
    * @param style  the style of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
    * @param version  the non-negative version, zero if versioning does not apply
    * @param putCall  whether the option is a put or call
@@ -113,7 +113,7 @@ public final class EtdOptionSecurity
    */
   public static EtdOptionSecurity of(
       EtdContractSpec spec,
-      YearMonth expiryMonth,
+      YearMonth expiry,
       EtdStyle style,
       int version,
       PutCall putCall,
@@ -124,11 +124,11 @@ public final class EtdOptionSecurity
           Messages.format("Cannot create an EtdOptionSecurity from a contract specification of type '{}'", spec.getType()));
     }
     SecurityId securityId =
-        EtdIdUtils.optionId(spec.getExchangeId(), spec.getContractCode(), expiryMonth, style, version, putCall, strikePrice);
+        EtdIdUtils.optionId(spec.getExchangeId(), spec.getContractCode(), expiry, style, version, putCall, strikePrice);
     return EtdOptionSecurity.builder()
         .info(SecurityInfo.of(securityId, spec.getPriceInfo()))
         .contractSpecId(spec.getId())
-        .expiryMonth(expiryMonth)
+        .expiry(expiry)
         .style(style)
         .version(version)
         .putCall(putCall)
@@ -202,20 +202,20 @@ public final class EtdOptionSecurity
   private EtdOptionSecurity(
       SecurityInfo info,
       EtdContractSpecId contractSpecId,
-      YearMonth expiryMonth,
+      YearMonth expiry,
       EtdStyle style,
       int version,
       PutCall putCall,
       double strikePrice) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(contractSpecId, "contractSpecId");
-    JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
+    JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(style, "style");
     ArgChecker.notNegative(version, "version");
     JodaBeanUtils.notNull(putCall, "putCall");
     this.info = info;
     this.contractSpecId = contractSpecId;
-    this.expiryMonth = expiryMonth;
+    this.expiry = expiry;
     this.style = style;
     this.version = version;
     this.putCall = putCall;
@@ -260,13 +260,13 @@ public final class EtdOptionSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry month.
+   * Gets the year-month of the expiry.
    * <p>
-   * This is used to describe the instance of the option.
+   * Expiry will occur on a date implied by the style of the ETD.
    * @return the value of the property, not null
    */
-  public YearMonth getExpiryMonth() {
-    return expiryMonth;
+  public YearMonth getExpiry() {
+    return expiry;
   }
 
   //-----------------------------------------------------------------------
@@ -331,7 +331,7 @@ public final class EtdOptionSecurity
       EtdOptionSecurity other = (EtdOptionSecurity) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(contractSpecId, other.contractSpecId) &&
-          JodaBeanUtils.equal(expiryMonth, other.expiryMonth) &&
+          JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(style, other.style) &&
           (version == other.version) &&
           JodaBeanUtils.equal(putCall, other.putCall) &&
@@ -345,7 +345,7 @@ public final class EtdOptionSecurity
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(contractSpecId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(expiryMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(style);
     hash = hash * 31 + JodaBeanUtils.hashCode(version);
     hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
@@ -359,7 +359,7 @@ public final class EtdOptionSecurity
     buf.append("EtdOptionSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("contractSpecId").append('=').append(contractSpecId).append(',').append(' ');
-    buf.append("expiryMonth").append('=').append(expiryMonth).append(',').append(' ');
+    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("style").append('=').append(style).append(',').append(' ');
     buf.append("version").append('=').append(version).append(',').append(' ');
     buf.append("putCall").append('=').append(putCall).append(',').append(' ');
@@ -389,10 +389,10 @@ public final class EtdOptionSecurity
     private final MetaProperty<EtdContractSpecId> contractSpecId = DirectMetaProperty.ofImmutable(
         this, "contractSpecId", EtdOptionSecurity.class, EtdContractSpecId.class);
     /**
-     * The meta-property for the {@code expiryMonth} property.
+     * The meta-property for the {@code expiry} property.
      */
-    private final MetaProperty<YearMonth> expiryMonth = DirectMetaProperty.ofImmutable(
-        this, "expiryMonth", EtdOptionSecurity.class, YearMonth.class);
+    private final MetaProperty<YearMonth> expiry = DirectMetaProperty.ofImmutable(
+        this, "expiry", EtdOptionSecurity.class, YearMonth.class);
     /**
      * The meta-property for the {@code style} property.
      */
@@ -420,7 +420,7 @@ public final class EtdOptionSecurity
         this, null,
         "info",
         "contractSpecId",
-        "expiryMonth",
+        "expiry",
         "style",
         "version",
         "putCall",
@@ -439,8 +439,8 @@ public final class EtdOptionSecurity
           return info;
         case 948987368:  // contractSpecId
           return contractSpecId;
-        case 459635981:  // expiryMonth
-          return expiryMonth;
+        case -1289159373:  // expiry
+          return expiry;
         case 109780401:  // style
           return style;
         case 351608024:  // version
@@ -486,11 +486,11 @@ public final class EtdOptionSecurity
     }
 
     /**
-     * The meta-property for the {@code expiryMonth} property.
+     * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YearMonth> expiryMonth() {
-      return expiryMonth;
+    public MetaProperty<YearMonth> expiry() {
+      return expiry;
     }
 
     /**
@@ -533,8 +533,8 @@ public final class EtdOptionSecurity
           return ((EtdOptionSecurity) bean).getInfo();
         case 948987368:  // contractSpecId
           return ((EtdOptionSecurity) bean).getContractSpecId();
-        case 459635981:  // expiryMonth
-          return ((EtdOptionSecurity) bean).getExpiryMonth();
+        case -1289159373:  // expiry
+          return ((EtdOptionSecurity) bean).getExpiry();
         case 109780401:  // style
           return ((EtdOptionSecurity) bean).getStyle();
         case 351608024:  // version
@@ -566,7 +566,7 @@ public final class EtdOptionSecurity
 
     private SecurityInfo info;
     private EtdContractSpecId contractSpecId;
-    private YearMonth expiryMonth;
+    private YearMonth expiry;
     private EtdStyle style;
     private int version;
     private PutCall putCall;
@@ -586,7 +586,7 @@ public final class EtdOptionSecurity
     private Builder(EtdOptionSecurity beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.contractSpecId = beanToCopy.getContractSpecId();
-      this.expiryMonth = beanToCopy.getExpiryMonth();
+      this.expiry = beanToCopy.getExpiry();
       this.style = beanToCopy.getStyle();
       this.version = beanToCopy.getVersion();
       this.putCall = beanToCopy.getPutCall();
@@ -601,8 +601,8 @@ public final class EtdOptionSecurity
           return info;
         case 948987368:  // contractSpecId
           return contractSpecId;
-        case 459635981:  // expiryMonth
-          return expiryMonth;
+        case -1289159373:  // expiry
+          return expiry;
         case 109780401:  // style
           return style;
         case 351608024:  // version
@@ -625,8 +625,8 @@ public final class EtdOptionSecurity
         case 948987368:  // contractSpecId
           this.contractSpecId = (EtdContractSpecId) newValue;
           break;
-        case 459635981:  // expiryMonth
-          this.expiryMonth = (YearMonth) newValue;
+        case -1289159373:  // expiry
+          this.expiry = (YearMonth) newValue;
           break;
         case 109780401:  // style
           this.style = (EtdStyle) newValue;
@@ -675,7 +675,7 @@ public final class EtdOptionSecurity
       return new EtdOptionSecurity(
           info,
           contractSpecId,
-          expiryMonth,
+          expiry,
           style,
           version,
           putCall,
@@ -708,15 +708,15 @@ public final class EtdOptionSecurity
     }
 
     /**
-     * Sets the expiry month.
+     * Sets the year-month of the expiry.
      * <p>
-     * This is used to describe the instance of the option.
-     * @param expiryMonth  the new value, not null
+     * Expiry will occur on a date implied by the style of the ETD.
+     * @param expiry  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expiryMonth(YearMonth expiryMonth) {
-      JodaBeanUtils.notNull(expiryMonth, "expiryMonth");
-      this.expiryMonth = expiryMonth;
+    public Builder expiry(YearMonth expiry) {
+      JodaBeanUtils.notNull(expiry, "expiry");
+      this.expiry = expiry;
       return this;
     }
 
@@ -778,7 +778,7 @@ public final class EtdOptionSecurity
       buf.append("EtdOptionSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("contractSpecId").append('=').append(JodaBeanUtils.toString(contractSpecId)).append(',').append(' ');
-      buf.append("expiryMonth").append('=').append(JodaBeanUtils.toString(expiryMonth)).append(',').append(' ');
+      buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("style").append('=').append(JodaBeanUtils.toString(style)).append(',').append(' ');
       buf.append("version").append('=').append(JodaBeanUtils.toString(version)).append(',').append(' ');
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
