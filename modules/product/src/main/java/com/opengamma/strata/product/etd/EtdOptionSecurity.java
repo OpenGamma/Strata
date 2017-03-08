@@ -24,13 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.product.SecuritizedProduct;
-import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.Trade;
@@ -45,7 +41,7 @@ import com.opengamma.strata.product.common.PutCall;
  */
 @BeanDefinition
 public final class EtdOptionSecurity
-    implements Security, SecuritizedProduct, ImmutableBean, Serializable {
+    implements EtdSecurity, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -57,14 +53,14 @@ public final class EtdOptionSecurity
   /**
    * The ID of the contract specification from which this security is derived.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final EtdContractSpecId contractSpecId;
   /**
    * The year-month of the expiry.
    * <p>
    * Expiry will occur on a date implied by the variant of the ETD.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final YearMonth expiry;
   /**
    * The variant of ETD.
@@ -74,7 +70,7 @@ public final class EtdOptionSecurity
    * <p>
    * When building, this defaults to 'Monthly'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final EtdVariant variant;
   /**
    * The version of the option, defaulted to zero.
@@ -143,22 +139,7 @@ public final class EtdOptionSecurity
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityId getSecurityId() {
-    return Security.super.getSecurityId();
-  }
-
-  @Override
-  public Currency getCurrency() {
-    return Security.super.getCurrency();
-  }
-
-  @Override
-  public ImmutableSet<SecurityId> getUnderlyingIds() {
-    return ImmutableSet.of();
-  }
-
-  @Override
-  public SecuritizedProduct createProduct(ReferenceData refData) {
+  public EtdOptionSecurity createProduct(ReferenceData refData) {
     return this;
   }
 
@@ -254,6 +235,7 @@ public final class EtdOptionSecurity
    * Gets the ID of the contract specification from which this security is derived.
    * @return the value of the property, not null
    */
+  @Override
   public EtdContractSpecId getContractSpecId() {
     return contractSpecId;
   }
@@ -265,6 +247,7 @@ public final class EtdOptionSecurity
    * Expiry will occur on a date implied by the variant of the ETD.
    * @return the value of the property, not null
    */
+  @Override
   public YearMonth getExpiry() {
     return expiry;
   }
@@ -279,6 +262,7 @@ public final class EtdOptionSecurity
    * When building, this defaults to 'Monthly'.
    * @return the value of the property, not null
    */
+  @Override
   public EtdVariant getVariant() {
     return variant;
   }
