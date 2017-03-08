@@ -9,12 +9,12 @@ import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -24,12 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecuritizedProduct;
-import com.opengamma.strata.product.Security;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.Trade;
@@ -44,7 +41,7 @@ import com.opengamma.strata.product.common.PutCall;
  */
 @BeanDefinition
 public final class EtdOptionSecurity
-    implements Security, SecuritizedProduct, ImmutableBean, Serializable {
+    implements EtdSecurity, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -56,54 +53,93 @@ public final class EtdOptionSecurity
   /**
    * The ID of the contract specification from which this security is derived.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final EtdContractSpecId contractSpecId;
   /**
-   * The expiry month.
+   * The year-month of the expiry.
    * <p>
-   * This is used to describe the instance of the option.
+   * Expiry will occur on a date implied by the variant of the ETD.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final YearMonth expiry;
   /**
-   * The optional code representing the actual day of expiry.
+   * The variant of ETD.
    * <p>
-   * For example 'W2' for the second weekly contract of the month or '12' for an expiry date of the 12th of
-   * the month.
+   * This captures the variant of the ETD. The most common variant is 'Monthly'.
+   * Other variants are 'Weekly', 'Daily' and 'Flex'.
    * <p>
-   * If this code is not present then it is a standard monthly contract.
+   * When building, this defaults to 'Monthly'.
    */
-  @PropertyDefinition(get = "optional")
-  private final String expiryDateCode;
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final EtdVariant variant;
+  /**
+   * The version of the option, defaulted to zero.
+   * <p>
+   * Some options can have multiple versions, representing some kind of change over time.
+   * Version zero is the baseline, version one and later indicates some kind of change occurred.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final int version;
   /**
    * Whether the option is a put or call.
    */
   @PropertyDefinition(validate = "notNull")
   private final PutCall putCall;
   /**
-   * The strike price, in decimal form.
+   * The strike price, in decimal form, may be negative.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition
   private final double strikePrice;
 
   //-------------------------------------------------------------------------
-  @Override
-  public SecurityId getSecurityId() {
-    return Security.super.getSecurityId();
+  /**
+   * Obtains an instance from a contract specification, expiry year-month, variant, version, put/call and strike price.
+   * <p>
+   * The security identifier will be automatically created using {@link EtdIdUtils}.
+   * The specification must be for an option.
+   *
+   * @param spec  the option contract specification
+   * @param expiry  the expiry year-month of the option
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param version  the non-negative version, zero if versioning does not apply
+   * @param putCall  whether the option is a put or call
+   * @param strikePrice  the strike price of the option
+   * @return an option security based on this contract specification
+   * @throws IllegalStateException if the product type of the contract specification is not {@code OPTION}
+   */
+  public static EtdOptionSecurity of(
+      EtdContractSpec spec,
+      YearMonth expiry,
+      EtdVariant variant,
+      int version,
+      PutCall putCall,
+      double strikePrice) {
+
+    if (spec.getType() != EtdType.OPTION) {
+      throw new IllegalStateException(
+          Messages.format("Cannot create an EtdOptionSecurity from a contract specification of type '{}'", spec.getType()));
+    }
+    SecurityId securityId =
+        EtdIdUtils.optionId(spec.getExchangeId(), spec.getContractCode(), expiry, variant, version, putCall, strikePrice);
+    return EtdOptionSecurity.builder()
+        .info(SecurityInfo.of(securityId, spec.getPriceInfo()))
+        .contractSpecId(spec.getId())
+        .expiry(expiry)
+        .variant(variant)
+        .version(version)
+        .putCall(putCall)
+        .strikePrice(strikePrice)
+        .build();
   }
 
-  @Override
-  public Currency getCurrency() {
-    return Security.super.getCurrency();
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.variant = EtdVariant.MONTHLY;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public ImmutableSet<SecurityId> getUnderlyingIds() {
-    return ImmutableSet.of();
-  }
-
-  @Override
-  public SecuritizedProduct createProduct(ReferenceData refData) {
+  public EtdOptionSecurity createProduct(ReferenceData refData) {
     return this;
   }
 
@@ -148,18 +184,21 @@ public final class EtdOptionSecurity
       SecurityInfo info,
       EtdContractSpecId contractSpecId,
       YearMonth expiry,
-      String expiryDateCode,
+      EtdVariant variant,
+      int version,
       PutCall putCall,
       double strikePrice) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(contractSpecId, "contractSpecId");
     JodaBeanUtils.notNull(expiry, "expiry");
+    JodaBeanUtils.notNull(variant, "variant");
+    ArgChecker.notNegative(version, "version");
     JodaBeanUtils.notNull(putCall, "putCall");
-    ArgChecker.notNegative(strikePrice, "strikePrice");
     this.info = info;
     this.contractSpecId = contractSpecId;
     this.expiry = expiry;
-    this.expiryDateCode = expiryDateCode;
+    this.variant = variant;
+    this.version = version;
     this.putCall = putCall;
     this.strikePrice = strikePrice;
   }
@@ -196,33 +235,48 @@ public final class EtdOptionSecurity
    * Gets the ID of the contract specification from which this security is derived.
    * @return the value of the property, not null
    */
+  @Override
   public EtdContractSpecId getContractSpecId() {
     return contractSpecId;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry month.
+   * Gets the year-month of the expiry.
    * <p>
-   * This is used to describe the instance of the option.
+   * Expiry will occur on a date implied by the variant of the ETD.
    * @return the value of the property, not null
    */
+  @Override
   public YearMonth getExpiry() {
     return expiry;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional code representing the actual day of expiry.
+   * Gets the variant of ETD.
    * <p>
-   * For example 'W2' for the second weekly contract of the month or '12' for an expiry date of the 12th of
-   * the month.
+   * This captures the variant of the ETD. The most common variant is 'Monthly'.
+   * Other variants are 'Weekly', 'Daily' and 'Flex'.
    * <p>
-   * If this code is not present then it is a standard monthly contract.
-   * @return the optional value of the property, not null
+   * When building, this defaults to 'Monthly'.
+   * @return the value of the property, not null
    */
-  public Optional<String> getExpiryDateCode() {
-    return Optional.ofNullable(expiryDateCode);
+  @Override
+  public EtdVariant getVariant() {
+    return variant;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the version of the option, defaulted to zero.
+   * <p>
+   * Some options can have multiple versions, representing some kind of change over time.
+   * Version zero is the baseline, version one and later indicates some kind of change occurred.
+   * @return the value of the property
+   */
+  public int getVersion() {
+    return version;
   }
 
   //-----------------------------------------------------------------------
@@ -236,7 +290,7 @@ public final class EtdOptionSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strike price, in decimal form.
+   * Gets the strike price, in decimal form, may be negative.
    * @return the value of the property
    */
   public double getStrikePrice() {
@@ -262,7 +316,8 @@ public final class EtdOptionSecurity
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(contractSpecId, other.contractSpecId) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
-          JodaBeanUtils.equal(expiryDateCode, other.expiryDateCode) &&
+          JodaBeanUtils.equal(variant, other.variant) &&
+          (version == other.version) &&
           JodaBeanUtils.equal(putCall, other.putCall) &&
           JodaBeanUtils.equal(strikePrice, other.strikePrice);
     }
@@ -275,7 +330,8 @@ public final class EtdOptionSecurity
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(contractSpecId);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
-    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDateCode);
+    hash = hash * 31 + JodaBeanUtils.hashCode(variant);
+    hash = hash * 31 + JodaBeanUtils.hashCode(version);
     hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
     return hash;
@@ -283,12 +339,13 @@ public final class EtdOptionSecurity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("EtdOptionSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("contractSpecId").append('=').append(contractSpecId).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("expiryDateCode").append('=').append(expiryDateCode).append(',').append(' ');
+    buf.append("variant").append('=').append(variant).append(',').append(' ');
+    buf.append("version").append('=').append(version).append(',').append(' ');
     buf.append("putCall").append('=').append(putCall).append(',').append(' ');
     buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice));
     buf.append('}');
@@ -321,10 +378,15 @@ public final class EtdOptionSecurity
     private final MetaProperty<YearMonth> expiry = DirectMetaProperty.ofImmutable(
         this, "expiry", EtdOptionSecurity.class, YearMonth.class);
     /**
-     * The meta-property for the {@code expiryDateCode} property.
+     * The meta-property for the {@code variant} property.
      */
-    private final MetaProperty<String> expiryDateCode = DirectMetaProperty.ofImmutable(
-        this, "expiryDateCode", EtdOptionSecurity.class, String.class);
+    private final MetaProperty<EtdVariant> variant = DirectMetaProperty.ofImmutable(
+        this, "variant", EtdOptionSecurity.class, EtdVariant.class);
+    /**
+     * The meta-property for the {@code version} property.
+     */
+    private final MetaProperty<Integer> version = DirectMetaProperty.ofImmutable(
+        this, "version", EtdOptionSecurity.class, Integer.TYPE);
     /**
      * The meta-property for the {@code putCall} property.
      */
@@ -343,7 +405,8 @@ public final class EtdOptionSecurity
         "info",
         "contractSpecId",
         "expiry",
-        "expiryDateCode",
+        "variant",
+        "version",
         "putCall",
         "strikePrice");
 
@@ -362,8 +425,10 @@ public final class EtdOptionSecurity
           return contractSpecId;
         case -1289159373:  // expiry
           return expiry;
-        case -1523840754:  // expiryDateCode
-          return expiryDateCode;
+        case 236785797:  // variant
+          return variant;
+        case 351608024:  // version
+          return version;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
@@ -413,11 +478,19 @@ public final class EtdOptionSecurity
     }
 
     /**
-     * The meta-property for the {@code expiryDateCode} property.
+     * The meta-property for the {@code variant} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> expiryDateCode() {
-      return expiryDateCode;
+    public MetaProperty<EtdVariant> variant() {
+      return variant;
+    }
+
+    /**
+     * The meta-property for the {@code version} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> version() {
+      return version;
     }
 
     /**
@@ -446,8 +519,10 @@ public final class EtdOptionSecurity
           return ((EtdOptionSecurity) bean).getContractSpecId();
         case -1289159373:  // expiry
           return ((EtdOptionSecurity) bean).getExpiry();
-        case -1523840754:  // expiryDateCode
-          return ((EtdOptionSecurity) bean).expiryDateCode;
+        case 236785797:  // variant
+          return ((EtdOptionSecurity) bean).getVariant();
+        case 351608024:  // version
+          return ((EtdOptionSecurity) bean).getVersion();
         case -219971059:  // putCall
           return ((EtdOptionSecurity) bean).getPutCall();
         case 50946231:  // strikePrice
@@ -476,7 +551,8 @@ public final class EtdOptionSecurity
     private SecurityInfo info;
     private EtdContractSpecId contractSpecId;
     private YearMonth expiry;
-    private String expiryDateCode;
+    private EtdVariant variant;
+    private int version;
     private PutCall putCall;
     private double strikePrice;
 
@@ -484,6 +560,7 @@ public final class EtdOptionSecurity
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -494,7 +571,8 @@ public final class EtdOptionSecurity
       this.info = beanToCopy.getInfo();
       this.contractSpecId = beanToCopy.getContractSpecId();
       this.expiry = beanToCopy.getExpiry();
-      this.expiryDateCode = beanToCopy.expiryDateCode;
+      this.variant = beanToCopy.getVariant();
+      this.version = beanToCopy.getVersion();
       this.putCall = beanToCopy.getPutCall();
       this.strikePrice = beanToCopy.getStrikePrice();
     }
@@ -509,8 +587,10 @@ public final class EtdOptionSecurity
           return contractSpecId;
         case -1289159373:  // expiry
           return expiry;
-        case -1523840754:  // expiryDateCode
-          return expiryDateCode;
+        case 236785797:  // variant
+          return variant;
+        case 351608024:  // version
+          return version;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
@@ -532,8 +612,11 @@ public final class EtdOptionSecurity
         case -1289159373:  // expiry
           this.expiry = (YearMonth) newValue;
           break;
-        case -1523840754:  // expiryDateCode
-          this.expiryDateCode = (String) newValue;
+        case 236785797:  // variant
+          this.variant = (EtdVariant) newValue;
+          break;
+        case 351608024:  // version
+          this.version = (Integer) newValue;
           break;
         case -219971059:  // putCall
           this.putCall = (PutCall) newValue;
@@ -577,7 +660,8 @@ public final class EtdOptionSecurity
           info,
           contractSpecId,
           expiry,
-          expiryDateCode,
+          variant,
+          version,
           putCall,
           strikePrice);
     }
@@ -608,9 +692,9 @@ public final class EtdOptionSecurity
     }
 
     /**
-     * Sets the expiry month.
+     * Sets the year-month of the expiry.
      * <p>
-     * This is used to describe the instance of the option.
+     * Expiry will occur on a date implied by the variant of the ETD.
      * @param expiry  the new value, not null
      * @return this, for chaining, not null
      */
@@ -621,17 +705,32 @@ public final class EtdOptionSecurity
     }
 
     /**
-     * Sets the optional code representing the actual day of expiry.
+     * Sets the variant of ETD.
      * <p>
-     * For example 'W2' for the second weekly contract of the month or '12' for an expiry date of the 12th of
-     * the month.
+     * This captures the variant of the ETD. The most common variant is 'Monthly'.
+     * Other variants are 'Weekly', 'Daily' and 'Flex'.
      * <p>
-     * If this code is not present then it is a standard monthly contract.
-     * @param expiryDateCode  the new value
+     * When building, this defaults to 'Monthly'.
+     * @param variant  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expiryDateCode(String expiryDateCode) {
-      this.expiryDateCode = expiryDateCode;
+    public Builder variant(EtdVariant variant) {
+      JodaBeanUtils.notNull(variant, "variant");
+      this.variant = variant;
+      return this;
+    }
+
+    /**
+     * Sets the version of the option, defaulted to zero.
+     * <p>
+     * Some options can have multiple versions, representing some kind of change over time.
+     * Version zero is the baseline, version one and later indicates some kind of change occurred.
+     * @param version  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder version(int version) {
+      ArgChecker.notNegative(version, "version");
+      this.version = version;
       return this;
     }
 
@@ -647,12 +746,11 @@ public final class EtdOptionSecurity
     }
 
     /**
-     * Sets the strike price, in decimal form.
+     * Sets the strike price, in decimal form, may be negative.
      * @param strikePrice  the new value
      * @return this, for chaining, not null
      */
     public Builder strikePrice(double strikePrice) {
-      ArgChecker.notNegative(strikePrice, "strikePrice");
       this.strikePrice = strikePrice;
       return this;
     }
@@ -660,12 +758,13 @@ public final class EtdOptionSecurity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("EtdOptionSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("contractSpecId").append('=').append(JodaBeanUtils.toString(contractSpecId)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
-      buf.append("expiryDateCode").append('=').append(JodaBeanUtils.toString(expiryDateCode)).append(',').append(' ');
+      buf.append("variant").append('=').append(JodaBeanUtils.toString(variant)).append(',').append(' ');
+      buf.append("version").append('=').append(JodaBeanUtils.toString(version)).append(',').append(' ');
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice));
       buf.append('}');

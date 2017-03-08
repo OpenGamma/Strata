@@ -52,16 +52,19 @@ public final class EtdContractSpecBuilder {
   }
 
   /**
-   * Builds a new template from the data in this builder.
+   * Builds a new specification from the data in this builder.
    *
-   * @return a template instance built from the data in this builder
+   * @return a specification instance built from the data in this builder
    */
   public EtdContractSpec build() {
+    if (id == null) {
+      id = EtdIdUtils.contractSpecId(type, exchangeId, contractCode);
+    }
     return new EtdContractSpec(id, type, exchangeId, contractCode, description, priceInfo, attributes);
   }
 
   /**
-   * Sets the ID of the template.
+   * Sets the ID of the contract specification.
    *
    * @param id the ID
    * @return the ID of the template
@@ -73,7 +76,7 @@ public final class EtdContractSpecBuilder {
   }
 
   /**
-   * Sets the type of the product.
+   * Sets the type of the contract specification.
    *
    * @param productType  the new value, not null
    * @return this, for chaining, not null
@@ -85,7 +88,7 @@ public final class EtdContractSpecBuilder {
   }
 
   /**
-   * Sets the ID of the exchange where the instruments derived from the product are traded.
+   * Sets the ID of the exchange where the instruments derived from the contract specification are traded.
    *
    * @param exchangeId  the new value, not null
    * @return this, for chaining, not null
@@ -97,7 +100,7 @@ public final class EtdContractSpecBuilder {
   }
 
   /**
-   * Sets the code of the product as given by the exchange in clearing and margining.
+   * Sets the code of the contract specification as given by the exchange in clearing and margining.
    *
    * @param contractCode  the new value, not empty
    * @return this, for chaining, not null
@@ -109,7 +112,7 @@ public final class EtdContractSpecBuilder {
   }
 
   /**
-   * Sets the description of the product.
+   * Sets the description of the contract specification.
    *
    * @param description  the new value, not empty
    * @return this, for chaining, not null

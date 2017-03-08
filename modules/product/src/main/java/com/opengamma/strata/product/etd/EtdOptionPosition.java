@@ -24,12 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
-import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.SecurityQuantity;
 
 /**
  * A position in an ETD option, where the security is embedded ready for mark-to-market pricing.
@@ -45,7 +41,7 @@ import com.opengamma.strata.product.SecurityQuantity;
  */
 @BeanDefinition
 public final class EtdOptionPosition
-    implements Position, SecurityQuantity, ImmutableBean, Serializable {
+    implements EtdPosition, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.
@@ -57,7 +53,7 @@ public final class EtdOptionPosition
   /**
    * The underlying security.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final EtdOptionSecurity security;
   /**
    * The long quantity of the security.
@@ -65,7 +61,7 @@ public final class EtdOptionPosition
    * This is the quantity of the underlying security that is held.
    * The quantity cannot be negative, as that would imply short selling.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final double longQuantity;
   /**
    * The short quantity of the security.
@@ -73,7 +69,7 @@ public final class EtdOptionPosition
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final double shortQuantity;
 
   //-------------------------------------------------------------------------
@@ -146,29 +142,6 @@ public final class EtdOptionPosition
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the security identifier.
-   * <p>
-   * This identifier uniquely identifies the security within the system.
-   *
-   * @return the security identifier
-   */
-  @Override
-  public SecurityId getSecurityId() {
-    return security.getSecurityId();
-  }
-
-  /**
-   * Gets the currency of the trade.
-   * <p>
-   * This is the currency of the security.
-   *
-   * @return the trading currency
-   */
-  public Currency getCurrency() {
-    return security.getCurrency();
-  }
-
   /**
    * Gets the net quantity of the security.
    * <p>
@@ -260,6 +233,7 @@ public final class EtdOptionPosition
    * Gets the underlying security.
    * @return the value of the property, not null
    */
+  @Override
   public EtdOptionSecurity getSecurity() {
     return security;
   }
@@ -272,6 +246,7 @@ public final class EtdOptionPosition
    * The quantity cannot be negative, as that would imply short selling.
    * @return the value of the property
    */
+  @Override
   public double getLongQuantity() {
     return longQuantity;
   }
@@ -284,6 +259,7 @@ public final class EtdOptionPosition
    * The quantity cannot be negative, as that would imply the position is long.
    * @return the value of the property
    */
+  @Override
   public double getShortQuantity() {
     return shortQuantity;
   }
