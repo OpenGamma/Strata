@@ -31,7 +31,7 @@ public class EtdFutureSecurityTest {
 
   public void test() {
     EtdFutureSecurity test = sut();
-    assertEquals(test.getStyle(), EtdStyle.MONTHLY);
+    assertEquals(test.getVariant(), EtdVariant.MONTHLY);
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(test.createProduct(REF_DATA), test);
@@ -61,7 +61,7 @@ public class EtdFutureSecurityTest {
         .info(SecurityInfo.of(SecurityId.of("B", "C"), SecurityPriceInfo.of(Currency.EUR, 10)))
         .contractSpecId(EtdContractSpecId.of("test", "234"))
         .expiry(YearMonth.of(2017, 9))
-        .style(EtdStyle.ofWeekly(2))
+        .variant(EtdVariant.ofWeekly(2))
         .build();
   }
 

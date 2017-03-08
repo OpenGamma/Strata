@@ -79,20 +79,20 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param style  the style of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
    * @return the identifier
    */
   public static SecurityId futureId(
       ExchangeId exchangeId,
       String contractCode,
       YearMonth expiryMonth,
-      EtdStyle style) {
+      EtdVariant variant) {
 
     ArgChecker.notNull(exchangeId, "exchangeId");
     ArgChecker.notEmpty(contractCode, "contractCode");
     ArgChecker.notNull(expiryMonth, "expiryMonth");
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
-    ArgChecker.notNull(style, "style");
+    ArgChecker.notNull(variant, "variant");
 
     String id = FUT_PREFIX +
         exchangeId + SEPARATOR +
@@ -100,7 +100,7 @@ public final class EtdIdUtils {
         expiryMonth.getYear() +
         ((char) ((expiryMonth.getMonthValue() / 10) + '0')) +
         ((char) ((expiryMonth.getMonthValue() % 10) + '0')) +
-        style.getCode();
+        variant.getCode();
     return SecurityId.of(ETD_SCHEME, id);
   }
 
@@ -116,7 +116,7 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param style  the style of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
    * @param version  the non-negative version, zero by default
    * @param putCall  the Put/Call flag
    * @param strikePrice  the strike price
@@ -126,7 +126,7 @@ public final class EtdIdUtils {
       ExchangeId exchangeId,
       String contractCode,
       YearMonth expiryMonth,
-      EtdStyle style,
+      EtdVariant variant,
       int version,
       PutCall putCall,
       double strikePrice) {
@@ -135,7 +135,7 @@ public final class EtdIdUtils {
     ArgChecker.notEmpty(contractCode, "contractCode");
     ArgChecker.notNull(expiryMonth, "expiryMonth");
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
-    ArgChecker.notNull(style, "style");
+    ArgChecker.notNull(variant, "variant");
     ArgChecker.notNull(putCall, "putCall");
 
     String putCallStr = putCall == PutCall.PUT ? "P" : "C";
@@ -152,7 +152,7 @@ public final class EtdIdUtils {
         expiryMonth.getYear() +
         ((char) ((expiryMonth.getMonthValue() / 10) + '0')) +
         ((char) ((expiryMonth.getMonthValue() % 10) + '0')) +
-        style.getCode() + SEPARATOR +
+        variant.getCode() + SEPARATOR +
         versionCode +
         putCallStr +
         strikeStr;

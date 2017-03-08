@@ -12,27 +12,27 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The type of an Exchange Traded Derivative (ETD) product, either a future or an option.
+ * The expiry type of an Exchange Traded Derivative (ETD) product.
+ * <p>
+ * Most ETDs expire monthly, on a date calculated via a formula.
+ * Some ETDs expire weekly, or on a specific date, see {@link EtdVariant} for more details.
  */
-public enum EtdStyleType {
+public enum EtdExpiryType {
 
   /**
-   * Standard contract, where the ETD expires monthly.
+   * The ETD expires once a month on a standardized day.
    */
   MONTHLY,
   /**
-   * Standard contract, where the ETD expires weekly.
+   * The ETD expires in a specific week of the month.
+   * The week is specified by the date code in {@link EtdVariant}.
    */
   WEEKLY,
   /**
-   * Standard contract, where the ETD expires on a specific day-of-month.
+   * The ETD expires on a specified day-of-month.
+   * The day-of-month is specified by the date code in {@link EtdVariant}.
    */
-  DAILY,
-  /**
-   * Flexible contract, where the ETD expires on a specific day-of-month
-   * and the settlement type and option type can be controlled.
-   */
-  FLEX;
+  DAILY;
 
   //-------------------------------------------------------------------------
   /**
@@ -43,7 +43,7 @@ public enum EtdStyleType {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static EtdStyleType of(String uniqueName) {
+  public static EtdExpiryType of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

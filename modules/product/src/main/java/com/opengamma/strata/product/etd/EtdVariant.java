@@ -30,41 +30,43 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The style of an exchange traded derivative (ETD).
+ * The variant of an exchange traded derivative (ETD).
  * <p>
  * Most ETDs are monthly, where there is one expiry date per month, but a few are issued weekly or daily.
  * <p>
  * A special category of ETD are <i>flex</i> futures and options.
- * These have additional contract flexibility, with a version number and settlement type.
+ * These have additional contract flexibility, with a settlement type and option type.
  */
 @BeanDefinition(builderScope = "private", metaScope = "private")
-public final class EtdStyle
+public final class EtdVariant
     implements ImmutableBean, Serializable {
 
   /**
    * The standard Monthly type.
    */
-  public static final EtdStyle MONTHLY = new EtdStyle(EtdStyleType.MONTHLY, null, null, null);
+  public static final EtdVariant MONTHLY = new EtdVariant(EtdExpiryType.MONTHLY, null, null, null);
 
   /**
-   * The type of ETD - Monthly, Weekly, Daily or Flex.
+   * The type of ETD - Monthly, Weekly or Daily.
+   * <p>
+   * Flex 
    */
   @PropertyDefinition(validate = "notNull")
-  private final EtdStyleType type;
+  private final EtdExpiryType type;
   /**
-   * The optional date code, populated for Weekly, Daily and Flex.
+   * The optional date code, populated for Weekly and Daily.
    * <p>
-   * This will be the week number for Weekly, or the day-of-week for Daily and Flex.
+   * This will be the week number for Weekly and the day-of-week for Daily.
    */
   @PropertyDefinition(get = "optional")
   private final Integer dateCode;
   /**
-   * The optional settlement type, such as 'Cash' or 'Physical', populated for Flex.
+   * The optional settlement type, such as 'Cash' or 'Physical', populated for Flex Futures and Flex Options.
    */
   @PropertyDefinition(get = "optional")
   private final EtdSettlementType settlementType;
   /**
-   * The optional option type, 'American' or 'European', populated for Flex options.
+   * The optional option type, 'American' or 'European', populated for Flex Options.
    */
   @PropertyDefinition(get = "optional")
   private final EtdOptionType optionType;
@@ -77,9 +79,9 @@ public final class EtdStyle
   /**
    * The standard monthly ETD.
    * 
-   * @return the style
+   * @return the variant
    */
-  public static EtdStyle ofMonthly() {
+  public static EtdVariant ofMonthly() {
     return MONTHLY;
   }
 
@@ -87,20 +89,20 @@ public final class EtdStyle
    * The standard weekly ETD.
    * 
    * @param week  the week number
-   * @return the style
+   * @return the variant
    */
-  public static EtdStyle ofWeekly(int week) {
-    return new EtdStyle(EtdStyleType.WEEKLY, week, null, null);
+  public static EtdVariant ofWeekly(int week) {
+    return new EtdVariant(EtdExpiryType.WEEKLY, week, null, null);
   }
 
   /**
    * The standard daily ETD.
    * 
    * @param dayOfMonth  the day-of-month
-   * @return the style
+   * @return the variant
    */
-  public static EtdStyle ofDaily(int dayOfMonth) {
-    return new EtdStyle(EtdStyleType.DAILY, dayOfMonth, null, null);
+  public static EtdVariant ofDaily(int dayOfMonth) {
+    return new EtdVariant(EtdExpiryType.DAILY, dayOfMonth, null, null);
   }
 
   /**
@@ -108,10 +110,10 @@ public final class EtdStyle
    * 
    * @param dayOfMonth  the day-of-month
    * @param settlementType  the settlement type
-   * @return the style
+   * @return the variant
    */
-  public static EtdStyle ofFlexFuture(int dayOfMonth, EtdSettlementType settlementType) {
-    return new EtdStyle(EtdStyleType.FLEX, dayOfMonth, settlementType, null);
+  public static EtdVariant ofFlexFuture(int dayOfMonth, EtdSettlementType settlementType) {
+    return new EtdVariant(EtdExpiryType.DAILY, dayOfMonth, settlementType, null);
   }
 
   /**
@@ -120,15 +122,15 @@ public final class EtdStyle
    * @param dayOfMonth  the day-of-month
    * @param settlementType  the settlement type
    * @param optionType  the option type
-   * @return the style
+   * @return the variant
    */
-  public static EtdStyle ofFlexOption(int dayOfMonth, EtdSettlementType settlementType, EtdOptionType optionType) {
-    return new EtdStyle(EtdStyleType.FLEX, dayOfMonth, settlementType, optionType);
+  public static EtdVariant ofFlexOption(int dayOfMonth, EtdSettlementType settlementType, EtdOptionType optionType) {
+    return new EtdVariant(EtdExpiryType.DAILY, dayOfMonth, settlementType, optionType);
   }
 
   @ImmutableConstructor
-  private EtdStyle(
-      EtdStyleType type,
+  private EtdVariant(
+      EtdExpiryType type,
       Integer dateCode,
       EtdSettlementType settlementType,
       EtdOptionType optionType) {
@@ -137,49 +139,49 @@ public final class EtdStyle
     this.dateCode = dateCode;
     this.settlementType = settlementType;
     this.optionType = optionType;
-    switch (type) {
-      case MONTHLY:
-        ArgChecker.isTrue(dateCode == null, "Monthly style must have no dateCode");
-        ArgChecker.isTrue(settlementType == null, "Monthly style must have no settlementType");
-        ArgChecker.isTrue(optionType == null, "Monthly style must have no optionType");
-        this.code = "";
-        break;
-      case WEEKLY:
-        ArgChecker.notNull(dateCode, "dateCode");
-        ArgChecker.isTrue(dateCode >= 1 && dateCode <= 5, "Week must be from 1 to 5");
-        ArgChecker.isTrue(settlementType == null, "Weekly style must have no settlementType");
-        ArgChecker.isTrue(optionType == null, "Weekly style must have no optionType");
-        this.code = "W" + dateCode;
-        break;
-      case DAILY:
-        ArgChecker.notNull(dateCode, "dateCode");
-        ArgChecker.isTrue(dateCode >= 1 && dateCode <= 31, "Day-of-week must be from 1 to 31");
-        ArgChecker.isTrue(settlementType == null, "Daily style must have no settlementType");
-        ArgChecker.isTrue(optionType == null, "Daily style must have no optionType");
-        this.code = dateCode < 10 ? "0" + dateCode : Integer.toString(dateCode);
-        break;
-      case FLEX:
-        ArgChecker.notNull(dateCode, "dateCode");
-        ArgChecker.isTrue(dateCode >= 1 && dateCode <= 31, "Day-of-week must be from 1 to 31");
-        ArgChecker.notNull(settlementType, "settlementType");
-        String dateCodeStr = dateCode < 10 ? "0" + dateCode : Integer.toString(dateCode);
-        this.code = optionType != null ?
-            dateCodeStr + settlementType.getCode() + optionType.getCode() :
-            dateCodeStr + settlementType.getCode();
-        break;
-      default:
-        throw new IllegalStateException();
+    if (type == EtdExpiryType.MONTHLY) {
+      ArgChecker.isTrue(dateCode == null, "Monthly variant must have no dateCode");
+      ArgChecker.isTrue(settlementType == null, "Monthly variant must have no settlementType");
+      ArgChecker.isTrue(optionType == null, "Monthly variant must have no optionType");
+      this.code = "";
+    } else if (type == EtdExpiryType.WEEKLY) {
+      ArgChecker.notNull(dateCode, "dateCode");
+      ArgChecker.isTrue(dateCode >= 1 && dateCode <= 5, "Week must be from 1 to 5");
+      ArgChecker.isTrue(settlementType == null, "Weekly variant must have no settlementType");
+      ArgChecker.isTrue(optionType == null, "Weekly variant must have no optionType");
+      this.code = "W" + dateCode;
+    } else {  // DAILY and Flex
+      ArgChecker.notNull(dateCode, "dateCode");
+      ArgChecker.isTrue(dateCode >= 1 && dateCode <= 31, "Day-of-week must be from 1 to 31");
+      ArgChecker.isFalse(settlementType == null && optionType != null,
+          "Flex Option must have both settlementType and optionType");
+      String dateCodeStr = dateCode < 10 ? "0" + dateCode : Integer.toString(dateCode);
+      String settlementCode = settlementType != null ? settlementType.getCode() : "";
+      String optionCode = optionType != null ? optionType.getCode() : "";
+      this.code = dateCodeStr + settlementCode + optionCode;
     }
   }
 
   // resolve after deserialization
   private Object readResolve() {
-    return new EtdStyle(type, dateCode, settlementType, optionType);
+    return new EtdVariant(type, dateCode, settlementType, optionType);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the short code that describes the style.
+   * Checks if the variant is a Flex Future or Flex Option.
+   * 
+   * @return true if this is a Flex Future or Flex Option
+   */
+  public boolean isFlex() {
+    return settlementType != null;
+  }
+
+  /**
+   * Gets the short code that describes the variant.
+   * <p>
+   * This is an empty string for Monthly, the week number prefixed by 'W' for Weekly,
+   * the day number for daily, with a suffix of the settlement type and option type codes.
    * 
    * @return the short code
    */
@@ -190,15 +192,15 @@ public final class EtdStyle
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code EtdStyle}.
+   * The meta-bean for {@code EtdVariant}.
    * @return the meta-bean, not null
    */
   public static MetaBean meta() {
-    return EtdStyle.Meta.INSTANCE;
+    return EtdVariant.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(EtdStyle.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(EtdVariant.Meta.INSTANCE);
   }
 
   /**
@@ -208,7 +210,7 @@ public final class EtdStyle
 
   @Override
   public MetaBean metaBean() {
-    return EtdStyle.Meta.INSTANCE;
+    return EtdVariant.Meta.INSTANCE;
   }
 
   @Override
@@ -223,18 +225,20 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of ETD - Monthly, Weekly, Daily or Flex.
+   * Gets the type of ETD - Monthly, Weekly or Daily.
+   * <p>
+   * Flex
    * @return the value of the property, not null
    */
-  public EtdStyleType getType() {
+  public EtdExpiryType getType() {
     return type;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional date code, populated for Weekly, Daily and Flex.
+   * Gets the optional date code, populated for Weekly and Daily.
    * <p>
-   * This will be the week number for Weekly, or the day-of-week for Daily and Flex.
+   * This will be the week number for Weekly and the day-of-week for Daily.
    * @return the optional value of the property, not null
    */
   public OptionalInt getDateCode() {
@@ -243,7 +247,7 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional settlement type, such as 'Cash' or 'Physical', populated for Flex.
+   * Gets the optional settlement type, such as 'Cash' or 'Physical', populated for Flex Futures and Flex Options.
    * @return the optional value of the property, not null
    */
   public Optional<EtdSettlementType> getSettlementType() {
@@ -252,7 +256,7 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional option type, 'American' or 'European', populated for Flex options.
+   * Gets the optional option type, 'American' or 'European', populated for Flex Options.
    * @return the optional value of the property, not null
    */
   public Optional<EtdOptionType> getOptionType() {
@@ -266,7 +270,7 @@ public final class EtdStyle
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      EtdStyle other = (EtdStyle) obj;
+      EtdVariant other = (EtdVariant) obj;
       return JodaBeanUtils.equal(type, other.type) &&
           JodaBeanUtils.equal(dateCode, other.dateCode) &&
           JodaBeanUtils.equal(settlementType, other.settlementType) &&
@@ -288,7 +292,7 @@ public final class EtdStyle
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
-    buf.append("EtdStyle{");
+    buf.append("EtdVariant{");
     buf.append("type").append('=').append(type).append(',').append(' ');
     buf.append("dateCode").append('=').append(dateCode).append(',').append(' ');
     buf.append("settlementType").append('=').append(settlementType).append(',').append(' ');
@@ -299,7 +303,7 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code EtdStyle}.
+   * The meta-bean for {@code EtdVariant}.
    */
   private static final class Meta extends DirectMetaBean {
     /**
@@ -310,23 +314,23 @@ public final class EtdStyle
     /**
      * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<EtdStyleType> type = DirectMetaProperty.ofImmutable(
-        this, "type", EtdStyle.class, EtdStyleType.class);
+    private final MetaProperty<EtdExpiryType> type = DirectMetaProperty.ofImmutable(
+        this, "type", EtdVariant.class, EtdExpiryType.class);
     /**
      * The meta-property for the {@code dateCode} property.
      */
     private final MetaProperty<Integer> dateCode = DirectMetaProperty.ofImmutable(
-        this, "dateCode", EtdStyle.class, Integer.class);
+        this, "dateCode", EtdVariant.class, Integer.class);
     /**
      * The meta-property for the {@code settlementType} property.
      */
     private final MetaProperty<EtdSettlementType> settlementType = DirectMetaProperty.ofImmutable(
-        this, "settlementType", EtdStyle.class, EtdSettlementType.class);
+        this, "settlementType", EtdVariant.class, EtdSettlementType.class);
     /**
      * The meta-property for the {@code optionType} property.
      */
     private final MetaProperty<EtdOptionType> optionType = DirectMetaProperty.ofImmutable(
-        this, "optionType", EtdStyle.class, EtdOptionType.class);
+        this, "optionType", EtdVariant.class, EtdOptionType.class);
     /**
      * The meta-properties.
      */
@@ -359,13 +363,13 @@ public final class EtdStyle
     }
 
     @Override
-    public BeanBuilder<? extends EtdStyle> builder() {
-      return new EtdStyle.Builder();
+    public BeanBuilder<? extends EtdVariant> builder() {
+      return new EtdVariant.Builder();
     }
 
     @Override
-    public Class<? extends EtdStyle> beanType() {
-      return EtdStyle.class;
+    public Class<? extends EtdVariant> beanType() {
+      return EtdVariant.class;
     }
 
     @Override
@@ -378,13 +382,13 @@ public final class EtdStyle
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
-          return ((EtdStyle) bean).getType();
+          return ((EtdVariant) bean).getType();
         case 1792248507:  // dateCode
-          return ((EtdStyle) bean).dateCode;
+          return ((EtdVariant) bean).dateCode;
         case -295448573:  // settlementType
-          return ((EtdStyle) bean).settlementType;
+          return ((EtdVariant) bean).settlementType;
         case 1373587791:  // optionType
-          return ((EtdStyle) bean).optionType;
+          return ((EtdVariant) bean).optionType;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -402,11 +406,11 @@ public final class EtdStyle
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code EtdStyle}.
+   * The bean-builder for {@code EtdVariant}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<EtdStyle> {
+  private static final class Builder extends DirectPrivateBeanBuilder<EtdVariant> {
 
-    private EtdStyleType type;
+    private EtdExpiryType type;
     private Integer dateCode;
     private EtdSettlementType settlementType;
     private EtdOptionType optionType;
@@ -439,7 +443,7 @@ public final class EtdStyle
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
-          this.type = (EtdStyleType) newValue;
+          this.type = (EtdExpiryType) newValue;
           break;
         case 1792248507:  // dateCode
           this.dateCode = (Integer) newValue;
@@ -457,8 +461,8 @@ public final class EtdStyle
     }
 
     @Override
-    public EtdStyle build() {
-      return new EtdStyle(
+    public EtdVariant build() {
+      return new EtdVariant(
           type,
           dateCode,
           settlementType,
@@ -469,7 +473,7 @@ public final class EtdStyle
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
-      buf.append("EtdStyle.Builder{");
+      buf.append("EtdVariant.Builder{");
       buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("dateCode").append('=').append(JodaBeanUtils.toString(dateCode)).append(',').append(' ');
       buf.append("settlementType").append('=').append(JodaBeanUtils.toString(settlementType)).append(',').append(' ');

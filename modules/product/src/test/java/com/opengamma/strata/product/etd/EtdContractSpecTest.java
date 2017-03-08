@@ -42,29 +42,29 @@ public class EtdContractSpecTest {
 
   //-------------------------------------------------------------------------
   public void createFutureAutoId() {
-    EtdFutureSecurity security = FUTURE_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdStyle.MONTHLY);
+    EtdFutureSecurity security = FUTURE_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdVariant.MONTHLY);
 
     assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "F-ECAG-FOO-201506"));
     assertThat(security.getExpiry()).isEqualTo(YearMonth.of(2015, 6));
     assertThat(security.getContractSpecId()).isEqualTo(FUTURE_CONTRACT.getId());
-    assertThat(security.getStyle()).isEqualTo(EtdStyle.MONTHLY);
+    assertThat(security.getVariant()).isEqualTo(EtdVariant.MONTHLY);
     assertThat(security.getInfo().getPriceInfo()).isEqualTo(FUTURE_CONTRACT.getPriceInfo());
   }
 
   public void createFutureFromOptionContractSpec() {
-    assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdStyle.MONTHLY))
+    assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdVariant.MONTHLY))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Cannot create an EtdFutureSecurity from a contract specification of type 'Option'");
   }
 
   //-------------------------------------------------------------------------
   public void createOptionAutoId() {
-    EtdOptionSecurity security = OPTION_CONTRACT.createOption(YearMonth.of(2015, 6), EtdStyle.MONTHLY, 0, PutCall.CALL, 123.45);
+    EtdOptionSecurity security = OPTION_CONTRACT.createOption(YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45);
 
     assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "O-IFEN-BAR-201506-C123.45"));
     assertThat(security.getExpiry()).isEqualTo(YearMonth.of(2015, 6));
     assertThat(security.getContractSpecId()).isEqualTo(OPTION_CONTRACT.getId());
-    assertThat(security.getStyle()).isEqualTo(EtdStyle.MONTHLY);
+    assertThat(security.getVariant()).isEqualTo(EtdVariant.MONTHLY);
     assertThat(security.getPutCall()).isEqualTo(PutCall.CALL);
     assertThat(security.getStrikePrice()).isEqualTo(123.45);
     assertThat(security.getInfo().getPriceInfo()).isEqualTo(OPTION_CONTRACT.getPriceInfo());
@@ -72,7 +72,7 @@ public class EtdContractSpecTest {
 
   public void createOptionFromFutureContractSpec() {
     assertThatThrownBy(
-        () -> FUTURE_CONTRACT.createOption(YearMonth.of(2015, 6), EtdStyle.MONTHLY, 0, PutCall.CALL, 123.45))
+        () -> FUTURE_CONTRACT.createOption(YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Cannot create an EtdOptionSecurity from a contract specification of type 'Future'");
   }

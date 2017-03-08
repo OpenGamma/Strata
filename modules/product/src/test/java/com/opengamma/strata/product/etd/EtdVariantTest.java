@@ -13,54 +13,59 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link EtdStyle}.
+ * Test {@link EtdVariant}.
  */
 @Test
-public class EtdStyleTest {
+public class EtdVariantTest {
 
   public void test_monthly() {
-    EtdStyle test = EtdStyle.ofMonthly();
-    assertEquals(test.getType(), EtdStyleType.MONTHLY);
-    assertEquals(test.getCode(), "");
+    EtdVariant test = EtdVariant.ofMonthly();
+    assertEquals(test.getType(), EtdExpiryType.MONTHLY);
     assertEquals(test.getDateCode().isPresent(), false);
     assertEquals(test.getSettlementType().isPresent(), false);
     assertEquals(test.getOptionType().isPresent(), false);
+    assertEquals(test.isFlex(), false);
+    assertEquals(test.getCode(), "");
   }
 
   public void test_weekly() {
-    EtdStyle test = EtdStyle.ofWeekly(2);
-    assertEquals(test.getType(), EtdStyleType.WEEKLY);
-    assertEquals(test.getCode(), "W2");
+    EtdVariant test = EtdVariant.ofWeekly(2);
+    assertEquals(test.getType(), EtdExpiryType.WEEKLY);
     assertEquals(test.getDateCode().getAsInt(), 2);
     assertEquals(test.getSettlementType().isPresent(), false);
     assertEquals(test.getOptionType().isPresent(), false);
+    assertEquals(test.isFlex(), false);
+    assertEquals(test.getCode(), "W2");
   }
 
   public void test_daily() {
-    EtdStyle test = EtdStyle.ofDaily(24);
-    assertEquals(test.getType(), EtdStyleType.DAILY);
-    assertEquals(test.getCode(), "24");
+    EtdVariant test = EtdVariant.ofDaily(24);
+    assertEquals(test.getType(), EtdExpiryType.DAILY);
     assertEquals(test.getDateCode().getAsInt(), 24);
     assertEquals(test.getSettlementType().isPresent(), false);
     assertEquals(test.getOptionType().isPresent(), false);
+    assertEquals(test.isFlex(), false);
+    assertEquals(test.getCode(), "24");
   }
 
   public void test_flexFuture() {
-    EtdStyle test = EtdStyle.ofFlexFuture(2, EtdSettlementType.CASH);
-    assertEquals(test.getType(), EtdStyleType.FLEX);
-    assertEquals(test.getCode(), "02C");
+    EtdVariant test = EtdVariant.ofFlexFuture(2, EtdSettlementType.CASH);
+    assertEquals(test.getType(), EtdExpiryType.DAILY);
     assertEquals(test.getDateCode().getAsInt(), 2);
     assertEquals(test.getSettlementType().get(), EtdSettlementType.CASH);
     assertEquals(test.getOptionType().isPresent(), false);
+    assertEquals(test.isFlex(), true);
+    assertEquals(test.getCode(), "02C");
   }
 
   public void test_flexOption() {
-    EtdStyle test = EtdStyle.ofFlexOption(24, EtdSettlementType.CASH, EtdOptionType.AMERICAN);
-    assertEquals(test.getType(), EtdStyleType.FLEX);
-    assertEquals(test.getCode(), "24CA");
+    EtdVariant test = EtdVariant.ofFlexOption(24, EtdSettlementType.CASH, EtdOptionType.AMERICAN);
+    assertEquals(test.getType(), EtdExpiryType.DAILY);
     assertEquals(test.getDateCode().getAsInt(), 24);
     assertEquals(test.getSettlementType().get(), EtdSettlementType.CASH);
     assertEquals(test.getOptionType().get(), EtdOptionType.AMERICAN);
+    assertEquals(test.isFlex(), true);
+    assertEquals(test.getCode(), "24CA");
   }
 
   //-------------------------------------------------------------------------
@@ -74,12 +79,12 @@ public class EtdStyleTest {
   }
 
   //-------------------------------------------------------------------------
-  static EtdStyle sut() {
-    return EtdStyle.MONTHLY;
+  static EtdVariant sut() {
+    return EtdVariant.MONTHLY;
   }
 
-  static EtdStyle sut2() {
-    return EtdStyle.ofFlexOption(6, EtdSettlementType.CASH, EtdOptionType.EUROPEAN);
+  static EtdVariant sut2() {
+    return EtdVariant.ofFlexOption(6, EtdSettlementType.CASH, EtdOptionType.EUROPEAN);
   }
 
 }

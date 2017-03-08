@@ -6,7 +6,7 @@
 package com.opengamma.strata.product.etd;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static com.opengamma.strata.product.etd.EtdStyle.MONTHLY;
+import static com.opengamma.strata.product.etd.EtdVariant.MONTHLY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.YearMonth;
@@ -41,18 +41,18 @@ public class EtdIdUtilsTest {
   }
 
   public void test_futureId_weekly() {
-    SecurityId test = EtdIdUtils.futureId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdStyle.ofWeekly(2));
+    SecurityId test = EtdIdUtils.futureId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdVariant.ofWeekly(2));
     assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "F-ECAG-FGBS-201706W2"));
   }
 
   public void test_futureId_daily() {
-    SecurityId test = EtdIdUtils.futureId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdStyle.ofDaily(2));
+    SecurityId test = EtdIdUtils.futureId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdVariant.ofDaily(2));
     assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "F-ECAG-FGBS-20170602"));
   }
 
   public void test_futureId_flex() {
     SecurityId test = EtdIdUtils.futureId(
-        ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdStyle.ofFlexFuture(26, EtdSettlementType.DERIVATIVE));
+        ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdVariant.ofFlexFuture(26, EtdSettlementType.DERIVATIVE));
     assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "F-ECAG-FGBS-20170626D"));
   }
 
@@ -64,19 +64,19 @@ public class EtdIdUtilsTest {
 
   public void test_optionId_weekly() {
     SecurityId test = EtdIdUtils.optionId(
-        ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdStyle.ofWeekly(3), 0, PutCall.CALL, -1.45);
+        ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdVariant.ofWeekly(3), 0, PutCall.CALL, -1.45);
     assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-201706W3-CM1.45"));
   }
 
   public void test_optionId_daily9_version() {
     SecurityId test =
-        EtdIdUtils.optionId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdStyle.ofDaily(9), 3, PutCall.PUT, 12.34);
+        EtdIdUtils.optionId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdVariant.ofDaily(9), 3, PutCall.PUT, 12.34);
     assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-20170609-V3-P12.34"));
   }
 
   public void test_optionId_daily21_version() {
     SecurityId test =
-        EtdIdUtils.optionId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdStyle.ofDaily(21), 11, PutCall.PUT, 12.34);
+        EtdIdUtils.optionId(ExchangeIds.ECAG, "FGBS", YearMonth.of(2017, 6), EtdVariant.ofDaily(21), 11, PutCall.PUT, 12.34);
     assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-20170621-V11-P12.34"));
   }
 
