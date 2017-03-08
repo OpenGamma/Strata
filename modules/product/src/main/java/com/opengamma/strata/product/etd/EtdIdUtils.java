@@ -46,7 +46,7 @@ public final class EtdIdUtils {
    * Creates an identifier for a contract specification.
    * <p>
    * This will have the format:
-   * {@code 'OG-ETD~F:ECAG:FGBS'} or {@code 'OG-ETD~O:ECAG:OGBS'}.
+   * {@code 'OG-ETD~F-ECAG-FGBS'} or {@code 'OG-ETD~O-ECAG-OGBS'}.
    *
    * @param type  type of the contract - future or option
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
@@ -71,10 +71,10 @@ public final class EtdIdUtils {
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD will have the format:
-   * {@code 'OG-ETD~O:ECAG:OGBS:201706'}.
+   * {@code 'OG-ETD~O-ECAG-OGBS-201706'}.
    * <p>
    * A more complex flex ETD (12th of the month, Physical settlement) will have the format:
-   * {@code 'OG-ETD~O:ECAG:OGBS:20170612E'}.
+   * {@code 'OG-ETD~O-ECAG-OGBS-20170612E'}.
    *
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
@@ -108,10 +108,10 @@ public final class EtdIdUtils {
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD with version zero will have the format:
-   * {@code 'OG-ETD~O:ECAG:OGBS:201706:P1.50'}.
+   * {@code 'OG-ETD~O-ECAG-OGBS-201706-P1.50'}.
    * <p>
    * A more complex flex ETD (12th of the month, Cash settlement, European) with version two will have the format:
-   * {@code 'OG-ETD~O:ECAG:OGBS:20170612CE:V2:P1.50'}.
+   * {@code 'OG-ETD~O-ECAG-OGBS-20170612CE-V2-P1.50'}.
    *
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
