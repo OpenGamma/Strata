@@ -19,6 +19,39 @@
   <description>Example code to demonstrate use of Strata</description>
 
   <!-- ==================================================================== -->
+  <!-- standard build setup -->
+  <build>
+    <!-- Include LICENSE/NOTICE in jar files -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+      </resource>
+    </resources>
+    <!-- Include LICENSE/NOTICE in test jar files -->
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+      </testResource>
+    </testResources>
+  </build>
+
+  <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma, relying on transitive dependencies -->
     <dependency>
@@ -124,6 +157,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.6.2</assertj.version>
     <jcommander.version>1.58</jcommander.version>

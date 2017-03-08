@@ -187,6 +187,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}</root.dir>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>

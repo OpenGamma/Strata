@@ -44,6 +44,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/../..</root.dir>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Product</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Product API</h1>]]></doctitle>

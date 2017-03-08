@@ -72,6 +72,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/../..</root.dir>
     <!-- Properties for maven-surefire-plugin -->
     <tests.testng.threads>1</tests.testng.threads>
     <!-- Properties for maven-javadoc-plugin -->
