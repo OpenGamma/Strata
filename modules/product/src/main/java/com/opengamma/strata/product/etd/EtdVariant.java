@@ -49,7 +49,7 @@ public final class EtdVariant
   /**
    * The type of ETD - Monthly, Weekly or Daily.
    * <p>
-   * Flex 
+   * Flex Futures and Options are always Daily.
    */
   @PropertyDefinition(validate = "notNull")
   private final EtdExpiryType type;
@@ -227,7 +227,7 @@ public final class EtdVariant
   /**
    * Gets the type of ETD - Monthly, Weekly or Daily.
    * <p>
-   * Flex
+   * Flex Futures and Options are always Daily.
    * @return the value of the property, not null
    */
   public EtdExpiryType getType() {
