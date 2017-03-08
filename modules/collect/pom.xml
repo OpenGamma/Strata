@@ -54,7 +54,6 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <templating-maven-plugin.version>1.0.0</templating-maven-plugin.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Collect</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Collect API</h1>]]></doctitle>
