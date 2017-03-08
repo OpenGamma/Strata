@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-root</artifactId>
-  <version>1.3.0-M1</version>
+  <version>1.3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Root</name>
   <description>OpenGamma Strata root</description>
