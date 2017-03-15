@@ -88,7 +88,7 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
-   *
+   * <p>
    * @param currency the currency
    * @param amount the amount
    */
@@ -204,8 +204,7 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
     }
     try {
       Currency cur = Currency.parse(split.get(0));
-      double amount = Double.parseDouble(split.get(1));
-      return new Money(cur, BigDecimal.valueOf(amount));
+      return new Money(cur, new BigDecimal(split.get(1)));
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
     }
@@ -233,7 +232,7 @@ public class Money implements FxConvertible<Money>, Comparable<Money>, Serializa
 
   /**
    * Returns a suitable hash code for the currency.
-   *
+   * <p>
    * @return the hash code
    */
   @Override
