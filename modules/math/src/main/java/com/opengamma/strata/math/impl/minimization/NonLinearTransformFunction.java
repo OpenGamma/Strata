@@ -15,6 +15,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class NonLinearTransformFunction {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();

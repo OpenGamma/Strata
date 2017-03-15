@@ -27,8 +27,9 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
 
 /**
- *
+ * Non linear least square calculator.
  */
+// CSOFF: JavadocMethod
 public class NonLinearLeastSquare {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NonLinearLeastSquare.class);
@@ -56,11 +57,11 @@ public class NonLinearLeastSquare {
 
   //-------------------------------------------------------------------------
   /**
-   * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity is not available
+   * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity is not available.
    * @param x Set of measurement points
    * @param y Set of measurement values
    * @param func The model in ParameterizedFunction form (i.e. takes measurement points and a set of parameters and
-   * returns a model value)
+   *   returns a model value)
    * @param startPos Initial value of the parameters
    * @return A LeastSquareResults object
    */
@@ -84,7 +85,7 @@ public class NonLinearLeastSquare {
    * @param y Set of measurement values
    * @param sigma y Set of measurement errors
    * @param func The model in ParameterizedFunction form (i.e. takes measurement points and a set of parameters and
-   * returns a model value)
+   *   returns a model value)
    * @param startPos Initial value of the parameters
    * @return A LeastSquareResults object
    */
@@ -111,7 +112,7 @@ public class NonLinearLeastSquare {
    * @param y Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model in ParameterizedFunction form (i.e. takes measurement points and a set of parameters and
-   * returns a model value)
+   *   returns a model value)
    * @param startPos Initial value of the parameters
    * @return A LeastSquareResults object
    */
@@ -141,13 +142,13 @@ public class NonLinearLeastSquare {
   }
 
   /**
-   * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity
+   * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity.
    * @param x Set of measurement points
    * @param y Set of measurement values
    * @param func The model in ParameterizedFunction form (i.e. takes a measurement points and a set of parameters and
-   * returns a model value)
+   *   returns a model value)
    * @param grad The model parameter sensitivities in ParameterizedFunction form (i.e. takes a measurement points and a
-   * set of parameters and returns a model parameter sensitivities)
+   *   set of parameters and returns a model parameter sensitivities)
    * @param startPos Initial value of the parameters
    * @return value of the fitted parameters
    */
@@ -169,14 +170,14 @@ public class NonLinearLeastSquare {
 
   /**
    * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity and a single
-   * measurement error are available
+   * measurement error are available.
    * @param x Set of measurement points
    * @param y Set of measurement values
    * @param sigma Measurement errors
    * @param func The model in ParameterizedFunction form (i.e. takes a measurement points and a set of parameters and
-   * returns a model value)
+   *   returns a model value)
    * @param grad The model parameter sensitivities in ParameterizedFunction form (i.e. takes a measurement points and a
-   * set of parameters and returns a model parameter sensitivities)
+   *   set of parameters and returns a model parameter sensitivities)
    * @param startPos Initial value of the parameters
    * @return value of the fitted parameters
    */
@@ -197,14 +198,14 @@ public class NonLinearLeastSquare {
 
   /**
    * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity and measurement
-   * errors are available
+   * errors are available.
    * @param x Set of measurement points
    * @param y Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model in ParameterizedFunction form (i.e. takes a measurement points and a set of parameters and
-   * returns a model value)
+   *   returns a model value)
    * @param grad The model parameter sensitivities in ParameterizedFunction form (i.e. takes a measurement points and a
-   * set of parameters and returns a model parameter sensitivities)
+   *   set of parameters and returns a model parameter sensitivities)
    * @param startPos Initial value of the parameters
    * @return value of the fitted parameters
    */
@@ -295,8 +296,8 @@ public class NonLinearLeastSquare {
    * @param func The model as a function of its parameters only
    * @param startPos Initial value of the parameters
    * @param maxJumps A vector containing the maximum absolute allowed step in a particular direction in each iteration.
-   * Can be null, in which case no constant
-   * on the step size is applied.
+   *   Can be null, in which case no constant
+   *   on the step size is applied.
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(
@@ -340,8 +341,8 @@ public class NonLinearLeastSquare {
    * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
    * @param startPos Initial value of the parameters
    * @param maxJumps A vector containing the maximum absolute allowed step in a particular direction in each iteration.
-   * Can be null, in which case on constant
-   * on the step size is applied.
+   *   Can be null, in which case on constant
+   *   on the step size is applied.
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(
@@ -366,8 +367,8 @@ public class NonLinearLeastSquare {
    * @param startPos Initial value of the parameters
    * @param constraints A function that returns true if the trial point is within the constraints of the model
    * @param maxJumps A vector containing the maximum absolute allowed step in a particular direction in each iteration.
-   * Can be null, in which case on constant
-   * on the step size is applied.
+   *   Can be null, in which case on constant
+   *   on the step size is applied.
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(

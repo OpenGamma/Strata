@@ -17,6 +17,11 @@ public class InverseJacobianDirectionFunction implements NewtonRootFinderDirecti
 
   private final MatrixAlgebra _algebra;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param algebra  the matrix
+   */
   public InverseJacobianDirectionFunction(MatrixAlgebra algebra) {
     ArgChecker.notNull(algebra, "algebra");
     _algebra = algebra;

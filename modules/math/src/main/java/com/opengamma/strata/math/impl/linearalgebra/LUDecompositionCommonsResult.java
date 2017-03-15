@@ -15,8 +15,9 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
- * Wrapper for results of the Commons implementation of LU decomposition ({@link LUDecompositionCommons})
+ * Wrapper for results of the Commons implementation of LU decomposition ({@link LUDecompositionCommons}).
  */
+// CSOFF: AbbreviationAsWordInName
 public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final double _determinant;
   private final DoubleMatrix _l;
@@ -26,6 +27,8 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final DoubleMatrix _u;
 
   /**
+   * Creates an instance.
+   * 
    * @param lu The result of the LU decomposition, not null. $\mathbf{L}$ cannot be singular.
    */
   public LUDecompositionCommonsResult(LUDecomposition lu) {

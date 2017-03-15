@@ -32,7 +32,7 @@ abstract class CubicSplineSolver {
    * @param xValues X values of data
    * @param yValues Y values of data
    * @return Coefficient matrix whose i-th row vector is (a_0,a_1,...) for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
-   * Note that the degree of polynomial is NOT necessarily 3
+   *   Note that the degree of polynomial is NOT necessarily 3
    */
   public abstract DoubleMatrix solve(double[] xValues, double[] yValues);
 
@@ -43,7 +43,7 @@ abstract class CubicSplineSolver {
    * @param xValues X values of data
    * @param yValues Y values of data
    * @return Array of  matrices: the 0-th element is Coefficient Matrix (same as the solve method above), the i-th element is \frac{\partial a^{i-1}_j}{\partial yValues_k} 
-   * where a_0^i,a_1^i,... are coefficients of f^i(x) = a_0^i + a_1^i (x - xValues_{i}) + .... with x \in [xValues_{i}, xValues_{i+1}]
+   *   where a_0^i,a_1^i,... are coefficients of f^i(x) = a_0^i + a_1^i (x - xValues_{i}) + .... with x \in [xValues_{i}, xValues_{i+1}]
    */
   public abstract DoubleMatrix[] solveWithSensitivity(double[] xValues, double[] yValues);
 
@@ -54,8 +54,8 @@ abstract class CubicSplineSolver {
    * @param xValues X values of data
    * @param yValuesMatrix Y values of data, where NumberOfRow defines dimension of the spline
    * @return A set of coefficient matrices whose i-th row vector is (a_0,a_1,...) for the i-th interval, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + .... 
-   * Each matrix corresponds to an interpolation (xValues, yValuesMatrix RowVector)
-   * Note that the degree of polynomial is NOT necessarily 3
+   *   Each matrix corresponds to an interpolation (xValues, yValuesMatrix RowVector)
+   *   Note that the degree of polynomial is NOT necessarily 3
    */
   public abstract DoubleMatrix[] solveMultiDim(double[] xValues, DoubleMatrix yValuesMatrix);
 
@@ -70,7 +70,7 @@ abstract class CubicSplineSolver {
   /**
    * @param xValues X values of Data
    * @return {xValues[1]-xValues[0], xValues[2]-xValues[1],...}
-   * xValues (and corresponding yValues) should be sorted before calling this method
+   *   xValues (and corresponding yValues) should be sorted before calling this method
    */
   protected double[] getDiffs(double[] xValues) {
 

@@ -11,7 +11,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Hermite interpolation is determined if one specifies first derivatives for a cubic interpolant and first and second derivatives for a quintic interpolant
+ * Hermite interpolation is determined if one specifies first derivatives for a cubic
+ * interpolant and first and second derivatives for a quintic interpolant.
  */
 public class HermiteCoefficientsProvider {
 
@@ -21,7 +22,7 @@ public class HermiteCoefficientsProvider {
    * @param slopes (yValues_{i+1} - yValues_{i})/(xValues_{i+1} - xValues_{i})
    * @param first First derivatives at xValues_i
    * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval,
-   * where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=3
+   *   where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=3
    */
   public double[][] solve(double[] values, double[] intervals, double[] slopes, double[] first) {
     int nInt = intervals.length;
@@ -88,7 +89,7 @@ public class HermiteCoefficientsProvider {
    * @param first First derivatives at xValues_i
    * @param second Second derivatives at xValues_i
    * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval,
-   * where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=5
+   *   where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=5
    */
   public double[][] solve(double[] values, double[] intervals, double[] slopes, double[] first, double[] second) {
     int nInt = intervals.length;

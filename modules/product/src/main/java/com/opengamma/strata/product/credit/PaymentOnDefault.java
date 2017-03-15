@@ -59,7 +59,7 @@ public enum PaymentOnDefault {
 
   //-------------------------------------------------------------------------
   /**
-   * Check if the accrued premium is paid
+   * Check if the accrued premium is paid.
    * 
    * @return true if the accrued premium is paid, false otherwise
    */

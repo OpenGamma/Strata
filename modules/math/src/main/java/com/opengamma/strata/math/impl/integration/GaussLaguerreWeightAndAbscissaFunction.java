@@ -37,6 +37,7 @@ public class GaussLaguerreWeightAndAbscissaFunction implements QuadratureWeightA
   private final double _alpha;
 
   /**
+   * Creates an instance.
    * Sets $\alpha = 0$
    */
   public GaussLaguerreWeightAndAbscissaFunction() {
@@ -44,6 +45,7 @@ public class GaussLaguerreWeightAndAbscissaFunction implements QuadratureWeightA
   }
 
   /**
+   * Creates an instance.
    * @param alpha The value of $\alpha$ to use when generating the polynomials.
    */
   public GaussLaguerreWeightAndAbscissaFunction(double alpha) {

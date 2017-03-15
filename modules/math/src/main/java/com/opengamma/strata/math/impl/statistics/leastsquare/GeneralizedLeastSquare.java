@@ -24,13 +24,16 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 
 /**
- * 
+ * Generalized least square method.
  */
 public class GeneralizedLeastSquare {
 
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
 
+  /**
+   * Creates an instance.
+   */
   public GeneralizedLeastSquare() {
     _decomposition = new SVDecompositionCommons();
     _algebra = new CommonsMatrixAlgebra();

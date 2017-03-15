@@ -18,6 +18,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * i.e. <b>J</b>(<b>y</b>). The inverse Jacobian is the rate of change of <b>y</b> with respect to  <b>y*</b>, i.e. <b>J</b><sup>-1</sup>(<b>y*</b>).
  * These four functions must be provided by implementations of this interface. 
  */
+//CSOFF: JavadocMethod
 public interface NonLinearParameterTransforms {
 
   int getNumberOfModelParameters();

@@ -114,7 +114,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the state values at the {@code i}-th time layer
+   * Obtains the state values at the {@code i}-th time layer.
    * 
    * @param i  the layer
    * @return the state values
@@ -124,7 +124,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the transition probability values at the {@code i}-th time layer
+   * Obtains the transition probability values at the {@code i}-th time layer.
    * 
    * @param i  the layer
    * @return the transition probability

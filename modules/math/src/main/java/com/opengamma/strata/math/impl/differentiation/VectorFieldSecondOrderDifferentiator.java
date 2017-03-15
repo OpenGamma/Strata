@@ -113,6 +113,12 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Differentiate.
+   * 
+   * @param function  the function
+   * @return the result
+   */
   public Function<DoubleArray, DoubleMatrix[]> differentiateFull(
       Function<DoubleArray, DoubleArray> function) {
 

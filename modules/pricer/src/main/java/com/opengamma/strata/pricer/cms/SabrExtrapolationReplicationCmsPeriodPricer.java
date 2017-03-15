@@ -554,7 +554,16 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
     return res;
   }
 
-  //explain PV for an Cms period
+  /**
+   * Explains the present value of the CMS period.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param period  the product
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the volatilities
+   * @param builder  the builder to populate
+   */
   public void explainPresentValue(
       CmsPeriod period,
       RatesProvider ratesProvider,

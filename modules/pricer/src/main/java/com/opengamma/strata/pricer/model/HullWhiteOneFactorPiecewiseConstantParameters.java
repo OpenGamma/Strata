@@ -104,7 +104,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters
   }
 
   /**
-   * Gets the last volatility of the volatility parameters
+   * Gets the last volatility of the volatility parameters.
    * 
    * @return the last volatility
    */

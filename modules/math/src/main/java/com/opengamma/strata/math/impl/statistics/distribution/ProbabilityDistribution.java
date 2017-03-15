@@ -9,6 +9,7 @@ package com.opengamma.strata.math.impl.statistics.distribution;
  * Interface for probability distributions.
  * @param <T> Type of the parameters of the distribution
  */
+// CSOFF: ALL
 public interface ProbabilityDistribution<T> {
 
   /**

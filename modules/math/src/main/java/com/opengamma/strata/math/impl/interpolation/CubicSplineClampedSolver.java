@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.interpolation;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Solves cubic spline problem with clamped endpoint conditions, where the first derivative is specified at endpoints
+ * Solves cubic spline problem with clamped endpoint conditions, where the first derivative is specified at endpoints.
  */
 public class CubicSplineClampedSolver extends CubicSplineSolver {
 
@@ -18,7 +18,7 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   private double _finCondUse;
 
   /**
-   * Constructor for a one-dimensional problem
+   * Constructor for a one-dimensional problem.
    * @param iniCond Left endpoint condition
    * @param finCond Right endpoint condition
    */
@@ -29,7 +29,7 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   }
 
   /**
-   * Constructor for a multi-dimensional problem
+   * Constructor for a multi-dimensional problem.
    * @param iniConds Set of left endpoint conditions
    * @param finConds Set of right endpoint conditions 
    */
@@ -71,8 +71,8 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   }
 
   /**
-   * Reset endpoint conditions
-   * @param i  
+   * Reset endpoint conditions.
+   * @param i   the index
    */
   private void resetConds(final int i) {
     _iniCondUse = _iniConds[i];

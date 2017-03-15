@@ -14,6 +14,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * A collection of basic useful maths functions.
  */
 public final class FunctionUtils {
+// CSOFF: JavadocMethod
 
   /**
    * Restricted constructor.

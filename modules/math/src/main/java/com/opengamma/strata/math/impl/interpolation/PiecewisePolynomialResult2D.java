@@ -11,7 +11,9 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Result of 2D interpolation by piecewise polynomial f(x0,x1) containing
+ * Result of 2D interpolation.
+ * <p>
+ * Result by piecewise polynomial f(x0,x1) containing
  * _knots0: Positions of knots in x0 direction
  * _knots1: Positions of knots in x1 direction
  * _coefMatrix: Coefficient matrix whose (i,j) element is a DoubleMatrix containing coefficients for the square, _knots0_i < x0 < _knots0_{i+1}, _knots1_j < x1 < _knots1_{j+1},
@@ -28,6 +30,7 @@ public class PiecewisePolynomialResult2D {
   private final int[] _order;
 
   /**
+   * Creates an instance.
    * @param knots0 The knots in the x0 direction
    * @param knots1 The knots in the x1 direction
    * @param coefMatrix The coefficient matrix
@@ -45,7 +48,7 @@ public class PiecewisePolynomialResult2D {
   }
 
   /**
-   * Access _knots0 and _knots1
+   * Access _knots0 and _knots1.
    * @return _knots0 and _knots1 contained in a ArrayList
    */
   public ArrayList<DoubleArray> getKnots2D() {
@@ -57,7 +60,7 @@ public class PiecewisePolynomialResult2D {
   }
 
   /**
-   * Access _knots0
+   * Access _knots0.
    * @return _knots0
    */
   public DoubleArray getKnots0() {
@@ -65,7 +68,7 @@ public class PiecewisePolynomialResult2D {
   }
 
   /**
-   * Access _knots1
+   * Access _knots1.
    * @return knots1
    */
   public DoubleArray getKnots1() {
@@ -73,7 +76,7 @@ public class PiecewisePolynomialResult2D {
   }
 
   /**
-   * Access _coefMatrix
+   * Access _coefMatrix.
    * @return _coefMatrix
    */
   public DoubleMatrix[][] getCoefs() {
@@ -81,7 +84,7 @@ public class PiecewisePolynomialResult2D {
   }
 
   /**
-   * Access _nIntervals
+   * Access _nIntervals.
    * @return _nIntervals
    */
   public int[] getNumberOfIntervals() {
@@ -89,7 +92,7 @@ public class PiecewisePolynomialResult2D {
   }
 
   /**
-   * Access _order
+   * Access _order.
    * @return _order
    */
   public int[] getOrder() {

@@ -10,7 +10,7 @@ import java.util.function.Function;
 import com.opengamma.strata.math.MathException;
 
 /**
- * 
+ * Root finder.
  */
 public class BrentSingleRootFinder extends RealSingleRootFinder {
 
@@ -19,6 +19,7 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
   private final double _accuracy;
 
   /**
+   * Creates an instance.
    * Sets the accuracy to 10<sup>-15</sup>
    */
   public BrentSingleRootFinder() {
@@ -26,6 +27,7 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
   }
 
   /**
+   * Creates an instance.
    * @param accuracy The accuracy of the root
    */
   public BrentSingleRootFinder(double accuracy) {

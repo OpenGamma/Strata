@@ -13,12 +13,12 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.FunctionUtils;
 
 /**
- * Generator for a set of basis functions
+ * Generator for a set of basis functions.
  */
 public class BasisFunctionGenerator {
 
   /**
-   * Generates a set of b-splines with knots a fixed distance apart
+   * Generates a set of b-splines with knots a fixed distance apart.
    * @param xa minimum value of the function domain
    * @param xb maximum value of the function domain
    * @param nKnots number of internal knots (minimum of degree + 1)
@@ -34,7 +34,7 @@ public class BasisFunctionGenerator {
   }
 
   /**
-   * Generates a set of b-splines a given polynomial degree on the specified knots
+   * Generates a set of b-splines a given polynomial degree on the specified knots.
    * @param internalKnots the internal knots. The start of the range is the first knot and the end is the last.
    * @param degree the polynomial degree of the basis functions (this will determine how many external knots are required)
    * @return a List of functions
@@ -48,7 +48,7 @@ public class BasisFunctionGenerator {
   }
 
   /**
-   * Generate a set of b-splines with a given polynomial degree on the specified knots
+   * Generate a set of b-splines with a given polynomial degree on the specified knots.
    * @param knots holder for the knots and degree
    * @return a List of functions
    */
@@ -64,7 +64,7 @@ public class BasisFunctionGenerator {
   }
 
   /**
-   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree
+   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree.
    * on the specified knots
    * @param knots holder for the knots and degree in each dimension
    * @return a List of functions
@@ -90,7 +90,7 @@ public class BasisFunctionGenerator {
   }
 
   /**
-   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree
+   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree.
    * @param xa minimum value of the function domain in each dimension
    * @param xb maximum value of the function domain in each dimension
    * @param nKnots number of internal knots (minimum of degree + 1) in each dimension
@@ -116,7 +116,7 @@ public class BasisFunctionGenerator {
    * Generate the i^th basis function
    * @param data Container for the knots and degree of the basis function
    * @param index The index (from zero) of the function. Must be in range 0 to data.getNumSplines() (exclusive)
-   * For example if the degree is 1, and index is 0, this will cover the first three knots.
+   *   For example if the degree is 1, and index is 0, this will cover the first three knots.
    * @return The i^th basis function
    */
   protected Function<Double, Double> generate(BasisFunctionKnots data, final int index) {

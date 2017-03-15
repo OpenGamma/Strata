@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 /**
  * Provides double precision machine constants
  */
+// CSOFF: AbbreviationAsWordInName
 final class D1MACH {
 
   /**

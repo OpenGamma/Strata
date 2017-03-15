@@ -25,6 +25,13 @@ public class JacobiPolynomialFunction extends OrthogonalPolynomialFunctionGenera
     throw new UnsupportedOperationException("Need values for alpha and beta for Jacobi polynomial function generation");
   }
 
+  /**
+   * Calculates polynomials.
+   * @param n  the n value
+   * @param alpha  the alpha value
+   * @param beta  the beta value
+   * @return the result
+   */
   public DoubleFunction1D[] getPolynomials(int n, double alpha, double beta) {
     ArgChecker.isTrue(n >= 0);
     DoubleFunction1D[] polynomials = new DoubleFunction1D[n + 1];
@@ -44,6 +51,13 @@ public class JacobiPolynomialFunction extends OrthogonalPolynomialFunctionGenera
     return polynomials;
   }
 
+  /**
+   * Calculates polynomials and derivative.
+   * @param n  the n value
+   * @param alpha  the alpha value
+   * @param beta  the beta value
+   * @return the result
+   */
   public Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(int n, double alpha, double beta) {
     ArgChecker.isTrue(n >= 0);
     @SuppressWarnings("unchecked")

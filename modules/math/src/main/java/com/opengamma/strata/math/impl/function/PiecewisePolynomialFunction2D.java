@@ -129,7 +129,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Key  the first key
    * @param x1Key  the second key
    * @return the value of first derivative of two-dimensional piecewise polynomial function
-   *  with respect to x0 at (x0Keys_i, x1Keys_j)
+   *   with respect to x0 at (x0Keys_i, x1Keys_j)
    */
   public double differentiateX0(PiecewisePolynomialResult2D pp, double x0Key, double x1Key) {
     ArgChecker.notNull(pp, "pp");
@@ -168,7 +168,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Key  the first key
    * @param x1Key  the second key
    * @return the value of first derivative of two-dimensional piecewise polynomial function
-   *  with respect to x1 at (x0Keys_i, x1Keys_j)
+   *   with respect to x1 at (x0Keys_i, x1Keys_j)
    */
   public double differentiateX1(PiecewisePolynomialResult2D pp, double x0Key, double x1Key) {
     ArgChecker.notNull(pp, "pp");
@@ -207,7 +207,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Keys  the first keys
    * @param x1Keys  the second keys
    * @return Values of first derivative of two-dimensional piecewise polynomial function
-   *  with respect to x0 at (x0Keys_i, x1Keys_j)
+   *   with respect to x0 at (x0Keys_i, x1Keys_j)
    */
   public DoubleMatrix differentiateX0(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
@@ -246,7 +246,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Keys  the first keys
    * @param x1Keys  the second keys
    * @return Values of first derivative of two-dimensional piecewise polynomial function
-   *  with respect to x1 at (x0Keys_i, x1Keys_j)
+   *   with respect to x1 at (x0Keys_i, x1Keys_j)
    */
   public DoubleMatrix differentiateX1(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
@@ -326,7 +326,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Key  the first key
    * @param x1Key  the second key
    * @return the value of second derivative of two-dimensional piecewise polynomial function
-   *  with respect to x0 at (x0Keys_i, x1Keys_j)
+   *   with respect to x0 at (x0Keys_i, x1Keys_j)
    */
   public double differentiateTwiceX0(PiecewisePolynomialResult2D pp, double x0Key, double x1Key) {
     ArgChecker.notNull(pp, "pp");
@@ -365,7 +365,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Key  the first key
    * @param x1Key  the second key
    * @return the value of second derivative of two-dimensional piecewise polynomial function
-   *  with respect to x1 at (x0Keys_i, x1Keys_j)
+   *   with respect to x1 at (x0Keys_i, x1Keys_j)
    */
   public double differentiateTwiceX1(PiecewisePolynomialResult2D pp, double x0Key, double x1Key) {
     ArgChecker.notNull(pp, "pp");
@@ -444,7 +444,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Keys  the first keys
    * @param x1Keys  the second keys
    * @return the values of second derivative of two-dimensional piecewise polynomial function
-   *  with respect to x0 at (x0Keys_i, x1Keys_j)
+   *   with respect to x0 at (x0Keys_i, x1Keys_j)
    */
   public DoubleMatrix differentiateTwiceX0(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
@@ -482,7 +482,7 @@ public class PiecewisePolynomialFunction2D {
    * @param x0Keys  the first keys
    * @param x1Keys  the second keys
    * @return the values of second derivative of two-dimensional piecewise polynomial function
-   *  with respect to x1 at (x0Keys_i, x1Keys_j)
+   *   with respect to x1 at (x0Keys_i, x1Keys_j)
    */
   public DoubleMatrix differentiateTwiceX1(PiecewisePolynomialResult2D pp, double[] x0Keys, double[] x1Keys) {
     ArgChecker.notNull(pp, "pp");
@@ -513,14 +513,7 @@ public class PiecewisePolynomialFunction2D {
     return evaluate(ppDiff, x0Keys, x1Keys);
   }
 
-  /**
-   * @param coefMat 
-   * @param x0 
-   * @param x1 
-   * @param leftKnot0 
-   * @param leftKnot1 
-   * @return sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-leftKnots0)^{order0-1-i} (x1-leftKnots1)^{order0-1-j}
-   */
+  // sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-leftKnots0)^{order0-1-i} (x1-leftKnots1)^{order0-1-j}
   private double getValue(DoubleMatrix coefMat, double x0, double x1, double leftKnot0, double leftKnot1) {
 
     int order0 = coefMat.rowCount();

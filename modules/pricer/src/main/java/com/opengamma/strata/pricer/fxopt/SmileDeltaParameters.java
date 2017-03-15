@@ -65,7 +65,7 @@ public final class SmileDeltaParameters
    * 
    * @param expiry  the time to expiry associated to the data
    * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
-   *  the put will have as delta the opposite of the numbers
+   *   the put will have as delta the opposite of the numbers
    * @param volatility  the volatilities
    * @return the smile definition
    */
@@ -81,7 +81,7 @@ public final class SmileDeltaParameters
    * @param expiry  the time to expiry associated to the data
    * @param atmVolatility  the at-the-money volatility
    * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
-   *  the put will have as delta the opposite of the numbers
+   *   the put will have as delta the opposite of the numbers
    * @param riskReversal  the risk reversal volatility figures, in the same order as the delta
    * @param strangle  the strangle volatility figures, in the same order as the delta
    * @return the smile definition

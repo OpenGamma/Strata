@@ -13,8 +13,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import cern.jet.random.engine.RandomEngine;
 
 /**
- *
+ * StudentT calculator.
  */
+// CSOFF: JavadocMethod
 public class StudentTOneTailedCriticalValueCalculator implements Function<Double, Double> {
 
   private final ProbabilityDistribution<Double> _dist;

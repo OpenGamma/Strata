@@ -23,6 +23,12 @@ public class InverseIncompleteBetaFunction implements Function<Double, Double> {
   private final Function<Double, Double> _beta;
   private static final double EPS = 1e-9;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param a  the a value
+   * @param b  the b value
+   */
   public InverseIncompleteBetaFunction(double a, double b) {
     ArgChecker.notNegativeOrZero(a, "a");
     ArgChecker.notNegativeOrZero(b, "b");

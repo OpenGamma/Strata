@@ -236,14 +236,7 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
     return _method;
   }
 
-  /**
-   * First derivatives are modified such that cubic interpolant has the same sign as linear interpolator 
-   * @param yValues 
-   * @param intervals 
-   * @param slopes 
-   * @param initialFirst 
-   * @return first derivative 
-   */
+  // First derivatives are modified such that cubic interpolant has the same sign as linear interpolator 
   private double[] firstDerivativeCalculator(final double[] yValues, final double[] intervals, final double[] slopes, final double[] initialFirst) {
     final int nDataPts = yValues.length;
     double[] res = new double[nDataPts];

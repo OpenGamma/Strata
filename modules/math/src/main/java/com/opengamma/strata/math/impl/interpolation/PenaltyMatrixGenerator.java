@@ -136,7 +136,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param x A non-uniform set of points
    * @param k The order <b>Only first and second order are currently implemented</b>
    * @param includeEnds If true the matrix includes an estimate for the derivative at the end points; if false
-   * the first and last rows of the matrix are empty 
+   *   the first and last rows of the matrix are empty 
    * @return The derivative matrix
    */
   public static DoubleMatrix getDerivativeMatrix(double[] x, int k, boolean includeEnds) {
