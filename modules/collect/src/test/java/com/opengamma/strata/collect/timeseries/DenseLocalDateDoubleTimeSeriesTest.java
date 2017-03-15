@@ -1,11 +1,10 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.timeseries;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
@@ -134,7 +133,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void test_of_collectionCollection_valueCollectionNull() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
 
-    LocalDateDoubleTimeSeries.builder().putAll(dates, null).build();
+    LocalDateDoubleTimeSeries.builder().putAll(dates, (double[]) null).build();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -714,6 +713,22 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     List<Double> expectedValues = values(1, 0.5, 0.25, 0.2, 0.125);
 
     assertEquals(test, LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, expectedValues).build());
+  }
+
+  public void test_mapDates() {
+    List<Double> values = values(1, 2, 4, 5, 8);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, values).build();
+    LocalDateDoubleTimeSeries test = base.mapDates(date -> date.plusYears(1));
+    ImmutableList<LocalDate> expectedDates =
+        ImmutableList.of(date(2016, 1, 5), date(2016, 1, 6), date(2016, 1, 7), date(2016, 1, 8), date(2016, 1, 9));
+    LocalDateDoubleTimeSeries expected = LocalDateDoubleTimeSeries.builder().putAll(expectedDates, values).build();
+    assertEquals(test, expected);
+  }
+
+  public void test_mapDates_notAscending() {
+    List<Double> values = values(1, 2, 4, 5, 8);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, values).build();
+    assertThrowsIllegalArg(() -> base.mapDates(date -> date(2016, 1, 6)));
   }
 
   //-------------------------------------------------------------------------

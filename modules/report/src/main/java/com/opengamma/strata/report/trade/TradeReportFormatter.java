@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.trade;
@@ -21,7 +21,7 @@ import com.opengamma.strata.report.framework.format.ValueFormatters;
 /**
  * Formatter for trade reports.
  */
-public class TradeReportFormatter
+public final class TradeReportFormatter
     extends ReportFormatter<TradeReport> {
 
   /**

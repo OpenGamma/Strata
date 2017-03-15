@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,22 +19,18 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * An adjustable date.
  * <p>
  * This class combines an unadjusted date and the business day adjustment necessary to adjust it.
- * Calling the {@link #adjusted()} method will return the adjusted date.
- * 
- * <h4>Usage</h4>
- * {@code AdjustableDate} contains enough information to directly return the adjusted date:
- * <pre>
- *  LocalDate adjusted = adjustableDate.adjusted();
- * </pre>
+ * Calling the {@link #adjusted(ReferenceData)} method will return the adjusted date.
  */
 @BeanDefinition(builderScope = "private")
 public final class AdjustableDate
@@ -61,7 +57,7 @@ public final class AdjustableDate
    * Obtains an instance with no business day adjustment.
    * <p>
    * This creates an adjustable date from the specified date.
-   * No business day adjustment applies, thus the result of {@link #adjusted()}
+   * No business day adjustment applies, thus the result of {@link #adjusted(ReferenceData)}
    * is the specified date.
    * 
    * @param date  the date
@@ -72,10 +68,10 @@ public final class AdjustableDate
   }
 
   /**
-   * Obtains an adjustable date.
+   * Obtains an instance with a business day adjustment.
    * <p>
    * This creates an adjustable date from the unadjusted date and business day adjustment.
-   * The adjusted date is accessible via {@link #adjusted()}.
+   * The adjusted date is accessible via {@link #adjusted(ReferenceData)}.
    * 
    * @param unadjusted  the unadjusted date
    * @param adjustment  the business day adjustment to apply to the unadjusted date
@@ -92,10 +88,11 @@ public final class AdjustableDate
    * This returns the adjusted date, calculated by applying the business day
    * adjustment to the unadjusted date.
    * 
+   * @param refData  the reference data to use
    * @return the adjusted date
    */
-  public LocalDate adjusted() {
-    return adjustment.adjust(unadjusted);
+  public LocalDate adjusted(ReferenceData refData) {
+    return adjustment.adjust(unadjusted, refData);
   }
 
   //-------------------------------------------------------------------------
@@ -307,7 +304,7 @@ public final class AdjustableDate
   /**
    * The bean-builder for {@code AdjustableDate}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<AdjustableDate> {
+  private static final class Builder extends DirectPrivateBeanBuilder<AdjustableDate> {
 
     private LocalDate unadjusted;
     private BusinessDayAdjustment adjustment;
@@ -316,6 +313,7 @@ public final class AdjustableDate
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -343,30 +341,6 @@ public final class AdjustableDate
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

@@ -1,20 +1,17 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.swap.type;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.PayReceive.PAY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -26,6 +23,9 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -36,6 +36,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.product.swap.Swap;
@@ -47,10 +48,10 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class FixedIborSwapConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
-  private static final DaysAdjustment NEXT_SAME_BUS_DAY = DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, GBLO);
 
   private static final String NAME = "USD-Swap";
@@ -71,33 +72,24 @@ public class FixedIborSwapConventionTest {
     assertEquals(test.getSpotDateOffset(), USD_LIBOR_3M.getEffectiveDateOffset());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> ImmutableFixedIborSwapConvention.builder()
-        .spotDateOffset(NEXT_SAME_BUS_DAY)
-        .build());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_expand() {
-    ImmutableFixedIborSwapConvention test = ImmutableFixedIborSwapConvention.of(NAME, FIXED, IBOR).expand();
+  public void test_of_spotDateOffset() {
+    ImmutableFixedIborSwapConvention test = ImmutableFixedIborSwapConvention.of(NAME, FIXED, IBOR, PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED.expand());
-    assertEquals(test.getFloatingLeg(), IBOR.expand());
-    assertEquals(test.getSpotDateOffset(), USD_LIBOR_3M.getEffectiveDateOffset());
+    assertEquals(test.getFixedLeg(), FIXED);
+    assertEquals(test.getFloatingLeg(), IBOR);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
-  public void test_expandAllSpecified() {
+  public void test_builder() {
     ImmutableFixedIborSwapConvention test = ImmutableFixedIborSwapConvention.builder()
         .name(NAME)
         .fixedLeg(FIXED)
         .floatingLeg(IBOR)
         .spotDateOffset(PLUS_ONE_DAY)
-        .build()
-        .expand();
+        .build();
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED.expand());
-    assertEquals(test.getFloatingLeg(), IBOR.expand());
+    assertEquals(test.getFixedLeg(), FIXED);
+    assertEquals(test.getFloatingLeg(), IBOR);
     assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
@@ -107,11 +99,11 @@ public class FixedIborSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 5, 7);
     LocalDate endDate = date(2025, 5, 7);
-    SwapTrade test = base.toTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 
@@ -120,11 +112,11 @@ public class FixedIborSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 7);
     LocalDate endDate = date(2025, 8, 7);
-    SwapTrade test = base.toTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 
@@ -137,7 +129,7 @@ public class FixedIborSwapConventionTest {
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 

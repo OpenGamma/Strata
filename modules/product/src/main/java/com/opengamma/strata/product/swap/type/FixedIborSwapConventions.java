@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -75,6 +75,15 @@ public final class FixedIborSwapConventions {
    */
   public static final FixedIborSwapConvention GBP_FIXED_6M_LIBOR_6M =
       FixedIborSwapConvention.of(StandardFixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M.getName());
+
+  /**
+   * The 'GBP-FIXED-3M-LIBOR-3M' swap convention.
+   * <p>
+   * GBP(>1Y) vanilla fixed vs LIBOR 3M swap.
+   * The fixed leg pays every 3 months with day count 'Act/365F'.
+   */
+  public static final FixedIborSwapConvention GBP_FIXED_3M_LIBOR_3M =
+      FixedIborSwapConvention.of(StandardFixedIborSwapConventions.GBP_FIXED_3M_LIBOR_3M.getName());
 
   //-------------------------------------------------------------------------
   /**

@@ -1,18 +1,17 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.swap.type;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
@@ -21,6 +20,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.swap.FixingRelativeTo.PERIOD_END;
 import static com.opengamma.strata.product.swap.FixingRelativeTo.PERIOD_START;
 import static org.testng.Assert.assertEquals;
@@ -97,27 +97,7 @@ public class IborRateSwapLegConventionTest {
     assertThrowsIllegalArg(() -> IborRateSwapLegConvention.builder().build());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_expand() {
-    IborRateSwapLegConvention test = IborRateSwapLegConvention.of(GBP_LIBOR_3M).expand();
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getAccrualFrequency(), P3M);
-    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
-    assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
-    assertEquals(test.getPaymentFrequency(), P3M);
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
-    assertEquals(test.isNotionalExchange(), false);
-  }
-
-  public void test_expandAllSpecified() {
+  public void test_builderAllSpecified() {
     IborRateSwapLegConvention test = IborRateSwapLegConvention.builder()
         .index(GBP_LIBOR_3M)
         .currency(USD)

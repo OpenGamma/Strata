@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -53,7 +53,7 @@ public final class DummyPointSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ZeroRateSensitivity} from the curve currency, date and value.
+   * Obtains an instance from the curve currency, date and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
@@ -67,7 +67,7 @@ public final class DummyPointSensitivity
   }
 
   /**
-   * Obtains a {@code ZeroRateSensitivity} from the curve currency, date, sensitivity currency and value.
+   * Obtains an instance from the curve currency, date, sensitivity currency and value.
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
@@ -148,7 +148,7 @@ public final class DummyPointSensitivity
   /**
    * The meta-bean for {@code DummyPointSensitivity}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DummyPointSensitivity.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DummyPointSensitivity.class);
 
   /**
    * The meta-bean for {@code DummyPointSensitivity}.

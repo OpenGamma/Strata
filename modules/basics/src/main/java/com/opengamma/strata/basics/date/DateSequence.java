@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.date;
@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.LocalDateUtils.plusDays;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -34,22 +35,21 @@ public interface DateSequence
     extends Named {
 
   /**
-   * Obtains a {@code DateSequence} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
-   * @param uniqueName  the unique name of the sequence
+   * @param uniqueName  the unique name
    * @return the date sequence
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
   public static DateSequence of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code DateSequence} to be lookup up.
+   * This helper allows instances of the sequence to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper
@@ -69,7 +69,6 @@ public interface DateSequence
    * @throws IllegalArgumentException if there are no more sequence dates
    */
   public default LocalDate next(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate next = plusDays(date, 1);
     return nextOrSame(next);
   }
@@ -136,6 +135,20 @@ public interface DateSequence
       return nth(nextOrSame(date), sequenceNumber - 1);
     }
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the date in the sequence that corresponds to the specified year-month.
+   * <p>
+   * Given an input month, this method returns the date from the sequence that is associated with the year-month.
+   * In most cases, the returned date will be in the same month as the input month,
+   * but this is not guaranteed.
+   * 
+   * @param yearMonth  the input year-month
+   * @return the next sequence date after the input date
+   * @throws IllegalArgumentException if there are no more sequence dates
+   */
+  public abstract LocalDate dateMatching(YearMonth yearMonth);
 
   //-------------------------------------------------------------------------
   /**

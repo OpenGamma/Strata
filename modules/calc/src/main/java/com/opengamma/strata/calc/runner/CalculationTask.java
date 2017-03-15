@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,194 +6,432 @@
 package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.light.LightMetaBean;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateKey;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.calc.config.ReportingRules;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.function.CalculationSingleFunction;
-import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
- * Wraps an input and a function that calculates a value for the input.
+ * A single task that will be used to perform a calculation.
  * <p>
- * This presents a uniform interface to the engine so all functions can be treated equally during execution.
- * Without this class the engine would need to keep track of which functions to use for each input.
+ * This is a single unit of execution in the calculation runner.
+ * It consists of a {@link CalculationFunction} and the appropriate inputs,
+ * including a single {@link CalculationTarget}. When invoked, it will
+ * calculate a result for one or more columns in the grid of results.
  */
-public class CalculationTask {
-
-  /** The target, such as a trade. */
-  private final CalculationTarget target;
-
-  /** The row index of the value in the results grid. */
-  private final int rowIndex;
-
-  /** The column index of the value in the results grid. */
-  private final int columnIndex;
-
-  /** The function that performs the calculations. */
-  private final CalculationSingleFunction<CalculationTarget, ?> function;
-
-  /** The mappings to select market data. */
-  private final MarketDataMappings marketDataMappings;
-
-  // These aren't used at the moment but will be required when we add support for functions that perform
-  // their own currency conversion
-  /** The rules for reporting the output. */
-  private final ReportingRules reportingRules;
+@BeanDefinition(style = "light")
+public final class CalculationTask implements ImmutableBean {
 
   /**
-   * Creates a task, based on the target, the location of the result in the results grid, the function,
-   * mappings and reporting rules.
-   *
-   * @param target  the target for which the calculation is performed
-   * @param rowIndex  the row index of the value in the results grid
-   * @param columnIndex  the column index of the value in the results grid
-   * @param function  the function that performs the calculation
-   * @param marketDataMappings  specifies the market data used in the calculation
-   * @param reportingRules  the currency in which monetary values should be returned
+   * The target for which the value will be calculated.
+   * This is typically a trade.
    */
-  @SuppressWarnings("unchecked")
-  public CalculationTask(
-      CalculationTarget target,
-      int rowIndex,
-      int columnIndex,
-      CalculationSingleFunction<? extends CalculationTarget, ?> function,
-      MarketDataMappings marketDataMappings,
-      ReportingRules reportingRules) {
+  @PropertyDefinition(validate = "notNull")
+  private final CalculationTarget target;
+  /**
+   * The function that will calculate the value.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final CalculationFunction<CalculationTarget> function;
+  /**
+   * The additional parameters.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final CalculationParameters parameters;
+  /**
+   * The cells to be calculated.
+   */
+  @PropertyDefinition(validate = "notEmpty")
+  private final List<CalculationTaskCell> cells;
 
-    this.rowIndex = ArgChecker.notNegative(rowIndex, "rowIndex");
-    this.columnIndex = ArgChecker.notNegative(columnIndex, "columnIndex");
-    this.target = ArgChecker.notNull(target, "target");
-    this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
-    this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
-    // TODO check the target types are compatible
-    this.function = (CalculationSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance that will calculate the specified cells.
+   * <p>
+   * The cells must all be for the same row index and none of the column indices must overlap.
+   * The result will contain no calculation parameters.
+   *
+   * @param target  the target for which the value will be calculated
+   * @param function  the function that performs the calculation
+   * @param cells  the cells to be calculated by this task
+   * @return the task
+   */
+  public static CalculationTask of(
+      CalculationTarget target,
+      CalculationFunction<? extends CalculationTarget> function,
+      CalculationTaskCell... cells) {
+
+    return of(target, function, CalculationParameters.empty(), ImmutableList.copyOf(cells));
   }
 
   /**
-   * Returns requirements specifying the market data the function needs to perform its calculations.
+   * Obtains an instance that will calculate the specified cells.
+   * <p>
+   * The cells must all be for the same row index and none of the column indices must overlap.
    *
+   * @param target  the target for which the value will be calculated
+   * @param function  the function that performs the calculation
+   * @param parameters  the additional parameters
+   * @param cells  the cells to be calculated by this task
+   * @return the task
+   */
+  public static CalculationTask of(
+      CalculationTarget target,
+      CalculationFunction<? extends CalculationTarget> function,
+      CalculationParameters parameters,
+      List<CalculationTaskCell> cells) {
+
+    @SuppressWarnings("unchecked")
+    CalculationFunction<CalculationTarget> functionCast = (CalculationFunction<CalculationTarget>) function;
+    return new CalculationTask(target, functionCast, parameters, cells);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the index of the row in the grid of results.
+   * 
+   * @return the row index
+   */
+  public int getRowIndex() {
+    return cells.get(0).getRowIndex();
+  }
+
+  /**
+   * Gets the set of measures that will be calculated by this task.
+   * 
+   * @return the measures
+   */
+  public Set<Measure> getMeasures() {
+    return cells.stream().map(c -> c.getMeasure()).collect(toImmutableSet());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns requirements specifying the market data the function needs to perform its calculations.
+   * 
+   * @param refData  the reference data
    * @return requirements specifying the market data the function needs to perform its calculations
    */
-  public MarketDataRequirements requirements() {
-    FunctionRequirements functionRequirements = function.requirements(target);
+  @SuppressWarnings("unchecked")
+  public MarketDataRequirements requirements(ReferenceData refData) {
+    // determine market data requirements of the function
+    FunctionRequirements functionRequirements = function.requirements(target, getMeasures(), parameters, refData);
+    ObservableSource obsSource = functionRequirements.getObservableSource();
+
+    // convert function requirements to market data requirements
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
-
-    functionRequirements.getTimeSeriesRequirements().stream()
-        .map(marketDataMappings::getIdForObservableKey)
-        .forEach(requirementsBuilder::addTimeSeries);
-
-    for (MarketDataKey<?> key : functionRequirements.getSingleValueRequirements()) {
-      requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
+    for (ObservableId id : functionRequirements.getTimeSeriesRequirements()) {
+      requirementsBuilder.addTimeSeries(id.withObservableSource(obsSource));
     }
-    Optional<Currency> optionalReportingCurrency =
-        reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
+    for (MarketDataId<?> id : functionRequirements.getValueRequirements()) {
+      if (id instanceof ObservableId) {
+        requirementsBuilder.addValues(((ObservableId) id).withObservableSource(obsSource));
+      } else {
+        requirementsBuilder.addValues(id);
+      }
+    }
 
-    if (optionalReportingCurrency.isPresent()) {
-      Currency reportingCurrency = optionalReportingCurrency.get();
-
-      // Add requirements for the FX rates needed to convert the output values into the reporting currency
-      List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
-          .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
-          .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
-          .map(FxRateKey::of)
-          .map(marketDataMappings::getIdForKey)
-          .collect(toImmutableList());
-      requirementsBuilder.addValues(fxRateIds);
+    // add requirements for the FX rates needed to convert the output values into the reporting currency
+    for (CalculationTaskCell cell : cells) {
+      if (cell.getMeasure().isCurrencyConvertible() && !cell.getReportingCurrency().isNone()) {
+        Currency reportingCurrency = cell.reportingCurrency(this, refData);
+        List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
+            .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
+            .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
+            .map(pair -> FxRateId.of(pair, obsSource))
+            .collect(toImmutableList());
+        requirementsBuilder.addValues(fxRateIds);
+      }
     }
     return requirementsBuilder.build();
   }
 
   /**
-   * Returns an optional containing the first currency from the arguments or empty if both arguments are empty.
+   * Determines the natural currency of the target.
+   * <p>
+   * This is only called for measures that are currency convertible.
+   * 
+   * @param refData  the reference data
+   * @return the natural currency
    */
-  private static Optional<Currency> reportingCurrency(Optional<Currency> ccy1, Optional<Currency> ccy2) {
-    if (ccy1.isPresent()) {
-      return ccy1;
-    }
-    if (ccy2.isPresent()) {
-      return ccy2;
-    }
-    return Optional.empty();
+  public Currency naturalCurrency(ReferenceData refData) {
+    return function.naturalCurrency(target, refData);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Performs calculations for the target using multiple sets of market data.
+   * Executes the task, performing calculations for the target using multiple sets of market data.
+   * <p>
+   * This invokes the function with the correct set of market data.
    *
-   * @param scenarioData  the market data used in the calculation
+   * @param marketData  the market data used in the calculation
+   * @param refData  the reference data
    * @return results of the calculation, one for every scenario in the market data
    */
-  public CalculationResult execute(CalculationEnvironment scenarioData) {
-    CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
-    Result<?> result;
+  @SuppressWarnings("unchecked")
+  public CalculationResults execute(ScenarioMarketData marketData, ReferenceData refData) {
+    // calculate the results
+    Map<Measure, Result<?>> results = calculate(marketData, refData);
 
-    try {
-      Object value = function.execute(target, calculationData);
-      result = value instanceof Result ?
-          (Result<?>) value :
-          Result.success(value);
-    } catch (RuntimeException e) {
-      result = Result.failure(e);
+    // convert the results, using a normal loop for better stack traces
+    ScenarioFxRateProvider fxProvider = ScenarioFxRateProvider.of(marketData);
+    ImmutableList.Builder<CalculationResult> resultBuilder = ImmutableList.builder();
+    for (CalculationTaskCell cell : cells) {
+      resultBuilder.add(cell.createResult(this, target, results, fxProvider, refData));
     }
-    return CalculationResult.of(target, rowIndex, columnIndex, convertToReportingCurrency(result, calculationData));
+
+    // return the result
+    return CalculationResults.of(target, resultBuilder.build());
   }
+
+  // calculates the result
+  private Map<Measure, Result<?>> calculate(ScenarioMarketData marketData, ReferenceData refData) {
+    try {
+      Set<Measure> requestedMeasures = getMeasures();
+      Set<Measure> supportedMeasures = function.supportedMeasures();
+      Set<Measure> measures = Sets.intersection(requestedMeasures, supportedMeasures);
+      Map<Measure, Result<?>> map = ImmutableMap.of();
+      if (!measures.isEmpty()) {
+        map = function.calculate(target, measures, parameters, marketData, refData);
+      }
+      // check if result does not contain all requested measures
+      if (!map.keySet().containsAll(requestedMeasures)) {
+        return handleMissing(requestedMeasures, supportedMeasures, map);
+      }
+      return map;
+
+    } catch (RuntimeException ex) {
+      return handleFailure(ex);
+    }
+  }
+
+  // populate the result with failures
+  private Map<Measure, Result<?>> handleMissing(
+      Set<Measure> requestedMeasures,
+      Set<Measure> supportedMeasures,
+      Map<Measure, Result<?>> calculatedResults) {
+
+    // need to add missing measures
+    Map<Measure, Result<?>> updated = new HashMap<>(calculatedResults);
+    String fnName = function.getClass().getSimpleName();
+    for (Measure requestedMeasure : requestedMeasures) {
+      if (!calculatedResults.containsKey(requestedMeasure)) {
+        if (supportedMeasures.contains(requestedMeasure)) {
+          String msg = function.identifier(target)
+              .map(v -> "for ID '" + v + "'")
+              .orElse("for target '" + target.toString() + "'");
+          updated.put(requestedMeasure, Result.failure(
+              FailureReason.CALCULATION_FAILED,
+              "Function '{}' did not return requested measure '{}' {}",
+              fnName,
+              requestedMeasure,
+              msg));
+        } else {
+          updated.put(requestedMeasure, Result.failure(
+              FailureReason.UNSUPPORTED,
+              "Measure '{}' is not supported by function '{}'",
+              requestedMeasure,
+              fnName));
+        }
+      }
+    }
+    return updated;
+  }
+
+  // handle the failure, extracted to aid inlining
+  private Map<Measure, Result<?>> handleFailure(RuntimeException ex) {
+    Result<?> failure;
+    String fnName = function.getClass().getSimpleName();
+    String exMsg = ex.getMessage();
+    Optional<String> id = function.identifier(target);
+    String msg = id.map(v -> " for ID '" + v + "': " + exMsg).orElse(": " + exMsg + ": for target '" + target.toString() + "'");
+    if (ex instanceof MarketDataNotFoundException) {
+      failure = Result.failure(
+          FailureReason.MISSING_DATA,
+          ex,
+          "Missing market data when invoking function '{}'{}",
+          fnName,
+          msg);
+
+    } else if (ex instanceof ReferenceDataNotFoundException) {
+      failure = Result.failure(
+          FailureReason.MISSING_DATA,
+          ex,
+          "Missing reference data when invoking function '{}'{}",
+          fnName,
+          msg);
+
+    } else if (ex instanceof UnsupportedOperationException) {
+      failure = Result.failure(
+          FailureReason.UNSUPPORTED,
+          ex,
+          "Unsupported operation when invoking function '{}'{}",
+          fnName,
+          msg);
+
+    } else {
+      failure = Result.failure(
+          FailureReason.CALCULATION_FAILED,
+          ex,
+          "Error when invoking function '{}'{}",
+          fnName,
+          msg);
+    }
+    return getMeasures().stream().collect(toImmutableMap(m -> m, m -> failure));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "CalculationTask" + cells;
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CalculationTask}.
+   */
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationTask.class);
 
   /**
-   * Converts the value in a result to the reporting currency.
-   * <p>
-   * If the result is a failure or does not contain an value that can be converted it is returned unchanged.
-   * <p>
-   * The reporting rules are used to determine the reporting currency for the target. If the rules do
-   * not specify a reporting currency for the target the input result is returned.
-   * <p>
-   * If the rules specify a reporting currency but the conversion cannot be performed a failure is
-   * returned with details of the problem.
-   *
-   * @param result  the result of a calculation
-   * @param marketData  market data containing FX rates needed to perform currency conversion
-   * @return a result containing the value from the input result, converted to the reporting currency if possible
+   * The meta-bean for {@code CalculationTask}.
+   * @return the meta-bean, not null
    */
-  private Result<?> convertToReportingCurrency(Result<?> result, CalculationMarketData marketData) {
-    if (!result.isSuccess()) {
-      return result;
-    }
-    Object value = result.getValue();
-
-    if (!(value instanceof CurrencyConvertible)) {
-      return result;
-    }
-    Optional<Currency> optionalReportingCurrency =
-        reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
-
-    if (!optionalReportingCurrency.isPresent()) {
-      return Result.failure(FailureReason.MISSING_DATA, "No reporting currency available for convert value {}", value);
-    }
-    Currency reportingCurrency = optionalReportingCurrency.get();
-    CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) value;
-
-    try {
-      Object convertedValue = convertible.convertedTo(reportingCurrency, marketData);
-      return Result.success(convertedValue);
-    } catch (RuntimeException e) {
-      return Result.failure(FailureReason.ERROR, e, "Failed to convert value {} to currency {}", value, reportingCurrency);
-    }
+  public static MetaBean meta() {
+    return META_BEAN;
   }
+
+  static {
+    JodaBeanUtils.registerMetaBean(META_BEAN);
+  }
+
+  private CalculationTask(
+      CalculationTarget target,
+      CalculationFunction<CalculationTarget> function,
+      CalculationParameters parameters,
+      List<CalculationTaskCell> cells) {
+    JodaBeanUtils.notNull(target, "target");
+    JodaBeanUtils.notNull(function, "function");
+    JodaBeanUtils.notNull(parameters, "parameters");
+    JodaBeanUtils.notEmpty(cells, "cells");
+    this.target = target;
+    this.function = function;
+    this.parameters = parameters;
+    this.cells = ImmutableList.copyOf(cells);
+  }
+
+  @Override
+  public MetaBean metaBean() {
+    return META_BEAN;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the target for which the value will be calculated.
+   * This is typically a trade.
+   * @return the value of the property, not null
+   */
+  public CalculationTarget getTarget() {
+    return target;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the function that will calculate the value.
+   * @return the value of the property, not null
+   */
+  public CalculationFunction<CalculationTarget> getFunction() {
+    return function;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the additional parameters.
+   * @return the value of the property, not null
+   */
+  public CalculationParameters getParameters() {
+    return parameters;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cells to be calculated.
+   * @return the value of the property, not empty
+   */
+  public List<CalculationTaskCell> getCells() {
+    return cells;
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CalculationTask other = (CalculationTask) obj;
+      return JodaBeanUtils.equal(target, other.target) &&
+          JodaBeanUtils.equal(function, other.function) &&
+          JodaBeanUtils.equal(parameters, other.parameters) &&
+          JodaBeanUtils.equal(cells, other.cells);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(target);
+    hash = hash * 31 + JodaBeanUtils.hashCode(function);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
+    hash = hash * 31 + JodaBeanUtils.hashCode(cells);
+    return hash;
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

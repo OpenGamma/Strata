@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -8,10 +8,28 @@ package com.opengamma.strata.collect.array;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.IntIntDoubleConsumer;
 import com.opengamma.strata.collect.function.IntIntDoubleToDoubleFunction;
@@ -24,7 +42,9 @@ import com.opengamma.strata.collect.function.IntIntToDoubleFunction;
  * <p>
  * In mathematical terms, this is a two-dimensional matrix.
  */
-public final class DoubleMatrix implements Matrix, Serializable {
+@BeanDefinition(builderScope = "private")
+public final class DoubleMatrix
+    implements Matrix, Serializable, ImmutableBean {
 
   /**
    * An empty array.
@@ -39,19 +59,20 @@ public final class DoubleMatrix implements Matrix, Serializable {
   /**
    * The underlying array of doubles.
    */
+  @PropertyDefinition(validate = "notNull", get = "")
   private final double[][] array;
   /**
    * The number of rows.
    */
-  private final int rows;
+  private final transient int rows;  // derived, not a property
   /**
    * The number of columns.
    */
-  private final int columns;
+  private final transient int columns;  // derived, not a property
   /**
    * The number of elements.
    */
-  private final int elements;
+  private final transient int elements;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -284,7 +305,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Sets up an empty matrix.
+   * Creates a matrix.
    * 
    * @param data  the data
    * @param rows  the number of rows
@@ -297,6 +318,21 @@ public final class DoubleMatrix implements Matrix, Serializable {
     this.elements = rows * columns;
   }
 
+  @ImmutableConstructor
+  private DoubleMatrix(double[][] array) {
+    ArgChecker.notNull(array, "array");
+    if (array.length == 0) {
+      this.array = EMPTY.array;
+      this.rows = 0;
+      this.columns = 0;
+    } else {
+      this.array = array;
+      this.rows = array.length;
+      this.columns = array[0].length;
+    }
+    this.elements = rows * columns;
+  }
+
   // depp clone a double[][]
   private static double[][] deepClone(double[][] input, int rows, int columns) {
     double[][] cloned = new double[rows][columns];
@@ -304,6 +340,11 @@ public final class DoubleMatrix implements Matrix, Serializable {
       cloned[i] = input[i].clone();
     }
     return cloned;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DoubleMatrix(array);
   }
 
   //-------------------------------------------------------------------------
@@ -455,7 +496,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    *   base.forEach((row, col, value) -> System.out.println(row + ": " + col + ": " + value));
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param action  the action to be applied
    */
@@ -471,7 +512,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
   /**
    * Returns an instance with the value at the specified index changed.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param row  the zero-based row index to retrieve
    * @param column  the zero-based column index to retrieve
@@ -496,7 +537,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    * This is used to multiply the contents of this matrix, returning a new matrix.
    * <p>
    * This is a special case of {@link #map(DoubleUnaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return a copy of this matrix with the each value multiplied by the factor
@@ -524,7 +565,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    *   result = base.map(value -> 1 / value);
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param operator  the operator to be applied
    * @return a copy of this matrix with the operator applied to the original values
@@ -549,7 +590,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    *   result = base.mapWithIndex((index, value) -> index * value);
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param function  the function to be applied
    * @return a copy of this matrix with the operator applied to the original values
@@ -575,7 +616,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    * The matrices must be of the same size.
    * <p>
    * This is a special case of {@link #combine(DoubleMatrix, DoubleBinaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other matrix
    * @return a copy of this matrix with matching elements added
@@ -604,7 +645,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    * The matrices must be of the same size.
    * <p>
    * This is a special case of {@link #combine(DoubleMatrix, DoubleBinaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other matrix
    * @return a copy of this matrix with matching elements subtracted
@@ -632,7 +673,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    * when applied to element {@code (i,j)} in this array and element {@code (i,j)} in the other array.
    * The arrays must be of the same size.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other matrix
    * @param operator  the operator used to combine each pair of values
@@ -678,7 +719,7 @@ public final class DoubleMatrix implements Matrix, Serializable {
    * The first argument to the operator is the running total of the reduction, starting from zero.
    * The second argument to the operator is the element.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param identity  the identity value to start from
    * @param operator  the operator used to combine the value with the current total
@@ -751,4 +792,173 @@ public final class DoubleMatrix implements Matrix, Serializable {
     return buf.toString();
   }
 
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code DoubleMatrix}.
+   * @return the meta-bean, not null
+   */
+  public static DoubleMatrix.Meta meta() {
+    return DoubleMatrix.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(DoubleMatrix.Meta.INSTANCE);
+  }
+
+  @Override
+  public DoubleMatrix.Meta metaBean() {
+    return DoubleMatrix.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code DoubleMatrix}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code array} property.
+     */
+    private final MetaProperty<double[][]> array = DirectMetaProperty.ofImmutable(
+        this, "array", DoubleMatrix.class, double[][].class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "array");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 93090393:  // array
+          return array;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends DoubleMatrix> builder() {
+      return new DoubleMatrix.Builder();
+    }
+
+    @Override
+    public Class<? extends DoubleMatrix> beanType() {
+      return DoubleMatrix.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code array} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<double[][]> array() {
+      return array;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 93090393:  // array
+          return ((DoubleMatrix) bean).array;
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code DoubleMatrix}.
+   */
+  private static final class Builder extends DirectPrivateBeanBuilder<DoubleMatrix> {
+
+    private double[][] array;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+      super(meta());
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 93090393:  // array
+          return array;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case 93090393:  // array
+          this.array = (double[][]) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public DoubleMatrix build() {
+      return new DoubleMatrix(
+          array);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(64);
+      buf.append("DoubleMatrix.Builder{");
+      buf.append("array").append('=').append(JodaBeanUtils.toString(array));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

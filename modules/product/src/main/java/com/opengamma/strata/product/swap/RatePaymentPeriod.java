@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
 
@@ -47,7 +48,7 @@ import com.opengamma.strata.collect.Messages;
  * Any combination of accrual periods is supported in the data model, however
  * there is no guarantee that exotic combinations will price sensibly.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class RatePaymentPeriod
     implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
@@ -126,25 +127,24 @@ public final class RatePaymentPeriod
   @ImmutableValidator
   private void validate() {
     if (fxReset != null) {
+      Currency notionalCcy = fxReset.getReferenceCurrency();
       if (fxReset.getReferenceCurrency().equals(currency)) {
-        throw new IllegalArgumentException(
-            Messages.format("Currency {} must not equal FxReset reference currency {}",
-                currency, fxReset.getReferenceCurrency()));
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must not equal notional currency {} when FX reset applies", currency, notionalCcy));
       }
       if (!fxReset.getIndex().getCurrencyPair().contains(currency)) {
-        throw new IllegalArgumentException(
-            Messages.format("Currency {} must be one of those in the FxReset index {}",
-                currency, fxReset.getIndex()));
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must be one of those in the FxReset index {}", currency, fxReset.getIndex()));
       }
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the start date of the period.
+   * Gets the accrual start date of the period.
    * <p>
    * This is the first accrual date in the period.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the start date of the period
    */
@@ -154,10 +154,10 @@ public final class RatePaymentPeriod
   }
 
   /**
-   * Gets the end date of the period.
+   * Gets the accrual end date of the period.
    * <p>
    * This is the last accrual date in the period.
-   * This date has been adjusted to be a valid business day.
+   * This date has typically been adjusted to be a valid business day.
    * 
    * @return the end date of the period
    */
@@ -183,6 +183,11 @@ public final class RatePaymentPeriod
     return CurrencyAmount.of(currency, notional);
   }
 
+  @Override
+  public Optional<FxIndexObservation> getFxResetObservation() {
+    return getFxReset().map(fxr -> fxr.getObservation());
+  }
+
   /**
    * Checks whether compounding applies.
    * <p>
@@ -204,7 +209,7 @@ public final class RatePaymentPeriod
 
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    accrualPeriods.stream().forEach(accrual -> accrual.getRateObservation().collectIndices(builder));
+    accrualPeriods.stream().forEach(accrual -> accrual.getRateComputation().collectIndices(builder));
     getFxReset().ifPresent(fxReset -> builder.add(fxReset.getIndex()));
   }
 
@@ -235,7 +240,17 @@ public final class RatePaymentPeriod
     return new RatePaymentPeriod.Builder();
   }
 
-  private RatePaymentPeriod(
+  /**
+   * Creates an instance.
+   * @param paymentDate  the value of the property, not null
+   * @param accrualPeriods  the value of the property, not empty
+   * @param dayCount  the value of the property, not null
+   * @param currency  the value of the property, not null
+   * @param fxReset  the value of the property
+   * @param notional  the value of the property
+   * @param compoundingMethod  the value of the property, not null
+   */
+  RatePaymentPeriod(
       LocalDate paymentDate,
       List<RateAccrualPeriod> accrualPeriods,
       DayCount dayCount,

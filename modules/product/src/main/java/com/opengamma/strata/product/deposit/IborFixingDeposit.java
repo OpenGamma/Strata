@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -26,33 +26,37 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * An Ibor fixing deposit.
  * <p>
  * An Ibor fixing deposit is a fictitious financial instrument that provides a floating rate of interest on
  * notional amount for a specific term, which is effectively an exchange of a fixed rate and a floating rate 
- * based on an Ibor-like index on the term end date.
+ * based on an Ibor index on the term end date.
  * <p>
  * For example, an Ibor fixing deposit involves the exchange of the difference between
  * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.
  */
 @BeanDefinition
 public final class IborFixingDeposit
-    implements IborFixingDepositProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedIborFixingDeposit>, ImmutableBean, Serializable {
 
   /**
    * Whether the Ibor fixing deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received. 
+   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received.
    * A value of 'Sell' implies that the floating rate is received from the counterparty, with the fixed rate being paid.
    */
   @PropertyDefinition(validate = "notNull")
@@ -165,28 +169,20 @@ public final class IborFixingDeposit
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this Ibor fixing deposit.
-   * <p>
-   * Expanding an Ibor fixing deposit causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   * 
-   * @return the equivalent expanded Ibor fixing deposit
-   * @throws RuntimeException if unable to expand due to an invalid definition
-   */
   @Override
-  public ExpandedIborFixingDeposit expand() {
-    LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
-    LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
+  public ResolvedIborFixingDeposit resolve(ReferenceData refData) {
+    DateAdjuster bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).resolve(refData);
+    LocalDate start = bda.adjust(startDate);
+    LocalDate end = bda.adjust(endDate);
     double yearFraction = dayCount.yearFraction(start, end);
-    LocalDate fixingDate = fixingDateOffset.adjust(startDate);
-    return ExpandedIborFixingDeposit.builder()
+    LocalDate fixingDate = fixingDateOffset.adjust(startDate, refData);
+    return ResolvedIborFixingDeposit.builder()
         .startDate(start)
         .endDate(end)
         .yearFraction(yearFraction)
         .currency(getCurrency())
         .notional(buySell.normalize(notional))
-        .floatingRate(IborRateObservation.of(index, fixingDate))
+        .floatingRate(IborRateComputation.of(index, fixingDate, refData))
         .fixedRate(fixedRate)
         .build();
   }

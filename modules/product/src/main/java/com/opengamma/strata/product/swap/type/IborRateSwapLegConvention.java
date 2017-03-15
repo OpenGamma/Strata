@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -38,6 +37,7 @@ import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -49,7 +49,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
  * A market convention for the floating leg of rate swap trades based on an Ibor index.
  * <p>
  * This defines the market convention for a floating leg based on the observed value
- * of an IBOR-like index such as 'GBP-LIBOR-3M' or 'EUR-EURIBOR-1M'.
+ * of an Ibor index such as 'GBP-LIBOR-3M' or 'EUR-EURIBOR-1M'.
  * In most cases, the index contains sufficient information to fully define the convention.
  * As such, no other fields need to be specified when creating an instance.
  * The getters will default any missing information on the fly, avoiding both null and {@link Optional}.
@@ -59,7 +59,7 @@ public final class IborRateSwapLegConvention
     implements SwapLegConvention, ImmutableBean, Serializable {
 
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -288,28 +288,16 @@ public final class IborRateSwapLegConvention
    * <p>
    * Each date in the calculated schedule is determined without taking into account weekends and holidays.
    * The adjustment specified here is used to convert those dates to valid business days.
-   * <p>
-   * The start date and end date may have their own business day adjustment rules.
-   * If those are not present, then this adjustment is used instead.
+   * The start date and end date have their own business day adjustment rules.
    * <p>
    * This will default to 'ModifiedFollowing' using the index fixing calendar if not specified.
    * 
    * @return the business day adjustment, not null
    */
-  /**
-   * Gets the business day adjustment to apply to accrual schedule dates.
-   * <p>
-   * Each date in the calculated schedule is determined without taking into account weekends and holidays.
-   * The adjustment specified here is used to convert those dates to valid business days.
-   * <p>
-   * The start date and end date may have their own business day adjustment rules.
-   * If those are not present, then this adjustment is used instead.
-   * 
-   * @return the accrual business day adjustment, not null
-   */
   public BusinessDayAdjustment getAccrualBusinessDayAdjustment() {
     return accrualBusinessDayAdjustment != null ?
-        accrualBusinessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
+        accrualBusinessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
   }
 
   /**
@@ -447,31 +435,6 @@ public final class IborRateSwapLegConvention
    */
   public CompoundingMethod getCompoundingMethod() {
     return compoundingMethod != null ? compoundingMethod : CompoundingMethod.NONE;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public IborRateSwapLegConvention expand() {
-    return IborRateSwapLegConvention.builder()
-        .index(index)
-        .currency(getCurrency())
-        .dayCount(getDayCount())
-        .accrualFrequency(getAccrualFrequency())
-        .accrualBusinessDayAdjustment(getAccrualBusinessDayAdjustment())
-        .startDateBusinessDayAdjustment(getStartDateBusinessDayAdjustment())
-        .endDateBusinessDayAdjustment(getEndDateBusinessDayAdjustment())
-        .stubConvention(getStubConvention())
-        .rollConvention(getRollConvention())
-        .paymentFrequency(getPaymentFrequency())
-        .paymentDateOffset(getPaymentDateOffset())
-        .compoundingMethod(getCompoundingMethod())
-        .build();
   }
 
   //-------------------------------------------------------------------------
@@ -631,7 +594,7 @@ public final class IborRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -1256,7 +1219,7 @@ public final class IborRateSwapLegConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The floating rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.

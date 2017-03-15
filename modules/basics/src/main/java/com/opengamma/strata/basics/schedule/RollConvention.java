@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -37,7 +37,7 @@ public interface RollConvention
     extends Named {
 
   /**
-   * Obtains a {@code RollConvention} from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the roll convention
@@ -95,7 +95,7 @@ public interface RollConvention
   /**
    * Gets the extended enum helper.
    * <p>
-   * This helper allows instances of {@code RollConvention} to be lookup up.
+   * This helper allows instances of the convention to be looked up.
    * It also provides the complete set of available instances.
    * 
    * @return the extended enum helper
@@ -180,6 +180,20 @@ public interface RollConvention
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the day-of-month that the roll convention implies.
+   * <p>
+   * This extracts the day-of-month for simple roll conventions.
+   * The numeric roll conventions will return their day-of-month.
+   * The 'EOM' convention will return 31.
+   * All other conventions will return zero.
+   * 
+   * @return the day-of-month that the roll convention implies, zero if not applicable
+   */
+  public default int getDayOfMonth() {
+    return 0;
+  }
+
   /**
    * Gets the name that uniquely identifies this convention.
    * <p>

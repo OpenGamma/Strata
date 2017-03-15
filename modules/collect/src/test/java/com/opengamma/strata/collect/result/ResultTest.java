@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,7 +11,6 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
-import static com.opengamma.strata.collect.result.FailureReason.PERMISSION_DENIED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -101,7 +100,7 @@ public class ResultTest {
     });
     assertThat(test)
         .isFailure()
-        .hasFailureMessageMatching(".*Error.*combine.*ith.*");
+        .hasFailureMessageMatching("Ooops");
   }
 
   public void success_stream() {
@@ -117,7 +116,7 @@ public class ResultTest {
     assertEquals(test.isSuccess(), false);
     assertThat(test)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst calling map.*");
+        .hasFailureMessageMatching("Big bad error");
   }
 
   public void success_flatMap_throwing() {
@@ -128,7 +127,7 @@ public class ResultTest {
     assertEquals(test.isSuccess(), false);
     assertThat(test)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst calling flatMap.*");
+        .hasFailureMessageMatching("Big bad error");
   }
 
   //-------------------------------------------------------------------------
@@ -261,7 +260,9 @@ public class ResultTest {
     assertEquals(item.getReason(), ERROR);
     assertEquals(item.getMessage(), "my failure");
     assertEquals(item.getCauseType().isPresent(), false);
-    assertTrue(item.getStackTrace() != null);
+    assertEquals(item.getStackTrace().contains(".FailureItem.of("), false);
+    assertEquals(item.getStackTrace().contains(".Failure.of("), false);
+    assertEquals(item.getStackTrace().contains(".Result.failure("), false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -450,7 +451,7 @@ public class ResultTest {
 
     assertThat(combined)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst combining success results");
+        .hasFailureMessageMatching("Ooops");
   }
 
   //-------------------------------------------------------------------------
@@ -512,7 +513,7 @@ public class ResultTest {
 
     assertThat(combined)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst combining success results");
+        .hasFailureMessageMatching("Ooops");
   }
 
   //-------------------------------------------------------------------------
@@ -587,15 +588,15 @@ public class ResultTest {
 
   public void generateFailureFromExceptionWithCustomStatus() {
     Exception exception = new Exception("something went wrong");
-    Result<Object> test = Result.failure(PERMISSION_DENIED, exception);
-    assertEquals(test.getFailure().getReason(), PERMISSION_DENIED);
+    Result<Object> test = Result.failure(CALCULATION_FAILED, exception);
+    assertEquals(test.getFailure().getReason(), CALCULATION_FAILED);
     assertEquals(test.getFailure().getMessage(), "something went wrong");
   }
 
   public void generateFailureFromExceptionWithCustomStatusAndMessage() {
     Exception exception = new Exception("something went wrong");
-    Result<Object> test = Result.failure(PERMISSION_DENIED, exception, "my message");
-    assertEquals(test.getFailure().getReason(), PERMISSION_DENIED);
+    Result<Object> test = Result.failure(CALCULATION_FAILED, exception, "my message");
+    assertEquals(test.getFailure().getReason(), CALCULATION_FAILED);
     assertEquals(test.getFailure().getMessage(), "my message");
   }
 
@@ -640,6 +641,36 @@ public class ResultTest {
         .set("value", "A")
         .set("failure", Failure.of(CALCULATION_FAILED, "Fail"))
         .build();
+  }
+
+  //-------------------------------------------------------------------------
+  public void generatedStackTrace() {
+    Result<Object> test = Result.failure(FailureReason.INVALID, "my {} {} failure", "big", "bad");
+    assertEquals(test.getFailure().getReason(), FailureReason.INVALID);
+    assertEquals(test.getFailure().getMessage(), "my big bad failure");
+    assertEquals(test.getFailure().getItems().size(), 1);
+    FailureItem item = test.getFailure().getItems().iterator().next();
+    assertEquals(item.getCauseType().isPresent(), false);
+    assertEquals(item.getStackTrace().contains(".FailureItem.of("), false);
+    assertEquals(item.getStackTrace().contains(".Failure.of("), false);
+    assertEquals(item.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"), true);
+    assertEquals(item.getStackTrace().contains(".generatedStackTrace("), true);
+    assertEquals(item.toString(), "INVALID: my big bad failure");
+  }
+
+  //-------------------------------------------------------------------------
+  public void generatedStackTrace_Failure() {
+    Failure test = Failure.of(FailureReason.INVALID, "my {} {} failure", "big", "bad");
+    assertEquals(test.getReason(), FailureReason.INVALID);
+    assertEquals(test.getMessage(), "my big bad failure");
+    assertEquals(test.getItems().size(), 1);
+    FailureItem item = test.getItems().iterator().next();
+    assertEquals(item.getCauseType().isPresent(), false);
+    assertEquals(item.getStackTrace().contains(".FailureItem.of("), false);
+    assertEquals(item.getStackTrace().contains(".Failure.of("), false);
+    assertEquals(item.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"), true);
+    assertEquals(item.getStackTrace().contains(".generatedStackTrace_Failure("), true);
+    assertEquals(item.toString(), "INVALID: my big bad failure");
   }
 
   //------------------------------------------------------------------------

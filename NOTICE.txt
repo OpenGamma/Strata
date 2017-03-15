@@ -1,0 +1,4 @@
+Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+
+Strata is licensed under The Apache Software License, Version 2.0
+http://strata.opengamma.io/

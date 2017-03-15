@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.strata</groupId>
     <artifactId>strata-parent</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>strata-market</artifactId>
@@ -21,11 +21,15 @@
     <!-- OpenGamma -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-basics</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-collect</artifactId>
+      <artifactId>strata-data</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
@@ -58,6 +62,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/../..</root.dir>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Market</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Market</h1>]]></doctitle>

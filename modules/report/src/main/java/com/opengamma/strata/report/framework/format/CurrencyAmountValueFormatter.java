@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.format;
@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 /**
  * Formatter for currency amounts.
  */
-class CurrencyAmountValueFormatter
+final class CurrencyAmountValueFormatter
     implements ValueFormatter<CurrencyAmount> {
 
   /**

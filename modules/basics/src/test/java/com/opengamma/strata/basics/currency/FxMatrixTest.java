@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -17,8 +17,10 @@ import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.FxMatrix.entriesToFxMatrix;
 import static com.opengamma.strata.basics.currency.FxMatrix.pairsToFxMatrix;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -26,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.assertj.core.data.Offset;
+import org.joda.beans.Bean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -160,17 +164,17 @@ public class FxMatrixTest {
 
     /*
     Expected data as produced from old analytics FxMatrix
-
+    
     [USD, GBP,    EUR] - {
     USD {1.0 ,0.666, 0.714283},
     GBP {1.5, 1.0,   1.071428},
     EUR {1.4, 0.933, 1.0}}
-
+    
     [USD,     GBP,    EUR] - {
     {1.0,     0.625,  0.66964},
     {1.6,     1.0,    1.071428},
     {1.49333, 0.9333, 1.0}}
-
+    
      [USD,    GBP,    EUR] - {
      {1.0,    0.625,  0.71428},
      {1.6,    1.0,    1.14285},
@@ -561,6 +565,42 @@ public class FxMatrixTest {
 
     assertThat(m1.hashCode()).isNotEqualTo(m2.hashCode());
     assertThat(m2.hashCode()).isEqualTo(m3.hashCode());
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(FxMatrix.empty());
+    coverImmutableBean(FxMatrix.builder()
+        .addRate(GBP, USD, 1.6)
+        .addRate(EUR, USD, 1.4)
+        .addRate(EUR, CHF, 1.2)
+        .build());
+  }
+
+  public void testSerializeDeserialize() {
+    FxMatrix test1 = FxMatrix.builder()
+        .addRate(GBP, USD, 1.6)
+        .addRate(EUR, USD, 1.4)
+        .addRate(EUR, CHF, 1.2)
+        .build();
+    FxMatrix test2 = FxMatrix.builder()
+        .addRate(GBP, USD, 1.7)
+        .addRate(EUR, USD, 1.5)
+        .addRate(EUR, CHF, 1.3)
+        .build();
+    cycleBean(FxMatrix.empty());
+    cycleBean(test1);
+    cycleBean(test2);
+    assertSerialization(FxMatrix.empty());
+    assertSerialization(test1);
+    assertSerialization(test2);
+  }
+
+  private void cycleBean(Bean bean) {
+    JodaBeanSer ser = JodaBeanSer.COMPACT;
+    String result = ser.xmlWriter().write(bean);
+    Bean cycled = ser.xmlReader().read(result);
+    assertThat(cycled).isEqualTo(bean);
   }
 
 }

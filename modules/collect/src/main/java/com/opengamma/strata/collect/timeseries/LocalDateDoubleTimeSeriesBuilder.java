@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.timeseries;
@@ -183,6 +183,30 @@ public final class LocalDateDoubleTimeSeriesBuilder {
     Iterator<Double> itValue = values.iterator();
     for (int i = 0; i < dates.size(); i++) {
       put(itDate.next(), itValue.next());
+    }
+    return this;
+  }
+
+  /**
+   * Puts all the specified dates and values into this builder.
+   * <p>
+   * The date collection and value array must be the same size.
+   * <p>
+   * The date-value pairs are added one by one.
+   * If a date is duplicated it will overwrite an earlier entry.
+   *
+   * @param dates  the dates to be added
+   * @param values  the values to be added
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder putAll(Collection<LocalDate> dates, double[] values) {
+    ArgChecker.noNulls(dates, "dates");
+    ArgChecker.notNull(values, "values");
+    ArgChecker.isTrue(dates.size() == values.length,
+        "Arrays are of different sizes - dates: {}, values: {}", dates.size(), values.length);
+    Iterator<LocalDate> itDate = dates.iterator();
+    for (int i = 0; i < dates.size(); i++) {
+      put(itDate.next(), values[i]);
     }
     return this;
   }

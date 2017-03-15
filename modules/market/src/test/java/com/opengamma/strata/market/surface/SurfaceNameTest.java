@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -15,9 +15,12 @@ import org.testng.annotations.Test;
 @Test
 public class SurfaceNameTest {
 
-  public void coverage() {
+  public void test_of() {
     SurfaceName test = SurfaceName.of("Foo");
+    assertEquals(test.getName(), "Foo");
+    assertEquals(test.getMarketDataType(), Surface.class);
     assertEquals(test.toString(), "Foo");
+    assertEquals(test.compareTo(SurfaceName.of("Goo")) < 0, true);
   }
 
 }

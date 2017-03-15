@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -73,7 +73,7 @@ final class CurrencyDataLoader {
     ImmutableMap.Builder<String, Currency> builder = ImmutableMap.builder();
     for (Entry<String, PropertySet> entry : ini.asMap().entrySet()) {
       String currencyCode = entry.getKey();
-      if (Currency.REGEX_FORMAT.matcher(currencyCode).matches()) {
+      if (currencyCode.length() == 3 && Currency.CODE_MATCHER.matchesAllOf(currencyCode)) {
         PropertySet properties = entry.getValue();
         boolean isHistoric =
             (properties.keys().contains("historic") && Boolean.parseBoolean(properties.value("historic")));

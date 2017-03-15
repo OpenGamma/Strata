@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -10,12 +10,14 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
 import com.opengamma.strata.product.swap.NotionalExchange;
 
 /**
@@ -24,39 +26,43 @@ import com.opengamma.strata.product.swap.NotionalExchange;
  * The notional exchange is priced by discounting the value of the exchange.
  */
 public class DiscountingNotionalExchangePricer
-    implements PaymentEventPricer<NotionalExchange> {
+    implements SwapPaymentEventPricer<NotionalExchange> {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingNotionalExchangePricer DEFAULT = new DiscountingNotionalExchangePricer();
+  public static final DiscountingNotionalExchangePricer DEFAULT = new DiscountingNotionalExchangePricer(
+      DiscountingPaymentPricer.DEFAULT);
+
+  /**
+   * Pricer for {@link Payment}.
+   */
+  private final DiscountingPaymentPricer paymentPricer;
 
   /**
    * Creates an instance.
+   * 
+   * @param paymentPricer  the pricer for {@link Payment}
    */
-  public DiscountingNotionalExchangePricer() {
+  public DiscountingNotionalExchangePricer(DiscountingPaymentPricer paymentPricer) {
+    this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double presentValue(NotionalExchange event, RatesProvider provider) {
-    // forecastValue * discountFactor
-    double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
-    return forecastValue(event, provider) * df;
+    return paymentPricer.presentValueAmount(event.getPayment(), provider);
   }
 
   @Override
   public PointSensitivityBuilder presentValueSensitivity(NotionalExchange event, RatesProvider provider) {
-    DiscountFactors discountFactors = provider.discountFactors(event.getCurrency());
-    return discountFactors.zeroRatePointSensitivity(event.getPaymentDate())
-        .multipliedBy(event.getPaymentAmount().getAmount());
+    return paymentPricer.presentValueSensitivity(event.getPayment(), provider);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double forecastValue(NotionalExchange event, RatesProvider provider) {
-    // paymentAmount
-    return event.getPaymentAmount().getAmount();
+    return paymentPricer.forecastValueAmount(event.getPayment(), provider);
   }
 
   @Override
@@ -75,6 +81,7 @@ public class DiscountingNotionalExchangePricer
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     builder.put(ExplainKey.TRADE_NOTIONAL, event.getPaymentAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
@@ -87,15 +94,12 @@ public class DiscountingNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount currencyExposure(NotionalExchange event, RatesProvider provider) {
-    return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), presentValue(event, provider)));
+    return paymentPricer.currencyExposure(event.getPayment(), provider);
   }
 
   @Override
   public double currentCash(NotionalExchange event, RatesProvider provider) {
-    if (provider.getValuationDate().isEqual(event.getPaymentDate())) {
-      return forecastValue(event, provider);
-    }
-    return 0d;
+    return paymentPricer.currentCash(event.getPayment(), provider).getAmount();
   }
 
 }

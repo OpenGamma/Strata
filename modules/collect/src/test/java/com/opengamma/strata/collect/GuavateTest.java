@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -168,6 +168,14 @@ public class GuavateTest {
   public void test_toImmutableMap_key_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     list.stream().collect(Guavate.toImmutableMap(s -> s.length()));
+  }
+
+  public void test_toImmutableMap_mergeFn() {
+    List<String> list = Arrays.asList("a", "b", "b", "b", "c", "a");
+    Map<String, Integer> result = list.stream()
+        .collect(Guavate.toImmutableMap(s -> s, s -> 1, (s1, s2) -> s1 + s2));
+    Map<String, Integer> expected = ImmutableMap.of("a", 2, "b", 3, "c", 1);
+    assertEquals(result, expected);
   }
 
   public void test_toImmutableMap_keyValue() {

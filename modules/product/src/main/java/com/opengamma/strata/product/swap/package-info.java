@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -12,4 +12,3 @@
  * and the other a floating rate. Many other more complex swaps can also be represented.
  */
 package com.opengamma.strata.product.swap;
-

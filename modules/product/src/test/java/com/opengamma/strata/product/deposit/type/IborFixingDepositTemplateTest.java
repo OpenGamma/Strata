@@ -1,17 +1,17 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.deposit.type;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -19,6 +19,7 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
@@ -29,6 +30,7 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 @Test
 public class IborFixingDepositTemplateTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborFixingDepositConvention CONVENTION = IborFixingDepositConvention.of(EUR_LIBOR_3M);
 
   public void test_builder() {
@@ -67,14 +69,14 @@ public class IborFixingDepositTemplateTest {
     assertEquals(test.getDepositPeriod(), Period.ofMonths(1));
   }
 
-  public void test_toTrade() {
+  public void test_createTrade() {
     IborFixingDepositTemplate template = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
     double notional = 1d;
     double fixedRate = 0.045;
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
-    IborFixingDepositTrade trade = template.toTrade(tradeDate, BUY, notional, fixedRate);
+    IborFixingDepositTrade trade = template.createTrade(tradeDate, BUY, notional, fixedRate, REF_DATA);
     ImmutableIborFixingDepositConvention conv = (ImmutableIborFixingDepositConvention) template.getConvention();
-    LocalDate startExpected = conv.getSpotDateOffset().adjust(tradeDate);
+    LocalDate startExpected = conv.getSpotDateOffset().adjust(tradeDate, REF_DATA);
     LocalDate endExpected = startExpected.plus(template.getDepositPeriod());
     IborFixingDeposit productExpected = IborFixingDeposit.builder()
         .businessDayAdjustment(conv.getBusinessDayAdjustment())
@@ -88,7 +90,7 @@ public class IborFixingDepositTemplateTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(tradeDate)
         .build();
-    assertEquals(trade.getTradeInfo(), tradeInfoExpected);
+    assertEquals(trade.getInfo(), tradeInfoExpected);
     assertEquals(trade.getProduct(), productExpected);
   }
 

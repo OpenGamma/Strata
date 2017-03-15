@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -23,6 +23,16 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   private final double _absTol, _relTol;
   private final int _minSteps;
 
+  /**
+   * Constructor from absolute and relative tolerance and minimal number of steps.
+   * <p>
+   * The adaptable integration process stops when the difference between 2 steps is below the absolute tolerance
+   * plus the relative tolerance multiplied by the value.
+   *  
+   * @param absTol  the absolute tolerance
+   * @param relTol  the relative tolerance
+   * @param minSteps  the minimal number of steps
+   */
   public RungeKuttaIntegrator1D(double absTol, double relTol, int minSteps) {
     if (absTol < 0.0 || Double.isNaN(absTol) || Double.isInfinite(absTol)) {
       throw new IllegalArgumentException("Absolute Tolerance must be greater than zero");
@@ -41,7 +51,6 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   public RungeKuttaIntegrator1D(double tol, int minSteps) {
     this(tol, tol, minSteps);
   }
-
   public RungeKuttaIntegrator1D(double atol, double rtol) {
     this(atol, rtol, DEF_MIN_STEPS);
   }
@@ -57,6 +66,10 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   public RungeKuttaIntegrator1D() {
     this(DEF_TOL, DEF_MIN_STEPS);
 
+  }
+
+  public double getRelativeTolerance() {
+    return _relTol;
   }
 
   @Override

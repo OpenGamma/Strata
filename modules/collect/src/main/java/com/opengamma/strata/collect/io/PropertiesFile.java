@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.io;
@@ -9,9 +9,8 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Properties;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
@@ -61,8 +60,8 @@ public final class PropertiesFile {
    * This parses the specified character source expecting a properties file format.
    * The resulting instance can be queried for each key and value.
    * 
-   * @param source  the properties file resource, not null
-   * @return the properties file, not null
+   * @param source  the properties file resource
+   * @return the properties file
    * @throws UncheckedIOException if an IO exception occurs
    * @throws IllegalArgumentException if the file cannot be parsed
    */
@@ -75,7 +74,9 @@ public final class PropertiesFile {
 
   // parses the properties file format
   private static PropertySet parse(ImmutableList<String> lines) {
-    Multimap<String, String> parsed = ArrayListMultimap.create();
+    // cannot use ArrayListMultiMap as it does not retain the order of the keys
+    // whereas ImmutableListMultimap does retain the order of the keys
+    ImmutableListMultimap.Builder<String, String> parsed = ImmutableListMultimap.builder();
     int lineNum = 0;
     for (String line : lines) {
       lineNum++;
@@ -91,7 +92,19 @@ public final class PropertiesFile {
       }
       parsed.put(key, value);
     }
-    return PropertySet.of(parsed);
+    return PropertySet.of(parsed.build());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a key-value property set.
+   * 
+   * @param keyValueMap  the key-value property set
+   * @return the properties file
+   */
+  public static PropertiesFile of(PropertySet keyValueMap) {
+    ArgChecker.notNull(keyValueMap, "keyValueMap");
+    return new PropertiesFile(keyValueMap);
   }
 
   //-------------------------------------------------------------------------

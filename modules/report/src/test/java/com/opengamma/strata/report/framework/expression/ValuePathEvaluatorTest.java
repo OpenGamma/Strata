@@ -1,15 +1,13 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -19,16 +17,15 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -43,7 +40,7 @@ public class ValuePathEvaluatorTest {
   public void measurePath() {
     ReportCalculationResults reportResults = reportResults();
 
-    List<Result<?>> currencyResults = ValuePathEvaluator.evaluate("Measures.Foo.Currency", reportResults);
+    List<Result<?>> currencyResults = ValuePathEvaluator.evaluate("Measures.PresentValue.Currency", reportResults);
     List<Result<?>> expectedCurrencies = ImmutableList.of(
         Result.success(Currency.CAD),
         Result.success(Currency.AUD),
@@ -52,12 +49,53 @@ public class ValuePathEvaluatorTest {
 
     // Amount returns the CurrencyAmount which is slightly unexpected
     // It's required in order to be able to format the amount to the correct number of decimal places
-    List<Result<?>> amountResults = ValuePathEvaluator.evaluate("Measures.Foo.Amount", reportResults);
+    List<Result<?>> amountResults = ValuePathEvaluator.evaluate("Measures.PresentValue.Amount", reportResults);
     List<Result<?>> expectedAmounts = ImmutableList.of(
         Result.success(CurrencyAmount.of(Currency.CAD, 2d)),
         Result.success(CurrencyAmount.of(Currency.AUD, 3d)),
         Result.success(CurrencyAmount.of(Currency.CHF, 4d)));
     assertThat(amountResults).isEqualTo(expectedAmounts);
+  }
+
+  public void measurePath_failure_noDot() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
+  }
+
+  public void measurePath_failure_noMeasureName() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures.", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
+  }
+
+  public void measurePath_failure_unknownMeasure() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures.Wibble", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("Wibble");
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
+  }
+
+  public void measurePath_failure_nonQueriedMeasure() {
+    ReportCalculationResults reportResults = reportResults();
+
+    List<Result<?>> results = ValuePathEvaluator.evaluate("Measures.ParSpread", reportResults);
+    Result<?> result = results.get(0);
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getMessage()).contains("PresentValue");
+    assertThat(result.getFailure().getMessage()).contains("ParRate");
   }
 
   public void tradePath() {
@@ -69,6 +107,8 @@ public class ValuePathEvaluatorTest {
         Result.success("cpty2"),
         Result.success("cpty3"));
     assertThat(counterpartyResults).isEqualTo(expectedCounterparties);
+    List<Result<?>> counterpartyResults2 = ValuePathEvaluator.evaluate("Target.Counterparty.Value", reportResults);
+    assertThat(counterpartyResults2).isEqualTo(expectedCounterparties);
   }
 
   public void productPath() {
@@ -85,7 +125,7 @@ public class ValuePathEvaluatorTest {
   //--------------------------------------------------------------------------------------------------
 
   private static ReportCalculationResults reportResults() {
-    Measure measure = Measure.of("Foo");
+    Measure measure = Measure.of("PresentValue");
     Column column = Column.of(measure);
     List<Column> columns = ImmutableList.of(column);
     List<? extends Result<?>> resultValues = ImmutableList.of(
@@ -96,7 +136,7 @@ public class ValuePathEvaluatorTest {
         trade("cpty1", 1_000_000),
         trade("cpty2", 10_000_000),
         trade("cpty3", 100_000_000));
-    Results results = Results.of(3, 1, resultValues);
+    Results results = Results.of(ImmutableList.of(column.toHeader()), resultValues);
     return ReportCalculationResults.of(LocalDate.now(ZoneOffset.UTC), trades, columns, results);
   }
 
@@ -109,13 +149,12 @@ public class ValuePathEvaluatorTest {
         .notional(notional)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).toAdjustedDate(date(2015, 8, 5)))
+        .paymentDate(AdjustableDate.of(date(2015, 8, 7)))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
     return FraTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(fra)
         .build();
   }

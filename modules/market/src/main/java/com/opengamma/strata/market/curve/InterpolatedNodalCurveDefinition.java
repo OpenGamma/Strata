@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,9 +6,14 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.util.stream.Collectors.toCollection;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -19,6 +24,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -29,12 +35,15 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.interpolator.CurveExtrapolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
 
 /**
  * Provides the definition of how to calibrate an interpolated nodal curve.
@@ -84,6 +93,7 @@ public final class InterpolatedNodalCurveDefinition
    * The nodes in the curve.
    * <p>
    * The nodes are used to find the par rates and calibrate the curve.
+   * There must be at least two nodes in the curve.
    */
   @PropertyDefinition(validate = "notNull", builderType = "List<? extends CurveNode>", overrideGet = true)
   private final ImmutableList<CurveNode> nodes;
@@ -110,42 +120,146 @@ public final class InterpolatedNodalCurveDefinition
     builder.yValueType = ValueType.UNKNOWN;
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public CurveMetadata metadata(LocalDate valuationDate) {
-    return metadata(valuationDate, ImmutableMap.of());
+  @ImmutableValidator
+  private void validate() {
+    if (nodes.size() < 2) {
+      throw new IllegalArgumentException("Curve must have at least two nodes");
+    }
   }
 
-  // creates the metadata with optional calibration info
-  private CurveMetadata metadata(LocalDate valuationDate, Map<CurveInfoType<?>, Object> additionalInfo) {
-    List<CurveParameterMetadata> nodeMetadata = nodes.stream()
-        .map(node -> node.metadata(valuationDate))
+  //-------------------------------------------------------------------------
+  @Override
+  public InterpolatedNodalCurveDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
+    // mutable list of date-node pairs
+    ArrayList<Pair<LocalDate, CurveNode>> nodeDates = nodes.stream()
+        .map(node -> Pair.of(node.date(valuationDate, refData), node))
+        .collect(toCollection(ArrayList::new));
+    // delete nodes if clash, but don't throw exceptions yet
+    loop:
+    for (int i = 0; i < nodeDates.size(); i++) {
+      Pair<LocalDate, CurveNode> pair = nodeDates.get(i);
+      CurveNodeDateOrder restriction = pair.getSecond().getDateOrder();
+      // compare node to previous node
+      if (i > 0) {
+        Pair<LocalDate, CurveNode> pairBefore = nodeDates.get(i - 1);
+        if (DAYS.between(pairBefore.getFirst(), pair.getFirst()) < restriction.getMinGapInDays()) {
+          switch (restriction.getAction()) {
+            case DROP_THIS:
+              nodeDates.remove(i);
+              i = -1;  // restart loop
+              continue loop;
+            case DROP_OTHER:
+              nodeDates.remove(i - 1);
+              i = -1;  // restart loop
+              continue loop;
+            case EXCEPTION:
+              break;  // do nothing yet
+          }
+        }
+      }
+      // compare node to next node
+      if (i < nodeDates.size() - 1) {
+        Pair<LocalDate, CurveNode> pairAfter = nodeDates.get(i + 1);
+        if (DAYS.between(pair.getFirst(), pairAfter.getFirst()) < restriction.getMinGapInDays()) {
+          switch (restriction.getAction()) {
+            case DROP_THIS:
+              nodeDates.remove(i);
+              i = -1;  // restart loop
+              continue loop;
+            case DROP_OTHER:
+              nodeDates.remove(i + 1);
+              i = -1;  // restart loop
+              continue loop;
+            case EXCEPTION:
+              break;  // do nothing yet
+          }
+        }
+      }
+    }
+    // throw exceptions if rules breached
+    for (int i = 0; i < nodeDates.size(); i++) {
+      Pair<LocalDate, CurveNode> pair = nodeDates.get(i);
+      CurveNodeDateOrder restriction = pair.getSecond().getDateOrder();
+      // compare node to previous node
+      if (i > 0) {
+        Pair<LocalDate, CurveNode> pairBefore = nodeDates.get(i - 1);
+        if (DAYS.between(pairBefore.getFirst(), pair.getFirst()) < restriction.getMinGapInDays()) {
+          throw new IllegalArgumentException(Messages.format(
+              "Curve node dates clash, node '{}' and '{}' resolved to dates '{}' and '{}' respectively",
+              pairBefore.getSecond().getLabel(),
+              pair.getSecond().getLabel(),
+              pairBefore.getFirst(),
+              pair.getFirst()));
+        }
+      }
+      // compare node to next node
+      if (i < nodeDates.size() - 1) {
+        Pair<LocalDate, CurveNode> pairAfter = nodeDates.get(i + 1);
+        if (DAYS.between(pair.getFirst(), pairAfter.getFirst()) < restriction.getMinGapInDays()) {
+          throw new IllegalArgumentException(Messages.format(
+              "Curve node dates clash, node '{}' and '{}' resolved to dates '{}' and '{}' respectively",
+              pair.getSecond().getLabel(),
+              pairAfter.getSecond().getLabel(),
+              pair.getFirst(),
+              pairAfter.getFirst()));
+        }
+      }
+    }
+    // return the resolved definition
+    List<CurveNode> filteredNodes = nodeDates.stream().map(p -> p.getSecond()).collect(toImmutableList());
+    return new InterpolatedNodalCurveDefinition(
+        name, xValueType, yValueType, dayCount, filteredNodes, interpolator, extrapolatorLeft, extrapolatorRight);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public CurveMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+    List<DatedParameterMetadata> nodeMetadata = nodes.stream()
+        .map(node -> node.metadata(valuationDate, refData))
         .collect(toImmutableList());
     return DefaultCurveMetadata.builder()
         .curveName(name)
         .xValueType(xValueType)
         .yValueType(yValueType)
         .dayCount(dayCount)
-        .addInfo(additionalInfo)
         .parameterMetadata(nodeMetadata)
         .build();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public NodalCurve curve(LocalDate valuationDate, DoubleArray parameters, Map<CurveInfoType<?>, Object> additionalInfo) {
-    CurveMetadata meta = metadata(valuationDate, additionalInfo);
-    DoubleArray nodeTimes = DoubleArray.of(getParameterCount(), i -> {
-      LocalDate nodeDate = ((DatedCurveParameterMetadata) meta.getParameterMetadata().get().get(i)).getDate();
-      return getDayCount().get().yearFraction(valuationDate, nodeDate);
-    });
+  public NodalCurve curve(
+      LocalDate valuationDate,
+      CurveMetadata metadata,
+      DoubleArray parameters) {
+
+    DoubleArray nodeTimes = buildNodeTimes(valuationDate, metadata);
     return InterpolatedNodalCurve.builder()
-        .metadata(meta)
+        .metadata(metadata)
         .xValues(nodeTimes)
         .yValues(parameters)
         .extrapolatorLeft(extrapolatorLeft)
         .interpolator(interpolator)
         .extrapolatorRight(extrapolatorRight).build();
+  }
+
+  // builds node times from node dates
+  private DoubleArray buildNodeTimes(LocalDate valuationDate, CurveMetadata metadata) {
+    if (metadata.getXValueType().equals(ValueType.YEAR_FRACTION)) {
+      return DoubleArray.of(getParameterCount(), i -> {
+        LocalDate nodeDate = ((DatedParameterMetadata) metadata.getParameterMetadata().get().get(i)).getDate();
+        return getDayCount().get().yearFraction(valuationDate, nodeDate);
+      });
+
+    } else if (metadata.getXValueType().equals(ValueType.MONTHS)) {
+      return DoubleArray.of(getParameterCount(), i -> {
+        LocalDate nodeDate = ((DatedParameterMetadata) metadata.getParameterMetadata().get().get(i)).getDate();
+        return YearMonth.from(valuationDate).until(YearMonth.from(nodeDate), MONTHS);
+      });
+
+    } else {
+      throw new IllegalArgumentException("Metadata XValueType should be YearFraction or Months in curve definition");
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -199,6 +313,7 @@ public final class InterpolatedNodalCurveDefinition
     this.interpolator = interpolator;
     this.extrapolatorLeft = extrapolatorLeft;
     this.extrapolatorRight = extrapolatorRight;
+    validate();
   }
 
   @Override
@@ -272,6 +387,7 @@ public final class InterpolatedNodalCurveDefinition
    * Gets the nodes in the curve.
    * <p>
    * The nodes are used to find the par rates and calibrate the curve.
+   * There must be at least two nodes in the curve.
    * @return the value of the property, not null
    */
   @Override
@@ -767,6 +883,7 @@ public final class InterpolatedNodalCurveDefinition
      * Sets the nodes in the curve.
      * <p>
      * The nodes are used to find the par rates and calibrate the curve.
+     * There must be at least two nodes in the curve.
      * @param nodes  the new value, not null
      * @return this, for chaining, not null
      */

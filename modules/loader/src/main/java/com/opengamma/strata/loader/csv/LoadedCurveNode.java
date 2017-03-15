@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.loader.csv;
@@ -75,7 +75,7 @@ final class LoadedCurveNode
   /**
    * The meta-bean for {@code LoadedCurveNode}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(LoadedCurveNode.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(LoadedCurveNode.class);
 
   /**
    * The meta-bean for {@code LoadedCurveNode}.

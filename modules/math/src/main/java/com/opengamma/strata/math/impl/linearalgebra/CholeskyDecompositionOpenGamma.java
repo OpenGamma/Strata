@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.linearalgebra;
@@ -13,12 +13,12 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  */
 public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecompositionResult> {
 
-  /** 
+  /**
    * The input matrix symmetry is checked. If the relative difference abs(Aij-Aji) > max(abs(Aij), abs(Aji)) * e_sym, the matrix is considered non-symmetric.
    * The default value for the threshold e_sym.
    */
   public static final double DEFAULT_SYMMETRY_THRESHOLD = 1.0E-10;
-  /** 
+  /**
    * In the decomposition, the positivity of the matrix is checked. If the absolute value Lii < e_pos the matrix is considered non-positive.
    * The default value for the threshold e_pos.
    */

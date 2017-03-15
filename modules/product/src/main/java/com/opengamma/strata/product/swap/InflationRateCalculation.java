@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,12 +9,13 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -32,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
@@ -41,12 +43,15 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
- * Defines the calculation of a swap leg of a zero-coupon inflation coupon based on a price index. 
+ * Defines the calculation of a swap leg of a zero-coupon inflation coupon based on a price index.
  * <p>
  * This defines the data necessary to calculate the amount payable on the leg.
  * The amount is based on the observed value of a price index.
@@ -81,16 +86,29 @@ public final class InflationRateCalculation
   @PropertyDefinition(validate = "notNull")
   private final Period lag;
   /**
-   * How the reference index calculation occurs, defaulted to false.
+   * Reference price index calculation method.
    * <p>
-   * If true, the reference index is linearly interpolated between two months.
-   * The interpolation is done with the number of days of the payment month.
-   * <p>
-   * If false, the reference index is the price index of a month.
-   * The reference month is linked to the payment date.
+   * This specifies how the reference index calculation occurs.
    */
   @PropertyDefinition(validate = "notNull")
-  private final boolean interpolated;
+  private final PriceIndexCalculationMethod indexCalculationMethod;
+  /**
+   * The initial value of the index, optional.
+   * <p>
+   * This optional field specifies the initial value of the index.
+   * The value is applicable for the first <i>regular</i> accrual period.
+   * It is used in place of an observed fixing.
+   * Other calculation elements, such as gearing or spread, still apply.
+   * After the first accrual period, the rate is observed via the normal fixing process.
+   * <p>
+   * The method {@link InflationRateCalculation#createRateComputation(LocalDate)}
+   * allows this field to be used as the base for any end date, as typically seen
+   * in capital indexed bonds.
+   * <p>
+   * If this property is not present, then the first value is observed via the normal fixing process.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Double firstIndexValue;
   /**
    * The gearing multiplier, optional.
    * <p>
@@ -118,14 +136,47 @@ public final class InflationRateCalculation
    * 
    * @param index  the price index
    * @param monthLag  the month lag
-   * @param isInterpolated  true if the reference index is interpolated
+   * @param indexCalculationMethod  the reference price index calculation method
    * @return the inflation rate calculation
    */
-  public static InflationRateCalculation of(PriceIndex index, int monthLag, boolean isInterpolated) {
+  public static InflationRateCalculation of(
+      PriceIndex index,
+      int monthLag,
+      PriceIndexCalculationMethod indexCalculationMethod) {
+
     return InflationRateCalculation.builder()
         .index(index)
         .lag(Period.ofMonths(monthLag))
-        .interpolated(isInterpolated)
+        .indexCalculationMethod(indexCalculationMethod)
+        .build();
+  }
+
+  /**
+   * Obtains a rate calculation for the specified price index with known start index value.
+   * <p>
+   * The calculation will use the specified month lag.
+   * The first index value will be set to the specified value
+   * All other optional fields will be set to their default values.
+   * Thus, fixing will be in advance, with no gearing.
+   * If this method provides insufficient control, use the {@linkplain #builder() builder}.
+   * 
+   * @param index  the price index
+   * @param monthLag  the month lag
+   * @param indexCalculationMethod  the reference price index calculation method
+   * @param firstIndexValue  the first index value
+   * @return the inflation rate calculation
+   */
+  public static InflationRateCalculation of(
+      PriceIndex index,
+      int monthLag,
+      PriceIndexCalculationMethod indexCalculationMethod,
+      double firstIndexValue) {
+
+    return InflationRateCalculation.builder()
+        .index(index)
+        .lag(Period.ofMonths(monthLag))
+        .indexCalculationMethod(indexCalculationMethod)
+        .firstIndexValue(firstIndexValue)
         .build();
   }
 
@@ -151,35 +202,84 @@ public final class InflationRateCalculation
   }
 
   @Override
-  public ImmutableList<RateAccrualPeriod> expand(Schedule accrualSchedule, Schedule paymentSchedule) {
-    ArgChecker.notNull(accrualSchedule, "accrualSchedule");
-    ArgChecker.notNull(paymentSchedule, "paymentSchedule");
+  public ImmutableList<RateAccrualPeriod> createAccrualPeriods(
+      Schedule accrualSchedule,
+      Schedule paymentSchedule,
+      ReferenceData refData) {
+
     // resolve data by schedule
-    List<Double> resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule.getPeriods());
+    DoubleArray resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule);
     // build accrual periods
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
-      accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(1d)  // inflation does not use a day count
-          .rateObservation(createRateObservation(period))
-          .gearing(resolvedGearings.get(i))
-          .build());
+      // inflation does not use a day count, so year fraction is 1d
+      accrualPeriods.add(new RateAccrualPeriod(
+          period, 1d, createRateComputation(period, i), resolvedGearings.get(i), 0d, NegativeRateMethod.ALLOW_NEGATIVE));
     }
     return accrualPeriods.build();
   }
 
-  // creates the rate observation
-  private RateObservation createRateObservation(SchedulePeriod period) {
+  // creates the rate computation
+  private RateComputation createRateComputation(SchedulePeriod period, int scheduleIndex) {
+
+    // handle where index value at start date is known
+    LocalDate endDate = period.getEndDate();
+    if (firstIndexValue != null && scheduleIndex == 0) {
+      return createRateComputation(endDate);
+    }
     YearMonth referenceStartMonth = YearMonth.from(period.getStartDate().minus(lag));
-    YearMonth referenceEndMonth = YearMonth.from(period.getEndDate().minus(lag));
-    if (interpolated) {
+    YearMonth referenceEndMonth = YearMonth.from(endDate.minus(lag));
+    if (indexCalculationMethod.equals(PriceIndexCalculationMethod.INTERPOLATED)) {
       // interpolate between data from two different months
-      double weight = 1.0 - (period.getEndDate().getDayOfMonth() - 1.0) / period.getEndDate().lengthOfMonth();
-      return InflationInterpolatedRateObservation.of(index, referenceStartMonth, referenceEndMonth, weight);
-    } else {
+      double weight = 1d - (endDate.getDayOfMonth() - 1d) / endDate.lengthOfMonth();
+      return InflationInterpolatedRateComputation.of(index, referenceStartMonth, referenceEndMonth, weight);
+    } else if (indexCalculationMethod.equals(PriceIndexCalculationMethod.MONTHLY)) {
       // no interpolation
-      return InflationMonthlyRateObservation.of(index, referenceStartMonth, referenceEndMonth);
+      return InflationMonthlyRateComputation.of(index, referenceStartMonth, referenceEndMonth);
+    } else {
+      throw new IllegalArgumentException(
+          "PriceIndexCalculationMethod " + indexCalculationMethod.toString() + " is not supported");
+    }
+  }
+
+  /**
+   * Creates a rate observation where the start index value is known.
+   * <p>
+   * This is typically used for capital indexed bonds.
+   * The rate is calculated between the value of {@code firstIndexValue}
+   * and the observed value at the end month linked to the specified end date.
+   * This method requires that {@code firstIndexValue} is present.
+   * 
+   * @param endDate  the end date of the period
+   * @return the rate observation
+   */
+  public RateComputation createRateComputation(LocalDate endDate) {
+    if (firstIndexValue == null) {
+      throw new IllegalStateException("First index value must be specified");
+    }
+    YearMonth referenceEndMonth = YearMonth.from(endDate.minus(lag));
+    if (indexCalculationMethod.equals(PriceIndexCalculationMethod.INTERPOLATED)) {
+      // interpolate between data from two different months
+      double weight = 1d - (endDate.getDayOfMonth() - 1d) / endDate.lengthOfMonth();
+      return InflationEndInterpolatedRateComputation.of(index, firstIndexValue, referenceEndMonth, weight);
+    } else if (indexCalculationMethod.equals(PriceIndexCalculationMethod.MONTHLY)) {
+      // no interpolation
+      return InflationEndMonthRateComputation.of(index, firstIndexValue, referenceEndMonth);
+    } else if (indexCalculationMethod.equals(PriceIndexCalculationMethod.INTERPOLATED_JAPAN)) {
+      // interpolation, Japan
+      double weight = 1d;
+      int dayOfMonth = endDate.getDayOfMonth();
+      if (dayOfMonth > 10) {
+        weight -= (dayOfMonth - 10d) / endDate.lengthOfMonth();
+      } else if (dayOfMonth < 10) {
+        weight -= (dayOfMonth + endDate.minusMonths(1).lengthOfMonth() - 10d) / endDate.minusMonths(1).lengthOfMonth();
+        referenceEndMonth = referenceEndMonth.minusMonths(1);
+      }
+      return InflationEndInterpolatedRateComputation.of(index, firstIndexValue, referenceEndMonth, weight);
+    } else {
+      throw new IllegalArgumentException(
+          "PriceIndexCalculationMethod " + indexCalculationMethod.toString() + " is not supported");
     }
   }
 
@@ -213,14 +313,16 @@ public final class InflationRateCalculation
   private InflationRateCalculation(
       PriceIndex index,
       Period lag,
-      boolean interpolated,
+      PriceIndexCalculationMethod indexCalculationMethod,
+      Double firstIndexValue,
       ValueSchedule gearing) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(lag, "lag");
-    JodaBeanUtils.notNull(interpolated, "interpolated");
+    JodaBeanUtils.notNull(indexCalculationMethod, "indexCalculationMethod");
     this.index = index;
     this.lag = lag;
-    this.interpolated = interpolated;
+    this.indexCalculationMethod = indexCalculationMethod;
+    this.firstIndexValue = firstIndexValue;
     this.gearing = gearing;
     validate();
   }
@@ -272,17 +374,34 @@ public final class InflationRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets how the reference index calculation occurs, defaulted to false.
+   * Gets reference price index calculation method.
    * <p>
-   * If true, the reference index is linearly interpolated between two months.
-   * The interpolation is done with the number of days of the payment month.
-   * <p>
-   * If false, the reference index is the price index of a month.
-   * The reference month is linked to the payment date.
+   * This specifies how the reference index calculation occurs.
    * @return the value of the property, not null
    */
-  public boolean isInterpolated() {
-    return interpolated;
+  public PriceIndexCalculationMethod getIndexCalculationMethod() {
+    return indexCalculationMethod;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the initial value of the index, optional.
+   * <p>
+   * This optional field specifies the initial value of the index.
+   * The value is applicable for the first <i>regular</i> accrual period.
+   * It is used in place of an observed fixing.
+   * Other calculation elements, such as gearing or spread, still apply.
+   * After the first accrual period, the rate is observed via the normal fixing process.
+   * <p>
+   * The method {@link InflationRateCalculation#createRateComputation(LocalDate)}
+   * allows this field to be used as the base for any end date, as typically seen
+   * in capital indexed bonds.
+   * <p>
+   * If this property is not present, then the first value is observed via the normal fixing process.
+   * @return the optional value of the property, not null
+   */
+  public OptionalDouble getFirstIndexValue() {
+    return firstIndexValue != null ? OptionalDouble.of(firstIndexValue) : OptionalDouble.empty();
   }
 
   //-----------------------------------------------------------------------
@@ -322,7 +441,8 @@ public final class InflationRateCalculation
       InflationRateCalculation other = (InflationRateCalculation) obj;
       return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(lag, other.lag) &&
-          (interpolated == other.interpolated) &&
+          JodaBeanUtils.equal(indexCalculationMethod, other.indexCalculationMethod) &&
+          JodaBeanUtils.equal(firstIndexValue, other.firstIndexValue) &&
           JodaBeanUtils.equal(gearing, other.gearing);
     }
     return false;
@@ -333,18 +453,20 @@ public final class InflationRateCalculation
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(lag);
-    hash = hash * 31 + JodaBeanUtils.hashCode(interpolated);
+    hash = hash * 31 + JodaBeanUtils.hashCode(indexCalculationMethod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(firstIndexValue);
     hash = hash * 31 + JodaBeanUtils.hashCode(gearing);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("InflationRateCalculation{");
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("lag").append('=').append(lag).append(',').append(' ');
-    buf.append("interpolated").append('=').append(interpolated).append(',').append(' ');
+    buf.append("indexCalculationMethod").append('=').append(indexCalculationMethod).append(',').append(' ');
+    buf.append("firstIndexValue").append('=').append(firstIndexValue).append(',').append(' ');
     buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing));
     buf.append('}');
     return buf.toString();
@@ -371,10 +493,15 @@ public final class InflationRateCalculation
     private final MetaProperty<Period> lag = DirectMetaProperty.ofImmutable(
         this, "lag", InflationRateCalculation.class, Period.class);
     /**
-     * The meta-property for the {@code interpolated} property.
+     * The meta-property for the {@code indexCalculationMethod} property.
      */
-    private final MetaProperty<Boolean> interpolated = DirectMetaProperty.ofImmutable(
-        this, "interpolated", InflationRateCalculation.class, Boolean.TYPE);
+    private final MetaProperty<PriceIndexCalculationMethod> indexCalculationMethod = DirectMetaProperty.ofImmutable(
+        this, "indexCalculationMethod", InflationRateCalculation.class, PriceIndexCalculationMethod.class);
+    /**
+     * The meta-property for the {@code firstIndexValue} property.
+     */
+    private final MetaProperty<Double> firstIndexValue = DirectMetaProperty.ofImmutable(
+        this, "firstIndexValue", InflationRateCalculation.class, Double.class);
     /**
      * The meta-property for the {@code gearing} property.
      */
@@ -387,7 +514,8 @@ public final class InflationRateCalculation
         this, null,
         "index",
         "lag",
-        "interpolated",
+        "indexCalculationMethod",
+        "firstIndexValue",
         "gearing");
 
     /**
@@ -403,8 +531,10 @@ public final class InflationRateCalculation
           return index;
         case 106898:  // lag
           return lag;
-        case 2096252803:  // interpolated
-          return interpolated;
+        case -1409010088:  // indexCalculationMethod
+          return indexCalculationMethod;
+        case 922631823:  // firstIndexValue
+          return firstIndexValue;
         case -91774989:  // gearing
           return gearing;
       }
@@ -444,11 +574,19 @@ public final class InflationRateCalculation
     }
 
     /**
-     * The meta-property for the {@code interpolated} property.
+     * The meta-property for the {@code indexCalculationMethod} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> interpolated() {
-      return interpolated;
+    public MetaProperty<PriceIndexCalculationMethod> indexCalculationMethod() {
+      return indexCalculationMethod;
+    }
+
+    /**
+     * The meta-property for the {@code firstIndexValue} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> firstIndexValue() {
+      return firstIndexValue;
     }
 
     /**
@@ -467,8 +605,10 @@ public final class InflationRateCalculation
           return ((InflationRateCalculation) bean).getIndex();
         case 106898:  // lag
           return ((InflationRateCalculation) bean).getLag();
-        case 2096252803:  // interpolated
-          return ((InflationRateCalculation) bean).isInterpolated();
+        case -1409010088:  // indexCalculationMethod
+          return ((InflationRateCalculation) bean).getIndexCalculationMethod();
+        case 922631823:  // firstIndexValue
+          return ((InflationRateCalculation) bean).firstIndexValue;
         case -91774989:  // gearing
           return ((InflationRateCalculation) bean).gearing;
       }
@@ -494,7 +634,8 @@ public final class InflationRateCalculation
 
     private PriceIndex index;
     private Period lag;
-    private boolean interpolated;
+    private PriceIndexCalculationMethod indexCalculationMethod;
+    private Double firstIndexValue;
     private ValueSchedule gearing;
 
     /**
@@ -510,7 +651,8 @@ public final class InflationRateCalculation
     private Builder(InflationRateCalculation beanToCopy) {
       this.index = beanToCopy.getIndex();
       this.lag = beanToCopy.getLag();
-      this.interpolated = beanToCopy.isInterpolated();
+      this.indexCalculationMethod = beanToCopy.getIndexCalculationMethod();
+      this.firstIndexValue = beanToCopy.firstIndexValue;
       this.gearing = beanToCopy.gearing;
     }
 
@@ -522,8 +664,10 @@ public final class InflationRateCalculation
           return index;
         case 106898:  // lag
           return lag;
-        case 2096252803:  // interpolated
-          return interpolated;
+        case -1409010088:  // indexCalculationMethod
+          return indexCalculationMethod;
+        case 922631823:  // firstIndexValue
+          return firstIndexValue;
         case -91774989:  // gearing
           return gearing;
         default:
@@ -540,8 +684,11 @@ public final class InflationRateCalculation
         case 106898:  // lag
           this.lag = (Period) newValue;
           break;
-        case 2096252803:  // interpolated
-          this.interpolated = (Boolean) newValue;
+        case -1409010088:  // indexCalculationMethod
+          this.indexCalculationMethod = (PriceIndexCalculationMethod) newValue;
+          break;
+        case 922631823:  // firstIndexValue
+          this.firstIndexValue = (Double) newValue;
           break;
         case -91774989:  // gearing
           this.gearing = (ValueSchedule) newValue;
@@ -581,7 +728,8 @@ public final class InflationRateCalculation
       return new InflationRateCalculation(
           index,
           lag,
-          interpolated,
+          indexCalculationMethod,
+          firstIndexValue,
           gearing);
     }
 
@@ -621,19 +769,37 @@ public final class InflationRateCalculation
     }
 
     /**
-     * Sets how the reference index calculation occurs, defaulted to false.
+     * Sets reference price index calculation method.
      * <p>
-     * If true, the reference index is linearly interpolated between two months.
-     * The interpolation is done with the number of days of the payment month.
-     * <p>
-     * If false, the reference index is the price index of a month.
-     * The reference month is linked to the payment date.
-     * @param interpolated  the new value, not null
+     * This specifies how the reference index calculation occurs.
+     * @param indexCalculationMethod  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder interpolated(boolean interpolated) {
-      JodaBeanUtils.notNull(interpolated, "interpolated");
-      this.interpolated = interpolated;
+    public Builder indexCalculationMethod(PriceIndexCalculationMethod indexCalculationMethod) {
+      JodaBeanUtils.notNull(indexCalculationMethod, "indexCalculationMethod");
+      this.indexCalculationMethod = indexCalculationMethod;
+      return this;
+    }
+
+    /**
+     * Sets the initial value of the index, optional.
+     * <p>
+     * This optional field specifies the initial value of the index.
+     * The value is applicable for the first <i>regular</i> accrual period.
+     * It is used in place of an observed fixing.
+     * Other calculation elements, such as gearing or spread, still apply.
+     * After the first accrual period, the rate is observed via the normal fixing process.
+     * <p>
+     * The method {@link InflationRateCalculation#createRateComputation(LocalDate)}
+     * allows this field to be used as the base for any end date, as typically seen
+     * in capital indexed bonds.
+     * <p>
+     * If this property is not present, then the first value is observed via the normal fixing process.
+     * @param firstIndexValue  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder firstIndexValue(Double firstIndexValue) {
+      this.firstIndexValue = firstIndexValue;
       return this;
     }
 
@@ -660,11 +826,12 @@ public final class InflationRateCalculation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("InflationRateCalculation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("lag").append('=').append(JodaBeanUtils.toString(lag)).append(',').append(' ');
-      buf.append("interpolated").append('=').append(JodaBeanUtils.toString(interpolated)).append(',').append(' ');
+      buf.append("indexCalculationMethod").append('=').append(JodaBeanUtils.toString(indexCalculationMethod)).append(',').append(' ');
+      buf.append("firstIndexValue").append('=').append(JodaBeanUtils.toString(firstIndexValue)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing));
       buf.append('}');
       return buf.toString();

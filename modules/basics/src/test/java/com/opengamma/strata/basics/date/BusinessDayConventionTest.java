@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.date;
@@ -55,24 +55,6 @@ public class BusinessDayConventionTest {
   private static final LocalDate SAT_2014_11_15 = LocalDate.of(2014, 11, 15);
   private static final LocalDate SUN_2014_11_16 = LocalDate.of(2014, 11, 16);
   private static final LocalDate MON_2014_11_17 = LocalDate.of(2014, 11, 17);
-
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "types")
-  static Object[][] data_types() {
-    StandardBusinessDayConventions[] conv = StandardBusinessDayConventions.values();
-    Object[][] result = new Object[conv.length][];
-    for (int i = 0; i < conv.length; i++) {
-      result[i] = new Object[] {conv[i]};
-    }
-    return result;
-  }
-
-  @Test(dataProvider = "types")
-  public void test_null(BusinessDayConvention type) {
-    assertThrowsIllegalArg(() -> type.adjust(null, HolidayCalendars.NO_HOLIDAYS));
-    assertThrowsIllegalArg(() -> type.adjust(FRI_2014_11_14, null));
-    assertThrowsIllegalArg(() -> type.adjust(null, null));
-  }
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "convention")
@@ -176,7 +158,8 @@ public class BusinessDayConventionTest {
   }
 
   public void test_nearest() {
-    HolidayCalendar cal = ImmutableHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
+    HolidayCalendar cal = ImmutableHolidayCalendar.of(
+        HolidayCalendarId.of("Test"), ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
     assertEquals(NEAREST.adjust(FRI_2014_07_11, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SAT_2014_07_12, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SUN_2014_07_13, cal), TUE_2014_07_15);

@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.format;
@@ -17,10 +17,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 /**
  * Contains formatting settings for a specific type.
@@ -45,6 +45,7 @@ public final class FormatSettings<T>
   /**
    * Obtains settings from category and formatter.
    * 
+   * @param <T>  the type of the value
    * @param category  the category of the type
    * @param formatter  the formatter the use for the type
    * @return the format settings
@@ -263,7 +264,7 @@ public final class FormatSettings<T>
    * The bean-builder for {@code FormatSettings}.
    * @param <T>  the type
    */
-  private static final class Builder<T> extends DirectFieldsBeanBuilder<FormatSettings<T>> {
+  private static final class Builder<T> extends DirectPrivateBeanBuilder<FormatSettings<T>> {
 
     private FormatCategory category;
     private ValueFormatter<T> formatter;
@@ -272,6 +273,7 @@ public final class FormatSettings<T>
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -300,30 +302,6 @@ public final class FormatSettings<T>
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder<T> set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

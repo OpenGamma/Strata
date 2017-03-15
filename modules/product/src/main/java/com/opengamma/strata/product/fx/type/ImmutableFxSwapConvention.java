@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -25,13 +26,14 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 
@@ -72,7 +74,7 @@ public final class ImmutableFxSwapConvention
    * in the joint calendar of the two currencies.
    * The start and end date of the FX swap are relative to the spot date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DaysAdjustment spotDateOffset;
   /**
    * The business day adjustment to apply to the start and end date, optional with defaulting getter.
@@ -118,6 +120,7 @@ public final class ImmutableFxSwapConvention
       DaysAdjustment spotDateOffset,
       BusinessDayAdjustment businessDayAdjustment) {
 
+    ArgChecker.notNull(businessDayAdjustment, "businessDayAdjustment");
     return ImmutableFxSwapConvention.builder()
         .currencyPair(currencyPair)
         .spotDateOffset(spotDateOffset)
@@ -144,13 +147,14 @@ public final class ImmutableFxSwapConvention
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment != null ?
-        businessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, spotDateOffset.getCalendar());
+        businessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, spotDateOffset.getCalendar());
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FxSwapTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -158,26 +162,21 @@ public final class ImmutableFxSwapConvention
       double nearFxRate,
       double farLegForwardPoints) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     double amount1 = BuySell.BUY.normalize(notional);
-    LocalDate startDateAdjusted = getBusinessDayAdjustment().adjust(startDate);
-    LocalDate endDateAdjusted = getBusinessDayAdjustment().adjust(endDate);
     return FxSwapTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate).build())
+        .info(tradeInfo)
         .product(FxSwap.ofForwardPoints(
             CurrencyAmount.of(currencyPair.getBase(), amount1),
-            currencyPair.getCounter(),
-            nearFxRate,
+            FxRate.of(currencyPair, nearFxRate),
             farLegForwardPoints,
-            startDateAdjusted,
-            endDateAdjusted))
+            startDate,
+            endDate,
+            getBusinessDayAdjustment()))
         .build();
-  }
-
-  @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
   }
 
   @Override
@@ -259,6 +258,7 @@ public final class ImmutableFxSwapConvention
    * The start and end date of the FX swap are relative to the spot date.
    * @return the value of the property, not null
    */
+  @Override
   public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset;
   }

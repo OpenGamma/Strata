@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
@@ -19,8 +19,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.google.common.primitives.Ints;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 
@@ -76,7 +77,12 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
   }
 
   @Override
-  public EvaluationResult evaluate(Iterable<?> iterable, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      Iterable<?> iterable,
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+
     String token = firstToken.toLowerCase(Locale.ENGLISH);
     Integer index = Ints.tryParse(token);
 

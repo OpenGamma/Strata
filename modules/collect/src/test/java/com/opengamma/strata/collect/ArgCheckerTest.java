@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSortedMap;
 
 /**
@@ -135,9 +136,39 @@ public class ArgCheckerTest {
     ArgChecker.matches(Pattern.compile("[A-Z]+"), "", "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
   public void test_matches_String_noMatch() {
     ArgChecker.matches(Pattern.compile("[A-Z]+"), "123", "name");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_matches_CharMatcher_String_ok() {
+    assertEquals(ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "OG", "name", "[A-Z]+"), "OG");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_CharMatcher_String_tooShort() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "", "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_CharMatcher_String_tooLong() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "abc", "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'pattern'.*")
+  public void test_matches_CharMatcher_String_nullMatcher() {
+    ArgChecker.matches(null, 1, Integer.MAX_VALUE, "", "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_CharMatcher_String_nullString() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, null, "name", "[A-Z]+");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
+  public void test_matches_CharMatcher_String_noMatch() {
+    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "123", "name", "[A-Z]+");
   }
 
   //-------------------------------------------------------------------------

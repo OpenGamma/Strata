@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Contains the results of matrix decomposition. The decomposed matrices (e.g. the L and U matrices for LU decomposition) are stored in this class.
- * There are methods that allow calculations to be performed using these matrices.  
+ * There are methods that allow calculations to be performed using these matrices.
  */
 public interface DecompositionResult {
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,8 +9,6 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
-
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Functional interface that can adjust a date.
@@ -49,7 +47,6 @@ public interface DateAdjuster
   @Override
   public default Temporal adjustInto(Temporal temporal) {
     // conversion to LocalDate ensures that other calendar systems are ignored
-    ArgChecker.notNull(temporal, "temporal");
     return temporal.with(adjust(LocalDate.from(temporal)));
   }
 

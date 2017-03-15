@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Metadata about a curve and curve parameters.
@@ -56,35 +58,51 @@ public interface CurveMetadata {
    */
   public abstract ValueType getYValueType();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets curve information of a specific type.
    * <p>
-   * This method supplies whatever additional information is available for the curve.
+   * If the information is not found, an exception is thrown.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
    * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
    * 
+   * @param <T>  the type of the info
    * @param type  the type to find
    * @return the curve information
    * @throws IllegalArgumentException if the information is not found
    */
   public default <T> T getInfo(CurveInfoType<T> type) {
     return findInfo(type).orElseThrow(() -> new IllegalArgumentException(
-        "Unable to find curve information of type " + type));
+        Messages.format("Curve info not found for type '{}'", type)));
   }
 
   /**
    * Finds curve information of a specific type.
    * <p>
+   * If the info is not found, optional empty is returned.
+   * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
    * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
-   * <p>
-   * If the info is not found, optional empty is returned.
    * 
+   * @param <T>  the type of the info
    * @param type  the type to find
    * @return the curve information
    */
   public abstract <T> Optional<T> findInfo(CurveInfoType<T> type);
+
+  /**
+   * Gets the metadata of the parameter at the specified index.
+   * <p>
+   * If there is no specific parameter metadata, an empty instance will be returned.
+   * 
+   * @param parameterIndex  the zero-based index of the parameter to get
+   * @return the metadata of the parameter
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getParameterMetadata().map(pm -> pm.get(parameterIndex)).orElse(ParameterMetadata.empty());
+  }
 
   /**
    * Gets metadata about each parameter underlying the curve, optional.
@@ -93,7 +111,21 @@ public interface CurveMetadata {
    * 
    * @return the parameter metadata
    */
-  public abstract Optional<List<CurveParameterMetadata>> getParameterMetadata();
+  public abstract Optional<List<ParameterMetadata>> getParameterMetadata();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance where the specified additional information has been added.
+   * <p>
+   * The additional information is stored in the result using {@code Map.put} semantics,
+   * removing the key if the instance is null.
+   * 
+   * @param <T>  the type of the info
+   * @param type  the type to store under
+   * @param value  the value to store, may be null
+   * @return the new curve metadata
+   */
+  public abstract <T> DefaultCurveMetadata withInfo(CurveInfoType<T> type, T value);
 
   /**
    * Returns an instance where the parameter metadata has been changed.
@@ -101,9 +133,9 @@ public interface CurveMetadata {
    * The result will contain the specified parameter metadata.
    * A null value is accepted and causes the result to have no parameter metadata.
    * 
-   * @param parameterMetadata  the new parameter metadata
+   * @param parameterMetadata  the new parameter metadata, may be null
    * @return the new curve metadata
    */
-  public abstract CurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata);
+  public abstract CurveMetadata withParameterMetadata(List<? extends ParameterMetadata> parameterMetadata);
 
 }

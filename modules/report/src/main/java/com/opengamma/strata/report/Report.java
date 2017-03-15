@@ -1,18 +1,16 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -85,12 +83,7 @@ public interface Report {
   public default String toAsciiTableString() {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     writeAsciiTable(os);
-
-    try {
-      return os.toString(StandardCharsets.UTF_8.name());
-    } catch (UnsupportedEncodingException e) {
-      throw Throwables.propagate(e);
-    }
+    return new String(os.toByteArray(), StandardCharsets.UTF_8);
   }
 
 }

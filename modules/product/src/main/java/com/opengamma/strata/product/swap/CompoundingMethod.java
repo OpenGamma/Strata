@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * When calculating interest, it may be necessary to apply compounding.
  * Compound interest occurs where the basic interest is collected over one period but paid over a longer period.
- * For example, interest may be collected every three months but only paid every year. 
+ * For example, interest may be collected every three months but only paid every year.
  * <p>
  * For more information see this <a href="http://www.isda.org/c_and_a/pdf/ISDA-Compounding-memo.pdf">ISDA note</a>.
  */
@@ -60,7 +60,7 @@ public enum CompoundingMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -72,6 +72,7 @@ public enum CompoundingMethod {
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the formatted unique name of the type.
    * 

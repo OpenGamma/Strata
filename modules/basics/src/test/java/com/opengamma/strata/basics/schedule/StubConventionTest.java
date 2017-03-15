@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.schedule;
@@ -25,6 +25,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static java.time.Month.APRIL;
 import static java.time.Month.AUGUST;
 import static java.time.Month.JANUARY;
 import static java.time.Month.JULY;
@@ -72,6 +73,8 @@ public class StubConventionTest {
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_TUE},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
+        {NONE, date(2014, JANUARY, 31), date(2014, APRIL, 30), P1M, true, RollConventions.EOM},
+        {NONE, date(2014, APRIL, 30), date(2014, AUGUST, 31), P1M, true, RollConventions.EOM},
 
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_16},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_16},
@@ -113,8 +116,8 @@ public class StubConventionTest {
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
 
-        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, RollConventions.NONE},
-        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, RollConventions.NONE},
+        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
+        {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
     };
   }
 

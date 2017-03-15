@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -16,4 +16,3 @@
  * which is formed from one or more {@linkplain com.opengamma.strata.basics.schedule.SchedulePeriod periods}.
  */
 package com.opengamma.strata.basics.schedule;
-

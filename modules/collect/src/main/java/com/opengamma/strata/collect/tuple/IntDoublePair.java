@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -54,7 +54,7 @@ public final class IntDoublePair
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code IntDoublePair} from an {@code int} and a {@code double}.
+   * Obtains an instance from an {@code int} and a {@code double}.
    * 
    * @param first  the first element
    * @param second  the second element
@@ -65,7 +65,7 @@ public final class IntDoublePair
   }
 
   /**
-   * Obtains an {@code IntDoublePair} from a {@code Pair}.
+   * Obtains an instance from a {@code Pair}.
    * 
    * @param pair  the pair to convert
    * @return a pair formed by extracting values from the pair
@@ -360,7 +360,7 @@ public final class IntDoublePair
   /**
    * The bean-builder for {@code IntDoublePair}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<IntDoublePair> {
+  private static final class Builder extends DirectPrivateBeanBuilder<IntDoublePair> {
 
     private int first;
     private double second;
@@ -369,6 +369,7 @@ public final class IntDoublePair
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -396,30 +397,6 @@ public final class IntDoublePair
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

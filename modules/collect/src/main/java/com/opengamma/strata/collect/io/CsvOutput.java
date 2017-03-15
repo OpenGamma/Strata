@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.io;
@@ -34,25 +34,42 @@ public final class CsvOutput {
    * The new line string.
    */
   private final String newLine;
-
   /**
-   * Creates an instance, using the system default line separator.
+   * The line item separator
+   */
+  private final String separator;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance, using the system default line separator and using a comma separator.
    * 
    * @param underlying  the underlying writer
    */
   public CsvOutput(Appendable underlying) {
-    this(underlying, System.lineSeparator());
+    this(underlying, System.lineSeparator(), ",");
   }
 
   /**
-   * Creates an instance, allowing the new line charactor to be controlled.
+   * Creates an instance, allowing the new line character to be controlled and using a comma separator.
    * 
    * @param underlying  the underlying writer
    * @param newLine  the new line string
    */
   public CsvOutput(Appendable underlying, String newLine) {
+    this(underlying, newLine, ",");
+  }
+
+  /**
+   * Creates an instance, allowing the new line character to be controlled, specifying the separator.
+   * 
+   * @param underlying  the underlying writer
+   * @param newLine  the new line string
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   */
+  public CsvOutput(Appendable underlying, String newLine, String separator) {
     this.underlying = ArgChecker.notNull(underlying, "underlying");
     this.newLine = newLine;
+    this.separator = separator;
   }
 
   //------------------------------------------------------------------------
@@ -103,7 +120,7 @@ public final class CsvOutput {
   private String formatLine(List<String> line, boolean alwaysQuote) {
     return line.stream()
         .map(entry -> formatEntry(entry, alwaysQuote))
-        .collect(Collectors.joining(","));
+        .collect(Collectors.joining(separator));
   }
 
   // formats a single entry, quoting if necessary

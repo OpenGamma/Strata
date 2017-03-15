@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.index;
@@ -13,6 +13,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -43,7 +44,7 @@ public final class ImmutablePriceIndex
   /**
    * The index name, such as 'GB-HICP'.
    */
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final String name;
   /**
    * The region of the index.
@@ -56,11 +57,30 @@ public final class ImmutablePriceIndex
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
+   * Whether the index is active, defaulted to true.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this flag will be set to false.
+   */
+  @PropertyDefinition(overrideGet = true)
+  private final boolean active;
+  /**
    * The publication frequency of the index.
    * Most price indices are published monthly, but some are published quarterly.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Frequency publicationFrequency;
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.active = true;
+  }
+
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(name);
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -121,14 +141,16 @@ public final class ImmutablePriceIndex
       String name,
       Country region,
       Currency currency,
+      boolean active,
       Frequency publicationFrequency) {
-    JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(region, "region");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(publicationFrequency, "publicationFrequency");
     this.name = name;
     this.region = region;
     this.currency = currency;
+    this.active = active;
     this.publicationFrequency = publicationFrequency;
   }
 
@@ -150,7 +172,7 @@ public final class ImmutablePriceIndex
   //-----------------------------------------------------------------------
   /**
    * Gets the index name, such as 'GB-HICP'.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   @Override
   public String getName() {
@@ -175,6 +197,19 @@ public final class ImmutablePriceIndex
   @Override
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether the index is active, defaulted to true.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this flag will be set to false.
+   * @return the value of the property
+   */
+  @Override
+  public boolean isActive() {
+    return active;
   }
 
   //-----------------------------------------------------------------------
@@ -223,6 +258,11 @@ public final class ImmutablePriceIndex
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", ImmutablePriceIndex.class, Currency.class);
     /**
+     * The meta-property for the {@code active} property.
+     */
+    private final MetaProperty<Boolean> active = DirectMetaProperty.ofImmutable(
+        this, "active", ImmutablePriceIndex.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code publicationFrequency} property.
      */
     private final MetaProperty<Frequency> publicationFrequency = DirectMetaProperty.ofImmutable(
@@ -235,6 +275,7 @@ public final class ImmutablePriceIndex
         "name",
         "region",
         "currency",
+        "active",
         "publicationFrequency");
 
     /**
@@ -252,6 +293,8 @@ public final class ImmutablePriceIndex
           return region;
         case 575402001:  // currency
           return currency;
+        case -1422950650:  // active
+          return active;
         case -1407208304:  // publicationFrequency
           return publicationFrequency;
       }
@@ -299,6 +342,14 @@ public final class ImmutablePriceIndex
     }
 
     /**
+     * The meta-property for the {@code active} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> active() {
+      return active;
+    }
+
+    /**
      * The meta-property for the {@code publicationFrequency} property.
      * @return the meta-property, not null
      */
@@ -316,6 +367,8 @@ public final class ImmutablePriceIndex
           return ((ImmutablePriceIndex) bean).getRegion();
         case 575402001:  // currency
           return ((ImmutablePriceIndex) bean).getCurrency();
+        case -1422950650:  // active
+          return ((ImmutablePriceIndex) bean).isActive();
         case -1407208304:  // publicationFrequency
           return ((ImmutablePriceIndex) bean).getPublicationFrequency();
       }
@@ -342,12 +395,14 @@ public final class ImmutablePriceIndex
     private String name;
     private Country region;
     private Currency currency;
+    private boolean active;
     private Frequency publicationFrequency;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -358,6 +413,7 @@ public final class ImmutablePriceIndex
       this.name = beanToCopy.getName();
       this.region = beanToCopy.getRegion();
       this.currency = beanToCopy.getCurrency();
+      this.active = beanToCopy.isActive();
       this.publicationFrequency = beanToCopy.getPublicationFrequency();
     }
 
@@ -371,6 +427,8 @@ public final class ImmutablePriceIndex
           return region;
         case 575402001:  // currency
           return currency;
+        case -1422950650:  // active
+          return active;
         case -1407208304:  // publicationFrequency
           return publicationFrequency;
         default:
@@ -389,6 +447,9 @@ public final class ImmutablePriceIndex
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
+          break;
+        case -1422950650:  // active
+          this.active = (Boolean) newValue;
           break;
         case -1407208304:  // publicationFrequency
           this.publicationFrequency = (Frequency) newValue;
@@ -429,17 +490,18 @@ public final class ImmutablePriceIndex
           name,
           region,
           currency,
+          active,
           publicationFrequency);
     }
 
     //-----------------------------------------------------------------------
     /**
      * Sets the index name, such as 'GB-HICP'.
-     * @param name  the new value, not empty
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notEmpty(name, "name");
+      JodaBeanUtils.notNull(name, "name");
       this.name = name;
       return this;
     }
@@ -467,6 +529,19 @@ public final class ImmutablePriceIndex
     }
 
     /**
+     * Sets whether the index is active, defaulted to true.
+     * <p>
+     * Over time some indices become inactive and are no longer produced.
+     * If this occurs, this flag will be set to false.
+     * @param active  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder active(boolean active) {
+      this.active = active;
+      return this;
+    }
+
+    /**
      * Sets the publication frequency of the index.
      * Most price indices are published monthly, but some are published quarterly.
      * @param publicationFrequency  the new value, not null
@@ -481,11 +556,12 @@ public final class ImmutablePriceIndex
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ImmutablePriceIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("region").append('=').append(JodaBeanUtils.toString(region)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("active").append('=').append(JodaBeanUtils.toString(active)).append(',').append(' ');
       buf.append("publicationFrequency").append('=').append(JodaBeanUtils.toString(publicationFrequency));
       buf.append('}');
       return buf.toString();

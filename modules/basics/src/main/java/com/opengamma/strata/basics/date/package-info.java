@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -33,4 +33,3 @@
  * entity objects to represent different kinds of adjustment.
  */
 package com.opengamma.strata.basics.date;
-

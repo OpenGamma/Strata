@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -25,4 +25,3 @@
  * provide the glue to make currency conversion easy.
  */
 package com.opengamma.strata.basics.currency;
-

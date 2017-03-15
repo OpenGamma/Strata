@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
@@ -21,14 +21,16 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Default metadata for a curve.
@@ -79,8 +81,8 @@ public final class DefaultCurveMetadata
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.
    */
-  @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>", builderType = "List<? extends CurveParameterMetadata>")
-  private final ImmutableList<CurveParameterMetadata> parameterMetadata;
+  @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>", builderType = "List<? extends ParameterMetadata>")
+  private final ImmutableList<ParameterMetadata> parameterMetadata;
 
   //-------------------------------------------------------------------------
   /**
@@ -124,19 +126,40 @@ public final class DefaultCurveMetadata
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public <T> T getInfo(CurveInfoType<T> type) {
+    // overridden for performance
+    @SuppressWarnings("unchecked")
+    T value = (T) info.get(type);
+    if (value == null) {
+      throw new IllegalArgumentException(Messages.format("Curve info not found for type '{}'", type));
+    }
+    return value;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> Optional<T> findInfo(CurveInfoType<T> type) {
     return Optional.ofNullable((T) info.get(type));
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public DefaultCurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata) {
+  public <T> DefaultCurveMetadata withInfo(CurveInfoType<T> type, T value) {
+    return toBuilder().addInfo(type, value).build();
+  }
+
+  @Override
+  public DefaultCurveMetadata withParameterMetadata(List<? extends ParameterMetadata> parameterMetadata) {
+    if (parameterMetadata == null) {
+      return this.parameterMetadata != null ? toBuilder().clearParameterMetadata().build() : this;
+    }
     return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a builder that allows this bean to be mutated.
+   * Returns a mutable builder initialized with the state of this bean.
    * 
    * @return the mutable builder, not null
    */
@@ -176,7 +199,7 @@ public final class DefaultCurveMetadata
       ValueType xValueType,
       ValueType yValueType,
       Map<CurveInfoType<?>, Object> info,
-      List<? extends CurveParameterMetadata> parameterMetadata) {
+      List<? extends ParameterMetadata> parameterMetadata) {
     JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(xValueType, "xValueType");
     JodaBeanUtils.notNull(yValueType, "yValueType");
@@ -265,7 +288,7 @@ public final class DefaultCurveMetadata
    * @return the optional value of the property, not null
    */
   @Override
-  public Optional<List<CurveParameterMetadata>> getParameterMetadata() {
+  public Optional<List<ParameterMetadata>> getParameterMetadata() {
     return Optional.ofNullable(parameterMetadata);
   }
 
@@ -345,7 +368,7 @@ public final class DefaultCurveMetadata
      * The meta-property for the {@code parameterMetadata} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurveParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<List<ParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
         this, "parameterMetadata", DefaultCurveMetadata.class, (Class) List.class);
     /**
      * The meta-properties.
@@ -433,7 +456,7 @@ public final class DefaultCurveMetadata
      * The meta-property for the {@code parameterMetadata} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<CurveParameterMetadata>> parameterMetadata() {
+    public MetaProperty<List<ParameterMetadata>> parameterMetadata() {
       return parameterMetadata;
     }
 
@@ -470,18 +493,19 @@ public final class DefaultCurveMetadata
   /**
    * The bean-builder for {@code DefaultCurveMetadata}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<DefaultCurveMetadata> {
+  private static final class Builder extends DirectPrivateBeanBuilder<DefaultCurveMetadata> {
 
     private CurveName curveName;
     private ValueType xValueType;
     private ValueType yValueType;
     private Map<CurveInfoType<?>, Object> info = ImmutableMap.of();
-    private List<? extends CurveParameterMetadata> parameterMetadata;
+    private List<? extends ParameterMetadata> parameterMetadata;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
       applyDefaults(this);
     }
 
@@ -521,35 +545,11 @@ public final class DefaultCurveMetadata
           this.info = (Map<CurveInfoType<?>, Object>) newValue;
           break;
         case -1169106440:  // parameterMetadata
-          this.parameterMetadata = (List<? extends CurveParameterMetadata>) newValue;
+          this.parameterMetadata = (List<? extends ParameterMetadata>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

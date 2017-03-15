@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,11 +9,10 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.stream.Stream;
+import java.util.Locale;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.named.NamedLookup;
 
 /**
@@ -26,8 +25,16 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
   // lookup of conventions
   static final ImmutableMap<String, RollConvention> MAP;
   static {
-    MAP = Stream.concat(Stream.of(Dom.CONVENTIONS), Stream.of(Dow.CONVENTIONS))
-        .collect(Guavate.toImmutableMap(RollConvention::getName));
+    ImmutableMap.Builder<String, RollConvention> mapBuilder = ImmutableMap.builder();
+    for (RollConvention roll : Dom.CONVENTIONS) {
+      mapBuilder.put(roll.getName(), roll);
+      mapBuilder.put(roll.getName().toUpperCase(Locale.ENGLISH), roll);
+    }
+    for (RollConvention roll : Dow.CONVENTIONS) {
+      mapBuilder.put(roll.getName(), roll);
+      mapBuilder.put(roll.getName().toUpperCase(Locale.ENGLISH), roll);
+    }
+    MAP = mapBuilder.build();
   }
 
   /**
@@ -82,6 +89,11 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
 
     private Object readResolve() {
       return Dom.of(day);
+    }
+
+    @Override
+    public int getDayOfMonth() {
+      return day;
     }
 
     @Override

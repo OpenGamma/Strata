@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.result;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -19,15 +20,14 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Description of a failed result.
@@ -36,7 +36,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * There is a single reason and message and a set of detailed failure items.
  * Each {@link FailureItem} has details of the actual cause.
  * <p>
- * Instances of {@code Failure} are public classes created via {@link Result}.
+ * In most cases, instances of {@code Failure} should be created using one of the
+ * {@code failure} methods on {@link Result}.
  */
 @BeanDefinition(builderScope = "private")
 public final class Failure
@@ -61,33 +62,46 @@ public final class Failure
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a failure from a reason, message and exception.
+   * Obtains a failure from a reason and message.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   * <p>
+   * An exception will be created internally to obtain a stack trace.
+   * The cause type will not be present in the resulting failure.
    * 
    * @param reason  the reason
-   * @param message  the failure message
-   * @param cause  the cause
+   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
    * @return the failure
    */
-  static Failure of(FailureReason reason, String message, Exception cause) {
-    ArgChecker.notNull(reason, "reason");
-    ArgChecker.notEmpty(message, "message");
-    ArgChecker.notNull(cause, "cause");
-    String stackTrace = Throwables.getStackTraceAsString(cause);
-    return Failure.of(FailureItem.of(reason, message, stackTrace, cause.getClass()));
+  public static Failure of(FailureReason reason, String message, Object... messageArgs) {
+    String msg = Messages.format(message, messageArgs);
+    return Failure.of(FailureItem.of(reason, msg, 1));
   }
 
   /**
-   * Obtains a failure from a reason and message.
+   * Obtains a failure from a reason, message and exception.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
    * 
    * @param reason  the reason
-   * @param message  the failure message, not empty
+   * @param cause  the cause
+   * @param message  the failure message, possibly containing placeholders, formatted using {@link Messages#format}
+   * @param messageArgs  arguments used to create the failure message
    * @return the failure
    */
-  static Failure of(FailureReason reason, String message) {
-    ArgChecker.notNull(reason, "reason");
-    ArgChecker.notEmpty(message, "message");
-    String stackTrace = getStackTraceAsString(new Exception());
-    return Failure.of(FailureItem.of(reason, message, stackTrace, null));
+  public static Failure of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
+    return Failure.of(FailureItem.of(reason, cause, message, messageArgs));
   }
 
   /**
@@ -97,12 +111,8 @@ public final class Failure
    * @param cause  the cause
    * @return the failure
    */
-  static Failure of(FailureReason reason, Exception cause) {
-    ArgChecker.notNull(reason, "reason");
-    ArgChecker.notNull(cause, "cause");
-    String causeMessage = ArgChecker.notNull(cause, "cause").getMessage();
-    String message = Strings.isNullOrEmpty(causeMessage) ? cause.getClass().getSimpleName() : causeMessage;
-    return Failure.of(reason, message, cause);
+  public static Failure of(FailureReason reason, Exception cause) {
+    return Failure.of(FailureItem.of(reason, cause));
   }
 
   /**
@@ -111,36 +121,37 @@ public final class Failure
    * @param item  the failure item
    * @return the failure
    */
-  private static Failure of(FailureItem item) {
+  public static Failure of(FailureItem item) {
     return new Failure(item.getReason(), item.getMessage(), ImmutableSet.of(item));
   }
 
   /**
-   * Obtains a failure for a non-empty set of failure items.
+   * Obtains a failure for multiple failure items.
+   *
+   * @param item  the first failure item
+   * @param additionalItems  additional failure items
+   * @return the failure
+   */
+  public static Failure of(FailureItem item, FailureItem... additionalItems) {
+    return of(ImmutableSet.<FailureItem>builder().add(item).add(additionalItems).build());
+  }
+
+  /**
+   * Obtains a failure for a non-empty collection of failure items.
    * 
    * @param items  the failures, not empty
    * @return the failure
    */
-  static Failure of(ImmutableSet<FailureItem> items) {
+  public static Failure of(Collection<FailureItem> items) {
     ArgChecker.notEmpty(items, "items");
-    String message = items.stream()
+    Set<FailureItem> itemSet = ImmutableSet.copyOf(items);
+    String message = itemSet.stream()
         .map(FailureItem::getMessage)
         .collect(Collectors.joining(", "));
-    FailureReason reason = items.stream()
+    FailureReason reason = itemSet.stream()
         .map(FailureItem::getReason)
         .reduce((s1, s2) -> s1 == s2 ? s1 : FailureReason.MULTIPLE).get();
-    return new Failure(reason, message, items);
-  }
-
-  private static String getStackTraceAsString(Exception e) {
-    StringBuilder builder = new StringBuilder();
-    StackTraceElement[] stackTrace = e.getStackTrace();
-
-    // drop the first 2 frames because they're always the Failure constructor and Result.failure
-    for (int i = 2; i < stackTrace.length; i++) {
-      builder.append("\tat ").append(stackTrace[i]).append("\n");
-    }
-    return builder.toString();
+    return new Failure(reason, message, itemSet);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -375,7 +386,7 @@ public final class Failure
   /**
    * The bean-builder for {@code Failure}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<Failure> {
+  private static final class Builder extends DirectPrivateBeanBuilder<Failure> {
 
     private FailureReason reason;
     private String message;
@@ -385,6 +396,7 @@ public final class Failure
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -418,30 +430,6 @@ public final class Failure
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

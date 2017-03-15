@@ -1,14 +1,23 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
 
-import java.time.Period;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
-import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.market.Perturbation;
+import java.time.Period;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve that maps a {@code double} x-value to a {@code double} y-value.
@@ -21,7 +30,7 @@ import com.opengamma.strata.market.Perturbation;
  * 
  * @see InterpolatedNodalCurve
  */
-public interface Curve {
+public interface Curve extends ParameterizedData {
 
   /**
    * Gets the curve metadata.
@@ -40,6 +49,17 @@ public interface Curve {
   public abstract CurveMetadata getMetadata();
 
   /**
+   * Returns a new curve with the specified metadata.
+   * <p>
+   * This allows the metadata of the curve to be changed while retaining all other information.
+   * If parameter metadata is present, the size of the list must match the number of parameters of this curve.
+   * 
+   * @param metadata  the new metadata for the curve
+   * @return the new curve
+   */
+  public abstract Curve withMetadata(CurveMetadata metadata);
+
+  /**
    * Gets the curve name.
    * 
    * @return the curve name
@@ -48,14 +68,18 @@ public interface Curve {
     return getMetadata().getCurveName();
   }
 
-  /**
-   * Gets the number of parameters in the curve.
-   * <p>
-   * This returns the number of parameters that are used to define the curve.
-   * 
-   * @return the number of parameters
-   */
-  public abstract int getParameterCount();
+  @Override
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getMetadata().getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public abstract Curve withParameter(int parameterIndex, double newValue);
+
+  @Override
+  default Curve withPerturbation(ParameterPerturbation perturbation) {
+    return (Curve) ParameterizedData.super.withPerturbation(perturbation);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -76,7 +100,7 @@ public interface Curve {
    * @return the sensitivity
    * @throws RuntimeException if the sensitivity cannot be calculated
    */
-  public abstract CurveUnitParameterSensitivity yValueParameterSensitivity(double x);
+  public abstract UnitParameterSensitivity yValueParameterSensitivity(double x);
 
   /**
    * Computes the first derivative of the curve.
@@ -89,32 +113,38 @@ public interface Curve {
    */
   public abstract double firstDerivative(double x);
 
-  /**
-   * Applies the perturbation to this curve.
-   * <p>
-   * This returns a curve that has been changed by the {@link Perturbation} instance.
-   * 
-   * @param perturbation  the perturbation to apply
-   * @return the perturbed curve
-   * @throws RuntimeException if the perturbation cannot be applied
-   */
-  public default Curve applyPerturbation(Perturbation<Curve> perturbation) {
-    return perturbation.applyTo(this);
-  }
-
   //-------------------------------------------------------------------------
   /**
-   * Converts this curve to a nodal curve.
+   * Creates a parameter sensitivity instance for this curve when the sensitivity values are known.
    * <p>
-   * A nodal curve is based on specific x-y values, typically with interpolation.
-   * See {@link InterpolatedNodalCurve} for more details.
+   * In most cases, {@link #yValueParameterSensitivity(double)} should be used and manipulated.
+   * However, it can be useful to create a {@link UnitParameterSensitivity} from pre-computed sensitivity values.
    * 
-   * @return the equivalent nodal curve
-   * @throws UnsupportedOperationException if the curve cannot be converted
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the curve
+   * @return the sensitivity
    */
-  public default NodalCurve toNodalCurve() {
-    throw new UnsupportedOperationException(Messages.format(
-        "Unable to convert curve '{}' to NodalCurve, type was: {}", getName(), getClass().getName()));
+  public default UnitParameterSensitivity createParameterSensitivity(DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return UnitParameterSensitivity.of(getName(), paramMeta, sensitivities);
+  }
+
+  /**
+   * Creates a parameter sensitivity instance for this curve when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #yValueParameterSensitivity(double)} should be used and manipulated.
+   * However, it can be useful to create a {@link CurrencyParameterSensitivity} from pre-computed sensitivity values.
+   * 
+   * @param currency  the currency
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the curve
+   * @return the sensitivity
+   */
+  public default CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return CurrencyParameterSensitivity.of(getName(), paramMeta, currency, sensitivities);
   }
 
 }

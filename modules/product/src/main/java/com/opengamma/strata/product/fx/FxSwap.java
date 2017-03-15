@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -22,15 +22,20 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.product.Product;
 
 /**
  * An FX swap.
@@ -45,7 +50,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class FxSwap
-    implements FxSwapProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFxSwap>, ImmutableBean, Serializable {
 
   /**
    * The foreign exchange transaction at the earlier date.
@@ -82,35 +87,73 @@ public final class FxSwap
   /**
    * Creates an {@code FxSwap} using forward points.
    * <p>
-   * The FX rate at the near date is specified as {@code fxRate}.
-   * The FX rate at the far date is equal to {@code fxRate + forwardPoints}
+   * The FX rate at the near date is specified as {@code nearRate}.
+   * The FX rate at the far date is equal to {@code nearRate + forwardPoints}
    * <p>
-   * The two currencies must not be equal.
+   * The two currencies are specified by the near FX rate.
+   * The amount must be specified using one of the currencies of the near FX rate.
    * The near date must be before the far date.
    * Conventions will be used to determine the base and counter currency.
    * 
-   * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param currency2  the second currency
-   * @param nearFxRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
-   * @param forwardPoints  the forward points, where the far FX rate is {@code (fxRate + forwardPoints)}
+   * @param amount  the amount being exchanged, positive if being received in the near leg, negative if being paid
+   * @param nearRate  the near FX rate
+   * @param forwardPoints  the forward points, where the far FX rate is {@code (nearRate + forwardPoints)}
    * @param nearDate  the near value date
    * @param farDate  the far value date
    * @return the FX swap
    */
   public static FxSwap ofForwardPoints(
-      CurrencyAmount amountCurrency1,
-      Currency currency2,
-      double nearFxRate,
+      CurrencyAmount amount,
+      FxRate nearRate,
       double forwardPoints,
       LocalDate nearDate,
       LocalDate farDate) {
 
-    Currency currency1 = amountCurrency1.getCurrency();
-    ArgChecker.isFalse(currency1.equals(currency2), "Currencies must not be equal");
-    ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
-    double farFxRate = nearFxRate + forwardPoints;
-    FxSingle nearLeg = FxSingle.of(amountCurrency1, FxRate.of(currency1, currency2, nearFxRate), nearDate);
-    FxSingle farLeg = FxSingle.of(amountCurrency1.negated(), FxRate.of(currency1, currency2, farFxRate), farDate);
+    Currency currency1 = amount.getCurrency();
+    ArgChecker.isTrue(
+        nearRate.getPair().contains(currency1),
+        Messages.format("Amount and FX rate have a currency in common: {} and {}", amount, nearDate));
+    FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + forwardPoints);
+    FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate);
+    FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate);
+    return of(nearLeg, farLeg);
+  }
+
+  /**
+   * Creates an {@code FxSwap} using forward points, specifying a date adjustment.
+   * <p>
+   * The FX rate at the near date is specified as {@code nearRate}.
+   * The FX rate at the far date is equal to {@code nearRate + forwardPoints}
+   * <p>
+   * The two currencies are specified by the near FX rate.
+   * The amount must be specified using one of the currencies of the near FX rate.
+   * The near date must be before the far date.
+   * Conventions will be used to determine the base and counter currency.
+   * 
+   * @param amount  the amount being exchanged, positive if being received in the near leg, negative if being paid
+   * @param nearRate  the near FX rate
+   * @param forwardPoints  the forward points, where the far FX rate is {@code (nearRate + forwardPoints)}
+   * @param nearDate  the near value date
+   * @param farDate  the far value date
+   * @param paymentDateAdjustment  the adjustment to apply to the payment dates
+   * @return the FX swap
+   */
+  public static FxSwap ofForwardPoints(
+      CurrencyAmount amount,
+      FxRate nearRate,
+      double forwardPoints,
+      LocalDate nearDate,
+      LocalDate farDate,
+      BusinessDayAdjustment paymentDateAdjustment) {
+
+    ArgChecker.notNull(paymentDateAdjustment, "paymentDateAdjustment");
+    Currency currency1 = amount.getCurrency();
+    ArgChecker.isTrue(
+        nearRate.getPair().contains(currency1),
+        Messages.format("Amount and FX rate have a currency in common: {} and {}", amount, nearDate));
+    FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + forwardPoints);
+    FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate, paymentDateAdjustment);
+    FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate, paymentDateAdjustment);
     return of(nearLeg, farLeg);
   }
 
@@ -129,14 +172,9 @@ public final class FxSwap
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this FX swap into {@code ExpandedFxSwap}.
-   * 
-   * @return the expanded FX swap
-   */
   @Override
-  public ExpandedFxSwap expand() {
-    return ExpandedFxSwap.of(nearLeg.expand(), farLeg.expand());
+  public ResolvedFxSwap resolve(ReferenceData refData) {
+    return ResolvedFxSwap.of(nearLeg.resolve(refData), farLeg.resolve(refData));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -343,7 +381,7 @@ public final class FxSwap
   /**
    * The bean-builder for {@code FxSwap}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxSwap> {
+  private static final class Builder extends DirectPrivateBeanBuilder<FxSwap> {
 
     private FxSingle nearLeg;
     private FxSingle farLeg;
@@ -352,6 +390,7 @@ public final class FxSwap
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -379,30 +418,6 @@ public final class FxSwap
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

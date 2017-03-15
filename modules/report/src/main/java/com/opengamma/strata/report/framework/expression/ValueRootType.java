@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
@@ -26,9 +26,21 @@ public enum ValueRootType {
    */
   PRODUCT("Product"),
   /**
+   * Refers to the security on the trade.
+   */
+  SECURITY("Security"),
+  /**
    * Refers to the trade.
    */
-  TRADE("Trade");
+  TRADE("Trade"),
+  /**
+   * Refers to the position.
+   */
+  POSITION("Position"),
+  /**
+   * Refers to the target (trade or position).
+   */
+  TARGET("Target");
 
   //-------------------------------------------------------------------------
   /**

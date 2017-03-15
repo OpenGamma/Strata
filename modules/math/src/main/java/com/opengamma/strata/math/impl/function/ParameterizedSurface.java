@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.function;
@@ -26,7 +26,7 @@ public abstract class ParameterizedSurface extends ParameterizedFunction<Doubles
    * this returns the function $g : \mathbb{R} \to \mathbb{R}^n; x,y \mapsto g(x,y)$, which is the function's (curves') sensitivity 
    * to its parameters, i.e. $g(x,y) = \frac{\partial f(x,y;\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$<p>
    * The default calculation is performed using finite difference (via {@link ScalarFieldFirstOrderDifferentiator}) but
-   * it is expected that this will be overridden by concrete subclasses.  
+   * it is expected that this will be overridden by concrete subclasses.
    * @param params The value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
    * @return The sensitivity as a function with a DoublesPair (x,y) as its single argument and a vector as its return value
    */

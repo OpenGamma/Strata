@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,79 +6,123 @@
 package com.opengamma.strata.calc.runner;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
- * The result of a single calculation performed by a {@link CalculationRunner}.
+ * The result of a single calculation.
+ * <p>
+ * This stores the calculated result for a single cell in the output grid.
+ * A set of related results for a single target can be stored in a {@link CalculationResults} instance.
  */
-@BeanDefinition
-public final class CalculationResult implements ImmutableBean, Serializable {
+@BeanDefinition(style = "light")
+public final class CalculationResult
+    implements ImmutableBean, Serializable {
 
-  /** The target of the calculation, often a trade. */
-  @PropertyDefinition(validate = "notNull")
-  private final CalculationTarget target;
-
-  /** The row index of the value in the results grid. */
+  /**
+   * The row index of the value in the results grid.
+   */
   @PropertyDefinition
   private final int rowIndex;
-
-  /** The column index of the value in the results grid. */
+  /**
+   * The column index of the value in the results grid.
+   */
   @PropertyDefinition
   private final int columnIndex;
-
-  /** The result of the calculation. */
+  /**
+   * The result of the calculation.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Result<?> result;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a calculation result containing the target, the row and column in the results grid and the result
-   * of a calculation.
+   * Obtains an instance for the specified row and column index in the output grid.
+   * <p>
+   * The {@link Result} object captures the result value, or the failure that
+   * prevented the result from being calculated.
    *
-   * @param target  the target of the calculation, often a trade
    * @param rowIndex  the row index of the value in the results grid
    * @param columnIndex  the column index of the value in the results grid
    * @param result  the result of the calculation
-   * @return a calculation result containing the target, the row and column in the results grid and the result
-   *   of a calculation
+   * @return a calculation result containing the row index, column index and result object
    */
-  public static CalculationResult of(
-      CalculationTarget target,
-      int rowIndex,
-      int columnIndex,
-      Result<?> result) {
+  public static CalculationResult of(int rowIndex, int columnIndex, Result<?> result) {
+    return new CalculationResult(rowIndex, columnIndex, result);
+  }
 
-    return new CalculationResult(target, rowIndex, columnIndex, result);
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the result of the calculation, casting the result to a known type.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param <T>  the result type
+   * @param type  the result type
+   * @return the result, cast to the specified type
+   * @throws ClassCastException if the result is not of the specified type
+   */
+  @SuppressWarnings("unchecked")
+  public <T> Result<T> getResult(Class<T> type) {
+    // cannot use result.map() as we want the exception to be thrown
+    if (result.isFailure() || type.isInstance(result.getValue())) {
+      return (Result<T>) result;
+    }
+    throw new ClassCastException(Messages.format(
+        "Result queried with type '{}' but was '{}'", type.getName(), result.getValue().getClass().getName()));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this result with the underlying result updated.
+   * 
+   * @param underlyingResult  the new underlying result
+   * @return a new instance with the result updated
+   */
+  public CalculationResult withResult(Result<?> underlyingResult) {
+    return new CalculationResult(rowIndex, columnIndex, underlyingResult);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code CalculationResult}.
+   */
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationResult.class);
+
+  /**
+   * The meta-bean for {@code CalculationResult}.
    * @return the meta-bean, not null
    */
-  public static CalculationResult.Meta meta() {
-    return CalculationResult.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CalculationResult.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -86,30 +130,19 @@ public final class CalculationResult implements ImmutableBean, Serializable {
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CalculationResult.Builder builder() {
-    return new CalculationResult.Builder();
-  }
-
   private CalculationResult(
-      CalculationTarget target,
       int rowIndex,
       int columnIndex,
       Result<?> result) {
-    JodaBeanUtils.notNull(target, "target");
     JodaBeanUtils.notNull(result, "result");
-    this.target = target;
     this.rowIndex = rowIndex;
     this.columnIndex = columnIndex;
     this.result = result;
   }
 
   @Override
-  public CalculationResult.Meta metaBean() {
-    return CalculationResult.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -120,15 +153,6 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the target of the calculation, often a trade.
-   * @return the value of the property, not null
-   */
-  public CalculationTarget getTarget() {
-    return target;
   }
 
   //-----------------------------------------------------------------------
@@ -152,6 +176,13 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the result of the calculation.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
    * @return the value of the property, not null
    */
   public Result<?> getResult() {
@@ -159,14 +190,6 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -174,8 +197,7 @@ public final class CalculationResult implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationResult other = (CalculationResult) obj;
-      return JodaBeanUtils.equal(target, other.target) &&
-          (rowIndex == other.rowIndex) &&
+      return (rowIndex == other.rowIndex) &&
           (columnIndex == other.columnIndex) &&
           JodaBeanUtils.equal(result, other.result);
     }
@@ -185,7 +207,6 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(target);
     hash = hash * 31 + JodaBeanUtils.hashCode(rowIndex);
     hash = hash * 31 + JodaBeanUtils.hashCode(columnIndex);
     hash = hash * 31 + JodaBeanUtils.hashCode(result);
@@ -194,308 +215,13 @@ public final class CalculationResult implements ImmutableBean, Serializable {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CalculationResult{");
-    buf.append("target").append('=').append(target).append(',').append(' ');
     buf.append("rowIndex").append('=').append(rowIndex).append(',').append(' ');
     buf.append("columnIndex").append('=').append(columnIndex).append(',').append(' ');
     buf.append("result").append('=').append(JodaBeanUtils.toString(result));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code CalculationResult}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code target} property.
-     */
-    private final MetaProperty<CalculationTarget> target = DirectMetaProperty.ofImmutable(
-        this, "target", CalculationResult.class, CalculationTarget.class);
-    /**
-     * The meta-property for the {@code rowIndex} property.
-     */
-    private final MetaProperty<Integer> rowIndex = DirectMetaProperty.ofImmutable(
-        this, "rowIndex", CalculationResult.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code columnIndex} property.
-     */
-    private final MetaProperty<Integer> columnIndex = DirectMetaProperty.ofImmutable(
-        this, "columnIndex", CalculationResult.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code result} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Result<?>> result = DirectMetaProperty.ofImmutable(
-        this, "result", CalculationResult.class, (Class) Result.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "target",
-        "rowIndex",
-        "columnIndex",
-        "result");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          return target;
-        case 23238424:  // rowIndex
-          return rowIndex;
-        case -855241956:  // columnIndex
-          return columnIndex;
-        case -934426595:  // result
-          return result;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public CalculationResult.Builder builder() {
-      return new CalculationResult.Builder();
-    }
-
-    @Override
-    public Class<? extends CalculationResult> beanType() {
-      return CalculationResult.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code target} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CalculationTarget> target() {
-      return target;
-    }
-
-    /**
-     * The meta-property for the {@code rowIndex} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> rowIndex() {
-      return rowIndex;
-    }
-
-    /**
-     * The meta-property for the {@code columnIndex} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> columnIndex() {
-      return columnIndex;
-    }
-
-    /**
-     * The meta-property for the {@code result} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Result<?>> result() {
-      return result;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          return ((CalculationResult) bean).getTarget();
-        case 23238424:  // rowIndex
-          return ((CalculationResult) bean).getRowIndex();
-        case -855241956:  // columnIndex
-          return ((CalculationResult) bean).getColumnIndex();
-        case -934426595:  // result
-          return ((CalculationResult) bean).getResult();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code CalculationResult}.
-   */
-  public static final class Builder extends DirectFieldsBeanBuilder<CalculationResult> {
-
-    private CalculationTarget target;
-    private int rowIndex;
-    private int columnIndex;
-    private Result<?> result;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CalculationResult beanToCopy) {
-      this.target = beanToCopy.getTarget();
-      this.rowIndex = beanToCopy.getRowIndex();
-      this.columnIndex = beanToCopy.getColumnIndex();
-      this.result = beanToCopy.getResult();
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          return target;
-        case 23238424:  // rowIndex
-          return rowIndex;
-        case -855241956:  // columnIndex
-          return columnIndex;
-        case -934426595:  // result
-          return result;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          this.target = (CalculationTarget) newValue;
-          break;
-        case 23238424:  // rowIndex
-          this.rowIndex = (Integer) newValue;
-          break;
-        case -855241956:  // columnIndex
-          this.columnIndex = (Integer) newValue;
-          break;
-        case -934426595:  // result
-          this.result = (Result<?>) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public CalculationResult build() {
-      return new CalculationResult(
-          target,
-          rowIndex,
-          columnIndex,
-          result);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the target of the calculation, often a trade.
-     * @param target  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder target(CalculationTarget target) {
-      JodaBeanUtils.notNull(target, "target");
-      this.target = target;
-      return this;
-    }
-
-    /**
-     * Sets the row index of the value in the results grid.
-     * @param rowIndex  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder rowIndex(int rowIndex) {
-      this.rowIndex = rowIndex;
-      return this;
-    }
-
-    /**
-     * Sets the column index of the value in the results grid.
-     * @param columnIndex  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder columnIndex(int columnIndex) {
-      this.columnIndex = columnIndex;
-      return this;
-    }
-
-    /**
-     * Sets the result of the calculation.
-     * @param result  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder result(Result<?> result) {
-      JodaBeanUtils.notNull(result, "result");
-      this.result = result;
-      return this;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(160);
-      buf.append("CalculationResult.Builder{");
-      buf.append("target").append('=').append(JodaBeanUtils.toString(target)).append(',').append(' ');
-      buf.append("rowIndex").append('=').append(JodaBeanUtils.toString(rowIndex)).append(',').append(' ');
-      buf.append("columnIndex").append('=').append(JodaBeanUtils.toString(columnIndex)).append(',').append(' ');
-      buf.append("result").append('=').append(JodaBeanUtils.toString(result));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON

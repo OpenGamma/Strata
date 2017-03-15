@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -22,8 +22,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
@@ -32,6 +34,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 @Test
 public class IborFutureConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1M = 1_000_000d;
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment
       .of(BusinessDayConventions.FOLLOWING, USD_LIBOR_3M.getEffectiveDateOffset().getCalendar());
@@ -71,15 +74,16 @@ public class IborFutureConventionTest {
     Period start = Period.ofMonths(2);
     int number = 2; // Future should be 20 Dec 15 + 2 IMM = effective 15-Jun-2016, fixing 13-Jun-2016    
     IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
-    long quantity = 3;
+    double quantity = 3;
     double price = 0.99;
-    IborFutureTrade trade = convention.toTrade(date, start, number, quantity, NOTIONAL_1M, price);
-    assertEquals(trade.getInitialPrice(), price);
+    SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
+    IborFutureTrade trade = convention.createTrade(date, secId, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
     assertEquals(trade.getProduct().getFixingDate(), LocalDate.of(2016, 6, 13));
-    assertEquals(trade.getQuantity(), quantity);
     assertEquals(trade.getProduct().getIndex(), USD_LIBOR_3M);
     assertEquals(trade.getProduct().getNotional(), NOTIONAL_1M);
     assertEquals(trade.getProduct().getAccrualFactor(), 0.25);
+    assertEquals(trade.getQuantity(), quantity);
+    assertEquals(trade.getPrice(), price);
   }
 
   //-------------------------------------------------------------------------

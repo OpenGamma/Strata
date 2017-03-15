@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -15,4 +15,3 @@
  * This package adds specific extensions to handle resources and specific file formats.
  */
 package com.opengamma.strata.collect.io;
-

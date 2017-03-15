@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -11,4 +11,3 @@
  * the difference between a fixed and floating rate of interest at a future date.
  */
 package com.opengamma.strata.product.fra;
-

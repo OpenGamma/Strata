@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -30,6 +30,7 @@ public class PropertiesFileTest {
       "a = x\n" +
       " \n" +
       "; comment\n" +
+      "c = z\n" +
       "b = y\n";
   private final String FILE2 = "" +
       "a = x\n" +
@@ -37,9 +38,9 @@ public class PropertiesFileTest {
 
   public void test_of_noLists() {
     PropertiesFile test = PropertiesFile.of(CharSource.wrap(FILE1));
-    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
+    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "c", "z", "b", "y");
     assertEquals(test.getProperties(), PropertySet.of(keyValues));
-    assertEquals(test.toString(), "{a=[x], b=[y]}");
+    assertEquals(test.toString(), "{a=[x], c=[z], b=[y]}");
   }
 
   public void test_of_list() {
@@ -67,6 +68,13 @@ public class PropertiesFileTest {
     assertThrows(
         () -> PropertiesFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)),
         UncheckedIOException.class);
+  }
+
+  public void test_of_set() {
+    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
+    PropertiesFile test = PropertiesFile.of(PropertySet.of(keyValues));
+    assertEquals(test.getProperties(), PropertySet.of(keyValues));
+    assertEquals(test.toString(), "{a=[x], b=[y]}");
   }
 
   //-------------------------------------------------------------------------

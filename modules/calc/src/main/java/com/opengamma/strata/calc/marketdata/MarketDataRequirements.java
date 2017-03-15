@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -18,20 +18,26 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.runner.CalculationTasks;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 
 /**
- * A collection of market data IDs defining a set of market data.
+ * Requirements for market data.
  * <p>
- * This class is used when building instances of {@link MarketEnvironment}.
+ * This class is used as the input to {@link MarketDataFactory}.
+ * It includes the market data identifiers that the application needs.
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class MarketDataRequirements implements ImmutableBean {
@@ -59,6 +65,47 @@ public final class MarketDataRequirements implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<Currency> outputCurrencies;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a set of targets, columns and rules.
+   * <p>
+   * The targets will typically be trades.
+   * The columns represent the measures to calculate.
+   * 
+   * @param calculationRules  the rules defining how the calculation is performed
+   * @param targets  the targets for which values of the measures will be calculated
+   * @param columns  the columns that will be calculated
+   * @param refData  the reference data
+   * @return the market data requirements
+   */
+  public static MarketDataRequirements of(
+      CalculationRules calculationRules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      ReferenceData refData) {
+
+    return CalculationTasks.of(calculationRules, targets, columns).requirements(refData);
+  }
+
+  /**
+   * Obtains an instance containing a single market data ID.
+   *
+   * @param id  the ID of the only market data value required
+   * @return a set of requirements containing a single market data ID
+   */
+  public static MarketDataRequirements of(MarketDataId<?> id) {
+    return builder().addValues(id).build();
+  }
+
+  /**
+   * Obtains an instance specifying that no market data is required.
+   *
+   * @return a set of requirements specifying that no market data is required
+   */
+  public static MarketDataRequirements empty() {
+    return EMPTY;
+  }
+
   /**
    * Returns an empty mutable builder for building up a set of requirements.
    *
@@ -68,25 +115,7 @@ public final class MarketDataRequirements implements ImmutableBean {
     return new MarketDataRequirementsBuilder();
   }
 
-  /**
-   * Returns a set of requirements specifying that no market data is required.
-   *
-   * @return a set of requirements specifying that no market data is required
-   */
-  public static MarketDataRequirements empty() {
-    return EMPTY;
-  }
-
-  /**
-   * Returns a set of requirements containing a single market data ID.
-   *
-   * @param id  the ID of the only market data value required
-   * @return a set of requirements containing a single market data ID
-   */
-  public static MarketDataRequirements of(MarketDataId<?> id) {
-    return builder().addValues(id).build();
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Merges multiple sets of requirements into a single set.
    *
@@ -383,7 +412,7 @@ public final class MarketDataRequirements implements ImmutableBean {
   /**
    * The bean-builder for {@code MarketDataRequirements}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<MarketDataRequirements> {
+  private static final class Builder extends DirectPrivateBeanBuilder<MarketDataRequirements> {
 
     private Set<? extends ObservableId> observables = ImmutableSet.of();
     private Set<? extends MarketDataId<?>> nonObservables = ImmutableSet.of();
@@ -394,6 +423,7 @@ public final class MarketDataRequirements implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -432,30 +462,6 @@ public final class MarketDataRequirements implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

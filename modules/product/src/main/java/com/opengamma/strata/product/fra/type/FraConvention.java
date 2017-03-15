@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,12 +11,17 @@ import java.time.Period;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 
 /**
@@ -33,7 +38,7 @@ public interface FraConvention
     extends TradeConvention, Named {
 
   /**
-   * Obtains a convention from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the convention
@@ -84,33 +89,74 @@ public interface FraConvention
    */
   public abstract IborIndex getIndex();
 
-  //-------------------------------------------------------------------------
   /**
-   * Creates a template based on this convention, specifying the period to start.
+   * Gets the offset of the spot value date from the trade date.
    * <p>
-   * This returns a template based on this convention.
-   * The period from the spot date to the start date is specified.
-   * The period from the spot date to the end date will be the period to start
-   * plus the tenor of the index.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    * 
-   * @param periodToStart  the period from the spot date to the start date
-   * @return the template
+   * @return the spot date offset, not null
    */
-  public default FraTemplate toTemplate(Period periodToStart) {
-    return FraTemplate.of(periodToStart, periodToStart.plus(getIndex().getTenor().getPeriod()), this);
-  }
+  public abstract DaysAdjustment getSpotDateOffset();
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a trade based on this convention.
+   * Creates a trade based on this convention, using the index tenor to define the end of the FRA.
    * <p>
-   * This returns a trade based on the specified periods.
-   * For example, a '2 x 5' FRA has a period to the start date of 2 months and
-   * a period to the end date of 5 months
+   * This returns a trade based on the specified period to start.
+   * For example, a '2 x 5' FRA has a period to the start date of 2 months.
+   * The period to the end, 5 months, is implied by adding the tenor of the index,
+   * 3 months, to the period to start.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * <p>
+   * The start date will be the trade date, plus spot offset, plus period to start, adjusted to a valid business day.
+   * The end date will be the trade date, plus spot offset, plus period to start, plus index tenor, adjusted to a valid business day.
+   * The adjustment of the start and end date occurs at trade creation.
+   * The payment date offset is also applied at trade creation.
+   * When the Fra is {@linkplain Fra#resolve(ReferenceData) resolved}, the start and end date
+   * are not adjusted again but the payment date is.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param periodToStart  the period between the spot date and the start date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default FraTrade createTrade(
+      LocalDate tradeDate,
+      Period periodToStart,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+
+    Period periodToEnd = periodToStart.plus(getIndex().getTenor());
+    return createTrade(tradeDate, periodToStart, periodToEnd, buySell, notional, fixedRate, refData);
+  }
+
+  /**
+   * Creates a trade based on this convention, specifying the end of the FRA.
+   * <p>
+   * This returns a trade based on the specified periods.
+   * For example, a '2 x 5' FRA has a period to the start date of 2 months and
+   * a period to the end date of 5 months.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * <p>
+   * The start date will be the trade date, plus spot offset, plus period to start, adjusted to a valid business day.
+   * The end date will be the trade date, plus spot offset, plus period to end, adjusted to a valid business day.
+   * The adjustment of the start and end date occurs at trade creation.
+   * The payment date offset is also applied at trade creation.
+   * When the Fra is {@linkplain Fra#resolve(ReferenceData) resolved}, the start and end date
+   * are not adjusted again but the payment date is.
    * 
    * @param tradeDate  the date of the trade
    * @param periodToStart  the period between the spot date and the start date
@@ -118,20 +164,48 @@ public interface FraConvention
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default FraTrade toTrade(
+  public abstract FraTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Period periodToEnd,
       BuySell buySell,
       double notional,
+      double fixedRate,
+      ReferenceData refData);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param startDate  the start date, which should be adjusted to be a valid business day
+   * @param endDate  the end date, which should be adjusted to be a valid business day
+   * @param paymentDate  the payment date, which should be adjusted to be a valid business day
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @return the trade
+   */
+  public default FraTrade toTrade(
+      LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      LocalDate paymentDate,
+      BuySell buySell,
+      double notional,
       double fixedRate) {
 
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
-    LocalDate startDate = spotValue.plus(periodToStart);
-    LocalDate endDate = spotValue.plus(periodToEnd);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
+    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
+    return toTrade(tradeInfo, startDate, endDate, paymentDate, buySell, notional, fixedRate);
   }
 
   /**
@@ -142,18 +216,20 @@ public interface FraConvention
    * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
-   * @param tradeDate  the date of the trade
-   * @param startDate  the start date
-   * @param endDate  the end date
+   * @param tradeInfo  additional information about the trade
+   * @param startDate  the start date, which should be adjusted to be a valid business day
+   * @param endDate  the end date, which should be adjusted to be a valid business day
+   * @param paymentDate  the payment date, which should be adjusted to be a valid business day
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
   public abstract FraTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
+      LocalDate paymentDate,
       BuySell buySell,
       double notional,
       double fixedRate);
@@ -163,9 +239,13 @@ public interface FraConvention
    * Calculates the spot date from the trade date.
    * 
    * @param tradeDate  the trade date
+   * @param refData  the reference data, used to resolve the date
    * @return the spot date
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public abstract LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate);
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return getSpotDateOffset().adjust(tradeDate, refData);
+  }
 
   //-------------------------------------------------------------------------
   /**

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -14,16 +14,17 @@ import java.time.LocalDate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -32,10 +33,12 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class ThreeLegBasisSwapConventionsTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, 2 }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, 2}
     };
   }
 
@@ -48,7 +51,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "period")
   static Object[][] data_period() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Frequency.P3M },
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Frequency.P3M},
     };
   }
 
@@ -61,7 +64,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "dayCount")
   static Object[][] data_day_count() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, CompoundingMethod.NONE }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, CompoundingMethod.NONE}
     };
   }
 
@@ -74,7 +77,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "spreadFloatingLeg")
   static Object[][] data_spread_floating_leg() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_3M }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_3M}
     };
   }
 
@@ -87,7 +90,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "flatFloatingLeg")
   static Object[][] data_flat_floating_leg() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_6M }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, IborIndices.EUR_EURIBOR_6M}
     };
   }
 
@@ -100,7 +103,7 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "dayConvention")
   static Object[][] data_day_convention() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING}
     };
   }
 
@@ -113,16 +116,16 @@ public class ThreeLegBasisSwapConventionsTest {
   @DataProvider(name = "stubIbor")
   static Object[][] data_stub_ibor() {
     return new Object[][] {
-      {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Tenor.TENOR_8M }
+        {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, Tenor.TENOR_8M}
     };
   }
 
   @Test(dataProvider = "stubIbor")
   public void test_stub_ibor(ThreeLegBasisSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);
-    SwapTrade swap = convention.toTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01);
-    ExpandedSwap swapExpanded = swap.getProduct().expand();
-    LocalDate endDate = swapExpanded.getLeg(PayReceive.PAY).get().getEndDate();
+    SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01, REF_DATA);
+    ResolvedSwap swapResolved = swap.getProduct().resolve(REF_DATA);
+    LocalDate endDate = swapResolved.getLeg(PayReceive.PAY).get().getEndDate();
     assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));
     assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
   }

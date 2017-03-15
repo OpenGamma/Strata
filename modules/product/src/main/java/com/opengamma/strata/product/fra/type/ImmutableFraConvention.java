@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -13,6 +13,7 @@ import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -30,14 +31,17 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraDiscountingMethod;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -234,6 +238,7 @@ public final class ImmutableFraConvention
    * 
    * @return the spot date offset, not null
    */
+  @Override
   public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset != null ? spotDateOffset : index.getEffectiveDateOffset();
   }
@@ -252,7 +257,8 @@ public final class ImmutableFraConvention
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment != null ?
-        businessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
+        businessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
   }
 
   /**
@@ -307,50 +313,53 @@ public final class ImmutableFraConvention
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public ImmutableFraConvention expand() {
-    return ImmutableFraConvention.builder()
-        .index(index)
-        .name(getName())
-        .currency(getCurrency())
-        .spotDateOffset(getSpotDateOffset())
-        .businessDayAdjustment(getBusinessDayAdjustment())
-        .paymentDateOffset(getPaymentDateOffset())
-        .fixingDateOffset(getFixingDateOffset())
-        .dayCount(getDayCount())
-        .discounting(getDiscounting())
-        .build();
+  @Override
+  public FraTrade createTrade(
+      LocalDate tradeDate,
+      Period periodToStart,
+      Period periodToEnd,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+
+    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
+    LocalDate startDate = spotValue.plus(periodToStart);
+    LocalDate endDate = spotValue.plus(periodToEnd);
+    DateAdjuster bda = getBusinessDayAdjustment().resolve(refData);
+    // start/end dates are adjusted when FRA trade is created and not adjusted later
+    // payment date is adjusted when FRA trade is created and potentially adjusted again when resolving
+    LocalDate adjustedStart = bda.adjust(startDate);
+    LocalDate adjustedEnd = bda.adjust(endDate);
+    LocalDate adjustedPay = getPaymentDateOffset().adjust(adjustedStart, refData);
+    return toTrade(tradeDate, adjustedStart, adjustedEnd, adjustedPay, buySell, notional, fixedRate);
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public FraTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
+      LocalDate paymentDate,
       BuySell buySell,
       double notional,
       double fixedRate) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
+    // business day adjustment is not passed through as start/end date are fixed at
+    // trade creation and should not be adjusted later
     return FraTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate)
-            .build())
+        .info(tradeInfo)
         .product(Fra.builder()
             .buySell(buySell)
             .currency(getCurrency())
             .notional(notional)
             .startDate(startDate)
             .endDate(endDate)
-            .businessDayAdjustment(getBusinessDayAdjustment())
-            .paymentDate(getPaymentDateOffset().toAdjustedDate(startDate))
+            .paymentDate(AdjustableDate.of(paymentDate, getPaymentDateOffset().getAdjustment()))
             .fixedRate(fixedRate)
             .index(index)
             .fixingDateOffset(getFixingDateOffset())
@@ -358,11 +367,6 @@ public final class ImmutableFraConvention
             .discounting(getDiscounting())
             .build())
         .build();
-  }
-
-  @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
   }
 
   @Override

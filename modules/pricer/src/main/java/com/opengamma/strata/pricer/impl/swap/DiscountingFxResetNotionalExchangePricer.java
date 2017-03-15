@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -13,10 +13,10 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
 import com.opengamma.strata.product.swap.FxResetNotionalExchange;
 
 /**
@@ -26,7 +26,7 @@ import com.opengamma.strata.product.swap.FxResetNotionalExchange;
  * The value of the exchange is calculated by performing an FX conversion on the amount.
  */
 public class DiscountingFxResetNotionalExchangePricer
-    implements PaymentEventPricer<FxResetNotionalExchange> {
+    implements SwapPaymentEventPricer<FxResetNotionalExchange> {
 
   /**
    * Default implementation.
@@ -67,14 +67,14 @@ public class DiscountingFxResetNotionalExchangePricer
 
   // obtains the FX rate
   private double fxRate(FxResetNotionalExchange event, RatesProvider provider) {
-    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
-    return rates.rate(event.getReferenceCurrency(), event.getFixingDate());
+    FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
+    return rates.rate(event.getObservation(), event.getReferenceCurrency());
   }
 
   @Override
   public PointSensitivityBuilder forecastValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
-    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
-    return rates.ratePointSensitivity(event.getReferenceCurrency(), event.getFixingDate())
+    FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
+    return rates.ratePointSensitivity(event.getObservation(), event.getReferenceCurrency())
         .multipliedBy(event.getNotional());
   }
 
@@ -89,13 +89,14 @@ public class DiscountingFxResetNotionalExchangePricer
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     builder.put(ExplainKey.TRADE_NOTIONAL, event.getNotionalAmount());
     if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.COMPLETED, Boolean.TRUE);
       builder.put(ExplainKey.FORECAST_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       builder.addListEntry(ExplainKey.OBSERVATIONS, child -> {
         child.put(ExplainKey.ENTRY_TYPE, "FxObservation");
-        child.put(ExplainKey.INDEX, event.getIndex());
-        child.put(ExplainKey.FIXING_DATE, event.getFixingDate());
+        child.put(ExplainKey.INDEX, event.getObservation().getIndex());
+        child.put(ExplainKey.FIXING_DATE, event.getObservation().getFixingDate());
         child.put(ExplainKey.INDEX_VALUE, fxRate(event, provider));
       });
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
@@ -107,15 +108,17 @@ public class DiscountingFxResetNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount currencyExposure(FxResetNotionalExchange event, RatesProvider provider) {
-    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
+    LocalDate fixingDate = event.getObservation().getFixingDate();
+    FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
     double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
-    if (!event.getFixingDate().isAfter(provider.getValuationDate()) &&
-        rates.getTimeSeries().get(event.getFixingDate()).isPresent()) {
-      double fxRate = rates.rate(event.getReferenceCurrency(), event.getFixingDate());
+    if (!fixingDate.isAfter(provider.getValuationDate()) &&
+        rates.getFixings().get(fixingDate).isPresent()) {
+      double fxRate = rates.rate(event.getObservation(), event.getReferenceCurrency());
       return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), event.getNotional() * df * fxRate));
     }
-    LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(event.getFixingDate());
-    double fxRateSpotSensitivity = rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
+    LocalDate maturityDate = event.getObservation().getMaturityDate();
+    double fxRateSpotSensitivity =
+        rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
     return MultiCurrencyAmount.of(
         CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() * df * fxRateSpotSensitivity));
   }

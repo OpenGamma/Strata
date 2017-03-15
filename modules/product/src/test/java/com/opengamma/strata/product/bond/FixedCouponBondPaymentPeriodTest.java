@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,7 +19,6 @@ import java.time.temporal.TemporalAdjusters;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 
 /**
@@ -59,7 +58,7 @@ public class FixedCouponBondPaymentPeriodTest {
     assertEquals(test.getFixedRate(), FIXED_RATE);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getYearFraction(), YEAR_FRACTION);
-    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, NOTIONAL));
+    assertEquals(test.hasExCouponPeriod(), true);
 
     // the object is not changed
     assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), test);
@@ -75,6 +74,22 @@ public class FixedCouponBondPaymentPeriodTest {
     assertEquals(test.getFixedRate(), FIXED_RATE);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getYearFraction(), YEAR_FRACTION);
+    assertEquals(test.hasExCouponPeriod(), true);
+  }
+
+  public void test_of_noExCoupon() {
+    FixedCouponBondPaymentPeriod test = FixedCouponBondPaymentPeriod.builder()
+        .currency(USD)
+        .startDate(START_ADJUSTED)
+        .unadjustedStartDate(START)
+        .endDate(END_ADJUSTED)
+        .unadjustedEndDate(END)
+        .detachmentDate(END_ADJUSTED)
+        .notional(NOTIONAL)
+        .fixedRate(FIXED_RATE)
+        .yearFraction(YEAR_FRACTION)
+        .build();
+    assertEquals(test.hasExCouponPeriod(), false);
   }
 
   public void test_of_wrongDates() {
@@ -109,6 +124,26 @@ public class FixedCouponBondPaymentPeriodTest {
         .fixedRate(FIXED_RATE)
         .yearFraction(YEAR_FRACTION)
         .build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_contains() {
+    FixedCouponBondPaymentPeriod test = FixedCouponBondPaymentPeriod.builder()
+        .currency(USD)
+        .startDate(START_ADJUSTED)
+        .unadjustedStartDate(START)
+        .endDate(END_ADJUSTED)
+        .unadjustedEndDate(END)
+        .detachmentDate(DETACHMENT_DATE)
+        .notional(NOTIONAL)
+        .fixedRate(FIXED_RATE)
+        .yearFraction(YEAR_FRACTION)
+        .build();
+    assertEquals(test.contains(START.minusDays(1)), false);
+    assertEquals(test.contains(START), true);
+    assertEquals(test.contains(START.plusDays(1)), true);
+    assertEquals(test.contains(END.minusDays(1)), true);
+    assertEquals(test.contains(END), false);
   }
 
   //-------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,12 +11,16 @@ import java.time.Period;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 
 /**
@@ -33,7 +37,7 @@ public interface IborFixingDepositConvention
     extends TradeConvention, Named {
 
   /**
-   * Obtains a convention from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the convention
@@ -84,31 +88,15 @@ public interface IborFixingDepositConvention
    */
   public abstract IborIndex getIndex();
 
-  //-------------------------------------------------------------------------
   /**
-   * Creates a template based on this convention.
+   * Gets the offset of the spot value date from the trade date.
    * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date will be the tenor of the index.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    * 
-   * @return the template
+   * @return the spot date offset, not null
    */
-  public default IborFixingDepositTemplate toTemplate() {
-    return toTemplate(getIndex().getTenor().getPeriod());
-  }
-
-  /**
-   * Creates a template based on this convention, specifying the period from start to end.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date is specified.
-   * 
-   * @param depositPeriod  the period from the start date to the end date
-   * @return the template
-   */
-  public default IborFixingDepositTemplate toTemplate(Period depositPeriod) {
-    return IborFixingDepositTemplate.of(depositPeriod, this);
-  }
+  public abstract DaysAdjustment getSpotDateOffset();
 
   //-------------------------------------------------------------------------
   /**
@@ -125,14 +113,17 @@ public interface IborFixingDepositConvention
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public abstract IborFixingDepositTrade toTrade(
+  public abstract IborFixingDepositTrade createTrade(
       LocalDate tradeDate,
       Period depositPeriod,
       BuySell buySell,
       double notional,
-      double fixedRate);
+      double fixedRate,
+      ReferenceData refData);
 
   /**
    * Creates a trade based on this convention.
@@ -150,13 +141,54 @@ public interface IborFixingDepositConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public abstract IborFixingDepositTrade toTrade(
+  public default IborFixingDepositTrade toTrade(
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
       double notional,
+      double fixedRate) {
+
+    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
+    return toTrade(tradeInfo, startDate, endDate, buySell, notional, fixedRate);
+  }
+
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the Ibor fixing deposit, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * If selling the Ibor fixing deposit, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * 
+   * @param tradeInfo  additional information about the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @return the trade
+   */
+  public abstract IborFixingDepositTrade toTrade(
+      TradeInfo tradeInfo,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
       double fixedRate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the spot date from the trade date.
+   * 
+   * @param tradeDate  the trade date
+   * @param refData  the reference data, used to resolve the date
+   * @return the spot date
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return getSpotDateOffset().adjust(tradeDate, refData);
+  }
 
   //-------------------------------------------------------------------------
   /**

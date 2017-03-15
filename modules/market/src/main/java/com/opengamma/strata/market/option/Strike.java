@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.option;
@@ -8,8 +8,8 @@ package com.opengamma.strata.market.option;
 /**
  * The strike of an option, describing both type and value.
  * <p>
- * The strike of option instruments is represented in different ways. 
- * For example, the strike types include delta, moneyness, log-moneyness, and strike itself. 
+ * The strike of option instruments is represented in different ways.
+ * For example, the strike types include delta, moneyness, log-moneyness, and strike itself.
  */
 public interface Strike {
 

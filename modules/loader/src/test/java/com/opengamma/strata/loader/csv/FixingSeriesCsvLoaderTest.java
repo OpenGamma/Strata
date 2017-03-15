@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -17,10 +17,10 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 
 /**
  * Test {@link FixingSeriesCsvLoader}.
@@ -28,8 +28,8 @@ import com.opengamma.strata.market.id.IndexRateId;
 @Test
 public class FixingSeriesCsvLoaderTest {
 
-  private static final IndexRateId ID_USD_LIBOR_3M = IndexRateId.of(IborIndices.USD_LIBOR_3M);
-  private static final IndexRateId ID_USD_LIBOR_6M = IndexRateId.of(IborIndices.USD_LIBOR_6M);
+  private static final IndexQuoteId ID_USD_LIBOR_3M = IndexQuoteId.of(IborIndices.USD_LIBOR_3M);
+  private static final IndexQuoteId ID_USD_LIBOR_6M = IndexQuoteId.of(IborIndices.USD_LIBOR_6M);
 
   private static final ResourceLocator FIXING_SERIES_1 =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-1.csv");

@@ -1,12 +1,10 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.fra;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
@@ -14,8 +12,8 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -24,21 +22,26 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test.
@@ -46,6 +49,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class FraTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1M = 1_000_000d;
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
@@ -55,14 +59,7 @@ public class FraTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    Fra test = Fra.builder()
-        .buySell(BUY)
-        .notional(NOTIONAL_1M)
-        .startDate(date(2015, 6, 15))
-        .endDate(date(2015, 9, 15))
-        .fixedRate(0.25d)
-        .index(GBP_LIBOR_3M)
-        .build();
+    Fra test = sut();
     assertEquals(test.getBuySell(), BUY);
     assertEquals(test.getCurrency(), GBP);  // defaulted
     assertEquals(test.getNotional(), NOTIONAL_1M, 0d);
@@ -80,13 +77,15 @@ public class FraTest {
 
   public void test_builder_AUD() {
     ImmutableIborIndex dummyIndex = ImmutableIborIndex.builder()
-        .name("AUD_INDEX")
+        .name("AUD-INDEX-3M")
         .currency(AUD)
         .dayCount(ACT_360)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .effectiveDateOffset(PLUS_TWO_DAYS)
         .maturityDateOffset(TenorAdjustment.ofLastDay(TENOR_3M, BDA_MOD_FOLLOW))
         .fixingCalendar(SAT_SUN)
+        .fixingTime(LocalTime.NOON)
+        .fixingZone(ZoneId.of("Australia/Sydney"))
         .build();
     Fra test = Fra.builder()
         .buySell(BUY)
@@ -115,13 +114,15 @@ public class FraTest {
 
   public void test_builder_NZD() {
     ImmutableIborIndex dummyIndex = ImmutableIborIndex.builder()
-        .name("NZD")
+        .name("NZD-INDEX-3M")
         .currency(NZD)
         .dayCount(ACT_360)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .effectiveDateOffset(PLUS_TWO_DAYS)
         .maturityDateOffset(TenorAdjustment.ofLastDay(TENOR_3M, BDA_MOD_FOLLOW))
         .fixingCalendar(SAT_SUN)
+        .fixingTime(LocalTime.NOON)
+        .fixingZone(ZoneId.of("NZ"))
         .build();
     Fra test = Fra.builder()
         .buySell(BUY)
@@ -180,7 +181,7 @@ public class FraTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand_Ibor() {
+  public void test_resolve_Ibor() {
     Fra fra = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_1M)
@@ -191,19 +192,19 @@ public class FraTest {
         .index(GBP_LIBOR_3M)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
-    ExpandedFra test = fra.expand();
+    ResolvedFra test = fra.resolve(REF_DATA);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), NOTIONAL_1M, 0d);
     assertEquals(test.getStartDate(), date(2015, 6, 15));
     assertEquals(test.getEndDate(), date(2015, 9, 15));
     assertEquals(test.getPaymentDate(), date(2015, 6, 22));
     assertEquals(test.getFixedRate(), 0.25d, 0d);
-    assertEquals(test.getFloatingRate(), IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 11)));
+    assertEquals(test.getFloatingRate(), IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 11), REF_DATA));
     assertEquals(test.getYearFraction(), ACT_365F.yearFraction(date(2015, 6, 15), date(2015, 9, 15)), 0d);
     assertEquals(test.getDiscounting(), ISDA);
   }
 
-  public void test_expand_IborInterpolated() {
+  public void test_resolve_IborInterpolated() {
     Fra fra = Fra.builder()
         .buySell(SELL)
         .notional(NOTIONAL_1M)
@@ -215,7 +216,7 @@ public class FraTest {
         .indexInterpolated(GBP_LIBOR_2M)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
-    ExpandedFra test = fra.expand();
+    ResolvedFra test = fra.resolve(REF_DATA);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), -NOTIONAL_1M, 0d); // sell
     assertEquals(test.getStartDate(), date(2015, 6, 12));
@@ -223,14 +224,24 @@ public class FraTest {
     assertEquals(test.getPaymentDate(), date(2015, 6, 12));
     assertEquals(test.getFixedRate(), 0.25d, 0d);
     assertEquals(test.getFloatingRate(),
-        IborInterpolatedRateObservation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10)));
+        IborInterpolatedRateComputation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10), REF_DATA));
     assertEquals(test.getYearFraction(), ACT_365F.yearFraction(date(2015, 6, 12), date(2015, 9, 7)), 0d);
     assertEquals(test.getDiscounting(), ISDA);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Fra test = Fra.builder()
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static Fra sut() {
+    return Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_1M)
         .startDate(date(2015, 6, 15))
@@ -238,8 +249,10 @@ public class FraTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    coverImmutableBean(test);
-    Fra test2 = Fra.builder()
+  }
+
+  static Fra sut2() {
+    return Fra.builder()
         .buySell(SELL)
         .currency(USD)
         .notional(NOTIONAL_2M)
@@ -254,19 +267,6 @@ public class FraTest {
         .fixingDateOffset(MINUS_FIVE_DAYS)
         .discounting(FraDiscountingMethod.NONE)
         .build();
-    coverBeanEquals(test, test2);
-  }
-
-  public void test_serialization() {
-    Fra test = Fra.builder()
-        .buySell(BUY)
-        .startDate(date(2015, 6, 15))
-        .endDate(date(2015, 9, 15))
-        .fixedRate(0.25d)
-        .index(GBP_LIBOR_3M)
-        .notional(NOTIONAL_1M)
-        .build();
-    assertSerialization(test);
   }
 
 }

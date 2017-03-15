@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.option;
@@ -18,25 +18,25 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A strike based on log-moneyness. 
+ * A strike based on log-moneyness.
  * <p>
  * The log-moneyness is defined as {@code ln(strike/forward)}. 
- * The strike value and forward value should strictly positive. 
+ * The strike value and forward value should strictly positive.
  */
 @BeanDefinition(builderScope = "private")
 public final class LogMoneynessStrike
     implements Strike, ImmutableBean, Serializable {
 
   /**
-   * The value of log-moneyness. 
+   * The value of log-moneyness.
    */
   @PropertyDefinition(overrideGet = true)
   private final double value;
@@ -239,7 +239,7 @@ public final class LogMoneynessStrike
   /**
    * The bean-builder for {@code LogMoneynessStrike}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<LogMoneynessStrike> {
+  private static final class Builder extends DirectPrivateBeanBuilder<LogMoneynessStrike> {
 
     private double value;
 
@@ -247,6 +247,7 @@ public final class LogMoneynessStrike
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -269,30 +270,6 @@ public final class LogMoneynessStrike
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

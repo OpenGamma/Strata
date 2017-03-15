@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -23,10 +23,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -80,7 +80,7 @@ public final class PointSensitivities
   }
 
   /**
-   * Obtains a {@code PointSensitivities} from an array of sensitivity entries.
+   * Obtains an instance from an array of sensitivity entries.
    * 
    * @param sensitivity  the sensitivity entry
    * @return the sensitivities instance
@@ -90,7 +90,7 @@ public final class PointSensitivities
   }
 
   /**
-   * Obtains a {@code PointSensitivities} from a list of sensitivity entries.
+   * Obtains an instance from a list of sensitivity entries.
    * 
    * @param sensitivities  the list of sensitivity entries
    * @return the sensitivities instance
@@ -133,7 +133,7 @@ public final class PointSensitivities
    * Multiplies the sensitivities in this instance by the specified factor.
    * <p>
    * The result will consist of the same entries, but with each sensitivity value multiplied.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return a {@code PointSensitivities} based on this one, with each sensitivity multiplied by the factor
@@ -146,7 +146,7 @@ public final class PointSensitivities
    * Applies an operation to the sensitivities in this instance.
    * <p>
    * The result will consist of the same entries, but with the operator applied to each sensitivity value.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * <p>
    * This is used to apply a mathematical operation to the sensitivity values.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
@@ -178,23 +178,15 @@ public final class PointSensitivities
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
-   * @return a {@code PointSensitivities} based on this one, with the the sensitivities normalized
+   * @return a {@code PointSensitivities} based on this one, with the sensitivities normalized
    */
   public PointSensitivities normalized() {
     if (sensitivities.isEmpty()) {
       return this;
     }
-    List<PointSensitivity> mutable = new ArrayList<>(sensitivities);
-    mutable.sort(PointSensitivity::compareKey);
-    PointSensitivity last = mutable.get(0);
-    for (int i = 1; i < mutable.size(); i++) {
-      PointSensitivity current = mutable.get(i);
-      if (current.compareKey(last) == 0) {
-        mutable.set(i - 1, last.withSensitivity(last.getSensitivity() + current.getSensitivity()));
-        mutable.remove(i);
-        i--;
-      }
-      last = current;
+    List<PointSensitivity> mutable = new ArrayList<>();
+    for (PointSensitivity sensi : sensitivities) {
+      insert(mutable, sensi);
     }
     return new PointSensitivities(mutable);
   }
@@ -251,14 +243,13 @@ public final class PointSensitivities
     for (PointSensitivity sensi : sensitivities) {
       insert(mutable, sensi.convertedTo(resultCurrency, rateProvider));
     }
-    return new PointSensitivities(ImmutableList.copyOf(mutable));
+    return new PointSensitivities(mutable);
   }
 
   // inserts a sensitivity into the mutable list in the right location
   // merges the entry with an existing entry if the key matches
   private static void insert(List<PointSensitivity> mutable, PointSensitivity addition) {
-    int index = Collections.binarySearch(
-        mutable, addition, PointSensitivity::compareKey);
+    int index = Collections.binarySearch(mutable, addition, PointSensitivity::compareKey);
     if (index >= 0) {
       PointSensitivity base = mutable.get(index);
       double combined = base.getSensitivity() + addition.getSensitivity();
@@ -436,7 +427,7 @@ public final class PointSensitivities
   /**
    * The bean-builder for {@code PointSensitivities}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<PointSensitivities> {
+  private static final class Builder extends DirectPrivateBeanBuilder<PointSensitivities> {
 
     private List<PointSensitivity> sensitivities = ImmutableList.of();
 
@@ -444,6 +435,7 @@ public final class PointSensitivities
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -467,30 +459,6 @@ public final class PointSensitivities
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

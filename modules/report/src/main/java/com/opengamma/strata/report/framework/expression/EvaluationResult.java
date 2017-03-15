@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.result.Result;
  * <p>
  * The result contains the result of the evaluation and the remaining tokens in the expression.
  */
-public class EvaluationResult {
+public final class EvaluationResult {
 
   /**
    * The result of evaluating the expression against the object.
@@ -50,7 +50,7 @@ public class EvaluationResult {
    */
   public static EvaluationResult failure(String message, Object... messageValues) {
     String msg = Messages.format(message, messageValues);
-    return new EvaluationResult(Result.failure(FailureReason.INVALID_INPUT, msg), ImmutableList.of());
+    return new EvaluationResult(Result.failure(FailureReason.INVALID, msg), ImmutableList.of());
   }
 
   /**

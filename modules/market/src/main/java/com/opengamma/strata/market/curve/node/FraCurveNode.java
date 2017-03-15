@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -14,6 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -25,20 +26,30 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.market.curve.CurveNodeDate;
+import com.opengamma.strata.market.curve.CurveNodeDateOrder;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * A curve node whose instrument is a Forward Rate Agreement (FRA).
+ * <p>
+ * The trade produced by the node will be a fixed rate receiver (SELL) for a positive quantity
+ * and a payer (BUY) for a negative quantity.
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class FraCurveNode
@@ -50,10 +61,10 @@ public final class FraCurveNode
   @PropertyDefinition(validate = "notNull")
   private final FraTemplate template;
   /**
-   * The key identifying the market data value which provides the rate.
+   * The identifier of the market data value that provides the rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey rateKey;
+  private final ObservableId rateId;
   /**
    * The additional spread added to the rate.
    */
@@ -64,8 +75,19 @@ public final class FraCurveNode
    * <p>
    * When building, this will default based on the period to end if not specified.
    */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
+  /**
+   * The method by which the date of the node is calculated, defaulted to 'End'.
+   */
+  @PropertyDefinition
+  private final CurveNodeDate date;
+  /**
+   * The date order rules, used to ensure that the dates in the curve are in order.
+   * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final CurveNodeDateOrder dateOrder;
 
   //-------------------------------------------------------------------------
   /**
@@ -74,11 +96,11 @@ public final class FraCurveNode
    * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node
+   * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableKey rateKey) {
-    return of(template, rateKey, 0d);
+  public static FraCurveNode of(FraTemplate template, ObservableId rateId) {
+    return of(template, rateId, 0d);
   }
 
   /**
@@ -87,14 +109,14 @@ public final class FraCurveNode
    * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
-   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param rateId  the identifier of the market data providing the rate for the node instrument
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableKey rateKey, double additionalSpread) {
+  public static FraCurveNode of(FraTemplate template, ObservableId rateId, double additionalSpread) {
     return builder()
         .template(template)
-        .rateKey(rateKey)
+        .rateId(rateId)
         .additionalSpread(additionalSpread)
         .build();
   }
@@ -103,13 +125,19 @@ public final class FraCurveNode
    * Returns a curve node for a FRA using the specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
-   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param rateId  the identifier of the market data providing the rate for the node instrument
    * @param additionalSpread  the additional spread amount added to the rate
    * @param label  the label to use for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableKey rateKey, double additionalSpread, String label) {
-    return new FraCurveNode(template, rateKey, additionalSpread, label);
+  public static FraCurveNode of(FraTemplate template, ObservableId rateId, double additionalSpread, String label) {
+    return new FraCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END, CurveNodeDateOrder.DEFAULT);
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.date = CurveNodeDate.END;
+    builder.dateOrder = CurveNodeDateOrder.DEFAULT;
   }
 
   @ImmutablePreBuild
@@ -121,34 +149,74 @@ public final class FraCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableKey> requirements() {
-    return ImmutableSet.of(rateKey);
+  public Set<ObservableId> requirements() {
+    return ImmutableSet.of(rateId);
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    FraTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
-    ExpandedFra expandedFra = trade.getProduct().expand();
+  public LocalDate date(LocalDate valuationDate, ReferenceData refData) {
+    return date.calculate(
+        () -> calculateEnd(valuationDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
+  }
+
+  @Override
+  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+    LocalDate nodeDate = date(valuationDate, refData);
+    if (date.isFixed()) {
+      return LabelDateParameterMetadata.of(nodeDate, label);
+    }
     Tenor tenor = Tenor.of(template.getPeriodToEnd());
-    return TenorCurveNodeMetadata.of(expandedFra.getEndDate(), tenor, label);
+    return TenorDateParameterMetadata.of(nodeDate, tenor, label);
+  }
+
+  // calculate the end date
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
+    return resolvedFra.getEndDate();
+  }
+
+  // calculate the last fixing date
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
+    return ((IborRateComputation) resolvedFra.getFloatingRate()).getFixingDate();
   }
 
   @Override
-  public FraTrade trade(LocalDate valuationDate, MarketData marketData) {
-    double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.toTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+  public FraTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
+    double fixedRate = marketData.getValue(rateId) + additionalSpread;
+    BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
+    return template.createTrade(marketData.getValuationDate(), buySell, Math.abs(quantity), fixedRate, refData);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
-    if (ValueType.ZERO_RATE.equals(valueType)) {
-      return marketData.getValue(rateKey);
+  public ResolvedFraTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(quantity, marketData, refData).resolve(refData);
+  }
+
+  @Override
+  public double initialGuess(MarketData marketData, ValueType valueType) {
+    if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
+      return marketData.getValue(rateId);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
       double approximateMaturity = template.getPeriodToEnd().toTotalMonths() / 12.0d;
-      return Math.exp(-approximateMaturity * marketData.getValue(rateKey));
+      return Math.exp(-approximateMaturity * marketData.getValue(rateId));
     }
     return 0d;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this node with the specified date.
+   * 
+   * @param date  the date to use
+   * @return the node based on this node with the specified date
+   */
+  public FraCurveNode withDate(CurveNodeDate date) {
+    return new FraCurveNode(template, rateId, additionalSpread, label, date, dateOrder);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -180,16 +248,21 @@ public final class FraCurveNode
 
   private FraCurveNode(
       FraTemplate template,
-      ObservableKey rateKey,
+      ObservableId rateId,
       double additionalSpread,
-      String label) {
+      String label,
+      CurveNodeDate date,
+      CurveNodeDateOrder dateOrder) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notNull(rateId, "rateId");
     JodaBeanUtils.notEmpty(label, "label");
+    JodaBeanUtils.notNull(dateOrder, "dateOrder");
     this.template = template;
-    this.rateKey = rateKey;
+    this.rateId = rateId;
     this.additionalSpread = additionalSpread;
     this.label = label;
+    this.date = date;
+    this.dateOrder = dateOrder;
   }
 
   @Override
@@ -218,11 +291,11 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the key identifying the market data value which provides the rate.
+   * Gets the identifier of the market data value that provides the rate.
    * @return the value of the property, not null
    */
-  public ObservableKey getRateKey() {
-    return rateKey;
+  public ObservableId getRateId() {
+    return rateId;
   }
 
   //-----------------------------------------------------------------------
@@ -241,8 +314,29 @@ public final class FraCurveNode
    * When building, this will default based on the period to end if not specified.
    * @return the value of the property, not empty
    */
+  @Override
   public String getLabel() {
     return label;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the method by which the date of the node is calculated, defaulted to 'End'.
+   * @return the value of the property
+   */
+  public CurveNodeDate getDate() {
+    return date;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the date order rules, used to ensure that the dates in the curve are in order.
+   * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
+   * @return the value of the property, not null
+   */
+  @Override
+  public CurveNodeDateOrder getDateOrder() {
+    return dateOrder;
   }
 
   //-----------------------------------------------------------------------
@@ -262,9 +356,11 @@ public final class FraCurveNode
     if (obj != null && obj.getClass() == this.getClass()) {
       FraCurveNode other = (FraCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
-          JodaBeanUtils.equal(label, other.label);
+          JodaBeanUtils.equal(label, other.label) &&
+          JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(dateOrder, other.dateOrder);
     }
     return false;
   }
@@ -273,20 +369,24 @@ public final class FraCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
+    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dateOrder);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("FraCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(label));
+    buf.append("label").append('=').append(label).append(',').append(' ');
+    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("dateOrder").append('=').append(JodaBeanUtils.toString(dateOrder));
     buf.append('}');
     return buf.toString();
   }
@@ -307,10 +407,10 @@ public final class FraCurveNode
     private final MetaProperty<FraTemplate> template = DirectMetaProperty.ofImmutable(
         this, "template", FraCurveNode.class, FraTemplate.class);
     /**
-     * The meta-property for the {@code rateKey} property.
+     * The meta-property for the {@code rateId} property.
      */
-    private final MetaProperty<ObservableKey> rateKey = DirectMetaProperty.ofImmutable(
-        this, "rateKey", FraCurveNode.class, ObservableKey.class);
+    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
+        this, "rateId", FraCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
@@ -322,14 +422,26 @@ public final class FraCurveNode
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
         this, "label", FraCurveNode.class, String.class);
     /**
+     * The meta-property for the {@code date} property.
+     */
+    private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
+        this, "date", FraCurveNode.class, CurveNodeDate.class);
+    /**
+     * The meta-property for the {@code dateOrder} property.
+     */
+    private final MetaProperty<CurveNodeDateOrder> dateOrder = DirectMetaProperty.ofImmutable(
+        this, "dateOrder", FraCurveNode.class, CurveNodeDateOrder.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "rateKey",
+        "rateId",
         "additionalSpread",
-        "label");
+        "label",
+        "date",
+        "dateOrder");
 
     /**
      * Restricted constructor.
@@ -342,12 +454,16 @@ public final class FraCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 983444831:  // rateKey
-          return rateKey;
+        case -938107365:  // rateId
+          return rateId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
           return label;
+        case 3076014:  // date
+          return date;
+        case -263699392:  // dateOrder
+          return dateOrder;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -377,11 +493,11 @@ public final class FraCurveNode
     }
 
     /**
-     * The meta-property for the {@code rateKey} property.
+     * The meta-property for the {@code rateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableKey> rateKey() {
-      return rateKey;
+    public MetaProperty<ObservableId> rateId() {
+      return rateId;
     }
 
     /**
@@ -400,18 +516,38 @@ public final class FraCurveNode
       return label;
     }
 
+    /**
+     * The meta-property for the {@code date} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurveNodeDate> date() {
+      return date;
+    }
+
+    /**
+     * The meta-property for the {@code dateOrder} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurveNodeDateOrder> dateOrder() {
+      return dateOrder;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return ((FraCurveNode) bean).getTemplate();
-        case 983444831:  // rateKey
-          return ((FraCurveNode) bean).getRateKey();
+        case -938107365:  // rateId
+          return ((FraCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
           return ((FraCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
           return ((FraCurveNode) bean).getLabel();
+        case 3076014:  // date
+          return ((FraCurveNode) bean).getDate();
+        case -263699392:  // dateOrder
+          return ((FraCurveNode) bean).getDateOrder();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -434,14 +570,17 @@ public final class FraCurveNode
   public static final class Builder extends DirectFieldsBeanBuilder<FraCurveNode> {
 
     private FraTemplate template;
-    private ObservableKey rateKey;
+    private ObservableId rateId;
     private double additionalSpread;
     private String label;
+    private CurveNodeDate date;
+    private CurveNodeDateOrder dateOrder;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -450,9 +589,11 @@ public final class FraCurveNode
      */
     private Builder(FraCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.rateKey = beanToCopy.getRateKey();
+      this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
+      this.date = beanToCopy.getDate();
+      this.dateOrder = beanToCopy.getDateOrder();
     }
 
     //-----------------------------------------------------------------------
@@ -461,12 +602,16 @@ public final class FraCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 983444831:  // rateKey
-          return rateKey;
+        case -938107365:  // rateId
+          return rateId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
           return label;
+        case 3076014:  // date
+          return date;
+        case -263699392:  // dateOrder
+          return dateOrder;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -478,14 +623,20 @@ public final class FraCurveNode
         case -1321546630:  // template
           this.template = (FraTemplate) newValue;
           break;
-        case 983444831:  // rateKey
-          this.rateKey = (ObservableKey) newValue;
+        case -938107365:  // rateId
+          this.rateId = (ObservableId) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
           break;
         case 102727412:  // label
           this.label = (String) newValue;
+          break;
+        case 3076014:  // date
+          this.date = (CurveNodeDate) newValue;
+          break;
+        case -263699392:  // dateOrder
+          this.dateOrder = (CurveNodeDateOrder) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -522,9 +673,11 @@ public final class FraCurveNode
       preBuild(this);
       return new FraCurveNode(
           template,
-          rateKey,
+          rateId,
           additionalSpread,
-          label);
+          label,
+          date,
+          dateOrder);
     }
 
     //-----------------------------------------------------------------------
@@ -540,13 +693,13 @@ public final class FraCurveNode
     }
 
     /**
-     * Sets the key identifying the market data value which provides the rate.
-     * @param rateKey  the new value, not null
+     * Sets the identifier of the market data value that provides the rate.
+     * @param rateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateKey(ObservableKey rateKey) {
-      JodaBeanUtils.notNull(rateKey, "rateKey");
-      this.rateKey = rateKey;
+    public Builder rateId(ObservableId rateId) {
+      JodaBeanUtils.notNull(rateId, "rateId");
+      this.rateId = rateId;
       return this;
     }
 
@@ -573,15 +726,39 @@ public final class FraCurveNode
       return this;
     }
 
+    /**
+     * Sets the method by which the date of the node is calculated, defaulted to 'End'.
+     * @param date  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder date(CurveNodeDate date) {
+      this.date = date;
+      return this;
+    }
+
+    /**
+     * Sets the date order rules, used to ensure that the dates in the curve are in order.
+     * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
+     * @param dateOrder  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder dateOrder(CurveNodeDateOrder dateOrder) {
+      JodaBeanUtils.notNull(dateOrder, "dateOrder");
+      this.dateOrder = dateOrder;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("FraCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
+      buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
-      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+      buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+      buf.append("dateOrder").append('=').append(JodaBeanUtils.toString(dateOrder));
       buf.append('}');
       return buf.toString();
     }

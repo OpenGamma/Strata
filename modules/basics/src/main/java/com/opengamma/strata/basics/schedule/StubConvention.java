@@ -1,9 +1,11 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.schedule;
+
+import static java.time.temporal.ChronoField.PROLEPTIC_MONTH;
 
 import java.time.LocalDate;
 
@@ -193,7 +195,7 @@ public enum StubConvention {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -203,17 +205,6 @@ public enum StubConvention {
   public static StubConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
-  }
-
-  /**
-   * Returns the formatted unique name of the type.
-   * 
-   * @return the formatted string representing the type
-   */
-  @ToString
-  @Override
-  public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
   }
 
   //-------------------------------------------------------------------------
@@ -227,14 +218,16 @@ public enum StubConvention {
    * The rules are as follows:
    * <p>
    * If the input frequency is month-based, then the implied convention is based on
-   * the day-of-month of the initial date.
+   * the day-of-month of the initial date, where the initial date is the start date
+   * if rolling forwards or the end date otherwise.
    * If that date is on the 31st day, or if the 'preferEndOfMonth' flag is true and
    * the relevant date is at the end of the month, then the implied convention is 'EOM'.
    * For example, if the initial date of the sequence is 2014-06-20 and the periodic
    * frequency is 'P3M' (month-based), then the implied convention is 'Day20'.
    * <p>
    * If the input frequency is week-based, then the implied convention is based on
-   * the day-of-week of the initial date.
+   * the day-of-week of the initial date, where the initial date is the start date
+   * if rolling forwards or the end date otherwise.
    * For example, if the initial date of the sequence is 2014-06-20 and the periodic
    * frequency is 'P2W' (week-based), then the implied convention is 'DayFri',
    * because 2014-06-20 is a Friday.
@@ -247,22 +240,38 @@ public enum StubConvention {
    * @param preferEndOfMonth  whether to prefer the end-of-month when rolling
    * @return the derived roll convention
    */
-  public final RollConvention toRollConvention(
-      LocalDate start, LocalDate end, Frequency frequency, boolean preferEndOfMonth) {
+  public RollConvention toRollConvention(
+      LocalDate start,
+      LocalDate end,
+      Frequency frequency,
+      boolean preferEndOfMonth) {
+
     ArgChecker.notNull(start, "start");
     ArgChecker.notNull(end, "end");
     ArgChecker.notNull(frequency, "frequency");
-    if (isCalculateForwards()) {
-      return toRollConvention(start, frequency, preferEndOfMonth);
-    } else if (isCalculateBackwards()) {
-      return toRollConvention(end, frequency, preferEndOfMonth);
+    // if the day-of-month differs, need to handle case where one or both
+    // dates are at the end of the month, and in different months
+    if (this == NONE) {
+      if (start.getDayOfMonth() != end.getDayOfMonth() &&
+          start.getLong(PROLEPTIC_MONTH) != end.getLong(PROLEPTIC_MONTH) &&
+          (start.getDayOfMonth() == start.lengthOfMonth() || end.getDayOfMonth() == end.lengthOfMonth())) {
+        return RollConvention.ofDayOfMonth(Math.max(start.getDayOfMonth(), end.getDayOfMonth()));
+      }
+    }
+    if (isCalculateBackwards()) {
+      return impliedRollConvention(end, start, frequency, preferEndOfMonth);
     } else {
-      return RollConventions.NONE;
+      return impliedRollConvention(start, end, frequency, preferEndOfMonth);
     }
   }
 
   // helper for converting to roll convention
-  private static RollConvention toRollConvention(LocalDate date, Frequency frequency, boolean preferEndOfMonth) {
+  private static RollConvention impliedRollConvention(
+      LocalDate date,
+      LocalDate otherDate,
+      Frequency frequency,
+      boolean preferEndOfMonth) {
+
     if (frequency.isMonthBased()) {
       if (preferEndOfMonth && date.getDayOfMonth() == date.lengthOfMonth()) {
         return RollConventions.EOM;
@@ -352,6 +361,18 @@ public enum StubConvention {
    */
   public boolean isShort() {
     return this == SHORT_INITIAL || this == SHORT_FINAL;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the formatted unique name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
   }
 
 }

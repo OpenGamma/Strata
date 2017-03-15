@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -31,17 +31,21 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * A forward rate agreement (FRA).
@@ -59,10 +63,16 @@ import com.opengamma.strata.product.rate.RateObservation;
  * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * <li>Payment date, the date on which payment is made, typically the same as the start date
  * </ul>
+ * <p>
+ * The start date, end date and payment date are determined when the trade if created,
+ * adjusting to valid business days based on the holiday calendar dates known on the trade trade.
+ * The payment date may be further adjusted when the FRA is resolved if an additional holiday has been added.
+ * The data model does allow for the start and end dates to be adjusted when the FRA is resolved,
+ * but this is typically not used.
  */
 @BeanDefinition
 public final class Fra
-    implements FraProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFra>, ImmutableBean, Serializable {
 
   /**
    * Whether the FRA is buy or sell.
@@ -141,7 +151,7 @@ public final class Fra
   @PropertyDefinition
   private final double fixedRate;
   /**
-   * The IBOR-like index.
+   * The Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -152,7 +162,7 @@ public final class Fra
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
   /**
-   * The second IBOR-like index to be used for linear interpolation, optional.
+   * The second Ibor index to be used for linear interpolation, optional.
    * <p>
    * This will be used with {@code index} to linearly interpolate the rate.
    * It will be a well known market index such as 'GBP-LIBOR-6M'.
@@ -226,39 +236,32 @@ public final class Fra
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this FRA.
-   * <p>
-   * Expanding a FRA causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   * 
-   * @return the equivalent expanded FRA
-   * @throws RuntimeException if unable to expand due to an invalid definition
-   */
   @Override
-  public ExpandedFra expand() {
-    LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
-    LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
-    return ExpandedFra.builder()
-        .paymentDate(getPaymentDate().adjusted())
+  public ResolvedFra resolve(ReferenceData refData) {
+    DateAdjuster bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).resolve(refData);
+    LocalDate start = bda.adjust(startDate);
+    LocalDate end = bda.adjust(endDate);
+    LocalDate pay = paymentDate.adjusted(refData);
+    return ResolvedFra.builder()
+        .paymentDate(pay)
         .startDate(start)
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))
         .fixedRate(fixedRate)
-        .floatingRate(createRateObservation())
+        .floatingRate(createRateComputation(refData))
         .currency(currency)
         .notional(buySell.normalize(notional))
         .discounting(discounting)
         .build();
   }
 
-  // creates an Ibor or IborInterpolated observation
-  private RateObservation createRateObservation() {
-    LocalDate fixingDate = fixingDateOffset.adjust(startDate);
+  // creates an Ibor or IborInterpolated computation
+  private RateComputation createRateComputation(ReferenceData refData) {
+    LocalDate fixingDate = fixingDateOffset.adjust(startDate, refData);
     if (indexInterpolated != null) {
-      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);
+      return IborInterpolatedRateComputation.of(index, indexInterpolated, fixingDate, refData);
     } else {
-      return IborRateObservation.of(index, fixingDate);
+      return IborRateComputation.of(index, fixingDate, refData);
     }
   }
 
@@ -454,7 +457,7 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
+   * Gets the Ibor index.
    * <p>
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -469,7 +472,7 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the second IBOR-like index to be used for linear interpolation, optional.
+   * Gets the second Ibor index to be used for linear interpolation, optional.
    * <p>
    * This will be used with {@code index} to linearly interpolate the rate.
    * It will be a well known market index such as 'GBP-LIBOR-6M'.
@@ -1192,7 +1195,7 @@ public final class Fra
     }
 
     /**
-     * Sets the IBOR-like index.
+     * Sets the Ibor index.
      * <p>
      * The floating rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.
@@ -1209,7 +1212,7 @@ public final class Fra
     }
 
     /**
-     * Sets the second IBOR-like index to be used for linear interpolation, optional.
+     * Sets the second Ibor index to be used for linear interpolation, optional.
      * <p>
      * This will be used with {@code index} to linearly interpolate the rate.
      * It will be a well known market index such as 'GBP-LIBOR-6M'.

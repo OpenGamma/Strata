@@ -18,14 +18,11 @@
 <listEntry value="com.opengamma.strata.collect"/>
 <listEntry value="com.opengamma.strata.collect.array"/>
 <listEntry value="com.opengamma.strata.collect.function"/>
-<listEntry value="com.opengamma.strata.collect.id"/>
 <listEntry value="com.opengamma.strata.collect.io"/>
 <listEntry value="com.opengamma.strata.collect.named"/>
-<listEntry value="com.opengamma.strata.collect.range"/>
 <listEntry value="com.opengamma.strata.collect.result"/>
 <listEntry value="com.opengamma.strata.collect.timeseries"/>
 <listEntry value="com.opengamma.strata.collect.tuple"/>
-<listEntry value="com.opengamma.strata.collect.type"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

@@ -1,9 +1,11 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.swaption;
+
+import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
 
 import java.io.Serializable;
 import java.time.LocalTime;
@@ -26,20 +28,27 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.LongShort;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
  * An option on an underlying swap.
  * <p>
  * A swaption is a financial instrument that provides an option based on the future value of a swap.
  * The option is European, exercised only on the exercise date.
+ * The underlying swap must be a single currency, Fixed-Ibor swap with a single Ibor index and no interpolated stubs.
  */
 @BeanDefinition
 public final class Swaption
-    implements SwaptionProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedSwaption>, ImmutableBean, Serializable {
 
   /**
    * Whether the option is long or short.
@@ -50,14 +59,14 @@ public final class Swaption
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
-   * Settlement method.  
+   * Settlement method.
    * <p>
    * The settlement of the option is specified by {@link SwaptionSettlement}.
    */
   @PropertyDefinition(validate = "notNull")
   private final SwaptionSettlement swaptionSettlement;
   /**
-   * The expiry date of the option.  
+   * The expiry date of the option.
    * <p>
    * The option is European, and can only be exercised on the expiry date.
    * <p>
@@ -67,14 +76,14 @@ public final class Swaption
   @PropertyDefinition(validate = "notNull")
   private final AdjustableDate expiryDate;
   /**
-   * The expiry time of the option.  
+   * The expiry time of the option.
    * <p>
    * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiry time.  
+   * The time-zone of the expiry time.
    * <p>
    * The expiry time-zone is related to the expiry date and time.
    */
@@ -83,8 +92,8 @@ public final class Swaption
   /**
    * The underlying swap.
    * <p>
-   * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap 
-   * as viewed by the party long the option. 
+   * At expiry, if the option is exercised, this swap will be entered into.
+   * The swap description is the swap as viewed by the party long the option.
    */
   @PropertyDefinition(validate = "notNull")
   private final Swap underlying;
@@ -92,7 +101,13 @@ public final class Swaption
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderOrEqual(expiryDate.getUnadjusted(), underlying.getStartDate(), "expiryDate", "startDate");
+    ArgChecker.inOrderOrEqual(
+        expiryDate.getUnadjusted(), underlying.getStartDate().getUnadjusted(), "expiryDate", "underlying.startDate.unadjusted");
+    ArgChecker.isTrue(!underlying.isCrossCurrency(), "Underlying swap must not be cross-currency");
+    ArgChecker.isTrue(underlying.getLegs(SwapLegType.FIXED).size() == 1, "Underlying swap must have one fixed leg");
+    ArgChecker.isTrue(underlying.getLegs(SwapLegType.IBOR).size() == 1, "Underlying swap must have one Ibor leg");
+    ArgChecker.isTrue(underlying.allIndices().size() == 1, "Underlying swap must have one index");
+    ArgChecker.isTrue(underlying.allIndices().iterator().next() instanceof IborIndex, "Underlying swap must have one Ibor index");
   }
 
   //-------------------------------------------------------------------------
@@ -105,27 +120,43 @@ public final class Swaption
    * 
    * @return the expiry date and time
    */
-  public ZonedDateTime getExpiryDateTime() {
+  public ZonedDateTime getExpiry() {
     return expiryDate.getUnadjusted().atTime(expiryTime).atZone(expiryZone);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Expands underlying swap.
+   * Gets the currency of the swaption.
    * <p>
-   * The underlying is expanded and the other fields remain the same. 
+   * This is the currency of the underlying swap, which is not allowed to be cross-currency.
    * 
-   * @return swaption with underlying expanded
+   * @return the expiry date and time
    */
+  public Currency getCurrency() {
+    return underlying.getLegs().stream()
+        .map(leg -> leg.getCurrency())
+        .distinct()
+        .reduce(ensureOnlyOne())
+        .get();
+  }
+
+  /**
+   * Gets the index of the underlying swap.
+   * 
+   * @return the Ibor index of the underlying swap
+   */
+  public IborIndex getIndex() {
+    return (IborIndex) underlying.allIndices().iterator().next();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public ExpandedSwaption expand() {
-    return ExpandedSwaption.builder()
-        .expiryDate(expiryDate.adjusted())
-        .expiryTime(expiryTime)
-        .expiryZone(expiryZone)
+  public ResolvedSwaption resolve(ReferenceData refData) {
+    return ResolvedSwaption.builder()
+        .expiry(expiryDate.adjusted(refData).atTime(expiryTime).atZone(expiryZone))
         .longShort(longShort)
         .swaptionSettlement(swaptionSettlement)
-        .underlying(underlying.expand())
+        .underlying(underlying.resolve(refData))
         .build();
   }
 
@@ -256,8 +287,8 @@ public final class Swaption
   /**
    * Gets the underlying swap.
    * <p>
-   * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap
-   * as viewed by the party long the option.
+   * At expiry, if the option is exercised, this swap will be entered into.
+   * The swap description is the swap as viewed by the party long the option.
    * @return the value of the property, not null
    */
   public Swap getUnderlying() {
@@ -676,8 +707,8 @@ public final class Swaption
     /**
      * Sets the underlying swap.
      * <p>
-     * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap
-     * as viewed by the party long the option.
+     * At expiry, if the option is exercised, this swap will be entered into.
+     * The swap description is the swap as viewed by the party long the option.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */

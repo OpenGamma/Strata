@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -44,7 +44,12 @@ public final class PriceIndices {
    * The consumer price index for Europe,
    * "Non-revised Harmonised Index of Consumer Prices All Items".
    */
-  public static final PriceIndex EU_HICP_AI = PriceIndex.of("EU-HICP-AI");
+  public static final PriceIndex EU_AI_CPI = PriceIndex.of("EU-AI-CPI");
+  /**
+   * The consumer price index for Europe,
+   * "Non-revised Harmonised Index of Consumer Prices Excluding Tobacco".
+   */
+  public static final PriceIndex EU_EXT_CPI = PriceIndex.of("EU-EXT-CPI");
   /**
    * The consumer price index for Japan excluding fresh food,
    * "Non-revised Consumer Price Index Nationwide General Excluding Fresh Food".
@@ -55,6 +60,11 @@ public final class PriceIndices {
    * "Non-revised index of Consumer Prices for All Urban Consumers (CPI-U) before seasonal adjustment".
    */
   public static final PriceIndex US_CPI_U = PriceIndex.of("US-CPI-U");
+  /**
+   * The consumer price index for France,
+   * "Non-revised Harmonised Index of Consumer Prices Excluding Tobacco".
+   */
+  public static final PriceIndex FR_EXT_CPI = PriceIndex.of("FR-EXT-CPI");
 
   //-------------------------------------------------------------------------
   /**

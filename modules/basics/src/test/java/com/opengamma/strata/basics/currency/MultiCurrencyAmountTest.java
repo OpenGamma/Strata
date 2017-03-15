@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
 
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -133,7 +134,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector() {
     List<CurrencyAmount> amount = ImmutableList.of(
         CurrencyAmount.of(CCY1, 100), CurrencyAmount.of(CCY1, 150), CurrencyAmount.of(CCY2, 100));
-    MultiCurrencyAmount test = amount.stream().collect(MultiCurrencyAmount.collector());
+    MultiCurrencyAmount test = amount.stream().collect(toMultiCurrencyAmount());
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(CCY1, 250), CurrencyAmount.of(CCY2, 100));
     assertEquals(test, expected);
   }
@@ -141,7 +142,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector_parallel() {
     List<CurrencyAmount> amount = ImmutableList.of(
         CurrencyAmount.of(CCY1, 100), CurrencyAmount.of(CCY1, 150), CurrencyAmount.of(CCY2, 100));
-    MultiCurrencyAmount test = amount.parallelStream().collect(MultiCurrencyAmount.collector());
+    MultiCurrencyAmount test = amount.parallelStream().collect(toMultiCurrencyAmount());
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(CCY1, 250), CurrencyAmount.of(CCY2, 100));
     assertEquals(test, expected);
   }
@@ -149,7 +150,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector_null() {
     List<CurrencyAmount> amount = Arrays.asList(
         CurrencyAmount.of(CCY1, 100), null, CurrencyAmount.of(CCY2, 100));
-    assertThrowsIllegalArg(() -> amount.stream().collect(MultiCurrencyAmount.collector()));
+    assertThrowsIllegalArg(() -> amount.stream().collect(toMultiCurrencyAmount()));
   }
 
   //-------------------------------------------------------------------------
@@ -329,6 +330,12 @@ public class MultiCurrencyAmountTest {
     MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
     MultiCurrencyAmount test = base.negated();
     assertMCA(test, CA1.negated(), CA2.negated());
+    assertEquals(
+        MultiCurrencyAmount.of(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.EUR)).negated(),
+        MultiCurrencyAmount.of(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.EUR)));
+    assertEquals(
+        MultiCurrencyAmount.of(CurrencyAmount.of(Currency.USD, -0d), CurrencyAmount.of(Currency.EUR, -0d)).negated(),
+        MultiCurrencyAmount.of(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.EUR)));
   }
 
   //-------------------------------------------------------------------------
@@ -344,11 +351,23 @@ public class MultiCurrencyAmountTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_mapCurrencyAmounts() {
+    MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
+    MultiCurrencyAmount test = base.mapCurrencyAmounts(a -> CurrencyAmount.of(CCY3, 1));
+    assertMCA(test, CurrencyAmount.of(CCY3, 2));
+  }
+
+  public void test_mapCurrencyAmounts_null() {
+    MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
+    assertThrowsIllegalArg(() -> test.mapCurrencyAmounts(null));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_stream() {
     MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
     MultiCurrencyAmount test = base.stream()
         .map(ca -> ca.mapAmount(a -> a * 3))
-        .collect(MultiCurrencyAmount.collector());
+        .collect(toMultiCurrencyAmount());
     assertMCA(test, CA1.mapAmount(a -> a * 3), CA2.mapAmount(a -> a * 3));
   }
 
@@ -415,11 +434,13 @@ public class MultiCurrencyAmountTest {
       currencies.add(expectedAmount.getCurrency());
       assertEquals(actual.contains(expectedAmount.getCurrency()), true);
       assertEquals(actual.getAmount(expectedAmount.getCurrency()), expectedAmount);
+      assertEquals(actual.getAmountOrZero(expectedAmount.getCurrency()), expectedAmount);
     }
     assertEquals(actual.getCurrencies(), currencies);
     Currency nonExisting = Currency.of("FRZ");
     assertEquals(actual.contains(nonExisting), false);
     assertThrowsIllegalArg(() -> actual.getAmount(nonExisting));
+    assertEquals(actual.getAmountOrZero(nonExisting), CurrencyAmount.zero(nonExisting));
   }
 
 }

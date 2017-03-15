@@ -20,7 +20,6 @@
 <listEntry value="com.opengamma.strata.basics.date"/>
 <listEntry value="com.opengamma.strata.basics.index"/>
 <listEntry value="com.opengamma.strata.basics.location"/>
-<listEntry value="com.opengamma.strata.basics.market"/>
 <listEntry value="com.opengamma.strata.basics.schedule"/>
 <listEntry value="com.opengamma.strata.basics.value"/>
 </listAttribute>

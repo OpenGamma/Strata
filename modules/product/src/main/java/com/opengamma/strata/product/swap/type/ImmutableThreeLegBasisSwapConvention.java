@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,11 +25,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -42,8 +43,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * The market price is for the difference (spread) between the values of the two floating legs.
  * This convention has three legs, the "spread leg", the "spread floating leg" and the "flat floating leg". 
  * The "spread leg" represented by the fixed leg will be added to the "spread floating leg" 
- * which is typically the leg with the shorter underlying tenor. 
- * Thus the "spread leg" and "spread floating leg" will have the same pay/receive direction. 
+ * which is typically the leg with the shorter underlying tenor.
+ * Thus the "spread leg" and "spread floating leg" will have the same pay/receive direction.
  * <p>
  * The convention is defined by four key dates.
  * <ul>
@@ -80,20 +81,19 @@ public final class ImmutableThreeLegBasisSwapConvention
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborRateSwapLegConvention flatFloatingLeg;
   /**
-   * The offset of the spot value date from the trade date, optional with defaulting getter.
+   * The offset of the spot value date from the trade date.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days.
-   * The start date of the swap is relative to the spot date.
-   * <p>
-   * This will default to the effective date offset of the index if not specified.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    */
-  @PropertyDefinition(get = "field")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DaysAdjustment spotDateOffset;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains a convention based on the specified name and leg conventions.
    * <p>
+   * The two leg conventions must be in the same currency.
    * The spot date offset is set to be the effective date offset of the index of the spread floating leg.
    * <p>
    * The spread is represented by {@code FixedRateSwapLegConvention} and to be applied to {@code floatingSpreadLeg}. 
@@ -110,12 +110,31 @@ public final class ImmutableThreeLegBasisSwapConvention
       IborRateSwapLegConvention spreadFloatingLeg,
       IborRateSwapLegConvention flatFloatingLeg) {
 
-    return ImmutableThreeLegBasisSwapConvention.builder()
-        .name(name)
-        .spreadLeg(spreadLeg)
-        .spreadFloatingLeg(spreadFloatingLeg)
-        .flatFloatingLeg(flatFloatingLeg)
-        .build();
+    return of(name, spreadLeg, spreadFloatingLeg, flatFloatingLeg, spreadFloatingLeg.getIndex().getEffectiveDateOffset());
+  }
+
+  /**
+   * Obtains a convention based on the specified name and leg conventions.
+   * <p>
+   * The two leg conventions must be in the same currency.
+   * <p>
+   * The spread is represented by {@code FixedRateSwapLegConvention} and to be applied to {@code floatingSpreadLeg}. 
+   * 
+   * @param name  the unique name of the convention
+   * @param spreadLeg  the market convention for the spread leg added to one of the floating leg 
+   * @param spreadFloatingLeg  the market convention for the spread floating leg
+   * @param flatFloatingLeg  the market convention for the flat floating leg
+   * @param spotDateOffset  the offset of the spot value date from the trade date
+   * @return the convention
+   */
+  public static ImmutableThreeLegBasisSwapConvention of(
+      String name,
+      FixedRateSwapLegConvention spreadLeg,
+      IborRateSwapLegConvention spreadFloatingLeg,
+      IborRateSwapLegConvention flatFloatingLeg,
+      DaysAdjustment spotDateOffset) {
+
+    return new ImmutableThreeLegBasisSwapConvention(name, spreadLeg, spreadFloatingLeg, flatFloatingLeg, spotDateOffset);
   }
 
   //-------------------------------------------------------------------------
@@ -128,64 +147,26 @@ public final class ImmutableThreeLegBasisSwapConvention
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the offset of the spot value date from the trade date,
-   * providing a default result if no override specified.
-   * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days.
-   * The start date of the swap is relative to the spot date.
-   * <p>
-   * This will default to the effective date offset of the index if not specified.
-   * 
-   * @return the spot date offset, not null
-   */
-  public DaysAdjustment getSpotDateOffset() {
-    return spotDateOffset != null ? spotDateOffset : spreadFloatingLeg.getIndex().getEffectiveDateOffset();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public ImmutableThreeLegBasisSwapConvention expand() {
-    return ImmutableThreeLegBasisSwapConvention.builder()
-        .name(name)
-        .spreadLeg(spreadLeg.expand())
-        .spreadFloatingLeg(spreadFloatingLeg.expand())
-        .flatFloatingLeg(flatFloatingLeg.expand())
-        .spotDateOffset(getSpotDateOffset())
-        .build();
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public SwapTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
       double notional,
       double spread) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     SwapLeg leg1 = spreadLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional, spread);
     SwapLeg leg2 = spreadFloatingLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional);
     SwapLeg leg3 = flatFloatingLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notional);
     return SwapTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate)
-            .build())
+        .info(tradeInfo)
         .product(Swap.of(leg1, leg2, leg3))
         .build();
-  }
-
-  @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
   }
 
   //-------------------------------------------------------------------------
@@ -231,6 +212,7 @@ public final class ImmutableThreeLegBasisSwapConvention
     JodaBeanUtils.notNull(spreadLeg, "spreadLeg");
     JodaBeanUtils.notNull(spreadFloatingLeg, "spreadFloatingLeg");
     JodaBeanUtils.notNull(flatFloatingLeg, "flatFloatingLeg");
+    JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
     this.name = name;
     this.spreadLeg = spreadLeg;
     this.spreadFloatingLeg = spreadFloatingLeg;
@@ -294,6 +276,19 @@ public final class ImmutableThreeLegBasisSwapConvention
   @Override
   public IborRateSwapLegConvention getFlatFloatingLeg() {
     return flatFloatingLeg;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the offset of the spot value date from the trade date.
+   * <p>
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
+   * @return the value of the property, not null
+   */
+  @Override
+  public DaysAdjustment getSpotDateOffset() {
+    return spotDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -470,7 +465,7 @@ public final class ImmutableThreeLegBasisSwapConvention
         case 274878191:  // flatFloatingLeg
           return ((ImmutableThreeLegBasisSwapConvention) bean).getFlatFloatingLeg();
         case 746995843:  // spotDateOffset
-          return ((ImmutableThreeLegBasisSwapConvention) bean).spotDateOffset;
+          return ((ImmutableThreeLegBasisSwapConvention) bean).getSpotDateOffset();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -513,7 +508,7 @@ public final class ImmutableThreeLegBasisSwapConvention
       this.spreadLeg = beanToCopy.getSpreadLeg();
       this.spreadFloatingLeg = beanToCopy.getSpreadFloatingLeg();
       this.flatFloatingLeg = beanToCopy.getFlatFloatingLeg();
-      this.spotDateOffset = beanToCopy.spotDateOffset;
+      this.spotDateOffset = beanToCopy.getSpotDateOffset();
     }
 
     //-----------------------------------------------------------------------
@@ -641,16 +636,15 @@ public final class ImmutableThreeLegBasisSwapConvention
     }
 
     /**
-     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * Sets the offset of the spot value date from the trade date.
      * <p>
-     * The offset is applied to the trade date and is typically plus 2 business days.
-     * The start date of the swap is relative to the spot date.
-     * <p>
-     * This will default to the effective date offset of the index if not specified.
-     * @param spotDateOffset  the new value
+     * The offset is applied to the trade date to find the start date.
+     * A typical value is "plus 2 business days".
+     * @param spotDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder spotDateOffset(DaysAdjustment spotDateOffset) {
+      JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
       this.spotDateOffset = spotDateOffset;
       return this;
     }

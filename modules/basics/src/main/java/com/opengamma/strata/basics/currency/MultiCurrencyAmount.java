@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,16 +29,17 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.MapStream;
 
 /**
  * A map of currency amounts keyed by currency.
@@ -78,7 +80,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from a currency and amount.
+   * Obtains an instance from a currency and amount.
    * 
    * @param currency  the currency
    * @param amount  the amount
@@ -90,7 +92,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from an array of {@code CurrencyAmount} objects.
+   * Obtains an instance from an array of {@code CurrencyAmount} objects.
    * <p>
    * It is an error for the input to contain the same currency twice.
    * 
@@ -106,7 +108,7 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from a list of {@code CurrencyAmount} objects.
+   * Obtains an instance from a list of {@code CurrencyAmount} objects.
    * <p>
    * It is an error for the input to contain the same currency twice.
    * 
@@ -125,21 +127,19 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Obtains a {@code MultiCurrencyAmount} from a map of currency to amount.
+   * Obtains an instance from a map of currency to amount.
    * 
    * @param map  the map of currency to amount
    * @return the amount
    */
   public static MultiCurrencyAmount of(Map<Currency, Double> map) {
     ArgChecker.noNulls(map, "map");
-    return map.entrySet().stream()
-        .map(entry -> CurrencyAmount.of(entry.getKey(), entry.getValue()))
-        .collect(MultiCurrencyAmount.collectorInternal());
+    return MapStream.of(map).map(CurrencyAmount::of).collect(MultiCurrencyAmount.collectorInternal());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code MultiCurrencyAmount} from the total of a list of {@code CurrencyAmount} objects.
+   * Obtains an instance from the total of a list of {@code CurrencyAmount} objects.
    * <p>
    * If the input contains the same currency more than once, the amounts are added together.
    * For example, an input of (EUR 100, EUR 200, CAD 100) would result in (EUR 300, CAD 100).
@@ -149,7 +149,7 @@ public final class MultiCurrencyAmount
    */
   public static MultiCurrencyAmount total(Iterable<CurrencyAmount> amounts) {
     ArgChecker.notNull(amounts, "amounts");
-    return Guavate.stream(amounts).collect(collector());
+    return Guavate.stream(amounts).collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -161,7 +161,7 @@ public final class MultiCurrencyAmount
    *
    * @return the collector
    */
-  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collector() {
+  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> toMultiCurrencyAmount() {
     return Collector.<CurrencyAmount, Map<Currency, CurrencyAmount>, MultiCurrencyAmount>of(
         // accumulate into a map
         HashMap::new,
@@ -251,10 +251,11 @@ public final class MultiCurrencyAmount
   }
 
   /**
-   * Gets the {@code CurrencyAmount} for the specified currency.
+   * Gets the {@code CurrencyAmount} for the specified currency, throwing an exception if not found.
    * 
    * @param currency  the currency to find an amount for
    * @return the amount
+   * @throws IllegalArgumentException if the currency is not found
    */
   public CurrencyAmount getAmount(Currency currency) {
     ArgChecker.notNull(currency, "currency");
@@ -262,6 +263,20 @@ public final class MultiCurrencyAmount
         .filter(ca -> ca.getCurrency().equals(currency))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Unknown currency " + currency));
+  }
+
+  /**
+   * Gets the {@code CurrencyAmount} for the specified currency, returning zero if not found.
+   * 
+   * @param currency  the currency to find an amount for
+   * @return the amount
+   */
+  public CurrencyAmount getAmountOrZero(Currency currency) {
+    ArgChecker.notNull(currency, "currency");
+    return amounts.stream()
+        .filter(ca -> ca.getCurrency().equals(currency))
+        .findFirst()
+        .orElseGet(() -> CurrencyAmount.zero(currency));
   }
 
   //-------------------------------------------------------------------------
@@ -273,7 +288,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param currency  the currency to add to
    * @param amountToAdd  the amount to add
@@ -291,14 +306,14 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
    */
   public MultiCurrencyAmount plus(CurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(collector());
+    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(toMultiCurrencyAmount());
   }
 
   /**
@@ -309,14 +324,14 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the currency-amount is added to the map.
    * The addition uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
    */
   public MultiCurrencyAmount plus(MultiCurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(collector());
+    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -328,7 +343,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param currency  the currency to subtract from
    * @param amountToAdd  the amount to subtract
@@ -346,7 +361,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -364,7 +379,7 @@ public final class MultiCurrencyAmount
    * If the currency is not yet present, the negated amount is included.
    * The subtraction uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -378,7 +393,7 @@ public final class MultiCurrencyAmount
   /**
    * Returns a copy of this {@code MultiCurrencyAmount} with all the amounts multiplied by the factor.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return an amount based on this with all the amounts multiplied by the factor
@@ -390,14 +405,15 @@ public final class MultiCurrencyAmount
   /**
    * Returns a copy of this {@code CurrencyAmount} with the amount negated.
    * <p>
-   * This takes this amount and negates it.
+   * This takes this amount and negates it. If any amount is 0.0 or -0.0 the negated amount is 0.0.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return an amount based on this with the amount negated
    */
   public MultiCurrencyAmount negated() {
-    return mapAmounts(a -> -a);
+    // Zero is treated as a special case to avoid creating -0.0 which produces surprising equality behaviour
+    return mapAmounts(a -> a == 0d ? 0d : -a);
   }
 
   //-------------------------------------------------------------------------
@@ -431,6 +447,23 @@ public final class MultiCurrencyAmount
         .collect(MultiCurrencyAmount.collectorInternal());
   }
 
+  /**
+   * Applies an operation to the currency amounts.
+   * <p>
+   * The operator is called once for each currency in this amount.
+   * The operator may return an amount with a different currency.
+   * The result will be the total of the altered amounts.
+   *
+   * @param operator  the operator to be applied to the amounts
+   * @return a copy of this amount with the mapping applied to the original amounts
+   */
+  public MultiCurrencyAmount mapCurrencyAmounts(UnaryOperator<CurrencyAmount> operator) {
+    ArgChecker.notNull(operator, "operator");
+    return amounts.stream()
+        .map(ca -> operator.apply(ca))
+        .collect(MultiCurrencyAmount.toMultiCurrencyAmount());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Converts this amount to an equivalent amount the specified currency.
@@ -450,7 +483,7 @@ public final class MultiCurrencyAmount
     }
     double total = 0d;
     for (CurrencyAmount amount : amounts) {
-      total += amount.getAmount() * rateProvider.fxRate(amount.getCurrency(), resultCurrency);
+      total += rateProvider.convert(amount.getAmount(), amount.getCurrency(), resultCurrency);
     }
     return CurrencyAmount.of(resultCurrency, total);
   }
@@ -637,7 +670,7 @@ public final class MultiCurrencyAmount
   /**
    * The bean-builder for {@code MultiCurrencyAmount}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<MultiCurrencyAmount> {
+  private static final class Builder extends DirectPrivateBeanBuilder<MultiCurrencyAmount> {
 
     private SortedSet<CurrencyAmount> amounts = ImmutableSortedSet.of();
 
@@ -645,6 +678,7 @@ public final class MultiCurrencyAmount
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -668,30 +702,6 @@ public final class MultiCurrencyAmount
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

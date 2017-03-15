@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata;
@@ -90,7 +90,7 @@ public class JarMarketDataBuilder extends ExampleMarketDataBuilder {
   //-------------------------------------------------------------------------
   // Gets the resource locator corresponding to a given entry
   private ResourceLocator getEntryLocator(String entryName) {
-    return ResourceLocator.of(ResourceLocator.CLASSPATH_URL_PREFIX + entryName);
+    return ResourceLocator.ofClasspath(entryName);
   }
 
   private static ImmutableSet<String> getEntries(File jarFile, String rootPath) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,145 +6,81 @@
 package com.opengamma.strata.product.index;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.fail;
-
-import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.reflect.TypeToken;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.collect.id.IdentifiableBean;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 
 /**
- * Test IborFutureSecurityTrade. 
+ * Test {@link IborFutureTrade}.
  */
 @Test
 public class IborFutureTradeTest {
 
-  private static final LocalDate TRADE_DATE = date(2015, 2, 17);
-  private static final long QUANTITY = 35;
-  private static final double INITIAL_PRICE = 1.015;
-  private static final IborFuture PRODUCT = IborFuture.builder()
-      .currency(Currency.USD)
-      .notional(1_000_000d)
-      .lastTradeDate(date(2015, 3, 16))
-      .index(IborIndices.USD_LIBOR_3M)
-      .build();
-  private static final Security<IborFuture> SECURITY = UnitSecurity.builder(PRODUCT)
-      .standardId(StandardId.of("OG-Ticker", "OG"))
-      .build();
-  private static final SecurityLink<IborFuture> RESOLVABLE_LINK =
-      SecurityLink.resolvable(StandardId.of("OG-Ticker", "OG"), IborFuture.class);
-  private static final SecurityLink<IborFuture> RESOLVED_LINK =
-      SecurityLink.resolved(SECURITY);
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 3, 18));
+  private static final IborFuture PRODUCT = IborFutureTest.sut();
+  private static final IborFuture PRODUCT2 = IborFutureTest.sut2();
+  private static final double QUANTITY = 35;
+  private static final double QUANTITY2 = 36;
+  private static final double PRICE = 0.99;
+  private static final double PRICE2 = 0.98;
 
   //-------------------------------------------------------------------------
-  public void test_builder_resolvable() {
-    IborFutureTrade test = IborFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-        .securityLink(RESOLVABLE_LINK)
-        .initialPrice(INITIAL_PRICE)
-        .quantity(QUANTITY)
-        .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
-    assertEquals(test.getSecurityLink(), RESOLVABLE_LINK);
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertThrows(() -> test.getSecurity(), IllegalStateException.class);
-    assertThrows(() -> test.getProduct(), IllegalStateException.class);
-  }
-
-  public void test_builder_resolved() {
-    IborFutureTrade test = IborFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-        .securityLink(RESOLVED_LINK)
-        .initialPrice(INITIAL_PRICE)
-        .quantity(QUANTITY)
-        .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
-    assertEquals(test.getSecurityLink(), RESOLVED_LINK);
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getSecurity(), SECURITY);
+  public void test_builder() {
+    IborFutureTrade test = sut();
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
+    assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.getQuantity(), QUANTITY);
+  }
+
+  public void test_builder_badPrice() {
+    assertThrowsIllegalArg(() -> sut().toBuilder().price(2.1).build());
   }
 
   //-------------------------------------------------------------------------
-  public void test_resolveLinks_resolvable() {
-    IborFutureTrade test = IborFutureTrade.builder()
-        .securityLink(RESOLVABLE_LINK)
-        .quantity(100)
-        .build();
-    IborFutureTrade expected = IborFutureTrade.builder()
-        .securityLink(RESOLVED_LINK)
-        .quantity(100)
-        .build();
-    LinkResolver resolver = new LinkResolver() {
-      @SuppressWarnings("unchecked")
-      @Override
-      public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
-        assertEquals(identifier, SECURITY.getStandardId());
-        return (T) SECURITY;
-      }
-    };
-    assertEquals(test.resolveLinks(resolver), expected);
-  }
-
-  public void test_resolveLinks_resolved() {
-    IborFutureTrade test = IborFutureTrade.builder()
-        .securityLink(RESOLVED_LINK)
-        .quantity(100)
-        .build();
-    LinkResolver resolver = new LinkResolver() {
-      @Override
-      public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
-        fail();  // not invoked because link is already resolved
-        return null;
-      }
-    };
-    assertSame(test.resolveLinks(resolver), test);
+  public void test_resolve() {
+    IborFutureTrade test = sut();
+    ResolvedIborFutureTrade resolved = test.resolve(REF_DATA);
+    assertEquals(resolved.getInfo(), TRADE_INFO);
+    assertEquals(resolved.getProduct(), PRODUCT.resolve(REF_DATA));
+    assertEquals(resolved.getQuantity(), QUANTITY);
+    assertEquals(resolved.getPrice(), PRICE);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborFutureTrade test = IborFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-        .securityLink(RESOLVABLE_LINK)
-        .initialPrice(INITIAL_PRICE)
-        .quantity(QUANTITY)
-        .build();
-    coverImmutableBean(test);
-    IborFutureTrade test2 = IborFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(date(2015, 3, 18)).build())
-        .securityLink(SecurityLink.resolvable(StandardId.of("OG-Ticker", "OG2"), IborFuture.class))
-        .initialPrice(1.1)
-        .quantity(100)
-        .build();
-    coverBeanEquals(test, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    IborFutureTrade test = IborFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-        .securityLink(RESOLVABLE_LINK)
-        .initialPrice(INITIAL_PRICE)
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static IborFutureTrade sut() {
+    return IborFutureTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
         .quantity(QUANTITY)
+        .price(PRICE)
         .build();
-    assertSerialization(test);
+  }
+
+  static IborFutureTrade sut2() {
+    return IborFutureTrade.builder()
+        .product(PRODUCT2)
+        .quantity(QUANTITY2)
+        .price(PRICE2)
+        .build();
   }
 
 }

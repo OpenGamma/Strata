@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -29,22 +29,20 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
 
 /**
  * A period over which a fixed coupon is paid.
  * <p>
- * A single payment period within a fixed coupon bond, {@link ExpandedFixedCouponBond}.
+ * A single payment period within a fixed coupon bond, {@link ResolvedFixedCouponBond}.
  * The payments of the fixed coupon bond consist periodic coupon payments and nominal payment.
- * This class represents a single payment of the periodic payments. 
+ * This class represents a single payment of the periodic payments.
  */
 @BeanDefinition
 public final class FixedCouponBondPaymentPeriod
-    implements NotionalPaymentPeriod, ImmutableBean, Serializable {
+    implements BondPaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the payment period.
@@ -55,7 +53,7 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The notional amount, must be positive. 
+   * The notional amount, must be positive.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
@@ -101,14 +99,14 @@ public final class FixedCouponBondPaymentPeriod
    * <p>
    * Some bonds trade ex-coupon before the coupon payment.
    * The coupon is paid not to the owner of the bond on the payment date but to the
-   * owner of the bond on the detachment date. 
+   * owner of the bond on the detachment date.
    * <p>
    * When building, this will default to the end date if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate detachmentDate;
   /**
-   * The fixed coupon rate. 
+   * The fixed coupon rate.
    * <p>
    * The single payment is based on this fixed coupon rate.
    */
@@ -117,33 +115,14 @@ public final class FixedCouponBondPaymentPeriod
   /**
    * The year fraction that the accrual period represents.
    * <p>
+   * The year fraction of a bond period is based on the unadjusted dates.
+   * <p>
    * The value is usually calculated using a {@link DayCount}.
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
    * The fraction may be greater than 1, but not less than 0.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double yearFraction;
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    // no index
-  }
-
-  @Override
-  public FixedCouponBondPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
-    return this;
-  }
-
-  @Override
-  public LocalDate getPaymentDate() {
-    return getEndDate();
-  }
-
-  @Override
-  public CurrencyAmount getNotionalAmount() {
-    return CurrencyAmount.of(currency, notional);
-  }
 
   //-------------------------------------------------------------------------
   // could use @ImmutablePreBuild and @ImmutableValidate but faster inline
@@ -172,6 +151,44 @@ public final class FixedCouponBondPaymentPeriod
     ArgChecker.inOrderNotEqual(
         this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
     ArgChecker.inOrderOrEqual(this.detachmentDate, this.endDate, "detachmentDate", "endDate");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    // no index
+  }
+
+  @Override
+  public FixedCouponBondPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
+    return this;
+  }
+
+  @Override
+  public LocalDate getPaymentDate() {
+    return getEndDate();
+  }
+
+  /**
+   * Checks if there is an ex-coupon period.
+   * 
+   * @return true if has an ex-coupon period
+   */
+  public boolean hasExCouponPeriod() {
+    return !detachmentDate.equals(endDate);
+  }
+
+  /**
+   * Checks if this period contains the specified date, based on unadjusted dates.
+   * <p>
+   * The unadjusted start and end dates are used in the comparison.
+   * The unadjusted start date is included, the unadjusted end date is excluded.
+   * 
+   * @param date  the date to check
+   * @return true if this period contains the date
+   */
+  boolean contains(LocalDate date) {
+    return !date.isBefore(unadjustedStartDate) && date.isBefore(unadjustedEndDate);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -322,6 +339,8 @@ public final class FixedCouponBondPaymentPeriod
   //-----------------------------------------------------------------------
   /**
    * Gets the year fraction that the accrual period represents.
+   * <p>
+   * The year fraction of a bond period is based on the unadjusted dates.
    * <p>
    * The value is usually calculated using a {@link DayCount}.
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
@@ -876,6 +895,8 @@ public final class FixedCouponBondPaymentPeriod
 
     /**
      * Sets the year fraction that the accrual period represents.
+     * <p>
+     * The year fraction of a bond period is based on the unadjusted dates.
      * <p>
      * The value is usually calculated using a {@link DayCount}.
      * Typically the value will be close to 1 for one year and close to 0.5 for six months.

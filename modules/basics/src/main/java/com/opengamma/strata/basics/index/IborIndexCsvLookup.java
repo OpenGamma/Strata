@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,8 +9,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,14 +22,16 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.PeriodAdditionConvention;
 import com.opengamma.strata.basics.date.PeriodAdditionConventions;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
@@ -57,6 +63,7 @@ final class IborIndexCsvLookup
   // CSV column headers
   private static final String NAME_FIELD = "Name";
   private static final String CURRENCY_FIELD = "Currency";
+  private static final String ACTIVE_FIELD = "Active";
   private static final String DAY_COUNT_FIELD = "Day Count";
   private static final String FIXING_CALENDAR_FIELD = "Fixing Calendar";
   private static final String OFFSET_DAYS_FIELD = "Offset Days";
@@ -64,7 +71,13 @@ final class IborIndexCsvLookup
   private static final String EFFECTIVE_DATE_CALENDAR_FIELD = "Effective Date Calendar";
   private static final String TENOR_FIELD = "Tenor";
   private static final String TENOR_CONVENTION_FIELD = "Tenor Convention";
+  private static final String FIXING_TIME_FIELD = "FixingTime";
+  private static final String FIXING_ZONE_FIELD = "FixingZone";
 
+  /**
+   * The time formatter.
+   */
+  private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH[:mm]", Locale.ENGLISH);
   /**
    * The cache by name.
    */
@@ -88,9 +101,10 @@ final class IborIndexCsvLookup
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-        for (int i = 0; i < csv.rowCount(); i++) {
-          IborIndex parsed = parseIborIndex(csv, i);
+        for (CsvRow row : csv.rows()) {
+          IborIndex parsed = parseIborIndex(row);
           map.put(parsed.getName(), parsed);
+          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as Ibor Index CSV file: " + resource, ex);
@@ -100,34 +114,47 @@ final class IborIndexCsvLookup
     return ImmutableMap.copyOf(map);
   }
 
-  private static IborIndex parseIborIndex(CsvFile csv, int row) {
-    String name = csv.field(row, NAME_FIELD);
-    Currency currency = Currency.parse(csv.field(row, CURRENCY_FIELD));
-    DayCount dayCount = DayCount.of(csv.field(row, DAY_COUNT_FIELD));
-    HolidayCalendar fixingCal = HolidayCalendar.of(csv.field(row, FIXING_CALENDAR_FIELD));
-    int offsetDays = Integer.parseInt(csv.field(row, OFFSET_DAYS_FIELD));
-    HolidayCalendar offsetCal = HolidayCalendar.of(csv.field(row, OFFSET_CALENDAR_FIELD));
-    HolidayCalendar effectiveCal = HolidayCalendar.of(csv.field(row, EFFECTIVE_DATE_CALENDAR_FIELD));
-    Tenor tenor = Tenor.parse(csv.field(row, TENOR_FIELD));
-    PeriodAdditionConvention tenorConvention = PeriodAdditionConvention.of(csv.field(row, TENOR_CONVENTION_FIELD));
+  private static IborIndex parseIborIndex(CsvRow row) {
+    String name = row.getField(NAME_FIELD);
+    Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
+    boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
+    DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
+    int offsetDays = Integer.parseInt(row.getField(OFFSET_DAYS_FIELD));
+    HolidayCalendarId offsetCal = HolidayCalendarId.of(row.getField(OFFSET_CALENDAR_FIELD));
+    HolidayCalendarId effectiveCal = HolidayCalendarId.of(row.getField(EFFECTIVE_DATE_CALENDAR_FIELD));
+    Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
+    LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
+    ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
+
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(
-        -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalize();
+        -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalized();
     DaysAdjustment effectiveOffset = DaysAdjustment.ofBusinessDays(
-        offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalize();
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(
-        isEndOfMonth(tenorConvention) ? MODIFIED_FOLLOWING : FOLLOWING,
-        effectiveCal);
-    TenorAdjustment tenorAdjustment = TenorAdjustment.of(tenor, tenorConvention, adj);
+        offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalized();
+
+    // convention can be two different things
+    PeriodAdditionConvention periodAdditionConvention =
+        PeriodAdditionConvention.extendedEnum().find(row.getField(TENOR_CONVENTION_FIELD))
+            .orElse(PeriodAdditionConventions.NONE);
+    BusinessDayConvention tenorBusinessConvention =
+        BusinessDayConvention.extendedEnum().find(row.getField(TENOR_CONVENTION_FIELD))
+            .orElse(isEndOfMonth(periodAdditionConvention) ? MODIFIED_FOLLOWING : FOLLOWING);
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(tenorBusinessConvention, effectiveCal);
+    TenorAdjustment tenorAdjustment = TenorAdjustment.of(tenor, periodAdditionConvention, adj);
+
     // build result
     return ImmutableIborIndex.builder()
         .name(name)
         .currency(currency)
+        .active(active)
         .dayCount(dayCount)
         .fixingCalendar(fixingCal)
         .fixingDateOffset(fixingOffset)
         .effectiveDateOffset(effectiveOffset)
         .maturityDateOffset(tenorAdjustment)
+        .fixingTime(time)
+        .fixingZone(zoneId)
         .build();
   }
 

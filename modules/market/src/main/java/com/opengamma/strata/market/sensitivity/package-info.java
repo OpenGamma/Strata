@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -12,4 +12,3 @@
  * and measures the reaction to changes in underlying factors, such as the forward rate curve.
  */
 package com.opengamma.strata.market.sensitivity;
-

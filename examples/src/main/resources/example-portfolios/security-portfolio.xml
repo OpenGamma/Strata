@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.strata.examples.report.TradeList">
+ <trades>
+  <item type="com.opengamma.strata.product.GenericSecurityTrade">
+   <info>
+    <counterparty>mn~Dealer G</counterparty>
+    <settlementDate>2013-12-15</settlementDate>
+    <attributes>
+     <entry key="description">Euro-Bund Mar14</entry>
+    </attributes>
+   </info>
+   <security>
+    <info>
+     <id>OG-Future~Eurex-FGBL-Mar14</id>
+     <priceInfo>
+      <tickSize>0.01</tickSize>
+      <tickValue>EUR 10</tickValue>
+      <contractSize>1</contractSize>
+     </priceInfo>
+     <attributes>
+      <entry key="exchange">Eurex</entry>
+      <entry key="productFamily">FGBL</entry>
+      <entry key="expiryDate" type="java.time.LocalDate">2014-03-13</entry>
+     </attributes>
+    </info>
+   </security>
+   <quantity>20</quantity>
+   <price>99.55</price>
+  </item>
+  <item type="GenericSecurityTrade">
+   <info>
+    <counterparty>mn~Dealer G</counterparty>
+    <settlementDate>2013-12-18</settlementDate>
+    <attributes>
+     <entry key="description">EuroDollar Mar14</entry>
+    </attributes>
+   </info>
+   <security>
+    <info>
+     <id>OG-Future~CME-ED-Mar14</id>
+     <priceInfo>
+      <tickSize>0.005</tickSize>
+      <tickValue>USD 12.5</tickValue>
+      <contractSize>1</contractSize>
+     </priceInfo>
+     <attributes>
+      <entry key="exchange">CME</entry>
+      <entry key="productFamily">ED</entry>
+      <entry key="expiryDate" type="java.time.LocalDate">2014-03-10</entry>
+     </attributes>
+    </info>
+   </security>
+   <quantity>50</quantity>
+   <price>99.55</price>
+  </item>
+  <item type="GenericSecurityTrade">
+   <info>
+    <counterparty>mn~Dealer G</counterparty>
+    <settlementDate>2013-01-15</settlementDate>
+    <attributes>
+     <entry key="description">Call on Euro-Bund Mar14</entry>
+    </attributes>
+   </info>
+   <security>
+    <info>
+     <id>OG-FutOpt~Eurex-OGBL-Mar14-C150</id>
+     <priceInfo>
+      <tickSize>0.01</tickSize>
+      <tickValue>EUR 10</tickValue>
+      <contractSize>1</contractSize>
+     </priceInfo>
+     <attributes>
+      <entry key="exchange">Eurex</entry>
+      <entry key="productFamily">OGBL</entry>
+      <entry key="expiryDate" type="java.time.LocalDate">2014-03-10</entry>
+     </attributes>
+    </info>
+   </security>
+   <quantity>20</quantity>
+   <price>1.6</price>
+  </item>
+ </trades>
+</bean>

@@ -1,18 +1,18 @@
-/**
+/*
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * Computes the number of terms required to achieve a given accuracy in an orthogonal polynomial series.
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * http://www.netlib.org/slatec/fnlib/initds.f
  */
-class INITDS {
+final class INITDS {
 
   /**
    * Computes an orthogonal series based on coefficients "os" including sufficient terms to insure that the error is no larger than 'eta'.

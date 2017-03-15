@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
@@ -18,10 +18,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -42,7 +42,7 @@ public final class CurveParameterSize
   /**
    * The number of parameters.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final int parameterCount;
 
   //-------------------------------------------------------------------------
@@ -80,7 +80,7 @@ public final class CurveParameterSize
       CurveName name,
       int parameterCount) {
     JodaBeanUtils.notNull(name, "name");
-    ArgChecker.notNegative(parameterCount, "parameterCount");
+    ArgChecker.notNegativeOrZero(parameterCount, "parameterCount");
     this.name = name;
     this.parameterCount = parameterCount;
   }
@@ -254,7 +254,7 @@ public final class CurveParameterSize
   /**
    * The bean-builder for {@code CurveParameterSize}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveParameterSize> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurveParameterSize> {
 
     private CurveName name;
     private int parameterCount;
@@ -263,6 +263,7 @@ public final class CurveParameterSize
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -290,30 +291,6 @@ public final class CurveParameterSize
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
@@ -17,55 +18,135 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.ReportingRules;
-import com.opengamma.strata.calc.config.pricing.PricingRules;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.calc.runner.CalculationFunction;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.calc.runner.CalculationParameter;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 
 /**
- * A set of rules that define how the calculation engine should perform calculations.
+ * A set of rules that define how the calculation runner should perform calculations.
  * <p>
- * The calculation rules include:
+ * {@link CalculationRunner} provides the ability to perform calculations on many targets,
+ * such as trades and positions. It returns a grid of results, with the targets as rows.
+ * Each individual calculation is controlled by three things:
  * <ul>
- *   <li>The pricing rules which define how the calculations should be performed. This includes the model
- *   and any model parameters</li>
- *   <li>The market data rules which specify which items of market data should be used for a calculation,
- *   for example which curve group should be used as the source of curves and which market data feed should
- *   be used to request observable values</li>
- *   <li>The reporting rules define how the results should be reported, including the reporting currency</li>
- *   <li>The configuration needed to build non-observable market data, for example curves or surfaces</li>
+ *   <li>The {@linkplain CalculationFunction function}, selected by the target type</li>
+ *   <li>The {@linkplain Measure measure}, the high-level output to be calculated</li>
+ *   <li>The {@linkplain CalculationParameters parameters}, adjust how the measure is to be calculated</li>
  * </ul>
+ * {@code CalculationRules} operates in association with {@link Column}.
+ * The column is used to define the measure. It can also be used to specify column-specific parameters.
+ * The rules contain the complete set of functions and the default set of parameters.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CalculationRules implements ImmutableBean {
 
-  /** The rules defining how calculations should be performed. */
+  /**
+   * The calculation functions.
+   * <p>
+   * Functions provide the logic of the calculation.
+   * Each type of target must have an associated function in order for calculations to be performed.
+   */
   @PropertyDefinition(validate = "notNull")
-  private final PricingRules pricingRules;
+  private final CalculationFunctions functions;
+  /**
+   * The reporting currency, used to control currency conversion.
+   * <p>
+   * This is used to specify the currency that the result should be reporting in.
+   * If the result is not associated with a currency, such as for "par rate", then the
+   * reporting currency will effectively be ignored.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ReportingCurrency reportingCurrency;
+  /**
+   * The calculation parameters, used to control the how the calculation is performed.
+   * <p>
+   * Parameters are used to parameterize the {@link Measure} to be calculated.
+   * They may be specified in two places - here and in the {@link Column}.
+   * The parameters specified here are the defaults that apply to all columns.
+   * <p>
+   * If a parameter is defined here and in the column with the same
+   * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final CalculationParameters parameters;
 
-  /** The rules defining what market data should be used in each calculation. */
-  @PropertyDefinition(validate = "notNull")
-  private final MarketDataRules marketDataRules;
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance specifying the functions to use and some additional parameters.
+   * <p>
+   * The output will uses the "natural" {@linkplain ReportingCurrency reporting currency}.
+   * Most functions require a parameter to control their behavior, such as {@code RatesMarketDataLookup}.
+   * 
+   * @param functions  the calculation functions
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return the rules
+   */
+  public static CalculationRules of(CalculationFunctions functions, CalculationParameter... parameters) {
+    CalculationParameters params = CalculationParameters.of(parameters);
+    return new CalculationRules(functions, ReportingCurrency.NATURAL, params);
+  }
 
-  /** The rules defining how calculation results should be reported. */
-  @PropertyDefinition(validate = "notNull")
-  private final ReportingRules reportingRules;
+  /**
+   * Obtains an instance specifying the functions to use and some additional parameters.
+   * <p>
+   * The output will uses the "natural" {@linkplain ReportingCurrency reporting currency}.
+   * Most functions require a parameter to control their behavior, such as {@code RatesMarketDataLookup}.
+   *
+   * @param functions  the calculation functions
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return the rules
+   */
+  public static CalculationRules of(CalculationFunctions functions, CalculationParameters parameters) {
+    return new CalculationRules(functions, ReportingCurrency.NATURAL, parameters);
+  }
 
-  /** The configuration needed to build non-observable market data, for example curves or surfaces. */
-  @PropertyDefinition(validate = "notNull")
-  private final MarketDataConfig marketDataConfig;
+  /**
+   * Obtains an instance specifying the functions, reporting currency and additional parameters.
+   * <p>
+   * Most functions require a parameter to control their behavior, such as {@code RatesMarketDataLookup}.
+   * 
+   * @param functions  the calculation functions
+   * @param reportingCurrency  the reporting currency
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return the rules
+   */
+  public static CalculationRules of(
+      CalculationFunctions functions,
+      Currency reportingCurrency,
+      CalculationParameter... parameters) {
+
+    CalculationParameters params = CalculationParameters.of(parameters);
+    return new CalculationRules(functions, ReportingCurrency.of(reportingCurrency), params);
+  }
+
+  /**
+   * Obtains an instance specifying the functions, reporting currency and additional parameters.
+   * <p>
+   * Most functions require a parameter to control their behavior, such as {@code RatesMarketDataLookup}.
+   * 
+   * @param functions  the calculation functions
+   * @param reportingCurrency  the reporting currency
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return the rules
+   */
+  public static CalculationRules of(
+      CalculationFunctions functions,
+      ReportingCurrency reportingCurrency,
+      CalculationParameters parameters) {
+
+    return new CalculationRules(functions, reportingCurrency, parameters);
+  }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.pricingRules(PricingRules.empty());
-    builder.marketDataRules(MarketDataRules.empty());
-    builder.reportingRules(ReportingRules.empty());
-    builder.marketDataConfig(MarketDataConfig.empty());
+    builder.set(meta().parameters, CalculationParameters.empty());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -82,27 +163,16 @@ public final class CalculationRules implements ImmutableBean {
     JodaBeanUtils.registerMetaBean(CalculationRules.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CalculationRules.Builder builder() {
-    return new CalculationRules.Builder();
-  }
-
   private CalculationRules(
-      PricingRules pricingRules,
-      MarketDataRules marketDataRules,
-      ReportingRules reportingRules,
-      MarketDataConfig marketDataConfig) {
-    JodaBeanUtils.notNull(pricingRules, "pricingRules");
-    JodaBeanUtils.notNull(marketDataRules, "marketDataRules");
-    JodaBeanUtils.notNull(reportingRules, "reportingRules");
-    JodaBeanUtils.notNull(marketDataConfig, "marketDataConfig");
-    this.pricingRules = pricingRules;
-    this.marketDataRules = marketDataRules;
-    this.reportingRules = reportingRules;
-    this.marketDataConfig = marketDataConfig;
+      CalculationFunctions functions,
+      ReportingCurrency reportingCurrency,
+      CalculationParameters parameters) {
+    JodaBeanUtils.notNull(functions, "functions");
+    JodaBeanUtils.notNull(reportingCurrency, "reportingCurrency");
+    JodaBeanUtils.notNull(parameters, "parameters");
+    this.functions = functions;
+    this.reportingCurrency = reportingCurrency;
+    this.parameters = parameters;
   }
 
   @Override
@@ -122,49 +192,46 @@ public final class CalculationRules implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rules defining how calculations should be performed.
+   * Gets the calculation functions.
+   * <p>
+   * Functions provide the logic of the calculation.
+   * Each type of target must have an associated function in order for calculations to be performed.
    * @return the value of the property, not null
    */
-  public PricingRules getPricingRules() {
-    return pricingRules;
+  public CalculationFunctions getFunctions() {
+    return functions;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rules defining what market data should be used in each calculation.
+   * Gets the reporting currency, used to control currency conversion.
+   * <p>
+   * This is used to specify the currency that the result should be reporting in.
+   * If the result is not associated with a currency, such as for "par rate", then the
+   * reporting currency will effectively be ignored.
    * @return the value of the property, not null
    */
-  public MarketDataRules getMarketDataRules() {
-    return marketDataRules;
+  public ReportingCurrency getReportingCurrency() {
+    return reportingCurrency;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rules defining how calculation results should be reported.
+   * Gets the calculation parameters, used to control the how the calculation is performed.
+   * <p>
+   * Parameters are used to parameterize the {@link Measure} to be calculated.
+   * They may be specified in two places - here and in the {@link Column}.
+   * The parameters specified here are the defaults that apply to all columns.
+   * <p>
+   * If a parameter is defined here and in the column with the same
+   * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
    * @return the value of the property, not null
    */
-  public ReportingRules getReportingRules() {
-    return reportingRules;
+  public CalculationParameters getParameters() {
+    return parameters;
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the configuration needed to build non-observable market data, for example curves or surfaces.
-   * @return the value of the property, not null
-   */
-  public MarketDataConfig getMarketDataConfig() {
-    return marketDataConfig;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -172,10 +239,9 @@ public final class CalculationRules implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationRules other = (CalculationRules) obj;
-      return JodaBeanUtils.equal(pricingRules, other.pricingRules) &&
-          JodaBeanUtils.equal(marketDataRules, other.marketDataRules) &&
-          JodaBeanUtils.equal(reportingRules, other.reportingRules) &&
-          JodaBeanUtils.equal(marketDataConfig, other.marketDataConfig);
+      return JodaBeanUtils.equal(functions, other.functions) &&
+          JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
+          JodaBeanUtils.equal(parameters, other.parameters);
     }
     return false;
   }
@@ -183,21 +249,19 @@ public final class CalculationRules implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(pricingRules);
-    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataRules);
-    hash = hash * 31 + JodaBeanUtils.hashCode(reportingRules);
-    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataConfig);
+    hash = hash * 31 + JodaBeanUtils.hashCode(functions);
+    hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CalculationRules{");
-    buf.append("pricingRules").append('=').append(pricingRules).append(',').append(' ');
-    buf.append("marketDataRules").append('=').append(marketDataRules).append(',').append(' ');
-    buf.append("reportingRules").append('=').append(reportingRules).append(',').append(' ');
-    buf.append("marketDataConfig").append('=').append(JodaBeanUtils.toString(marketDataConfig));
+    buf.append("functions").append('=').append(functions).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
+    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
   }
@@ -213,34 +277,28 @@ public final class CalculationRules implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code pricingRules} property.
+     * The meta-property for the {@code functions} property.
      */
-    private final MetaProperty<PricingRules> pricingRules = DirectMetaProperty.ofImmutable(
-        this, "pricingRules", CalculationRules.class, PricingRules.class);
+    private final MetaProperty<CalculationFunctions> functions = DirectMetaProperty.ofImmutable(
+        this, "functions", CalculationRules.class, CalculationFunctions.class);
     /**
-     * The meta-property for the {@code marketDataRules} property.
+     * The meta-property for the {@code reportingCurrency} property.
      */
-    private final MetaProperty<MarketDataRules> marketDataRules = DirectMetaProperty.ofImmutable(
-        this, "marketDataRules", CalculationRules.class, MarketDataRules.class);
+    private final MetaProperty<ReportingCurrency> reportingCurrency = DirectMetaProperty.ofImmutable(
+        this, "reportingCurrency", CalculationRules.class, ReportingCurrency.class);
     /**
-     * The meta-property for the {@code reportingRules} property.
+     * The meta-property for the {@code parameters} property.
      */
-    private final MetaProperty<ReportingRules> reportingRules = DirectMetaProperty.ofImmutable(
-        this, "reportingRules", CalculationRules.class, ReportingRules.class);
-    /**
-     * The meta-property for the {@code marketDataConfig} property.
-     */
-    private final MetaProperty<MarketDataConfig> marketDataConfig = DirectMetaProperty.ofImmutable(
-        this, "marketDataConfig", CalculationRules.class, MarketDataConfig.class);
+    private final MetaProperty<CalculationParameters> parameters = DirectMetaProperty.ofImmutable(
+        this, "parameters", CalculationRules.class, CalculationParameters.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "pricingRules",
-        "marketDataRules",
-        "reportingRules",
-        "marketDataConfig");
+        "functions",
+        "reportingCurrency",
+        "parameters");
 
     /**
      * Restricted constructor.
@@ -251,20 +309,18 @@ public final class CalculationRules implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1055696081:  // pricingRules
-          return pricingRules;
-        case 363016849:  // marketDataRules
-          return marketDataRules;
-        case -1647034519:  // reportingRules
-          return reportingRules;
-        case -2066297624:  // marketDataConfig
-          return marketDataConfig;
+        case -140572773:  // functions
+          return functions;
+        case -1287844769:  // reportingCurrency
+          return reportingCurrency;
+        case 458736106:  // parameters
+          return parameters;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public CalculationRules.Builder builder() {
+    public BeanBuilder<? extends CalculationRules> builder() {
       return new CalculationRules.Builder();
     }
 
@@ -280,49 +336,39 @@ public final class CalculationRules implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code pricingRules} property.
+     * The meta-property for the {@code functions} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PricingRules> pricingRules() {
-      return pricingRules;
+    public MetaProperty<CalculationFunctions> functions() {
+      return functions;
     }
 
     /**
-     * The meta-property for the {@code marketDataRules} property.
+     * The meta-property for the {@code reportingCurrency} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataRules> marketDataRules() {
-      return marketDataRules;
+    public MetaProperty<ReportingCurrency> reportingCurrency() {
+      return reportingCurrency;
     }
 
     /**
-     * The meta-property for the {@code reportingRules} property.
+     * The meta-property for the {@code parameters} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ReportingRules> reportingRules() {
-      return reportingRules;
-    }
-
-    /**
-     * The meta-property for the {@code marketDataConfig} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<MarketDataConfig> marketDataConfig() {
-      return marketDataConfig;
+    public MetaProperty<CalculationParameters> parameters() {
+      return parameters;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1055696081:  // pricingRules
-          return ((CalculationRules) bean).getPricingRules();
-        case 363016849:  // marketDataRules
-          return ((CalculationRules) bean).getMarketDataRules();
-        case -1647034519:  // reportingRules
-          return ((CalculationRules) bean).getReportingRules();
-        case -2066297624:  // marketDataConfig
-          return ((CalculationRules) bean).getMarketDataConfig();
+        case -140572773:  // functions
+          return ((CalculationRules) bean).getFunctions();
+        case -1287844769:  // reportingCurrency
+          return ((CalculationRules) bean).getReportingCurrency();
+        case 458736106:  // parameters
+          return ((CalculationRules) bean).getParameters();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -342,43 +388,30 @@ public final class CalculationRules implements ImmutableBean {
   /**
    * The bean-builder for {@code CalculationRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CalculationRules> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CalculationRules> {
 
-    private PricingRules pricingRules;
-    private MarketDataRules marketDataRules;
-    private ReportingRules reportingRules;
-    private MarketDataConfig marketDataConfig;
+    private CalculationFunctions functions;
+    private ReportingCurrency reportingCurrency;
+    private CalculationParameters parameters;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
       applyDefaults(this);
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CalculationRules beanToCopy) {
-      this.pricingRules = beanToCopy.getPricingRules();
-      this.marketDataRules = beanToCopy.getMarketDataRules();
-      this.reportingRules = beanToCopy.getReportingRules();
-      this.marketDataConfig = beanToCopy.getMarketDataConfig();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1055696081:  // pricingRules
-          return pricingRules;
-        case 363016849:  // marketDataRules
-          return marketDataRules;
-        case -1647034519:  // reportingRules
-          return reportingRules;
-        case -2066297624:  // marketDataConfig
-          return marketDataConfig;
+        case -140572773:  // functions
+          return functions;
+        case -1287844769:  // reportingCurrency
+          return reportingCurrency;
+        case 458736106:  // parameters
+          return parameters;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -387,17 +420,14 @@ public final class CalculationRules implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1055696081:  // pricingRules
-          this.pricingRules = (PricingRules) newValue;
+        case -140572773:  // functions
+          this.functions = (CalculationFunctions) newValue;
           break;
-        case 363016849:  // marketDataRules
-          this.marketDataRules = (MarketDataRules) newValue;
+        case -1287844769:  // reportingCurrency
+          this.reportingCurrency = (ReportingCurrency) newValue;
           break;
-        case -1647034519:  // reportingRules
-          this.reportingRules = (ReportingRules) newValue;
-          break;
-        case -2066297624:  // marketDataConfig
-          this.marketDataConfig = (MarketDataConfig) newValue;
+        case 458736106:  // parameters
+          this.parameters = (CalculationParameters) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -406,92 +436,21 @@ public final class CalculationRules implements ImmutableBean {
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
     public CalculationRules build() {
       return new CalculationRules(
-          pricingRules,
-          marketDataRules,
-          reportingRules,
-          marketDataConfig);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the rules defining how calculations should be performed.
-     * @param pricingRules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder pricingRules(PricingRules pricingRules) {
-      JodaBeanUtils.notNull(pricingRules, "pricingRules");
-      this.pricingRules = pricingRules;
-      return this;
-    }
-
-    /**
-     * Sets the rules defining what market data should be used in each calculation.
-     * @param marketDataRules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataRules(MarketDataRules marketDataRules) {
-      JodaBeanUtils.notNull(marketDataRules, "marketDataRules");
-      this.marketDataRules = marketDataRules;
-      return this;
-    }
-
-    /**
-     * Sets the rules defining how calculation results should be reported.
-     * @param reportingRules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder reportingRules(ReportingRules reportingRules) {
-      JodaBeanUtils.notNull(reportingRules, "reportingRules");
-      this.reportingRules = reportingRules;
-      return this;
-    }
-
-    /**
-     * Sets the configuration needed to build non-observable market data, for example curves or surfaces.
-     * @param marketDataConfig  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataConfig(MarketDataConfig marketDataConfig) {
-      JodaBeanUtils.notNull(marketDataConfig, "marketDataConfig");
-      this.marketDataConfig = marketDataConfig;
-      return this;
+          functions,
+          reportingCurrency,
+          parameters);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("CalculationRules.Builder{");
-      buf.append("pricingRules").append('=').append(JodaBeanUtils.toString(pricingRules)).append(',').append(' ');
-      buf.append("marketDataRules").append('=').append(JodaBeanUtils.toString(marketDataRules)).append(',').append(' ');
-      buf.append("reportingRules").append('=').append(JodaBeanUtils.toString(reportingRules)).append(',').append(' ');
-      buf.append("marketDataConfig").append('=').append(JodaBeanUtils.toString(marketDataConfig));
+      buf.append("functions").append('=').append(JodaBeanUtils.toString(functions)).append(',').append(' ');
+      buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
+      buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
       buf.append('}');
       return buf.toString();
     }

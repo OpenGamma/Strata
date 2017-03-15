@@ -8,12 +8,12 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.0.0</version>
+    <version>2.3.0</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -46,26 +46,17 @@
   </scm>
 
   <!-- ==================================================================== -->
-  <!-- OpenGamma public repositories -->
-  <repositories>
-    <repository>
-      <id>og-public</id>
-      <name>OG Public</name>
-      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
-    </repository>
-  </repositories>
-
-  <!-- ==================================================================== -->
   <modules>
     <module>basics</module>
     <module>collect</module>
-    <module>calc</module>
+    <module>data</module>
     <module>product</module>
-    <module>function</module>
-    <module>loader</module>
     <module>market</module>
+    <module>loader</module>
     <module>math</module>
     <module>pricer</module>
+    <module>calc</module>
+    <module>measure</module>
     <module>report</module>
   </modules>
 
@@ -73,16 +64,69 @@
   <!-- standard build setup -->
   <build>
     <resources>
+      <!-- Include all standard resources -->
       <resource>
         <directory>src/main/resources</directory>
       </resource>
+      <!-- Include LICENSE/NOTICE in jar files -->
+      <resource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+      </resource>
     </resources>
     <testResources>
+      <!-- Include all standard resources -->
       <testResource>
         <directory>src/test/resources</directory>
       </testResource>
+      <!-- Include LICENSE/NOTICE in test jar files -->
+      <testResource>
+        <directory>${root.dir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+      </testResource>
     </testResources>
     <plugins>
+      <!--  checkstyle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>7.4</version>
+          </dependency>
+          <dependency>
+            <groupId>com.opengamma</groupId>
+            <artifactId>build-config</artifactId>
+            <version>2.0.0</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>run-checkstyle</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includeResources>false</includeResources>
+          <includeTestResources>false</includeTestResources>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+        </configuration>
+      </plugin>
       <!--  obtain git commit -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -139,9 +183,12 @@
             </goals>
             <configuration>
               <rules>
+                <dependencyConvergence />
                 <requireMavenVersion>
                   <version>[3.2.0,)</version>
                 </requireMavenVersion>
+                <requireNoRepositories />
+                <requirePluginVersions />
               </rules>
             </configuration>
           </execution>
@@ -163,7 +210,6 @@
       <plugin>
         <groupId>de.thetaphi</groupId>
         <artifactId>forbiddenapis</artifactId>
-        <version>2.0</version>
         <configuration>
           <internalRuntimeForbidden>true</internalRuntimeForbidden>
           <failOnUnsupportedJava>false</failOnUnsupportedJava>
@@ -214,6 +260,11 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-data</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-math</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -249,7 +300,7 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-function</artifactId>
+        <artifactId>strata-measure</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Third party -->
@@ -269,12 +320,6 @@
         <version>${joda-beans.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>${findbugs.version}</version>
-        <optional>true</optional><!-- needed only for annotations -->
-      </dependency>
-      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
@@ -283,6 +328,16 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-nop</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
       </dependency>
       <!-- Testing -->
       <dependency>
@@ -427,7 +482,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
-            <version>${maven-enforcer-plugin.version}</version>
             <executions>
               <execution>
                 <id>enforce</id>
@@ -483,7 +537,6 @@
           <plugin>
             <groupId>org.joda</groupId>
             <artifactId>joda-beans-maven-plugin</artifactId>
-            <version>${joda-beans-maven-plugin.version}</version>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -499,30 +552,88 @@
         </plugins>
       </build>
     </profile>
+    <!-- Check for incompatible changes -->
+    <profile>
+      <id>compat</id>
+      <activation>
+        <property>
+          <name>compat</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+                <configuration>
+                  <parameter>
+                    <onlyModified>true</onlyModified>
+                    <skipXmlReport>true</skipXmlReport>
+                  </parameter>
+                  <oldVersion>
+                    <dependency>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>${project.artifactId}</artifactId>
+                      <version>1.1.0</version>
+                    </dependency>
+                  </oldVersion>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!--  merge files, only works when mvn command run a second time -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <inherited>false</inherited>
+                <configuration>
+                  <target>
+                    <mkdir dir="${project.basedir}/target/japicmp" />
+                    <concat destfile="${project.basedir}/target/japicmp/japicmp.diff" overwrite="true">
+                      <fileset dir="${project.basedir}">
+                        <include name="*/target/japicmp/japicmp.diff"></include>
+                      </fileset>
+                    </concat>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <assertj.version>2.0.0</assertj.version>
-    <findbugs.version>1.3.9</findbugs.version>
-    <guava.version>18.0</guava.version>
-    <joda-convert.version>1.7</joda-convert.version>
-    <joda-beans.version>1.7</joda-beans.version>
-    <slf4j.version>1.7.13</slf4j.version>
-    <testng.version>6.9.9</testng.version>
-    <mockito.version>1.10.19</mockito.version>
+    <assertj.version>3.6.2</assertj.version>
+    <guava.version>20.0</guava.version>
+    <jcommander.version>1.58</jcommander.version>
+    <joda-convert.version>1.8.1</joda-convert.version>
+    <joda-beans.version>1.10.1</joda-beans.version>
+    <mockito.version>2.7.8</mockito.version>
+    <slf4j.version>1.7.23</slf4j.version>
+    <testng.version>6.10</testng.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
-    <javadoc.footer.license></javadoc.footer.license>
-    <additionalparam>-Xdoclint:none</additionalparam>
-    <!-- Properties for maven-compiler-plugin -->
-    <maven.compiler.fork>true</maven.compiler.fork>
-    <maven.compiler.meminitial>512m</maven.compiler.meminitial>
-    <maven.compiler.maxmem>1024m</maven.compiler.maxmem>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
+    <javadoc.footer.license>Apache v2 licensed</javadoc.footer.license>
   </properties>
 
 </project>

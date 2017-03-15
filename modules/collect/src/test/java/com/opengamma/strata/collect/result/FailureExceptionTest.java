@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 public class FailureExceptionTest {
 
   public void test_constructor_failure() {
-    Failure failure = Failure.of(FailureReason.INVALID_INPUT, "Test");
+    Failure failure = Failure.of(FailureReason.UNSUPPORTED, "Test");
     FailureException test = new FailureException(failure);
     assertEquals(test.getFailure(), failure);
   }

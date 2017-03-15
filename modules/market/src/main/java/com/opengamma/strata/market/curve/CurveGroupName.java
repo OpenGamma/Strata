@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,7 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The name of a curve group.
@@ -20,7 +20,7 @@ public final class CurveGroupName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code CurveGroupName} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Curve group names may contain any character, but must not be empty.
    *

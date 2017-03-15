@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -14,15 +14,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.loader.LoaderUtils;
-import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 
 /**
  * Loads a set of historical fixing series into memory from CSV resources.
@@ -78,27 +81,42 @@ public final class FixingSeriesCsvLoader {
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
   public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> load(Collection<ResourceLocator> resources) {
+    Collection<CharSource> charSources = resources.stream().map(r -> r.getCharSource()).collect(toList());
+    return parse(charSources);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses one or more CSV format fixing series files.
+   * <p>
+   * If the files contain a duplicate entry an exception will be thrown.
+   * 
+   * @param charSources  the fixing series CSV character sources
+   * @return the loaded fixing series, mapped by {@linkplain ObservableId observable ID}
+   * @throws IllegalArgumentException if the files contain a duplicate entry
+   */
+  public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> parse(Collection<CharSource> charSources) {
     // builder ensures keys can only be seen once
     ImmutableMap.Builder<ObservableId, LocalDateDoubleTimeSeries> builder = ImmutableMap.builder();
-    for (ResourceLocator timeSeriesResource : resources) {
-      builder.putAll(loadSingle(timeSeriesResource));
+    for (CharSource charSource : charSources) {
+      builder.putAll(parseSingle(charSource));
     }
     return builder.build();
   }
 
   //-------------------------------------------------------------------------
   // loads a single fixing series CSV file
-  private static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> loadSingle(ResourceLocator resource) {
+  private static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> parseSingle(CharSource resource) {
     Map<ObservableId, LocalDateDoubleTimeSeriesBuilder> builders = new HashMap<>();
     try {
-      CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-      for (int i = 0; i < csv.rowCount(); i++) {
-        String referenceStr = csv.field(i, REFERENCE_FIELD);
-        String dateStr = csv.field(i, DATE_FIELD);
-        String valueStr = csv.field(i, VALUE_FIELD);
+      CsvFile csv = CsvFile.of(resource, true);
+      for (CsvRow row : csv.rows()) {
+        String referenceStr = row.getField(REFERENCE_FIELD);
+        String dateStr = row.getField(DATE_FIELD);
+        String valueStr = row.getField(VALUE_FIELD);
 
         Index index = LoaderUtils.findIndex(referenceStr);
-        ObservableId id = IndexRateId.of(index);
+        ObservableId id = IndexQuoteId.of(index);
         LocalDate date = LocalDate.parse(dateStr);
         double value = Double.parseDouble(valueStr);
 
@@ -109,11 +127,7 @@ public final class FixingSeriesCsvLoader {
       throw new IllegalArgumentException(
           Messages.format("Error processing resource as CSV file: {}", resource), ex);
     }
-
-    return builders.entrySet().stream()
-        .collect(toImmutableMap(
-            Map.Entry::getKey,
-            v -> v.getValue().build()));
+    return MapStream.of(builders).mapValues(builder -> builder.build()).toMap();
   }
 
   //-------------------------------------------------------------------------

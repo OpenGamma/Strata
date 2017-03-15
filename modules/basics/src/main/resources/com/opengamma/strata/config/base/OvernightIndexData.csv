@@ -1,7 +1,16 @@
-Name,Currency,Day Count,Fixing Calendar,Publication Offset Days,Effective Offset Days
+Name,Currency,Active,Day Count,Fixing Calendar,Publication Offset Days,Effective Offset Days
 ,,,,,,
-GBP-SONIA,GBP,Act/365F,GBLO,0,0
-CHF-TOIS,CHF,Act/360,CHZU,0,1
-EUR-EONIA,EUR,Act/360,EUTA,0,0
-JPY-TONAR,JPY,Act/365F,JPTO,1,0
-USD-FED-FUND,USD,Act/360,NYFD,1,0
+GBP-SONIA,GBP,true,Act/365F,GBLO,0,0
+CHF-TOIS,CHF,true,Act/360,CHZU,0,1
+EUR-EONIA,EUR,true,Act/360,EUTA,0,0
+JPY-TONAR,JPY,true,Act/365F,JPTO,1,0
+USD-FED-FUND,USD,true,Act/360,USNY,1,0
+,,,,,,
+AUD-AONIA,AUD,true,Act/365F,AUSY,0,0
+BRL-CDI,BRL,true,Bus/252 BRBD,BRBD,1,0
+CAD-CORRA,CAD,true,Act/365F,CATO,1,0
+DKK-TNR,DKK,true,Act/360,DKCO,1,1
+NOK-NOWA,NOK,true,Act/Act Year,NOOS,0,0
+PLN-POLONIA,PLN,true,Act/365F,PLWA,0,0
+# SIOR is same as STIBOR T/N
+SEK-SIOR,SEK,true,Act/360,SEST,0,1

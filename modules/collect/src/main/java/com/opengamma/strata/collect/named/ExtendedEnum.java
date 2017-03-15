@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.named;
@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -46,9 +47,11 @@ import com.opengamma.strata.collect.io.ResourceConfig;
  * <p>
  * The 'providers' section contains a number of properties, one for each provider.
  * The key is the full class name of the provider.
- * The value is either 'constants' or 'lookup'.
- * A 'constants' provider defines the extended enums are public static constants.
- * A 'lookup' provider implemented {@link NamedLookup}.
+ * The value is 'constants', 'lookup' or 'instance', and is used to obtain a {@link NamedLookup} instance.
+ * A 'constants' provider must contain public static constants of the correct type,
+ * which will be reflectively located and wrapped in a {@code NamedLookup}.
+ * A 'lookup' provider must implement {@link NamedLookup} and have a no-args constructor.
+ * An 'instance' provider must have a static variable named "INSTANCE" of type {@link NamedLookup}.
  * <p>
  * The 'alternates' section contains a number of properties, one for each alternate name.
  * The key is the alternate name, the value is the standard name.
@@ -213,6 +216,7 @@ public final class ExtendedEnum<T extends Named> {
         try {
           R instance = enumType.cast(field.get(null));
           instances.putIfAbsent(instance.getName(), instance);
+          instances.putIfAbsent(instance.getName().toUpperCase(Locale.ENGLISH), instance);
         } catch (Exception ex) {
           throw new IllegalArgumentException("Unable to query field: " + field, ex);
         }
@@ -232,7 +236,12 @@ public final class ExtendedEnum<T extends Named> {
     if (!config.contains(ALTERNATES_SECTION)) {
       return ImmutableMap.of();
     }
-    return config.section(ALTERNATES_SECTION).asMap();
+    Map<String, String> alternates = new HashMap<>();
+    for (Entry<String, String> entry : config.section(ALTERNATES_SECTION).asMap().entrySet()) {
+      alternates.put(entry.getKey(), entry.getValue());
+      alternates.putIfAbsent(entry.getKey().toUpperCase(Locale.ENGLISH), entry.getValue());
+    }
+    return ImmutableMap.copyOf(alternates);
   }
 
   // parses the external names.
@@ -340,8 +349,9 @@ public final class ExtendedEnum<T extends Named> {
    * This method returns all known instances.
    * It is permitted for an enum provider implementation to return an empty map,
    * thus the map may not be complete.
-   * The map may include instances keyed under an alternate name, however it
-   * will not include the base set of {@linkplain #alternateNames() alternate names}.
+   * The map may include instances keyed under an alternate name, such as names
+   * in upper case, however it will not include the base set of
+   * {@linkplain #alternateNames() alternate names}.
    * 
    * @return the map of enum instance by name
    */
@@ -354,6 +364,33 @@ public final class ExtendedEnum<T extends Named> {
       }
     }
     return ImmutableMap.copyOf(map);
+  }
+
+  /**
+   * Returns the map of known instances by normalized name.
+   * <p>
+   * This method returns all known instances, keyed by the normalized name.
+   * This is equivalent to the result of {@link #lookupAll()} adjusted such
+   * that each entry is keyed by the result of {@link Named#getName()}.
+   * 
+   * @return the map of enum instance by name
+   */
+  public ImmutableMap<String, T> lookupAllNormalized() {
+    // add values that are keyed under the normalized name
+    // keep values keyed under a non-normalized name
+    Map<String, T> result = new HashMap<>();
+    Map<String, T> others = new HashMap<>();
+    for (Entry<String, T> entry : lookupAll().entrySet()) {
+      String normalizedName = entry.getValue().getName();
+      if (entry.getKey().equals(normalizedName)) {
+        result.put(normalizedName, entry.getValue());
+      } else {
+        others.put(normalizedName, entry.getValue());
+      }
+    }
+    // include any values that are only keyed under a non-normalized name
+    others.values().forEach(v -> result.putIfAbsent(v.getName(), v));
+    return ImmutableMap.copyOf(result);
   }
 
   /**
@@ -399,7 +436,7 @@ public final class ExtendedEnum<T extends Named> {
     if (externals == null) {
       throw new IllegalArgumentException(type.getSimpleName() + " group not found: " + group);
     }
-    return new ExternalEnumNames<T>(this, group, externals);
+    return new ExternalEnumNames<>(this, group, externals);
   }
 
   //-------------------------------------------------------------------------
@@ -423,7 +460,7 @@ public final class ExtendedEnum<T extends Named> {
    * 
    * @param <T>  the type of the enum
    */
-  public static class ExternalEnumNames<T extends Named> {
+  public static final class ExternalEnumNames<T extends Named> {
 
     private ExtendedEnum<T> extendedEnum;
     private String group;

@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
@@ -166,7 +166,7 @@ public final class CurrencyAmount
    * This adds the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add, in the same currency
    * @return an amount based on this with the specified amount added
@@ -184,7 +184,7 @@ public final class CurrencyAmount
    * This adds the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
@@ -199,7 +199,7 @@ public final class CurrencyAmount
    * This subtracts the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract, in the same currency
    * @return an amount based on this with the specified amount subtracted
@@ -217,7 +217,7 @@ public final class CurrencyAmount
    * This subtracts the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -233,7 +233,7 @@ public final class CurrencyAmount
    * This takes this amount and multiplies it by the specified value.
    * The multiplication simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param valueToMultiplyBy  the scalar amount to multiply by
    * @return an amount based on this with the amount multiplied
@@ -263,14 +263,15 @@ public final class CurrencyAmount
   /**
    * Returns a copy of this {@code CurrencyAmount} with the amount negated.
    * <p>
-   * This takes this amount and negates it.
+   * This takes this amount and negates it. If the amount is 0.0 or -0.0 the negated amount is 0.0.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return an amount based on this with the amount negated
    */
   public CurrencyAmount negated() {
-    return new CurrencyAmount(currency, -amount);
+    // Zero is treated as a special case to avoid creating -0.0 which produces surprising equality behaviour
+    return new CurrencyAmount(currency, amount == 0d ? 0d : -amount);
   }
 
   /**
@@ -278,7 +279,7 @@ public final class CurrencyAmount
    * <p>
    * The result of this method will always be positive, where the amount is equal to {@code Math.abs(amount)}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a currency amount based on this where the amount is positive
    */
@@ -291,7 +292,7 @@ public final class CurrencyAmount
    * <p>
    * The result of this method will always be negative, equal to {@code -Math.abs(amount)}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a currency amount based on this where the amount is negative
    */
@@ -340,8 +341,8 @@ public final class CurrencyAmount
     if (currency.equals(resultCurrency)) {
       return this;
     }
-    double fxRate = rateProvider.fxRate(currency, resultCurrency);
-    return CurrencyAmount.of(resultCurrency, amount * fxRate);
+    double converted = rateProvider.convert(amount, currency, resultCurrency);
+    return CurrencyAmount.of(resultCurrency, converted);
   }
 
   //-------------------------------------------------------------------------

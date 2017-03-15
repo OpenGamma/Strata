@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.interpolation;
@@ -18,7 +18,7 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivit
  * The interpolation can be clamped at {xValuesClamped[j], xValuesClamped[j] * yValuesClamped[j]}, i.e., {xValuesClamped[j], yValuesClamped[j]}, 
  * where the extra points can be inside or outside the data range. 
  * By default right extrapolation is completed with a linear function, whereas default left extrapolation uses polynomial coefficients for the leftmost interval 
- * and left linear extrapolation can be straightforwardly computed from the coefficients.  
+ * and left linear extrapolation can be straightforwardly computed from the coefficients.
  * This default setting is changed by adding extra node points outside the data range. 
  */
 public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialInterpolator {

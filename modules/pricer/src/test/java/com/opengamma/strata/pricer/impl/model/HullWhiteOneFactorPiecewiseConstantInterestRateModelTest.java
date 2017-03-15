@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.model;
@@ -15,6 +15,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -24,7 +25,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
@@ -32,6 +33,7 @@ import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseCo
 @Test
 public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double MEAN_REVERSION = 0.01;
   private static final DoubleArray VOLATILITY = DoubleArray.of(0.01, 0.011, 0.012, 0.013, 0.014);
   private static final DoubleArray VOLATILITY_TIME = DoubleArray.of(0.5, 1.0, 2.0, 5.0);
@@ -68,10 +70,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   public void setter() {
     double volReplaced = 0.02;
-    HullWhiteOneFactorPiecewiseConstantParameters param1 = MODEL_PARAMETERS.setLastVolatility(volReplaced);
+    HullWhiteOneFactorPiecewiseConstantParameters param1 = MODEL_PARAMETERS.withLastVolatility(volReplaced);
     assertEquals(volReplaced, param1.getVolatility().get(param1.getVolatility().size() - 1));
     HullWhiteOneFactorPiecewiseConstantParameters param2 =
-        MODEL_PARAMETERS.setLastVolatility(VOLATILITY.get(VOLATILITY.size() - 1));
+        MODEL_PARAMETERS.withLastVolatility(VOLATILITY.get(VOLATILITY.size() - 1));
     for (int loopperiod = 0; loopperiod < param2.getVolatility().size(); loopperiod++) {
       assertEquals(VOLATILITY.get(loopperiod), param2.getVolatility().get(loopperiod));
     }
@@ -95,12 +97,12 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   public void futureConvexityFactor() {
     LocalDate SPOT_DATE = LocalDate.of(2012, 9, 19);
-    LocalDate LAST_TRADING_DATE = EURIBOR3M.calculateFixingFromEffective(SPOT_DATE);
+    LocalDate LAST_TRADING_DATE = EURIBOR3M.calculateFixingFromEffective(SPOT_DATE, REF_DATA);
     LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
     double tradeLastTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(REFERENCE_DATE, LAST_TRADING_DATE);
     double fixStartTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(REFERENCE_DATE, SPOT_DATE);
     double fixEndTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(
-        REFERENCE_DATE, EURIBOR3M.calculateMaturityFromEffective(SPOT_DATE));
+        REFERENCE_DATE, EURIBOR3M.calculateMaturityFromEffective(SPOT_DATE, REF_DATA));
     double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, tradeLastTime, fixStartTime, fixEndTime);
     double expectedFactor = 1.000079130767980;
     assertEquals(expectedFactor, factor, TOLERANCE_RATE);
@@ -109,7 +111,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     ValueDerivatives factorDeriv =
         MODEL.futuresConvexityFactorAdjoint(MODEL_PARAMETERS, tradeLastTime, fixStartTime, fixEndTime);
     double factor2 = factorDeriv.getValue();
-    double[] sigmaBar = factorDeriv.getDerivatives();
+    double[] sigmaBar = factorDeriv.getDerivatives().toArray();
     assertEquals(factor, factor2, TOLERANCE_RATE);
     double[] sigmaBarExpected = new double[nbSigma];
     double shift = 1E-6;
@@ -198,7 +200,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     int nbVolatility = VOLATILITY.size();
     ValueDerivatives alphaDeriv = MODEL.alphaAdjoint(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity);
     double alpha = alphaDeriv.getValue();
-    double[] alphaDerivatives = alphaDeriv.getDerivatives();
+    double[] alphaDerivatives = alphaDeriv.getDerivatives().toArray();
     double alpha2 = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity);
     assertEquals(alpha2, alpha, 1.0E-10);
     double shiftVol = 1.0E-6;
@@ -276,7 +278,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double x = 0.0;
     ValueDerivatives computed = MODEL.swapRateDdcff1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     double swapRateComputed = computed.getValue();
-    double[] ddcffComputed = computed.getDerivatives();
+    double[] ddcffComputed = computed.getDerivatives().toArray();
     double swapRateExpected = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     assertEquals(swapRateComputed, swapRateExpected, TOLERANCE_RATE);
     double[] ddcffExpected = new double[DCF_FIXED.size()];
@@ -299,7 +301,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       ddcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     double[] ddcfiComputed = MODEL.swapRateDdcfi1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR)
-        .getDerivatives();
+        .getDerivatives().toArray();
     assertTrue(DoubleArrayMath.fuzzyEquals(ddcfiExpected, ddcfiComputed, TOLERANCE_RATE_DELTA));
   }
 
@@ -308,7 +310,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double x = 0.0;
     ValueDerivatives computed = MODEL.swapRateDaf1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     double swapRateComputed = computed.getValue();
-    double[] dafComputed = computed.getDerivatives();
+    double[] dafComputed = computed.getDerivatives().toArray();
     double swapRateExpected = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     assertEquals(swapRateComputed, swapRateExpected, TOLERANCE_RATE);
     double[] dafExpected = new double[ALPHA_FIXED.size()];
@@ -330,7 +332,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, DoubleArray.copyOf(aiBumped));
       daiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
-    double[] daiComputed = MODEL.swapRateDai1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR).getDerivatives();
+    double[] daiComputed = MODEL.swapRateDai1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR).getDerivatives().toArray();
     assertTrue(DoubleArrayMath.fuzzyEquals(daiExpected, daiComputed, TOLERANCE_RATE_DELTA));
   }
 
@@ -387,8 +389,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   }
 
   //-------------------------------------------------------------------------
-  // Here methods used for Bermudan swaption pricing and Monte-Carlo are test weakly by regression to 2.x. 
-  // Proper tests should be added when these pricing methodologies are available. 
+  // Here methods used for Bermudan swaption pricing and Monte-Carlo are test weakly by regression to 2.x.
+  // Proper tests should be added when these pricing methodologies are available.
   public void test_beta() {
     double[] theta = new double[] {0.0, 0.9930234298974474, 1.5013698630136987, 1.9917808219178081, 2.5013698630136987,
       2.9972602739726026, 3.5013698630136987, 3.9972602739726026, 4.501220151208923, 4.998487910771765,
@@ -470,7 +472,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   }
 
   /**
-   * Test the payment delay convexity adjustment factor. Analysis of the size. 
+   * Test the payment delay convexity adjustment factor. Analysis of the size.
    * In normal test, should have (enabled=false)
    */
   @Test(enabled = false)

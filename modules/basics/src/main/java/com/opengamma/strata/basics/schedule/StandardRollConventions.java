@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.schedule;
@@ -32,6 +32,13 @@ enum StandardRollConventions implements RollConvention {
     public LocalDate adjust(LocalDate date) {
       ArgChecker.notNull(date, "date");
       return date.withDayOfMonth(date.lengthOfMonth());
+    }
+
+    @Override
+    public int getDayOfMonth() {
+      // EOM is equivalent to 31 in FpML in most cases
+      // because roll conventions 30 and 29 also have to adjust to end of February
+      return 31;
     }
   },
 

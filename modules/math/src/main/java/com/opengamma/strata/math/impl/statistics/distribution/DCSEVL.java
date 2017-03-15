@@ -1,25 +1,25 @@
-/**
+/*
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * Computes the n-term Chebychev series at point 'x'
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * http://www.netlib.org/slatec/fnlib/dcsevl.f
  */
-class DCSEVL {
+final class DCSEVL {
 
   /**
    * Numerically, one plus machine precision
    */
-  private static double s_onepl;
+  private static double ONEPL;
   static {
-    s_onepl = 1.0 + D1MACH.four();
+    ONEPL = 1.0 + D1MACH.four();
   }
 
   /**
@@ -29,7 +29,7 @@ class DCSEVL {
    * @param n the number of terms in the double[] cs
    * @return the evaluated series
    */
-  static double getDCSEVL(double x, double[] cs, int n) {
+  static double compute(double x, double[] cs, int n) {
     if (cs == null) {
       throw new MathException("DCSEVL: cs is null");
     }
@@ -39,7 +39,7 @@ class DCSEVL {
     if (n > 1000) {
       throw new MathException("DCSEVL: number of terms > 1000");
     }
-    if (Math.abs(x) > s_onepl) {
+    if (Math.abs(x) > ONEPL) {
       throw new MathException("DCSEVL: x outside of the interval [-1,+1)");
     }
     if (n > cs.length) {

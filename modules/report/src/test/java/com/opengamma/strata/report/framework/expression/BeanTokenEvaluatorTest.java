@@ -1,16 +1,15 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
@@ -19,27 +18,30 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
+import com.opengamma.strata.measure.StandardComponents;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.swap.SwapLegType;
 
 @Test
 public class BeanTokenEvaluatorTest {
 
+  private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
+
   public void evaluate() {
     Bean bean = bean();
     BeanTokenEvaluator evaluator = new BeanTokenEvaluator();
 
-    EvaluationResult notional1 = evaluator.evaluate(bean, "notional", ImmutableList.of());
+    EvaluationResult notional1 = evaluator.evaluate(bean, FUNCTIONS, "notional", ImmutableList.of());
     assertThat(notional1.getResult()).hasValue(1_000_000d);
 
-    EvaluationResult notional2 = evaluator.evaluate(bean, "Notional", ImmutableList.of());
+    EvaluationResult notional2 = evaluator.evaluate(bean, FUNCTIONS, "Notional", ImmutableList.of());
     assertThat(notional2.getResult()).hasValue(1_000_000d);
   }
 
@@ -84,11 +86,11 @@ public class BeanTokenEvaluatorTest {
     LegAmounts amounts = LegAmounts.of(amount);
     BeanTokenEvaluator evaluator = new BeanTokenEvaluator();
 
-    EvaluationResult result1 = evaluator.evaluate(amounts, "amounts", ImmutableList.of("foo", "bar"));
+    EvaluationResult result1 = evaluator.evaluate(amounts, FUNCTIONS, "amounts", ImmutableList.of("foo", "bar"));
     assertThat(result1.getResult()).hasValue(ImmutableList.of(amount));
     assertThat(result1.getRemainingTokens()).isEqualTo(ImmutableList.of("foo", "bar"));
 
-    EvaluationResult result2 = evaluator.evaluate(amounts, "baz", ImmutableList.of("foo", "bar"));
+    EvaluationResult result2 = evaluator.evaluate(amounts, FUNCTIONS, "baz", ImmutableList.of("foo", "bar"));
     assertThat(result2.getResult()).hasValue(ImmutableList.of(amount));
     assertThat(result2.getRemainingTokens()).isEqualTo(ImmutableList.of("baz", "foo", "bar"));
   }
@@ -117,8 +119,7 @@ public class BeanTokenEvaluatorTest {
         .notional(1_000_000)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).toAdjustedDate(date(2015, 8, 5)))
+        .paymentDate(AdjustableDate.of(date(2015, 8, 7)))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();

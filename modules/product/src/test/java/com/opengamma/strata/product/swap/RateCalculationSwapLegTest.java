@@ -1,19 +1,17 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.swap;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -26,7 +24,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.CompoundingMethod.STRAIGHT;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 import static org.testng.Assert.assertEquals;
@@ -38,20 +40,25 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 
 /**
  * Test.
@@ -59,6 +66,7 @@ import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 @Test
 public class RateCalculationSwapLegTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_01_02 = date(2014, 1, 2);
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
@@ -86,11 +94,12 @@ public class RateCalculationSwapLegTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_01_05)
         .endDate(DATE_04_05)
         .frequency(P1M)
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(P1M)
@@ -108,8 +117,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), DATE_01_06);
-    assertEquals(test.getEndDate(), DATE_04_07);
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_01_05, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_04_05, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), PAY);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -180,7 +189,7 @@ public class RateCalculationSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand_oneAccrualPerPayment_fixedRate() {
+  public void test_resolve_oneAccrualPerPayment_fixedRate() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -208,7 +217,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_02_05)
             .unadjustedStartDate(DATE_01_05)
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -220,7 +229,7 @@ public class RateCalculationSwapLegTest {
             .startDate(DATE_02_05)
             .endDate(DATE_03_05)
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -233,21 +242,88 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_04_07)
             .unadjustedEndDate(DATE_04_05)
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .build();
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .build());
   }
 
-  public void test_expand_twoAccrualsPerPayment_iborRate_varyingNotional_notionalExchange() {
+  public void test_resolve_knownAmountStub() {
+    // test case
+    CurrencyAmount knownAmount = CurrencyAmount.of(GBP, 150d);
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_02_03)
+            .endDate(DATE_04_03)
+            .firstRegularStartDate(DATE_02_05)
+            .lastRegularEndDate(DATE_03_05)
+            .frequency(P1M)
+            .stubConvention(StubConvention.BOTH)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .initialStub(FixedRateStubCalculation.ofKnownAmount(knownAmount))
+            .finalStub(FixedRateStubCalculation.ofFixedRate(0.1d))
+            .build())
+        .build();
+    // expected
+    KnownAmountNotionalSwapPaymentPeriod pp1 = KnownAmountNotionalSwapPaymentPeriod.builder()
+        .payment(Payment.of(knownAmount, DATE_02_07))
+        .startDate(DATE_02_03)
+        .endDate(DATE_02_05)
+        .unadjustedStartDate(DATE_02_03)
+        .notionalAmount(CurrencyAmount.of(GBP, -1000d))
+        .build();
+    RatePaymentPeriod rpp2 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_03_07)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_02_05)
+            .endDate(DATE_03_05)
+            .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    RatePaymentPeriod rpp3 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_04_07)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_03_05)
+            .endDate(DATE_04_03)
+            .unadjustedEndDate(DATE_04_03)
+            .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_03))
+            .rateComputation(FixedRateComputation.of(0.1d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    // assertion
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(pp1, rpp2, rpp3)
+        .build());
+  }
+
+  public void test_resolve_twoAccrualsPerPayment_iborRate_varyingNotional_notionalExchange() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -284,13 +360,13 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_02_05)
                 .unadjustedStartDate(DATE_01_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_02))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_02_05)
                 .endDate(DATE_03_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
                 .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -305,7 +381,7 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_04_07)
                 .unadjustedEndDate(DATE_04_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_04_07)
@@ -313,7 +389,7 @@ public class RateCalculationSwapLegTest {
                 .unadjustedStartDate(DATE_04_05)
                 .unadjustedEndDate(DATE_05_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_04_07, DATE_05_06))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_04_03))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_04_03, REF_DATA))
                 .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -327,7 +403,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_06_05)
             .unadjustedStartDate(DATE_05_05)
             .yearFraction(ACT_365F.yearFraction(DATE_05_06, DATE_06_05))
-            .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_05_01))
+            .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_05_01, REF_DATA))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -335,11 +411,11 @@ public class RateCalculationSwapLegTest {
         .compoundingMethod(STRAIGHT)
         .build();
     // events (only one intermediate exchange)
-    NotionalExchange nexInitial = NotionalExchange.of(DATE_01_06, CurrencyAmount.of(GBP, 1000d));
-    NotionalExchange nexIntermediate = NotionalExchange.of(DATE_03_07, CurrencyAmount.of(GBP, 500d));
-    NotionalExchange nexFinal = NotionalExchange.of(DATE_06_09, CurrencyAmount.of(GBP, -1500d));
+    NotionalExchange nexInitial = NotionalExchange.of(CurrencyAmount.of(GBP, 1000d), DATE_01_06);
+    NotionalExchange nexIntermediate = NotionalExchange.of(CurrencyAmount.of(GBP, 500d), DATE_03_07);
+    NotionalExchange nexFinal = NotionalExchange.of(CurrencyAmount.of(GBP, -1500d), DATE_06_09);
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
@@ -347,7 +423,7 @@ public class RateCalculationSwapLegTest {
         .build());
   }
 
-  public void test_expand_threeAccrualsPerPayment() {
+  public void test_resolve_threeAccrualsPerPayment() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -377,20 +453,20 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_02_05)
                 .unadjustedStartDate(DATE_01_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-                .rateObservation(FixedRateObservation.of(0.025d))
+                .rateComputation(FixedRateComputation.of(0.025d))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_02_05)
                 .endDate(DATE_03_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-                .rateObservation(FixedRateObservation.of(0.025d))
+                .rateComputation(FixedRateComputation.of(0.025d))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_03_05)
                 .endDate(DATE_04_07)
                 .unadjustedEndDate(DATE_04_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-                .rateObservation(FixedRateObservation.of(0.025d))
+                .rateComputation(FixedRateComputation.of(0.025d))
                 .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -398,7 +474,7 @@ public class RateCalculationSwapLegTest {
         .compoundingMethod(STRAIGHT)
         .build();
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1)
@@ -406,7 +482,7 @@ public class RateCalculationSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand_oneAccrualPerPayment_fxReset() {
+  public void test_resolve_oneAccrualPerPayment_fxReset() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -442,12 +518,12 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_02_05)
             .unadjustedStartDate(DATE_01_05)
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
-        .fxReset(FxReset.of(EUR_GBP_ECB, EUR, DATE_01_02))
+        .fxReset(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA), EUR))
         .build();
     RatePaymentPeriod rpp2 = RatePaymentPeriod.builder()
         .paymentDate(DATE_03_07)
@@ -455,12 +531,12 @@ public class RateCalculationSwapLegTest {
             .startDate(DATE_02_05)
             .endDate(DATE_03_05)
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
-        .fxReset(FxReset.of(EUR_GBP_ECB, EUR, DATE_02_03))
+        .fxReset(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA), EUR))
         .build();
     RatePaymentPeriod rpp3 = RatePaymentPeriod.builder()
         .paymentDate(DATE_04_09)
@@ -469,57 +545,27 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_04_07)
             .unadjustedEndDate(DATE_04_05)
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
-        .fxReset(FxReset.of(EUR_GBP_ECB, EUR, DATE_03_03))
+        .fxReset(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA), EUR))
         .build();
-    FxResetNotionalExchange ne1a = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_01_06)
-        .referenceCurrency(EUR)
-        .index(EUR_GBP_ECB)
-        .notional(1000d)
-        .fixingDate(DATE_01_02)
-        .build();
-    FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_02_07)
-        .referenceCurrency(EUR)
-        .index(EUR_GBP_ECB)
-        .notional(-1000d)
-        .fixingDate(DATE_01_02)
-        .build();
-    FxResetNotionalExchange ne2a = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_02_07)
-        .referenceCurrency(EUR)
-        .index(EUR_GBP_ECB)
-        .notional(1000d)
-        .fixingDate(DATE_02_03)
-        .build();
-    FxResetNotionalExchange ne2b = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_03_07)
-        .referenceCurrency(EUR)
-        .index(EUR_GBP_ECB)
-        .notional(-1000d)
-        .fixingDate(DATE_02_03)
-        .build();
-    FxResetNotionalExchange ne3a = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_03_07)
-        .referenceCurrency(EUR)
-        .index(EUR_GBP_ECB)
-        .notional(1000d)
-        .fixingDate(DATE_03_03)
-        .build();
-    FxResetNotionalExchange ne3b = FxResetNotionalExchange.builder()
-        .paymentDate(DATE_04_09)
-        .referenceCurrency(EUR)
-        .index(EUR_GBP_ECB)
-        .notional(-1000d)
-        .fixingDate(DATE_03_03)
-        .build();
+    FxResetNotionalExchange ne1a = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, 1000d), DATE_01_06, FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA));
+    FxResetNotionalExchange ne1b = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, -1000d), DATE_02_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA));
+    FxResetNotionalExchange ne2a = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, 1000d), DATE_02_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA));
+    FxResetNotionalExchange ne2b = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, -1000d), DATE_03_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA));
+    FxResetNotionalExchange ne3a = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, 1000d), DATE_03_07, FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA));
+    FxResetNotionalExchange ne3b = FxResetNotionalExchange.of(
+        CurrencyAmount.of(EUR, -1000d), DATE_04_09, FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA));
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
@@ -529,12 +575,12 @@ public class RateCalculationSwapLegTest {
 
   //-------------------------------------------------------------------------
   public void test_inflation_monthly() {
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_14_06_09)
         .endDate(DATE_19_06_09)
         .frequency(Frequency.ofYears(5))
-        .businessDayAdjustment(adj)
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.ofYears(5))
@@ -542,7 +588,7 @@ public class RateCalculationSwapLegTest {
         .build();
     InflationRateCalculation rateCalc = InflationRateCalculation.builder()
         .index(GB_RPI)
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .lag(Period.ofMonths(3))
         .build();
     NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
@@ -553,8 +599,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
-    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_14_06_09, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_19_06_09, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), PAY);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -563,40 +609,40 @@ public class RateCalculationSwapLegTest {
     assertEquals(test.getCalculation(), rateCalc);
 
     RatePaymentPeriod rpp = RatePaymentPeriod.builder()
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09, REF_DATA), REF_DATA))
         .accrualPeriods(RateAccrualPeriod.builder()
-            .startDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_14_06_09))
-            .endDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_19_06_09))
+            .startDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_14_06_09, REF_DATA))
+            .endDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_19_06_09, REF_DATA))
             .unadjustedStartDate(DATE_14_06_09)
             .unadjustedEndDate(DATE_19_06_09)
             .yearFraction(1.0)
-            .rateObservation(
-                InflationMonthlyRateObservation.of(
+            .rateComputation(
+                InflationMonthlyRateComputation.of(
                     GB_RPI,
-                    YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
-                    YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3)))
+                    YearMonth.from(bda.adjust(DATE_14_06_09, REF_DATA)).minusMonths(3),
+                    YearMonth.from(bda.adjust(DATE_19_06_09, REF_DATA)).minusMonths(3)))
             .build())
         .dayCount(ONE_ONE)
         .currency(GBP)
         .notional(-1000d)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .paymentPeriods(rpp)
         .payReceive(PAY)
         .type(SwapLegType.INFLATION)
         .build();
-    ExpandedSwapLeg testExpand = test.expand();
-    assertEquals(testExpand, expected);
+    ResolvedSwapLeg testResolved = test.resolve(REF_DATA);
+    assertEquals(testResolved, expected);
 
   }
 
   public void test_inflation_interpolated() {
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_14_06_09)
         .endDate(DATE_19_06_09)
         .frequency(Frequency.ofYears(5))
-        .businessDayAdjustment(adj)
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.ofYears(5))
@@ -604,7 +650,7 @@ public class RateCalculationSwapLegTest {
         .build();
     InflationRateCalculation rateCalc = InflationRateCalculation.builder()
         .index(GB_RPI)
-        .interpolated(true)
+        .indexCalculationMethod(INTERPOLATED)
         .lag(Period.ofMonths(3))
         .build();
     NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
@@ -615,8 +661,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
-    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_14_06_09, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_19_06_09, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -626,40 +672,40 @@ public class RateCalculationSwapLegTest {
 
     double weight = 1. - 9.0 / 30.0;
     RatePaymentPeriod rpp0 = RatePaymentPeriod.builder()
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09, REF_DATA), REF_DATA))
         .accrualPeriods(RateAccrualPeriod.builder()
-            .startDate(adj.adjust(DATE_14_06_09))
-            .endDate(adj.adjust(DATE_19_06_09))
+            .startDate(bda.adjust(DATE_14_06_09, REF_DATA))
+            .endDate(bda.adjust(DATE_19_06_09, REF_DATA))
             .unadjustedStartDate(DATE_14_06_09)
             .unadjustedEndDate(DATE_19_06_09)
             .yearFraction(1.0)
-            .rateObservation(
-                InflationInterpolatedRateObservation.of(
+            .rateComputation(
+                InflationInterpolatedRateComputation.of(
                     GB_RPI,
-                    YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
-                    YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3),
+                    YearMonth.from(bda.adjust(DATE_14_06_09, REF_DATA)).minusMonths(3),
+                    YearMonth.from(bda.adjust(DATE_19_06_09, REF_DATA)).minusMonths(3),
                     weight))
             .build())
         .dayCount(ONE_ONE)
         .currency(GBP)
         .notional(1000d)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .paymentPeriods(rpp0)
         .payReceive(RECEIVE)
         .type(SwapLegType.INFLATION)
         .build();
-    ExpandedSwapLeg testExpand = test.expand();
+    ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
     assertEquals(testExpand, expected);
   }
 
   public void test_inflation_fixed() {
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_14_06_09)
         .endDate(DATE_19_06_09)
         .frequency(P12M)
-        .businessDayAdjustment(adj)
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.ofYears(5))
@@ -678,8 +724,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
-    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_14_06_09, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_19_06_09, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -687,59 +733,59 @@ public class RateCalculationSwapLegTest {
     assertEquals(test.getNotionalSchedule(), notionalSchedule);
     assertEquals(test.getCalculation(), rateCalc);
     RateAccrualPeriod rap0 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(1)))
+        .startDate(bda.adjust(DATE_14_06_09, REF_DATA))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(1), REF_DATA))
         .unadjustedStartDate(DATE_14_06_09)
         .unadjustedEndDate(DATE_14_06_09.plusYears(1))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(1)))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(2)))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(1), REF_DATA))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(2), REF_DATA))
         .unadjustedStartDate(DATE_14_06_09.plusYears(1))
         .unadjustedEndDate(DATE_14_06_09.plusYears(2))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(2)))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(3)))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(2), REF_DATA))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(3), REF_DATA))
         .unadjustedStartDate(DATE_14_06_09.plusYears(2))
         .unadjustedEndDate(DATE_14_06_09.plusYears(3))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(3)))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(4)))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(3), REF_DATA))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(4), REF_DATA))
         .unadjustedStartDate(DATE_14_06_09.plusYears(3))
         .unadjustedEndDate(DATE_14_06_09.plusYears(4))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap4 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(4)))
-        .endDate(adj.adjust(DATE_19_06_09))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(4), REF_DATA))
+        .endDate(bda.adjust(DATE_19_06_09, REF_DATA))
         .unadjustedStartDate(DATE_14_06_09.plusYears(4))
         .unadjustedEndDate(DATE_19_06_09)
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RatePaymentPeriod rpp = RatePaymentPeriod.builder()
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09, REF_DATA), REF_DATA))
         .accrualPeriods(rap0, rap1, rap2, rap3, rap4)
         .compoundingMethod(STRAIGHT)
         .dayCount(ONE_ONE)
         .currency(GBP)
         .notional(1000d)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .paymentPeriods(rpp)
         .payReceive(RECEIVE)
         .type(SwapLegType.FIXED)
         .build();
-    ExpandedSwapLeg testExpand = test.expand();
+    ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
     assertEquals(testExpand, expected);
   }
 

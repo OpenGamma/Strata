@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
@@ -19,11 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionGenerator;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.PSplineFitter;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -257,10 +253,6 @@ public class GeneralizedLeastSquareTest {
 
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
-    final Interpolator1D interpolator = new CombinedInterpolatorExtrapolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE);
-
     final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
     final double[] yData = new double[] {0.972452371,
       0.749039802,
@@ -283,11 +275,6 @@ public class GeneralizedLeastSquareTest {
       yData2[i] = yData[i] * yData[i] * xData[i];
     }
 
-    Interpolator1DDataBundle db = interpolator.getDataBundle(xData, yData);
-    Interpolator1DDataBundle dbLog = interpolator.getDataBundle(lnX, yData);
-    Interpolator1DDataBundle dbVar = interpolator.getDataBundle(xData, yData2);
-    Interpolator1DDataBundle dbVarLog = interpolator.getDataBundle(lnX, yData2);
-
     final double[] sigma = new double[n];
     Arrays.fill(sigma, 0.01);
     final GeneralizedLeastSquareResults<Double> results = gls.solve(xData, yData, sigma, basisFuncs, 1000.0, 2);
@@ -306,9 +293,8 @@ public class GeneralizedLeastSquareTest {
       for (int i = 0; i < 101; i++) {
         final double logX = -5 + 8 * i / 100.;
         final double x = Math.exp(logX);
-        System.out.println(x + "\t" + +logX + "\t" + spline.apply(x) + "\t" + interpolator.interpolate(db, x) + "\t"
-            + splineLog.apply(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.apply(x) + "\t"
-            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.apply(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
+        System.out.println(x + "\t" + +logX + "\t" + spline.apply(x) + "\t"
+            + splineLog.apply(logX) + "\t" + splineVar.apply(x) + "\t" + splineVarLog.apply(logX));
       }
       for (int i = 0; i < n; i++) {
         System.out.println(lnX[i] + "\t" + yData[i]);

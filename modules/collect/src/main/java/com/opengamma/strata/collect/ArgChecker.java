@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.math.DoubleMath;
 
 /**
@@ -296,15 +297,56 @@ public final class ArgChecker {
   public static String matches(Pattern pattern, String argument, String name) {
     notNull(pattern, "pattern");
     notNull(argument, name);
-    if (pattern.matcher(argument).matches() == false) {
-      throw new IllegalArgumentException(matchesMsg(pattern, name));
+    if (!pattern.matcher(argument).matches()) {
+      throw new IllegalArgumentException(matchesMsg(pattern, name, argument));
     }
     return argument;
   }
 
   // extracted to aid inlining performance
-  private static String matchesMsg(Pattern pattern, String name) {
-    return "Argument '" + name + "' must match pattern: " + pattern;
+  private static String matchesMsg(Pattern pattern, String name, String value) {
+    return "Argument '" + name + "' with value '" + value + "' must match pattern: " + pattern;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the specified argument is non-null and only contains the specified characters.
+   * <p>
+   * Given the input argument, this returns only if it is non-null and matches
+   * the {@link CharMatcher} specified.
+   * For example, in a constructor:
+   * <pre>
+   *  this.name = ArgChecker.matches(REGEX_NAME, 1, Integer.MAX_VALUE, name, "name", "[A-Z]+");
+   * </pre>
+   * 
+   * @param matcher  the matcher to check against, not null
+   * @param minLength  the minimum length to allow
+   * @param maxLength  the minimum length to allow
+   * @param argument  the argument to check, null throws an exception
+   * @param name  the name of the argument to use in the error message, not null
+   * @param equivalentRegex  the equivalent regular expression pattern
+   * @return the input {@code argument}, not null
+   * @throws IllegalArgumentException if the input is null or empty
+   */
+  public static String matches(
+      CharMatcher matcher,
+      int minLength,
+      int maxLength,
+      String argument,
+      String name,
+      String equivalentRegex) {
+
+    notNull(matcher, "pattern");
+    notNull(argument, name);
+    if (argument.length() < minLength || argument.length() > maxLength || !matcher.matchesAllOf(argument)) {
+      throw new IllegalArgumentException(matchesMsg(matcher, name, argument, equivalentRegex));
+    }
+    return argument;
+  }
+
+  // extracted to aid inlining performance
+  private static String matchesMsg(CharMatcher matcher, String name, String value, String equivalentRegex) {
+    return "Argument '" + name + "' with value '" + value + "' must match pattern: " + equivalentRegex;
   }
 
   //-------------------------------------------------------------------------

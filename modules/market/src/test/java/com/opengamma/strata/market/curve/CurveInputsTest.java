@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -15,9 +15,9 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.market.observable.QuoteId;
 
 /**
  * Test {@link CurveInputs}.
@@ -25,10 +25,10 @@ import com.opengamma.strata.market.key.QuoteKey;
 @Test
 public class CurveInputsTest {
 
-  private static final Map<MarketDataKey<?>, Object> DATA_MAP =
-      ImmutableMap.of(QuoteKey.of(StandardId.of("OG", "Ticker")), 6d);
-  private static final Map<MarketDataKey<?>, Object> DATA_MAP2 =
-      ImmutableMap.of(QuoteKey.of(StandardId.of("OG", "Ticker")), 7d);
+  private static final Map<MarketDataId<?>, Object> DATA_MAP =
+      ImmutableMap.of(QuoteId.of(StandardId.of("OG", "Ticker")), 6d);
+  private static final Map<MarketDataId<?>, Object> DATA_MAP2 =
+      ImmutableMap.of(QuoteId.of(StandardId.of("OG", "Ticker")), 7d);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("Test");
   private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of("Test2");
 

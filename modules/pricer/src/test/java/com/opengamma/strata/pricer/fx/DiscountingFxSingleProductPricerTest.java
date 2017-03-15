@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -17,14 +17,12 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.fx.FxSingle;
+import com.opengamma.strata.product.fx.ResolvedFxSingle;
 
 /**
  * Test {@link DiscountingFxSingleProductPricer}.
@@ -39,7 +37,8 @@ public class DiscountingFxSingleProductPricerTest {
   private static final LocalDate PAYMENT_DATE_PAST = RatesProviderFxDataSets.VAL_DATE_2014_01_22.minusDays(1);
   private static final double NOMINAL_USD = 100_000_000;
   private static final double FX_RATE = 1123.45;
-  private static final FxSingle FWD = FxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE);
+  private static final ResolvedFxSingle FWD = ResolvedFxSingle.of(
+      CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE);
   private static final DiscountingFxSingleProductPricer PRICER = DiscountingFxSingleProductPricer.DEFAULT;
   private static final double TOL = 1.0e-12;
   private static final double EPS_FD = 1E-7;
@@ -55,26 +54,29 @@ public class DiscountingFxSingleProductPricerTest {
   }
 
   public void test_presentValue_ended() {
-    FxSingle fwd = FxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
+    ResolvedFxSingle fwd =
+        ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     MultiCurrencyAmount computed = PRICER.presentValue(fwd, PROVIDER);
     assertEquals(computed, MultiCurrencyAmount.empty());
   }
 
   public void test_parSpread() {
     double spread = PRICER.parSpread(FWD, PROVIDER);
-    FxSingle fwdSp = FxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE + spread), PAYMENT_DATE);
+    ResolvedFxSingle fwdSp =
+        ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE + spread), PAYMENT_DATE);
     MultiCurrencyAmount pv = PRICER.presentValue(fwdSp, PROVIDER);
     assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
   }
 
   public void test_parSpread_ended() {
-    FxSingle fwd = FxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
+    ResolvedFxSingle fwd =
+        ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     double spread = PRICER.parSpread(fwd, PROVIDER);
     assertEquals(spread, 0d, TOL);
   }
 
   public void test_forwardFxRate() {
-    // forward rate is computed by discounting for any RatesProvider input. 
+    // forward rate is computed by discounting for any RatesProvider input.
     FxRate computed = PRICER.forwardFxRate(FWD, PROVIDER);
     double df1 = PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double df2 = PROVIDER.discountFactor(KRW, PAYMENT_DATE);
@@ -98,16 +100,17 @@ public class DiscountingFxSingleProductPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(FWD, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expectedUsd = CAL_FD.sensitivity(
-        (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(USD));
-    CurveCurrencyParameterSensitivities expectedKrw = CAL_FD.sensitivity(
-        (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(KRW));
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expectedUsd =
+        CAL_FD.sensitivity(PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(USD));
+    CurrencyParameterSensitivities expectedKrw =
+        CAL_FD.sensitivity(PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(KRW));
     assertTrue(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD));
   }
 
   public void test_presentValueSensitivity_ended() {
-    FxSingle fwd = FxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
+    ResolvedFxSingle fwd =
+        ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     PointSensitivities computed = PRICER.presentValueSensitivity(fwd, PROVIDER);
     assertEquals(computed, PointSensitivities.empty());
   }
@@ -126,6 +129,8 @@ public class DiscountingFxSingleProductPricerTest {
 
   public void test_currentCash_onPayment() {
     MultiCurrencyAmount computed = PRICER.currentCash(FWD, PAYMENT_DATE);
-    assertEquals(computed, MultiCurrencyAmount.of(FWD.getBaseCurrencyAmount(), FWD.getCounterCurrencyAmount()));
+    assertEquals(computed, MultiCurrencyAmount.of(
+        FWD.getBaseCurrencyPayment().getValue(),
+        FWD.getCounterCurrencyPayment().getValue()));
   }
 }

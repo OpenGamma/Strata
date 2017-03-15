@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -18,10 +18,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -53,7 +53,7 @@ public final class ObjDoublePair<A>
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code ObjectDoublePair} from an {@code Object} and a {@code double}.
+   * Obtains an instance from an {@code Object} and a {@code double}.
    * 
    * @param <A> the first element type
    * @param first  the first element
@@ -65,7 +65,7 @@ public final class ObjDoublePair<A>
   }
 
   /**
-   * Obtains an {@code ObjectDoublePair} from a {@code Pair}.
+   * Obtains an instance from a {@code Pair}.
    * 
    * @param <A> the first element type
    * @param pair  the pair to convert
@@ -350,7 +350,7 @@ public final class ObjDoublePair<A>
    * The bean-builder for {@code ObjDoublePair}.
    * @param <A>  the type
    */
-  private static final class Builder<A> extends DirectFieldsBeanBuilder<ObjDoublePair<A>> {
+  private static final class Builder<A> extends DirectPrivateBeanBuilder<ObjDoublePair<A>> {
 
     private A first;
     private double second;
@@ -359,6 +359,7 @@ public final class ObjDoublePair<A>
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -387,30 +388,6 @@ public final class ObjDoublePair<A>
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder<A> set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<A> setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder<A> setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<A> setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

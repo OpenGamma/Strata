@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -180,6 +180,7 @@ public class TestHelper {
   /**
    * Asserts that the object can be serialized and deserialized via a string using Joda-Convert.
    * 
+   * @param <T>  the type
    * @param cls  the effective type
    * @param base  the object to be tested
    */
@@ -253,11 +254,25 @@ public class TestHelper {
   }
 
   /**
+   * Asserts that the lambda-based code throws an {@code RuntimeException}.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrowsRuntime(() -> new Foo(null));
+   * </pre>
+   * 
+   * @param runner  the lambda containing the code to test
+   */
+  public static void assertThrowsRuntime(AssertRunnable runner) {
+    assertThrows(runner, RuntimeException.class);
+  }
+
+  /**
    * Asserts that the lambda-based code throws an {@code IllegalArgumentException}.
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() -> new Foo(null));
+   *  assertThrowsIllegalArg(() -> new Foo(null));
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -272,7 +287,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() -> new Foo(null), "Foo constructor argument must not be null");
+   *  assertThrowsIllegalArg(() -> new Foo(null), "Foo constructor argument must not be null");
    * </pre>
    *
    * @param runner  the lambda containing the code to test
@@ -288,7 +303,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() ->
+   *  assertThrowsWithCause(() ->
    *    executeSql("INSERT DATA THAT ALREADY EXISTS"), SQLIntegrityConstraintViolationException.class);
    * </pre>
    *
@@ -417,7 +432,7 @@ public class TestHelper {
   public static synchronized List<LogRecord> caputureLog(Class<?> loggerClass, Runnable runner) {
     assertNotNull(loggerClass, "caputureLog() called with null Class");
     assertNotNull(runner, "caputureLog() called with null Runnable");
-    
+
     Logger logger = Logger.getLogger(loggerClass.getName());
     LogHandler handler = new LogHandler();
     try {
@@ -498,6 +513,7 @@ public class TestHelper {
   /**
    * Test an enum for the primary purpose of increasing test coverage.
    * 
+   * @param <E>  the enum type
    * @param clazz  the class to test
    */
   public static <E extends Enum<E>> void coverEnum(Class<E> clazz) {
@@ -566,8 +582,8 @@ public class TestHelper {
     assertFalse(bean1.equals("NonBean"));
     assertTrue(bean1.equals(bean1));
     assertTrue(bean2.equals(bean2));
-    assertEquals(bean1, JodaBeanUtils.cloneAlways(bean1));
-    assertEquals(bean2, JodaBeanUtils.cloneAlways(bean2));
+    ignoreThrows(() -> assertEquals(bean1, JodaBeanUtils.cloneAlways(bean1)));
+    ignoreThrows(() -> assertEquals(bean2, JodaBeanUtils.cloneAlways(bean2)));
     assertTrue(bean1.hashCode() == bean1.hashCode());
     assertTrue(bean2.hashCode() == bean2.hashCode());
     if (bean1.equals(bean2) || bean1.getClass() != bean2.getClass()) {
@@ -708,6 +724,11 @@ public class TestHelper {
 
     Class<? extends Bean> beanClass = bean.getClass();
     ignoreThrows(() -> {
+      Method m = beanClass.getDeclaredMethod("meta");
+      m.setAccessible(true);
+      m.invoke(null);
+    });
+    ignoreThrows(() -> {
       Method m = beanClass.getDeclaredMethod("meta" + beanClass.getSimpleName(), Class.class);
       m.setAccessible(true);
       m.invoke(null, String.class);
@@ -770,7 +791,7 @@ public class TestHelper {
     assertFalse(bean.equals(null));
     assertFalse(bean.equals("NonBean"));
     assertTrue(bean.equals(bean));
-    assertEquals(bean, JodaBeanUtils.cloneAlways(bean));
+    ignoreThrows(() -> assertEquals(bean, JodaBeanUtils.cloneAlways(bean)));
     assertTrue(bean.hashCode() == bean.hashCode());
   }
 

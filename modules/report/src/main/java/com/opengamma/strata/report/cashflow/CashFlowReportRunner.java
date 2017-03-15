@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.cashflow;
@@ -22,11 +22,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Maps;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.ReportRequirements;
@@ -35,7 +35,7 @@ import com.opengamma.strata.report.ReportRunner;
 /**
  * Report runner for cash flow reports.
  */
-public class CashFlowReportRunner
+public final class CashFlowReportRunner
     implements ReportRunner<CashFlowReportTemplate> {
 
   // TODO - when the cashflow report INI file supports specific columns, the following maps should
@@ -100,9 +100,7 @@ public class CashFlowReportRunner
   //-------------------------------------------------------------------------
   @Override
   public ReportRequirements requirements(CashFlowReportTemplate reportTemplate) {
-    return ReportRequirements.builder()
-        .tradeMeasureRequirements(Column.of(Measure.EXPLAIN_PRESENT_VALUE))
-        .build();
+    return ReportRequirements.of(Column.of(Measures.EXPLAIN_PRESENT_VALUE));
   }
 
   @Override
@@ -118,18 +116,18 @@ public class CashFlowReportRunner
               "Please filter the portfolio to a single trade.", tradeCount));
     }
 
-    int columnIdx = calculationResults.getColumns().indexOf(Column.of(Measure.EXPLAIN_PRESENT_VALUE));
+    int columnIdx = calculationResults.getColumns().indexOf(Column.of(Measures.EXPLAIN_PRESENT_VALUE));
     if (columnIdx == -1) {
       throw new IllegalArgumentException(
           Messages.format("Unable to find column for required measure '{}' in calculation results",
-              Measure.EXPLAIN_PRESENT_VALUE));
+              Measures.EXPLAIN_PRESENT_VALUE));
     }
 
     Result<?> result = calculationResults.getCalculationResults().get(0, columnIdx);
     if (result.isFailure()) {
       throw new IllegalArgumentException(
           Messages.format("Failure result found for required measure '{}': {}",
-              Measure.EXPLAIN_PRESENT_VALUE, result.getFailure().getMessage()));
+              Measures.EXPLAIN_PRESENT_VALUE, result.getFailure().getMessage()));
     }
     ExplainMap explainMap = (ExplainMap) result.getValue();
 
@@ -263,7 +261,7 @@ public class CashFlowReportRunner
     if (header != null) {
       return header;
     }
-    return humanizeUpperCamelCase(key.toString());
+    return humanizeUpperCamelCase(key.getName());
   }
 
   private String humanizeUpperCamelCase(String str) {

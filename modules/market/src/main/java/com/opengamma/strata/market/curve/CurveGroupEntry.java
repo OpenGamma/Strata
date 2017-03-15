@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A single entry in the curve group definition.
@@ -34,23 +34,18 @@ import com.opengamma.strata.basics.index.OvernightIndex;
  * Each entry stores the definition of a single curve and how it is to be used.
  * This structure allows the curve itself to be used for multiple purposes.
  * <p>
- * In the simple case a curve is only used for a single purpose.
- * For example, if a curve is used for discounting it will have one key of type {@code DiscountCurveKey}.
- * <p>
- * A single curve can also be used as both a discounting curve and a forward curve.
- * In that case its key set would contain a {@code DiscountCurveKey} and a {@code RateIndexCurveKey}.
- * <p>
- * Every curve must be associated with at least once key.
+ * The currencies are used to specify that the curve is to be used as a discount curve.
+ * The indices are used to specify that the curve is to be used as a forward curve.
  */
 @BeanDefinition
 public final class CurveGroupEntry
     implements ImmutableBean, Serializable {
 
   /**
-   * The curve definition.
+   * The curve name.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalCurveDefinition curveDefinition;
+  private final CurveName curveName;
   /**
    * The currencies for which the curve provides discount rates.
    * This is empty if the curve is not used for Ibor rates.
@@ -58,33 +53,33 @@ public final class CurveGroupEntry
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<Currency> discountCurrencies;
   /**
-   * The Ibor indices for which the curve provides forward rates.
-   * This is empty if the curve is not used for Ibor rates.
+   * The indices for which the curve provides forward rates.
+   * This is empty if the curve is not used for forward rates.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<IborIndex> iborIndices;
-  /**
-   * The Overnight indices for which the curve provides forward rates.
-   * This is empty if the curve is not used for Overnight rates.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<OvernightIndex> overnightIndices;
+  private final ImmutableSet<Index> indices;
 
   //-------------------------------------------------------------------------
   /**
    * Merges the specified entry with this entry, returning a new entry.
    * <p>
-   * The two entries must have the same curve definition.
+   * The two entries must have the same curve name.
    * 
    * @param newEntry  the new entry
    * @return the merged entry
    */
   CurveGroupEntry merge(CurveGroupEntry newEntry) {
+    if (!curveName.equals(newEntry.curveName)) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "A CurveGroupEntry can only be merged with an entry with the same curve name. name: {}, other name: {}",
+              curveName,
+              newEntry.curveName));
+    }
     return CurveGroupEntry.builder()
-        .curveDefinition(curveDefinition)
+        .curveName(curveName)
         .discountCurrencies(Sets.union(discountCurrencies, newEntry.discountCurrencies))
-        .iborIndices(Sets.union(iborIndices, newEntry.iborIndices))
-        .overnightIndices(Sets.union(overnightIndices, newEntry.overnightIndices))
+        .indices(Sets.union(indices, newEntry.indices))
         .build();
   }
 
@@ -116,18 +111,15 @@ public final class CurveGroupEntry
   }
 
   private CurveGroupEntry(
-      NodalCurveDefinition curveDefinition,
+      CurveName curveName,
       Set<Currency> discountCurrencies,
-      Set<IborIndex> iborIndices,
-      Set<OvernightIndex> overnightIndices) {
-    JodaBeanUtils.notNull(curveDefinition, "curveDefinition");
+      Set<Index> indices) {
+    JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(discountCurrencies, "discountCurrencies");
-    JodaBeanUtils.notNull(iborIndices, "iborIndices");
-    JodaBeanUtils.notNull(overnightIndices, "overnightIndices");
-    this.curveDefinition = curveDefinition;
+    JodaBeanUtils.notNull(indices, "indices");
+    this.curveName = curveName;
     this.discountCurrencies = ImmutableSet.copyOf(discountCurrencies);
-    this.iborIndices = ImmutableSet.copyOf(iborIndices);
-    this.overnightIndices = ImmutableSet.copyOf(overnightIndices);
+    this.indices = ImmutableSet.copyOf(indices);
   }
 
   @Override
@@ -147,11 +139,11 @@ public final class CurveGroupEntry
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve definition.
+   * Gets the curve name.
    * @return the value of the property, not null
    */
-  public NodalCurveDefinition getCurveDefinition() {
-    return curveDefinition;
+  public CurveName getCurveName() {
+    return curveName;
   }
 
   //-----------------------------------------------------------------------
@@ -166,22 +158,12 @@ public final class CurveGroupEntry
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Ibor indices for which the curve provides forward rates.
-   * This is empty if the curve is not used for Ibor rates.
+   * Gets the indices for which the curve provides forward rates.
+   * This is empty if the curve is not used for forward rates.
    * @return the value of the property, not null
    */
-  public ImmutableSet<IborIndex> getIborIndices() {
-    return iborIndices;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the Overnight indices for which the curve provides forward rates.
-   * This is empty if the curve is not used for Overnight rates.
-   * @return the value of the property, not null
-   */
-  public ImmutableSet<OvernightIndex> getOvernightIndices() {
-    return overnightIndices;
+  public ImmutableSet<Index> getIndices() {
+    return indices;
   }
 
   //-----------------------------------------------------------------------
@@ -200,10 +182,9 @@ public final class CurveGroupEntry
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupEntry other = (CurveGroupEntry) obj;
-      return JodaBeanUtils.equal(curveDefinition, other.curveDefinition) &&
+      return JodaBeanUtils.equal(curveName, other.curveName) &&
           JodaBeanUtils.equal(discountCurrencies, other.discountCurrencies) &&
-          JodaBeanUtils.equal(iborIndices, other.iborIndices) &&
-          JodaBeanUtils.equal(overnightIndices, other.overnightIndices);
+          JodaBeanUtils.equal(indices, other.indices);
     }
     return false;
   }
@@ -211,21 +192,19 @@ public final class CurveGroupEntry
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(curveDefinition);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurrencies);
-    hash = hash * 31 + JodaBeanUtils.hashCode(iborIndices);
-    hash = hash * 31 + JodaBeanUtils.hashCode(overnightIndices);
+    hash = hash * 31 + JodaBeanUtils.hashCode(indices);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CurveGroupEntry{");
-    buf.append("curveDefinition").append('=').append(curveDefinition).append(',').append(' ');
+    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
     buf.append("discountCurrencies").append('=').append(discountCurrencies).append(',').append(' ');
-    buf.append("iborIndices").append('=').append(iborIndices).append(',').append(' ');
-    buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(overnightIndices));
+    buf.append("indices").append('=').append(JodaBeanUtils.toString(indices));
     buf.append('}');
     return buf.toString();
   }
@@ -241,10 +220,10 @@ public final class CurveGroupEntry
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curveDefinition} property.
+     * The meta-property for the {@code curveName} property.
      */
-    private final MetaProperty<NodalCurveDefinition> curveDefinition = DirectMetaProperty.ofImmutable(
-        this, "curveDefinition", CurveGroupEntry.class, NodalCurveDefinition.class);
+    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
+        this, "curveName", CurveGroupEntry.class, CurveName.class);
     /**
      * The meta-property for the {@code discountCurrencies} property.
      */
@@ -252,26 +231,19 @@ public final class CurveGroupEntry
     private final MetaProperty<ImmutableSet<Currency>> discountCurrencies = DirectMetaProperty.ofImmutable(
         this, "discountCurrencies", CurveGroupEntry.class, (Class) ImmutableSet.class);
     /**
-     * The meta-property for the {@code iborIndices} property.
+     * The meta-property for the {@code indices} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<IborIndex>> iborIndices = DirectMetaProperty.ofImmutable(
-        this, "iborIndices", CurveGroupEntry.class, (Class) ImmutableSet.class);
-    /**
-     * The meta-property for the {@code overnightIndices} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<OvernightIndex>> overnightIndices = DirectMetaProperty.ofImmutable(
-        this, "overnightIndices", CurveGroupEntry.class, (Class) ImmutableSet.class);
+    private final MetaProperty<ImmutableSet<Index>> indices = DirectMetaProperty.ofImmutable(
+        this, "indices", CurveGroupEntry.class, (Class) ImmutableSet.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveDefinition",
+        "curveName",
         "discountCurrencies",
-        "iborIndices",
-        "overnightIndices");
+        "indices");
 
     /**
      * Restricted constructor.
@@ -282,14 +254,12 @@ public final class CurveGroupEntry
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          return curveDefinition;
+        case 771153946:  // curveName
+          return curveName;
         case -538086256:  // discountCurrencies
           return discountCurrencies;
-        case -118808757:  // iborIndices
-          return iborIndices;
-        case 1523471171:  // overnightIndices
-          return overnightIndices;
+        case 1943391143:  // indices
+          return indices;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -311,11 +281,11 @@ public final class CurveGroupEntry
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curveDefinition} property.
+     * The meta-property for the {@code curveName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalCurveDefinition> curveDefinition() {
-      return curveDefinition;
+    public MetaProperty<CurveName> curveName() {
+      return curveName;
     }
 
     /**
@@ -327,33 +297,23 @@ public final class CurveGroupEntry
     }
 
     /**
-     * The meta-property for the {@code iborIndices} property.
+     * The meta-property for the {@code indices} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<IborIndex>> iborIndices() {
-      return iborIndices;
-    }
-
-    /**
-     * The meta-property for the {@code overnightIndices} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableSet<OvernightIndex>> overnightIndices() {
-      return overnightIndices;
+    public MetaProperty<ImmutableSet<Index>> indices() {
+      return indices;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          return ((CurveGroupEntry) bean).getCurveDefinition();
+        case 771153946:  // curveName
+          return ((CurveGroupEntry) bean).getCurveName();
         case -538086256:  // discountCurrencies
           return ((CurveGroupEntry) bean).getDiscountCurrencies();
-        case -118808757:  // iborIndices
-          return ((CurveGroupEntry) bean).getIborIndices();
-        case 1523471171:  // overnightIndices
-          return ((CurveGroupEntry) bean).getOvernightIndices();
+        case 1943391143:  // indices
+          return ((CurveGroupEntry) bean).getIndices();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -375,10 +335,9 @@ public final class CurveGroupEntry
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CurveGroupEntry> {
 
-    private NodalCurveDefinition curveDefinition;
+    private CurveName curveName;
     private Set<Currency> discountCurrencies = ImmutableSet.of();
-    private Set<IborIndex> iborIndices = ImmutableSet.of();
-    private Set<OvernightIndex> overnightIndices = ImmutableSet.of();
+    private Set<Index> indices = ImmutableSet.of();
 
     /**
      * Restricted constructor.
@@ -391,24 +350,21 @@ public final class CurveGroupEntry
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CurveGroupEntry beanToCopy) {
-      this.curveDefinition = beanToCopy.getCurveDefinition();
+      this.curveName = beanToCopy.getCurveName();
       this.discountCurrencies = beanToCopy.getDiscountCurrencies();
-      this.iborIndices = beanToCopy.getIborIndices();
-      this.overnightIndices = beanToCopy.getOvernightIndices();
+      this.indices = beanToCopy.getIndices();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          return curveDefinition;
+        case 771153946:  // curveName
+          return curveName;
         case -538086256:  // discountCurrencies
           return discountCurrencies;
-        case -118808757:  // iborIndices
-          return iborIndices;
-        case 1523471171:  // overnightIndices
-          return overnightIndices;
+        case 1943391143:  // indices
+          return indices;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -418,17 +374,14 @@ public final class CurveGroupEntry
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1257770078:  // curveDefinition
-          this.curveDefinition = (NodalCurveDefinition) newValue;
+        case 771153946:  // curveName
+          this.curveName = (CurveName) newValue;
           break;
         case -538086256:  // discountCurrencies
           this.discountCurrencies = (Set<Currency>) newValue;
           break;
-        case -118808757:  // iborIndices
-          this.iborIndices = (Set<IborIndex>) newValue;
-          break;
-        case 1523471171:  // overnightIndices
-          this.overnightIndices = (Set<OvernightIndex>) newValue;
+        case 1943391143:  // indices
+          this.indices = (Set<Index>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -463,21 +416,20 @@ public final class CurveGroupEntry
     @Override
     public CurveGroupEntry build() {
       return new CurveGroupEntry(
-          curveDefinition,
+          curveName,
           discountCurrencies,
-          iborIndices,
-          overnightIndices);
+          indices);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the curve definition.
-     * @param curveDefinition  the new value, not null
+     * Sets the curve name.
+     * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveDefinition(NodalCurveDefinition curveDefinition) {
-      JodaBeanUtils.notNull(curveDefinition, "curveDefinition");
-      this.curveDefinition = curveDefinition;
+    public Builder curveName(CurveName curveName) {
+      JodaBeanUtils.notNull(curveName, "curveName");
+      this.curveName = curveName;
       return this;
     }
 
@@ -504,58 +456,35 @@ public final class CurveGroupEntry
     }
 
     /**
-     * Sets the Ibor indices for which the curve provides forward rates.
-     * This is empty if the curve is not used for Ibor rates.
-     * @param iborIndices  the new value, not null
+     * Sets the indices for which the curve provides forward rates.
+     * This is empty if the curve is not used for forward rates.
+     * @param indices  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder iborIndices(Set<IborIndex> iborIndices) {
-      JodaBeanUtils.notNull(iborIndices, "iborIndices");
-      this.iborIndices = iborIndices;
+    public Builder indices(Set<Index> indices) {
+      JodaBeanUtils.notNull(indices, "indices");
+      this.indices = indices;
       return this;
     }
 
     /**
-     * Sets the {@code iborIndices} property in the builder
+     * Sets the {@code indices} property in the builder
      * from an array of objects.
-     * @param iborIndices  the new value, not null
+     * @param indices  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder iborIndices(IborIndex... iborIndices) {
-      return iborIndices(ImmutableSet.copyOf(iborIndices));
-    }
-
-    /**
-     * Sets the Overnight indices for which the curve provides forward rates.
-     * This is empty if the curve is not used for Overnight rates.
-     * @param overnightIndices  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder overnightIndices(Set<OvernightIndex> overnightIndices) {
-      JodaBeanUtils.notNull(overnightIndices, "overnightIndices");
-      this.overnightIndices = overnightIndices;
-      return this;
-    }
-
-    /**
-     * Sets the {@code overnightIndices} property in the builder
-     * from an array of objects.
-     * @param overnightIndices  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder overnightIndices(OvernightIndex... overnightIndices) {
-      return overnightIndices(ImmutableSet.copyOf(overnightIndices));
+    public Builder indices(Index... indices) {
+      return indices(ImmutableSet.copyOf(indices));
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("CurveGroupEntry.Builder{");
-      buf.append("curveDefinition").append('=').append(JodaBeanUtils.toString(curveDefinition)).append(',').append(' ');
+      buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
       buf.append("discountCurrencies").append('=').append(JodaBeanUtils.toString(discountCurrencies)).append(',').append(' ');
-      buf.append("iborIndices").append('=').append(JodaBeanUtils.toString(iborIndices)).append(',').append(' ');
-      buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(overnightIndices));
+      buf.append("indices").append('=').append(JodaBeanUtils.toString(indices));
       buf.append('}');
       return buf.toString();
     }

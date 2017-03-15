@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,7 +19,7 @@ import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDE
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -104,7 +104,7 @@ final class StandardFixedOvernightSwapConventions {
    * The spot date offset is 2 days and there is no payment date offset.
    */
   public static final FixedOvernightSwapConvention JPY_FIXED_1Y_TONAR_OIS =
-      makeConvention("JPY-FIXED-1Y-TONAR-OIS", JPY_TONAR, ACT_365F, P12M, 0, 0);
+      makeConvention("JPY-FIXED-1Y-TONAR-OIS", JPY_TONAR, ACT_365F, P12M, 0, 2);
 
   //-------------------------------------------------------------------------
   // build conventions
@@ -116,7 +116,7 @@ final class StandardFixedOvernightSwapConventions {
       int paymentLag,
       int spotLag) {
 
-    HolidayCalendar calendar = index.getFixingCalendar();
+    HolidayCalendarId calendar = index.getFixingCalendar();
     DaysAdjustment paymentDateOffset = DaysAdjustment.ofBusinessDays(paymentLag, calendar);
     DaysAdjustment spotDateOffset = DaysAdjustment.ofBusinessDays(spotLag, calendar);
     return ImmutableFixedOvernightSwapConvention.of(

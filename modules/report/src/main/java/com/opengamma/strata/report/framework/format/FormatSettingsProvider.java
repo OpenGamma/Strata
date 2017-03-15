@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.format;
@@ -10,10 +10,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 
 /**
  * Provides and caches format settings across types.
@@ -36,9 +37,10 @@ public class FormatSettingsProvider {
           .put(Currency.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(StandardId.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(LocalDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatters.TO_STRING))
+          .put(AdjustableDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatters.ADJUSTABLE_DATE))
           .put(CurrencyAmount.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatters.CURRENCY_AMOUNT))
-          .put(CurveCurrencyParameterSensitivity.class,
-              FormatSettings.of(FormatCategory.TEXT, ValueFormatters.CURVE_CURRENCY_PARAMETER_SENSITIVITY))
+          .put(CurrencyParameterSensitivity.class,
+              FormatSettings.of(FormatCategory.TEXT, ValueFormatters.CURRENCY_PARAMETER_SENSITIVITY))
           .put(Double.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatters.DOUBLE))
           .put(Short.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatters.TO_STRING))
           .put(Integer.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatters.TO_STRING))
@@ -61,6 +63,7 @@ public class FormatSettingsProvider {
   /**
    * Obtains the format settings for a given type.
    * 
+   * @param <T>  the type of the value
    * @param clazz  the type to format
    * @param defaultSettings  the default settings, used if no settings are found for the type
    * @return the format settings

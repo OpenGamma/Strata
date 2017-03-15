@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -37,6 +37,15 @@ public final class XCcyIborIborSwapConventions {
    */
   public static final XCcyIborIborSwapConvention GBP_LIBOR_3M_USD_LIBOR_3M =
       XCcyIborIborSwapConvention.of(StandardXCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M.getName());
+
+  /**
+   * The 'GBP-LIBOR-3M-EUR-EURIBOR-3M' swap convention.
+   * <p>
+   * GBP LIBOR 3M v EUR EURIBOR 3M.
+   * The spread is on the GBP leg.
+   */
+  public static final XCcyIborIborSwapConvention GBP_LIBOR_3M_EUR_EURIBOR_3M =
+      XCcyIborIborSwapConvention.of(StandardXCcyIborIborSwapConventions.GBP_LIBOR_3M_EUR_EURIBOR_3M.getName());
 
   //-------------------------------------------------------------------------
   /**

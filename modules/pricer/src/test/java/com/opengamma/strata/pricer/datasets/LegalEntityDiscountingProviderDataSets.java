@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -12,22 +12,22 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.value.BondGroup;
-import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.market.value.SimpleDiscountFactors;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.SimpleDiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.LegalEntityGroup;
+import com.opengamma.strata.pricer.bond.RepoGroup;
 
 /**
  * LegalEntityDiscountingProvider data sets for testing.
@@ -37,7 +37,7 @@ public class LegalEntityDiscountingProviderDataSets {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
 
   //  =====     issuer curve + repo curve in USD      =====     
-  private static final LocalDate VALUATION_USD = LocalDate.of(2011, 6, 20);
+  private static final LocalDate VAL_DATE_USD = LocalDate.of(2011, 6, 20);
   private static final StandardId ISSUER_ID_USD = StandardId.of("OG-Ticker", "GOVT1");
   private static final CurveName NAME_REPO_USD = CurveName.of("TestRepoCurve");
   private static final CurveName NAME_ISSUER_USD = CurveName.of("TestIssuerCurve");
@@ -61,29 +61,29 @@ public class LegalEntityDiscountingProviderDataSets {
   public static final CurveMetadata META_ZERO_ISSUER_USD = Curves.zeroRates(NAME_ISSUER_USD, ACT_ACT_ISDA);
   /** meta data of issuer discount factor curve */
   public static final CurveMetadata META_SIMPLE_ISSUER_USD = Curves.discountFactors(NAME_ISSUER_USD, ACT_ACT_ISDA);
-  private static final BondGroup GROUP_REPO_USD = BondGroup.of("GOVT1 BONDS");
+  private static final RepoGroup GROUP_REPO_USD = RepoGroup.of("GOVT1 BONDS");
   private static final LegalEntityGroup GROUP_ISSUER_USD = LegalEntityGroup.of("GOVT1");
   // zero rate curves
   private static final InterpolatedNodalCurve CURVE_ZERO_REPO_USD =
       InterpolatedNodalCurve.of(META_ZERO_REPO_USD, REPO_TIME_USD, REPO_RATE_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_REPO_USD =
-      ZeroRateDiscountFactors.of(USD, VALUATION_USD, CURVE_ZERO_REPO_USD);
+      ZeroRateDiscountFactors.of(USD, VAL_DATE_USD, CURVE_ZERO_REPO_USD);
   private static final InterpolatedNodalCurve CURVE_ZERO_ISSUER_USD =
       InterpolatedNodalCurve.of(META_ZERO_ISSUER_USD, ISSUER_TIME_USD, ISSUER_RATE_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_ISSUER_USD =
-      ZeroRateDiscountFactors.of(USD, VALUATION_USD, CURVE_ZERO_ISSUER_USD);
+      ZeroRateDiscountFactors.of(USD, VAL_DATE_USD, CURVE_ZERO_ISSUER_USD);
   // discount factor curves
   private static final InterpolatedNodalCurve CURVE_SIMPLE_REPO =
       InterpolatedNodalCurve.of(META_SIMPLE_REPO_USD, REPO_TIME_USD, REPO_FACTOR_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_SIMPLE_REPO =
-      SimpleDiscountFactors.of(USD, VALUATION_USD, CURVE_SIMPLE_REPO);
+      SimpleDiscountFactors.of(USD, VAL_DATE_USD, CURVE_SIMPLE_REPO);
   private static final InterpolatedNodalCurve CURVE_SIMPLE_ISSUER_USD =
       InterpolatedNodalCurve.of(META_SIMPLE_ISSUER_USD, ISSUER_TIME_USD, ISSUER_FACTOR_USD, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_SIMPLE_ISSUER_USD =
-      SimpleDiscountFactors.of(USD, VALUATION_USD, CURVE_SIMPLE_ISSUER_USD);
+      SimpleDiscountFactors.of(USD, VAL_DATE_USD, CURVE_SIMPLE_ISSUER_USD);
 
   //  =====     issuer curve + repo curve in EUR      =====     
-  private static final LocalDate VALUATION_EUR = LocalDate.of(2014, 3, 31);
+  private static final LocalDate VAL_DATE_EUR = LocalDate.of(2014, 3, 31);
   private static final StandardId ISSUER_ID_EUR = StandardId.of("OG-Ticker", "GOVT2");
   private static final CurveName NAME_REPO_EUR = CurveName.of("TestRepoCurve2");
   private static final CurveName NAME_ISSUER_EUR = CurveName.of("TestIssuerCurve2");
@@ -103,43 +103,37 @@ public class LegalEntityDiscountingProviderDataSets {
   public static final CurveMetadata META_ZERO_ISSUER_EUR = Curves.zeroRates(NAME_ISSUER_EUR, ACT_ACT_ISDA);
   /** meta data of issuer discount factor curve */
   public static final CurveMetadata META_SIMPLE_ISSUER_EUR = Curves.discountFactors(NAME_ISSUER_EUR, ACT_ACT_ISDA);
-  private static final BondGroup GROUP_REPO_EUR = BondGroup.of("GOVT2 BONDS");
+  private static final RepoGroup GROUP_REPO_EUR = RepoGroup.of("GOVT2 BONDS");
   private static final LegalEntityGroup GROUP_ISSUER_EUR = LegalEntityGroup.of("GOVT2");
   // zero rate curves
   private static final InterpolatedNodalCurve CURVE_ZERO_REPO_EUR =
       InterpolatedNodalCurve.of(META_ZERO_REPO_EUR, REPO_TIME_EUR, REPO_RATE_EUR, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_REPO_EUR =
-      ZeroRateDiscountFactors.of(EUR, VALUATION_EUR, CURVE_ZERO_REPO_EUR);
+      ZeroRateDiscountFactors.of(EUR, VAL_DATE_EUR, CURVE_ZERO_REPO_EUR);
   private static final InterpolatedNodalCurve CURVE_ZERO_ISSUER_EUR =
       InterpolatedNodalCurve.of(META_ZERO_ISSUER_EUR, ISSUER_TIME_EUR, ISSUER_RATE_EUR, INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS_ZERO_ISSUER_EUR =
-      ZeroRateDiscountFactors.of(EUR, VALUATION_EUR, CURVE_ZERO_ISSUER_EUR);
+      ZeroRateDiscountFactors.of(EUR, VAL_DATE_EUR, CURVE_ZERO_ISSUER_EUR);
 
   /** provider with zero rate curves, USD */
-  public static final LegalEntityDiscountingProvider ISSUER_REPO_ZERO = LegalEntityDiscountingProvider.builder()
-      .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-          Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER_USD, USD), DSC_FACTORS_ZERO_ISSUER_USD))
-      .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID_USD, GROUP_ISSUER_USD))
-      .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-          Pair.<BondGroup, Currency>of(GROUP_REPO_USD, USD), DSC_FACTORS_ZERO_REPO_USD))
-      .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID_USD, GROUP_REPO_USD))
+  public static final LegalEntityDiscountingProvider ISSUER_REPO_ZERO = ImmutableLegalEntityDiscountingProvider.builder()
+      .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER_USD, USD), DSC_FACTORS_ZERO_ISSUER_USD))
+      .issuerCurveGroups(ImmutableMap.of(ISSUER_ID_USD, GROUP_ISSUER_USD))
+      .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_USD, USD), DSC_FACTORS_ZERO_REPO_USD))
+      .repoCurveGroups(ImmutableMap.of(ISSUER_ID_USD, GROUP_REPO_USD))
       .build();
   /** provider with zero rate curves, EUR */
-  public static final LegalEntityDiscountingProvider ISSUER_REPO_ZERO_EUR = LegalEntityDiscountingProvider.builder()
-      .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-          Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER_EUR, EUR), DSC_FACTORS_ZERO_ISSUER_EUR))
-      .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID_EUR, GROUP_ISSUER_EUR))
-      .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-          Pair.<BondGroup, Currency>of(GROUP_REPO_EUR, EUR), DSC_FACTORS_ZERO_REPO_EUR))
-      .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID_EUR, GROUP_REPO_EUR))
+  public static final LegalEntityDiscountingProvider ISSUER_REPO_ZERO_EUR = ImmutableLegalEntityDiscountingProvider.builder()
+      .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER_EUR, EUR), DSC_FACTORS_ZERO_ISSUER_EUR))
+      .issuerCurveGroups(ImmutableMap.of(ISSUER_ID_EUR, GROUP_ISSUER_EUR))
+      .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_EUR, EUR), DSC_FACTORS_ZERO_REPO_EUR))
+      .repoCurveGroups(ImmutableMap.of(ISSUER_ID_EUR, GROUP_REPO_EUR))
       .build();
   /** provider with discount factor curve, USD */
-  public static final LegalEntityDiscountingProvider ISSUER_REPO_SIMPLE = LegalEntityDiscountingProvider.builder()
-      .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-          Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER_USD, USD), DSC_FACTORS_SIMPLE_ISSUER_USD))
-      .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID_USD, GROUP_ISSUER_USD))
-      .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-          Pair.<BondGroup, Currency>of(GROUP_REPO_USD, USD), DSC_FACTORS_SIMPLE_REPO))
-      .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID_USD, GROUP_REPO_USD))
+  public static final LegalEntityDiscountingProvider ISSUER_REPO_SIMPLE = ImmutableLegalEntityDiscountingProvider.builder()
+      .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER_USD, USD), DSC_FACTORS_SIMPLE_ISSUER_USD))
+      .issuerCurveGroups(ImmutableMap.of(ISSUER_ID_USD, GROUP_ISSUER_USD))
+      .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_USD, USD), DSC_FACTORS_SIMPLE_REPO))
+      .repoCurveGroups(ImmutableMap.of(ISSUER_ID_USD, GROUP_REPO_USD))
       .build();
 }

@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.io;
@@ -129,7 +129,7 @@ public final class XmlFile {
       int event = reader.next();
       while (event != XMLStreamConstants.END_ELEMENT) {
         switch (event) {
-        // parse child when start element found
+          // parse child when start element found
           case XMLStreamConstants.START_ELEMENT:
             childBuilder.add(parse(reader, refAttr, refs));
             break;

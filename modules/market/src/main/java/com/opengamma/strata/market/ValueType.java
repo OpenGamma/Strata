@@ -1,16 +1,15 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market;
 
-import java.util.regex.Pattern;
-
 import org.joda.convert.FromString;
 
+import com.google.common.base.CharMatcher;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The type of a value.
@@ -26,10 +25,15 @@ public final class ValueType
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
-   * Pattern for checking the name.
+   * Matcher for checking the name.
    * It must only contains the characters A-Z, a-z, 0-9 and -.
    */
-  private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
+  private static final CharMatcher NAME_MATCHER =
+      CharMatcher.inRange('A', 'Z')
+          .or(CharMatcher.inRange('a', 'z'))
+          .or(CharMatcher.inRange('0', '9'))
+          .or(CharMatcher.is('-'))
+          .precomputed();
 
   //-------------------------------------------------------------------------
   /**
@@ -45,11 +49,14 @@ public final class ValueType
    * Type used when each value is the number of months relative to a base month - 'Months'.
    */
   public static final ValueType MONTHS = of("Months");
-
   /**
    * Type used when each value is a zero rate - 'ZeroRate'.
    */
   public static final ValueType ZERO_RATE = of("ZeroRate");
+  /**
+   * Type used when each value is a forward rate - 'ForwardRate'.
+   */
+  public static final ValueType FORWARD_RATE = of("ForwardRate");
   /**
    * Type used when each value is a discount factor - 'DiscountFactor'.
    */
@@ -59,22 +66,58 @@ public final class ValueType
    */
   public static final ValueType PRICE_INDEX = of("PriceIndex");
   /**
-   * Type used when each value is an ISDA credit curve value - 'IsdaCredit'.
+   * Type used when each value is a recovery rate - 'RecoveryRate'.
    */
-  public static final ValueType ISDA_CREDIT = of("IsdaCredit");
+  public static final ValueType RECOVERY_RATE = of("RecoveryRate");
 
   /**
-   * Type used when each value is a volatility - 'Volatility'.
+   * Type used when each value is a Black model implied volatility - 'BlackVolatility'.
    */
-  public static final ValueType VOLATILITY = of("Volatility");
+  public static final ValueType BLACK_VOLATILITY = of("BlackVolatility");
+  /**
+   * Type used when each value is a Normal (Bachelier) model implied volatility - 'NormalVolatility'.
+   */
+  public static final ValueType NORMAL_VOLATILITY = of("NormalVolatility");
+  /**
+   * Type used when each value is a local volatility - 'LocalVolatility'.
+   */
+  public static final ValueType LOCAL_VOLATILITY = of("LocalVolatility");
+  /**
+   * Type used when each value is a Price - 'Price'.
+   */
+  public static final ValueType PRICE = of("Price");
   /**
    * Type used when each value is a strike - 'Strike'.
    */
   public static final ValueType STRIKE = of("Strike");
+  /**
+   * Type used when each value is simple-moneyness, i.e. the value refers to strike minus forward - 'SimpleMoneyness'.
+   */
+  public static final ValueType SIMPLE_MONEYNESS = of("SimpleMoneyness");
+  /**
+   * Type used when each value is log-moneyness, i.e. the value refers to log of strike divided by forward - 'LogMoneyness'.
+   */
+  public static final ValueType LOG_MONEYNESS = of("LogMoneyness");
+  /**
+   * Type used when each value is the SABR alpha parameter - 'SabrAlpha'.
+   */
+  public static final ValueType SABR_ALPHA = of("SabrAlpha");
+  /**
+   * Type used when each value is the SABR beta parameter - 'SabrBeta'.
+   */
+  public static final ValueType SABR_BETA = of("SabrBeta");
+  /**
+   * Type used when each value is the SABR rho parameter - 'SabrRho'.
+   */
+  public static final ValueType SABR_RHO = of("SabrRho");
+  /**
+   * Type used when each value is the SABR nu parameter - 'SabrNu'.
+   */
+  public static final ValueType SABR_NU = of("SabrNu");
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ValueType} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Value types must only contains the characters A-Z, a-z, 0-9 and -.
    *
@@ -92,7 +135,7 @@ public final class ValueType
    * @param name  the name of the field
    */
   private ValueType(String name) {
-    super(name, NAME_PATTERN, "Value type must only contain the characters A-Z, a-z, 0-9 and -");
+    super(name, NAME_MATCHER, "Value type must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
   //-------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -46,11 +46,53 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex JPY_TONAR = OvernightIndex.of("JPY-TONAR");
   /**
-   * The FED_FUND index for USD.
+   * The Fed Fund index for USD.
    * <p>
-   * FED_FUND is an "Overnight" index.
+   * Fed Fund is an "Overnight" index.
    */
   public static final OvernightIndex USD_FED_FUND = OvernightIndex.of("USD-FED-FUND");
+  /**
+   * The AONIA index for AUD.
+   * <p>
+   * AONIA is an "Overnight" index.
+   */
+  public static final OvernightIndex AUD_AONIA = OvernightIndex.of("AUD-AONIA");
+  /**
+   * The CDI index for BRL.
+   * <p>
+   * The "Brazil Certificates of Interbank Deposit" index.
+   */
+  public static final OvernightIndex BRL_CDI = OvernightIndex.of("BRL-CDI");
+  /**
+   * The CORRA index for CAD.
+   * <p>
+   * The "Canadian Overnight Repo Rate Average" index.
+   */
+  public static final OvernightIndex CAD_CORRA = OvernightIndex.of("CAD-CORRA");
+  /**
+   * The TN index for DKK.
+   * <p>
+   * The "Tomorrow/Next-renten" index.
+   */
+  public static final OvernightIndex DKK_TNR = OvernightIndex.of("DKK-TNR");
+  /**
+   * The NOWA index for NOK.
+   * <p>
+   * The "Norwegian Overnight Weighted Average" index.
+   */
+  public static final OvernightIndex NOK_NOWA = OvernightIndex.of("NOK-NOWA");
+  /**
+   * The PLONIA index for PLN.
+   * <p>
+   * The "Polish Overnight" index.
+   */
+  public static final OvernightIndex PLN_POLONIA = OvernightIndex.of("PLN-POLONIA");
+  /**
+   * The SIOR index for SEK.
+   * <p>
+   * The "STIBOR T/N" index.
+   */
+  public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
 
   //-------------------------------------------------------------------------
   /**

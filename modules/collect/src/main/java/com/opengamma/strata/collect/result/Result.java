@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -25,10 +25,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -37,18 +37,15 @@ import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * An immutable calculation result.
+ * The result of an operation, either success or failure.
  * <p>
- * There are two types of result - success and failure.
- * A success result contains the calculated non-null result value.
+ * This provides a functional approach to error handling, that can be used instead of exceptions.
+ * A success result contains a non-null result value.
  * A failure result contains details of the {@linkplain Failure failure} that occurred.
  * <p>
- * The result model is typically used in a subsystem following functional programming style.
- * Functions will be written to have {@code Result<T>} as the return type.
- * Instead of using exceptions, code will return failure results. In line with
- * this, all methods will attempt to catch exception that happen within their
- * scope and and return a failure {@code Result} rather than propagating the
- * exception.
+ * Methods using this approach to error handling are expected to return {@code Result<T>}
+ * and not throw exceptions. The factory method {@link #of(Supplier)} and related methods
+ * can be used to capture exceptions and convert them to failure results.
  * <p>
  * Application code using a result should also operate in a functional style.
  * Use {@link #map(Function)} and {@link #flatMap(Function)} in preference to
@@ -117,7 +114,7 @@ public final class Result<T>
    */
   public static <R> Result<R> failure(FailureReason reason, String message, Object... messageArgs) {
     String msg = Messages.format(message, messageArgs);
-    return new Result<>(Failure.of(reason, msg));
+    return new Result<>(Failure.of(FailureItem.of(reason, msg, 1)));
   }
 
   /**
@@ -189,8 +186,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(Exception exception, String message, Object... messageArgs) {
-    String msg = Messages.format(message, messageArgs);
-    return new Result<>(Failure.of(FailureReason.ERROR, msg, exception));
+    return new Result<>(Failure.of(FailureReason.ERROR, exception, message, messageArgs));
   }
 
   /**
@@ -223,7 +219,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, Exception exception, String message, Object... messageArgs) {
-    return new Result<>(Failure.of(reason, Messages.format(message, messageArgs), exception));
+    return new Result<>(Failure.of(reason, exception, message, messageArgs));
   }
 
   /**
@@ -477,7 +473,7 @@ public final class Result<T>
           failure(results);
 
     } catch (Exception e) {
-      return failure(e, "Error whilst combining success results");
+      return failure(e);
     }
   }
 
@@ -533,7 +529,7 @@ public final class Result<T>
           failure(results);
 
     } catch (Exception e) {
-      return failure(e, "Error whilst combining success results");
+      return failure(e);
     }
   }
 
@@ -600,7 +596,7 @@ public final class Result<T>
    * Returns the actual result value if calculated successfully, throwing an
    * exception if a failure occurred.
    * <p>
-   * If this result is a failure then an an IllegalStateException will be thrown.
+   * If this result is a failure then an {@code IllegalStateException} will be thrown.
    * To avoid this, call {@link #isSuccess()} or {@link #isFailure()} first.
    * <p>
    * Application code is recommended to use {@link #map(Function)} and
@@ -704,7 +700,7 @@ public final class Result<T>
       try {
         return Result.success(function.apply(value));
       } catch (Exception e) {
-        return Result.failure(e, "Error whilst calling map on value: {}", value);
+        return Result.failure(e);
       }
     } else {
       return Result.failure(this);
@@ -740,7 +736,7 @@ public final class Result<T>
       try {
         return Objects.requireNonNull(function.apply(value));
       } catch (Exception e) {
-        return failure(e, "Error whilst calling flatMap on value: {}", value);
+        return failure(e);
       }
     } else {
       return Result.failure(this);
@@ -777,7 +773,7 @@ public final class Result<T>
       try {
         return Objects.requireNonNull(function.apply(value, other.value));
       } catch (Exception e) {
-        return failure(e, "Error whilst trying to combine: {} with: {}", value, other.value);
+        return failure(e);
       }
     } else {
       return failure(this, other);
@@ -992,7 +988,7 @@ public final class Result<T>
    * The bean-builder for {@code Result}.
    * @param <T>  the type
    */
-  private static final class Builder<T> extends DirectFieldsBeanBuilder<Result<T>> {
+  private static final class Builder<T> extends DirectPrivateBeanBuilder<Result<T>> {
 
     private T value;
     private Failure failure;
@@ -1001,6 +997,7 @@ public final class Result<T>
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -1029,30 +1026,6 @@ public final class Result<T>
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder<T> set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

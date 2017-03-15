@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -159,7 +159,9 @@ public class FuzzyEquals {
 
   /**
    * Checks if two double precision floating point arrays are approximately "equal"
-   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order and the arrays the the same length
+   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order
+   * and the arrays the same length.
+   * 
    * @param arr1 the first value
    * @param arr2 the second value
    * @param maxabserror determines the minimum threshold for "equal" in terms of the two numbers being very small in magnitude.
@@ -183,8 +185,10 @@ public class FuzzyEquals {
 
   /**
    * Checks if two double precision floating point arrays are approximately "equal"
-   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order and the arrays the the same length
+   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order
+   * and the arrays the same length.
    * Default values are used for tolerances.
+   * 
    * @param arr1 the first value
    * @param arr2 the second value
    * @return true if they are considered equal, else false
@@ -196,7 +200,7 @@ public class FuzzyEquals {
 
   /**
    * Checks if two double precision floating point array of arrays are approximately "equal"
-   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order and the arrays the the same dimension.
+   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order and the arrays the same dimension.
    * Default values are used for tolerances.
    * @param arr1 the first value
    * @param arr2 the second value
@@ -209,7 +213,9 @@ public class FuzzyEquals {
 
   /**
    * Checks if two double precision floating point array of arrays are approximately "equal"
-   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order and the arrays the the same dimension.
+   * Equal means the arrays have values the are considered fuzzy equals appearing in the same order
+   * and the arrays the same dimension.
+   * 
    * @param arr1 the first value
    * @param arr2 the second value
    * @param maxabserror determines the minimum threshold for "equal" in terms of the two numbers being very small in magnitude.

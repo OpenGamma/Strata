@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.index;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,8 +16,9 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvFile;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
@@ -71,9 +73,10 @@ final class FxIndexCsvLookup
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
-        for (int i = 0; i < csv.rowCount(); i++) {
-          FxIndex parsed = parseFxIndex(csv, i);
+        for (CsvRow row : csv.rows()) {
+          FxIndex parsed = parseFxIndex(row);
           map.put(parsed.getName(), parsed);
+          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as FX Index CSV file: " + resource, ex);
@@ -83,13 +86,13 @@ final class FxIndexCsvLookup
     return ImmutableMap.copyOf(map);
   }
 
-  private static FxIndex parseFxIndex(CsvFile csv, int row) {
-    String name = csv.field(row, NAME_FIELD);
-    Currency baseCurrency = Currency.parse(csv.field(row, BASE_CURRENCY_FIELD));
-    Currency counterCurrency = Currency.parse(csv.field(row, COUNTER_CURRENCY_FIELD));
-    HolidayCalendar fixingCal = HolidayCalendar.of(csv.field(row, FIXING_CALENDAR_FIELD));
-    int maturityDays = Integer.parseInt(csv.field(row, MATURITY_DAYS_FIELD));
-    HolidayCalendar maturityCal = HolidayCalendar.of(csv.field(row, MATURITY_CALENDAR_FIELD));
+  private static FxIndex parseFxIndex(CsvRow row) {
+    String name = row.getField(NAME_FIELD);
+    Currency baseCurrency = Currency.parse(row.getField(BASE_CURRENCY_FIELD));
+    Currency counterCurrency = Currency.parse(row.getField(COUNTER_CURRENCY_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
+    int maturityDays = Integer.parseInt(row.getField(MATURITY_DAYS_FIELD));
+    HolidayCalendarId maturityCal = HolidayCalendarId.of(row.getField(MATURITY_CALENDAR_FIELD));
     // build result
     return ImmutableFxIndex.builder()
         .name(name)

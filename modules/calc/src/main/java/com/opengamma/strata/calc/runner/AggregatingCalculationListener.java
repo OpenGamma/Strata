@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -8,6 +8,8 @@ package com.opengamma.strata.calc.runner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+
+import com.opengamma.strata.basics.CalculationTarget;
 
 /**
  * Superclass for mutable calculation listeners that collect the results of individual calculations and
@@ -45,13 +47,24 @@ public abstract class AggregatingCalculationListener<T>
    *
    * @return a completion stage providing asynchronous notification when the aggregate result of the
    *   calculations is available
+   * @deprecated use {@link #getFuture()}
    */
+  @Deprecated
   public CompletionStage<T> completionStage() {
     return future;
   }
 
+  /**
+   * A future providing asynchronous notification when the results are available.
+   *
+   * @return a future providing asynchronous notification when the results are available
+   */
+  public CompletableFuture<T> getFuture() {
+    return future;
+  }
+
   @Override
-  public abstract void resultReceived(CalculationResult result);
+  public abstract void resultReceived(CalculationTarget target, CalculationResult result);
 
   /**
    * Invoked to create the aggregate result when the individual calculations are complete.

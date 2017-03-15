@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.strata</groupId>
     <artifactId>strata-parent</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
   <artifactId>strata-report</artifactId>
@@ -43,6 +43,10 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-data</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-calc</artifactId>
     </dependency>
     <dependency>
@@ -51,7 +55,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-function</artifactId>
+      <artifactId>strata-measure</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
@@ -62,23 +66,6 @@
       <artifactId>strata-pricer</artifactId>
     </dependency>
     
-    <!-- External -->
-    <dependency>
-      <groupId>com.chaschev</groupId>
-      <artifactId>chutils</artifactId>
-      <version>1.4</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-all</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
@@ -90,6 +77,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Locate the root directory of the multi-module build -->
+    <root.dir>${project.basedir}/../..</root.dir>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Pricer</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Pricer</h1>]]></doctitle>

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+/*
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,12 +8,9 @@ package com.opengamma.strata.product.credit.type;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
- * Constants for standard CDS market conventions.
- * <p>
- * See ISDA CDS documentation for more details.
+ * Standardized credit default swap conventions.
  */
 public final class CdsConventions {
-  // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
 
   /**
    * The extended enum lookup from name to instance.
@@ -21,30 +18,51 @@ public final class CdsConventions {
   static final ExtendedEnum<CdsConvention> ENUM_LOOKUP = ExtendedEnum.of(CdsConvention.class);
 
   /**
-   * The 'USD-NorthAmerican' CDS convention.
+   * USD-dominated standardized credit default swap.
    */
-  public static final CdsConvention USD_NORTH_AMERICAN =
-      CdsConvention.of(StandardCdsConventions.USD_NORTH_AMERICAN.getName());
+  public static final CdsConvention USD_STANDARD = CdsConvention.of(StandardCdsConventions.USD_STANDARD.getName());
+
   /**
-   * The 'EUR-European' CDS convention.
+   * EUR-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'EUTA'.
    */
-  public static final CdsConvention EUR_EUROPEAN =
-      CdsConvention.of(StandardCdsConventions.EUR_EUROPEAN.getName());
+  public static final CdsConvention EUR_STANDARD = CdsConvention.of(StandardCdsConventions.EUR_STANDARD.getName());
+
   /**
-   * The 'GBP-European' CDS convention.
+   * EUR-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'EUTA' and 'GBLO'.
    */
-  public static final CdsConvention GBP_EUROPEAN =
-      CdsConvention.of(StandardCdsConventions.GBP_EUROPEAN.getName());
+  public static final CdsConvention EUR_GB_STANDARD = CdsConvention.of(StandardCdsConventions.EUR_GB_STANDARD.getName());
+
   /**
-   * The 'CHF-European' CDS convention.
+   * GBP-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'GBLO'.
    */
-  public static final CdsConvention CHF_EUROPEAN =
-      CdsConvention.of(StandardCdsConventions.CHF_EUROPEAN.getName());
+  public static final CdsConvention GBP_STANDARD = CdsConvention.of(StandardCdsConventions.GBP_STANDARD.getName());
+
   /**
-   * The 'USD-European' CDS convention.
+   * GBP-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'GBLO' and 'USNY'.
    */
-  public static final CdsConvention USD_EUROPEAN =
-      CdsConvention.of(StandardCdsConventions.USD_EUROPEAN.getName());
+  public static final CdsConvention GBP_US_STANDARD = CdsConvention.of(StandardCdsConventions.GBP_US_STANDARD.getName());
+
+  /**
+   * JPY-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'JPTO'.
+   */
+  public static final CdsConvention JPY_STANDARD = CdsConvention.of(StandardCdsConventions.JPY_STANDARD.getName());
+
+  /**
+   * JPY-dominated standardized credit default swap.
+   * <p>
+   * The payment dates are calculated with 'JPTO', 'USNY' and 'GBLO'.
+   */
+  public static final CdsConvention JPY_US_GB_STANDARD = CdsConvention.of(StandardCdsConventions.JPY_US_GB_STANDARD.getName());
 
   //-------------------------------------------------------------------------
   /**

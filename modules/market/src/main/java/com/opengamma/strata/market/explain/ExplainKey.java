@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -10,13 +10,13 @@ import java.util.List;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.type.TypedString;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 
 /**
@@ -79,6 +79,12 @@ public final class ExplainKey<T>
    * The forecast value.
    */
   public static final ExplainKey<CurrencyAmount> FORECAST_VALUE = of("ForecastValue");
+  /**
+   * The flag to indicate that the period has completed.
+   * For example, a swap payment period that has already paid would have this set to true.
+   * This will generally never be set to false.
+   */
+  public static final ExplainKey<Boolean> COMPLETED = of("Completed");
 
   /**
    * The currency of the payment.
@@ -138,9 +144,13 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Double> ACCRUAL_YEAR_FRACTION = of("AccrualYearFraction");
   /**
-   * The number of days between the start and end dates.
+   * The number of accrual days between the start and end dates.
    */
   public static final ExplainKey<Integer> ACCRUAL_DAYS = of("AccrualDays");
+  /**
+   * The actual number of days between the start and end dates.
+   */
+  public static final ExplainKey<Integer> DAYS = of("Days");
 
   /**
    * The discount factor, typically derived from a curve.
@@ -165,6 +175,11 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Double> INDEX_VALUE = of("IndexValue");
   /**
+   * The flag to indicate that the that the observed value is from a fixing time-series.
+   * This will generally never be set to false.
+   */
+  public static final ExplainKey<Boolean> FROM_FIXING_SERIES = of("FromFixingSeries");
+  /**
    * The weight of this observation.
    * Weighting applies when averaging more than one observation to produce the final rate.
    */
@@ -172,7 +187,7 @@ public final class ExplainKey<T>
   /**
    * The combined rate, including weighting.
    * This rate differs from the observed rate if there is more than one fixing involved.
-   * For example, {@link IborInterpolatedRateObservation} has two observed rates
+   * For example, {@link IborInterpolatedRateComputation} has two observed rates
    * which are combined to create this rate.
    */
   public static final ExplainKey<Double> COMBINED_RATE = of("CombinedRate");
@@ -197,13 +212,26 @@ public final class ExplainKey<T>
    * The method of compounding.
    */
   public static final ExplainKey<CompoundingMethod> COMPOUNDING = of("CompoundingMethod");
+  /**
+   * The strike value.
+   */
+  public static final ExplainKey<Double> STRIKE_VALUE = of("StrikeValue");
+  /**
+   * The convexity adjusted rate.
+   */
+  public static final ExplainKey<Double> CONVEXITY_ADJUSTED_RATE = of("ConvexityAdjustedRate");
+  /**
+   * The forward rate.
+   */
+  public static final ExplainKey<Double> FORWARD_RATE = of("ForwardRate");
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code ExplainKey} by name.
+   * Obtains an instance from the specified name.
    * <p>
    * Field names may contain any character, but must not be empty.
    *
+   * @param <R>  the inferred type of the key
    * @param name  the name of the field
    * @return a field with the specified name
    */

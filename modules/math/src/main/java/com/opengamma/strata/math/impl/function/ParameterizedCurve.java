@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.function;
@@ -24,7 +24,7 @@ public abstract class ParameterizedCurve extends ParameterizedFunction<Double, D
    * this returns the function $g : \mathbb{R} \to \mathbb{R}^n; x \mapsto g(x)$, which is the function's (curve's) sensitivity 
    * to its parameters, i.e. $g(x) = \frac{\partial f(x;\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}$<p>
    * The default calculation is performed using finite difference (via {@link ScalarFieldFirstOrderDifferentiator}) but
-   * it is expected that this will be overridden by concrete subclasses.  
+   * it is expected that this will be overridden by concrete subclasses.
    * 
    * @param params  the value of the parameters ($\boldsymbol{\theta}$) at which the sensitivity is calculated 
    * @return the sensitivity as a function with a Double (x) as its single argument and a vector as its return value

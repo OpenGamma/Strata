@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
@@ -160,6 +160,8 @@ public class CurrencyAmountTest {
   public void test_negated() {
     assertEquals(CCY_AMOUNT.negated(), CCY_AMOUNT_NEGATIVE);
     assertEquals(CCY_AMOUNT_NEGATIVE.negated(), CCY_AMOUNT);
+    assertEquals(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.USD).negated());
+    assertEquals(CurrencyAmount.of(Currency.USD, -0d).negated(), CurrencyAmount.zero(Currency.USD));
   }
 
   public void test_negative() {

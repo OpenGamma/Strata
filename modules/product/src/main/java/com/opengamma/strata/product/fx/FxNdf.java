@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -24,23 +24,27 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexObservation;
+import com.opengamma.strata.product.Product;
 
 /**
  * A Non-Deliverable Forward (NDF).
  * <p>
  * An NDF is a financial instrument that returns the difference between a fixed FX rate 
- * agreed at the inception of the trade and the FX rate at maturity. 
+ * agreed at the inception of the trade and the FX rate at maturity.
  * It is primarily used to handle FX requirements for currencies that have settlement restrictions.
  * For example, the forward may be between USD and CNY (Chinese Yuan).
  */
 @BeanDefinition
 public final class FxNdf
-    implements FxNdfProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFxNdf>, ImmutableBean, Serializable {
 
   /**
    * The notional amount in the settlement currency, positive if receiving, negative if paying.
@@ -117,18 +121,14 @@ public final class FxNdf
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this FX forward into an {@code ExpandedFxNdf}.
-   * 
-   * @return the transaction
-   */
   @Override
-  public ExpandedFxNdf expand() {
-    return ExpandedFxNdf.builder()
+  public ResolvedFxNdf resolve(ReferenceData refData) {
+    LocalDate fixingDate = index.calculateFixingFromMaturity(paymentDate, refData);
+    return ResolvedFxNdf.builder()
         .settlementCurrencyNotional(settlementCurrencyNotional)
         .agreedFxRate(agreedFxRate)
+        .observation(FxIndexObservation.of(index, fixingDate, refData))
         .paymentDate(paymentDate)
-        .index(index)
         .build();
   }
 

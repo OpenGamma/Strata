@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -12,4 +12,3 @@
  * possible execution paths, and the explain functionality allows these to be understood.
  */
 package com.opengamma.strata.market.explain;
-

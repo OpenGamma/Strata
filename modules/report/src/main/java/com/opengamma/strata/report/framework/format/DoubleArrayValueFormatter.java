@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * Formats primitive double arrays.
  */
-class DoubleArrayValueFormatter
+final class DoubleArrayValueFormatter
     implements ValueFormatter<double[]> {
 
   /**

@@ -1,17 +1,17 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.date;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.NamedLookup;
 
 /**
@@ -54,20 +54,22 @@ final class Business252DayCount implements NamedLookup<DayCount> {
   //-------------------------------------------------------------------------
   @Override
   public DayCount lookup(String name) {
-    return BY_NAME.computeIfAbsent(name, Business252DayCount::createByName);
+    DayCount value = BY_NAME.get(name);
+    if (value == null) {
+      if (name.regionMatches(true, 0, "Bus/252 ", 0, 8)) {
+        HolidayCalendar cal = HolidayCalendars.of(name.substring(8));  // load from standard calendars
+        String correctName = "Bus/252 " + cal.getName();
+        DayCount created = new Bus252(correctName, cal);
+        value = BY_NAME.computeIfAbsent(correctName, k -> created);
+        BY_NAME.putIfAbsent(correctName.toUpperCase(Locale.ENGLISH), created);
+      }
+    }
+    return value;
   }
 
   @Override
   public Map<String, DayCount> lookupAll() {
     return BY_NAME;
-  }
-
-  private static DayCount createByName(String name) {
-    if (name.startsWith("Bus/252 ")) {
-      HolidayCalendar cal = HolidayCalendar.of(name.substring(8));
-      return new Bus252(name, cal);
-    }
-    return null;  // name not a Bus/252 calendar
   }
 
   //-------------------------------------------------------------------------
@@ -79,22 +81,32 @@ final class Business252DayCount implements NamedLookup<DayCount> {
     private static final long serialVersionUID = 1L;
 
     private final String name;
-    private final HolidayCalendar calendar;
+    private final transient HolidayCalendar calendar;
 
     Bus252(String name, HolidayCalendar calendar) {
       this.name = name;
       this.calendar = calendar;
     }
 
+    // resolve instance
+    private Object readResolve() {
+      return DayCount.of(name);
+    }
+
     @Override
     public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      ArgChecker.notNull(firstDate, "firstDate");
-      ArgChecker.notNull(secondDate, "secondDate");
-      ArgChecker.notNull(scheduleInfo, "scheduleInfo");
       if (secondDate.isBefore(firstDate)) {
         throw new IllegalArgumentException("Dates must be in time-line order");
       }
       return calendar.daysBetween(firstDate, secondDate) / 252d;
+    }
+
+    @Override
+    public int days(LocalDate firstDate, LocalDate secondDate) {
+      if (secondDate.isBefore(firstDate)) {
+        throw new IllegalArgumentException("Dates must be in time-line order");
+      }
+      return calendar.daysBetween(firstDate, secondDate);
     }
 
     //-------------------------------------------------------------------------

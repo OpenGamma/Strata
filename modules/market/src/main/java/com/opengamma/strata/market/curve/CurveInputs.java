@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.data.MarketDataId;
 
 /**
  * The input data used when calibrating a curve.
@@ -39,8 +39,8 @@ public final class CurveInputs
    * <p>
    * There will typically be at least one entry for each node on the curve.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataKey<?>, ?>")
-  private final ImmutableMap<? extends MarketDataKey<?>, ?> marketData;
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, ?>")
+  private final ImmutableMap<? extends MarketDataId<?>, ?> marketData;
   /**
    * The metadata for the curve.
    * <p>
@@ -57,7 +57,7 @@ public final class CurveInputs
    * @param metadata  the metadata for the curve
    * @return a {@code CurveInputs} instance containing the specified market data
    */
-  public static CurveInputs of(Map<? extends MarketDataKey<?>, ?> marketData, CurveMetadata metadata) {
+  public static CurveInputs of(Map<? extends MarketDataId<?>, ?> marketData, CurveMetadata metadata) {
     return new CurveInputs(marketData, metadata);
   }
 
@@ -89,7 +89,7 @@ public final class CurveInputs
   }
 
   private CurveInputs(
-      Map<? extends MarketDataKey<?>, ?> marketData,
+      Map<? extends MarketDataId<?>, ?> marketData,
       CurveMetadata curveMetadata) {
     JodaBeanUtils.notNull(marketData, "marketData");
     JodaBeanUtils.notNull(curveMetadata, "curveMetadata");
@@ -119,7 +119,7 @@ public final class CurveInputs
    * There will typically be at least one entry for each node on the curve.
    * @return the value of the property, not null
    */
-  public ImmutableMap<? extends MarketDataKey<?>, ?> getMarketData() {
+  public ImmutableMap<? extends MarketDataId<?>, ?> getMarketData() {
     return marketData;
   }
 
@@ -188,7 +188,7 @@ public final class CurveInputs
      * The meta-property for the {@code marketData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<? extends MarketDataKey<?>, ?>> marketData = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<? extends MarketDataId<?>, ?>> marketData = DirectMetaProperty.ofImmutable(
         this, "marketData", CurveInputs.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code curveMetadata} property.
@@ -240,7 +240,7 @@ public final class CurveInputs
      * The meta-property for the {@code marketData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<? extends MarketDataKey<?>, ?>> marketData() {
+    public MetaProperty<ImmutableMap<? extends MarketDataId<?>, ?>> marketData() {
       return marketData;
     }
 
@@ -281,7 +281,7 @@ public final class CurveInputs
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CurveInputs> {
 
-    private Map<? extends MarketDataKey<?>, ?> marketData = ImmutableMap.of();
+    private Map<? extends MarketDataId<?>, ?> marketData = ImmutableMap.of();
     private CurveMetadata curveMetadata;
 
     /**
@@ -317,7 +317,7 @@ public final class CurveInputs
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1116764678:  // marketData
-          this.marketData = (Map<? extends MarketDataKey<?>, ?>) newValue;
+          this.marketData = (Map<? extends MarketDataId<?>, ?>) newValue;
           break;
         case 278233406:  // curveMetadata
           this.curveMetadata = (CurveMetadata) newValue;
@@ -367,7 +367,7 @@ public final class CurveInputs
      * @param marketData  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder marketData(Map<? extends MarketDataKey<?>, ?> marketData) {
+    public Builder marketData(Map<? extends MarketDataId<?>, ?> marketData) {
       JodaBeanUtils.notNull(marketData, "marketData");
       this.marketData = marketData;
       return this;

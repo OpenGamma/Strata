@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.date;
@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -27,6 +28,7 @@ public class DateSequenceTest {
     DateSequence test = DateSequences.QUARTERLY_IMM;
     assertEquals(test.getName(), "Quarterly-IMM");
     assertEquals(test.toString(), "Quarterly-IMM");
+    assertEquals(test.dateMatching(YearMonth.of(2013, 3)), LocalDate.of(2013, 3, 20));
   }
 
   public void test_QUARTERLY_IMM_of() {
@@ -177,6 +179,11 @@ public class DateSequenceTest {
         return date(2015, 10, 29);
       }
       throw new IllegalArgumentException();
+    }
+
+    @Override
+    public LocalDate dateMatching(YearMonth yearMonth) {
+      return date(2015, 10, 29);
     }
 
     @Override
