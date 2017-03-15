@@ -15,6 +15,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * maths. It is a very robust integrator and should be used before trying more
  * specialised methods.
  */
+//CSOFF: JavadocMethod
 public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
 
   private static final double DEF_TOL = 1e-10;

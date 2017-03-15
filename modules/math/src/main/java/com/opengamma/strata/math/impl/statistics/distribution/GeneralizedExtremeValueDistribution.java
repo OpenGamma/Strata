@@ -65,6 +65,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   private final boolean _ksiIsZero;
 
   /**
+   * Creates an instance.
    * 
    * @param mu The location parameter
    * @param sigma The scale parameter, not negative or zero
@@ -120,6 +121,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
+   * Gets the location parameter.
+   * 
    * @return The location parameter
    */
   public double getMu() {
@@ -127,6 +130,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
+   * Gets the scale parameter.
+   * 
    * @return The scale parameter
    */
   public double getSigma() {
@@ -134,6 +139,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
+   * Gets the shape parameter.
+   * 
    * @return The shape parameter
    */
   public double getKsi() {

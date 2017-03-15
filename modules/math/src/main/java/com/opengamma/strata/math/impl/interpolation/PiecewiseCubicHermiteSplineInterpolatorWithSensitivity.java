@@ -158,12 +158,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
 
   }
 
-  /**
-   * Finds the first derivatives at knots and their sensitivity to delta
-   * @param h 
-   * @param delta 
-   * @return slope finder results 
-   */
+  // Finds the first derivatives at knots and their sensitivity to delta
   private SlopeFinderResults slopeFinder(double[] h, double[] delta, double[] y) {
     final int n = y.length;
 
@@ -218,15 +213,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     return new SlopeFinderResults(DoubleArray.copyOf(d), DoubleMatrix.copyOf(jac));
   }
 
-  /**
-   * First derivative at end point and its sensitivity to delta
-   * @param h1
-   * @param h2
-   * @param y1
-   * @param y2
-   * @param y3
-   * @return array of length 4 - the first element contains d, while the other three are sensitivities to the ys 
-   */
+  // First derivative at end point and its sensitivity to delta
   private double[] endpointSlope(double h1, double h2, double del1, double del2, boolean rightSide) {
 
     double[] res = new double[4];

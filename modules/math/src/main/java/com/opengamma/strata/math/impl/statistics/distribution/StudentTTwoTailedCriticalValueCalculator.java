@@ -12,8 +12,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import cern.jet.random.engine.RandomEngine;
 
 /**
- * 
+ * StudentT calculator.
  */
+// CSOFF: JavadocMethod
 public class StudentTTwoTailedCriticalValueCalculator implements Function<Double, Double> {
 
   private final Function<Double, Double> _calc;

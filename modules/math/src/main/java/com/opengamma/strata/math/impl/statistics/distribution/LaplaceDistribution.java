@@ -47,6 +47,8 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
   private final double _b;
 
   /**
+   * Creates an instance.
+   * 
    * @param mu The location parameter
    * @param b The scale parameter, greater than zero
    */
@@ -55,6 +57,8 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
   }
 
   /**
+   * Creates an instance.
+   * 
    * @param mu The location parameter
    * @param b The scale parameter, greater than zero
    * @param engine A uniform random number generator, not null
@@ -105,6 +109,8 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
   }
 
   /**
+   * Gets the location parameter.
+   * 
    * @return The location parameter
    */
   public double getMu() {
@@ -112,6 +118,8 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
   }
 
   /**
+   * Gets the scale parameter.
+   * 
    * @return The scale parameter
    */
   public double getB() {

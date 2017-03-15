@@ -15,8 +15,9 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
- * Wrapper for results of the Commons implementation of singular value decomposition {@link SVDecompositionCommons}
+ * Wrapper for results of the Commons implementation of singular value decomposition {@link SVDecompositionCommons}.
  */
+// CSOFF: AbbreviationAsWordInName
 public class SVDecompositionCommonsResult implements SVDecompositionResult {
 
   private final double _condition;
@@ -31,6 +32,8 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
   private final DecompositionSolver _solver;
 
   /**
+   * Creates an instance.
+   * 
    * @param svd The result of the SV decomposition, not null
    */
   public SVDecompositionCommonsResult(SingularValueDecomposition svd) {

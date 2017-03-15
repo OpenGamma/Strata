@@ -11,7 +11,7 @@ import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalSolver;
 
 /**
- * For specific cubic spline interpolations, polynomial coefficients are determined by the tridiagonal algorithm
+ * For specific cubic spline interpolations, polynomial coefficients are determined by the tridiagonal algorithm.
  */
 public class LogCubicSplineNaturalSolver extends CubicSplineSolver {
 

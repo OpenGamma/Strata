@@ -17,6 +17,7 @@ import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
  * This includes only some of the multiplications.
  * For more advanced operations, such as calculating the inverse, use {@link CommonsMatrixAlgebra}.
  */
+// CSOFF: AbbreviationAsWordInName
 public class OGMatrixAlgebra extends MatrixAlgebra {
 
   /**

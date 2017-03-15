@@ -28,6 +28,8 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042};
 
   /**
+   * Calculates CDF.
+   * 
    * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null 
    * @return The cdf
    */
@@ -104,6 +106,8 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   }
 
   /**
+   * Calculates PDF.
+   * 
    * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null
    * @return The pdf  
    */

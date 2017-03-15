@@ -50,7 +50,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
   /**
    * {@inheritDoc}
    * @throws MathException If the Commons method could not evaluate the function;
-   *  if the Commons method could not converge.
+   *   if the Commons method could not converge.
    */
   @Override
   public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh) {

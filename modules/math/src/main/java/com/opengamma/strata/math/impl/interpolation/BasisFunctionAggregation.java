@@ -21,6 +21,12 @@ public class BasisFunctionAggregation<T> implements Function<T, Double> {
   private final List<Function<T, Double>> _f;
   private final double[] _w;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param functions  the functions
+   * @param weights  the weights
+   */
   public BasisFunctionAggregation(List<Function<T, Double>> functions, double[] weights) {
     ArgChecker.notEmpty(functions, "no functions");
     ArgChecker.notNull(weights, "no weights");

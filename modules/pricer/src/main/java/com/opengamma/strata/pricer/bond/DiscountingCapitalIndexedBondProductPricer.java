@@ -1136,6 +1136,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param periodsPerYear  the number of periods per year
    * @return the z-spread of the bond product
    */
+  // CSOFF: AbbreviationAsWordInName
   public double zSpreadFromCurvesAndPV(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
@@ -1144,6 +1145,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       CurrencyAmount presentValue,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
+    // CSON: AbbreviationAsWordInName
 
     validate(ratesProvider, discountingProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);

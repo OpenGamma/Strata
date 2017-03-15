@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.array.Matrix;
 
 /**
- * Class representing a tridiagonal matrix:
+ * Class representing a tridiagonal matrix.
  * $$
  * \begin{align*}
  * \begin{pmatrix}
@@ -35,9 +35,9 @@ public class TridiagonalMatrix implements Matrix {
   /**
    * @param a An array containing the diagonal values of the matrix, not null
    * @param b An array containing the upper sub-diagonal values of the matrix, not null.
-   *  Its length must be one less than the length of the diagonal array
+   *   Its length must be one less than the length of the diagonal array
    * @param c An array containing the lower sub-diagonal values of the matrix, not null.
-   *  Its length must be one less than the length of the diagonal array
+   *   Its length must be one less than the length of the diagonal array
    */
   public TridiagonalMatrix(double[] a, double[] b, double[] c) {
     ArgChecker.notNull(a, "a");
@@ -52,7 +52,7 @@ public class TridiagonalMatrix implements Matrix {
   }
 
   /**
-   * Direct access to Diagonal Data
+   * Direct access to Diagonal Data.
    * @return An array of the values of the diagonal
    */
   public double[] getDiagonalData() {
@@ -165,6 +165,12 @@ public class TridiagonalMatrix implements Matrix {
     return _a.length;
   }
 
+  /**
+   * Gets the entry for the indices.
+   * 
+   * @param index  the indices
+   * @return the entry
+   */
   public double getEntry(int... index) {
     ArgChecker.notNull(index, "indices");
     int n = _a.length;

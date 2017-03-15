@@ -519,11 +519,11 @@ public final class SabrSwaptionCalibrator {
    * @param blackVolatilitiesInput  the option (call/payer) implied volatilities in shifted Black model
    * @param shiftInput  the shift used to computed the input implied shifted Black volatilities
    * @param startParameters  the starting parameters for the calibration. If one or more of the parameters are fixed,
-   * the starting value will be used as the fixed parameter.
+   *   the starting value will be used as the fixed parameter.
    * @param fixedParameters  the flag for the fixed parameters that are not calibrated
    * @param shiftOutput  the shift to calibrate the shifted SABR
    * @return the least square results and the derivative of the shifted log-normal used for calibration with respect 
-   * to the raw data
+   *   to the raw data
    */
   public Pair<LeastSquareResultsWithTransform, DoubleArray> calibrateLsShiftedFromBlackVolatilities(
       BusinessDayAdjustment bda,
@@ -574,7 +574,7 @@ public final class SabrSwaptionCalibrator {
    * @param blackVolatility  the option (call/payer) Black implied volatility
    * @param shiftInput  the shift used to computed the input implied shifted Black volatilities
    * @param startParameters  the starting parameters for the calibration. The alpha parameter is used as a starting
-   * point for the root-finding, the other parameters are fixed.
+   *   point for the root-finding, the other parameters are fixed.
    * @param shiftOutput  the shift to calibrate the shifted SABR
    * @return the alpha calibrated and its derivative with respect to the volatility
    */
@@ -660,7 +660,7 @@ public final class SabrSwaptionCalibrator {
    * @param strikeType  the strike type
    * @param prices  the option (call/payer) prices
    * @param startParameters  the starting parameters for the calibration. If one or more of the parameters are fixed,
-   * the starting value will be used as the fixed parameter.
+   *   the starting value will be used as the fixed parameter.
    * @param fixedParameters  the flag for the fixed parameters that are not calibrated
    * @param shiftOutput  the shift to calibrate the shifted SABR
    * @return SABR parameters
@@ -746,11 +746,11 @@ public final class SabrSwaptionCalibrator {
    * @param strikeType  the strike type
    * @param normalVolatilities  the option (call/payer) normal model implied volatilities
    * @param startParameters  the starting parameters for the calibration. If one or more of the parameters are fixed,
-   * the starting value will be used as the fixed parameter.
+   *   the starting value will be used as the fixed parameter.
    * @param fixedParameters  the flag for the fixed parameters that are not calibrated
    * @param shiftOutput  the shift to calibrate the shifted SABR
    * @return the least square results and the derivative of the shifted log-normal used for calibration with respect 
-   * to the raw data
+   *   to the raw data
    */
   public Pair<LeastSquareResultsWithTransform, DoubleArray> calibrateLsShiftedFromNormalVolatilities(
       BusinessDayAdjustment bda,
@@ -799,7 +799,7 @@ public final class SabrSwaptionCalibrator {
    * @param forward  the forward price/rate
    * @param normalVolatility  the option (call/payer) normal model implied volatility
    * @param startParameters  the starting parameters for the calibration. The alpha parameter is used as a starting
-   * point for the root-finding, the other parameters are fixed.
+   *   point for the root-finding, the other parameters are fixed.
    * @param shiftOutput  the shift to calibrate the shifted SABR
    * @return the alpha calibrated and its derivative with respect to the volatility
    */

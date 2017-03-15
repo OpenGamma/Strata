@@ -14,6 +14,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 
 /**
+ * Generalized least square calculator.
  * 
  * @param <T> The type of the inputs to the basis functions
  */
@@ -22,7 +23,7 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
   private final Function<T, Double> _function;
 
   /**
-   * Creates an instance
+   * Creates an instance.
    * 
    * @param basisFunctions  the basis functions
    * @param chiSq  the chi-squared of the fit

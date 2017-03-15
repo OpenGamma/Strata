@@ -31,8 +31,8 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKey  the key
    * @return the values of piecewise polynomial functions at xKey 
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple splines, an element in the return values corresponds to each spline 
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple splines, an element in the return values corresponds to each spline 
    */
   public DoubleArray evaluate(PiecewisePolynomialResult pp, double xKey) {
     ArgChecker.notNull(pp, "pp");
@@ -63,8 +63,8 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKeys  the key
    * @return the values of piecewise polynomial functions at xKeys 
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple piecewise polynomials, a row vector of return value corresponds to each piecewise polynomial
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple piecewise polynomials, a row vector of return value corresponds to each piecewise polynomial
    */
   public DoubleMatrix evaluate(PiecewisePolynomialResult pp, double[] xKeys) {
     ArgChecker.notNull(pp, "pp");
@@ -111,9 +111,9 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKeys  the key
    * @return the values of piecewise polynomial functions at xKeys
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple piecewise polynomials, one element of return vector of DoubleMatrix
-   *  corresponds to each piecewise polynomial
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple piecewise polynomials, one element of return vector of DoubleMatrix
+   *   corresponds to each piecewise polynomial
    */
   public DoubleMatrix[] evaluate(PiecewisePolynomialResult pp, double[][] xKeys) {
     ArgChecker.notNull(pp, "pp");
@@ -171,8 +171,8 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKey  the key
    * @return the first derivatives of piecewise polynomial functions at xKey 
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple piecewise polynomials, an element in the return values corresponds to each piecewise polynomial 
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple piecewise polynomials, an element in the return values corresponds to each piecewise polynomial 
    */
   public DoubleArray differentiate(PiecewisePolynomialResult pp, double xKey) {
     ArgChecker.notNull(pp, "pp");
@@ -196,8 +196,8 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKeys  the key
    * @return the first derivatives of piecewise polynomial functions at xKeys 
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple piecewise polynomials, a row vector of return value corresponds to each piecewise polynomial
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple piecewise polynomials, a row vector of return value corresponds to each piecewise polynomial
    */
   public DoubleMatrix differentiate(PiecewisePolynomialResult pp, double[] xKeys) {
     ArgChecker.notNull(pp, "pp");
@@ -222,8 +222,8 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKey  the key
    * @return the second derivatives of piecewise polynomial functions at xKey 
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple piecewise polynomials, an element in the return values corresponds to each piecewise polynomial 
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple piecewise polynomials, an element in the return values corresponds to each piecewise polynomial 
    */
   public DoubleArray differentiateTwice(PiecewisePolynomialResult pp, double xKey) {
     ArgChecker.notNull(pp, "pp");
@@ -247,8 +247,8 @@ public class PiecewisePolynomialFunction1D {
    * @param pp  the PiecewisePolynomialResult
    * @param xKeys  the key
    * @return the second derivatives of piecewise polynomial functions at xKeys 
-   *  When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
-   *  multiple piecewise polynomials, a row vector of return value corresponds to each piecewise polynomial
+   *   When _dim in PiecewisePolynomialResult is greater than 1, i.e., the struct contains
+   *   multiple piecewise polynomials, a row vector of return value corresponds to each piecewise polynomial
    */
   public DoubleMatrix differentiateTwice(PiecewisePolynomialResult pp, double[] xKeys) {
     ArgChecker.notNull(pp, "pp");

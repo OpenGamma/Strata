@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Abstract class for interpolations based on 2d piecewise polynomial functions 
+ * Abstract class for interpolations based on 2d piecewise polynomial functions .
  */
 public abstract class PiecewisePolynomialInterpolator2D {
 
@@ -20,7 +20,7 @@ public abstract class PiecewisePolynomialInterpolator2D {
    * @param x1Values  the values
    * @param yValues  the values
    * @return {@link PiecewisePolynomialResult2D} containing positions of knots in x0 direction, positions of knots in x1 direction, coefficients of interpolant, 
-   * number of intervals in x0 direction, number of intervals in x1 direction, order of polynomial function
+   *   number of intervals in x0 direction, number of intervals in x1 direction, order of polynomial function
    */
   public abstract PiecewisePolynomialResult2D interpolate(double[] x0Values, double[] x1Values, double[][] yValues);
 

@@ -32,7 +32,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
    *
    * @param startValues fixed parameter values (if no parameters are fixed this is completely ignored)
    * @param transforms Array of ParameterLimitsTransform (which can be the NullTransform which does NOT transform the parameter) which transform
-   * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
+   *   a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
    * @param fixed BitSet with an element set to <b>true</b> if that parameter is fixed
    */
   public UncoupledParameterTransforms(DoubleArray startValues, ParameterLimitsTransform[] transforms, BitSet fixed) {
@@ -75,8 +75,11 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Transforms from a set of function parameters (some of which may have constrained range and/or be fixed) to a (possibly smaller) set of unconstrained fitting parameters
-   * <b>Note:</b> If a parameter is fixed, it is its value as provided by <i>startValues<\i> not the value given here that will be returned by inverseTransform (and thus used in the function)
+   * Transforms from a set of function parameters (some of which may have constrained range and/or be fixed)
+   * to a (possibly smaller) set of unconstrained fitting parameters.
+   * <b>Note:</b> If a parameter is fixed, it is its value as provided by <i>startValues</i> not the value
+   * given here that will be returned by inverseTransform (and thus used in the function).
+   * 
    * @param functionParameters The function parameters
    * @return The fitting parameters
    */

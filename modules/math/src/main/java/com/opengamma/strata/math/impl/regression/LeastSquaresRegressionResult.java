@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * Contains the result of a least squares regression.
  */
+//CSOFF: JavadocMethod
 public class LeastSquaresRegressionResult {
   //TODO the predicted value calculation should be separated out from this class.
 

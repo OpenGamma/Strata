@@ -47,7 +47,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
   }
 
   /**
-   * Constructor which can take different methods for x0 and x1
+   * Constructor which can take different methods for x0 and x1.
    * @param method Choose 2 of {@link PiecewisePolynomialInterpolator}
    */
   public BicubicSplineInterpolator(final PiecewisePolynomialInterpolator[] method) {
@@ -61,7 +61,7 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
   }
 
   /**
-   * Constructor using the same interpolation method for x0 and x1
+   * Constructor using the same interpolation method for x0 and x1.
    * @param method {@link PiecewisePolynomialInterpolator}
    */
   public BicubicSplineInterpolator(final PiecewisePolynomialInterpolator method) {

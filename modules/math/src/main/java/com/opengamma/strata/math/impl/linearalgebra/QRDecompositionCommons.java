@@ -16,6 +16,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/linear/QRDecompositionImpl.html">Commons Math library implementation</a> 
  * of QR decomposition.
  */
+// CSOFF: AbbreviationAsWordInName
 public class QRDecompositionCommons extends Decomposition<QRDecompositionResult> {
 
   @Override

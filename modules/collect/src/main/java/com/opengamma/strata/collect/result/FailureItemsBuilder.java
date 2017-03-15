@@ -52,7 +52,7 @@ public final class FailureItemsBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds the resulting instance
+   * Builds the resulting instance.
    * 
    * @return the result
    */

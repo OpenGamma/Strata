@@ -24,10 +24,20 @@ public class GaussLaguerreQuadratureIntegrator1D extends GaussianQuadratureInteg
 
   private static final Double[] LIMITS = new Double[] {0., Double.POSITIVE_INFINITY};
 
+  /**
+   * Creates an instance.
+   * @param n  the value
+   */
   public GaussLaguerreQuadratureIntegrator1D(int n) {
     super(n, new GaussLaguerreWeightAndAbscissaFunction());
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param n  the value
+   * @param alpha  the alpha
+   */
   public GaussLaguerreQuadratureIntegrator1D(int n, double alpha) {
     super(n, new GaussLaguerreWeightAndAbscissaFunction(alpha));
   }

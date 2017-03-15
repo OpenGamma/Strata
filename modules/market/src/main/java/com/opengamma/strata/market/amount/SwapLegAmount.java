@@ -36,7 +36,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * These are useful in order to interpret the amount without reference to the full product.
  */
 @BeanDefinition
-public class SwapLegAmount
+public final class SwapLegAmount
     implements LegAmount, ImmutableBean, Serializable {
 
   /**
@@ -114,19 +114,19 @@ public class SwapLegAmount
     return new SwapLegAmount.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected SwapLegAmount(SwapLegAmount.Builder builder) {
-    JodaBeanUtils.notNull(builder.amount, "amount");
-    JodaBeanUtils.notNull(builder.payReceive, "payReceive");
-    JodaBeanUtils.notNull(builder.type, "type");
-    JodaBeanUtils.notNull(builder.currency, "currency");
-    this.amount = builder.amount;
-    this.payReceive = builder.payReceive;
-    this.type = builder.type;
-    this.currency = builder.currency;
+  private SwapLegAmount(
+      CurrencyAmount amount,
+      PayReceive payReceive,
+      SwapLegType type,
+      Currency currency) {
+    JodaBeanUtils.notNull(amount, "amount");
+    JodaBeanUtils.notNull(payReceive, "payReceive");
+    JodaBeanUtils.notNull(type, "type");
+    JodaBeanUtils.notNull(currency, "currency");
+    this.amount = amount;
+    this.payReceive = payReceive;
+    this.type = type;
+    this.currency = currency;
   }
 
   @Override
@@ -222,27 +222,19 @@ public class SwapLegAmount
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SwapLegAmount{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("amount").append('=').append(amount).append(',').append(' ');
+    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
-    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
-    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SwapLegAmount}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -281,7 +273,7 @@ public class SwapLegAmount
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -319,7 +311,7 @@ public class SwapLegAmount
      * The meta-property for the {@code amount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount> amount() {
+    public MetaProperty<CurrencyAmount> amount() {
       return amount;
     }
 
@@ -327,7 +319,7 @@ public class SwapLegAmount
      * The meta-property for the {@code payReceive} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PayReceive> payReceive() {
+    public MetaProperty<PayReceive> payReceive() {
       return payReceive;
     }
 
@@ -335,7 +327,7 @@ public class SwapLegAmount
      * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SwapLegType> type() {
+    public MetaProperty<SwapLegType> type() {
       return type;
     }
 
@@ -343,7 +335,7 @@ public class SwapLegAmount
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
+    public MetaProperty<Currency> currency() {
       return currency;
     }
 
@@ -378,7 +370,7 @@ public class SwapLegAmount
   /**
    * The bean-builder for {@code SwapLegAmount}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<SwapLegAmount> {
+  public static final class Builder extends DirectFieldsBeanBuilder<SwapLegAmount> {
 
     private CurrencyAmount amount;
     private PayReceive payReceive;
@@ -388,14 +380,14 @@ public class SwapLegAmount
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(SwapLegAmount beanToCopy) {
+    private Builder(SwapLegAmount beanToCopy) {
       this.amount = beanToCopy.getAmount();
       this.payReceive = beanToCopy.getPayReceive();
       this.type = beanToCopy.getType();
@@ -466,7 +458,11 @@ public class SwapLegAmount
 
     @Override
     public SwapLegAmount build() {
-      return new SwapLegAmount(this);
+      return new SwapLegAmount(
+          amount,
+          payReceive,
+          type,
+          currency);
     }
 
     //-----------------------------------------------------------------------
@@ -522,20 +518,12 @@ public class SwapLegAmount
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("SwapLegAmount.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

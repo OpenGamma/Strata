@@ -39,6 +39,7 @@ public class GaussJacobiWeightAndAbscissaFunction implements QuadratureWeightAnd
   private final double _c;
 
   /**
+   * Creates an instance.
    * Sets $\alpha = 0$ and $\beta = 0$
    */
   public GaussJacobiWeightAndAbscissaFunction() {
@@ -46,6 +47,7 @@ public class GaussJacobiWeightAndAbscissaFunction implements QuadratureWeightAnd
   }
 
   /**
+   * Creates an instance.
    * @param alpha The value of $\alpha$ to use when generating the polynomials
    * @param beta The value of $\beta$ to use when generating the polynomials
    */

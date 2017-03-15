@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one
+ * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one.
  */
 public class SumToOne {
 
@@ -24,7 +24,7 @@ public class SumToOne {
   private final int _n;
 
   /**
-   *For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one
+   * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one.
    * @param n The number of "model" parameters, N
    */
   public SumToOne(int n) {
@@ -33,7 +33,7 @@ public class SumToOne {
   }
 
   /**
-   * Transform from the N-1 "fit" parameters to the N "model" parameters
+   * Transform from the N-1 "fit" parameters to the N "model" parameters.
    * @param fitParms The N-1 "fit" parameters
    * @return The N "model" parameters
    */
@@ -64,7 +64,7 @@ public class SumToOne {
   }
 
   /**
-   * Transform from the N-1 "fit" parameters to the N "model" parameters
+   * Transform from the N-1 "fit" parameters to the N "model" parameters.
    * @param fitParms The N-1 "fit" parameters
    * @return The N "model" parameters
    */
@@ -112,7 +112,7 @@ public class SumToOne {
   }
 
   /**
-   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters
+   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters.
    * @param fitParms  The N-1 "fit" parameters
    * @return The N by N-1 Jacobian matrix
    */
@@ -152,7 +152,7 @@ public class SumToOne {
   }
 
   /**
-   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters
+   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters.
    * @param fitParms  The N-1 "fit" parameters
    * @return The N by N-1 Jacobian matrix
    */

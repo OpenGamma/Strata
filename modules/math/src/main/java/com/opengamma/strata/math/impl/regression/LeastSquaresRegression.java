@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * 
  */
+// CSOFF: JavadocMethod
 public abstract class LeastSquaresRegression {
 
   public abstract LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y, boolean useIntercept);
