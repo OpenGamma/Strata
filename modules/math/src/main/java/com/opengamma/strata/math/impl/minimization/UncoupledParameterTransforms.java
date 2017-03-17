@@ -119,7 +119,8 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Calculates the Jacobian of the transform from function parameters to fitting parameters - the i,j element will be the partial derivative of i^th fitting parameter with respect
+   * Calculates the Jacobian of the transform from function parameters to fitting parameters -
+   * the i,j element will be the partial derivative of i^th fitting parameter with respect.
    * to the j^th function parameter
    * @param functionParameters The function parameters
    * @return matrix of partial derivative of fitting parameter with respect to function parameters
@@ -140,7 +141,8 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Calculates the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect
+   * Calculates the Jacobian of the transform from fitting parameters to function parameters -
+   * the i,j element will be the partial derivative of i^th function parameter with respect.
    * to the j^th  fitting parameter
    * @param fittingParameters  The fitting parameters
    * @return  matrix of partial derivative of function parameter with respect to fitting parameters

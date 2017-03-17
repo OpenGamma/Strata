@@ -15,11 +15,13 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 public abstract class PiecewisePolynomialInterpolator2D {
 
   /**
-   * Given a set of data points (x0Values_i, x1Values_j, yValues_{ij}), 2d spline interpolation is returned such that f(x0Values_i, x1Values_j) = yValues_{ij}
+   * Given a set of data points (x0Values_i, x1Values_j, yValues_{ij}), 2d spline interpolation
+   * is returned such that f(x0Values_i, x1Values_j) = yValues_{ij}.
    * @param x0Values  the values
    * @param x1Values  the values
    * @param yValues  the values
-   * @return {@link PiecewisePolynomialResult2D} containing positions of knots in x0 direction, positions of knots in x1 direction, coefficients of interpolant, 
+   * @return {@link PiecewisePolynomialResult2D} containing positions of knots in x0 direction,
+   *   positions of knots in x1 direction, coefficients of interpolant, 
    *   number of intervals in x0 direction, number of intervals in x1 direction, order of polynomial function
    */
   public abstract PiecewisePolynomialResult2D interpolate(double[] x0Values, double[] x1Values, double[][] yValues);

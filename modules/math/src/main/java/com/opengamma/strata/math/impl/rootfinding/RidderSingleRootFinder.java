@@ -26,7 +26,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
   private final RiddersSolver _ridder;
 
   /**
-   * Sets the accuracy to 10<sup>-15</sup>
+   * Sets the accuracy to 10<sup>-15</sup>.
    */
   public RidderSingleRootFinder() {
     this(1e-15);

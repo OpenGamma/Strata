@@ -272,7 +272,7 @@ public abstract class MatrixAlgebra {
   public abstract DoubleMatrix getTranspose(Matrix m);
 
   /**
-   * Compute $A^T A$, where A is a matrix
+   * Compute $A^T A$, where A is a matrix.
    * @param a The matrix
    * @return The result of $A^T A$
    */

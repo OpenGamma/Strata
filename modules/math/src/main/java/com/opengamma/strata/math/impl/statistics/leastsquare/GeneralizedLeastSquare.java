@@ -54,7 +54,7 @@ public class GeneralizedLeastSquare {
   }
 
   /**
-   * Generalised least square with penalty on (higher-order) finite differences of weights
+   * Generalised least square with penalty on (higher-order) finite differences of weights.
    * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables
@@ -107,7 +107,7 @@ public class GeneralizedLeastSquare {
   }
 
   /**
-   * Generalised least square with penalty on (higher-order) finite differences of weights
+   * Generalised least square with penalty on (higher-order) finite differences of weights.
    * @param <T> The type of the independent variables (e.g. Double, double[], DoubleArray etc)
    * @param x independent variables
    * @param y dependent (scalar) variables

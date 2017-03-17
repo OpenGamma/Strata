@@ -26,28 +26,28 @@ public interface NonLinearParameterTransforms {
   int getNumberOfFittingParameters();
 
   /**
-   * Transforms from a set of model parameters to a (possibly smaller) set of unconstrained fitting parameters
+   * Transforms from a set of model parameters to a (possibly smaller) set of unconstrained fitting parameters.
    * @param modelParameters   the model parameters
    * @return The fitting parameters
    */
   DoubleArray transform(DoubleArray modelParameters);
 
   /**
-   * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters 
+   * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters.
    * @param fittingParameters The fitting parameters
    * @return The model parameters
    */
   DoubleArray inverseTransform(DoubleArray fittingParameters);
 
   /**
-   * Calculates the Jacobian - the rate of change of the fitting parameters WRT the model parameters 
+   * Calculates the Jacobian - the rate of change of the fitting parameters WRT the model parameters.
    * @param modelParameters The model parameters 
    * @return The Jacobian 
    */
   DoubleMatrix jacobian(DoubleArray modelParameters);
 
   /**
-   * Calculates the inverse Jacobian  - the rate of change of the model parameters WRT the fitting parameters 
+   * Calculates the inverse Jacobian  - the rate of change of the model parameters WRT the fitting parameters.
    * @param fittingParameters The fitting parameters
    * @return the inverse Jacobian 
    */

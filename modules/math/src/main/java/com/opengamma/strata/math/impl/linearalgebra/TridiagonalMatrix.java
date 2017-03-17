@@ -67,7 +67,7 @@ public class TridiagonalMatrix implements Matrix {
   }
 
   /**
-   *  Direct access to upper sub-Diagonal Data
+   * Direct access to upper sub-Diagonal Data.
    * @return An array of the values of the upper sub-diagonal
    */
   public double[] getUpperSubDiagonalData() {
@@ -82,7 +82,7 @@ public class TridiagonalMatrix implements Matrix {
   }
 
   /**
-   * Direct access to lower sub-Diagonal Data
+   * Direct access to lower sub-Diagonal Data.
    * @return An array of the values of the lower sub-diagonal
    */
   public double[] getLowerSubDiagonalData() {

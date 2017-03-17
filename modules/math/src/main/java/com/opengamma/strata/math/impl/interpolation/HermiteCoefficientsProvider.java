@@ -199,7 +199,7 @@ public class HermiteCoefficientsProvider {
   }
 
   /**
-   * Derivative values of slopes_i with respect to yValues_j, s_{ij}
+   * Derivative values of slopes_i with respect to yValues_j, s_{ij}.
    * @param intervals Intervals of x data
    * @return The matrix s_{ij}
    */
