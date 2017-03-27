@@ -180,4 +180,12 @@ public abstract class QuantileCalculationMethod {
     ArgChecker.isTrue(index <= size, "Quantile can not be computed above the highest probability level.");
     return index;
   }
+
+  private Integer[] createIndexArray(int indexArrayLength) {
+    Integer[] indexArray = new Integer[indexArrayLength];
+    for (int i = 0; i < indexArrayLength; i++) {
+      indexArray[i] = i;
+    }
+    return indexArray;
+  }
 }
