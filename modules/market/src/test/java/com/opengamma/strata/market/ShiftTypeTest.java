@@ -30,9 +30,23 @@ public class ShiftTypeTest {
 
   public void test_computeShift() {
     double tol = 1.0e-15;
-    assertEquals(ShiftType.ABSOLUTE.computeShift(2.0, 2.1), 0.1, tol);
-    assertEquals(ShiftType.RELATIVE.computeShift(2.0, 2.1), 0.05, tol);
-    assertEquals(ShiftType.SCALED.computeShift(2.0, 2.1), 1.05, tol);
+    double base = 2.0;
+    double shifted = 2.1;
+    assertEquals(ShiftType.ABSOLUTE.computeShift(base, shifted), 0.1, tol);
+    assertEquals(ShiftType.RELATIVE.computeShift(base, shifted), 0.05, tol);
+    assertEquals(ShiftType.SCALED.computeShift(base, shifted), 1.05, tol);
+    assertEquals(
+        ShiftType.ABSOLUTE.applyShift(base, ShiftType.ABSOLUTE.computeShift(base, shifted)),
+        shifted,
+        tol);
+    assertEquals(
+        ShiftType.RELATIVE.applyShift(base, ShiftType.RELATIVE.computeShift(base, shifted)),
+        shifted,
+        tol);
+    assertEquals(
+        ShiftType.SCALED.applyShift(base, ShiftType.SCALED.computeShift(base, shifted)),
+        shifted,
+        tol);
   }
 
   public void test_name() {
