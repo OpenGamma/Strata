@@ -25,6 +25,8 @@ public enum ShiftType {
    * which multiplies the value by 0.8.
    * <p>
    * {@code shiftedValue = (value + value * shiftAmount)}
+   * <p>
+   * {@code shiftAmount} is well-defined for nonzero {@code value}.
    */
   RELATIVE {
     @Override
@@ -35,6 +37,11 @@ public enum ShiftType {
     @Override
     public ValueAdjustment toValueAdjustment(double shiftAmount) {
       return ValueAdjustment.ofDeltaMultiplier(shiftAmount);
+    }
+
+    @Override
+    public double computeShift(double baseValue, double shiftedValue) {
+      return shiftedValue / baseValue - 1d;
     }
   },
 
@@ -53,12 +60,19 @@ public enum ShiftType {
     public ValueAdjustment toValueAdjustment(double shiftAmount) {
       return ValueAdjustment.ofDeltaAmount(shiftAmount);
     }
+
+    @Override
+    public double computeShift(double baseValue, double shiftedValue) {
+      return shiftedValue - baseValue;
+    }
   },
 
   /**
    * A scaled shift where the value is multiplied by the shift.
    * <p>
    * {@code shiftedValue = (value * shiftAmount)}
+   * <p>
+   * {@code shiftAmount} is well-defined for nonzero {@code value}.
    */
   SCALED {
     @Override
@@ -69,6 +83,11 @@ public enum ShiftType {
     @Override
     public ValueAdjustment toValueAdjustment(double shiftAmount) {
       return ValueAdjustment.ofMultiplier(shiftAmount);
+    }
+
+    @Override
+    public double computeShift(double baseValue, double shiftedValue) {
+      return shiftedValue / baseValue;
     }
   };
 
@@ -103,6 +122,16 @@ public enum ShiftType {
    * @return a value adjustment that applies the shift amount using appropriate logic for the shift type
    */
   public abstract ValueAdjustment toValueAdjustment(double shiftAmount);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the shift amount using appropriate logic for the shift type.
+   * 
+   * @param baseValue  the base value
+   * @param shiftedValue  the shifted value
+   * @return the shift amount
+   */
+  public abstract double computeShift(double baseValue, double shiftedValue);
 
   //-------------------------------------------------------------------------
   /**

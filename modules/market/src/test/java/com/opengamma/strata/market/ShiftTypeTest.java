@@ -28,6 +28,13 @@ public class ShiftTypeTest {
     assertEquals(ShiftType.SCALED.toValueAdjustment(1.1).adjust(2), 2.2);
   }
 
+  public void test_computeShift() {
+    double tol = 1.0e-15;
+    assertEquals(ShiftType.ABSOLUTE.computeShift(2.0, 2.1), 0.1, tol);
+    assertEquals(ShiftType.RELATIVE.computeShift(2.0, 2.1), 0.05, tol);
+    assertEquals(ShiftType.SCALED.computeShift(2.0, 2.1), 1.05, tol);
+  }
+
   public void test_name() {
     assertEquals(ShiftType.ABSOLUTE.name(), "ABSOLUTE");
     assertEquals(ShiftType.RELATIVE.name(), "RELATIVE");
