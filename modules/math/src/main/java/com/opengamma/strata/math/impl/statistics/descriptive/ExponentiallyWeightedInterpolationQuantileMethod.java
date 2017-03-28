@@ -34,21 +34,18 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   }
 
   @Override
-  public double quantileFromUnsorted(double level, DoubleArray sample) {
-    QuantileResult q = quantileDetails(level, sample, false, false);
-    return q.getValue();
+  public QuantileResult quantileFromUnsorted(double level, DoubleArray sample) {
+    return quantileDetails(level, sample, false, false);
   }
 
   @Override
-  public double quantileWithExtrapolationFromUnsorted(double level, DoubleArray sample) {
-    QuantileResult q = quantileDetails(level, sample, true, false);
-    return q.getValue();
+  public QuantileResult quantileWithExtrapolationFromUnsorted(double level, DoubleArray sample) {
+    return quantileDetails(level, sample, true, false);
   }
   
   @Override
-  public double expectedShortfallFromUnsorted(double level, DoubleArray sample) {
-    QuantileResult q = quantileDetails(level, sample, true, true);
-    return q.getValue();
+  public QuantileResult expectedShortfallFromUnsorted(double level, DoubleArray sample) {
+    return quantileDetails(level, sample, true, true);
   }
   
   /**
@@ -167,7 +164,6 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
    * Computes expected shortfall.
    * @param index  the index from which the ES should be computed
    * @param runningWeight  the running weight up to index
-   * @param isExtrapolated  flag indicating if value should be extrapolated (flat) beyond the last value
    * @param s  the sorted sample
    * @param w  the sorted weights
    * @param order  the order of the sorted sample in the unsorted sample
@@ -206,12 +202,12 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   }
 
   @Override
-  protected double quantile(double level, DoubleArray sortedSample, boolean isExtrapolated) {
+  protected QuantileResult quantile(double level, DoubleArray sortedSample, boolean isExtrapolated) {
     throw new UnsupportedOperationException("Quantile available only from unsorted sample due to weights.");
   }
 
   @Override
-  protected double expectedShortfall(double level, DoubleArray sortedSample) {
+  protected QuantileResult expectedShortfall(double level, DoubleArray sortedSample) {
     throw new UnsupportedOperationException("Expected Shortfall only from unsorted sample due to weights.");
   }
   

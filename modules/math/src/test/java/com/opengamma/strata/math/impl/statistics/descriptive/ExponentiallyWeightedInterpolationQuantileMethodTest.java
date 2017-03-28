@@ -14,10 +14,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
+/*
 
+*/
 /**
  * Tests {@link ExponentiallyWeightedInterpolationQuantileMethod}.
- */
+ *//*
+
 @Test
 public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   
@@ -150,7 +153,9 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
     }
   }
   
-  /* Compare Expected shortfall with numerical integral on the VaR. */
+  */
+/* Compare Expected shortfall with numerical integral on the VaR. *//*
+
   public void es() {
     double level = 0.95;
     double es = METHOD.expectedShortfallFromUnsorted(level, DATA_123);
@@ -175,3 +180,4 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   }
   
 }
+*/
