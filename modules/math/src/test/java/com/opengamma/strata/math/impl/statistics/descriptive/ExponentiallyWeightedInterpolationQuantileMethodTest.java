@@ -64,15 +64,15 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
     assertThrowsIllegalArg(() -> METHOD.quantileFromUnsorted(level, DATA_123));
   }
   
-  public void quantile_from_sorted() {
-    double level = 0.90;
-    assertThrowsWithCause(() -> METHOD.quantileFromUnsorted(level, DATA_123), UnsupportedOperationException.class);
-  }
+  //public void quantile_from_sorted() {
+  //  double level = 0.90;
+  //  assertThrowsWithCause(() -> METHOD.quantileFromSorted(level, DATA_123), UnsupportedOperationException.class);
+  //}
   
-  public void es_from_sorted() {
-    double level = 0.90;
-    assertThrowsWithCause(() -> METHOD.expectedShortfallFromUnsorted(level, DATA_123), UnsupportedOperationException.class);
-  }
+  //public void es_from_sorted() {
+  //  double level = 0.90;
+  //  assertThrowsWithCause(() -> METHOD.expectedShortfallFromSorted(level, DATA_123), UnsupportedOperationException.class);
+  //}
 
   public void quantile_last() {
     double level = 0.999;
