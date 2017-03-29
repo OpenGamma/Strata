@@ -24,7 +24,7 @@ public abstract class DiscreteQuantileMethod
     ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
     int sampleSize = sampleCorrection(sample.size());
-    double[] order = createIndexArray(sampleSize);
+    double[] order = createIndexArray(sample.size());
     double[] s = sample.toArray();
     DoubleArrayMath.sortPairs(s, order);
     int index = (int) checkIndex(index(level * sampleSize), sample.size(), isExtrapolated);
@@ -37,7 +37,7 @@ public abstract class DiscreteQuantileMethod
     ArgChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgChecker.isTrue(level < 1, "Quantile should be below 1.");
     int sampleSize = sampleCorrection(sample.size());
-    double[] order = createIndexArray(sampleSize);
+    double[] order = createIndexArray(sample.size());
     double[] s = sample.toArray();
     DoubleArrayMath.sortPairs(s, order);
     double fractionalIndex = level * sampleSize;

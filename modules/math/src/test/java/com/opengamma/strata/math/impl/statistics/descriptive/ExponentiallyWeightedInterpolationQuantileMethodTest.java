@@ -14,12 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
-/*
 
-*/
+
+
 /**
  * Tests {@link ExponentiallyWeightedInterpolationQuantileMethod}.
- *//*
+ */
 
 @Test
 public class ExponentiallyWeightedInterpolationQuantileMethodTest {
@@ -66,17 +66,17 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   
   public void quantile_from_sorted() {
     double level = 0.90;
-    assertThrowsWithCause(() -> METHOD.quantileFromSorted(level, DATA_123), UnsupportedOperationException.class);
+    assertThrowsWithCause(() -> METHOD.quantileFromUnsorted(level, DATA_123), UnsupportedOperationException.class);
   }
   
   public void es_from_sorted() {
     double level = 0.90;
-    assertThrowsWithCause(() -> METHOD.expectedShortfallFromSorted(level, DATA_123), UnsupportedOperationException.class);
+    assertThrowsWithCause(() -> METHOD.expectedShortfallFromUnsorted(level, DATA_123), UnsupportedOperationException.class);
   }
 
   public void quantile_last() {
     double level = 0.999;
-    double qComputed = METHOD.quantileWithExtrapolationFromUnsorted(level, DATA_123);
+    double qComputed = METHOD.quantileWithExtrapolationFromUnsorted(level, DATA_123).getValue();
     DoubleArray dataSorted = DATA_123.sorted();
     assertEquals(qComputed, dataSorted.get(dataSorted.size()-1), TOLERANCE_WEIGHT, "Quantile.");    
   }
@@ -90,7 +90,7 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   
   private void check_quantile(double level) {
     double[] w = METHOD.weights(DATA_123.size());
-    double qComputed = METHOD.quantileFromUnsorted(level, DATA_123);
+    double qComputed = METHOD.quantileFromUnsorted(level, DATA_123).getValue();
     double WI1 = 0.0d;
     int nbW = 0;
     for (int i = 0; i < DATA_123.size(); i++) {
@@ -126,7 +126,7 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   public void quantile_details() {
     double[] level = {0.98, 0.981, 0.9811, 0.97};
     for (int i = 0; i < level.length; i++) {
-      double q = METHOD.quantileFromUnsorted(level[i], DATA_123);
+      double q = METHOD.quantileFromUnsorted(level[i], DATA_123).getValue();
       QuantileResult r = METHOD.quantileDetailsFromUnsorted(level[i], DATA_123);
       assertEquals(r.getValue(), q, TOLERANCE_QUANTILE);
       assertEquals(r.getIndices().length, r.getWeights().size());
@@ -141,7 +141,7 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   public void es_details() {
     double[] level = {0.98, 0.981, 0.9811, 0.97};
     for (int i = 0; i < level.length; i++) {
-      double es = METHOD.expectedShortfallFromUnsorted(level[i], DATA_123);
+      double es = METHOD.expectedShortfallFromUnsorted(level[i], DATA_123).getValue();
       QuantileResult r = METHOD.expectedShortfallDetailsFromUnsorted(level[i], DATA_123);
       assertEquals(r.getValue(), es, TOLERANCE_QUANTILE);
       assertEquals(r.getIndices().length, r.getWeights().size());
@@ -152,21 +152,20 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
       assertEquals(qExpected, es, TOLERANCE_QUANTILE);
     }
   }
-  
-  */
-/* Compare Expected shortfall with numerical integral on the VaR. *//*
+
+/* Compare Expected shortfall with numerical integral on the VaR. */
 
   public void es() {
     double level = 0.95;
-    double es = METHOD.expectedShortfallFromUnsorted(level, DATA_123);
-    double q = METHOD.quantileFromUnsorted(level, DATA_123);
+    double es = METHOD.expectedShortfallFromUnsorted(level, DATA_123).getValue();
+    double q = METHOD.quantileFromUnsorted(level, DATA_123).getValue();
     assertTrue(es > q);
     int nbPts = 20;
     double esExpected = 0.0d;
     for (int i = 0; i < nbPts; i++) {
       double qIntegral = level + i / (nbPts - 1.0d) * (1 - level);
       esExpected += ((i == 0 || i == nbPts - 1) ? 0.5 : 1.0d) 
-          * METHOD.quantileWithExtrapolationFromUnsorted(qIntegral, DATA_123); // Trapezoid method
+          * METHOD.quantileWithExtrapolationFromUnsorted(qIntegral, DATA_123).getValue(); // Trapezoid method
     }
     esExpected /= (nbPts - 1);
     assertEquals(es, esExpected, TOLERANCE_ES_NI);
@@ -174,10 +173,9 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
 
   public void es_extreme() {
     double level = 0.999;
-    double es = METHOD.expectedShortfallFromUnsorted(level, DATA_123);
-    double q = METHOD.quantileWithExtrapolationFromUnsorted(level, DATA_123);
+    double es = METHOD.expectedShortfallFromUnsorted(level, DATA_123).getValue();
+    double q = METHOD.quantileWithExtrapolationFromUnsorted(level, DATA_123).getValue();
     assertEquals(es, q, TOLERANCE_QUANTILE);
   }
   
 }
-*/
