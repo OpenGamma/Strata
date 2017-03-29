@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * It is specifically named "CurrencyAmount" and not "Money" to indicate that
  * it simply holds a currency and an amount. By contrast, naming it "Money"
  * would imply it was a suitable choice for accounting purposes, which it is not.
+ * Such a behaviour is exposed in the {@link Money} class.
  * <p>
  * This design approach has been chosen primarily for performance reasons.
  * Using a {@code BigDecimal} is markedly slower.
@@ -301,6 +302,18 @@ public final class CurrencyAmount
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Converts the current instance of {@link CurrencyAmount} to the equivalent {@link Money} instance.
+   * This will result into loss of precision in the amount, since {@link Money} is storing the amount rounded to
+   * the currency specification.
+   *
+   * @return The newly created instance of {@link Money}.
+   */
+  public Money toMoney() {
+    return Money.of(this.getCurrency(), this.getAmount());
+  }
+
   /**
    * Converts this amount to an equivalent amount the specified currency.
    * <p>
