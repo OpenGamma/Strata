@@ -318,17 +318,13 @@ public final class RateCalculationSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("RateCalculationSwapLeg{");
     buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
     buf.append("notionalSchedule").append('=').append(notionalSchedule).append(',').append(' ');
-    buf.append("calculation").append('=').append(calculation).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation));
     buf.append('}');
     return buf.toString();
   }

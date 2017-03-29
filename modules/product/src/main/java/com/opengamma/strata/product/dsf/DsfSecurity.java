@@ -277,13 +277,12 @@ public final class DsfSecurity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("DsfSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("underlyingSwap").append('=').append(underlyingSwap).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(underlyingSwap));
     buf.append('}');
     return buf.toString();
   }

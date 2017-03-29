@@ -300,13 +300,12 @@ public final class EtdOptionPosition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("EtdOptionPosition{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("security").append('=').append(security).append(',').append(' ');
     buf.append("longQuantity").append('=').append(longQuantity).append(',').append(' ');
-    buf.append("shortQuantity").append('=').append(shortQuantity).append(',').append(' ');
-    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity()));
+    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
     buf.append('}');
     return buf.toString();
   }
