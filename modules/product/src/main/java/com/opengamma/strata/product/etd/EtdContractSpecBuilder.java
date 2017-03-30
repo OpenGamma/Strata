@@ -23,7 +23,7 @@ public final class EtdContractSpecBuilder {
   private EtdContractSpecId id;
 
   /** The code of the product as given by the exchange in clearing and margining. */
-  private String contractCode;
+  private EtdContractCode contractCode;
 
   /** The type of the product. */
   private EtdType type;
@@ -105,8 +105,8 @@ public final class EtdContractSpecBuilder {
    * @param contractCode  the new value, not empty
    * @return this, for chaining, not null
    */
-  public EtdContractSpecBuilder contractCode(String contractCode) {
-    JodaBeanUtils.notEmpty(contractCode, "contractCode");
+  public EtdContractSpecBuilder contractCode(EtdContractCode contractCode) {
+    JodaBeanUtils.notNull(contractCode, "contractCode");
     this.contractCode = contractCode;
     return this;
   }

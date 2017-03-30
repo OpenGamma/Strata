@@ -63,8 +63,8 @@ public final class EtdContractSpec
   /**
    * The code supplied by the exchange for use in clearing and margining, such as in SPAN.
    */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String contractCode;
+  @PropertyDefinition(validate = "notNull")
+  private final EtdContractCode contractCode;
   /**
    * The human readable description of the product.
    */
@@ -195,7 +195,7 @@ public final class EtdContractSpec
    * @param id  the value of the property, not null
    * @param type  the value of the property, not null
    * @param exchangeId  the value of the property, not null
-   * @param contractCode  the value of the property, not empty
+   * @param contractCode  the value of the property, not null
    * @param description  the value of the property, not empty
    * @param priceInfo  the value of the property, not null
    * @param attributes  the value of the property, not null
@@ -204,14 +204,14 @@ public final class EtdContractSpec
       EtdContractSpecId id,
       EtdType type,
       ExchangeId exchangeId,
-      String contractCode,
+      EtdContractCode contractCode,
       String description,
       SecurityPriceInfo priceInfo,
       Map<SecurityAttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(id, "id");
     JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(exchangeId, "exchangeId");
-    JodaBeanUtils.notEmpty(contractCode, "contractCode");
+    JodaBeanUtils.notNull(contractCode, "contractCode");
     JodaBeanUtils.notEmpty(description, "description");
     JodaBeanUtils.notNull(priceInfo, "priceInfo");
     JodaBeanUtils.notNull(attributes, "attributes");
@@ -271,9 +271,9 @@ public final class EtdContractSpec
   //-----------------------------------------------------------------------
   /**
    * Gets the code supplied by the exchange for use in clearing and margining, such as in SPAN.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getContractCode() {
+  public EtdContractCode getContractCode() {
     return contractCode;
   }
 
@@ -383,8 +383,8 @@ public final class EtdContractSpec
     /**
      * The meta-property for the {@code contractCode} property.
      */
-    private final MetaProperty<String> contractCode = DirectMetaProperty.ofImmutable(
-        this, "contractCode", EtdContractSpec.class, String.class);
+    private final MetaProperty<EtdContractCode> contractCode = DirectMetaProperty.ofImmutable(
+        this, "contractCode", EtdContractSpec.class, EtdContractCode.class);
     /**
      * The meta-property for the {@code description} property.
      */
@@ -485,7 +485,7 @@ public final class EtdContractSpec
      * The meta-property for the {@code contractCode} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> contractCode() {
+    public MetaProperty<EtdContractCode> contractCode() {
       return contractCode;
     }
 
@@ -555,7 +555,7 @@ public final class EtdContractSpec
     private EtdContractSpecId id;
     private EtdType type;
     private ExchangeId exchangeId;
-    private String contractCode;
+    private EtdContractCode contractCode;
     private String description;
     private SecurityPriceInfo priceInfo;
     private Map<SecurityAttributeType<?>, Object> attributes = ImmutableMap.of();
@@ -604,7 +604,7 @@ public final class EtdContractSpec
           this.exchangeId = (ExchangeId) newValue;
           break;
         case -1402840545:  // contractCode
-          this.contractCode = (String) newValue;
+          this.contractCode = (EtdContractCode) newValue;
           break;
         case -1724546052:  // description
           this.description = (String) newValue;

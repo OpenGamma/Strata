@@ -53,10 +53,10 @@ public final class EtdIdUtils {
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @return the identifier
    */
-  public static EtdContractSpecId contractSpecId(EtdType type, ExchangeId exchangeId, String contractCode) {
+  public static EtdContractSpecId contractSpecId(EtdType type, ExchangeId exchangeId, EtdContractCode contractCode) {
     ArgChecker.notNull(type, "type");
     ArgChecker.notNull(exchangeId, "exchangeId");
-    ArgChecker.notEmpty(contractCode, "contractCode");
+    ArgChecker.notNull(contractCode, "contractCode");
     switch (type) {
       case FUTURE:
         return EtdContractSpecId.of(ETD_SCHEME, FUT_PREFIX + exchangeId + SEPARATOR + contractCode);
@@ -84,12 +84,12 @@ public final class EtdIdUtils {
    */
   public static SecurityId futureId(
       ExchangeId exchangeId,
-      String contractCode,
+      EtdContractCode contractCode,
       YearMonth expiryMonth,
       EtdVariant variant) {
 
     ArgChecker.notNull(exchangeId, "exchangeId");
-    ArgChecker.notEmpty(contractCode, "contractCode");
+    ArgChecker.notNull(contractCode, "contractCode");
     ArgChecker.notNull(expiryMonth, "expiryMonth");
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
     ArgChecker.notNull(variant, "variant");
@@ -124,7 +124,7 @@ public final class EtdIdUtils {
    */
   public static SecurityId optionId(
       ExchangeId exchangeId,
-      String contractCode,
+      EtdContractCode contractCode,
       YearMonth expiryMonth,
       EtdVariant variant,
       int version,
@@ -132,7 +132,7 @@ public final class EtdIdUtils {
       double strikePrice) {
 
     ArgChecker.notNull(exchangeId, "exchangeId");
-    ArgChecker.notEmpty(contractCode, "contractCode");
+    ArgChecker.notNull(contractCode, "contractCode");
     ArgChecker.notNull(expiryMonth, "expiryMonth");
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
     ArgChecker.notNull(variant, "variant");
