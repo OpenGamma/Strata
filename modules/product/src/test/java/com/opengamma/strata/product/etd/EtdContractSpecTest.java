@@ -93,7 +93,7 @@ public class EtdContractSpecTest {
         .id(EtdContractSpecId.of("test", "123"))
         .type(EtdType.FUTURE)
         .exchangeId(ExchangeIds.ECAG)
-        .contractCode("FOO")
+        .contractCode(EtdContractCode.of("FOO"))
         .description("A test future template")
         .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
         .build();
@@ -103,7 +103,7 @@ public class EtdContractSpecTest {
     return EtdContractSpec.builder()
         .type(EtdType.OPTION)
         .exchangeId(ExchangeIds.IFEN)
-        .contractCode("BAR")
+        .contractCode(EtdContractCode.of("BAR"))
         .description("A test option template")
         .priceInfo(SecurityPriceInfo.of(Currency.EUR, 10))
         .addAttribute(SecurityAttributeType.NAME, "NAME")
