@@ -43,6 +43,15 @@ public interface EtdPosition
    */
   public abstract EtdSecurity getSecurity();
 
+  /**
+   * Gets the type of the contract - future or option.
+   * 
+   * @return the type, future or option
+   */
+  public default EtdType getType() {
+    return getSecurity().getType();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the security identifier.

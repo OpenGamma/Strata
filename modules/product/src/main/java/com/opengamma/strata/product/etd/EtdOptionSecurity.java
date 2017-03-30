@@ -139,6 +139,11 @@ public final class EtdOptionSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public EtdType getType() {
+    return EtdType.OPTION;
+  }
+
+  @Override
   public EtdOptionSecurity createProduct(ReferenceData refData) {
     return this;
   }
