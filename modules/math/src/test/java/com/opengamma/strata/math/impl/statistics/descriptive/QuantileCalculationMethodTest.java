@@ -768,7 +768,8 @@ public class QuantileCalculationMethodTest {
     double expectedValueSampleInterp = 0d;
     double sumWeightsSampleInterp = 0d;
     for (int i = 0; i < quantileSampleInterp.getIndices().length; i++) {
-      expectedValueSampleInterp += UNSORTED_100.get(quantileSampleInterp.getIndices()[i]) * quantileSampleInterp.getWeights().get(i);
+      expectedValueSampleInterp += UNSORTED_100.get(quantileSampleInterp.getIndices()[i]) * quantileSampleInterp.getWeights().get(
+          i);
       sumWeightsSampleInterp += quantileSampleInterp.getWeights().get(i);
     }
     assertEquals(quantileSampleInterp.getIndices().length, quantileSampleInterp.getWeights().size());
@@ -779,7 +780,8 @@ public class QuantileCalculationMethodTest {
     double expectedValueSample1Interp = 0d;
     double sumWeightsSample1Interp = 0d;
     for (int i = 0; i < quantileSample1Interp.getIndices().length; i++) {
-      expectedValueSample1Interp += UNSORTED_100.get(quantileSample1Interp.getIndices()[i]) * quantileSample1Interp.getWeights().get(i);
+      expectedValueSample1Interp += UNSORTED_100.get(quantileSample1Interp.getIndices()[i]) * quantileSample1Interp.getWeights().get(
+          i);
       sumWeightsSample1Interp += quantileSample1Interp.getWeights().get(i);
     }
     assertEquals(quantileSample1Interp.getIndices().length, quantileSample1Interp.getWeights().size());
@@ -790,7 +792,8 @@ public class QuantileCalculationMethodTest {
     double expectedValueMidInterp = 0d;
     double sumWeightsMidInterp = 0d;
     for (int i = 0; i < quantileMidInterp.getIndices().length; i++) {
-      expectedValueMidInterp += UNSORTED_100.get(quantileMidInterp.getIndices()[i]) * quantileMidInterp.getWeights().get(i);
+      expectedValueMidInterp += UNSORTED_100.get(quantileMidInterp.getIndices()[i]) * quantileMidInterp.getWeights().get(
+          i);
       sumWeightsMidInterp += quantileMidInterp.getWeights().get(i);
     }
     assertEquals(quantileMidInterp.getIndices().length, quantileMidInterp.getWeights().size());
@@ -847,7 +850,8 @@ public class QuantileCalculationMethodTest {
     double expectedValueSample1Interp = 0d;
     double sumWeightsSample1Interp = 0d;
     for (int i = 0; i < esSample1Interp.getIndices().length; i++) {
-      expectedValueSample1Interp += UNSORTED_100.get(esSample1Interp.getIndices()[i]) * esSample1Interp.getWeights().get(i);
+      expectedValueSample1Interp += UNSORTED_100.get(esSample1Interp.getIndices()[i]) * esSample1Interp.getWeights().get(
+          i);
       sumWeightsSample1Interp += esSample1Interp.getWeights().get(i);
     }
     assertEquals(esSample1Interp.getIndices().length, esSample1Interp.getWeights().size());

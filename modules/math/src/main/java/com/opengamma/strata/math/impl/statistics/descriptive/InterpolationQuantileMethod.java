@@ -36,8 +36,9 @@ public abstract class InterpolationQuantileMethod
     int upperIndex = (int) Math.ceil(adjustedLevel);
     double lowerWeight = upperIndex - adjustedLevel;
     double upperWeight = 1d - lowerWeight;
-    return QuantileResult.of(lowerWeight * s[lowerIndex - 1] + upperWeight * s[upperIndex - 1],
-        new int[] {(int) order[(int) Math.floor(adjustedLevel) - 1], (int) order[(int) Math.ceil(adjustedLevel) - 1]},
+    return QuantileResult.of(
+        lowerWeight * s[lowerIndex - 1] + upperWeight * s[upperIndex - 1],
+        new int[]{(int) order[(int) Math.floor(adjustedLevel) - 1], (int) order[(int) Math.ceil(adjustedLevel) - 1]},
         DoubleArray.of(lowerWeight, upperWeight));
   }
 
@@ -57,7 +58,7 @@ public abstract class InterpolationQuantileMethod
     double[] weights = new double[upperIndex];
     double interval = 1d / (double) sampleSize;
     weights[0] = interval * (Math.min(fractionalIndex, 1d) - indexCorrection());
-    double losses = s[0] *  weights[0];
+    double losses = s[0] * weights[0];
     for (int i = 0; i < lowerIndex - 1; i++) {
       losses += 0.5 * (s[i] + s[i + 1]) * interval;
       indices[i] = (int) order[i];
