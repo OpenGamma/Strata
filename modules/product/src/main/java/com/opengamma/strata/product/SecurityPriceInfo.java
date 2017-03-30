@@ -316,12 +316,11 @@ public final class SecurityPriceInfo
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("SecurityPriceInfo{");
     buf.append("tickSize").append('=').append(tickSize).append(',').append(' ');
     buf.append("tickValue").append('=').append(tickValue).append(',').append(' ');
-    buf.append("contractSize").append('=').append(contractSize).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize));
     buf.append('}');
     return buf.toString();
   }

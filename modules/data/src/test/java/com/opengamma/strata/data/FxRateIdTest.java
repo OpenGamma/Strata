@@ -78,8 +78,14 @@ public class FxRateIdTest {
 
   public void coverage_builder() {
     Meta meta = FxRateId.meta();
-    FxRateId test1 = meta.builder().setString(meta.pair(), "EUR/GBP").set(meta.observableSource(), OBS_SOURCE).build();
-    FxRateId test2 = meta.builder().setString(meta.pair().name(), "EUR/GBP").set(meta.observableSource(), OBS_SOURCE).build();
+    FxRateId test1 = meta.builder()
+        .set(meta.pair(), CurrencyPair.parse("EUR/GBP"))
+        .set(meta.observableSource(), OBS_SOURCE)
+        .build();
+    FxRateId test2 = meta.builder()
+        .set(meta.pair().name(), CurrencyPair.parse("EUR/GBP"))
+        .set(meta.observableSource(), OBS_SOURCE)
+        .build();
     coverBeanEquals(test1, test2);
   }
 

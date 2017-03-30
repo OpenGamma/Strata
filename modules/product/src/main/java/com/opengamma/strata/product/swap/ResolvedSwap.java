@@ -347,11 +347,9 @@ public final class ResolvedSwap
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("ResolvedSwap{");
-    buf.append("legs").append('=').append(legs).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
+    buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
     buf.append('}');
     return buf.toString();
   }

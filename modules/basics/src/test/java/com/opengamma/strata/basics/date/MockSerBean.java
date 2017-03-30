@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * Mock for serialization testing.
  */
 @BeanDefinition(style = "minimal")
-public class MockSerBean implements Bean {
+public final class MockSerBean implements Bean {
 
   @PropertyDefinition
   private BusinessDayConvention bdConvention;
@@ -172,27 +172,19 @@ public class MockSerBean implements Bean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MockSerBean{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("bdConvention").append('=').append(getBdConvention()).append(',').append(' ');
+    buf.append("holidayCalendar").append('=').append(getHolidayCalendar()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("objects").append('=').append(JodaBeanUtils.toString(getObjects()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("bdConvention").append('=').append(JodaBeanUtils.toString(getBdConvention())).append(',').append(' ');
-    buf.append("holidayCalendar").append('=').append(JodaBeanUtils.toString(getHolidayCalendar())).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
-    buf.append("objects").append('=').append(JodaBeanUtils.toString(getObjects())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MockSerBean}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -232,7 +224,7 @@ public class MockSerBean implements Bean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
