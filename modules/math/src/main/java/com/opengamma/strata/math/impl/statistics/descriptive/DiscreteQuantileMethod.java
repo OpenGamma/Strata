@@ -28,8 +28,9 @@ public abstract class DiscreteQuantileMethod
     double[] s = sample.toArray();
     DoubleArrayMath.sortPairs(s, order);
     int index = (int) checkIndex(index(level * sampleSize), sample.size(), isExtrapolated);
-    int[] ind = new int[(int) order[index - 1]];
-    return QuantileResult.of(sample.get(index - 1), ind, DoubleArray.of(1));
+    int[] ind = new int[1];
+    ind[0] = (int) order[index - 1];
+    return QuantileResult.of(s[index - 1], ind, DoubleArray.of(1));
   }
 
   @Override
@@ -55,7 +56,7 @@ public abstract class DiscreteQuantileMethod
     indices[index - 1] = (int) order[index - 1];
     weights[0] += interval * indexShift();
     weights[index - 1] = (fractionalIndex - index + 1 - indexShift()) * interval;
-    return QuantileResult.of(losses / level, indices, DoubleArray.ofUnsafe(weights));
+    return QuantileResult.of(losses / level, indices, DoubleArray.ofUnsafe(weights).dividedBy(level));
   }
 
   //-------------------------------------------------------------------------
