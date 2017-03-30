@@ -43,6 +43,13 @@ public interface EtdSecurity
   public abstract EtdContractSpecId getContractSpecId();
 
   /**
+   * Gets the type of the contract - future or option.
+   * 
+   * @return the type, future or option
+   */
+  public abstract EtdType getType();
+
+  /**
    * Gets the year-month of the expiry.
    * <p>
    * Expiry will occur on a date implied by the variant of the ETD.

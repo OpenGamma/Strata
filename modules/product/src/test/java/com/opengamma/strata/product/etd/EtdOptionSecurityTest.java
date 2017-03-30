@@ -33,6 +33,7 @@ public class EtdOptionSecurityTest {
   public void test() {
     EtdOptionSecurity test = sut();
     assertEquals(test.getVariant(), EtdVariant.MONTHLY);
+    assertEquals(test.getType(), EtdType.OPTION);
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(test.createProduct(REF_DATA), test);

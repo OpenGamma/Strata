@@ -32,6 +32,7 @@ public class EtdFutureSecurityTest {
   public void test() {
     EtdFutureSecurity test = sut();
     assertEquals(test.getVariant(), EtdVariant.MONTHLY);
+    assertEquals(test.getType(), EtdType.FUTURE);
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(test.createProduct(REF_DATA), test);

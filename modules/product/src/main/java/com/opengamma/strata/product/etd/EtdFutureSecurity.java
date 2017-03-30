@@ -105,6 +105,11 @@ public final class EtdFutureSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public EtdType getType() {
+    return EtdType.FUTURE;
+  }
+
+  @Override
   public EtdFutureSecurity createProduct(ReferenceData refData) {
     return this;
   }
