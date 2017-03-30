@@ -642,41 +642,41 @@ public class QuantileCalculationMethodTest {
 
   //-------------------------------------------------------------------------
   public void regression_test1() {
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.92365, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9275, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.94105, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9434, TOL);
     assertEquals(
         QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL1, UNSORTED_100).getValue(),
-        0.5114133689839573,
+        0.478780748663101,
         TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.80356, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.8024, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.77722, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.7711, TOL);
     assertEquals(
         QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100).getValue(),
-        0.4333301047120419,
+        0.388652617801047,
         TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9524, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9524, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9532, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9532, TOL);
     assertEquals(
         QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL3, UNSORTED_100).getValue(),
-        0.5182452631578948,
+        0.48622,
         TOL);
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100).getValue(), 0.981218, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100).getValue(), 0.9813, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100).getValue(), 0.994769, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100).getValue(),  0.9948, TOL);
     assertEquals(
         QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100).getValue(),
-        0.5407389438943896,
+        0.510629582958296,
         TOL);
   }
 
   public void regression_test2() {
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9383315, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9275, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.8056608, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.8053, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.95677, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.957, TOL);
+    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.947663, TOL);
+    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9434, TOL);
+    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.791238, TOL);
+    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.7864, TOL);
+    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.953485, TOL);
+    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9535, TOL);
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
@@ -686,46 +686,46 @@ public class QuantileCalculationMethodTest {
   public void regression_test3() {
     assertEquals(
         QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL1, UNSORTED_100).getValue(),
-        0.9275,
+        0.9434,
         TOL);
     assertEquals(
         QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL2, UNSORTED_100).getValue(),
-        0.80501,
+        0.78487,
         TOL);
     assertEquals(
         QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL3, UNSORTED_100).getValue(),
-        0.9547,
+        0.95335,
         TOL);
     assertEquals(
         QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL4, UNSORTED_100).getValue(),
-        0.0286,
+        0.0174,
         TOL);
     assertEquals(
         QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL5, UNSORTED_100).getValue(),
-        0.9813,
+        0.9948,
         TOL);
   }
 
   public void regression_test4() {
     assertEquals(
         QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL1, UNSORTED_100).getValue(),
-        0.9383315,
+        0.947663,
         TOL);
     assertEquals(
         QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL2, UNSORTED_100).getValue(),
-        0.8056608,
+        0.791238,
         TOL);
     assertEquals(
         QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL3, UNSORTED_100).getValue(),
-        0.95677,
+        0.953485,
         TOL);
     assertEquals(
         QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL4, UNSORTED_100).getValue(),
-        0.0286,
+        0.0174,
         TOL);
     assertEquals(
         QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL5, UNSORTED_100).getValue(),
-        0.9813,
+        0.9948,
         TOL);
   }
 

@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
 public class ExponentiallyWeightedInterpolationQuantileMethodTest {
-  
+
   private static final DoubleArray DATA_123 = DoubleArray.ofUnsafe(new double[]{
       0.1746, 0.9716, 0.1963, 0.1982, 0.2020, 0.2155, 0.2222, 0.4534, 0.4690, 0.3717,
       0.0286, 0.0363, 0.0379, 0.0582, 0.0611, 0.0622, 0.9368, 0.0776, 0.0779, 0.0822,
