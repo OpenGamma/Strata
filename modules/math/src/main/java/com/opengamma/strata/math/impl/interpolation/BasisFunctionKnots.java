@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.interpolation;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Helper class to hold the knots and polynomial degree that specify a set of basis functions
+ * Helper class to hold the knots and polynomial degree that specify a set of basis functions.
  */
 public final class BasisFunctionKnots {
 
@@ -18,7 +18,7 @@ public final class BasisFunctionKnots {
 
   /**
    * Generate knots uniformly in the range xa and xb and knots outside this range to support the basis functions on
-   * the edge of the range
+   * the edge of the range.
    * @param xa start of the range
    * @param xb end of the range
    * @param nKnots number of knots in the range (internal knots)
@@ -113,7 +113,7 @@ public final class BasisFunctionKnots {
   }
 
   /**
-   * Get the full set of knots
+   * Get the full set of knots.
    * @return the knots
    */
   public double[] getKnots() {
@@ -121,7 +121,7 @@ public final class BasisFunctionKnots {
   }
 
   /**
-   * The number of knots
+   * The number of knots.
    * @return number of knots
    */
   public int getNumKnots() {
@@ -129,7 +129,7 @@ public final class BasisFunctionKnots {
   }
 
   /**
-   * the polynomial degree of the basis functions
+   * the polynomial degree of the basis functions.
    * @return the degree
    */
   public int getDegree() {
@@ -137,7 +137,7 @@ public final class BasisFunctionKnots {
   }
 
   /**
-   * The number of basis splines of the degree this set of knots will support
+   * The number of basis splines of the degree this set of knots will support.
    * @return number of splines
    */
   public int getNumSplines() {

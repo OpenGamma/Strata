@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
 
   private static final Logger log = LoggerFactory.getLogger(NamedVariableLeastSquaresRegressionResult.class);

@@ -28,7 +28,6 @@ import cern.jet.random.engine.RandomEngine;
  * $$
  * where $k$ is the shape parameter and $\theta$ is the scale parameter.
  * <p>
- * 
  */
 public class GammaDistribution implements ProbabilityDistribution<Double> {
 

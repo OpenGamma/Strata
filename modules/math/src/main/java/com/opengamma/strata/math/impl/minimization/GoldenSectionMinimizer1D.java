@@ -25,6 +25,14 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
     return minimize(f, lower, upper);
   }
 
+  /**
+   * Minimize.
+   * 
+   * @param f  the function
+   * @param lower  the lower bound
+   * @param upper  the upper bound
+   * @return the result
+   */
   public double minimize(Function<Double, Double> f, double lower, double upper) {
     ArgChecker.notNull(f, "function");
     double x0, x1, x2, x3, f1, f2, temp;

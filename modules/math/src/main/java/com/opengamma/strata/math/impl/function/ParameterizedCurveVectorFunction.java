@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * This is simply a {@link VectorFunction} backed by a {@link ParameterizedCurve}
+ * This is simply a {@link VectorFunction} backed by a {@link ParameterizedCurve}.
  */
 public class ParameterizedCurveVectorFunction extends VectorFunction {
 

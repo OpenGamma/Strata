@@ -14,6 +14,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  * Uses the Sherman-Morrison formula to invert Broyden's Jacobian update formula,
  * thus providing a direct update formula for the inverse Jacobian.
  */
+//CSOFF: JavadocMethod
 public class ShermanMorrisonVectorRootFinder extends NewtonVectorRootFinder {
 
   private static final double DEF_TOL = 1e-7;

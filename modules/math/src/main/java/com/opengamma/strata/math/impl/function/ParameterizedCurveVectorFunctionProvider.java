@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.function;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A provider of a {@link ParameterizedCurveVectorFunction}
+ * A provider of a {@link ParameterizedCurveVectorFunction}.
  */
 public class ParameterizedCurveVectorFunctionProvider extends DoublesVectorFunctionProvider {
 

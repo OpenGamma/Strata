@@ -490,7 +490,7 @@ public final class DoubleArray
    * @param destination  the array to copy into
    * @param offset  the offset in the destination array to start from
    * @throws IndexOutOfBoundsException if the destination array is not large enough
-   *  or the offset is negative
+   *   or the offset is negative
    */
   public void copyInto(double[] destination, int offset) {
     if (destination.length < array.length + offset) {

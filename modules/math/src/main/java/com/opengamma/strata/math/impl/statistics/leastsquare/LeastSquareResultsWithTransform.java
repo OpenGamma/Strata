@@ -16,6 +16,7 @@ import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
  * Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated
  * to a data set, but the model parameters are first transformed to some fitting parameters (usually to impose some constants).
  */
+// CSOFF: JavadocMethod
 public class LeastSquareResultsWithTransform extends LeastSquareResults {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();

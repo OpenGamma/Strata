@@ -32,7 +32,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
    *
    * @param startValues fixed parameter values (if no parameters are fixed this is completely ignored)
    * @param transforms Array of ParameterLimitsTransform (which can be the NullTransform which does NOT transform the parameter) which transform
-   * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
+   *   a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
    * @param fixed BitSet with an element set to <b>true</b> if that parameter is fixed
    */
   public UncoupledParameterTransforms(DoubleArray startValues, ParameterLimitsTransform[] transforms, BitSet fixed) {
@@ -75,8 +75,11 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Transforms from a set of function parameters (some of which may have constrained range and/or be fixed) to a (possibly smaller) set of unconstrained fitting parameters
-   * <b>Note:</b> If a parameter is fixed, it is its value as provided by <i>startValues<\i> not the value given here that will be returned by inverseTransform (and thus used in the function)
+   * Transforms from a set of function parameters (some of which may have constrained range and/or be fixed)
+   * to a (possibly smaller) set of unconstrained fitting parameters.
+   * <b>Note:</b> If a parameter is fixed, it is its value as provided by <i>startValues</i> not the value
+   * given here that will be returned by inverseTransform (and thus used in the function).
+   * 
    * @param functionParameters The function parameters
    * @return The fitting parameters
    */
@@ -116,7 +119,8 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Calculates the Jacobian of the transform from function parameters to fitting parameters - the i,j element will be the partial derivative of i^th fitting parameter with respect
+   * Calculates the Jacobian of the transform from function parameters to fitting parameters -
+   * the i,j element will be the partial derivative of i^th fitting parameter with respect.
    * to the j^th function parameter
    * @param functionParameters The function parameters
    * @return matrix of partial derivative of fitting parameter with respect to function parameters
@@ -137,7 +141,8 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Calculates the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect
+   * Calculates the Jacobian of the transform from fitting parameters to function parameters -
+   * the i,j element will be the partial derivative of i^th function parameter with respect.
    * to the j^th  fitting parameter
    * @param fittingParameters  The fitting parameters
    * @return  matrix of partial derivative of function parameter with respect to fitting parameters

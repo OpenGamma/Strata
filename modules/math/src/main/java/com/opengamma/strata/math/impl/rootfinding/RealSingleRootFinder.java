@@ -13,6 +13,7 @@ import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 /**
  * Parent class for root-finders that find a single real root $x$ for a function $f(x)$.  
  */
+//CSOFF: JavadocMethod
 public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double> {
 
   @Override

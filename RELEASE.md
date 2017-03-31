@@ -58,16 +58,16 @@ Milestone releases
 
 1. Create git commit, with message such as "Release v1.1.0-M1"
 
-1. Release:  
-`mvn clean deploy -Doss.jars -Ddist`
-
-1. Add git tag and push commit to GitHub  
+1. Add Git tag (beginning with `m`):  
 `git tag -a m1.1.0-M1 -m "Release v1.1.0-M1"`
+
+1. Push the tag:  
+`git push --follow-tags`
+
+1. Travis will automatically detect the new tag and perform a build.
+Being a milestone tag, beginning with `m`, Travis will deploy the build to the artifact repository.
 
 1. Bump version of Strata back to original SNAPSHOT, eg. 1.1.0-SNAPSHOT:  
 `mvn versions:set -DgenerateBackupPoms=false -DartifactId=* -DgroupId=com.opengamma.strata`
 
-1. Create git commit, with message such as "Bump version"
-
-1. Push the commits and tag:  
-`git push --follow-tags`
+1. Create git commit, with message such as "Bump version", and push

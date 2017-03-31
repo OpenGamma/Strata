@@ -13,6 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Trigonometric utilities.
  */
 public class TrigonometricFunctionUtils {
+// CSOFF: JavadocMethod
 
   private static final ComplexNumber NEGATIVE_I = new ComplexNumber(0, -1);
 
@@ -21,7 +22,7 @@ public class TrigonometricFunctionUtils {
   }
 
   /**
-   * arccos - the inverse of cos
+   * arccos - the inverse of cos.
    * @param z A complex number
    * @return acos(z)
    */

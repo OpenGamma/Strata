@@ -15,6 +15,7 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class ShermanMorrisonMatrixUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
   private final MatrixAlgebra _algebra;

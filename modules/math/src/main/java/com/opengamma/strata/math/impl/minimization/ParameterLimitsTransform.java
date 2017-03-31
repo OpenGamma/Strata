@@ -12,11 +12,11 @@ package com.opengamma.strata.math.impl.minimization;
  */
 public interface ParameterLimitsTransform {
 
-  /** Types of the limits */
+  /** Types of the limits. */
   public enum LimitType {
-    /** Greater than limit */
+    /** Greater than limit. */
     GREATER_THAN,
-    /** Less than limit */
+    /** Less than limit. */
     LESS_THAN
   }
 
@@ -42,14 +42,16 @@ public interface ParameterLimitsTransform {
   double inverseTransform(double y);
 
   /**
-   * The gradient of the function used to transform from a model parameter that is only allows to take certain values, to a fitting parameter that can take any value
+   * The gradient of the function used to transform from a model parameter that is only allows
+   * to take certain values, to a fitting parameter that can take any value.
    * @param x Model parameter
    * @return the gradient
    */
   double transformGradient(double x);
 
   /**
-   * The gradient of the function used to transform from a fitting parameter that can take any value, to a model parameter that is only allows to take certain values
+   * The gradient of the function used to transform from a fitting parameter that can take any value,
+   * to a model parameter that is only allows to take certain values.
    * @param y fitting parameter
    * @return the gradient
    */

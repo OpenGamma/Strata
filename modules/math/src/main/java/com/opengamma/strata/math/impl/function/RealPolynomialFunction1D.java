@@ -106,7 +106,7 @@ public class RealPolynomialFunction1D implements DoubleFunction1D {
    * \begin{align*}
    * P'(x) = a_1 + 2 a_2 x + 3 a_3 x^2 + 4 a_4 x^3 + \dots + n a_n x^{n-1}
    * \end{align*}
-   * $$
+   * $$.
    * 
    * @return the derivative polynomial
    */

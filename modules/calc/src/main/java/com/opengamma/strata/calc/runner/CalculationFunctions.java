@@ -131,7 +131,7 @@ public interface CalculationFunctions {
    *
    * @param functions  the functions
    * @return a set of calculation functions which combines the functions in this set with some
-   * derived calculation functions
+   *   derived calculation functions
    */
   public default CalculationFunctions composedWith(DerivedCalculationFunction<?, ?>... functions) {
     return new DerivedCalculationFunctions(this, functions);

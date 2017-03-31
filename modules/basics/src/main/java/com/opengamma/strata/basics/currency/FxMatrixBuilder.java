@@ -62,7 +62,7 @@ public class FxMatrixBuilder {
    *
    * @return a new {@code FxMatrix}
    * @throws IllegalStateException if an attempt was made to add currencies
-   * which have no currency in common with other rates
+   *   which have no currency in common with other rates
    */
   public FxMatrix build() {
     if (!disjointRates.isEmpty()) {

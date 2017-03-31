@@ -17,6 +17,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * <a href="http://commons.apache.org/proper/commons-math/javadocs/api-3.5/org/apache/commons/math3/linear/LUDecomposition.html">Commons Math3 library implementation</a> 
  * of LU decomposition.
  */
+// CSOFF: AbbreviationAsWordInName
 public class LUDecompositionCommons extends Decomposition<LUDecompositionResult> {
 
   @Override

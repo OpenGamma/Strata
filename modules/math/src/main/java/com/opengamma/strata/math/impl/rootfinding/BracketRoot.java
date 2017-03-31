@@ -25,6 +25,8 @@ public class BracketRoot {
   private static final int MAX_STEPS = 50;
 
   /**
+   * Gets the bracketed roots.
+   * 
    * @param f The function, not null
    * @param xLower Initial value of lower bracket
    * @param xUpper Initial value of upper bracket
@@ -67,6 +69,17 @@ public class BracketRoot {
     throw new MathException("Failed to bracket root");
   }
 
+  /**
+   * Gets the bracketed roots.
+   * 
+   * @param f The function, not null
+   * @param xLower Initial value of lower bracket
+   * @param xUpper Initial value of upper bracket
+   * @param minX  the minimum x
+   * @param maxX  the maximum x
+   * @return The bracketed points as an array, where the first element is the lower bracket and the second the upper bracket.
+   * @throws MathException If a root is not bracketed in 50 attempts.
+   */
   public double[] getBracketedPoints(Function<Double, Double> f, double xLower, double xUpper, double minX, double maxX) {
     ArgChecker.notNull(f, "f");
     ArgChecker.isTrue(xLower >= minX, "xLower < minX");

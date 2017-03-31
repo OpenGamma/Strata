@@ -31,10 +31,10 @@ public class FailureItemTest {
   //-------------------------------------------------------------------------
   public void test_of_reasonMessageShortStackTrace() {
     FailureItem test = FailureItem.meta().builder()
-        .setString("reason", "INVALID")
-        .setString("message", "my issue")
-        .setString("stackTrace", "Short stack trace")
-        .setString("causeType", "java.lang.IllegalArgumentException")
+        .set("reason", FailureReason.INVALID)
+        .set("message", "my issue")
+        .set("stackTrace", "Short stack trace")
+        .set("causeType", IllegalArgumentException.class)
         .build();
     assertEquals(test.toString(), "INVALID: my issue: Short stack trace");
   }

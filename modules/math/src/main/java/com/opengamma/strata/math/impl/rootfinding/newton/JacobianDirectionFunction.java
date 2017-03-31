@@ -18,6 +18,11 @@ public class JacobianDirectionFunction implements NewtonRootFinderDirectionFunct
 
   private final Decomposition<?> _decomposition;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param decomposition  the decomposition
+   */
   public JacobianDirectionFunction(Decomposition<?> decomposition) {
     ArgChecker.notNull(decomposition, "decomposition");
     _decomposition = decomposition;

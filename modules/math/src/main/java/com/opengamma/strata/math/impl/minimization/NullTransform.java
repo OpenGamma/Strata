@@ -11,7 +11,7 @@ package com.opengamma.strata.math.impl.minimization;
 public class NullTransform implements ParameterLimitsTransform {
 
   /**
-   * Performs the null inverse transform {y -> y}
+   * Performs the null inverse transform {y -> y}.
    * {@inheritDoc}
    */
   @Override
@@ -29,7 +29,7 @@ public class NullTransform implements ParameterLimitsTransform {
   }
 
   /**
-   * Performs the null transform {x -> x}
+   * Performs the null transform {x -> x}.
    * {@inheritDoc}
    */
   @Override
@@ -38,7 +38,7 @@ public class NullTransform implements ParameterLimitsTransform {
   }
 
   /**
-   * The gradient of a null transform is one
+   * The gradient of a null transform is one.
    * {@inheritDoc}
    */
   @Override

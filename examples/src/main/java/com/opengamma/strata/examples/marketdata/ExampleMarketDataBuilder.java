@@ -78,14 +78,6 @@ public abstract class ExampleMarketDataBuilder {
   /** The name of the curve settings file. */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
 
-  /** The name of the directory containing CDS ISDA yield curve, credit curve and static data. */
-  private static final String CREDIT_DIR = "credit";
-  private static final String CDS_YIELD_CURVES_FILE = "cds.yieldCurves.csv";
-  private static final String SINGLE_NAME_CREDIT_CURVES_FILE = "singleName.creditCurves.csv";
-  private static final String SINGLE_NAME_STATIC_DATA_FILE = "singleName.staticData.csv";
-  private static final String INDEX_CREDIT_CURVES_FILE = "index.creditCurves.csv";
-  private static final String INDEX_STATIC_DATA_FILE = "index.staticData.csv";
-
   /** The name of the subdirectory containing simple market quotes. */
   private static final String QUOTES_DIR = "quotes";
   /** The name of the quotes file. */

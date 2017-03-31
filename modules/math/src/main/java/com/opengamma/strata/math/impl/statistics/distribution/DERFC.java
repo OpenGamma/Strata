@@ -11,9 +11,9 @@ package com.opengamma.strata.math.impl.statistics.distribution;
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * See http://www.netlib.org/slatec/fnlib/derfc.f
  */
+// CSOFF: ALL
 final class DERFC {
 
-  //CSOFF
   private static final double[] s_erfcs = {
       -0.49046121234691808039984544033376e-1,
       -0.14226120510371364237824741899631e+0,

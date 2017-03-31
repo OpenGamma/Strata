@@ -107,7 +107,7 @@ public final class InflationNodalCurve
    * @param lastMonth  the last month for which the fixing is known
    * @param lastFixingValue  the value of the last fixing
    * @param seasonalityDefinition  the seasonality definition, which is made of month-on-month adjustment 
-   * and the adjustment type
+   *   and the adjustment type
    * @return the seasonal curve instance
    */
   public static InflationNodalCurve of(

@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl.regression;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class WeightedLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
 
   public WeightedLeastSquaresRegressionResult(LeastSquaresRegressionResult result) {

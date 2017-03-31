@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl.util;
 /**
  * Taylor expansion epsilon.
  */
+// CSOFF: AbbreviationAsWordInName
 public final class Epsilon {
 
   // Coefficients for the Taylor expansion of (e^x-1)/x and its first two derivatives
