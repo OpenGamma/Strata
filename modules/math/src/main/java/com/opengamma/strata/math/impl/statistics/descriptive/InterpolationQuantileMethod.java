@@ -38,7 +38,7 @@ public abstract class InterpolationQuantileMethod
     double upperWeight = 1d - lowerWeight;
     return QuantileResult.of(
         lowerWeight * s[lowerIndex - 1] + upperWeight * s[upperIndex - 1],
-        new int[]{(int) order[(int) Math.floor(adjustedLevel) - 1], (int) order[(int) Math.ceil(adjustedLevel) - 1]},
+        new int[]{(int) order[lowerIndex - 1], (int) order[upperIndex - 1]},
         DoubleArray.of(lowerWeight, upperWeight));
   }
 
@@ -95,7 +95,7 @@ public abstract class InterpolationQuantileMethod
   /**
    * Internal method returning the sample size correction for the specific implementation.
    *
-   * @param sampleSize the sample size
+   * @param sampleSize  the sample size
    * @return the correction
    */
   abstract int sampleCorrection(int sampleSize);
@@ -105,7 +105,7 @@ public abstract class InterpolationQuantileMethod
    * <p>
    * Creates an index of doubles from 1.0 to a stipulated number, in increments of 1.
    *
-   * @param indexArrayLength length of index array to be created
+   * @param indexArrayLength  length of index array to be created
    * @return array of indices
    */
   private double[] createIndexArray(int indexArrayLength) {

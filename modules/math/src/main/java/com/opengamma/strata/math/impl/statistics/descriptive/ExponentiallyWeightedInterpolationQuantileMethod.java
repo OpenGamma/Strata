@@ -25,7 +25,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
    * <p>
    * The exponential weight lambda must be > 0 and < 1.0.
    *
-   * @param lambda the exponential weight
+   * @param lambda  the exponential weight
    */
   public ExponentiallyWeightedInterpolationQuantileMethod(double lambda) {
     ArgChecker.inRangeExclusive(lambda, 0.0d, 1.0d, "exponential weight");
@@ -60,8 +60,8 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
    * <p>
    * The sample observations are supposed to be unsorted, the first step is to sort the data.
    *
-   * @param level the quantile level
-   * @param sample the sample observations
+   * @param level  the quantile level
+   * @param sample  the sample observations
    * @return The quantile estimation and its details
    */
   public QuantileResult quantileDetailsFromUnsorted(double level, DoubleArray sample) {
@@ -85,8 +85,8 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
    * <p>
    * The sample observations are supposed to be unsorted, the first step is to sort the data.
    *
-   * @param level the quantile level
-   * @param sample the sample observations
+   * @param level  the quantile level
+   * @param sample  the sample observations
    * @return The expected shortfall estimation and its detail
    */
   public QuantileResult expectedShortfallDetailsFromUnsorted(double level, DoubleArray sample) {
@@ -127,13 +127,13 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   /**
    * Computes value-at-risk.
    *
-   * @param index the index from which the VaR should be computed
-   * @param runningWeight the running weight up to index
-   * @param isExtrapolated flag indicating if value should be extrapolated (flat) beyond the last value
-   * @param s the sorted sample
-   * @param w the sorted weights
-   * @param order the order of the sorted sample in the unsorted sample
-   * @param level the level at which the VaR should be computed
+   * @param index  the index from which the VaR should be computed
+   * @param runningWeight  the running weight up to index
+   * @param isExtrapolated  flag indicating if value should be extrapolated (flat) beyond the last value
+   * @param s  the sorted sample
+   * @param w  the sorted weights
+   * @param order  the order of the sorted sample in the unsorted sample
+   * @param level  the level at which the VaR should be computed
    * @return the VaR and the details of sample data used to compute it
    */
   private QuantileResult quantileFromIndexRunningWeight(
@@ -163,12 +163,12 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   /**
    * Computes expected shortfall.
    *
-   * @param index the index from which the ES should be computed
-   * @param runningWeight the running weight up to index
-   * @param s the sorted sample
-   * @param w the sorted weights
-   * @param order the order of the sorted sample in the unsorted sample
-   * @param level the level at which the ES should be computed
+   * @param index  the index from which the ES should be computed
+   * @param runningWeight  the running weight up to index
+   * @param s  the sorted sample
+   * @param w  the sorted weights
+   * @param order  the order of the sorted sample in the unsorted sample
+   * @param level  the level at which the ES should be computed
    * @return the expected shortfall and the details of sample data used to compute it
    */
   private QuantileResult esFromIndexRunningWeight(
@@ -215,7 +215,7 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   /**
    * Returns the weights for a given sample size.
    *
-   * @param size the sample size
+   * @param size  the sample size
    * @return the weights
    */
   public double[] weights(int size) {

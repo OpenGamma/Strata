@@ -66,7 +66,7 @@ public abstract class DiscreteQuantileMethod
    * <p>
    * The quantile size is given by quantile * sample size.
    *
-   * @param quantileSize the quantile size
+   * @param quantileSize  the quantile size
    * @return the index in the sample
    */
   abstract int index(double quantileSize);
@@ -74,7 +74,7 @@ public abstract class DiscreteQuantileMethod
   /**
    * Internal method returning the sample size correction for the specific implementation.
    *
-   * @param sampleSize the sample size
+   * @param sampleSize  the sample size
    * @return the correction
    */
   abstract int sampleCorrection(int sampleSize);
@@ -89,9 +89,9 @@ public abstract class DiscreteQuantileMethod
   /**
    * Generate an index of doubles.
    * <p>
-   * Creates an index of doubles from 1.0 to a stipulated number, in increments of 1.
+   * Creates an index of doubles from 0.0 to a stipulated number, in increments of 1.
    *
-   * @param indexArrayLength length of index array to be created
+   * @param indexArrayLength  length of index array to be created
    * @return array of indices
    */
   private double[] createIndexArray(int indexArrayLength) {

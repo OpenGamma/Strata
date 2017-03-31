@@ -23,7 +23,9 @@ public abstract class QuantileCalculationMethod {
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
    * <p> 
-   * The sample observations are supposed to be unsorted.
+   * The sample observations are supposed to be unsorted. The indices are based on the original, unsorted array.
+   * Additionally, the indices start from 0 and so do not need to be shifted to account for java indexing, when using
+   * them to reference the data points in the quantile calculation.
    * 
    * @param level  the quantile level
    * @param sample  the sample observations
@@ -43,7 +45,9 @@ public abstract class QuantileCalculationMethod {
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation.
    * <p> 
-   * The sample observations are supposed to be unsorted.
+   * The sample observations are supposed to be unsorted. The indices are based on the original, unsorted array.
+   * Additionally, the indices start from 0 and so do not have to be shifted to account for java indexing, when using
+   * them to reference the data points in the quantile calculation..
    * 
    * @param level  the quantile level
    * @param sample  the sample observations
@@ -65,7 +69,9 @@ public abstract class QuantileCalculationMethod {
    * expected short fall is computed with flat extrapolation.
    * Thus this is coherent to {@link #quantileWithExtrapolationFromUnsorted(double, DoubleArray)}.
    * <p> 
-   * The sample observations are sorted from the smallest to the largest. 
+   * The sample observations are supposed to be unsorted. The indices are based on the original, unsorted array.
+   * Additionally, the indices start from 0 and so do not have to be shifted to account for java indexing, when using
+   * them to reference the data points in the expected shortfall calculation.
    * 
    * @param level  the quantile level
    * @param sample  the sample observations
@@ -82,11 +88,11 @@ public abstract class QuantileCalculationMethod {
    * This protected method should be implemented in subclasses. 
    * 
    * @param level  the quantile level
-   * @param sortedSample  the sample observations
+   * @param sorted  the sample observations
    * @param isExtrapolated  extrapolated if true, not extrapolated otherwise.
    * @return the quantile
    */
-  protected abstract QuantileResult quantile(double level, DoubleArray sortedSample, boolean isExtrapolated);
+  protected abstract QuantileResult quantile(double level, DoubleArray sample, boolean isExtrapolated);
 
   /**
    * Computed the expected shortfall.
@@ -95,10 +101,10 @@ public abstract class QuantileCalculationMethod {
    * and coherent to {@link #quantile(double, DoubleArray, boolean)}.
    * 
    * @param level  the quantile level
-   * @param sortedSample  the sample observations
+   * @param sample  the sample observations
    * @return the expected shortfall
    */
-  protected abstract QuantileResult expectedShortfall(double level, DoubleArray sortedSample);
+  protected abstract QuantileResult expectedShortfall(double level, DoubleArray sample);
 
   /**
    * Check the index is within the sample data range. 
