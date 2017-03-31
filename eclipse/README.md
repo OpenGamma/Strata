@@ -13,10 +13,12 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 #### Installation steps
 
 1. Download Eclipse
- - We recommend using the Classic download of Eclipse as it has less bloat than other builds.
- - We have tested using Eclipse Luna, http://www.eclipse.org/downloads/
+ - We have tested using Eclipse Neon, and have previously used Luna and Mars
+ - See the [main download page](http://www.eclipse.org/downloads/), selecting a package that includes Maven integration (m2e)
+ - *Internally, we prefer the [basic SDK download](http://download.eclipse.org/eclipse/downloads/) as it has less bloat,
+ but it does require a little more setup, notably the Maven integration (m2e) plugin*
   
-2. Obtain the OpenGamma source code
+2. Obtain the Strata source code
  - This can be obtained by cloning the git repository using `git clone https://github.com/OpenGamma/Strata.git`
 
 3. Install and Start Eclipse
@@ -31,10 +33,10 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
  - Choose the file `Strata/eclipse/install/Strata-Eclipse-Preferences.epf`
  - Click "Finish"
 
-5. Install the Eclipse plugins
+5. Install Eclipse plugins
  - Go to "Help -> Install new software..."
  - Click the 'Add...' button in the top right
- - Add any plugins deemed necessary
+ - Add any plugins deemed necessary, notably TestNG
  - Restart Eclipse if requested to do so
   
 6. Import the OpenGamma source code
