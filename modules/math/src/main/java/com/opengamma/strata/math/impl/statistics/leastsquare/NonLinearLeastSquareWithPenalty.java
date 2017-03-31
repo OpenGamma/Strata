@@ -160,9 +160,9 @@ public class NonLinearLeastSquareWithPenalty {
    * @param startPos Initial value of the parameters
    * @param penalty Penalty matrix
    * @param allowedValue a function which returned true if the new trial position is allowed by the model. An example
-   * would be to enforce positive parameters
-   * without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow
-   * convergence.
+   *   would be to enforce positive parameters
+   *   without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow
+   *   convergence.
    * @return value of the fitted parameters
    */
   public LeastSquareWithPenaltyResults solve(
@@ -210,9 +210,9 @@ public class NonLinearLeastSquareWithPenalty {
    * @param startPos Initial value of the parameters
    * @param penalty Penalty matrix (must be positive semi-definite)
    * @param allowedValue a function which returned true if the new trial position is allowed by the model. An example
-   * would be to enforce positive parameters
-   * without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow
-   * convergence.
+   *   would be to enforce positive parameters
+   *   without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow
+   *   convergence.
    * @return the least-square results
    */
   public LeastSquareWithPenaltyResults solve(

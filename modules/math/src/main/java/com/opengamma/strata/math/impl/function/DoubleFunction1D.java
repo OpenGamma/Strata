@@ -225,7 +225,7 @@ public interface DoubleFunction1D extends DoubleUnaryOperator {
 
   //-------------------------------------------------------------------------
   /**
-   * Converts a Function<Double, Double> into a DoubleFunction1D.
+   * Converts a Function&lt;Double, Double> into a DoubleFunction1D.
    * 
    * @param f  the function to convert
    * @return the converted function

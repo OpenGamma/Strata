@@ -156,11 +156,7 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
     return DoubleMatrix.copyOf(res);
   }
 
-  /**
-   * @param intervals 
-   * @param grads 
-   * @return A set of the first derivatives at knots
-   */
+  // calculates a set of the first derivatives at knots
   private double[] slopeFinder(final double[] intervals, final double[] grads) {
     final int nInts = intervals.length;
     double[] res = new double[nInts + 1];

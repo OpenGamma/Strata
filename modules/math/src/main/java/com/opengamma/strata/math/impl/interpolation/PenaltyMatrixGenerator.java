@@ -136,7 +136,7 @@ public abstract class PenaltyMatrixGenerator {
    * @param x A non-uniform set of points
    * @param k The order <b>Only first and second order are currently implemented</b>
    * @param includeEnds If true the matrix includes an estimate for the derivative at the end points; if false
-   * the first and last rows of the matrix are empty 
+   *   the first and last rows of the matrix are empty 
    * @return The derivative matrix
    */
   public static DoubleMatrix getDerivativeMatrix(double[] x, int k, boolean includeEnds) {
@@ -222,7 +222,7 @@ public abstract class PenaltyMatrixGenerator {
   }
 
   /**
-   * Get a kth order penalty matrix for a non-uniform grid whose values have been flattened to a vector 
+   * Get a kth order penalty matrix for a non-uniform grid whose values have been flattened to a vector.
    * @param x the grid positions in each dimension 
    * @param k the (finite difference) order
    * @param index which index to act on 
@@ -267,7 +267,7 @@ public abstract class PenaltyMatrixGenerator {
 
   /**
    * for a matrix {{A_{0,0}, A_{0,1},...._A_{0,m},{A_{1,0}, A_{1,1},...._A_{1,m},...,{A_{n,0}, A_{n,1},...._A_{n,m}}
-   * flattened to a vector {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}
+   * flattened to a vector {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}.
    * @param aMatrix A matrix
    * @return a the flattened matrix 
    */

@@ -44,7 +44,7 @@ public abstract class Integrator1D<T, U> implements Integrator<T, U, Function<U,
   }
 
   /**
-   * 1-D integration method
+   * 1-D integration method.
    * @param f The function to integrate, not null
    * @param lower The lower bound, not null
    * @param upper The upper bound, not null

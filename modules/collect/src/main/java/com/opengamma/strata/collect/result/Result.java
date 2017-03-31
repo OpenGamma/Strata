@@ -434,11 +434,11 @@ public final class Result<T>
    * <p>
    * The following code shows where this method can be used. The code:
    * <blockquote><pre>
-   *   Set<Result<MyData>> results = goAndGatherData();
+   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Set<FooData> combined =
+   *     Set&lt;FooData> combined =
    *         results.stream()
    *             .map(Result::getValue)
    *             .map(MyData::transformToFoo)
@@ -448,7 +448,7 @@ public final class Result<T>
    * </pre></blockquote>
    * can be replaced with:
    * <blockquote><pre>
-   *   Set<Result<MyData>> results = goAndGatherData();
+   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
    *   return Result.combine(results, myDataStream ->
    *       myDataStream
    *           .map(MyData::transformToFoo)
@@ -488,11 +488,11 @@ public final class Result<T>
    * <p>
    * The following code shows where this method can be used. The code:
    * <blockquote><pre>
-   *   Set<Result<MyData>> results = goAndGatherData();
+   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Set<FooData> combined =
+   *     Set&lt;FooData> combined =
    *         results.stream()
    *             .map(Result::getValue)
    *             .map(MyData::transformToFoo)
@@ -502,9 +502,9 @@ public final class Result<T>
    * </pre></blockquote>
    * can be replaced with:
    * <blockquote><pre>
-   *   Set<Result<MyData>> results = goAndGatherData();
+   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
    *   return Result.flatCombine(results, myDataStream -> {
-   *     Set<CombinedData> combined =
+   *     Set&lt;CombinedData> combined =
    *         myDataStream
    *             .map(MyData::transformToFoo)
    *             .collect(toSet());

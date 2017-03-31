@@ -26,7 +26,7 @@ public class PiecewisePolynomialResult {
   private int _dim;
 
   /**
-   * Constructor
+   * Creates an instance.
    * @param knots  the knots
    * @param coefMatrix  the coefMatrix
    * @param order  the order
@@ -43,7 +43,7 @@ public class PiecewisePolynomialResult {
   }
 
   /**
-   * Access _knots
+   * Access _knots.
    * @return the knots
    */
   public DoubleArray getKnots() {
@@ -51,7 +51,7 @@ public class PiecewisePolynomialResult {
   }
 
   /**
-   * Access _coefMatrix
+   * Access _coefMatrix.
    * @return Coefficient Matrix
    */
   public DoubleMatrix getCoefMatrix() {
@@ -59,7 +59,7 @@ public class PiecewisePolynomialResult {
   }
 
   /**
-   * Access _nIntervals
+   * Access _nIntervals.
    * @return Number of Intervals
    */
   public int getNumberOfIntervals() {
@@ -67,7 +67,7 @@ public class PiecewisePolynomialResult {
   }
 
   /**
-   * Access _order
+   * Access _order.
    * @return Number of coefficients in polynomial; 2 if _nIntervals=1, 3 if _nIntervals=2, 4 otherwise
    */
   public int getOrder() {
@@ -75,7 +75,7 @@ public class PiecewisePolynomialResult {
   }
 
   /**
-   * Access _dim
+   * Access _dim.
    * @return Dimension of spline 
    */
   public int getDimensions() {

@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Abstraction for the vector function $f: \mathbb{R}^m \to \mathbb{R}^n \quad x \mapsto f(x)$ where the 
- * Jacobian $j : \mathbb{R}^m \to \mathbb{R}^{n\times m} \quad x \mapsto j(x)$ is also provided 
+ * Jacobian $j : \mathbb{R}^m \to \mathbb{R}^{n\times m} \quad x \mapsto j(x)$ is also provided.
  */
 public abstract class VectorFunction implements Function<DoubleArray, DoubleArray> {
 

@@ -20,6 +20,11 @@ public class InverseJacobianEstimateInitializationFunction implements NewtonRoot
 
   private final Decomposition<?> _decomposition;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param decomposition  the decomposition
+   */
   public InverseJacobianEstimateInitializationFunction(Decomposition<?> decomposition) {
     ArgChecker.notNull(decomposition, "decomposition");
     _decomposition = decomposition;

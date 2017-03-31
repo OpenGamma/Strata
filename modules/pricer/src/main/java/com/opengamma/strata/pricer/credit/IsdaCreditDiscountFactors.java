@@ -88,7 +88,7 @@ public final class IsdaCreditDiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance from the underlying curve
+   * Creates an instance from the underlying curve.
    * 
    * @param currency  the currency 
    * @param valuationDate  the valuation date

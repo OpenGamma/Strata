@@ -190,6 +190,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    * | Scenario 1 |     -10bp  |     +5%      |
    * | Scenario 2 |       0    |      0       |
    * | Scenario 3 |     +10bp  |     -5%      |
+   * </pre>
    *
    * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
    *   number of perturbations

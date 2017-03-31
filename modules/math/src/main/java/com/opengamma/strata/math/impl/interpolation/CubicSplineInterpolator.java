@@ -13,15 +13,15 @@ import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * C2 cubic spline interpolator with Clamped/Not-A-Knot endpoint conditions
+ * C2 cubic spline interpolator with Clamped/Not-A-Knot endpoint conditions.
  */
 public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private CubicSplineSolver _solver;
 
   /**
-   * If (xValues length) = (yValues length), Not-A-Knot endpoint conditions are used
-   * If (xValues length) + 2 = (yValues length), Clamped endpoint conditions are used 
+   * If (xValues length) = (yValues length), Not-A-Knot endpoint conditions are used.
+   * If (xValues length) + 2 = (yValues length), Clamped endpoint conditions are used.
    * @param xValues X values of data
    * @param yValues Y values of data
    * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
@@ -82,8 +82,8 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
   }
 
   /**
-   * If (xValues length) = (yValuesMatrix NumberOfColumn), Not-A-Knot endpoint conditions are used
-   * If (xValues length) + 2 = (yValuesMatrix NumberOfColumn), Clamped endpoint conditions are used 
+   * If (xValues length) = (yValuesMatrix NumberOfColumn), Not-A-Knot endpoint conditions are used.
+   * If (xValues length) + 2 = (yValuesMatrix NumberOfColumn), Clamped endpoint conditions are used.
    * @param xValues X values of data
    * @param yValuesMatrix Y values of data, where NumberOfRow defines dimension of the spline
    * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline

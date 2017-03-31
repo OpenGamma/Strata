@@ -12,6 +12,7 @@ import com.opengamma.strata.math.MathException;
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * http://www.netlib.org/slatec/fnlib/initds.f
  */
+// CSOFF: AbbreviationAsWordInName
 final class INITDS {
 
   /**

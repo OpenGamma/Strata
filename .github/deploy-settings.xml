@@ -8,5 +8,10 @@
       <username>${DEPLOY_USER}</username>
       <password>${DEPLOY_PASSWORD}</password>
     </server>
+    <server>
+      <id>og-milestone-release</id>
+      <username>${MILESTONE_USER}</username>
+      <password>${MILESTONE_PASSWORD}</password>
+    </server>
   </servers>
 </settings>

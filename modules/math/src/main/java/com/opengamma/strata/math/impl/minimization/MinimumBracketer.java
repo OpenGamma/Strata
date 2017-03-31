@@ -13,6 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public abstract class MinimumBracketer {
   private static final double ZERO = 1e-15;
   /**

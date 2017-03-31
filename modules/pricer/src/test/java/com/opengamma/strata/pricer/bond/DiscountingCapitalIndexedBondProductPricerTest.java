@@ -241,18 +241,18 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_zSpreadFromCurvesAndPV() {
+  public void test_zSpreadFromCurvesAndPv() {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    double computed = PRICER.zSpreadFromCurvesAndPV(
+    double computed = PRICER.zSpreadFromCurvesAndPv(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
-  public void test_zSpreadFromCurvesAndPV_exCoupon() {
+  public void test_zSpreadFromCurvesAndPv_exCoupon() {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    double computed = PRICER.zSpreadFromCurvesAndPV(
+    double computed = PRICER.zSpreadFromCurvesAndPv(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, CONTINUOUS, 0);
     assertEquals(computed, Z_SPREAD, TOL);
   }

@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Contains the results of Cholesky matrix decomposition.
  */
+// CSOFF: AbbreviationAsWordInName
 public interface CholeskyDecompositionResult extends DecompositionResult {
 
   /**

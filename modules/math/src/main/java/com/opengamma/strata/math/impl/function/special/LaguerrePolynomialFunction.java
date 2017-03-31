@@ -28,6 +28,13 @@ public class LaguerrePolynomialFunction extends OrthogonalPolynomialFunctionGene
     return getPolynomialsAndFirstDerivative(n, 0);
   }
 
+  /**
+   * Gets the polynomials.
+   * 
+   * @param n  the n value
+   * @param alpha  the alpha value
+   * @return the result
+   */
   public DoubleFunction1D[] getPolynomials(int n, double alpha) {
     ArgChecker.isTrue(n >= 0);
     DoubleFunction1D[] polynomials = new DoubleFunction1D[n + 1];
@@ -45,6 +52,13 @@ public class LaguerrePolynomialFunction extends OrthogonalPolynomialFunctionGene
     return polynomials;
   }
 
+  /**
+   * Gets the polynomials and derivative.
+   * 
+   * @param n  the n value
+   * @param alpha  the alpha value
+   * @return the result
+   */
   public Pair<DoubleFunction1D, DoubleFunction1D>[] getPolynomialsAndFirstDerivative(int n, double alpha) {
     ArgChecker.isTrue(n >= 0);
     @SuppressWarnings("unchecked")

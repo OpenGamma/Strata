@@ -69,7 +69,7 @@ public class CurveSensitivityUtils {
    * @param curveOrder  the curve order
    * @param sensitivities  the sensitivities 
    * @param ccy  the currency common to all sensitivities
-   * @return
+   * @return the row
    */
   private static DoubleArray row(
       List<CurveParameterSize> curveOrder,

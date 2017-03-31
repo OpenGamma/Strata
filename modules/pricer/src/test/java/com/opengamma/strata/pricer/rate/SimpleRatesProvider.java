@@ -42,7 +42,7 @@ import com.opengamma.strata.pricer.fx.FxIndexRates;
  * A simple rates provider for overnight rates.
  */
 @BeanDefinition(style = "minimal")
-public class SimpleRatesProvider
+public final class SimpleRatesProvider
     implements RatesProvider, Bean {
 
   @PropertyDefinition(overrideGet = true)
@@ -394,31 +394,23 @@ public class SimpleRatesProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("SimpleRatesProvider{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(getDiscountFactors()).append(',').append(' ');
+    buf.append("fxIndexRates").append('=').append(getFxIndexRates()).append(',').append(' ');
+    buf.append("fxForwardRates").append('=').append(getFxForwardRates()).append(',').append(' ');
+    buf.append("iborRates").append('=').append(getIborRates()).append(',').append(' ');
+    buf.append("overnightRates").append('=').append(getOvernightRates()).append(',').append(' ');
+    buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(getPriceIndexValues()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
-    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
-    buf.append("fxIndexRates").append('=').append(JodaBeanUtils.toString(getFxIndexRates())).append(',').append(' ');
-    buf.append("fxForwardRates").append('=').append(JodaBeanUtils.toString(getFxForwardRates())).append(',').append(' ');
-    buf.append("iborRates").append('=').append(JodaBeanUtils.toString(getIborRates())).append(',').append(' ');
-    buf.append("overnightRates").append('=').append(JodaBeanUtils.toString(getOvernightRates())).append(',').append(' ');
-    buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(getPriceIndexValues())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SimpleRatesProvider}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -481,7 +473,7 @@ public class SimpleRatesProvider
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

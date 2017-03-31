@@ -16,6 +16,7 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
 
   private static final Logger log = LoggerFactory.getLogger(OrdinaryLeastSquaresRegression.class);
