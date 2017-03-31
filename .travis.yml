@@ -16,8 +16,8 @@ script:
   - mvn install -e -B -Dstrict
 # deploy
 after_success:
-  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -Doss.jars -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/Strata/" --settings .github/maven-settings.xml; fi
-  - if [[ $TRAVIS_TAG =~ ^m.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -Doss.jars -DaltDeploymentRepository="og-milestone-release::default::https://opengamma.jfrog.io/opengamma/libs-releases-local/" --settings .github/maven-settings.xml; fi
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -e -B -Ddist -Doss.jars -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/Strata/" --settings .github/maven-settings.xml; fi
+  - if [[ $TRAVIS_TAG =~ ^m.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -e -B -Doss.jars -DaltDeploymentRepository="og-milestone-release::default::https://opengamma.jfrog.io/opengamma/libs-releases-local/" --settings .github/maven-settings.xml; fi
 before_deploy:
   - export REPORT_TOOL_FILE=$(ls examples/target/strata-report-tool-*.zip)
   - export DIST_FILE=$(ls target/strata-dist-*.zip)
