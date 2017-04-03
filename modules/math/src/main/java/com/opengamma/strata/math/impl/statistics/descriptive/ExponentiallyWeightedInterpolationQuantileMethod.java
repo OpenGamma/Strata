@@ -33,17 +33,17 @@ public final class ExponentiallyWeightedInterpolationQuantileMethod
   }
 
   @Override
-  public QuantileResult quantileFromUnsorted(double level, DoubleArray sample) {
+  public QuantileResult quantileResultFromUnsorted(double level, DoubleArray sample) {
     return quantileDetails(level, sample, false, false);
   }
 
   @Override
-  public QuantileResult quantileWithExtrapolationFromUnsorted(double level, DoubleArray sample) {
+  public QuantileResult quantileResultWithExtrapolationFromUnsorted(double level, DoubleArray sample) {
     return quantileDetails(level, sample, true, false);
   }
 
   @Override
-  public QuantileResult expectedShortfallFromUnsorted(double level, DoubleArray sample) {
+  public QuantileResult expectedShortfallResultFromUnsorted(double level, DoubleArray sample) {
     return quantileDetails(level, sample, true, true);
   }
 

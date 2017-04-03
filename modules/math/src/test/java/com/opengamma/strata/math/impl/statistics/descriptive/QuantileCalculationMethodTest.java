@@ -137,11 +137,11 @@ public class QuantileCalculationMethodTest {
     double indexDouble = LEVEL3 * SAMPLE_SIZE_100;
     int indexCeil = (int) Math.ceil(indexDouble);
     double quantileExpected = SORTED_100.get(indexCeil - 1); // Java index start at 0.
-    double quantileComputed = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
+    double quantileComputed = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL3, UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -149,18 +149,18 @@ public class QuantileCalculationMethodTest {
     double indexDouble = LEVEL3 * SAMPLE_SIZE_123;
     int indexCeil = (int) Math.ceil(indexDouble);
     double quantileExpected = SORTED_123.get(indexCeil - 1); // Java index start at 0.
-    double quantileComputed = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL3, UNSORTED_123).getValue();
+    double quantileComputed = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL3, UNSORTED_123);
     assertEquals(quantileComputed, quantileExpected);
     double quantileExtrapComputed = QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
   /* On sample points, different methods match. */
   public void index_nearest_095_100() {
-    double quantileExpected = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
-    double quantileComputed = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
+    double quantileExpected = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL3, UNSORTED_100);
+    double quantileComputed = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -168,11 +168,11 @@ public class QuantileCalculationMethodTest {
     double indexDouble = (LEVEL3 + 0.001) * SAMPLE_SIZE_100;
     int indexRound = (int) Math.round(indexDouble);
     double quantileExpected = SORTED_100.get(indexRound - 1); // Java index start at 0.
-    double quantileComputed = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
+    double quantileComputed = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -180,7 +180,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(0); // Java index start at 0.
     double quantileComputed = QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(
         LEVEL4,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -188,7 +188,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(SAMPLE_SIZE_100 - 1); // Java index start at 0.
     double quantileComputed = QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(
         LEVEL5,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -196,11 +196,11 @@ public class QuantileCalculationMethodTest {
     double indexDouble = (LEVEL3 + 0.001) * (SAMPLE_SIZE_100 + 1d);
     int indexRound = (int) Math.round(indexDouble);
     double quantileExpected = SORTED_100.get(indexRound - 1); // Java index start at 0.
-    double quantileComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
+    double quantileComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -208,7 +208,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(0); // Java index start at 0.
     double quantileComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(
         LEVEL4,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -216,15 +216,15 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(SAMPLE_SIZE_100 - 1); // Java index start at 0.
     double quantileComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(
         LEVEL5,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
   /* On sample points, different methods match. */
   @Test
   public void interpolation_sample_095_100() {
-    double quantileExpected = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
-    double quantileComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue();
+    double quantileExpected = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100);
+    double quantileComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -232,7 +232,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(0); // Java index start at 0.
     double quantileComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL4,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -245,11 +245,11 @@ public class QuantileCalculationMethodTest {
     double pi = (double) indexFloor / (double) SAMPLE_SIZE_123;
     double pi1 = (double) indexCeil / (double) SAMPLE_SIZE_123;
     double quantileExpected = quantileFloor + (LEVEL3 - pi) / (pi1 - pi) * (quantileCeil - quantileFloor);
-    double quantileComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_123).getValue();
+    double quantileComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_123);
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -262,11 +262,11 @@ public class QuantileCalculationMethodTest {
     double pi = (double) indexFloor / (double) (SAMPLE_SIZE_123 + 1);
     double pi1 = (double) indexCeil / (double) (SAMPLE_SIZE_123 + 1);
     double quantileExpected = quantileFloor + (LEVEL3 - pi) / (pi1 - pi) * (quantileCeil - quantileFloor);
-    double quantileComputed = QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_123).getValue();
+    double quantileComputed = QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_123);
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -274,7 +274,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(0); // Java index start at 0.
     double quantileComputed = QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL4,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -282,7 +282,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(SAMPLE_SIZE_100 - 1); // Java index start at 0.
     double quantileComputed = QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL5,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -296,11 +296,11 @@ public class QuantileCalculationMethodTest {
     double pi = (indexFloor - correction) / (double) SAMPLE_SIZE_123;
     double pi1 = (indexCeil - correction) / (double) SAMPLE_SIZE_123;
     double quantileExpected = quantileFloor + (LEVEL3 - pi) / (pi1 - pi) * (quantileCeil - quantileFloor);
-    double quantileComputed = QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_123).getValue();
+    double quantileComputed = QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_123);
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -308,7 +308,7 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(0); // Java index start at 0.
     double quantileComputed = QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL4,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
@@ -316,18 +316,18 @@ public class QuantileCalculationMethodTest {
     double quantileExpected = SORTED_100.get(SAMPLE_SIZE_100 - 1); // Java index start at 0.
     double quantileComputed = QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(
         LEVEL5,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOL);
   }
 
   public void excel() {
     DoubleArray data = DoubleArray.of(1.0, 3.0, 2.0, 4.0);
     double level = 0.3;
-    double quantileComputed = ExcelInterpolationQuantileMethod.DEFAULT.quantileFromUnsorted(level, data).getValue();
+    double quantileComputed = ExcelInterpolationQuantileMethod.DEFAULT.quantileFromUnsorted(level, data);
     double quantileExpected = 1.9; // From Excel doc
     assertEquals(quantileComputed, quantileExpected, TOL);
     double quantileExtrapComputed = ExcelInterpolationQuantileMethod.DEFAULT
-        .quantileWithExtrapolationFromUnsorted(level, data).getValue();
+        .quantileWithExtrapolationFromUnsorted(level, data);
     assertEquals(quantileExtrapComputed, quantileComputed);
   }
 
@@ -336,13 +336,13 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -351,20 +351,20 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123).getValue();
+        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void index_above_0001_100_expected_shortfall() {
     double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(
         LEVEL4,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, SORTED_100.get(0), TOL_INTEGRAL);
   }
 
@@ -372,13 +372,13 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_INDEX_ABOVE.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed = QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(
         LEVEL5,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -386,13 +386,13 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -400,19 +400,19 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123).getValue();
+        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void index_nearest_0001_100_expected_shortfall() {
     double expectedShortfallComputed =
-        QUANTILE_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100).getValue();
+        QUANTILE_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100);
     assertEquals(expectedShortfallComputed, SORTED_100.get(0), TOL_INTEGRAL);
   }
 
@@ -420,13 +420,13 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed = QUANTILE_NEAREST_INDEX.expectedShortfallFromUnsorted(
         LEVEL5,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -434,20 +434,20 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void index_nearest_one_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100).getValue();
+        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
@@ -455,12 +455,12 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_SAMPLE1_NEAREST_INDEX.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100).getValue();
+        QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -468,13 +468,13 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -482,20 +482,20 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123).getValue();
+        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_sample_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100).getValue();
+        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
@@ -503,12 +503,12 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_SAMPLE_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100).getValue();
+        QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -516,20 +516,20 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123).getValue();
+        return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_samplePlusOne_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100).getValue();
+        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
@@ -537,12 +537,12 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100).getValue();
+        QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -550,13 +550,13 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_100).getValue();
+        UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -564,20 +564,20 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123).getValue();
+        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_123);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL3) / LEVEL3;
     double expectedShortfallComputed = QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(
         LEVEL3,
-        UNSORTED_123).getValue();
+        UNSORTED_123);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   public void interpolation_midway_0001_100_expected_shortfall() {
     double expectedShortfallExpected = SORTED_100.get(0);
     double expectedShortfallComputed =
-        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100).getValue();
+        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL4, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL);
   }
 
@@ -585,12 +585,12 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100).getValue();
+        return QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(level, UNSORTED_100);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100).getValue();
+        QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -600,12 +600,12 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data).getValue();
+        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL / 1000d, level) / level;
     double expectedShortfallComputed =
-        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(level, data).getValue();
+        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(level, data);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
@@ -614,12 +614,12 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data).getValue();
+        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL / 1000d, LEVEL4) / LEVEL4;
     double expectedShortfallComputed =
-        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(LEVEL4, data).getValue();
+        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(LEVEL4, data);
     assertEquals(
         expectedShortfallComputed,
         expectedShortfallExpected,
@@ -631,52 +631,52 @@ public class QuantileCalculationMethodTest {
     Function<Double, Double> func = new Function<Double, Double>() {
       @Override
       public Double apply(Double level) {
-        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data).getValue();
+        return ExcelInterpolationQuantileMethod.DEFAULT.quantileWithExtrapolationFromUnsorted(level, data);
       }
     };
     double expectedShortfallExpected = INTEG.integrate(func, TOL_INTEGRAL / 1000d, LEVEL5) / LEVEL5;
     double expectedShortfallComputed =
-        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(LEVEL5, data).getValue();
+        ExcelInterpolationQuantileMethod.DEFAULT.expectedShortfallFromUnsorted(LEVEL5, data);
     assertEquals(expectedShortfallComputed, expectedShortfallExpected, TOL_INTEGRAL);
   }
 
   //-------------------------------------------------------------------------
   public void regression_test1() {
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.94105, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9434, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100), 0.94105, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100), 0.9434, TOL);
     assertEquals(
-        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL1, UNSORTED_100).getValue(),
+        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL1, UNSORTED_100),
         0.478780748663101,
         TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.77722, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.7711, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100), 0.77722, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100), 0.7711, TOL);
     assertEquals(
-        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100).getValue(),
+        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100),
         0.388652617801047,
         TOL);
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9532, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9532, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100), 0.9532, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100), 0.9532, TOL);
     assertEquals(
-        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL3, UNSORTED_100).getValue(),
+        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL3, UNSORTED_100),
         0.48622,
         TOL);
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100).getValue(), 0.994769, TOL);
-    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100).getValue(),  0.9948, TOL);
+    assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100), 0.994769, TOL);
+    assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100),  0.9948, TOL);
     assertEquals(
-        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100).getValue(),
+        QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL5, UNSORTED_100),
         0.510629582958296,
         TOL);
   }
 
   public void regression_test2() {
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.947663, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100).getValue(), 0.9434, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.791238, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100).getValue(), 0.7864, TOL);
-    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.953485, TOL);
-    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100).getValue(), 0.9535, TOL);
+    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL1, UNSORTED_100), 0.947663, TOL);
+    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL1, UNSORTED_100), 0.9434, TOL);
+    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100), 0.791238, TOL);
+    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100), 0.7864, TOL);
+    assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100), 0.953485, TOL);
+    assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100), 0.9535, TOL);
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
@@ -685,53 +685,53 @@ public class QuantileCalculationMethodTest {
 
   public void regression_test3() {
     assertEquals(
-        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL1, UNSORTED_100).getValue(),
+        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL1, UNSORTED_100),
         0.9434,
         TOL);
     assertEquals(
-        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL2, UNSORTED_100).getValue(),
+        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL2, UNSORTED_100),
         0.78487,
         TOL);
     assertEquals(
-        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL3, UNSORTED_100).getValue(),
+        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL3, UNSORTED_100),
         0.95335,
         TOL);
     assertEquals(
-        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL4, UNSORTED_100).getValue(),
+        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL4, UNSORTED_100),
         0.0174,
         TOL);
     assertEquals(
-        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL5, UNSORTED_100).getValue(),
+        QUANTILE_MIDWAY_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL5, UNSORTED_100),
         0.9948,
         TOL);
   }
 
   public void regression_test4() {
     assertEquals(
-        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL1, UNSORTED_100).getValue(),
+        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL1, UNSORTED_100),
         0.947663,
         TOL);
     assertEquals(
-        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL2, UNSORTED_100).getValue(),
+        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL2, UNSORTED_100),
         0.791238,
         TOL);
     assertEquals(
-        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL3, UNSORTED_100).getValue(),
+        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL3, UNSORTED_100),
         0.953485,
         TOL);
     assertEquals(
-        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL4, UNSORTED_100).getValue(),
+        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL4, UNSORTED_100),
         0.0174,
         TOL);
     assertEquals(
-        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL5, UNSORTED_100).getValue(),
+        QUANTILE_SAMPLE1_INTERPOLATION.quantileWithExtrapolationFromUnsorted(LEVEL5, UNSORTED_100),
         0.9948,
         TOL);
   }
 
   //-------------------------------------------------------------------------
   public void quantile_weights_indices_test() {
-    QuantileResult quantileAbove = QUANTILE_INDEX_ABOVE.quantileFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult quantileAbove = QUANTILE_INDEX_ABOVE.quantileResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueAbove = 0d;
     double sumWeightsAbove = 0d;
     for (int i = 0; i < quantileAbove.getIndices().length; i++) {
@@ -742,7 +742,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsAbove, 1d, TOL);
     assertEquals(quantileAbove.getValue(), expectedValueAbove, TOL);
 
-    QuantileResult quantileNearest = QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult quantileNearest = QUANTILE_NEAREST_INDEX.quantileResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueNearest = 0d;
     double sumWeightsNearest = 0d;
     for (int i = 0; i < quantileNearest.getIndices().length; i++) {
@@ -753,7 +753,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsNearest, 1d, TOL);
     assertEquals(quantileNearest.getValue(), expectedValueNearest, TOL);
 
-    QuantileResult quantileSample = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult quantileSample = QUANTILE_SAMPLE1_NEAREST_INDEX.quantileResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueSample = 0d;
     double sumWeightsSample = 0d;
     for (int i = 0; i < quantileSample.getIndices().length; i++) {
@@ -764,7 +764,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsSample, 1d, TOL);
     assertEquals(quantileSample.getValue(), expectedValueSample, TOL);
 
-    QuantileResult quantileSampleInterp = QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult quantileSampleInterp = QUANTILE_SAMPLE_INTERPOLATION.quantileResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueSampleInterp = 0d;
     double sumWeightsSampleInterp = 0d;
     for (int i = 0; i < quantileSampleInterp.getIndices().length; i++) {
@@ -776,7 +776,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsSampleInterp, 1d, TOL);
     assertEquals(quantileSampleInterp.getValue(), expectedValueSampleInterp, TOL);
 
-    QuantileResult quantileSample1Interp = QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult quantileSample1Interp = QUANTILE_SAMPLE1_INTERPOLATION.quantileResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueSample1Interp = 0d;
     double sumWeightsSample1Interp = 0d;
     for (int i = 0; i < quantileSample1Interp.getIndices().length; i++) {
@@ -788,7 +788,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsSample1Interp, 1d, TOL);
     assertEquals(quantileSample1Interp.getValue(), expectedValueSample1Interp, TOL);
 
-    QuantileResult quantileMidInterp = QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult quantileMidInterp = QUANTILE_MIDWAY_INTERPOLATION.quantileResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueMidInterp = 0d;
     double sumWeightsMidInterp = 0d;
     for (int i = 0; i < quantileMidInterp.getIndices().length; i++) {
@@ -802,7 +802,7 @@ public class QuantileCalculationMethodTest {
   }
 
   public void es_weights_indices_test() {
-    QuantileResult esAbove = QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult esAbove = QUANTILE_INDEX_ABOVE.expectedShortfallResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueAbove = 0d;
     double sumWeightsAbove = 0d;
     for (int i = 0; i < esAbove.getIndices().length; i++) {
@@ -813,7 +813,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsAbove, 1d, TOL);
     assertEquals(esAbove.getValue(), expectedValueAbove, TOL);
 
-    QuantileResult esNearest = QUANTILE_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult esNearest = QUANTILE_NEAREST_INDEX.expectedShortfallResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueNearest = 0d;
     double sumWeightsNearest = 0d;
     for (int i = 0; i < esNearest.getIndices().length; i++) {
@@ -824,7 +824,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsNearest, 1d, TOL);
     assertEquals(esNearest.getValue(), expectedValueNearest, TOL);
 
-    QuantileResult esSample = QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult esSample = QUANTILE_SAMPLE1_NEAREST_INDEX.expectedShortfallResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueSample = 0d;
     double sumWeightsSample = 0d;
     for (int i = 0; i < esSample.getIndices().length; i++) {
@@ -835,7 +835,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsSample, 1d, TOL);
     assertEquals(esSample.getValue(), expectedValueSample, TOL);
 
-    QuantileResult esSampleInterp = QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult esSampleInterp = QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueSampleInterp = 0d;
     double sumWeightsSampleInterp = 0d;
     for (int i = 0; i < esSampleInterp.getIndices().length; i++) {
@@ -846,7 +846,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsSampleInterp, 1d, TOL);
     assertEquals(esSampleInterp.getValue(), expectedValueSampleInterp, TOL);
 
-    QuantileResult esSample1Interp = QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult esSample1Interp = QUANTILE_SAMPLE1_INTERPOLATION.expectedShortfallResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueSample1Interp = 0d;
     double sumWeightsSample1Interp = 0d;
     for (int i = 0; i < esSample1Interp.getIndices().length; i++) {
@@ -858,7 +858,7 @@ public class QuantileCalculationMethodTest {
     assertEquals(sumWeightsSample1Interp, 1d, TOL);
     assertEquals(esSample1Interp.getValue(), expectedValueSample1Interp, TOL);
 
-    QuantileResult esMidInterp = QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallFromUnsorted(LEVEL2, UNSORTED_100);
+    QuantileResult esMidInterp = QUANTILE_MIDWAY_INTERPOLATION.expectedShortfallResultFromUnsorted(LEVEL2, UNSORTED_100);
     double expectedValueMidInterp = 0d;
     double sumWeightsMidInterp = 0d;
     for (int i = 0; i < esMidInterp.getIndices().length; i++) {
