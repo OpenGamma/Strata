@@ -84,7 +84,8 @@ public final class FxRateShifts
   //-------------------------------------------------------------------------
   @Override
   public MarketDataBox<FxRate> applyTo(MarketDataBox<FxRate> marketData, ReferenceData refData) {
-    log.debug("Applying {} point shift to FX rate '{}'", shiftType, marketData.getValue(0).getPair().toString());
+    log.debug("Applying {} shift to FX rate '{}'", shiftType,
+        marketData.getValue(0).getPair().toString());
     return marketData.mapWithIndex(
         getScenarioCount(),
         (fxRate, scenarioIndex) -> FxRate.of(
