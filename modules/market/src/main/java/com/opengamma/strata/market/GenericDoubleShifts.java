@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
-import com.opengamma.strata.market.ShiftType;
 
 /**
  * A perturbation that applies different shifts to a double value.
