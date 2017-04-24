@@ -70,6 +70,9 @@ public final class IniFile {
    * <p>
    * This parses the specified character source expecting an INI file format.
    * The resulting instance can be queried for each section in the file.
+   * <p>
+   * INI files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
    * 
    * @param source  the INI file resource
    * @return the INI file
