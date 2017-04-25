@@ -33,6 +33,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -129,6 +130,9 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
  * <p>
  * Each curve must be contained entirely within a single file, but each file may contain more than
  * one curve. The curve points do not need to be ordered.
+ * <p>
+ * CSV files sometimes contain a Unicode Byte Order Mark.
+ * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
  */
 public final class RatesCalibrationCsvLoader {
 

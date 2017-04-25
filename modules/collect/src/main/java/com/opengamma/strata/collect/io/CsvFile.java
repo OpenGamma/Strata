@@ -64,6 +64,9 @@ public final class CsvFile {
   //------------------------------------------------------------------------
   /**
    * Parses the specified source as a CSV file, using a comma as the separator.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
    * 
    * @param source  the CSV file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
@@ -80,6 +83,9 @@ public final class CsvFile {
    * <p>
    * This overload allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
    * 
    * @param source  the file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
@@ -103,6 +109,9 @@ public final class CsvFile {
    * <p>
    * This factory method allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
    * 
    * @param reader  the file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
@@ -123,6 +132,9 @@ public final class CsvFile {
    * <p>
    * This factory method allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
    * 
    * @param reader  the file resource
    * @param headerRow  whether the source has a header row, an empty source must still contain the header

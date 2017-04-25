@@ -15,6 +15,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
@@ -30,6 +31,9 @@ import com.opengamma.strata.market.curve.SeasonalityDefinition;
  *   <li>The 'Shift Type' column is the type of the shift, "Scaled" (multiplicative) or "Absolute" (additive).
  *   <li>The 'Jan-Feb' and similar columns are the seasonality values month-on-month.
  * </ul>
+ * <p>
+ * CSV files sometimes contain a Unicode Byte Order Mark.
+ * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
  */
 public final class SeasonalityDefinitionCsvLoader {
 
