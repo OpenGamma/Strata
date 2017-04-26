@@ -30,6 +30,12 @@ import com.google.common.io.CharSource;
  */
 public final class UnicodeBom {
 
+  private static final byte X_FE = (byte) 0xFE;
+  private static final byte X_EF = (byte) 0xEF;
+  private static final byte X_FF = (byte) 0xFF;
+  private static final byte X_BF = (byte) 0xBF;
+  private static final byte X_BB = (byte) 0xBB;
+
   /**
    * Restricted constructor.
    */
@@ -37,6 +43,30 @@ public final class UnicodeBom {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Converts a {@code byte[]} to a {@code String}.
+   * <p>
+   * This ensures that any Unicode byte order marker is used correctly.
+   * The default encoding is UTF-8 if no BOM is found.
+   * 
+   * @param input  the input byte array
+   * @return the equivalent string
+   */
+  public static String toString(byte[] input) {
+    if (input.length >= 3 && input[0] == X_EF && input[1] == X_BB && input[2] == X_BF) {
+      return new String(input, 3, input.length - 3, StandardCharsets.UTF_8);
+
+    } else if (input.length >= 2 && input[0] == X_FE && input[1] == X_FF) {
+      return new String(input, 2, input.length - 2, StandardCharsets.UTF_16BE);
+
+    } else if (input.length >= 2 && input[0] == X_FF && input[1] == X_FE) {
+      return new String(input, 2, input.length - 2, StandardCharsets.UTF_16LE);
+
+    } else {
+      return new String(input, StandardCharsets.UTF_8);
+    }
+  }
+
   /**
    * Converts a {@code ByteSource} to a {@code CharSource}.
    * <p>
@@ -87,12 +117,6 @@ public final class UnicodeBom {
   private static final class BomReader extends Reader {
 
     private static final int MAX_BOM_SIZE = 4;
-
-    private static final byte X_FE = (byte) 0xFE;
-    private static final byte X_EF = (byte) 0xEF;
-    private static final byte X_FF = (byte) 0xFF;
-    private static final byte X_BF = (byte) 0xBF;
-    private static final byte X_BB = (byte) 0xBB;
 
     private final InputStreamReader underlying;
 
