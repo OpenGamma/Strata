@@ -30,6 +30,31 @@ public class UnicodeBomTest {
   private static final byte X_FF = (byte) 0xFF;
 
   //-------------------------------------------------------------------------
+  public void test_toString_noBomUtf8() throws IOException {
+    byte[] bytes = {'H', 'e', 'l', 'l', 'o'};
+    String str = UnicodeBom.toString(bytes);
+    assertEquals(str, "Hello");
+  }
+
+  public void test_toString_bomUtf8() throws IOException {
+    byte[] bytes = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, 'H', 'e', 'l', 'l', 'o'};
+    String str = UnicodeBom.toString(bytes);
+    assertEquals(str, "Hello");
+  }
+
+  public void test_toString_bomUtf16BE() throws IOException {
+    byte[] bytes = {X_FE, X_FF, X_00, 'H', X_00, 'e', X_00, 'l', X_00, 'l', X_00, 'o'};
+    String str = UnicodeBom.toString(bytes);
+    assertEquals(str, "Hello");
+  }
+
+  public void test_toString_bomUtf16LE() throws IOException {
+    byte[] bytes = {X_FF, X_FE, 'H', X_00, 'e', X_00, 'l', X_00, 'l', X_00, 'o', X_00};
+    String str = UnicodeBom.toString(bytes);
+    assertEquals(str, "Hello");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toCharSource_noBomUtf8() throws IOException {
     byte[] bytes = {'H', 'e', 'l', 'l', 'o'};
     ByteSource byteSource = ByteSource.wrap(bytes);
