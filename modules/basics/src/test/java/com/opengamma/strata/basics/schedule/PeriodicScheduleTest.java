@@ -35,6 +35,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.SUNDAY;
+import static java.time.Month.APRIL;
 import static java.time.Month.AUGUST;
 import static java.time.Month.FEBRUARY;
 import static java.time.Month.JULY;
@@ -74,6 +75,9 @@ public class PeriodicScheduleTest {
   private static final LocalDate NOV_29_2013 = date(2013, NOVEMBER, 29);  // Fri
   private static final LocalDate NOV_30_2013 = date(2013, NOVEMBER, 30);  // Sat
   private static final LocalDate FEB_28 = date(2014, FEBRUARY, 28);
+  private static final LocalDate APR_01 = date(2014, APRIL, 1);
+  private static final LocalDate MAY_17 = date(2014, MAY, 17);
+  private static final LocalDate MAY_19 = date(2014, MAY, 19);
   private static final LocalDate MAY_30 = date(2014, MAY, 30);
   private static final LocalDate MAY_31 = date(2014, MAY, 31);
   private static final LocalDate AUG_30 = date(2014, AUGUST, 30);
@@ -386,6 +390,18 @@ public class PeriodicScheduleTest {
         {AUG_18, OCT_17, P1M, null, DAY_17, null, null, BDA_NONE,
             ImmutableList.of(AUG_17, SEP_17, OCT_17),
             ImmutableList.of(AUG_18, SEP_17, OCT_17), DAY_17},
+        // pre-adjusted first regular, change needed
+        {JUL_11, OCT_17, P1M, null, DAY_17, AUG_18, null, BDA_NONE,
+            ImmutableList.of(JUL_11, AUG_17, SEP_17, OCT_17),
+            ImmutableList.of(JUL_11, AUG_18, SEP_17, OCT_17), DAY_17},
+        // pre-adjusted last regular, change needed
+        {JUL_17, OCT_17, P1M, null, DAY_17, null, AUG_18, BDA_NONE,
+            ImmutableList.of(JUL_17, AUG_17, OCT_17),
+            ImmutableList.of(JUL_17, AUG_18, OCT_17), DAY_17},
+        // pre-adjusted first+last regular, change needed
+        {APR_01, OCT_17, P1M, null, DAY_17, MAY_19, AUG_18, BDA_NONE,
+            ImmutableList.of(APR_01, MAY_17, JUN_17, JUL_17, AUG_17, OCT_17),
+            ImmutableList.of(APR_01, MAY_19, JUN_17, JUL_17, AUG_18, OCT_17), DAY_17},
 
         // TERM period
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null, null,
