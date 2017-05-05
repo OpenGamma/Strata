@@ -11,9 +11,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.product.common.ExchangeId;
-import com.opengamma.strata.product.common.ExchangeIds;
-
 /**
  * Test {@link ExchangeId}.
  */

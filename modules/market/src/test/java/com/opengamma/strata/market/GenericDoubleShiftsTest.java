@@ -15,8 +15,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
-import com.opengamma.strata.market.GenericDoubleShifts;
-import com.opengamma.strata.market.ShiftType;
 
 /**
  * Test {@link GenericDoubleShifts}.

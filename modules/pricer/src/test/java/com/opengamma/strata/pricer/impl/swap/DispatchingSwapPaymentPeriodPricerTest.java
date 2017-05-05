@@ -22,11 +22,11 @@ import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.SwapPaymentPeriodPricer;
 import com.opengamma.strata.pricer.swap.SwapDummyData;
+import com.opengamma.strata.pricer.swap.SwapPaymentPeriodPricer;
 import com.opengamma.strata.product.swap.KnownAmountSwapPaymentPeriod;
-import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Test.
