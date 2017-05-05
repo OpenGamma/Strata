@@ -102,7 +102,7 @@
           <links>
             <link>http://www.joda.org/joda-beans/apidocs</link>
             <link>http://www.joda.org/joda-convert/apidocs</link>
-            <link>https://google.github.io/guava/releases/${guava.version}}/api/docs/</link>
+            <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
           </links>
         </configuration>
       </plugin>
