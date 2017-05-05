@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -225,8 +224,7 @@ public class Money
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Money other = (Money) obj;
-      return currency.equals(other.currency) &&
-          JodaBeanUtils.equal(amount, other.amount);
+      return currency.equals(other.currency) && amount.equals(other.amount);
     }
     return false;
   }
@@ -238,7 +236,7 @@ public class Money
    */
   @Override
   public int hashCode() {
-    return currency.hashCode() * 31 + JodaBeanUtils.hashCode(amount);
+    return currency.hashCode() * 31 + amount.hashCode();
   }
 
   //-------------------------------------------------------------------------
