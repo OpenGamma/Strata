@@ -104,6 +104,10 @@
             <link>http://www.joda.org/joda-convert/apidocs</link>
             <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
           </links>
+          <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
+          <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
+          <!-- If that happens to you, delete the following line -->
+          <additionalparam>--allow-script-in-comments -Xdoclint:missing -Xdoclint:reference</additionalparam>
         </configuration>
       </plugin>
       <!--  checkstyle -->
