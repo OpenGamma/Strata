@@ -1,0 +1,6 @@
+Group Name,Curve Type,Reference,Currency,Curve Name
+Default1,Issuer,JP-GOVT,JPY,JP-GOVT-1
+Default1,Issuer,US-GOVT,USD,US-GOVT
+Default1,Repo,JP-REPO,JPY,JP-REPO-1
+Default2,Issuer,JP-GOVT,JPY,JP-GOVT-2
+Default2,Repo,JP-REPO,JPY,JP-REPO-2

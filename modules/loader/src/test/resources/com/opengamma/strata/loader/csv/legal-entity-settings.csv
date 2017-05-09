@@ -1,0 +1,6 @@
+Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator
+JP-GOVT-1,Zero,Act/365F,Linear,Flat,Flat
+JP-REPO-1,Zero,Act/365F,Linear,Flat,Flat
+JP-GOVT-2,Zero,Act/365F,DoubleQuadratic,Linear,Linear
+JP-REPO-2,Zero,Act/365F,DoubleQuadratic,Linear,Linear
+US-GOVT,Zero,Act/360,NaturalSpline,Flat,Flat

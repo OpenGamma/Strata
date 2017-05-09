@@ -32,6 +32,8 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -40,10 +42,8 @@ import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.IssuerCurveDiscountFactors;
 import com.opengamma.strata.pricer.bond.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.bond.RepoCurveDiscountFactors;
 import com.opengamma.strata.pricer.bond.RepoCurveZeroRateSensitivity;
-import com.opengamma.strata.pricer.bond.RepoGroup;
 import com.opengamma.strata.product.SecurityId;
 
 /**

@@ -19,6 +19,8 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.DiscountFactors;
@@ -26,8 +28,6 @@ import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.bond.LegalEntityGroup;
-import com.opengamma.strata.pricer.bond.RepoGroup;
 
 /**
  * LegalEntityDiscountingProvider data sets for testing.

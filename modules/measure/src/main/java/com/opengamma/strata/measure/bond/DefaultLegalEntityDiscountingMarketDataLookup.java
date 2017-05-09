@@ -35,9 +35,9 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.bond.LegalEntityGroup;
-import com.opengamma.strata.pricer.bond.RepoGroup;
 import com.opengamma.strata.product.SecurityId;
 
 /**

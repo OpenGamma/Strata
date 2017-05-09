@@ -3,11 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.bond;
+package com.opengamma.strata.market.curve;
 
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.market.curve.RepoGroup;
 
 /**
  * Test {@link RepoGroup}.
