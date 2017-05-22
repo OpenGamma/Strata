@@ -207,28 +207,10 @@ public class LegalEntityRatesCurvesCsvLoader {
       for (Map.Entry<CurveGroupName, Map<Pair<RepoGroup, Currency>, CurveName>> repoEntry : repoGroups.entrySet()) {
         CurveGroupName groupName = repoEntry.getKey();
         Map<Pair<RepoGroup, Currency>, Curve> repoCurves = MapStream.of(repoEntry.getValue())
-            .mapValues(
-                name -> {
-                  Curve curve = curves.get(name);
-                  if (curve == null) {
-                    throw new IllegalArgumentException(
-                        "Repo curve values for " + name.toString() + " in group " + groupName.getName() +
-                            " are missing on " + date.toString());
-                  }
-                  return curve;
-                })
+            .mapValues(name -> queryCurve(name, curves, date, groupName, "Repo"))
             .toMap();
         Map<Pair<LegalEntityGroup, Currency>, Curve> issuerCurves = MapStream.of(legalEntityGroups.get(groupName))
-            .mapValues(
-                name -> {
-                  Curve curve = curves.get(name);
-                  if (curve == null) {
-                    throw new IllegalArgumentException(
-                        "Issuer curve values for " + name.toString() + " in group " + groupName.getName() +
-                            " are missing on " + date.toString());
-                  }
-                  return curve;
-                })
+            .mapValues(name -> queryCurve(name, curves, date, groupName, "Issuer"))
             .toMap();
         builder.put(date, LegalEntityCurveGroup.of(groupName, repoCurves, issuerCurves));
       }
@@ -374,6 +356,23 @@ public class LegalEntityRatesCurvesCsvLoader {
     } else {
       throw new IllegalArgumentException(Messages.format("Unsupported curve type: {}", curveTypeStr));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  private static Curve queryCurve(
+      CurveName name,
+      Map<CurveName, Curve> curves,
+      LocalDate date,
+      CurveGroupName groupName,
+      String curveType) {
+
+    Curve curve = curves.get(name);
+    if (curve == null) {
+      throw new IllegalArgumentException(
+          curveType + " curve values for " + name.toString() + " in group " + groupName.getName() +
+              " are missing on " + date.toString());
+    }
+    return curve;
   }
 
 }
