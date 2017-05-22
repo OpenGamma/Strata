@@ -43,6 +43,8 @@ import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
+import com.opengamma.strata.product.bond.BondFutureTrade;
+import com.opengamma.strata.product.bond.FixedCouponBondTrade;
 import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
@@ -165,12 +167,14 @@ public final class StandardComponents {
    * easy access to all built-in asset class coverage.
    * The supported asset classes are:
    * <ul>
+   *  <li>Bond future - {@link BondFutureTrade}
    *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Cap/floor (Ibor) - {@link IborCapFloorTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
    *  <li>CDS Index - {@link CdsIndexTrade}
    *  <li>Deliverable Swap Future - {@link DsfTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
+   *  <li>Fixed coupon bond - {@link FixedCouponBondTrade}
    *  <li>FX spot and FX forward - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
    *  <li>FX swap - {@link FxSwapTrade}

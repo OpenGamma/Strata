@@ -207,24 +207,28 @@ public class LegalEntityRatesCurvesCsvLoader {
       for (Map.Entry<CurveGroupName, Map<Pair<RepoGroup, Currency>, CurveName>> repoEntry : repoGroups.entrySet()) {
         CurveGroupName groupName = repoEntry.getKey();
         Map<Pair<RepoGroup, Currency>, Curve> repoCurves = MapStream.of(repoEntry.getValue())
-            .mapValues(name -> curves.get(name))
-            .peek(e -> {
-              if (e.getValue() == null) {
-                throw new IllegalArgumentException(
-                    "Repo curve values for " + e.getKey().toString() + " in group " + groupName.getName() +
-                        " are missing on " + date.toString());
-              }
-            })
+            .mapValues(
+                name -> {
+                  Curve curve = curves.get(name);
+                  if (curve == null) {
+                    throw new IllegalArgumentException(
+                        "Repo curve values for " + name.toString() + " in group " + groupName.getName() +
+                            " are missing on " + date.toString());
+                  }
+                  return curve;
+                })
             .toMap();
         Map<Pair<LegalEntityGroup, Currency>, Curve> issuerCurves = MapStream.of(legalEntityGroups.get(groupName))
-            .mapValues(name -> curves.get(name))
-            .peek(e -> {
-              if (e.getValue() == null) {
-                throw new IllegalArgumentException(
-                    "Issuer curve values for " + e.getKey().toString() + " in group " + groupName.getName() +
-                        " are missing on " + date.toString());
-              }
-            })
+            .mapValues(
+                name -> {
+                  Curve curve = curves.get(name);
+                  if (curve == null) {
+                    throw new IllegalArgumentException(
+                        "Issuer curve values for " + name.toString() + " in group " + groupName.getName() +
+                            " are missing on " + date.toString());
+                  }
+                  return curve;
+                })
             .toMap();
         builder.put(date, LegalEntityCurveGroup.of(groupName, repoCurves, issuerCurves));
       }
