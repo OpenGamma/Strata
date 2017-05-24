@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.bond;
+package com.opengamma.strata.market.curve;
 
 import org.joda.convert.FromString;
 

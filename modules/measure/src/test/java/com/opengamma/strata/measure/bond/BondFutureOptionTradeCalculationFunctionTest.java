@@ -44,6 +44,8 @@ import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -61,8 +63,6 @@ import com.opengamma.strata.pricer.bond.BlackBondFutureOptionMarginedTradePricer
 import com.opengamma.strata.pricer.bond.BondDataSets;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilitiesId;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.bond.LegalEntityGroup;
-import com.opengamma.strata.pricer.bond.RepoGroup;
 import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.product.SecurityId;

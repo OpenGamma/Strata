@@ -35,6 +35,8 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;

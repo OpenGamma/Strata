@@ -13,14 +13,17 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.LegalEntityCurveGroup;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.bond.LegalEntityGroup;
-import com.opengamma.strata.pricer.bond.RepoGroup;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -82,6 +85,32 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
 
     return DefaultLegalEntityDiscountingMarketDataLookup.of(
         repoCurveGroups, repoCurveIds, issuerCurveGroups, issuerCurveIds, obsSource);
+  }
+
+  /**
+   * Obtains an instance based on a curve group and group maps.
+   * <p>
+   * The two maps define mapping from the issuer ID to a group.
+   * 
+   * @param curveGroup  the curve group to base the lookup on
+   * @param repoCurveGroups  the repo curve groups, mapping issuer ID to group
+   * @param issuerCurveGroups  the issuer curve groups, mapping issuer ID to group
+   * @return the rates lookup containing the specified curves 
+   */
+  public static LegalEntityDiscountingMarketDataLookup of(
+      LegalEntityCurveGroup curveGroup,
+      Map<StandardId, RepoGroup> repoCurveGroups,
+      Map<StandardId, LegalEntityGroup> issuerCurveGroups) {
+
+    CurveGroupName groupName = curveGroup.getName();
+    Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds = MapStream.of(curveGroup.getRepoCurves())
+        .mapValues(c -> CurveId.of(groupName, c.getName()))
+        .toMap();
+    Map<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurveIds = MapStream.of(curveGroup.getIssuerCurves())
+        .mapValues(c -> CurveId.of(groupName, c.getName()))
+        .toMap();
+    return LegalEntityDiscountingMarketDataLookup.of(
+        repoCurveGroups, repoCurveIds, issuerCurveGroups, issuerCurveIds, ObservableSource.NONE);
   }
 
   //-------------------------------------------------------------------------

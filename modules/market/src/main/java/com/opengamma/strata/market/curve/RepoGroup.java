@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.bond;
+package com.opengamma.strata.market.curve;
 
 import org.joda.convert.FromString;
 
@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.TypedString;
  * Group used to identify a related set of repo curves when pricing bonds.
  * <p>
  * This class was previously called {@code BondGroup}.
- * It was renamed in version 1.1 of Strata to allow {@link LegalEntityDiscountingProvider}
+ * It was renamed in version 1.1 of Strata to allow {@code LegalEntityDiscountingProvider}
  * to be used for pricing bills as well as bonds.
  */
 public final class RepoGroup
