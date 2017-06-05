@@ -59,6 +59,9 @@ public final class PropertiesFile {
    * <p>
    * This parses the specified character source expecting a properties file format.
    * The resulting instance can be queried for each key and value.
+   * <p>
+   * Properties files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
    * 
    * @param source  the properties file resource
    * @return the properties file

@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.market.observable.QuoteId;
 
@@ -52,6 +53,9 @@ import com.opengamma.strata.market.observable.QuoteId;
  * 2014-01-22, OG-Future, CME-ED-Mar14, MarketValue, 99.620
  * </pre>
  * Note that Microsoft Excel prefers the CSV file to have no space after the comma.
+ * <p>
+ * CSV files sometimes contain a Unicode Byte Order Mark.
+ * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
  */
 public final class QuotesCsvLoader {
 

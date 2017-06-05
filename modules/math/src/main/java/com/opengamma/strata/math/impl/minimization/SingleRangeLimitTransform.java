@@ -59,6 +59,8 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   private final int _sign;
 
   /**
+   * Creates an instance.
+   * 
    * @param a The limit level 
    * @param limitType Type of the limit for the parameter
    */
@@ -83,7 +85,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   /**
    * {@inheritDoc}
    * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit
-   *  (e.g. the limit is $x > a$ and $x$ is less than $a$
+   *   (e.g. the limit is $x > a$ and $x$ is less than $a$
    */
   @Override
   public double transform(double x) {
@@ -113,7 +115,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   /**
    * {@inheritDoc}
    * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit
-   *  (e.g. the limit is $x > a$ and $x$ is less than $a$
+   *   (e.g. the limit is $x > a$ and $x$ is less than $a$
    */
   @Override
   public double transformGradient(double x) {

@@ -109,7 +109,8 @@ public class CalibrationPVPerformanceExample {
     }
 
     /* Warm-up */
-    Pair<MultiCurrencyAmount[], CurrencyParameterSensitivities[]> r = null;
+    Pair<MultiCurrencyAmount[], CurrencyParameterSensitivities[]> r =
+        Pair.of(new MultiCurrencyAmount[0], new CurrencyParameterSensitivities[0]);
     for (int i = 0; i < nbRrpWarm; i++) {
       r = computation(configs, swaps);
     }
@@ -125,7 +126,6 @@ public class CalibrationPVPerformanceExample {
 
     System.out.println("Performance estimate for curve calibration, " + (NB_COUPONS * NB_TENORS) + " trades and " +
         nbRunPerf + " repetitions.\n" + r.getFirst() + r.getSecond());
-
   }
 
   private static Pair<MultiCurrencyAmount[], CurrencyParameterSensitivities[]> computation(

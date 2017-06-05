@@ -120,7 +120,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
         deltaYOverDeltaX[i] = (yValues[i + 1] - yValues[i]) * oneOverDeltaX[i];
       }
       DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX, leftNatural, rightNatural);
-      DoubleArray rhsVector = getRHSVector(deltaYOverDeltaX, leftFirstDev, rightFirstDev, leftNatural, rightNatural);
+      DoubleArray rhsVector = getRightVector(deltaYOverDeltaX, leftFirstDev, rightFirstDev, leftNatural, rightNatural);
       return ((DoubleArray) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).toArray();
     }
 
@@ -142,7 +142,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       }
 
       DoubleMatrix inverseTriDiag = getInverseTridiagonalMatrix(deltaX, leftNatural, rightNatural);
-      DoubleMatrix rhsMatrix = getRHSMatrix(oneOverDeltaX, leftNatural, rightNatural);
+      DoubleMatrix rhsMatrix = getRightMatrix(oneOverDeltaX, leftNatural, rightNatural);
       return ((DoubleMatrix) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).toArray();
     }
 
@@ -178,7 +178,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       return invertor.apply(tridiagonal);
     }
 
-    private static DoubleArray getRHSVector(
+    private static DoubleArray getRightVector(
         double[] deltaYOverDeltaX,
         double leftFirstDev,
         double rightFirstDev,
@@ -201,7 +201,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       return DoubleArray.copyOf(res);
     }
 
-    private static DoubleMatrix getRHSMatrix(double[] oneOverDeltaX, boolean leftNatural, boolean rightNatural) {
+    private static DoubleMatrix getRightMatrix(double[] oneOverDeltaX, boolean leftNatural, boolean rightNatural) {
       int n = oneOverDeltaX.length + 1;
 
       double[][] res = new double[n][n];

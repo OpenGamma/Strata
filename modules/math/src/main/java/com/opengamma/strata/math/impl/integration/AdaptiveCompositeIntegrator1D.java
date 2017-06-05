@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Adaptive composite integrator: step size is set to be small if functional variation of integrand is large
- * The integrator in individual intervals (base integrator) should be specified by constructor
+ * The integrator in individual intervals (base integrator) should be specified by constructor.
  */
 public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> {
   private static final Logger log = LoggerFactory.getLogger(AdaptiveCompositeIntegrator1D.class);
@@ -24,6 +24,8 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
   private final double tol;
 
   /**
+   * Creates an instance.
+   * 
    * @param integrator The base integrator 
    */
   public AdaptiveCompositeIntegrator1D(Integrator1D<Double, Double> integrator) {
@@ -34,7 +36,9 @@ public class AdaptiveCompositeIntegrator1D extends Integrator1D<Double, Double> 
   }
 
   /**
-   * @param integrator The base integrator
+   * Creates an instance.
+   * 
+   * @param integrator The base integrator.
    * @param gain The gain ratio
    * @param tol The tolerance
    */

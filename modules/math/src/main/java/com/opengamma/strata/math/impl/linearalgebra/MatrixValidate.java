@@ -11,6 +11,7 @@ import com.opengamma.strata.math.MathException;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public abstract class MatrixValidate {
 
   public static void notNaNOrInfinite(DoubleMatrix x) {

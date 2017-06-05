@@ -96,7 +96,7 @@ public final class ValueAdjustment
    * The result will be {@code (baseValue + baseValue * modifyingValue)}.
    * 
    * @param deltaMultiplier  the multiplication factor to apply to the base amount
-   *  with the result added to the base amount
+   *   with the result added to the base amount
    * @return the adjustment, capturing the delta multiplier
    */
   public static ValueAdjustment ofDeltaMultiplier(double deltaMultiplier) {

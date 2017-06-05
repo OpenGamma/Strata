@@ -4,15 +4,20 @@ jdk:
   - oraclejdk8
 cache:
   directories:
-    - '$HOME/.m2/repository'
+    - "$HOME/.m2/repository"
+before_cache:
+  - rm -rf $HOME/.m2/repository/com/opengamma/strata
+# install
 before_install:
   - echo "MAVEN_OPTS='-Xms512m -Xmx2g'" > ~/.mavenrc
 install:
   - mvn --version
 script:
   - mvn install -e -B -Dstrict
-  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -Ddist -Doss.jars -Dog-public-release.url="https://api.bintray.com/maven/opengamma/releases/Strata/" --settings .github/deploy-settings.xml; fi
-  - rm -rf $HOME/.m2/repository/com/opengamma/strata
+# deploy
+after_success:
+  - if [[ $TRAVIS_TAG =~ ^v.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -e -B -Ddist -Doss.jars -DaltDeploymentRepository="og-public-release::default::https://api.bintray.com/maven/opengamma/releases/Strata/" --settings .github/maven-settings.xml; fi
+  - if [[ $TRAVIS_TAG =~ ^m.*$ ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn deploy -e -B -Doss.jars -DaltDeploymentRepository="og-milestone-release::default::https://opengamma.jfrog.io/opengamma/libs-releases-local/" --settings .github/maven-settings.xml; fi
 before_deploy:
   - export REPORT_TOOL_FILE=$(ls examples/target/strata-report-tool-*.zip)
   - export DIST_FILE=$(ls target/strata-dist-*.zip)
@@ -26,7 +31,10 @@ deploy:
   on:
     tags: true
     condition: "$TRAVIS_TAG =~ ^v.*$"
+# Secure variables DEPLOY_USER, DEPLOY_PASSWORD, MILESTONE_USER, MILESTONE_PASSWORD
 env:
   global:
-    - secure: DjkJT7CjsXfhhqMFuPvBgTq2jvRrFlgNeNeUe2PH4laIW7b/5T5XPSb8UhL75uzb1htSsB8dWpCwMDggrltLfk8WHOJ+Lr+eEJ+cNp1NpjgOUbPn1G6r2uAx3C9G8yGaKYx25UhKkZR10Nl2SQQR05YqYQdIY+Og1olgiFbmho8sxJX216J/v760iDYXCMSxzLbwib/+AJ/q1EHg1mMVx/POlh/QCSk+pq2c7ZhaLBM4rmke6vBm1dJvSrhCkH1cc9AhJeQvFT9aD9f6tcIZfYpfrZZnJXUXi6gN3aTMIB67dcHHeDGvhwCZydvKmHMoIf7d3IHmef+524haTxO1MOaaw8kBLD4w7tfjRRV9NaTsGA69oi34Zwp5u3+tp7DIypOIwlVIF6LleZtDrbHAW7zb7rZjM4PhNljTO9zueJVlKSxgRpaaWU9ed/jmBb2xOnSSCnWXzZWk7r+whbfdUomd56rd4oqhW3qdo+DBWBCB6KE611aGU/S1REY8aTpXWRaYJ71gxJ84jBI7GSjwtcZG3r/LOQPX5b5ApidGDrpzX0vv885jQl0A/1S6umZCjJEnVDZMwI4y2xHYlyEgmLxTOrete9A9bXx9W/R8m5Xo8SjOPC5PgDuJ+u8W+KKnIjd8s+oZOqQ2ookBdIhHxmwjKCHz6W1bUgrnzgFqkHQ=
-    - secure: KicbHjCoKzY19TqLBBRIkdogbed7g5y19PJlwJNACJm6X05hqe2upAPpvKUoZ+r9bq2ICVH78/o0BD8B3r92qOxrFM+8tT1jdHaI8LMtIEFWe0EIOaYjI6k8nwfKW5nV2BlZsG9ASVhw0T8WprJC2Vb17s9Q0j1DlZxH3F1LgoB/cwatiiKFqnDX4bWJddxNrFYKr+0IWe4nXA3g2d1yNVeTiL1h6fHO+pmIZLHzkNDGk1G1/n2Lo++7PK8prBmfQIx9oOJ2bvHsEhSNcTh3HRzDnsXNEQtNQc4klzHcbGJ6LqWj5t0yDCtbhZCTM1IbZBiV+0a0pU8FSM93DGjisuuyOlNmbSzL1IddnzFbV5yOS1xOYU6w15FoAt0iChMQlcjqxhsnd9SwyDYhTROgjKf2Vms39qBQ/UHGAVlw7+oyihBuMn6LPF5y4QDTj5AAZPFW139hOlEMj6z6w8e4s0nqgF1LxdG77Bukbcj1ajU0TB8S8vLSSA1vvtHaNWADud8Ug7D/XJVH0LVCTYocPiGhV9fsCR4dGTbGxzHCVn8Ap1wJKKp4Nnm4uO/GvKcQGCsQreedUENs7jHVzoaalkKx70CQUZesLzzm4iPw7XJbiEB8dOxkwxbkk7oRyi/XDWbYfzPVDf/n3pxu/HIjCiQaplC9HGmM7q8wMIHI8EU=
+  - secure: DjkJT7CjsXfhhqMFuPvBgTq2jvRrFlgNeNeUe2PH4laIW7b/5T5XPSb8UhL75uzb1htSsB8dWpCwMDggrltLfk8WHOJ+Lr+eEJ+cNp1NpjgOUbPn1G6r2uAx3C9G8yGaKYx25UhKkZR10Nl2SQQR05YqYQdIY+Og1olgiFbmho8sxJX216J/v760iDYXCMSxzLbwib/+AJ/q1EHg1mMVx/POlh/QCSk+pq2c7ZhaLBM4rmke6vBm1dJvSrhCkH1cc9AhJeQvFT9aD9f6tcIZfYpfrZZnJXUXi6gN3aTMIB67dcHHeDGvhwCZydvKmHMoIf7d3IHmef+524haTxO1MOaaw8kBLD4w7tfjRRV9NaTsGA69oi34Zwp5u3+tp7DIypOIwlVIF6LleZtDrbHAW7zb7rZjM4PhNljTO9zueJVlKSxgRpaaWU9ed/jmBb2xOnSSCnWXzZWk7r+whbfdUomd56rd4oqhW3qdo+DBWBCB6KE611aGU/S1REY8aTpXWRaYJ71gxJ84jBI7GSjwtcZG3r/LOQPX5b5ApidGDrpzX0vv885jQl0A/1S6umZCjJEnVDZMwI4y2xHYlyEgmLxTOrete9A9bXx9W/R8m5Xo8SjOPC5PgDuJ+u8W+KKnIjd8s+oZOqQ2ookBdIhHxmwjKCHz6W1bUgrnzgFqkHQ=
+  - secure: KicbHjCoKzY19TqLBBRIkdogbed7g5y19PJlwJNACJm6X05hqe2upAPpvKUoZ+r9bq2ICVH78/o0BD8B3r92qOxrFM+8tT1jdHaI8LMtIEFWe0EIOaYjI6k8nwfKW5nV2BlZsG9ASVhw0T8WprJC2Vb17s9Q0j1DlZxH3F1LgoB/cwatiiKFqnDX4bWJddxNrFYKr+0IWe4nXA3g2d1yNVeTiL1h6fHO+pmIZLHzkNDGk1G1/n2Lo++7PK8prBmfQIx9oOJ2bvHsEhSNcTh3HRzDnsXNEQtNQc4klzHcbGJ6LqWj5t0yDCtbhZCTM1IbZBiV+0a0pU8FSM93DGjisuuyOlNmbSzL1IddnzFbV5yOS1xOYU6w15FoAt0iChMQlcjqxhsnd9SwyDYhTROgjKf2Vms39qBQ/UHGAVlw7+oyihBuMn6LPF5y4QDTj5AAZPFW139hOlEMj6z6w8e4s0nqgF1LxdG77Bukbcj1ajU0TB8S8vLSSA1vvtHaNWADud8Ug7D/XJVH0LVCTYocPiGhV9fsCR4dGTbGxzHCVn8Ap1wJKKp4Nnm4uO/GvKcQGCsQreedUENs7jHVzoaalkKx70CQUZesLzzm4iPw7XJbiEB8dOxkwxbkk7oRyi/XDWbYfzPVDf/n3pxu/HIjCiQaplC9HGmM7q8wMIHI8EU=
+  - secure: vp/mlueMbzEWXvq7zp2sQmNQiSoSjrDWWqhvdVtrzoZCoppfTxI9mKeAf0VZ/PoaDyU64kD6dZyX0lAoeoWaST7i4FqNrWmSt4+8nDiS/C8VWykpEps1u/lcxEcOC+abaCz21d3MRKVqMs4XG9khn9d8E6p6HJ3SssMWgQ+QmdbIaG2c0r2PA+HKyE9cuY7CUWlh0olqB31uMt3ymErC/4j0G3GSqfn+PvgEBNSx8ua63+Cj0k4qXA2h2+NmpXa29JqvVha9VfgX4KxV4CA4ICNlX0cbUMu2ng1WoEXKAjg7zimIw5uP5Ca/93HQCsP27+Ws+Vbt26OVC3V2wR7jlS/wFYp9guFoVh1byf2IT9b4zeDojKI0v4HSQjJP6q3YZSHK/rx3tGfZjnLXtZHBHZos6kvBF1Yo+k/gdcEKJjxRfQk8lrRy2EWKgkhzRAVO0xCCPA8BNe+AzgBEcUm5h79VKD1hqbPY6WKoKbW//fpuR/RHULwS3WKmXh3b7VjySfc8IvYYF3AwT5gRj+eMiswjPjCTBF/6cq2RAsuNwtZbUddD7DgdMcdhCXQxlm8Mvv/NT7/wqa4i4ECZoujp/ntlieTNTgilGfDmldeibRamDQi46M5ey+W4ygGLcgEUxNcN0vVrWGmC4igiMViS2axKnqOsQIGx2I7B6++/JC0=
+  - secure: phlpOpyvidaeqoxl0mkKNmSjwYPYX0QHMigLOpXHUvGI1y1gDKr15SHGpZDQCMCcj8zs4A7OC3H65TbdTCehJbjzAq9ByoOxAS3R4ewc9RvA2js7W0k0qGAw0uL3gJHpj/SkPLgFM2C3e7QquILVBfJ7vIpOS3Zioyvj88fS+Z2L65+OYTqtbFxsUiG6ad5nTQZadhrViXDmmu+ffzBkYEfPtgqDR2CpLTMMX6sAER9dYRDRsU3yPabCIIfk0cjT8+lioy0UIAPPhCbGiI790r38cZW6e4wKMg6u8kN7gO87YfVagJwPHtiJmVoZT7svzmYJ8Z1bOND012dZsbVYodcbYAVf4cgv5uhh4Zt4+Bf1+aT4tEOJ8HQm/s3gHduhZcUsR1hhKGqvzafY6sL3X00ffMi+PHw1POj6GpXeG6fRu2l8IDno3DWNANCJIqGYxLvAiJCIWq6wRwG62hv7nX0MN6hNQPFWsD2DFyKX7Kjft6oQPnbZ477IeDajoxAzK7Jlt6fvD7DVe3zdumgPQZIqdAn5K4hVh2sWJ2wJxP+pPqPSDQXu1bFMMhSdyjW0o5KovZnM1w66cdmMud5pGz4bgriZ/SnF8NFDSwY9mwe0koLkW5kUPyRtxcYamMriaBKEQHM6l5cCWaLMoB3XMJ9+PWsQDNxjKN4IIQ/zUOA=

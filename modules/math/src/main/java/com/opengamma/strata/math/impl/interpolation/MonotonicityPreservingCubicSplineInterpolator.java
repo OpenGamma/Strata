@@ -30,7 +30,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
   private static final double SMALL = 1.e-14;
 
   /**
-   * Primary interpolation method should be passed
+   * Primary interpolation method should be passed.
    * @param method PiecewisePolynomialInterpolator
    */
   public MonotonicityPreservingCubicSplineInterpolator(final PiecewisePolynomialInterpolator method) {
@@ -275,10 +275,10 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
   /**
    * First derivatives are modified such that cubic interpolant has the same sign as linear interpolator 
-   * @param yValues 
-   * @param intervals 
-   * @param slopes 
-   * @param initialFirst 
+   * @param yValues  the y-values
+   * @param intervals  the intervals
+   * @param slopes  the slopes
+   * @param initialFirst  the initial first
    * @return first derivative 
    */
   private double[] firstDerivativeCalculator(final double[] intervals, final double[] slopes, final double[] initialFirst) {
@@ -469,8 +469,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
   }
 
   /**
-   * @param intervals 
-   * @param slopes 
+   * @param intervals  the intervals
+   * @param slopes  the slopes
    * @return Parabola slopes, each row vactor is (p^{-1}, p^{0}, p^{1}) for xValues_1,...,xValues_{nDataPts-2}
    */
   private double[][] parabolaSlopesCalculator(final double[] intervals, final double[] slopes) {

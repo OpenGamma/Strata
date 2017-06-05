@@ -13,6 +13,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public interface NewtonRootFinderMatrixUpdateFunction {
 
   // TODO might be better to pass in NewtonVectorRootFinder.DataBundle as many of these arguments are not used.

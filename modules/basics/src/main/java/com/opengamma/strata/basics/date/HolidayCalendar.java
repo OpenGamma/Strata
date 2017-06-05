@@ -182,7 +182,7 @@ public interface HolidayCalendar
    * 
    * @param date  the date to adjust
    * @return the input date if it is a business day, the next business day if within the same month
-   * or the last business day of the month
+   *   or the last business day of the month
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate nextSameOrLastInMonth(LocalDate date) {

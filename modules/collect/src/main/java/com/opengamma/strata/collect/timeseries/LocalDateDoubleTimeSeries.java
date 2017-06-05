@@ -310,7 +310,7 @@ public interface LocalDateDoubleTimeSeries {
    * @param other  the time-series to combine with
    * @param mapper  the function to be used to combine the values
    * @return a new time-series containing the dates in common between the
-   *  input series with their values combined together using the function
+   *   input series with their values combined together using the function
    */
   public default LocalDateDoubleTimeSeries intersection(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
     ArgChecker.notNull(other, "other");
@@ -332,7 +332,7 @@ public interface LocalDateDoubleTimeSeries {
    * @param other  the time-series to combine with
    * @param mapper  the function to be used to combine the values
    * @return a new time-series containing the dates in common between the
-   *  input series with their values combined together using the function
+   *   input series with their values combined together using the function
    */
   public default LocalDateDoubleTimeSeries union(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
     ArgChecker.notNull(other, "other");

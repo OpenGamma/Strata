@@ -1118,7 +1118,7 @@ public final class BlackFormulaRepository {
    * Computes the log-normal implied volatility.
    * 
    * @param price The forward price, which is the market price divided by the numeraire,
-   *  for example the zero bond p(0,T) for the T-forward measure
+   *   for example the zero bond p(0,T) for the T-forward measure
    * @param forward  the forward value of the underlying
    * @param strike  the strike
    * @param timeToExpiry  the time to expiry
@@ -1153,7 +1153,7 @@ public final class BlackFormulaRepository {
    * Computes the log-normal implied volatility and its derivative with respect to price.
    * 
    * @param price The forward price, which is the market price divided by the numeraire,
-   *  for example the zero bond p(0,T) for the T-forward measure
+   *   for example the zero bond p(0,T) for the T-forward measure
    * @param forward  the forward value of the underlying
    * @param strike  the strike
    * @param timeToExpiry  the time to expiry
@@ -1190,8 +1190,8 @@ public final class BlackFormulaRepository {
    * European option starting from an initial guess.
    * 
    * @param otmPrice The forward price, which is the market price divided by the numeraire,
-   *  for example the zero bond p(0,T) for the T-forward measure
-   *  This MUST be an OTM price, i.e. a call price for strike >= forward and a put price otherwise.
+   *   for example the zero bond p(0,T) for the T-forward measure
+   *   This MUST be an OTM price, i.e. a call price for strike >= forward and a put price otherwise.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike
@@ -1253,8 +1253,8 @@ public final class BlackFormulaRepository {
    * from an initial guess and the derivative of the volatility w.r.t. the price.
    * 
    * @param otmPrice The forward price, which is the market price divided by the numeraire,
-   *  for example the zero bond p(0,T) for the T-forward measure
-   *  This MUST be an OTM price, i.e. a call price for strike >= forward and a put price otherwise.
+   *   for example the zero bond p(0,T) for the T-forward measure
+   *   This MUST be an OTM price, i.e. a call price for strike >= forward and a put price otherwise.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike
@@ -1308,7 +1308,7 @@ public final class BlackFormulaRepository {
    * @param time  the time to expiry
    * @param volatility  the volatility
    * @param derivatives  the mutated array of derivatives of the implied strike with respect to the input
-   *  Derivatives with respect to: [0] delta, [1] forward, [2] time, [3] volatility.
+   *   Derivatives with respect to: [0] delta, [1] forward, [2] time, [3] volatility.
    * @return the strike
    */
   public static double impliedStrike(

@@ -190,6 +190,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    * | Scenario 1 |     -10bp  |     +5%      |
    * | Scenario 2 |       0    |      0       |
    * | Scenario 3 |     +10bp  |     -5%      |
+   * </pre>
    *
    * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
    *   number of perturbations
@@ -562,19 +563,31 @@ public final class ScenarioDefinition implements ImmutableBean {
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

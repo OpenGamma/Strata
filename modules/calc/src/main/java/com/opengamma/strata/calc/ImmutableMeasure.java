@@ -80,7 +80,7 @@ public final class ImmutableMeasure
    *
    * @param name  the measure name
    * @param isCurrencyConvertible  flag indicating whether measure values should be automatically
-   * converted to the reporting currency.
+   *   converted to the reporting currency.
    * @return a measure with the specified name
    */
   public static ImmutableMeasure of(String name, boolean isCurrencyConvertible) {

@@ -17,6 +17,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 /**
  * Wrapper for results of the Commons implementation of QR Decomposition ({@link QRDecompositionCommons}).
  */
+// CSOFF: AbbreviationAsWordInName
 public class QRDecompositionCommonsResult implements QRDecompositionResult {
 
   private final DoubleMatrix _q;
@@ -25,6 +26,8 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
   private final DecompositionSolver _solver;
 
   /**
+   * Creates an instance.
+   * 
    * @param qr The result of the QR decomposition, not null
    */
   public QRDecompositionCommonsResult(QRDecomposition qr) {

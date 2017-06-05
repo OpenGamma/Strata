@@ -36,6 +36,7 @@ import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -57,6 +58,9 @@ import com.opengamma.strata.market.curve.NodalCurveDefinition;
  *   <li>The 'Reference' column is the reference the curve is used for, such as "USD" or "USD-LIBOR-3M".
  *   <li>The 'Curve Name' column is the name of the curve.
  * </ul>
+ * <p>
+ * CSV files sometimes contain a Unicode Byte Order Mark.
+ * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
  *
  * @see CurveGroupDefinition
  */

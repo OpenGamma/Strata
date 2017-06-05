@@ -41,6 +41,8 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   private final double _degrees;
 
   /**
+   * Creates an instance.
+   * 
    * @param degrees The degrees of freedom of the distribution, not less than one
    */
   public ChiSquareDistribution(double degrees) {
@@ -48,6 +50,8 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   }
 
   /**
+   * Creates an instance.
+   * 
    * @param degrees The degrees of freedom of the distribution, not less than one
    * @param engine A uniform random number generator, not null
    */
@@ -95,6 +99,8 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   }
 
   /**
+   * Gets the degrees of freedom.
+   * 
    * @return The number of degrees of freedom
    */
   public double getDegreesOfFreedom() {

@@ -11,6 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Utilities for working with complex numbers.
  */
 public class ComplexMathUtils {
+// CSOFF: JavadocMethod
 
   public static ComplexNumber add(ComplexNumber z1, ComplexNumber z2) {
     ArgChecker.notNull(z1, "z1");
@@ -106,7 +107,7 @@ public class ComplexMathUtils {
   }
 
   /**
-   * Returns the principal value of log, with z the principal argument of z defined to lie in the interval (-pi, pi]
+   * Returns the principal value of log, with z the principal argument of z defined to lie in the interval (-pi, pi].
    * @param z ComplexNumber
    * @return The log
    */

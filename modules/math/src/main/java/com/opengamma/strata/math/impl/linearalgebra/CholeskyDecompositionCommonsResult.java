@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
- * Wrapper for results of the Commons implementation of Cholesky decomposition ({@link CholeskyDecompositionCommons})
+ * Wrapper for results of the Commons implementation of Cholesky decomposition ({@link CholeskyDecompositionCommons}).
  */
 public class CholeskyDecompositionCommonsResult implements CholeskyDecompositionResult {
 

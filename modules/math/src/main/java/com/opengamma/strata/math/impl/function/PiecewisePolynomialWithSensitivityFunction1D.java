@@ -14,7 +14,8 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
 /**
- * Give a class {@link PiecewisePolynomialResultsWithSensitivity}, Compute node sensitivity of function value, first derivative value and second derivative value
+ * Give a class {@link PiecewisePolynomialResultsWithSensitivity}, compute node sensitivity of
+ * function value, first derivative value and second derivative value.
  */
 public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolynomialFunction1D {
 

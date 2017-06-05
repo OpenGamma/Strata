@@ -9,6 +9,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.impl.TrigonometricFunctionUtils;
 
 /**
+ * Limit transform.
+ * <p>
  * If a model parameter $x$ is constrained to be between two values $a \geq x
  * \geq b$, the function to transform it to an unconstrained variable is $y$ is
  * given by
@@ -35,6 +37,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   private final double _mid;
 
   /**
+   * Creates an instance.
    * @param lower Lower limit
    * @param upper Upper limit
    * @throws IllegalArgumentException If the upper limit is not greater than the lower limit

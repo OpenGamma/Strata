@@ -44,7 +44,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
   }
 
   /**
-   * Access _coeffSense
+   * Access _coeffSense.
    * @return _coeffSense
    */
   public DoubleMatrix[] getCoefficientSensitivityAll() {
@@ -52,7 +52,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
   }
 
   /**
-   * Access _coeffSense for the i-th interval
+   * Access _coeffSense for the i-th interval.
    * @param interval  the interval
    * @return _coeffSense for the i-th interval
    */

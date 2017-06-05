@@ -11,7 +11,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import org.joda.convert.FromString;
@@ -238,11 +237,13 @@ public final class ResourceLocator {
    * <p>
    * A char source is a supplier of data.
    * The source itself is neither opened nor closed.
+   * <p>
+   * This method handles Unicode Byte Order Marks.
    * 
    * @return the char source
    */
   public CharSource getCharSource() {
-    return getCharSource(StandardCharsets.UTF_8);
+    return UnicodeBom.toCharSource(source);
   }
 
   /**

@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>1.3.0-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -94,6 +94,22 @@
       </testResource>
     </testResources>
     <plugins>
+      <!-- javadoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <links>
+            <link>http://www.joda.org/joda-beans/apidocs</link>
+            <link>http://www.joda.org/joda-convert/apidocs</link>
+            <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+          </links>
+          <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
+          <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
+          <!-- If that happens to you, delete the following line -->
+          <additionalparam>--allow-script-in-comments -Xdoclint:missing -Xdoclint:reference</additionalparam>
+        </configuration>
+      </plugin>
       <!--  checkstyle -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -580,7 +596,7 @@
                     <dependency>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>${project.artifactId}</artifactId>
-                      <version>1.1.0</version>
+                      <version>1.3.0</version>
                     </dependency>
                   </oldVersion>
                 </configuration>
@@ -624,7 +640,7 @@
     <guava.version>20.0</guava.version>
     <jcommander.version>1.58</jcommander.version>
     <joda-convert.version>1.8.1</joda-convert.version>
-    <joda-beans.version>1.10.1</joda-beans.version>
+    <joda-beans.version>1.13</joda-beans.version>
     <mockito.version>2.7.8</mockito.version>
     <slf4j.version>1.7.23</slf4j.version>
     <testng.version>6.10</testng.version>

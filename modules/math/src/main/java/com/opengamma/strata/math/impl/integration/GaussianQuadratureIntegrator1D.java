@@ -36,6 +36,8 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
   private final GaussianQuadratureData quadrature;
 
   /**
+   * Creates an instance.
+   * 
    * @param n The number of sample points to be used in the integration, not negative or zero
    * @param generator The generator of weights and abscissas
    */
@@ -67,7 +69,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
    * if $f(x)$ can be approximated by a polynomial.
    * 
    * @param polyFunction The function $f(x)$ rather than the full function $g(x) = W(x)f(x)$
-   *  This should be well approximated by a polynomial.
+   *   This should be well approximated by a polynomial.
    * @return The integral 
    */
   public double integrateFromPolyFunc(Function<Double, Double> polyFunction) {
@@ -83,6 +85,8 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
   }
 
   /**
+   * Gets the limits.
+   * 
    * @return The lower and upper limits for which the quadrature is valid
    */
   public abstract Double[] getLimits();

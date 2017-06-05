@@ -136,7 +136,7 @@ public final class CurveCalibrator {
    * @param stepMaximum  the maximum steps
    * @param measures  the calibration measures, used to compute the function for which the root is found
    * @param pvMeasures  the present value measures, used to compute the present value sensitivity to market quotes 
-   * stored in the metadata.
+   *   stored in the metadata
    * @return the curve calibrator
    */
   public static CurveCalibrator of(

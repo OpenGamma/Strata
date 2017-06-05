@@ -15,6 +15,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated
  * to a data set.
  */
+// CSOFF: JavadocMethod
 public class LeastSquareResults {
 
   private final double _chiSq;
@@ -50,7 +51,7 @@ public class LeastSquareResults {
   }
 
   /**
-   * Gets the Chi-square of the fit
+   * Gets the Chi-square of the fit.
    * @return the chiSq
    */
   public double getChiSq() {
@@ -58,7 +59,7 @@ public class LeastSquareResults {
   }
 
   /**
-   * Gets the value of the fitting parameters, when the chi-squared is minimised
+   * Gets the value of the fitting parameters, when the chi-squared is minimised.
    * @return the parameters
    */
   public DoubleArray getFitParameters() {

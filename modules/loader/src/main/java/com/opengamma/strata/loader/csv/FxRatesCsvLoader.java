@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FxRateId;
 
 /**
@@ -49,6 +50,9 @@ import com.opengamma.strata.data.FxRateId;
  * 2014-01-23, EUR/USD, 1.11
  * </pre>
  * Note that Microsoft Excel prefers the CSV file to have no space after the comma.
+ * <p>
+ * CSV files sometimes contain a Unicode Byte Order Mark.
+ * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
  */
 public final class FxRatesCsvLoader {
 

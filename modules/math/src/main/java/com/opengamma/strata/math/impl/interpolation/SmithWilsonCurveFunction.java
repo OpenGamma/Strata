@@ -32,7 +32,7 @@ public class SmithWilsonCurveFunction {
   private final double omega;
 
   /**
-   * Creates an instance with UFR 
+   * Creates an instance with UFR.
    * 
    * @param ufr  the UFR
    * @return the instance

@@ -27,6 +27,7 @@ import com.opengamma.strata.math.impl.function.special.GammaFunction;
  * For the case where $r + \lambda > 2000$, the implementation of the cdf is taken from "An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.
  * (<a href="http://fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from "Computing the Non-Central Chi-Squared Distribution Function", Ding.
  */
+// CSOFF: AbbreviationAsWordInName
 public class NonCentralChiSquaredDistribution implements ProbabilityDistribution<Double> {
 
   private final double _lambdaOverTwo;
@@ -36,6 +37,8 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
   private final double _eps = 1e-16;
 
   /**
+   * Creates an instance.
+   * 
    * @param degrees The number of degrees of freedom, not negative or zero
    * @param nonCentrality The non-centrality parameter, not negative
    */
@@ -153,6 +156,8 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
   }
 
   /**
+   * Gets the number of degrees of freedom.
+   * 
    * @return The number of degrees of freedom
    */
   public double getDegrees() {
@@ -160,6 +165,8 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
   }
 
   /**
+   * Gets the non-centrality parameter.
+   * 
    * @return The non-centrality parameter
    */
   public double getNonCentrality() {

@@ -117,9 +117,9 @@ public class DiscountFxForwardRatesTest {
 
   public void test_builder() {
     assertThrowsIllegalArg(() -> DiscountFxForwardRates.meta().builder()
-        .setString(DiscountFxForwardRates.meta().currencyPair(), "GBP/USD").build());
+        .set(DiscountFxForwardRates.meta().currencyPair(), CurrencyPair.parse("GBP/USD")).build());
     assertThrowsIllegalArg(() -> DiscountFxForwardRates.meta().builder()
-        .setString(DiscountFxForwardRates.meta().currencyPair().name(), "GBP/USD").build());
+        .set(DiscountFxForwardRates.meta().currencyPair().name(), CurrencyPair.parse("GBP/USD")).build());
   }
 
   //-------------------------------------------------------------------------

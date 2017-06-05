@@ -19,6 +19,7 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
 
   private static final Logger log = LoggerFactory.getLogger(WeightedLeastSquaresRegression.class);

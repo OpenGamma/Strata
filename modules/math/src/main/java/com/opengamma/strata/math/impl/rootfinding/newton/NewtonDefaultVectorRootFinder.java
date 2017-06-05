@@ -12,6 +12,7 @@ import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
  * Attempts to find the multi-dimensional root of a series of N equations with N variables, i.e. a square problem. 
  * If the analytic Jacobian is not known, it will be calculated using central difference 
  */
+//CSOFF: JavadocMethod
 public class NewtonDefaultVectorRootFinder extends NewtonVectorRootFinder {
 
   private static final double DEF_TOL = 1e-7;

@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * in the context of the calculation results, and errors are delayed until the report is run.
  */
 @BeanDefinition
-public class TradeReportColumn
+public final class TradeReportColumn
     implements ImmutableBean {
 
   /**
@@ -70,15 +70,14 @@ public class TradeReportColumn
     return new TradeReportColumn.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected TradeReportColumn(TradeReportColumn.Builder builder) {
-    JodaBeanUtils.notNull(builder.header, "header");
-    this.header = builder.header;
-    this.value = builder.value;
-    this.ignoreFailures = builder.ignoreFailures;
+  private TradeReportColumn(
+      String header,
+      String value,
+      boolean ignoreFailures) {
+    JodaBeanUtils.notNull(header, "header");
+    this.header = header;
+    this.value = value;
+    this.ignoreFailures = ignoreFailures;
   }
 
   @Override
@@ -159,26 +158,18 @@ public class TradeReportColumn
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TradeReportColumn{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("header").append('=').append(header).append(',').append(' ');
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(ignoreFailures));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("header").append('=').append(JodaBeanUtils.toString(header)).append(',').append(' ');
-    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
-    buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(ignoreFailures)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TradeReportColumn}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -211,7 +202,7 @@ public class TradeReportColumn
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -247,7 +238,7 @@ public class TradeReportColumn
      * The meta-property for the {@code header} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> header() {
+    public MetaProperty<String> header() {
       return header;
     }
 
@@ -255,7 +246,7 @@ public class TradeReportColumn
      * The meta-property for the {@code value} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> value() {
+    public MetaProperty<String> value() {
       return value;
     }
 
@@ -263,7 +254,7 @@ public class TradeReportColumn
      * The meta-property for the {@code ignoreFailures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> ignoreFailures() {
+    public MetaProperty<Boolean> ignoreFailures() {
       return ignoreFailures;
     }
 
@@ -296,7 +287,7 @@ public class TradeReportColumn
   /**
    * The bean-builder for {@code TradeReportColumn}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<TradeReportColumn> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TradeReportColumn> {
 
     private String header;
     private String value;
@@ -305,14 +296,14 @@ public class TradeReportColumn
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(TradeReportColumn beanToCopy) {
+    private Builder(TradeReportColumn beanToCopy) {
       this.header = beanToCopy.getHeader();
       this.value = beanToCopy.value;
       this.ignoreFailures = beanToCopy.isIgnoreFailures();
@@ -357,19 +348,31 @@ public class TradeReportColumn
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
@@ -377,7 +380,10 @@ public class TradeReportColumn
 
     @Override
     public TradeReportColumn build() {
-      return new TradeReportColumn(this);
+      return new TradeReportColumn(
+          header,
+          value,
+          ignoreFailures);
     }
 
     //-----------------------------------------------------------------------
@@ -417,19 +423,11 @@ public class TradeReportColumn
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("TradeReportColumn.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("header").append('=').append(JodaBeanUtils.toString(header)).append(',').append(' ');
       buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
-      buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(ignoreFailures)).append(',').append(' ');
+      buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(ignoreFailures));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

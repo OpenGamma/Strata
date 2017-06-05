@@ -38,7 +38,7 @@ import com.opengamma.strata.product.TradeInfo;
  * only when barrier event occurs (knock-in option) or does not occur (knock-out option).
  */
 @BeanDefinition
-public class FxSingleBarrierOptionTrade
+public final class FxSingleBarrierOptionTrade
     implements ProductTrade, ResolvableTrade<ResolvedFxSingleBarrierOptionTrade>, ImmutableBean, Serializable {
 
   /**
@@ -106,16 +106,15 @@ public class FxSingleBarrierOptionTrade
     return new FxSingleBarrierOptionTrade.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FxSingleBarrierOptionTrade(FxSingleBarrierOptionTrade.Builder builder) {
-    JodaBeanUtils.notNull(builder.product, "product");
-    JodaBeanUtils.notNull(builder.premium, "premium");
-    this.info = builder.info;
-    this.product = builder.product;
-    this.premium = builder.premium;
+  private FxSingleBarrierOptionTrade(
+      TradeInfo info,
+      FxSingleBarrierOption product,
+      AdjustablePayment premium) {
+    JodaBeanUtils.notNull(product, "product");
+    JodaBeanUtils.notNull(premium, "premium");
+    this.info = info;
+    this.product = product;
+    this.premium = premium;
   }
 
   @Override
@@ -205,26 +204,18 @@ public class FxSingleBarrierOptionTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxSingleBarrierOptionTrade{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-    buf.append("premium").append('=').append(JodaBeanUtils.toString(premium)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FxSingleBarrierOptionTrade}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -257,7 +248,7 @@ public class FxSingleBarrierOptionTrade
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -293,7 +284,7 @@ public class FxSingleBarrierOptionTrade
      * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TradeInfo> info() {
+    public MetaProperty<TradeInfo> info() {
       return info;
     }
 
@@ -301,7 +292,7 @@ public class FxSingleBarrierOptionTrade
      * The meta-property for the {@code product} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<FxSingleBarrierOption> product() {
+    public MetaProperty<FxSingleBarrierOption> product() {
       return product;
     }
 
@@ -309,7 +300,7 @@ public class FxSingleBarrierOptionTrade
      * The meta-property for the {@code premium} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<AdjustablePayment> premium() {
+    public MetaProperty<AdjustablePayment> premium() {
       return premium;
     }
 
@@ -342,7 +333,7 @@ public class FxSingleBarrierOptionTrade
   /**
    * The bean-builder for {@code FxSingleBarrierOptionTrade}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<FxSingleBarrierOptionTrade> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FxSingleBarrierOptionTrade> {
 
     private TradeInfo info;
     private FxSingleBarrierOption product;
@@ -351,7 +342,7 @@ public class FxSingleBarrierOptionTrade
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
       applyDefaults(this);
     }
 
@@ -359,7 +350,7 @@ public class FxSingleBarrierOptionTrade
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(FxSingleBarrierOptionTrade beanToCopy) {
+    private Builder(FxSingleBarrierOptionTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.premium = beanToCopy.getPremium();
@@ -404,19 +395,31 @@ public class FxSingleBarrierOptionTrade
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
@@ -424,7 +427,10 @@ public class FxSingleBarrierOptionTrade
 
     @Override
     public FxSingleBarrierOptionTrade build() {
-      return new FxSingleBarrierOptionTrade(this);
+      return new FxSingleBarrierOptionTrade(
+          info,
+          product,
+          premium);
     }
 
     //-----------------------------------------------------------------------
@@ -472,19 +478,11 @@ public class FxSingleBarrierOptionTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("FxSingleBarrierOptionTrade.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-      buf.append("premium").append('=').append(JodaBeanUtils.toString(premium)).append(',').append(' ');
+      buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

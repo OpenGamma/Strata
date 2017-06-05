@@ -9,7 +9,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Hold for results of {@link NonLinearLeastSquareWithPenalty}
+ * Hold for results of {@link NonLinearLeastSquareWithPenalty}.
  */
 public class LeastSquareWithPenaltyResults extends LeastSquareResults {
 
@@ -19,7 +19,7 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
    * Holder for the results of minimising $\sum_{i=1}^N (y_i - f_i(\mathbf{x}))^2 + \mathbf{x}^T\mathbf{P}\mathbf{x}$
    * WRT $\mathbf{x}$  (the vector of model parameters). 
    * @param chiSqr The value of the first term (the chi-squared)- the sum of squares between the 'observed' values $y_i$ and the model values 
-   * $f_i(\mathbf{x})$ 
+   *   $f_i(\mathbf{x})$ 
    * @param penalty The value of the second term (the penalty) 
    * @param parameters The value of  $\mathbf{x}$ 
    * @param covariance The covariance matrix for  $\mathbf{x}$ 
@@ -34,7 +34,7 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
    * Holder for the results of minimising $\sum_{i=1}^N (y_i - f_i(\mathbf{x}))^2 + \mathbf{x}^T\mathbf{P}\mathbf{x}$
    * WRT $\mathbf{x}$  (the vector of model parameters). 
    * @param chiSqr The value of the first term (the chi-squared)- the sum of squares between the 'observed' values $y_i$ and the model values 
-   * $f_i(\mathbf{x})$ 
+   *   $f_i(\mathbf{x})$ 
    * @param penalty The value of the second term (the penalty) 
    * @param parameters The value of  $\mathbf{x}$ 
    * @param covariance The covariance matrix for  $\mathbf{x}$ 
@@ -47,7 +47,7 @@ public class LeastSquareWithPenaltyResults extends LeastSquareResults {
   }
 
   /**
-   * get the value of the penalty 
+   * Gets the value of the penalty.
    * @return the penalty 
    */
   public double getPenalty() {
