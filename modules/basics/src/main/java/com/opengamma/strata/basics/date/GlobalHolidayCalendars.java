@@ -408,7 +408,7 @@ final class GlobalHolidayCalendars {
   }
   
   //-------------------------------------------------------------------------
-  // generate DEFR
+  // generate FSX
   // data sources
   // http://www.xetra.com/xetra-en/trading/trading-information/trading-calendar
   // http://www.wallstreet-online.de/boersenfeiertage
