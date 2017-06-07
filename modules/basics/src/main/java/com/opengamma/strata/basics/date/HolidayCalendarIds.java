@@ -73,6 +73,22 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId CHZU = HolidayCalendarId.of("CHZU");
   /**
+   * An identifier for the holiday calendar of Frankfurt, Germany, with code 'DEFR'.
+   * <p>
+   * This constant references the calendar for the TARGET Frankfurt public holidays.
+   * <p>
+   * Referenced by the 2006 ISDA definitions 1.8.
+   */
+  public static final HolidayCalendarId DEFR = HolidayCalendarId.of("DEFR");
+  /**
+   * An identifier for the holiday calendar of the Frankfurt Stock Exchange (Xetra), with code 'FSX'.
+   * <p>
+   * This constant references the calendar for the Frankfurt Stock Exchange.
+   * <p>
+   * Referenced by the 2006 ISDA definitions 1.10.
+   */
+public static final HolidayCalendarId FSX = HolidayCalendarId.of("FSX");
+  /**
    * An identifier for the holiday calendar of the European Union TARGET system, with code 'EUTA'.
    * <p>
    * This constant references the calendar for the TARGET interbank payment system holidays.
