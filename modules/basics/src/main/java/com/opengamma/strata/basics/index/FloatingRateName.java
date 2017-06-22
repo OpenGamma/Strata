@@ -10,6 +10,7 @@ import java.util.Set;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
@@ -157,7 +158,7 @@ public interface FloatingRateName
    * @throws IllegalStateException if the type is not an Ibor index type
    */
   public default DaysAdjustment toIborIndexFixingOffset() {
-    return toIborIndex(Tenor.TENOR_3M).getFixingDateOffset();
+    return toIborIndex(Iterables.getFirst(getTenors(), Tenor.TENOR_3M)).getFixingDateOffset();
   }
 
   /**
