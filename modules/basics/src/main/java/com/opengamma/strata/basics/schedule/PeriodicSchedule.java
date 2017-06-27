@@ -796,30 +796,7 @@ public final class PeriodicSchedule
     return MoreObjects.firstNonNull(rollConvention, RollConventions.NONE);
   }
 
-  /**
-   * Calculates the applicable first regular start date.
-   * <p>
-   * This will be either 'firstRegularStartDate' or 'startDate'.
-   * 
-   * @return the non-null start date of the first regular period
-   */
-  public LocalDate calculatedFirstRegularStartDate() {
-    return MoreObjects.firstNonNull(firstRegularStartDate, startDate);
-  }
-
-  // calculates the first regular start date
-  // adjust when numeric roll convention present
-  private LocalDate calculatedFirstRegularStartDate(LocalDate unadjStart, ReferenceData refData) {
-    if (firstRegularStartDate == null) {
-      return unadjStart;
-    }
-    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
-    if (rollDom > 0 && firstRegularStartDate.getDayOfMonth() != rollDom && refData != null) {
-      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollDom, refData);
-    }
-    return firstRegularStartDate;
-  }
-
+  //-------------------------------------------------------------------------
   // calculates the applicable start date
   // applies de facto rule where EOM means last business day for startDate
   // and similar rule for numeric roll conventions
@@ -850,6 +827,31 @@ public final class PeriodicSchedule
       }
     }
     return baseDate;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the applicable first regular start date.
+   * <p>
+   * This will be either 'firstRegularStartDate' or 'startDate'.
+   * 
+   * @return the non-null start date of the first regular period
+   */
+  public LocalDate calculatedFirstRegularStartDate() {
+    return MoreObjects.firstNonNull(firstRegularStartDate, startDate);
+  }
+
+  // calculates the first regular start date
+  // adjust when numeric roll convention present
+  private LocalDate calculatedFirstRegularStartDate(LocalDate unadjStart, ReferenceData refData) {
+    if (firstRegularStartDate == null) {
+      return unadjStart;
+    }
+    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
+    if (rollDom > 0 && firstRegularStartDate.getDayOfMonth() != rollDom && refData != null) {
+      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollDom, refData);
+    }
+    return firstRegularStartDate;
   }
 
   /**
