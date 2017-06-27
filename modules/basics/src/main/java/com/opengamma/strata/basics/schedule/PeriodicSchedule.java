@@ -389,7 +389,6 @@ public final class PeriodicSchedule
    * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
-   * <li>the {@code firstRegularStartDate} property is null
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the specified start date
@@ -410,10 +409,11 @@ public final class PeriodicSchedule
    */
   public Schedule createSchedule(ReferenceData refData) {
     LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
+    LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
     LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
-    LocalDate regularEnd = calculatedLastRegularEndDate(refData);
+    LocalDate regularEnd = calculatedLastRegularEndDate(unadjEnd, refData);
     RollConvention rollConv = calculatedRollConvention(regularStart, regularEnd);
-    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, endDate, rollConv);
+    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, unadjEnd, rollConv);
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     List<SchedulePeriod> periods = new ArrayList<>();
     try {
@@ -488,7 +488,6 @@ public final class PeriodicSchedule
    * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
-   * <li>the {@code firstRegularStartDate} property is null
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the specified start date
@@ -509,10 +508,11 @@ public final class PeriodicSchedule
    */
   public ImmutableList<LocalDate> createUnadjustedDates(ReferenceData refData) {
     LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
+    LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
     LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
-    LocalDate regularEnd = calculatedLastRegularEndDate(refData);
+    LocalDate regularEnd = calculatedLastRegularEndDate(unadjEnd, refData);
     RollConvention rollConv = calculatedRollConvention(regularStart, regularEnd);
-    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, endDate, rollConv);
+    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, unadjEnd, rollConv);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
     if (deduplicated.size() < unadj.size()) {
@@ -710,7 +710,6 @@ public final class PeriodicSchedule
    * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
-   * <li>the {@code firstRegularStartDate} property is null
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the specified start date
@@ -731,10 +730,11 @@ public final class PeriodicSchedule
    */
   public ImmutableList<LocalDate> createAdjustedDates(ReferenceData refData) {
     LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
+    LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
     LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
-    LocalDate regularEnd = calculatedLastRegularEndDate(refData);
+    LocalDate regularEnd = calculatedLastRegularEndDate(unadjEnd, refData);
     RollConvention rollConv = calculatedRollConvention(regularStart, regularEnd);
-    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, endDate, rollConv);
+    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, unadjEnd, rollConv);
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
@@ -802,20 +802,38 @@ public final class PeriodicSchedule
   // and similar rule for numeric roll conventions
   // http://www.fpml.org/forums/topic/can-a-roll-convention-imply-a-stub/#post-7659
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
-    // only allow when firstRegularStartDate not used and start date adjustment is NONE
+    // change date if numeric roll convention
+    // and day-of-month actually differs
+    // and reference data is available
+    // and if EOM then the adjustment must be NONE (for backwards compatibility)
     int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
     if (rollDom > 0 &&
-        firstRegularStartDate == null &&
+        startDate.getDayOfMonth() != rollDom &&
         refData != null &&
-        BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
+        (rollDom < 31 || BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment))) {
 
-      return calculatedUnadjustedDateFromAdjusted(startDate, rollDom, refData);
+      return calculatedUnadjustedDateFromAdjusted(startDate, rollDom, businessDayAdjustment, refData);
     }
     return startDate;
   }
 
+  // calculates the applicable end date
+  // adjust when numeric roll convention present
+  private LocalDate calculatedUnadjustedEndDate(ReferenceData refData) {
+    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
+    if (rollDom > 0 && endDate.getDayOfMonth() != rollDom && refData != null) {
+      return calculatedUnadjustedDateFromAdjusted(endDate, rollDom, calculatedEndDateBusinessDayAdjustment(), refData);
+    }
+    return endDate;
+  }
+
   // calculates the applicable date based on the roll day-of-month
-  private LocalDate calculatedUnadjustedDateFromAdjusted(LocalDate baseDate, int rollDom, ReferenceData refData) {
+  private static LocalDate calculatedUnadjustedDateFromAdjusted(
+      LocalDate baseDate,
+      int rollDom,
+      BusinessDayAdjustment businessDayAdjustment,
+      ReferenceData refData) {
+
     int lengthOfMonth = baseDate.lengthOfMonth();
     int actualDom = Math.min(rollDom, lengthOfMonth);
     // startDate is already the expected day, then nothing to do
@@ -849,7 +867,7 @@ public final class PeriodicSchedule
     }
     int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
     if (rollDom > 0 && firstRegularStartDate.getDayOfMonth() != rollDom && refData != null) {
-      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollDom, refData);
+      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollDom, businessDayAdjustment, refData);
     }
     return firstRegularStartDate;
   }
@@ -867,13 +885,13 @@ public final class PeriodicSchedule
 
   // calculates the last regular end date
   // adjust when numeric roll convention present
-  private LocalDate calculatedLastRegularEndDate(ReferenceData refData) {
+  private LocalDate calculatedLastRegularEndDate(LocalDate unadjEnd, ReferenceData refData) {
     if (lastRegularEndDate == null) {
-      return endDate;
+      return unadjEnd;
     }
     int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
     if (rollDom > 0 && lastRegularEndDate.getDayOfMonth() != rollDom && refData != null) {
-      return calculatedUnadjustedDateFromAdjusted(lastRegularEndDate, rollDom, refData);
+      return calculatedUnadjustedDateFromAdjusted(lastRegularEndDate, rollDom, businessDayAdjustment, refData);
     }
     return lastRegularEndDate;
   }

@@ -390,6 +390,10 @@ public class PeriodicScheduleTest {
         {AUG_18, OCT_17, P1M, null, DAY_17, null, null, BDA_NONE,
             ImmutableList.of(AUG_17, SEP_17, OCT_17),
             ImmutableList.of(AUG_18, SEP_17, OCT_17), DAY_17},
+        // pre-adjusted start date, change needed, with adjustment
+        {AUG_18, OCT_17, P1M, null, DAY_17, null, null, BDA,
+            ImmutableList.of(AUG_17, SEP_17, OCT_17),
+            ImmutableList.of(AUG_18, SEP_17, OCT_17), DAY_17},
         // pre-adjusted first regular, change needed
         {JUL_11, OCT_17, P1M, null, DAY_17, AUG_18, null, BDA_NONE,
             ImmutableList.of(JUL_11, AUG_17, SEP_17, OCT_17),
@@ -402,6 +406,14 @@ public class PeriodicScheduleTest {
         {APR_01, OCT_17, P1M, null, DAY_17, MAY_19, AUG_18, BDA_NONE,
             ImmutableList.of(APR_01, MAY_17, JUN_17, JUL_17, AUG_17, OCT_17),
             ImmutableList.of(APR_01, MAY_19, JUN_17, JUL_17, AUG_18, OCT_17), DAY_17},
+        // pre-adjusted end date, change needed
+        {JUL_17, AUG_18, P1M, null, DAY_17, null, null, BDA_NONE,
+            ImmutableList.of(JUL_17, AUG_17),
+            ImmutableList.of(JUL_17, AUG_18), DAY_17},
+        // pre-adjusted end date, change needed, with adjustment
+        {JUL_17, AUG_18, P1M, null, DAY_17, null, null, BDA,
+            ImmutableList.of(JUL_17, AUG_17),
+            ImmutableList.of(JUL_17, AUG_18), DAY_17},
 
         // TERM period
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null, null,
