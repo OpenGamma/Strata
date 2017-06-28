@@ -261,6 +261,9 @@ public final class PeriodicSchedule
    * Note that all schedule generation rules apply to 'startDate', with this applied as a final step.
    * This field primarily exists to support the FpML 'firstPeriodStartDate' concept.
    * <p>
+   * If a roll convention is explicitly specified and the regular start date does not match it,
+   * then the override will be used when generating regular periods.
+   * <p>
    * If set, it should be different to the start date, although this is not validated.
    * Validation does check that it is before the 'firstRegularStartDate'.
    * <p>
@@ -545,11 +548,18 @@ public final class PeriodicSchedule
     }
     // calculate base schedule excluding explicit stubs
     StubConvention stubConv = generateImplicitStubConvention(explicitInitStub, explicitFinalStub);
-    return (stubConv.isCalculateBackwards() ?
-        generateBackwards(
-            this, regStart, regEnd, frequency, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end) :
-        generateForwards(
-            this, regStart, regEnd, frequency, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end));
+    // special fallback if there is an override start date with a specified roll convention
+    if (overrideStartDate != null &&
+        rollConvention != null &&
+        firstRegularStartDate == null &&
+        !rollConv.matches(regStart) &&
+        rollConv.matches(overrideStart)) {
+      return generateUnadjustedDates(
+          overrideStart, regEnd, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end);
+    } else {
+      return generateUnadjustedDates(
+          regStart, regEnd, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end);
+    }
   }
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
@@ -561,6 +571,26 @@ public final class PeriodicSchedule
       return stubConvention.toImplicit(this, explicitInitialStub, explicitFinalStub);
     }
     return StubConvention.NONE;
+  }
+
+  // generate dates, forwards or backwards
+  private List<LocalDate> generateUnadjustedDates(
+      LocalDate regStart,
+      LocalDate regEnd,
+      RollConvention rollConv,
+      StubConvention stubConv,
+      boolean explicitInitStub,
+      LocalDate overrideStart,
+      boolean explicitFinalStub,
+      LocalDate end) {
+
+    if (stubConv.isCalculateBackwards()) {
+      return generateBackwards(
+          this, regStart, regEnd, frequency, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end);
+    } else {
+      return generateForwards(
+          this, regStart, regEnd, frequency, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end);
+    }
   }
 
   // generate the schedule of dates backwards from the end
@@ -1204,6 +1234,9 @@ public final class PeriodicSchedule
    * If specified, it overrides the start date of the first period once schedule generation has been completed.
    * Note that all schedule generation rules apply to 'startDate', with this applied as a final step.
    * This field primarily exists to support the FpML 'firstPeriodStartDate' concept.
+   * <p>
+   * If a roll convention is explicitly specified and the regular start date does not match it,
+   * then the override will be used when generating regular periods.
    * <p>
    * If set, it should be different to the start date, although this is not validated.
    * Validation does check that it is before the 'firstRegularStartDate'.
@@ -1914,6 +1947,9 @@ public final class PeriodicSchedule
      * If specified, it overrides the start date of the first period once schedule generation has been completed.
      * Note that all schedule generation rules apply to 'startDate', with this applied as a final step.
      * This field primarily exists to support the FpML 'firstPeriodStartDate' concept.
+     * <p>
+     * If a roll convention is explicitly specified and the regular start date does not match it,
+     * then the override will be used when generating regular periods.
      * <p>
      * If set, it should be different to the start date, although this is not validated.
      * Validation does check that it is before the 'firstRegularStartDate'.
