@@ -394,9 +394,9 @@ public final class PeriodicSchedule
    *  yields the specified start date
    * </ul>
    * <p>
-   * There is additional special handling for pre-adjusted first/last regular dates.
-   * If the following conditions hold true, then the unadjusted first/last regular date is treated
-   * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
+   * There is additional special handling for pre-adjusted first/last regular dates and the end date.
+   * If the following conditions hold true, then the unadjusted date is treated as being the
+   * day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
@@ -493,9 +493,9 @@ public final class PeriodicSchedule
    *  yields the specified start date
    * </ul>
    * <p>
-   * There is additional special handling for pre-adjusted first/last regular dates.
-   * If the following conditions hold true, then the unadjusted first/last regular date is treated
-   * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
+   * There is additional special handling for pre-adjusted first/last regular dates and the end date.
+   * If the following conditions hold true, then the unadjusted date is treated as being the
+   * day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
@@ -715,9 +715,9 @@ public final class PeriodicSchedule
    *  yields the specified start date
    * </ul>
    * <p>
-   * There is additional special handling for pre-adjusted first/last regular dates.
-   * If the following conditions hold true, then the unadjusted first/last regular date is treated
-   * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
+   * There is additional special handling for pre-adjusted first/last regular dates and the end date.
+   * If the following conditions hold true, then the unadjusted date is treated as being the
+   * day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
@@ -805,12 +805,12 @@ public final class PeriodicSchedule
     // change date if numeric roll convention
     // and day-of-month actually differs
     // and reference data is available
-    // and if EOM then the adjustment must be NONE (for backwards compatibility)
+    // and explicit start adjustment must be NONE (not ideal, but meets backwards compatibility)
     int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
     if (rollDom > 0 &&
         startDate.getDayOfMonth() != rollDom &&
         refData != null &&
-        (rollDom < 31 || BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment))) {
+        BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
 
       return calculatedUnadjustedDateFromAdjusted(startDate, rollDom, businessDayAdjustment, refData);
     }
