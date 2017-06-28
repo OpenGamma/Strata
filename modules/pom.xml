@@ -639,7 +639,7 @@
     <assertj.version>3.6.2</assertj.version>
     <guava.version>20.0</guava.version>
     <jcommander.version>1.58</jcommander.version>
-    <joda-convert.version>1.8.1</joda-convert.version>
+    <joda-convert.version>1.8.2</joda-convert.version>
     <joda-beans.version>1.13</joda-beans.version>
     <mockito.version>2.7.8</mockito.version>
     <slf4j.version>1.7.23</slf4j.version>
