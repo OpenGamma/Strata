@@ -614,6 +614,64 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_override_fallbackWhenStartDateMismatch() {
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(JUL_04)
+        .endDate(SEP_17)
+        .overrideStartDate(AdjustableDate.of(JUN_17, BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
+        .frequency(P1M)
+        .businessDayAdjustment(BDA)
+        .rollConvention(DAY_17)
+        .build();
+    Schedule test = defn.createSchedule(REF_DATA);
+    assertEquals(test.size(), 3);
+    SchedulePeriod period0 = test.getPeriod(0);
+    assertEquals(period0.getUnadjustedStartDate(), JUN_17);
+    assertEquals(period0.getUnadjustedEndDate(), JUL_17);
+    assertEquals(period0.getStartDate(), JUN_17);
+    assertEquals(period0.getEndDate(), JUL_17);
+    SchedulePeriod period1 = test.getPeriod(1);
+    assertEquals(period1.getUnadjustedStartDate(), JUL_17);
+    assertEquals(period1.getUnadjustedEndDate(), AUG_17);
+    assertEquals(period1.getStartDate(), JUL_17);
+    assertEquals(period1.getEndDate(), AUG_18);
+    SchedulePeriod period2 = test.getPeriod(2);
+    assertEquals(period2.getUnadjustedStartDate(), AUG_17);
+    assertEquals(period2.getUnadjustedEndDate(), SEP_17);
+    assertEquals(period2.getStartDate(), AUG_18);
+    assertEquals(period2.getEndDate(), SEP_17);
+  }
+
+  public void test_override_fallbackWhenStartDateMismatchEndStub() {
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(JUL_04)
+        .endDate(SEP_04)
+        .overrideStartDate(AdjustableDate.of(JUN_17, BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
+        .frequency(P1M)
+        .businessDayAdjustment(BDA)
+        .rollConvention(DAY_17)
+        .lastRegularEndDate(AUG_17)
+        .build();
+    Schedule test = defn.createSchedule(REF_DATA);
+    assertEquals(test.size(), 3);
+    SchedulePeriod period0 = test.getPeriod(0);
+    assertEquals(period0.getUnadjustedStartDate(), JUN_17);
+    assertEquals(period0.getUnadjustedEndDate(), JUL_17);
+    assertEquals(period0.getStartDate(), JUN_17);
+    assertEquals(period0.getEndDate(), JUL_17);
+    SchedulePeriod period1 = test.getPeriod(1);
+    assertEquals(period1.getUnadjustedStartDate(), JUL_17);
+    assertEquals(period1.getUnadjustedEndDate(), AUG_17);
+    assertEquals(period1.getStartDate(), JUL_17);
+    assertEquals(period1.getEndDate(), AUG_18);
+    SchedulePeriod period2 = test.getPeriod(2);
+    assertEquals(period2.getUnadjustedStartDate(), AUG_17);
+    assertEquals(period2.getUnadjustedEndDate(), SEP_04);
+    assertEquals(period2.getStartDate(), AUG_18);
+    assertEquals(period2.getEndDate(), SEP_04);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_startEndAdjust() {
     BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, SAT_SUN);
     BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, SAT_SUN);
