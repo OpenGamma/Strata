@@ -64,9 +64,6 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
       LocalDate.of(2017, 4, 14), LocalDate.of(2017, 4, 13), LocalDate.of(2017, 4, 12), LocalDate.of(2017, 4, 11), LocalDate.of(2017, 4, 10),
       LocalDate.of(2017, 4, 9), LocalDate.of(2017, 4, 8), LocalDate.of(2017, 4, 7), LocalDate.of(2017, 4, 6)});
 
-  // tolerance
-  private static final double TOLERANCE = 1.0E-4;
-
   public void test_loadAllDates() {
     LocalDate sampleDate = ALL_DATES.get(3); // 2017-04-21
     ImmutableList<LocalDate> expDates = ImmutableList.of(

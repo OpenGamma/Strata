@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * Implementation of a quantile estimator.
  * <p>
  * The quantile is linearly interpolated between two sample values. The probability dimension
- * <i>p<subscript>i</subscript> on which the interpolation take place (X axis) varies between actual implementation
+ * <i>p<subscript>i</subscript></i> on which the interpolation take place (X axis) varies between actual implementation
  * of the abstract class. For each probability <i>p<subscript>i</subscript></i>, the cumulative distribution value is
  * the sample value with same index. The index used above are the Java index plus 1.
  * <p>
