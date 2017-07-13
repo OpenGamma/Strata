@@ -9,8 +9,7 @@ import java.util.function.Function;
 
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
-
-import cern.jet.random.engine.RandomEngine;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 
 /**
  * StudentT calculator.

@@ -9,11 +9,10 @@ import java.util.Date;
 import java.util.function.DoubleBinaryOperator;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.cern.ChiSquare;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteGammaFunction;
-
-import cern.jet.random.ChiSquare;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
 
 /**
  * A $\chi^2$ distribution with $k$ degrees of freedom is the distribution of
