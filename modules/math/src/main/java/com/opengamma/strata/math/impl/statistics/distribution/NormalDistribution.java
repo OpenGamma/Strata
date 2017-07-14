@@ -8,11 +8,10 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 import java.util.Date;
 
 import com.opengamma.strata.collect.ArgChecker;
-
-import cern.jet.random.Normal;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
-import cern.jet.stat.Probability;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
+import com.opengamma.strata.math.impl.cern.Normal;
+import com.opengamma.strata.math.impl.cern.Probability;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 
 /**
  * The normal distribution is a continuous probability distribution with probability density function

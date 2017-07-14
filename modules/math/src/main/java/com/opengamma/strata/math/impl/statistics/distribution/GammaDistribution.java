@@ -8,10 +8,9 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 import java.util.Date;
 
 import com.opengamma.strata.collect.ArgChecker;
-
-import cern.jet.random.Gamma;
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
+import com.opengamma.strata.math.impl.cern.Gamma;
+import com.opengamma.strata.math.impl.cern.MersenneTwister;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 
 /**
  * The Gamma distribution is a continuous probability distribution with cdf

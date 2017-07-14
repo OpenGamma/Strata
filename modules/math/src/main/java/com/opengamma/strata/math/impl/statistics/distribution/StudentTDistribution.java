@@ -9,12 +9,11 @@ import java.util.Date;
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
+import com.opengamma.strata.math.impl.cern.StudentT;
 import com.opengamma.strata.math.impl.function.special.GammaFunction;
 import com.opengamma.strata.math.impl.function.special.InverseIncompleteBetaFunction;
-
-import cern.jet.random.StudentT;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
 
 /**
  * Student's T-distribution is a continuous probability distribution with probability density function
