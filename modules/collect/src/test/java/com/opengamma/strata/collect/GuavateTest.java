@@ -40,6 +40,14 @@ import com.opengamma.strata.collect.tuple.Pair;
 public class GuavateTest {
 
   //-------------------------------------------------------------------------
+  public void test_concatToList() {
+    Iterable<String> iterable1 = Arrays.asList("a", "b", "c");
+    Iterable<String> iterable2 = Arrays.asList("d", "e", "f");
+    List<String> test = Guavate.concatToList(iterable1, iterable2);
+    assertEquals(test, ImmutableList.of("a", "b", "c", "d", "e", "f"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_stream_Iterable() {
     Iterable<String> iterable = Arrays.asList("a", "b", "c");
     List<String> test = Guavate.stream(iterable)

@@ -10,9 +10,12 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.Guavate;
 
 /**
  * Test {@link ValueWithFailures}.
@@ -42,6 +45,14 @@ public class ValueWithFailuresTest {
     ValueWithFailures<String> test = ValueWithFailures.of("success", ImmutableList.of(FAILURE1, FAILURE2));
     assertEquals(test.hasFailures(), true);
     assertEquals(test.getValue(), "success");
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  public void test_combinedWith() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<List<String>> other = ValueWithFailures.of(ImmutableList.of("b", "c"), ImmutableList.of(FAILURE2));
+    ValueWithFailures<List<String>> test = base.combinedWith(other, Guavate::concatToList);
+    assertEquals(test.getValue(), ImmutableList.of("a", "b", "c"));
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
