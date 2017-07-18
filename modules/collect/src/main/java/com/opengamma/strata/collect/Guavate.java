@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -48,6 +49,22 @@ public final class Guavate {
    * Restricted constructor.
    */
   private Guavate() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Concatenates a number of iterables into a single list.
+   * <p>
+   * This is harder than it should be, a method {@code Stream.of(Iterable)}
+   * would have been appropriate, but cannot be added now.
+   * 
+   * @param <T>  the type of element in the iterable
+   * @param iterables  the iterables to combine
+   * @return the list that combines the inputs
+   */
+  @SafeVarargs
+  public static <T> ImmutableList<T> concatToList(Iterable<T>... iterables) {
+    return ImmutableList.copyOf(Iterables.concat(iterables));
   }
 
   //-------------------------------------------------------------------------

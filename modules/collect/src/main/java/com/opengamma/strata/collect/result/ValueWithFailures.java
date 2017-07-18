@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.collect.result;
 
+import static com.opengamma.strata.collect.Guavate.concatToList;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -84,6 +87,21 @@ public final class ValueWithFailures<T>
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Combines this instance with another.
+   * <p>
+   * The combining function will often be {@code Guavate::concatToList}.
+   * 
+   * @param other  the other instance
+   * @param combiner  function that combines the two data structure
+   * @return true if there are any failures
+   */
+  public ValueWithFailures<T> combinedWith(ValueWithFailures<T> other, BinaryOperator<T> combiner) {
+    T combinedValues = combiner.apply(value, other.value);
+    ImmutableList<FailureItem> combinedFailures = concatToList(failures, other.failures);
+    return of(combinedValues, combinedFailures);
+  }
+
   /**
    * Checks if there are any failures.
    *
