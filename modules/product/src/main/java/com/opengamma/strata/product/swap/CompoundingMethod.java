@@ -8,8 +8,8 @@ package com.opengamma.strata.product.swap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * A convention defining how to compound interest.
@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * For more information see this <a href="http://www.isda.org/c_and_a/pdf/ISDA-Compounding-memo.pdf">ISDA note</a>.
  */
-public enum CompoundingMethod {
+public enum CompoundingMethod implements NamedEnum {
 
   /**
    * No compounding applies.
@@ -58,30 +58,35 @@ public enum CompoundingMethod {
    */
   SPREAD_EXCLUSIVE;
 
+  // helper for name conversions
+  private static final EnumNames<CompoundingMethod> NAMES = EnumNames.of(CompoundingMethod.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static CompoundingMethod of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static CompoundingMethod of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

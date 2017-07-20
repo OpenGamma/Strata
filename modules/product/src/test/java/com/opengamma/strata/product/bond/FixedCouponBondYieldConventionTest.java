@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Locale;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -38,6 +40,21 @@ public class FixedCouponBondYieldConventionTest {
   @Test(dataProvider = "name")
   public void test_of_lookup(FixedCouponBondYieldConvention convention, String name) {
     assertEquals(FixedCouponBondYieldConvention.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupUpperCase(FixedCouponBondYieldConvention convention, String name) {
+    assertEquals(FixedCouponBondYieldConvention.of(name.toUpperCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupLowerCase(FixedCouponBondYieldConvention convention, String name) {
+    assertEquals(FixedCouponBondYieldConvention.of(name.toLowerCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupStandard(FixedCouponBondYieldConvention convention, String name) {
+    assertEquals(FixedCouponBondYieldConvention.of(convention.name()), convention);
   }
 
   public void test_of_lookup_notFound() {

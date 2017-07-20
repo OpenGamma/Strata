@@ -5,12 +5,11 @@
  */
 package com.opengamma.strata.product.fra;
 
-import java.util.Locale;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * A convention defining how to discount Forward Rate Agreements (FRAs).
@@ -20,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * Defined by the 2006 ISDA definitions article 8.4.
  */
-public enum FraDiscountingMethod {
+public enum FraDiscountingMethod implements NamedEnum {
 
   /**
    * No discounting applies.
@@ -39,6 +38,9 @@ public enum FraDiscountingMethod {
    */
   AFMA("AFMA");
 
+  // helper for name conversions
+  private static final EnumNames<FraDiscountingMethod> NAMES = EnumNames.ofManualToString(FraDiscountingMethod.class);
+
   // name
   private final String name;
 
@@ -49,22 +51,23 @@ public enum FraDiscountingMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FraDiscountingMethod of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.toUpperCase(Locale.ENGLISH));
+  public static FraDiscountingMethod of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-  /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
