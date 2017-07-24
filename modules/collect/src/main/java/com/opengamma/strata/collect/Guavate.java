@@ -69,6 +69,30 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
+   * Uses a number of suppliers to create a single optional result.
+   * <p>
+   * The Java 8 {@link Optional} class does not have an {@code or} method,
+   * so this provides an alternative.
+   * 
+   * @param <T>  the type of element in the iterable
+   * @param suppliers  the suppliers to combine
+   * @return the list that combines the inputs
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  public static <T> Optional<T> firstNotEmpty(Supplier<Optional<? extends T>>... suppliers) {
+    for (Supplier<Optional<? extends T>> supplier : suppliers) {
+      Optional<? extends T> result = supplier.get();
+      if (result.isPresent()) {
+        // safe, because Optional is read-only
+        return (Optional<T>) result;
+      }
+    }
+    return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Converts an iterable to a serial stream.
    * <p>
    * This is harder than it should be, a method {@code Stream.of(Iterable)}

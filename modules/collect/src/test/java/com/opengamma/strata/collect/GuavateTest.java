@@ -48,6 +48,28 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_firstNotEmpty_match1() {
+    Optional<Number> test = Guavate.firstNotEmpty(
+        () -> Optional.of(Integer.valueOf(1)),
+        () -> Optional.of(Double.valueOf(2d)));
+    assertEquals(test, Optional.of(Integer.valueOf(1)));
+  }
+
+  public void test_firstNotEmpty_match2() {
+    Optional<Number> test = Guavate.firstNotEmpty(
+        () -> Optional.empty(),
+        () -> Optional.of(Double.valueOf(2d)));
+    assertEquals(test, Optional.of(Double.valueOf(2d)));
+  }
+
+  public void test_firstNotEmpty_matchNone() {
+    Optional<Number> test = Guavate.firstNotEmpty(
+        () -> Optional.empty(),
+        () -> Optional.empty());
+    assertEquals(test, Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_stream_Iterable() {
     Iterable<String> iterable = Arrays.asList("a", "b", "c");
     List<String> test = Guavate.stream(iterable)

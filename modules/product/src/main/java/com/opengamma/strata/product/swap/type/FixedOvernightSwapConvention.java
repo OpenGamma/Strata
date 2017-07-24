@@ -13,12 +13,10 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.product.TradeConvention;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -34,7 +32,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * To register a specific convention, see {@code FixedOvernightSwapConvention.ini}.
  */
 public interface FixedOvernightSwapConvention
-    extends TradeConvention, Named {
+    extends SingleCurrencySwapConvention, Named {
 
   /**
    * Obtains an instance from the specified unique name.
@@ -76,16 +74,6 @@ public interface FixedOvernightSwapConvention
    */
   public abstract OvernightRateSwapLegConvention getFloatingLeg();
 
-  /**
-   * Gets the offset of the spot value date from the trade date.
-   * <p>
-   * The offset is applied to the trade date to find the start date.
-   * A typical value is "plus 2 business days".
-   * 
-   * @return the spot date offset, not null
-   */
-  public abstract DaysAdjustment getSpotDateOffset();
-
   //-------------------------------------------------------------------------
   /**
    * Creates a spot-starting trade based on this convention.
@@ -106,6 +94,7 @@ public interface FixedOvernightSwapConvention
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
+  @Override
   public default SwapTrade createTrade(
       LocalDate tradeDate,
       Tenor tenor,
@@ -114,7 +103,8 @@ public interface FixedOvernightSwapConvention
       double fixedRate,
       ReferenceData refData) {
 
-    return createTrade(tradeDate, Period.ZERO, tenor, buySell, notional, fixedRate, refData);
+    // override for Javadoc
+    return SingleCurrencySwapConvention.super.createTrade(tradeDate, tenor, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -138,6 +128,7 @@ public interface FixedOvernightSwapConvention
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
+  @Override
   public default SwapTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
@@ -147,10 +138,8 @@ public interface FixedOvernightSwapConvention
       double fixedRate,
       ReferenceData refData) {
 
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
-    LocalDate startDate = spotValue.plus(periodToStart);
-    LocalDate endDate = startDate.plus(tenor.getPeriod());
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
+    // override for Javadoc
+    return SingleCurrencySwapConvention.super.createTrade(tradeDate, periodToStart, tenor, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -170,6 +159,7 @@ public interface FixedOvernightSwapConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
+  @Override
   public default SwapTrade toTrade(
       LocalDate tradeDate,
       LocalDate startDate,
@@ -178,8 +168,8 @@ public interface FixedOvernightSwapConvention
       double notional,
       double fixedRate) {
 
-    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
-    return toTrade(tradeInfo, startDate, endDate, buySell, notional, fixedRate);
+    // override for Javadoc
+    return SingleCurrencySwapConvention.super.toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }
 
   /**
@@ -199,6 +189,7 @@ public interface FixedOvernightSwapConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
+  @Override
   public abstract SwapTrade toTrade(
       TradeInfo tradeInfo,
       LocalDate startDate,
@@ -206,19 +197,6 @@ public interface FixedOvernightSwapConvention
       BuySell buySell,
       double notional,
       double fixedRate);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the spot date from the trade date.
-   * 
-   * @param tradeDate  the trade date
-   * @param refData  the reference data, used to resolve the date
-   * @return the spot date
-   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
-   */
-  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
-    return getSpotDateOffset().adjust(tradeDate, refData);
-  }
 
   //-------------------------------------------------------------------------
   /**
