@@ -63,30 +63,21 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
   }
 
   // restricted constructor
-  private EnumNames(Class<T> enumType, boolean specialToString) {
+  private EnumNames(Class<T> enumType, boolean manualToString) {
     ArgChecker.notNull(enumType, "enumType");
     SortedMap<String, T> map = new TreeMap<>();
     SortedSet<String> formattedSet = new TreeSet<>();
     EnumMap<T, String> formatMap = new EnumMap<>(enumType);
     for (T value : enumType.getEnumConstants()) {
+      String formatted = manualToString ? value.toString() : CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, value.name());
       map.put(value.name(), value);
       map.put(value.name().toUpperCase(Locale.ENGLISH), value);
       map.put(value.name().toLowerCase(Locale.ENGLISH), value);
-      if (specialToString) {
-        String toString = value.toString();
-        map.put(toString, value);
-        map.put(toString.toUpperCase(Locale.ENGLISH), value);
-        map.put(toString.toLowerCase(Locale.ENGLISH), value);
-        formattedSet.add(toString);
-        formatMap.put(value, toString);
-      } else {
-        String formatted = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, value.name());
-        map.put(formatted, value);
-        map.put(formatted.toUpperCase(Locale.ENGLISH), value);
-        map.put(formatted.toLowerCase(Locale.ENGLISH), value);
-        formattedSet.add(formatted);
-        formatMap.put(value, formatted);
-      }
+      map.put(formatted, value);
+      map.put(formatted.toUpperCase(Locale.ENGLISH), value);
+      map.put(formatted.toLowerCase(Locale.ENGLISH), value);
+      formattedSet.add(formatted);
+      formatMap.put(value, formatted);
     }
     this.parseMap = ImmutableSortedMap.copyOf(map);
     this.formattedSet = ImmutableSortedSet.copyOf(formattedSet);
