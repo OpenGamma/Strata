@@ -5,12 +5,18 @@
  */
 package com.opengamma.strata.collect.result;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
+
 /**
  * Represents the reason why failure occurred.
  * <p>
  * Each failure is categorized as one of the following reasons.
  */
-public enum FailureReason {
+public enum FailureReason implements NamedEnum {
 
   /**
    * There were multiple failures of different types.
@@ -80,5 +86,37 @@ public enum FailureReason {
    * more descriptive reason added.
    */
   OTHER;
+
+  // helper for name conversions
+  // this enum is unusual in that the names are just the standard enum names
+  private static final EnumNames<FailureReason> NAMES = EnumNames.ofManualToString(FailureReason.class);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
+   * 
+   * @param name  the name to parse
+   * @return the type
+   * @throws IllegalArgumentException if the name is not known
+   */
+  @FromString
+  public static FailureReason of(String name) {
+    return NAMES.parse(name);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the formatted name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return name();
+  }
 
 }

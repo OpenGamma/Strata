@@ -8,8 +8,8 @@ package com.opengamma.strata.product.common;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * Flag indicating whether a trade is "long" or "short".
@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * that its value will rise. A short position is the opposite where the expectation
  * is that its value will fall, usually applied to the sale of a borrowed asset.
  */
-public enum LongShort {
+public enum LongShort implements NamedEnum {
 
   /**
    * Long.
@@ -28,6 +28,9 @@ public enum LongShort {
    * Short.
    */
   SHORT(-1);
+
+  // helper for name conversions
+  private static final EnumNames<LongShort> NAMES = EnumNames.of(LongShort.class);
 
   /**
    * True if long, used to avoid a branch.
@@ -40,18 +43,21 @@ public enum LongShort {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static LongShort of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static LongShort of(String name) {
+    return NAMES.parse(name);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Converts a boolean "is long" flag to the enum value.
    * 
@@ -98,14 +104,14 @@ public enum LongShort {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

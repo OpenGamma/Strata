@@ -8,8 +8,8 @@ package com.opengamma.strata.product.common;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * Flag indicating whether a trade is "buy" or "sell".
@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * of interest in exchange for a fixed rate, whereas the seller pays the floating rate.
  * This flag is stored on the instrument to indicate whether it was bought or sold.
  */
-public enum BuySell {
+public enum BuySell implements NamedEnum {
 
   /**
    * Buy.
@@ -30,18 +30,23 @@ public enum BuySell {
    */
   SELL;
 
+  // helper for name conversions
+  private static final EnumNames<BuySell> NAMES = EnumNames.of(BuySell.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static BuySell of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static BuySell of(String name) {
+    return NAMES.parse(name);
   }
 
   /**
@@ -91,14 +96,14 @@ public enum BuySell {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

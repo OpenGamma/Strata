@@ -34,6 +34,7 @@ import static java.time.Month.OCTOBER;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Locale;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -237,6 +238,16 @@ public class StubConventionTest {
   @Test(dataProvider = "name")
   public void test_of_lookup(StubConvention convention, String name) {
     assertEquals(StubConvention.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupUpperCase(StubConvention convention, String name) {
+    assertEquals(StubConvention.of(name.toUpperCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupLowerCase(StubConvention convention, String name) {
+    assertEquals(StubConvention.of(name.toLowerCase(Locale.ENGLISH)), convention);
   }
 
   public void test_of_lookup_notFound() {

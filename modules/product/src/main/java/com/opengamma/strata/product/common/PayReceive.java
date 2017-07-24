@@ -8,8 +8,8 @@ package com.opengamma.strata.product.common;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * Flag indicating whether a financial instrument is "pay" or "receive".
@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * For example, a swap typically has two legs, a pay leg, where payments are made
  * to the counterparty, and a receive leg, where payments are received.
  */
-public enum PayReceive {
+public enum PayReceive implements NamedEnum {
 
   /**
    * Pay.
@@ -29,18 +29,23 @@ public enum PayReceive {
    */
   RECEIVE;
 
+  // helper for name conversions
+  private static final EnumNames<PayReceive> NAMES = EnumNames.of(PayReceive.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static PayReceive of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static PayReceive of(String name) {
+    return NAMES.parse(name);
   }
 
   /**
@@ -104,14 +109,14 @@ public enum PayReceive {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Locale;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -53,6 +55,16 @@ public class PutCallTest {
   @Test(dataProvider = "name")
   public void test_of_lookup(PutCall convention, String name) {
     assertEquals(PutCall.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupUpperCase(PutCall convention, String name) {
+    assertEquals(PutCall.of(name.toUpperCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupLowerCase(PutCall convention, String name) {
+    assertEquals(PutCall.of(name.toLowerCase(Locale.ENGLISH)), convention);
   }
 
   public void test_of_lookup_notFound() {

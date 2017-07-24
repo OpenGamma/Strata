@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.credit;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * The formula for accrual on default.
@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * This specifies which formula is used in {@code IsdaCdsProductPricer} for computing the accrued payment on default. 
  * The formula is 'original ISDA', 'Markit fix' or 'correct'.
  */
-public enum AccrualOnDefaultFormula {
+public enum AccrualOnDefaultFormula implements NamedEnum {
 
   /**
    * The formula in v1.8.1 and below.
@@ -34,6 +34,9 @@ public enum AccrualOnDefaultFormula {
    */
   CORRECT("Correct");
 
+  // helper for name conversions
+  private static final EnumNames<AccrualOnDefaultFormula> NAMES = EnumNames.ofManualToString(AccrualOnDefaultFormula.class);
+
   // name
   private final String name;
 
@@ -44,31 +47,18 @@ public enum AccrualOnDefaultFormula {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static AccrualOnDefaultFormula of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    String str = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName);
-    if (str.endsWith("I_S_D_A")) {
-      str = "ORIGINAL_ISDA";
-    }
-    return valueOf(str);
-  }
-
-  /**
-   * Returns the formatted unique name of the type.
-   * 
-   * @return the formatted string representing the type
-   */
-  @ToString
-  @Override
-  public String toString() {
-    return name;
+  public static AccrualOnDefaultFormula of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
@@ -85,6 +75,18 @@ public enum AccrualOnDefaultFormula {
     } else {
       return 0d;
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the formatted name of the type.
+   * 
+   * @return the formatted string representing the type
+   */
+  @ToString
+  @Override
+  public String toString() {
+    return name;
   }
 
 }

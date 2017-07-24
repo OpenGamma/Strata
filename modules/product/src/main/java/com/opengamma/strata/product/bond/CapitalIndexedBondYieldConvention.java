@@ -5,12 +5,11 @@
  */
 package com.opengamma.strata.product.bond;
 
-import java.util.Locale;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * A convention defining accrued interest calculation type for inflation bond securities.
@@ -23,7 +22,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * "Inflation Instruments: Swap Zero-coupon, Year-on-year and Bonds."
  */
-public enum CapitalIndexedBondYieldConvention {
+public enum CapitalIndexedBondYieldConvention implements NamedEnum {
 
   /**
    * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
@@ -50,6 +49,10 @@ public enum CapitalIndexedBondYieldConvention {
    */
   JP_IL_COMPOUND("JP-I/L-Compound");
 
+  // helper for name conversions
+  private static final EnumNames<CapitalIndexedBondYieldConvention> NAMES =
+      EnumNames.ofManualToString(CapitalIndexedBondYieldConvention.class);
+
   // name
   private final String name;
 
@@ -60,22 +63,23 @@ public enum CapitalIndexedBondYieldConvention {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static CapitalIndexedBondYieldConvention of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.replace('-', '_').replace("/", "").toUpperCase(Locale.ENGLISH));
+  public static CapitalIndexedBondYieldConvention of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-  /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */

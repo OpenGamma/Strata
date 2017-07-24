@@ -10,12 +10,12 @@ import java.util.Optional;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameter;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionVolatilities;
 import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
@@ -32,7 +32,7 @@ import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
  * <p>
  * Implementations of this interface must be immutable.
  */
-public enum FxSingleBarrierOptionMethod implements CalculationParameter {
+public enum FxSingleBarrierOptionMethod implements NamedEnum, CalculationParameter {
 
   /**
    * The Black (lognormal) model.
@@ -45,18 +45,23 @@ public enum FxSingleBarrierOptionMethod implements CalculationParameter {
    */
   TRINOMIAL_TREE;
 
+  // helper for name conversions
+  private static final EnumNames<FxSingleBarrierOptionMethod> NAMES = EnumNames.of(FxSingleBarrierOptionMethod.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FxSingleBarrierOptionMethod of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static FxSingleBarrierOptionMethod of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
@@ -70,14 +75,14 @@ public enum FxSingleBarrierOptionMethod implements CalculationParameter {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Locale;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -39,6 +41,21 @@ public class CapitalIndexedBondYieldConventionTest {
   @Test(dataProvider = "name")
   public void test_of_lookup(CapitalIndexedBondYieldConvention convention, String name) {
     assertEquals(CapitalIndexedBondYieldConvention.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupUpperCase(CapitalIndexedBondYieldConvention convention, String name) {
+    assertEquals(CapitalIndexedBondYieldConvention.of(name.toUpperCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupLowerCase(CapitalIndexedBondYieldConvention convention, String name) {
+    assertEquals(CapitalIndexedBondYieldConvention.of(name.toLowerCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupStandard(CapitalIndexedBondYieldConvention convention, String name) {
+    assertEquals(CapitalIndexedBondYieldConvention.of(convention.name()), convention);
   }
 
   public void test_of_lookup_notFound() {

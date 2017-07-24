@@ -8,8 +8,8 @@ package com.opengamma.strata.product.swap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * Reference price index calculation method.
@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013, 
  * "Inflation Instruments: Swap Zero-coupon, Year-on-year and Bonds."
  */
-public enum PriceIndexCalculationMethod {
+public enum PriceIndexCalculationMethod implements NamedEnum {
 
   /**
    * The reference index is the price index of a month.
@@ -39,29 +39,35 @@ public enum PriceIndexCalculationMethod {
    */
   INTERPOLATED_JAPAN;
 
+  // helper for name conversions
+  private static final EnumNames<PriceIndexCalculationMethod> NAMES = EnumNames.of(PriceIndexCalculationMethod.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains the type from a unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static PriceIndexCalculationMethod of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static PriceIndexCalculationMethod of(String name) {
+    return NAMES.parse(name);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }
