@@ -7,7 +7,6 @@ package com.opengamma.strata.product.deposit.type;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -25,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -119,20 +117,6 @@ public final class ImmutableTermDepositConvention
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public TermDepositTrade createTrade(
-      LocalDate tradeDate,
-      Period depositPeriod,
-      BuySell buySell,
-      double notional,
-      double rate,
-      ReferenceData refData) {
-
-    LocalDate startDate = calculateSpotDateFromTradeDate(tradeDate, refData);
-    LocalDate endDate = startDate.plus(depositPeriod);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, rate);
-  }
-
   @Override
   public TermDepositTrade toTrade(
       TradeInfo tradeInfo,

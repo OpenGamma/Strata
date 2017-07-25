@@ -48,6 +48,44 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_firstNonEmpty_supplierMatch1() {
+    Optional<Number> test = Guavate.firstNonEmpty(
+        () -> Optional.of(Integer.valueOf(1)),
+        () -> Optional.of(Double.valueOf(2d)));
+    assertEquals(test, Optional.of(Integer.valueOf(1)));
+  }
+
+  public void test_firstNonEmpty_supplierMatch2() {
+    Optional<Number> test = Guavate.firstNonEmpty(
+        () -> Optional.empty(),
+        () -> Optional.of(Double.valueOf(2d)));
+    assertEquals(test, Optional.of(Double.valueOf(2d)));
+  }
+
+  public void test_firstNonEmpty_supplierMatchNone() {
+    Optional<Number> test = Guavate.firstNonEmpty(
+        () -> Optional.empty(),
+        () -> Optional.empty());
+    assertEquals(test, Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_firstNonEmpty_optionalMatch1() {
+    Optional<Number> test = Guavate.firstNonEmpty(Optional.of(Integer.valueOf(1)), Optional.of(Double.valueOf(2d)));
+    assertEquals(test, Optional.of(Integer.valueOf(1)));
+  }
+
+  public void test_firstNonEmpty_optionalMatch2() {
+    Optional<Number> test = Guavate.firstNonEmpty(Optional.empty(), Optional.of(Double.valueOf(2d)));
+    assertEquals(test, Optional.of(Double.valueOf(2d)));
+  }
+
+  public void test_firstNonEmpty_optionalMatchNone() {
+    Optional<Number> test = Guavate.firstNonEmpty(Optional.empty(), Optional.empty());
+    assertEquals(test, Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_stream_Iterable() {
     Iterable<String> iterable = Arrays.asList("a", "b", "c");
     List<String> test = Guavate.stream(iterable)
