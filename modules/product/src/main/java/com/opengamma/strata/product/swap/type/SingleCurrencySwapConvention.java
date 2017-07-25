@@ -42,7 +42,7 @@ public interface SingleCurrencySwapConvention
   @FromString
   public static SingleCurrencySwapConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return Guavate.firstNotEmpty(
+    return Guavate.firstNonEmpty(
         () -> FixedIborSwapConvention.extendedEnum().find(uniqueName),
         () -> IborIborSwapConvention.extendedEnum().find(uniqueName),
         () -> FixedOvernightSwapConvention.extendedEnum().find(uniqueName),
