@@ -38,6 +38,10 @@ final class StandardFixedInflationSwapConventions {
    * Three month lag.
    */
   private static final Period LAG_3M = Period.ofMonths(3);
+  /**
+   * Two month lag.
+   */
+  private static final Period LAG_2M = Period.ofMonths(2);
 
   /**
    * GBP vanilla fixed vs UK HCIP swap.
@@ -58,7 +62,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "GBP-FIXED-ZC-GB-RPI",
           fixedLegZcConvention(GBP, GBLO),
-          InflationRateSwapLegConvention.of(PriceIndices.GB_RPI, LAG_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
+          InflationRateSwapLegConvention.of(PriceIndices.GB_RPI, LAG_2M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
   /**
