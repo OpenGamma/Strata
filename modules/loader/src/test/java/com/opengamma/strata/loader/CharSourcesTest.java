@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.loader;
 
 import static org.testng.Assert.assertEquals;
