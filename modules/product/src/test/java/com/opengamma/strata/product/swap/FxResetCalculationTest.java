@@ -51,15 +51,14 @@ public class FxResetCalculationTest {
     assertEquals(test.getFixingRelativeTo(), FxResetFixingRelativeTo.PERIOD_START);
   }
 
-  public void test_builder_defaultFixingRelativeTo() {
+  public void test_builder_defaults() {
     FxResetCalculation test = FxResetCalculation.builder()
         .index(EUR_GBP_ECB)
         .referenceCurrency(GBP)
-        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     assertEquals(test.getIndex(), EUR_GBP_ECB);
     assertEquals(test.getReferenceCurrency(), GBP);
-    assertEquals(test.getFixingDateOffset(), MINUS_TWO_DAYS);
+    assertEquals(test.getFixingDateOffset(), EUR_GBP_ECB.getFixingDateOffset());
     assertEquals(test.getFixingRelativeTo(), FxResetFixingRelativeTo.PERIOD_START);
   }
 

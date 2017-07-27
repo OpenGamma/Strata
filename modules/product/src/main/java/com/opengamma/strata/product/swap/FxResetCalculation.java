@@ -16,6 +16,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -90,6 +91,8 @@ public final class FxResetCalculation
    * <p>
    * The offset is applied to the base date specified by {@code fixingRelativeTo}.
    * The offset is typically a negative number of business days.
+   * <p>
+   * When building, this will default to the fixing offset of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment fixingDateOffset;
@@ -98,6 +101,13 @@ public final class FxResetCalculation
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.fixingRelativeTo(FxResetFixingRelativeTo.PERIOD_START);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.fixingDateOffset == null && builder.index != null) {
+      builder.fixingDateOffset = builder.index.getFixingDateOffset();
+    }
   }
 
   @ImmutableValidator
@@ -245,6 +255,8 @@ public final class FxResetCalculation
    * <p>
    * The offset is applied to the base date specified by {@code fixingRelativeTo}.
    * The offset is typically a negative number of business days.
+   * <p>
+   * When building, this will default to the fixing offset of the index if not specified.
    * @return the value of the property, not null
    */
   public DaysAdjustment getFixingDateOffset() {
@@ -538,6 +550,7 @@ public final class FxResetCalculation
 
     @Override
     public FxResetCalculation build() {
+      preBuild(this);
       return new FxResetCalculation(
           index,
           referenceCurrency,
@@ -599,6 +612,8 @@ public final class FxResetCalculation
      * <p>
      * The offset is applied to the base date specified by {@code fixingRelativeTo}.
      * The offset is typically a negative number of business days.
+     * <p>
+     * When building, this will default to the fixing offset of the index if not specified.
      * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */

@@ -15,6 +15,7 @@ import java.util.function.Function;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,6 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
@@ -71,13 +74,36 @@ public final class ImmutableFxIndex
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final HolidayCalendarId fixingCalendar;
   /**
+   * The adjustment applied to the maturity date to obtain the fixing date.
+   * <p>
+   * The maturity date is the start date of the indexed deposit.
+   * In most cases, the fixing date is 2 days before the maturity date.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final DaysAdjustment fixingDateOffset;
+  /**
    * The adjustment applied to the fixing date to obtain the maturity date.
    * <p>
    * The maturity date is the start date of the indexed deposit.
    * In most cases, the maturity date is 2 days after the fixing date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DaysAdjustment maturityDateOffset;
+
+  //-------------------------------------------------------------------------
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.fixingDateOffset == null && builder.fixingCalendar != null && builder.maturityDateOffset != null) {
+      int days = builder.maturityDateOffset.getDays();
+      HolidayCalendarId maturityCal = builder.maturityDateOffset.getCalendar();
+      if (maturityCal.combinedWith(builder.fixingCalendar).equals(maturityCal)) {
+        builder.fixingDateOffset = DaysAdjustment.ofBusinessDays(-days, maturityCal);
+      } else {
+        builder.fixingDateOffset = DaysAdjustment.ofBusinessDays(
+            -days, maturityCal, BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, builder.fixingCalendar));
+      }
+    }
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -186,14 +212,17 @@ public final class ImmutableFxIndex
       String name,
       CurrencyPair currencyPair,
       HolidayCalendarId fixingCalendar,
+      DaysAdjustment fixingDateOffset,
       DaysAdjustment maturityDateOffset) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currencyPair, "currencyPair");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
+    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
     JodaBeanUtils.notNull(maturityDateOffset, "maturityDateOffset");
     this.name = name;
     this.currencyPair = currencyPair;
     this.fixingCalendar = fixingCalendar;
+    this.fixingDateOffset = fixingDateOffset;
     this.maturityDateOffset = maturityDateOffset;
   }
 
@@ -252,12 +281,26 @@ public final class ImmutableFxIndex
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the adjustment applied to the maturity date to obtain the fixing date.
+   * <p>
+   * The maturity date is the start date of the indexed deposit.
+   * In most cases, the fixing date is 2 days before the maturity date.
+   * @return the value of the property, not null
+   */
+  @Override
+  public DaysAdjustment getFixingDateOffset() {
+    return fixingDateOffset;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the adjustment applied to the fixing date to obtain the maturity date.
    * <p>
    * The maturity date is the start date of the indexed deposit.
    * In most cases, the maturity date is 2 days after the fixing date.
    * @return the value of the property, not null
    */
+  @Override
   public DaysAdjustment getMaturityDateOffset() {
     return maturityDateOffset;
   }
@@ -297,6 +340,11 @@ public final class ImmutableFxIndex
     private final MetaProperty<HolidayCalendarId> fixingCalendar = DirectMetaProperty.ofImmutable(
         this, "fixingCalendar", ImmutableFxIndex.class, HolidayCalendarId.class);
     /**
+     * The meta-property for the {@code fixingDateOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
+        this, "fixingDateOffset", ImmutableFxIndex.class, DaysAdjustment.class);
+    /**
      * The meta-property for the {@code maturityDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> maturityDateOffset = DirectMetaProperty.ofImmutable(
@@ -309,6 +357,7 @@ public final class ImmutableFxIndex
         "name",
         "currencyPair",
         "fixingCalendar",
+        "fixingDateOffset",
         "maturityDateOffset");
 
     /**
@@ -326,6 +375,8 @@ public final class ImmutableFxIndex
           return currencyPair;
         case 394230283:  // fixingCalendar
           return fixingCalendar;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         case 1574797394:  // maturityDateOffset
           return maturityDateOffset;
       }
@@ -373,6 +424,14 @@ public final class ImmutableFxIndex
     }
 
     /**
+     * The meta-property for the {@code fixingDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> fixingDateOffset() {
+      return fixingDateOffset;
+    }
+
+    /**
      * The meta-property for the {@code maturityDateOffset} property.
      * @return the meta-property, not null
      */
@@ -390,6 +449,8 @@ public final class ImmutableFxIndex
           return ((ImmutableFxIndex) bean).getCurrencyPair();
         case 394230283:  // fixingCalendar
           return ((ImmutableFxIndex) bean).getFixingCalendar();
+        case 873743726:  // fixingDateOffset
+          return ((ImmutableFxIndex) bean).getFixingDateOffset();
         case 1574797394:  // maturityDateOffset
           return ((ImmutableFxIndex) bean).getMaturityDateOffset();
       }
@@ -416,6 +477,7 @@ public final class ImmutableFxIndex
     private String name;
     private CurrencyPair currencyPair;
     private HolidayCalendarId fixingCalendar;
+    private DaysAdjustment fixingDateOffset;
     private DaysAdjustment maturityDateOffset;
 
     /**
@@ -432,6 +494,7 @@ public final class ImmutableFxIndex
       this.name = beanToCopy.getName();
       this.currencyPair = beanToCopy.getCurrencyPair();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
+      this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.maturityDateOffset = beanToCopy.getMaturityDateOffset();
     }
 
@@ -445,6 +508,8 @@ public final class ImmutableFxIndex
           return currencyPair;
         case 394230283:  // fixingCalendar
           return fixingCalendar;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         case 1574797394:  // maturityDateOffset
           return maturityDateOffset;
         default:
@@ -463,6 +528,9 @@ public final class ImmutableFxIndex
           break;
         case 394230283:  // fixingCalendar
           this.fixingCalendar = (HolidayCalendarId) newValue;
+          break;
+        case 873743726:  // fixingDateOffset
+          this.fixingDateOffset = (DaysAdjustment) newValue;
           break;
         case 1574797394:  // maturityDateOffset
           this.maturityDateOffset = (DaysAdjustment) newValue;
@@ -511,10 +579,12 @@ public final class ImmutableFxIndex
 
     @Override
     public ImmutableFxIndex build() {
+      preBuild(this);
       return new ImmutableFxIndex(
           name,
           currencyPair,
           fixingCalendar,
+          fixingDateOffset,
           maturityDateOffset);
     }
 
@@ -561,6 +631,20 @@ public final class ImmutableFxIndex
     }
 
     /**
+     * Sets the adjustment applied to the maturity date to obtain the fixing date.
+     * <p>
+     * The maturity date is the start date of the indexed deposit.
+     * In most cases, the fixing date is 2 days before the maturity date.
+     * @param fixingDateOffset  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixingDateOffset(DaysAdjustment fixingDateOffset) {
+      JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
+      this.fixingDateOffset = fixingDateOffset;
+      return this;
+    }
+
+    /**
      * Sets the adjustment applied to the fixing date to obtain the maturity date.
      * <p>
      * The maturity date is the start date of the indexed deposit.
@@ -577,11 +661,12 @@ public final class ImmutableFxIndex
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ImmutableFxIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
+      buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("maturityDateOffset").append('=').append(JodaBeanUtils.toString(maturityDateOffset));
       buf.append('}');
       return buf.toString();
