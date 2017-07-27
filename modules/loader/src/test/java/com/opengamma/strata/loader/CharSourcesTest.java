@@ -81,7 +81,7 @@ public class CharSourcesTest {
 
   @Test
   public void testOfByteSource() throws Exception {
-    ArrayByteSource arrayByteSource = ArrayByteSource.copyOf("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes());
+    ArrayByteSource arrayByteSource = ArrayByteSource.copyOf("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes(Charsets.UTF_8));
     CharSource charSource = CharSources.ofByteSource(arrayByteSource);
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.length(), 10);
@@ -89,7 +89,7 @@ public class CharSourcesTest {
 
   @Test
   public void testOfByteSourceWithCharset() throws Exception {
-    ArrayByteSource arrayByteSource = ArrayByteSource.copyOf("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes());
+    ArrayByteSource arrayByteSource = ArrayByteSource.copyOf("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes(Charsets.UTF_8));
     CharSource charSource = CharSources.ofByteSource(arrayByteSource, Charsets.UTF_16LE);
     assertEquals(charSource.readFirstLine(), "Hello");
     assertEquals(charSource.length(), 5);
