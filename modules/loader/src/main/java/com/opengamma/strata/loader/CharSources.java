@@ -9,6 +9,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
@@ -26,7 +27,7 @@ public final class CharSources {
    * @return a new instance of {@link CharSource} with the default charset on the current JVM.
    */
   public static CharSource ofFileName(String fileName) {
-    return Files.asCharSource(new File(fileName), Charset.defaultCharset());
+    return Files.asCharSource(new File(fileName), Charsets.UTF_8);
   }
 
   /**
@@ -48,7 +49,7 @@ public final class CharSources {
    * @return a new instance of {@link CharSource} with the default charset on the current JVM.
    */
   public static CharSource ofFile(File file) {
-    return Files.asCharSource(file, Charset.defaultCharset());
+    return Files.asCharSource(file, Charsets.UTF_8);
   }
 
   /**
@@ -70,7 +71,7 @@ public final class CharSources {
    * @return a new instance of {@link CharSource} with the default charset on the current JVM.
    */
   public static CharSource ofPath(Path path) {
-    return Files.asCharSource(path.toFile(), Charset.defaultCharset());
+    return Files.asCharSource(path.toFile(), Charsets.UTF_8);
   }
 
   /**
@@ -114,7 +115,7 @@ public final class CharSources {
    * @return a new instance of {@link CharSource} with the default charset on the current JVM.
    */
   public static CharSource ofByteSource(ByteSource byteSource) {
-    return byteSource.asCharSource(Charset.defaultCharset());
+    return byteSource.asCharSource(Charsets.UTF_8);
   }
 
   /**
