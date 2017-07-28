@@ -121,15 +121,17 @@ public final class InflationRateSwapLegConvention
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @param lag  the lag between the price index and the accrual date, typically a number of months
+   * @param priceIndexCalculationMethod the price index calculation method, typically interpolated or monthly
    * @param businessDayAdjustment the business day 
    * @return the convention
    */
   public static InflationRateSwapLegConvention of(
       PriceIndex index,
       Period lag,
+      PriceIndexCalculationMethod priceIndexCalculationMethod,
       BusinessDayAdjustment businessDayAdjustment) {
 
-    return new InflationRateSwapLegConvention(index, lag, PriceIndexCalculationMethod.MONTHLY, false,
+    return new InflationRateSwapLegConvention(index, lag, priceIndexCalculationMethod, false,
         DaysAdjustment.NONE, businessDayAdjustment);
   }
 
