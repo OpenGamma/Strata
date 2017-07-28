@@ -194,7 +194,6 @@ final class StandardFixedInflationSwapConventions {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Restricted constructor.
    */
