@@ -92,7 +92,7 @@ public interface IborIndex
    * The maturity date is the end date of the indexed deposit and is relative to the effective date.
    * This data structure allows the complex rules of some indices to be represented.
    * 
-   * @return the tenor date offset
+   * @return the maturity date offset
    */
   public abstract TenorAdjustment getMaturityDateOffset();
 

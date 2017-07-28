@@ -13,6 +13,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -68,6 +69,28 @@ public interface FxIndex
    * @return the currency pair of the index
    */
   public abstract CurrencyPair getCurrencyPair();
+
+  /**
+   * Gets the adjustment applied to the maturity date to obtain the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The maturity date is the date on which the implied amount is delivered/exchanged.
+   * The maturity date is typically two business days after the fixing date.
+   * 
+   * @return the fixing date offset
+   */
+  public abstract DaysAdjustment getFixingDateOffset();
+
+  /**
+   * Gets the adjustment applied to the fixing date to obtain the maturity date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The maturity date is the date on which the implied amount is delivered/exchanged.
+   * The maturity date is typically two business days after the fixing date.
+   * 
+   * @return the maturity date offset
+   */
+  public abstract DaysAdjustment getMaturityDateOffset();
 
   /**
    * Gets the calendar that determines which dates are fixing dates.
