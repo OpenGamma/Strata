@@ -14,6 +14,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -44,10 +45,10 @@ public class InflationRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
+    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
     assertEquals(test.getIndex(), GB_HICP);
     assertEquals(test.getLag(), LAG_3M);
-    assertEquals(test.getIndexCalculationMethod(), PriceIndexCalculationMethod.MONTHLY);
+    assertEquals(test.getIndexCalculationMethod(), MONTHLY);
     assertEquals(test.isNotionalExchange(), false);
     assertEquals(test.getCurrency(), GBP);
   }
@@ -59,7 +60,7 @@ public class InflationRateSwapLegConventionTest {
         .build();
     assertEquals(test.getIndex(), GB_HICP);
     assertEquals(test.getLag(), LAG_3M);
-    assertEquals(test.getIndexCalculationMethod(), PriceIndexCalculationMethod.MONTHLY);
+    assertEquals(test.getIndexCalculationMethod(), MONTHLY);
     assertEquals(test.isNotionalExchange(), false);
     assertEquals(test.getCurrency(), GBP);
   }
@@ -85,7 +86,7 @@ public class InflationRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_toLeg() {
-    InflationRateSwapLegConvention base = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
+    InflationRateSwapLegConvention base = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
     RateCalculationSwapLeg test = base.toLeg(
@@ -107,7 +108,7 @@ public class InflationRateSwapLegConventionTest {
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL_2M))
-        .calculation(InflationRateCalculation.of(GB_HICP, 3, PriceIndexCalculationMethod.MONTHLY))
+        .calculation(InflationRateCalculation.of(GB_HICP, 3, MONTHLY))
         .build();
     assertEquals(test, expected);
   }
@@ -129,7 +130,7 @@ public class InflationRateSwapLegConventionTest {
   }
 
   public void test_serialization() {
-    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
+    InflationRateSwapLegConvention test = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
     assertSerialization(test);
   }
 
