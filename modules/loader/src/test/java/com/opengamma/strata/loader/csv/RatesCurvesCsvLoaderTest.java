@@ -86,7 +86,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Header not found: Curve Name")
+      expectedExceptionsMessageRegExp = "Header not found: 'Curve Name'")
   public void test_invalid_settings_missing_column_file() {
     testSettings(SETTINGS_INVALID_MISSING_COLUMN);
   }

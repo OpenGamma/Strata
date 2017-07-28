@@ -1,0 +1,16 @@
+Type,Id Scheme,Id,Trade Date,Trade Time,Trade Zone,Convention,Buy Sell,Period To Start,Tenor,Index,Interpolated index,Fixed Rate,FX Rate,Day Count,Currency,Notional,Start Date,End Date,Date Convention,Date Calendar,Stub Convention,Leg 1 Direction,Leg 1 Start Date,Leg 1 End Date,Leg 1 Stub Convention,Leg 1 Roll Convention,Leg 1 Frequency,Leg 1 Currency,Leg 1 Notional,Leg 1 Fixed Rate,Leg 1 Day Count,Leg 1 Date Convention,Leg 1 Date Calendar,Leg 2 Direction,Leg 2 Start Date,Leg 2 End Date,Leg 2 Frequency,Leg 2 Currency,Leg 2 Notional,Leg 2 Index
+Fra,OG,123401,01/06/2017,11:05,Europe/London,GBP-LIBOR-3M,Buy,P2M,,,,0.5,,,,1000000,,,,,,,,,,,,,,,,,,,,,,,,
+Fra,OG,123402,01/06/2017,12:35,Europe/London,GBP-LIBOR-6M,Sell,,,,,0.7,,,,1000000,01/08/2017,01/02/2018,,,,,,,,,,,,,,,,,,,,,,
+Fra,OG,123403,01/06/2017,,,,Sell,,,GBP-LIBOR-3M,GBP-LIBOR-6M,0.55,,Act/360,,1000000,01/08/2017,15/01/2018,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Swap,OG,123411,01/06/2017,,,GBP-FIXED-1Y-LIBOR-3M,Buy,P1M,P5Y,,,0.4,,,,2000000,,,,,,,,,,,,,,,,,,,,,,,,
+Swap,OG,123412,01/06/2017,,,GBP-FIXED-6M-LIBOR-6M,BUY,,,,,-0.01,,,,3100000,01/08/2017,01/08/2022,,,,,,,,,,,,,,,,,,,,,,
+Swap,OG,123413,01/06/2017,,,GBP-FIXED-6M-LIBOR-6M,Buy,,,,,0.5,,,,4000000,01/08/2017,01/09/2022,,,LongFinal,,,,,,,,,,,,,,,,,,,
+Swap,OG,123414,01/06/2017,,,GBP-LIBOR-3M-USD-LIBOR-3M,Buy,P1M,P3Y,,,0.6,1.25,,,2000000,,,,,,,,,,,,,,,,,,,,,,,,
+Swap,OG,123415,01/06/2017,,,,,,,,,,,,GBP,2500000,01/08/2017,01/08/2022,,,ShortFinal,Pay,,,,,3M,,,1.1,30/360 ISDA,,,Receive,,,3M,,,GBP-LIBOR-3M
+Swap,OG,123416,01/06/2017,,,,,,,,,,,,,,,,,,,Pay,01/08/2017,08/08/2022,LongInitial,Day8,3M,GBP,1200000,1.2,30/360 ISDA,Following,GBLO+EUTA,Receive,08/08/2017,08/08/2022,3M,GBP,1200000,GBP-LIBOR-BBA
+Swap,OG,123417,01/06/2017,,,,,,,,,,,,,,,,,,,Pay,08/08/2017,08/08/2022,,,3M,GBP,1500000,1.3,Act/365F,Preceding,GBLO+USNY,Receive,08/08/2017,08/08/2022,6M,GBP,1500000,GBP-SONIA
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+TermDeposit,OG,123421,01/06/2017,,,GBP-ShortDeposit-T0,Sell,,P2W,,,0.2,,,,400000,,,,,,,,,,,,,,,,,,,,,,,,
+TermDeposit,OG,123422,01/06/2017,,,GBP-ShortDeposit-T0,Sell,,,,,0.22,,,,500000,01/06/2017,15/06/2017,,,,,,,,,,,,,,,,,,,,,,
+TermDeposit,OG,123423,01/06/2017,,,,Buy,,,,,0.23,,Act/365F,GBP,600000,01/06/2017,22/06/2017,ModifiedFollowing,GBLO,,,,,,,,,,,,,,,,,,,,
