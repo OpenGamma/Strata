@@ -75,7 +75,7 @@ public interface FxIndex
    * <p>
    * The fixing date is the date on which the index is to be observed.
    * The maturity date is the date on which the implied amount is delivered/exchanged.
-   * The maturity date is typically two days after the fixing date.
+   * The maturity date is typically two business days after the fixing date.
    * 
    * @return the fixing date offset
    */
@@ -86,7 +86,7 @@ public interface FxIndex
    * <p>
    * The fixing date is the date on which the index is to be observed.
    * The maturity date is the date on which the implied amount is delivered/exchanged.
-   * The maturity date is typically two days after the fixing date.
+   * The maturity date is typically two business days after the fixing date.
    * 
    * @return the maturity date offset
    */
