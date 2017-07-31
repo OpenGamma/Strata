@@ -113,16 +113,15 @@ public final class InflationRateSwapLegConvention
   private final BusinessDayAdjustment accrualBusinessDayAdjustment;
 
   //-------------------------------------------------------------------------
-
   /**
    * Obtains a convention based on the specified index, defaulting the PriceIndexCalculationMethod to MONTHLY.
    * <p>
    * The standard market convention for an Inflation rate leg is based on the index.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    *
-   * @param  index the index, the market convention values are extracted from the index
-   * @param  lag the lag between the price index and the accrual date, typically a number of months
-   * @param  businessDayAdjustment the business day
+   * @param index  the index, the market convention values are extracted from the index
+   * @param lag  the lag between the price index and the accrual date, typically a number of months
+   * @param businessDayAdjustment  the business day
    * @return the convention
    * @deprecated Use of() method which takes {@link PriceIndexCalculationMethod} parameter
    */
@@ -131,6 +130,7 @@ public final class InflationRateSwapLegConvention
       PriceIndex index,
       Period lag,
       BusinessDayAdjustment businessDayAdjustment) {
+
     return of(index, lag, PriceIndexCalculationMethod.MONTHLY, businessDayAdjustment);
   }
 
@@ -143,7 +143,7 @@ public final class InflationRateSwapLegConvention
    * @param index  the index, the market convention values are extracted from the index
    * @param lag  the lag between the price index and the accrual date, typically a number of months
    * @param priceIndexCalculationMethod  the price index calculation method, typically interpolated or monthly
-   * @param businessDayAdjustment the business day
+   * @param businessDayAdjustment  the business day
    * @return the convention
    */
   public static InflationRateSwapLegConvention of(
@@ -168,7 +168,6 @@ public final class InflationRateSwapLegConvention
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the currency of the leg from the index.
    *
@@ -179,7 +178,6 @@ public final class InflationRateSwapLegConvention
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Creates a leg based on this convention.
    * <p>
@@ -188,10 +186,10 @@ public final class InflationRateSwapLegConvention
    * If the leg is 'Pay', the fixed rate is paid to the counterparty.
    * If the leg is 'Receive', the fixed rate is received from the counterparty.
    *
-   * @param startDate the start date
-   * @param endDate the end date
-   * @param payReceive determines if the leg is to be paid or received
-   * @param notional the business day adjustment to apply to accrual schedule dates
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param payReceive  determines if the leg is to be paid or received
+   * @param notional  the business day adjustment to apply to accrual schedule dates
    * @return the leg
    */
   public RateCalculationSwapLeg toLeg(
