@@ -25,7 +25,6 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveDefinition;
@@ -78,19 +77,17 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
           .map((LocalDate valDate) -> configuredDefn.filtered(valDate, refData))
           .collect(toImmutableList());
 
-      Set<? extends MarketDataId<?>> requirements = nodeRequirements(curveDefns);
-      ObservableSource obsSource = id.getObservableSource();
-      Map<? extends MarketDataId<?>, MarketDataBox<?>> marketDataValues =
-          getMarketDataValues(marketData, requirements, obsSource);
+      Set<MarketDataId<?>> requirements = nodeRequirements(curveDefns);
+      Map<MarketDataId<?>, MarketDataBox<?>> marketDataValues =
+          requirements.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
       return buildMultipleCurveInputs(MarketDataBox.ofScenarioValues(curveDefns), marketDataValues, valuationDates, refData);
     }
     // only one valuation date
     LocalDate valuationDate = valuationDates.getValue(0);
     CurveDefinition filteredDefn = configuredDefn.filtered(valuationDate, refData);
-    Set<? extends MarketDataId<?>> requirements = nodeRequirements(ImmutableList.of(filteredDefn));
-    ObservableSource obsSource = id.getObservableSource();
-    Map<? extends MarketDataId<?>, MarketDataBox<?>> marketDataValues =
-        getMarketDataValues(marketData, requirements, obsSource);
+    Set<MarketDataId<?>> requirements = nodeRequirements(ImmutableList.of(filteredDefn));
+    Map<MarketDataId<?>, MarketDataBox<?>> marketDataValues =
+        requirements.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
     // Do any of the inputs contain values for multiple scenarios, or do they contain 1 value each?
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
 
@@ -209,18 +206,11 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
    * @param curveDefn  the curve definition containing the nodes
    * @return requirements for the market data needed by the nodes to build trades
    */
-  private static Set<? extends MarketDataId<?>> nodeRequirements(List<CurveDefinition> curveDefns) {
+  private static Set<MarketDataId<?>> nodeRequirements(List<CurveDefinition> curveDefns) {
     return curveDefns.stream()
         .flatMap(defn -> defn.getNodes().stream())
         .flatMap(node -> node.requirements().stream())
         .collect(toImmutableSet());
   }
 
-  private static Map<? extends MarketDataId<?>, MarketDataBox<?>> getMarketDataValues(
-      ScenarioMarketData marketData,
-      Set<? extends MarketDataId<?>> ids,
-      ObservableSource observableSource) {
-
-    return ids.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
-  }
 }
