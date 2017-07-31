@@ -23,6 +23,7 @@ before_deploy:
   - export DIST_FILE=$(ls target/strata-dist-*.zip)
 deploy:
   provider: releases
+  skip_cleanup: true
   api_key:
     secure: ApqYt6DUnXj7dw7inAG0VKFp+uL44XN8cPWAetCUeKEAN5RVGq4FcrLHCY8eGOqqgcF8OvKivYJzl2duWXkONTwUBXsQP2m549hdwfOzTyuY0IpaCUaVk5vQTlh5dAXFH13vhV+mDEsQf3cvIs1hd68zcxuqv1lETTHiRdOyFrtK1F/wM0f7uG0jSptwpl1KYugMN8pQ8JMQb+6VYc46xjx/Huu5ypzp4ykadcdWQGkxIlW34k6WgqHzIZqSXuVIDwUHfRgjj/5F09qNmbM+xN2evIK/B4b7+GWMrGNWwPHOdjaiCtA5ikm6y9DU5ocZlbtDpPIWQksPrgzMnIcG3tyu6wZoC26ZnVapuPumwML4+zLdEEdSJ4+TpdODYbCbJAo6KMFWHengMI2ChPdZt0Ge0FwFFq2xIrxVntRKZak3yrLxLTJuSvxiX4Yj9WlrXh9pF6s9bGjN3ekjjOWYbE6ux2kZwl/d9t7ZCJ5hVGx/LvROWkn3Z0OY6L9IdHsMmsykZBv38J262uIz/LOE6QFR5T/RFziwAGGkDBv+wj++6cZiihcQ1/mIdpxaW8cR6ki82QnHT7ABKKErUcq7Q0eU8ZCwbcy3a7PVmz53SF9qK+zsqu9RopxfnN3udwlVy0XqV+EABqO8fRAQSFeTdt+6fG8C62dzYXd+gw0Mv7Q=
   file:
