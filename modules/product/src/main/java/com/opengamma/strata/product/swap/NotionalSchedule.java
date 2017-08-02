@@ -219,16 +219,12 @@ public final class NotionalSchedule
 
     boolean fxResetFound = payPeriods.stream().filter(pp -> pp.getFxResetObservation().isPresent()).findAny().isPresent();
     if (fxResetFound) {
-      if (intermediateExchange) {
-        return createFxResetEvents(
-            payPeriods,
-            initialExchangeDate,
-            initialExchange,
-            intermediateExchange,
-            finalExchange);
-      } else {
-        return ImmutableList.of();
-      }
+      return createFxResetEvents(
+          payPeriods,
+          initialExchangeDate,
+          initialExchange,
+          intermediateExchange,
+          finalExchange);
     } else if (initialExchange || intermediateExchange || finalExchange) {
       return createStandardEvents(
           payPeriods,

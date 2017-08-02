@@ -12,12 +12,15 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -133,30 +136,19 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
   public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
-    double pvUsdExpected = 518623.5163;
-    double pvEurExpected = -731021.1778;
-    test_XCcyEurUSDFxReset(true, true, true, pvUsdExpected, pvEurExpected);
 
-    double eurInitialExchangePv = 99999104.1730;
-    double usdInitialExchangePv = -143998710.0091;
-    test_XCcyEurUSDFxReset(false, true, true, pvUsdExpected - usdInitialExchangePv, pvEurExpected - eurInitialExchangePv);
-
-    double eurFinalExchangePv = -99709476.7047;
-    double usdFinalExchangePv = 143414059.1395;
-    test_XCcyEurUSDFxReset(false, true, false , pvUsdExpected - usdInitialExchangePv - usdFinalExchangePv, pvEurExpected - eurInitialExchangePv - eurFinalExchangePv);
-
-    double intermediateExchangesTotalPv = -344525.14583584666;
-
-    test_XCcyEurUSDFxReset(false, false, false , pvUsdExpected - usdInitialExchangePv - usdFinalExchangePv - intermediateExchangesTotalPv, pvEurExpected - eurInitialExchangePv - eurFinalExchangePv);
+    //Test all possible combinations of exchange flags
+    boolean[] allBoolean = {true, false};
+    for (boolean initialExchange : allBoolean) {
+      for (boolean intermediateExchange : allBoolean) {
+        for (boolean finalExchange : allBoolean) {
+          test_XCcyEurUSDFxReset(initialExchange, intermediateExchange, finalExchange);
+        }
+      }
+    }
   }
 
-  private void test_XCcyEurUSDFxReset(
-      boolean initialExchange,
-      boolean intermediateExchange,
-      boolean finalExchange,
-      double pvUsdExpected,
-      double pvEurExpected) {
-
+  private void test_XCcyEurUSDFxReset(boolean initialExchange, boolean intermediateExchange, boolean finalExchange) {
 
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -221,13 +213,41 @@ public class SwapCrossCurrencyEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
+
+    //Coupons are always included, so base is the total coupon pvs
+    double pvUsdExpected = 1447799.5318;
+    double pvEurExpected = -1020648.6461;
+    int usdExpectedPaymentEvents = 0;
+    int eurExpectedPaymentEvents = 0;
+
+    //Add PV amounts of included exchanges to arrive at total expected pv
+    if (initialExchange) {
+      pvUsdExpected += -143998710.0091;
+      pvEurExpected += 99999104.1730;
+      ++usdExpectedPaymentEvents;
+      ++eurExpectedPaymentEvents;
+    }
+
+    if (intermediateExchange) {
+      pvUsdExpected += -344525.1458;
+      usdExpectedPaymentEvents += 14;
+    }
+
+    if (finalExchange) {
+      pvUsdExpected += 143414059.1395;
+      pvEurExpected += -99709476.7047;
+      ++usdExpectedPaymentEvents;
+      ++eurExpectedPaymentEvents;
+    }
+
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
 
-    System.out.println(pricer.cashFlows(trade, provider()));
-    ExplainMap map = pricer.explainPresentValue(trade, provider());
-    System.out.println(map.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.PAYMENT_EVENTS));
-    System.out.println(map.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.PAYMENT_EVENTS));
+
+    //Assert the payment event (exchange) count on each leg
+    List<ExplainMap> legs =  pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();
+    assertThat(legs.get(0).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(eurExpectedPaymentEvents);
+    assertThat(legs.get(1).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(usdExpectedPaymentEvents);
   }
 
   //-------------------------------------------------------------------------
