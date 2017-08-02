@@ -75,12 +75,14 @@ public class NotionalScheduleTest {
     NotionalSchedule test = NotionalSchedule.builder()
         .currency(USD)
         .amount(ValueSchedule.of(2000d))
+        .intermediateExchange(true)
+        .finalExchange(true)
         .fxReset(fxReset)
         .build();
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getAmount(), ValueSchedule.of(2000d));
     assertEquals(test.getFxReset(), Optional.of(fxReset));
-    assertEquals(test.isInitialExchange(), true);
+    assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), true);
     assertEquals(test.isFinalExchange(), true);
   }

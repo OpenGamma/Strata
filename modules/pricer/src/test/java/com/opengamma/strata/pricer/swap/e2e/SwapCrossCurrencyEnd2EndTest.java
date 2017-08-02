@@ -29,6 +29,8 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
@@ -131,6 +133,31 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
   public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
+    double pvUsdExpected = 518623.5163;
+    double pvEurExpected = -731021.1778;
+    test_XCcyEurUSDFxReset(true, true, true, pvUsdExpected, pvEurExpected);
+
+    double eurInitialExchangePv = 99999104.1730;
+    double usdInitialExchangePv = -143998710.0091;
+    test_XCcyEurUSDFxReset(false, true, true, pvUsdExpected - usdInitialExchangePv, pvEurExpected - eurInitialExchangePv);
+
+    double eurFinalExchangePv = -99709476.7047;
+    double usdFinalExchangePv = 143414059.1395;
+    test_XCcyEurUSDFxReset(false, true, false , pvUsdExpected - usdInitialExchangePv - usdFinalExchangePv, pvEurExpected - eurInitialExchangePv - eurFinalExchangePv);
+
+    double intermediateExchangesTotalPv = -344525.14583584666;
+
+    test_XCcyEurUSDFxReset(false, false, false , pvUsdExpected - usdInitialExchangePv - usdFinalExchangePv - intermediateExchangesTotalPv, pvEurExpected - eurInitialExchangePv - eurFinalExchangePv);
+  }
+
+  private void test_XCcyEurUSDFxReset(
+      boolean initialExchange,
+      boolean intermediateExchange,
+      boolean finalExchange,
+      double pvUsdExpected,
+      double pvEurExpected) {
+
+
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -144,8 +171,8 @@ public class SwapCrossCurrencyEnd2EndTest {
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.builder()
-            .finalExchange(true)
-            .initialExchange(true)
+            .finalExchange(finalExchange)
+            .initialExchange(initialExchange)
             .amount(ValueSchedule.of(NOTIONAL_EUR))
             .currency(EUR)
             .build())
@@ -169,8 +196,9 @@ public class SwapCrossCurrencyEnd2EndTest {
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.builder()
-            .finalExchange(true)
-            .initialExchange(true)
+            .finalExchange(finalExchange)
+            .initialExchange(initialExchange)
+            .intermediateExchange(intermediateExchange)
             .amount(ValueSchedule.of(NOTIONAL_USD))
             .currency(USD)
             .fxReset(FxResetCalculation.builder()
@@ -191,13 +219,15 @@ public class SwapCrossCurrencyEnd2EndTest {
         .build()
         .resolve(REF_DATA);
 
-    double pvUsdExpected = 518623.5163;
-    double pvEurExpected = -731021.1778;
-
     DiscountingSwapTradePricer pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
+
+    System.out.println(pricer.cashFlows(trade, provider()));
+    ExplainMap map = pricer.explainPresentValue(trade, provider());
+    System.out.println(map.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.PAYMENT_EVENTS));
+    System.out.println(map.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.PAYMENT_EVENTS));
   }
 
   //-------------------------------------------------------------------------

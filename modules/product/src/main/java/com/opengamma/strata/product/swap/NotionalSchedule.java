@@ -16,7 +16,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -72,7 +71,9 @@ public final class NotionalSchedule
    * exchange of money between the counterparties.
    * <p>
    * When building the notional schedule, if an {@code FxResetCalculation} is present,
-   * then the notional exchange flags will be set to true.
+   * then at least one of the notional exchange flags should be set to true.
+   * <p>
+   * If all notional exchange flags are false then setting the fx reset definition has no impact.
    */
   @PropertyDefinition(get = "optional")
   private final FxResetCalculation fxReset;
@@ -115,7 +116,7 @@ public final class NotionalSchedule
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance with a single amount that does not change over time.
-   * 
+   *
    * @param notional  the single notional that does not change over time
    * @return the notional amount
    */
@@ -129,7 +130,7 @@ public final class NotionalSchedule
 
   /**
    * Obtains an instance with a single amount that does not change over time.
-   * 
+   *
    * @param currency  the currency of the notional and swap payments
    * @param amount  the single notional amount that does not change over time
    * @return the notional amount
@@ -144,7 +145,7 @@ public final class NotionalSchedule
 
   /**
    * Obtains an instance with a notional amount that can change over time.
-   * 
+   *
    * @param currency  the currency of the notional and swap payments
    * @param amountSchedule  the schedule describing how the notional changes over time
    * @return the notional amount
@@ -175,19 +176,10 @@ public final class NotionalSchedule
     }
   }
 
-  @ImmutablePreBuild
-  private static void preBuild(Builder builder) {
-    if (builder.fxReset != null) {
-      builder.initialExchange = true;
-      builder.intermediateExchange = true;
-      builder.finalExchange = true;
-    }
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Builds notional exchange events from the payment periods and notional exchange flags.
-   * 
+   *
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
    * @param refData  the reference data to use
@@ -208,7 +200,7 @@ public final class NotionalSchedule
    * <p>
    * The {@code initialExchangeDate} is only used of {@code initialExchange} is true,
    * however it is intended that the value is always set to an appropriate date.
-   * 
+   *
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
    * @param initialExchange  whether there is an initial exchange
@@ -228,12 +220,22 @@ public final class NotionalSchedule
     boolean fxResetFound = payPeriods.stream().filter(pp -> pp.getFxResetObservation().isPresent()).findAny().isPresent();
     if (fxResetFound) {
       if (intermediateExchange) {
-        return createFxResetEvents(payPeriods, initialExchangeDate, refData);
+        return createFxResetEvents(
+            payPeriods,
+            initialExchangeDate,
+            initialExchange,
+            intermediateExchange,
+            finalExchange);
       } else {
         return ImmutableList.of();
       }
     } else if (initialExchange || intermediateExchange || finalExchange) {
-      return createStandardEvents(payPeriods, initialExchangeDate, initialExchange, intermediateExchange, finalExchange);
+      return createStandardEvents(
+          payPeriods,
+          initialExchangeDate,
+          initialExchange,
+          intermediateExchange,
+          finalExchange);
     } else {
       return ImmutableList.of();
     }
@@ -243,28 +245,46 @@ public final class NotionalSchedule
   private static ImmutableList<SwapPaymentEvent> createFxResetEvents(
       List<NotionalPaymentPeriod> payPeriods,
       LocalDate initialExchangeDate,
-      ReferenceData refData) {
+      boolean initialExchange,
+      boolean intermediateExchange,
+      boolean finalExchange) {
 
     ImmutableList.Builder<SwapPaymentEvent> events = ImmutableList.builder();
     for (int i = 0; i < payPeriods.size(); i++) {
       NotionalPaymentPeriod period = payPeriods.get(i);
       LocalDate startPaymentDate = (i == 0 ? initialExchangeDate : payPeriods.get(i - 1).getPaymentDate());
+
+      boolean includeStartPayment = i == 0 ? initialExchange : intermediateExchange;
+      boolean includeEndPayment = i == payPeriods.size() - 1 ? finalExchange : intermediateExchange;
+
       if (period.getFxResetObservation().isPresent()) {
+
         FxIndexObservation observation = period.getFxResetObservation().get();
+
         // notional out at start of period
-        events.add(FxResetNotionalExchange.of(
-            period.getNotionalAmount().negated(), startPaymentDate, observation));
+        if (includeStartPayment) {
+          events.add(FxResetNotionalExchange.of(
+              period.getNotionalAmount().negated(), startPaymentDate, observation));
+        }
+
         // notional in at end of period
-        events.add(FxResetNotionalExchange.of(
-            period.getNotionalAmount(), period.getPaymentDate(), observation));
+        if (includeEndPayment) {
+         events.add(FxResetNotionalExchange.of(
+              period.getNotionalAmount(), period.getPaymentDate(), observation));
+        }
       } else {
         // handle weird swap where only some periods have FX reset
         // notional out at start of period
-        events.add(NotionalExchange.of(
-            CurrencyAmount.of(period.getCurrency(), -period.getNotionalAmount().getAmount()), startPaymentDate));
+        if (includeStartPayment) {
+          events.add(NotionalExchange.of(
+              CurrencyAmount.of(period.getCurrency(), -period.getNotionalAmount().getAmount()), startPaymentDate));
+        }
         // notional in at end of period
-        events.add(NotionalExchange.of(
-            CurrencyAmount.of(period.getCurrency(), period.getNotionalAmount().getAmount()), period.getPaymentDate()));
+        if (includeEndPayment) {
+          events.add(NotionalExchange.of(
+              CurrencyAmount.of(period.getCurrency(), period.getNotionalAmount().getAmount()),
+              period.getPaymentDate()));
+        }
       }
     }
     return events.build();
@@ -386,7 +406,9 @@ public final class NotionalSchedule
    * exchange of money between the counterparties.
    * <p>
    * When building the notional schedule, if an {@code FxResetCalculation} is present,
-   * then the notional exchange flags will be set to true.
+   * then at least one of the notional exchange flags should be set to true.
+   * <p>
+   * If all notional exchange flags are false then setting the fx reset definition has no impact.
    * @return the optional value of the property, not null
    */
   public Optional<FxResetCalculation> getFxReset() {
@@ -786,7 +808,6 @@ public final class NotionalSchedule
 
     @Override
     public NotionalSchedule build() {
-      preBuild(this);
       return new NotionalSchedule(
           currency,
           fxReset,
@@ -824,7 +845,9 @@ public final class NotionalSchedule
      * exchange of money between the counterparties.
      * <p>
      * When building the notional schedule, if an {@code FxResetCalculation} is present,
-     * then the notional exchange flags will be set to true.
+     * then at least one of the notional exchange flags should be set to true.
+     * <p>
+     * If all notional exchange flags are false then setting the fx reset definition has no impact.
      * @param fxReset  the new value
      * @return this, for chaining, not null
      */
