@@ -3,60 +3,62 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.loader;
+package com.opengamma.strata.collect.io;
 
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Paths;
 
 import org.testng.annotations.Test;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharSource;
-import com.opengamma.strata.collect.io.ArrayByteSource;
-import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.TestHelper;
 
+/**
+ * Tests {@link CharSources}
+ */
+@Test
 public class CharSourcesTest {
 
-  private final String fileName = "src/test/resources/com/opengamma/strata/loader/utf16le.txt";
+  private final String fileName = "src/test/resources/com/opengamma/strata/collect/io/utf16le.txt";
 
-  @Test
+  public void testPrivateConstructor() throws Exception {
+    TestHelper.coverPrivateConstructor(CharSources.class);
+  }
+
   public void testOfFileName() throws Exception {
     CharSource charSource = CharSources.ofFileName(fileName);
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.length(), 10);
   }
 
-  @Test
   public void testOfFileNameWithCharset() throws Exception {
     CharSource charSource = CharSources.ofFileName(fileName, Charsets.UTF_16LE);
     assertEquals(charSource.readFirstLine(), "Hello");
     assertEquals(charSource.length(), 5);
   }
 
-  @Test
   public void testOfFile() throws Exception {
     CharSource charSource = CharSources.ofFile(new File(fileName));
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.length(), 10);
   }
 
-  @Test
   public void testOfFileWithCharset() throws Exception {
     CharSource charSource = CharSources.ofFile(new File(fileName), Charsets.UTF_16LE);
     assertEquals(charSource.readFirstLine(), "Hello");
     assertEquals(charSource.length(), 5);
   }
 
-  @Test
   public void testOfPath() throws Exception {
     CharSource charSource = CharSources.ofPath(Paths.get(fileName));
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.length(), 10);
   }
 
-  @Test
   public void testOfPathWithCharset() throws Exception {
     CharSource charSource = CharSources.ofPath(Paths.get(fileName), Charsets.UTF_16LE);
     assertEquals(charSource.readFirstLine(), "Hello");
@@ -64,35 +66,39 @@ public class CharSourcesTest {
   }
 
   @Test
-  public void testOfResourceLocator() throws Exception {
-    ResourceLocator resourceLocator = ResourceLocator.ofClasspath(CharSources.class, "utf16le.txt");
-    CharSource charSource = CharSources.ofResourceLocator(resourceLocator);
+  public void testOfURL() throws Exception {
+    String fullPathToFile = "file:///" + System.getProperty("user.dir") + "/" + fileName;
+    URL url = new URL(fullPathToFile);
+    CharSource charSource = CharSources.ofURL(url);
+    assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
+  }
+
+  @Test
+  public void testOfURLWithCharset() throws Exception {
+    String fullPathToFile = "file:///" + System.getProperty("user.dir") + "/" + fileName;
+    URL url = new URL(fullPathToFile);
+    CharSource charSource = CharSources.ofURL(url, Charsets.UTF_16LE);
+    assertEquals(charSource.readFirstLine(), "Hello");
+  }
+
+  @Test
+  public void testOfContentString() throws Exception {
+    CharSource charSource = CharSources.ofContent("H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.length(), 10);
   }
 
   @Test
-  public void testOfResourceLocatorWithCharset() throws Exception {
-    ResourceLocator resourceLocator = ResourceLocator.ofClasspath(CharSources.class, "utf16le.txt");
-    CharSource charSource = CharSources.ofResourceLocator(resourceLocator, Charsets.UTF_16LE);
-    assertEquals(charSource.readFirstLine(), "Hello");
-    assertEquals(charSource.length(), 5);
-  }
-
-  @Test
-  public void testOfByteSource() throws Exception {
-    ArrayByteSource arrayByteSource = ArrayByteSource.copyOf("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes(Charsets.UTF_8));
-    CharSource charSource = CharSources.ofByteSource(arrayByteSource);
+  public void testOfContentByteArray() throws Exception {
+    CharSource charSource = CharSources.ofContent("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes());
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
     assertEquals(charSource.length(), 10);
   }
 
   @Test
-  public void testOfByteSourceWithCharset() throws Exception {
-    ArrayByteSource arrayByteSource = ArrayByteSource.copyOf("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes(Charsets.UTF_8));
-    CharSource charSource = CharSources.ofByteSource(arrayByteSource, Charsets.UTF_16LE);
+  public void testOfContentByteArrayWithCharset() throws Exception {
+    CharSource charSource = CharSources.ofContent("H\u0000e\u0000l\u0000l\u0000o\u0000".getBytes(), Charsets.UTF_16LE);
     assertEquals(charSource.readFirstLine(), "Hello");
     assertEquals(charSource.length(), 5);
   }
-
 }
