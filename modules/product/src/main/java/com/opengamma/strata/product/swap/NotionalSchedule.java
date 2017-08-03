@@ -270,6 +270,7 @@ public final class NotionalSchedule
         }
       } else {
         // handle weird swap where only some periods have FX reset
+
         // notional out at start of period
         if (includeStartPayment) {
           events.add(NotionalExchange.of(
