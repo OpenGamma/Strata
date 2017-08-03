@@ -170,6 +170,7 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(NotionalSchedule.builder()
             .currency(GBP)
             .amount(ValueSchedule.of(1000d))
+            .finalExchange(true)
             .fxReset(FxResetCalculation.builder()
                 .referenceCurrency(EUR)
                 .index(EUR_GBP_ECB)
