@@ -116,7 +116,7 @@ public final class NotionalSchedule
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance with a single amount that does not change over time.
-   *
+   * 
    * @param notional  the single notional that does not change over time
    * @return the notional amount
    */
@@ -130,7 +130,7 @@ public final class NotionalSchedule
 
   /**
    * Obtains an instance with a single amount that does not change over time.
-   *
+   * 
    * @param currency  the currency of the notional and swap payments
    * @param amount  the single notional amount that does not change over time
    * @return the notional amount
@@ -145,7 +145,7 @@ public final class NotionalSchedule
 
   /**
    * Obtains an instance with a notional amount that can change over time.
-   *
+   * 
    * @param currency  the currency of the notional and swap payments
    * @param amountSchedule  the schedule describing how the notional changes over time
    * @return the notional amount
@@ -179,7 +179,7 @@ public final class NotionalSchedule
   //-------------------------------------------------------------------------
   /**
    * Builds notional exchange events from the payment periods and notional exchange flags.
-   *
+   * 
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
    * @param refData  the reference data to use
@@ -200,7 +200,7 @@ public final class NotionalSchedule
    * <p>
    * The {@code initialExchangeDate} is only used of {@code initialExchange} is true,
    * however it is intended that the value is always set to an appropriate date.
-   *
+   * 
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
    * @param initialExchange  whether there is an initial exchange
