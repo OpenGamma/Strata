@@ -173,7 +173,7 @@ public final class NotionalSchedule
                 currency, fxReset.getIndex()));
       }
 
-      if (!(initialExchange || intermediateExchange || finalExchange)){
+      if (!(initialExchange || intermediateExchange || finalExchange)) {
         throw new IllegalArgumentException(
             Messages.format(
                 "FxResetCalculation index {} was specified but schedule does not include any notional exchanges",
@@ -271,7 +271,7 @@ public final class NotionalSchedule
 
         // notional in at end of period
         if (includeEndPayment) {
-         events.add(FxResetNotionalExchange.of(
+          events.add(FxResetNotionalExchange.of(
               period.getNotionalAmount(), period.getPaymentDate(), observation));
         }
       } else {
@@ -409,9 +409,8 @@ public final class NotionalSchedule
    * exchange of money between the counterparties.
    * <p>
    * When building the notional schedule, if an {@code FxResetCalculation} is present,
-   * then at least one of the notional exchange flags should be set to true.
-   * <p>
-   * If all notional exchange flags are false then setting the fx reset definition has no impact.
+   * then at least one of the notional exchange flags should be set to true. If all notional
+   * exchange flags are false then an IllegalArgumentException is thrown.
    * @return the optional value of the property, not null
    */
   public Optional<FxResetCalculation> getFxReset() {
@@ -848,9 +847,8 @@ public final class NotionalSchedule
      * exchange of money between the counterparties.
      * <p>
      * When building the notional schedule, if an {@code FxResetCalculation} is present,
-     * then at least one of the notional exchange flags should be set to true.
-     * <p>
-     * If all notional exchange flags are false then setting the fx reset definition has no impact.
+     * then at least one of the notional exchange flags should be set to true. If all notional
+     * exchange flags are false then an IllegalArgumentException is thrown.
      * @param fxReset  the new value
      * @return this, for chaining, not null
      */

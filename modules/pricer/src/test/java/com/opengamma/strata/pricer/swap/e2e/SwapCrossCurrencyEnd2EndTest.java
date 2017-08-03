@@ -252,7 +252,6 @@ public class SwapCrossCurrencyEnd2EndTest {
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
 
-
     //Assert the payment event (exchange) count on each leg
     List<ExplainMap> legs = pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();
     assertThat(legs.get(0).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(eurExpectedPaymentEvents);
