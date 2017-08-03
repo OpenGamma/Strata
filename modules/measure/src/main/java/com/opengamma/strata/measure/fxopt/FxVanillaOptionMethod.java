@@ -10,12 +10,12 @@ import java.util.Optional;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameter;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSmileVolatilities;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionVolatilities;
@@ -33,7 +33,7 @@ import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
  * <p>
  * Implementations of this interface must be immutable.
  */
-public enum FxVanillaOptionMethod implements CalculationParameter {
+public enum FxVanillaOptionMethod implements NamedEnum, CalculationParameter {
 
   /**
    * The Black (lognormal) model.
@@ -46,18 +46,23 @@ public enum FxVanillaOptionMethod implements CalculationParameter {
    */
   VANNA_VOLGA;
 
+  // helper for name conversions
+  private static final EnumNames<FxVanillaOptionMethod> NAMES = EnumNames.of(FxVanillaOptionMethod.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FxVanillaOptionMethod of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static FxVanillaOptionMethod of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
@@ -71,14 +76,14 @@ public enum FxVanillaOptionMethod implements CalculationParameter {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

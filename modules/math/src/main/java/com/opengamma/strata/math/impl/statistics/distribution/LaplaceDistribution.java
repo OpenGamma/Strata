@@ -8,9 +8,8 @@ package com.opengamma.strata.math.impl.statistics.distribution;
 import java.util.Date;
 
 import com.opengamma.strata.collect.ArgChecker;
-
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 
 /**
  * The Laplace distribution is a continuous probability distribution with probability density function

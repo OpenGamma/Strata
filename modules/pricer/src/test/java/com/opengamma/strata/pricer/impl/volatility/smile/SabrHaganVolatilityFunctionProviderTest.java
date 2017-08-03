@@ -19,14 +19,13 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.math.MathException;
+import com.opengamma.strata.math.impl.cern.MersenneTwister;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
-
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
 
 /**
  * Test {@link SabrHaganVolatilityFunctionProvider}.

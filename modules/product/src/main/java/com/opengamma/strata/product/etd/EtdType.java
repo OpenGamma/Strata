@@ -8,13 +8,13 @@ package com.opengamma.strata.product.etd;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * The type of an Exchange Traded Derivative (ETD) product, either a future or an option.
  */
-public enum EtdType {
+public enum EtdType implements NamedEnum {
 
   /** A future. */
   FUTURE,
@@ -22,30 +22,35 @@ public enum EtdType {
   /** An option. */
   OPTION;
 
+  // helper for name conversions
+  private static final EnumNames<EtdType> NAMES = EnumNames.of(EtdType.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static EtdType of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static EtdType of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

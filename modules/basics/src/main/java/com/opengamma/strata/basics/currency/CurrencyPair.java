@@ -153,6 +153,27 @@ public final class CurrencyPair
   }
 
   /**
+   * Finds the other currency in the pair.
+   * <p>
+   * If the pair is AAA/BBB, then passing in AAA will return BBB, and passing in BBB will return AAA.
+   * Passing in CCC will throw an exception.
+   * 
+   * @param currency  the currency to check
+   * @return the other currency in the pair
+   * @throws IllegalArgumentException if the specified currency is not one of those in the pair
+   */
+  public Currency other(Currency currency) {
+    ArgChecker.notNull(currency, "currency");
+    if (currency.equals(base)) {
+      return counter;
+    }
+    if (currency.equals(counter)) {
+      return base;
+    }
+    throw new IllegalArgumentException("Unable to find other currency, " + currency + " is not present in " + toString());
+  }
+
+  /**
    * Checks if this currency pair is an identity pair.
    * <p>
    * The identity pair is one where the base and counter currency are the same..

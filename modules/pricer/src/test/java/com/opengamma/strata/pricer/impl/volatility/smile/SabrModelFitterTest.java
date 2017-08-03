@@ -16,11 +16,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.impl.cern.MersenneTwister;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
 
 /**
  * Test {@link SabrModelFitter}.

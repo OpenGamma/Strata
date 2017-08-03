@@ -123,7 +123,7 @@
           <dependency>
             <groupId>com.opengamma</groupId>
             <artifactId>build-config</artifactId>
-            <version>2.0.0</version>
+            <version>2.1.0</version>
           </dependency>
         </dependencies>
         <executions>
@@ -637,13 +637,15 @@
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.6.2</assertj.version>
-    <guava.version>20.0</guava.version>
+    <guava.version>22.0</guava.version>
     <jcommander.version>1.58</jcommander.version>
-    <joda-convert.version>1.8.1</joda-convert.version>
+    <joda-convert.version>1.8.2</joda-convert.version>
     <joda-beans.version>1.13</joda-beans.version>
     <mockito.version>2.7.8</mockito.version>
     <slf4j.version>1.7.23</slf4j.version>
     <testng.version>6.10</testng.version>
+    <!-- Properties for maven-checkstyle-plugin -->
+    <checkstyle.config.location>checkstyle/checkstyle-oss.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>

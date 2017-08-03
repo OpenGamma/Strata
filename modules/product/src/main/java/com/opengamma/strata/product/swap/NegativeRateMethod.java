@@ -8,8 +8,8 @@ package com.opengamma.strata.product.swap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.CaseFormat;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * A convention defining how to handle a negative interest rate.
@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * When calculating a floating rate, the result may be negative.
  * This convention defines whether to allow the negative value or round to zero.
  */
-public enum NegativeRateMethod {
+public enum NegativeRateMethod implements NamedEnum {
 
   /**
    * The "Negative Interest Rate Method", that allows the rate to be negative.
@@ -48,18 +48,23 @@ public enum NegativeRateMethod {
     }
   };
 
+  // helper for name conversions
+  private static final EnumNames<NegativeRateMethod> NAMES = EnumNames.of(NegativeRateMethod.class);
+
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static NegativeRateMethod of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
+  public static NegativeRateMethod of(String name) {
+    return NAMES.parse(name);
   }
 
   //-----------------------------------------------------------------------
@@ -76,14 +81,14 @@ public enum NegativeRateMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */
   @ToString
   @Override
   public String toString() {
-    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+    return NAMES.format(this);
   }
 
 }

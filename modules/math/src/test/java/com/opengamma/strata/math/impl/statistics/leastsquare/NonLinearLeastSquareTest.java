@@ -15,15 +15,14 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.impl.cern.MersenneTwister;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
-
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
 
 /**
  * Test.

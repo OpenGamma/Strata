@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.index;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.MXMC;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
@@ -179,6 +180,12 @@ public class FloatingRateNameTest {
         FloatingRateName.of("DKK-CIBOR2-DKNA13").toIborIndexFixingOffset(),
         DaysAdjustment.ofBusinessDays(-2, DKCO));
   }
+
+  public void test_toIborInde_tiee() {
+    assertEquals(FloatingRateName.of("MXN-TIIE").toIborIndex(Tenor.TENOR_4W), IborIndices.MXN_TIIE_4W);
+    assertEquals(FloatingRateName.of("MXN-TIIE").toIborIndexFixingOffset(), DaysAdjustment.ofBusinessDays(-1, MXMC));
+  }
+
 
   //-------------------------------------------------------------------------
   public void coverage() {

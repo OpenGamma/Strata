@@ -100,13 +100,18 @@ public interface TermDepositConvention
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public abstract TermDepositTrade createTrade(
+  public default TermDepositTrade createTrade(
       LocalDate tradeDate,
       Period depositPeriod,
       BuySell buySell,
       double notional,
       double rate,
-      ReferenceData refData);
+      ReferenceData refData) {
+
+    LocalDate startDate = calculateSpotDateFromTradeDate(tradeDate, refData);
+    LocalDate endDate = startDate.plus(depositPeriod);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, rate);
+  }
 
   /**
    * Creates a trade based on this convention.

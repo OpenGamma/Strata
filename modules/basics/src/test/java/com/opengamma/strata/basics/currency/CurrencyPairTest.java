@@ -17,6 +17,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Optional;
@@ -133,6 +134,25 @@ public class CurrencyPairTest {
   public void test_contains_Currency_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertThrowsIllegalArg(() -> test.contains(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_other_Currency() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertEquals(test.other(GBP), USD);
+    assertEquals(test.other(USD), GBP);
+    assertThrows(IllegalArgumentException.class, () -> test.other(EUR));
+  }
+
+  public void test_other_Currency_same() {
+    CurrencyPair test = CurrencyPair.of(GBP, GBP);
+    assertEquals(test.other(GBP), GBP);
+    assertThrows(IllegalArgumentException.class, () -> test.other(EUR));
+  }
+
+  public void test_other_Currency_null() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertThrowsIllegalArg(() -> test.other(null));
   }
 
   //-------------------------------------------------------------------------

@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Locale;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -38,6 +40,16 @@ public class FraDiscountingMethodTest {
   @Test(dataProvider = "name")
   public void test_of_lookup(FraDiscountingMethod convention, String name) {
     assertEquals(FraDiscountingMethod.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupUpperCase(FraDiscountingMethod convention, String name) {
+    assertEquals(FraDiscountingMethod.of(name.toUpperCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupLowerCase(FraDiscountingMethod convention, String name) {
+    assertEquals(FraDiscountingMethod.of(name.toLowerCase(Locale.ENGLISH)), convention);
   }
 
   public void test_of_lookup_notFound() {

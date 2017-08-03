@@ -5,12 +5,11 @@
  */
 package com.opengamma.strata.product.bond;
 
-import java.util.Locale;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.EnumNames;
+import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
  * A convention defining accrued interest calculation type for a bond security.
@@ -23,7 +22,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013
  */
-public enum FixedCouponBondYieldConvention {
+public enum FixedCouponBondYieldConvention implements NamedEnum {
 
   /**
    * UK BUMP/DMO method.
@@ -45,6 +44,10 @@ public enum FixedCouponBondYieldConvention {
    */
   JP_SIMPLE("JP-Simple");
 
+  // helper for name conversions
+  private static final EnumNames<FixedCouponBondYieldConvention> NAMES =
+      EnumNames.ofManualToString(FixedCouponBondYieldConvention.class);
+
   // name
   private final String name;
 
@@ -55,22 +58,23 @@ public enum FixedCouponBondYieldConvention {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains an instance from the specified name.
+   * <p>
+   * Parsing handles the mixed case form produced by {@link #toString()} and
+   * the upper and lower case variants of the enum constant name.
    * 
-   * @param uniqueName  the unique name
+   * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FixedCouponBondYieldConvention of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.replace('-', '_').replace("/", "").toUpperCase(Locale.ENGLISH));
+  public static FixedCouponBondYieldConvention of(String name) {
+    return NAMES.parse(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-  /**
-   * Returns the formatted unique name of the type.
+   * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
    */

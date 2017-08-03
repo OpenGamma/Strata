@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_CHF_ECB;
@@ -82,6 +83,8 @@ public class FxIndexTest {
   //-------------------------------------------------------------------------
   public void test_ecb_eur_gbp_dates() {
     FxIndex test = FxIndices.EUR_GBP_ECB;
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, EUTA.combinedWith(GBLO)));
+    assertEquals(test.getMaturityDateOffset(), DaysAdjustment.ofBusinessDays(2, EUTA.combinedWith(GBLO)));
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 15));
     assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA), date(2014, 10, 13));
     // weekend

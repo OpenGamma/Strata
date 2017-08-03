@@ -88,7 +88,7 @@ public final class Swap
    * @param legs  the list of legs
    * @return the swap
    */
-  public static Swap of(List<SwapLeg> legs) {
+  public static Swap of(List<? extends SwapLeg> legs) {
     ArgChecker.notEmpty(legs, "legs");
     return new Swap(ImmutableList.copyOf(legs));
   }

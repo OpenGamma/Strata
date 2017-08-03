@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Locale;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -37,6 +39,16 @@ public class SettlementTypeTest {
   @Test(dataProvider = "name")
   public void test_of_lookup(SettlementType convention, String name) {
     assertEquals(SettlementType.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupUpperCase(SettlementType convention, String name) {
+    assertEquals(SettlementType.of(name.toUpperCase(Locale.ENGLISH)), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookupLowerCase(SettlementType convention, String name) {
+    assertEquals(SettlementType.of(name.toLowerCase(Locale.ENGLISH)), convention);
   }
 
   public void test_of_lookup_notFound() {

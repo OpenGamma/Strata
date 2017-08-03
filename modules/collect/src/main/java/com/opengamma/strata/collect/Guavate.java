@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -48,6 +49,71 @@ public final class Guavate {
    * Restricted constructor.
    */
   private Guavate() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Concatenates a number of iterables into a single list.
+   * <p>
+   * This is harder than it should be, a method {@code Stream.of(Iterable)}
+   * would have been appropriate, but cannot be added now.
+   * 
+   * @param <T>  the type of element in the iterable
+   * @param iterables  the iterables to combine
+   * @return the list that combines the inputs
+   */
+  @SafeVarargs
+  public static <T> ImmutableList<T> concatToList(Iterable<T>... iterables) {
+    return ImmutableList.copyOf(Iterables.concat(iterables));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Uses a number of suppliers to create a single optional result.
+   * <p>
+   * This invokes each supplier in turn until a non empty optional is returned.
+   * As such, not all suppliers are necessarily invoked.
+   * <p>
+   * The Java 8 {@link Optional} class does not have an {@code or} method,
+   * so this provides an alternative.
+   * 
+   * @param <T>  the type of element in the optional
+   * @param suppliers  the suppliers to combine
+   * @return the first non empty optional
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  public static <T> Optional<T> firstNonEmpty(Supplier<Optional<? extends T>>... suppliers) {
+    for (Supplier<Optional<? extends T>> supplier : suppliers) {
+      Optional<? extends T> result = supplier.get();
+      if (result.isPresent()) {
+        // safe, because Optional is read-only
+        return (Optional<T>) result;
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Chooses the first optional that is not empty.
+   * <p>
+   * The Java 8 {@link Optional} class does not have an {@code or} method,
+   * so this provides an alternative.
+   * 
+   * @param <T>  the type of element in the optional
+   * @param optionals  the optionals to combine
+   * @return the first non empty optional
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  public static <T> Optional<T> firstNonEmpty(Optional<? extends T>... optionals) {
+    for (Optional<? extends T> optional : optionals) {
+      if (optional.isPresent()) {
+        // safe, because Optional is read-only
+        return (Optional<T>) optional;
+      }
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

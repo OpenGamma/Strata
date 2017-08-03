@@ -9,12 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.math.impl.cern.MersenneTwister;
+import com.opengamma.strata.math.impl.cern.MersenneTwister64;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
-
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
-import cern.jet.random.engine.RandomEngine;
 
 /**
  * Abstract test.

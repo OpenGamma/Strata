@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.math.impl.cern.RandomEngine;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
-
-import cern.jet.random.engine.RandomEngine;
 
 /**
  * Random number generator based on {@code ProbabilityDistribution}. 
