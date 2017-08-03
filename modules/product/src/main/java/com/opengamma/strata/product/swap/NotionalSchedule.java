@@ -71,9 +71,8 @@ public final class NotionalSchedule
    * exchange of money between the counterparties.
    * <p>
    * When building the notional schedule, if an {@code FxResetCalculation} is present,
-   * then at least one of the notional exchange flags should be set to true.
-   * <p>
-   * If all notional exchange flags are false then setting the fx reset definition has no impact.
+   * then at least one of the notional exchange flags should be set to true. If all notional
+   * exchange flags are false then an IllegalArgumentException is thrown.
    */
   @PropertyDefinition(get = "optional")
   private final FxResetCalculation fxReset;
@@ -172,6 +171,13 @@ public final class NotionalSchedule
         throw new IllegalArgumentException(
             Messages.format("Currency {} must be one of those in the FxResetCalculation index {}",
                 currency, fxReset.getIndex()));
+      }
+
+      if (!(initialExchange || intermediateExchange || finalExchange)){
+        throw new IllegalArgumentException(
+            Messages.format(
+                "FxResetCalculation index {} was specified but schedule does not include any notional exchanges",
+                fxReset.getIndex()));
       }
     }
   }

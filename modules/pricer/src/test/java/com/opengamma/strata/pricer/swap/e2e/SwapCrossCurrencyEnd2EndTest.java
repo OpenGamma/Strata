@@ -136,16 +136,25 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
   public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
-
     //Test all possible combinations of exchange flags
     boolean[] allBoolean = {true, false};
     for (boolean initialExchange : allBoolean) {
       for (boolean intermediateExchange : allBoolean) {
         for (boolean finalExchange : allBoolean) {
-          test_XCcyEurUSDFxReset(initialExchange, intermediateExchange, finalExchange);
+          //Skip the case where all exchanges are false, this is tested separately
+          if (initialExchange || intermediateExchange || finalExchange) {
+            test_XCcyEurUSDFxReset(initialExchange, intermediateExchange, finalExchange);
+          }
         }
       }
     }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = "FxResetCalculation index EUR/USD-WM was specified but schedule does not include any notional exchanges")
+  public void test_FxResetWithNoExchanges() {
+    //specifying an FX reset with no exchanges throws an exception
+    test_XCcyEurUSDFxReset(false, false, false);
   }
 
   private void test_XCcyEurUSDFxReset(boolean initialExchange, boolean intermediateExchange, boolean finalExchange) {
@@ -245,7 +254,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
 
     //Assert the payment event (exchange) count on each leg
-    List<ExplainMap> legs =  pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();
+    List<ExplainMap> legs = pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();
     assertThat(legs.get(0).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(eurExpectedPaymentEvents);
     assertThat(legs.get(1).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(usdExpectedPaymentEvents);
   }
