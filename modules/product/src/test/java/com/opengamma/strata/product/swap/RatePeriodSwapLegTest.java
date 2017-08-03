@@ -225,7 +225,7 @@ public class RatePeriodSwapLegTest {
     assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_resolve_omitFxResetNotionalExchange() {
+  public void test_resolve_FxResetOmitIntermediateNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -234,10 +234,39 @@ public class RatePeriodSwapLegTest {
         .intermediateExchange(false)
         .finalExchange(true)
         .build();
+
+    FxResetNotionalExchange initialExchange = FxResetNotionalExchange.of(
+        CurrencyAmount.of(USD, -8000d), DATE_2014_06_30, FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA));
+    FxResetNotionalExchange finalExchange = FxResetNotionalExchange.of(
+        CurrencyAmount.of(USD, 8000d), DATE_2014_10_01, FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA));
+
     ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET)
+        .paymentEvents(initialExchange, finalExchange)
+        .build();
+    assertEquals(test.resolve(REF_DATA), expected);
+  }
+
+  public void test_resolve_FxResetOmitInitialNotionalExchange() {
+    RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(PAY)
+        .paymentPeriods(RPP1_FXRESET)
+        .initialExchange(false)
+        .intermediateExchange(true)
+        .finalExchange(true)
+        .build();
+
+    FxResetNotionalExchange finalExchange = FxResetNotionalExchange.of(
+        CurrencyAmount.of(USD, 8000d), DATE_2014_10_01, FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA));
+
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(PAY)
+        .paymentPeriods(RPP1_FXRESET)
+        .paymentEvents(finalExchange)
         .build();
     assertEquals(test.resolve(REF_DATA), expected);
   }
