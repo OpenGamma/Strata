@@ -142,7 +142,7 @@ public final class PaymentSchedule
    * Rolling is backwards if there is an initial stub, otherwise rolling is forwards.
    * Grouping involves merging the existing accrual periods, thus the roll convention
    * of the accrual periods is implicitly applied.
-   *
+   * 
    * @param accrualSchedule  the accrual schedule
    * @param refData  the reference data to use when resolving
    * @return the payment schedule
@@ -169,7 +169,7 @@ public final class PaymentSchedule
    * Builds the list of payment periods from the list of accrual periods.
    * <p>
    * This applies the payment schedule.
-   *
+   * 
    * @param accrualSchedule  the accrual schedule
    * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
