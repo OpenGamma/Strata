@@ -288,10 +288,11 @@ public final class FxResetCalculation
   /**
    * Gets the initial notional value, specified in the payment currency.
    * <p>
-   * If present, this fixed amount represents the notional of the initial period of the swap leg, with
-   * no FX reset being applied.
+   * If present, this fixed amount represents the notional of the initial period of the
+   * swap leg, with no FX reset being applied.
    * <p>
-   * If not present, the initial notional amount is calculated from the fx fixing
+   * If not present, the initial notional amount is calculated by applying an fx conversion
+   * to the reference currency in the same manner as all other period notional calculations.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getInitialNotionalValue() {
@@ -690,10 +691,11 @@ public final class FxResetCalculation
     /**
      * Sets the initial notional value, specified in the payment currency.
      * <p>
-     * If present, this fixed amount represents the notional of the initial period of the swap leg, with
-     * no FX reset being applied.
+     * If present, this fixed amount represents the notional of the initial period of the
+     * swap leg, with no FX reset being applied.
      * <p>
-     * If not present, the initial notional amount is calculated from the fx fixing
+     * If not present, the initial notional amount is calculated by applying an fx conversion
+     * to the reference currency in the same manner as all other period notional calculations.
      * @param initialNotionalValue  the new value
      * @return this, for chaining, not null
      */
