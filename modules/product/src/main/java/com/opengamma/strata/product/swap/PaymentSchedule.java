@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.IntFunction;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -141,7 +142,7 @@ public final class PaymentSchedule
    * Rolling is backwards if there is an initial stub, otherwise rolling is forwards.
    * Grouping involves merging the existing accrual periods, thus the roll convention
    * of the accrual periods is implicitly applied.
-   * 
+   *
    * @param accrualSchedule  the accrual schedule
    * @param refData  the reference data to use when resolving
    * @return the payment schedule
@@ -168,7 +169,7 @@ public final class PaymentSchedule
    * Builds the list of payment periods from the list of accrual periods.
    * <p>
    * This applies the payment schedule.
-   * 
+   *
    * @param accrualSchedule  the accrual schedule
    * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
@@ -190,27 +191,36 @@ public final class PaymentSchedule
     DoubleArray notionals = notionalSchedule.getAmount().resolveValues(paymentSchedule);
     // resolve against reference data once
     DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
-    Function<SchedulePeriod, FxReset> fxResetFn =
-        notionalSchedule.getFxReset().map(calc -> calc.resolve(refData)).orElse(p -> null);
+    BiFunction<Integer, SchedulePeriod, Optional<FxReset>> fxResetFn =
+        notionalSchedule.getFxReset().map(calc -> calc.resolve(refData)).orElse((i, p) -> Optional.empty());
+
     // build up payment periods using schedule
-    Currency currency = notionalSchedule.getCurrency();
     ImmutableList.Builder<NotionalPaymentPeriod> paymentPeriods = ImmutableList.builder();
+    IntFunction<CurrencyAmount> notionalFunction =
+        getNotionalSupplierFunction(notionalSchedule, notionals, payReceive);
+
     // compare using == as Schedule.mergeRegular() will return same schedule
     if (accrualSchedule == paymentSchedule) {
       // same schedule means one accrual period per payment period
       for (int index = 0; index < paymentSchedule.size(); index++) {
         SchedulePeriod period = paymentSchedule.getPeriod(index);
-        double notional = payReceive.normalize(notionals.get(index));
+        CurrencyAmount notional = notionalFunction.apply(index);
         ImmutableList<RateAccrualPeriod> paymentAccrualPeriods = ImmutableList.of(accrualPeriods.get(index));
         paymentPeriods.add(createPaymentPeriod(
-            period, paymentAccrualPeriods, paymentDateAdjuster, fxResetFn, dayCount, currency, notional));
+            index,
+            period,
+            paymentAccrualPeriods,
+            paymentDateAdjuster,
+            fxResetFn,
+            dayCount,
+            notional));
       }
     } else {
       // multiple accrual periods per payment period, or accrual/payment schedules differ
       int accrualIndex = 0;
       for (int paymentIndex = 0; paymentIndex < paymentSchedule.size(); paymentIndex++) {
         SchedulePeriod payPeriod = paymentSchedule.getPeriod(paymentIndex);
-        double notional = payReceive.normalize(notionals.get(paymentIndex));
+        CurrencyAmount notional = notionalFunction.apply(paymentIndex);
         int accrualStartIndex = accrualIndex;
         RateAccrualPeriod accrual = accrualPeriods.get(accrualIndex);
         while (accrual.getUnadjustedEndDate().isBefore(payPeriod.getUnadjustedEndDate())) {
@@ -218,43 +228,82 @@ public final class PaymentSchedule
         }
         List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.subList(accrualStartIndex, accrualIndex + 1);
         paymentPeriods.add(createPaymentPeriod(
-            payPeriod, paymentAccrualPeriods, paymentDateAdjuster, fxResetFn, dayCount, currency, notional));
+            paymentIndex, payPeriod,
+            paymentAccrualPeriods,
+            paymentDateAdjuster,
+            fxResetFn,
+            dayCount,
+            notional));
         accrualIndex++;
       }
     }
     return paymentPeriods.build();
   }
 
+
+  //Returns a function which takes a payment period index and returns the notional for the index
+  private IntFunction<CurrencyAmount> getNotionalSupplierFunction(
+      NotionalSchedule notionalSchedule,
+      DoubleArray notionals,
+      PayReceive payReceive) {
+
+    boolean hasInitialFxNotional = notionalSchedule.getFxReset().isPresent() &&
+        notionalSchedule.getFxReset().get().getInitialNotionalValue().isPresent();
+
+    return index -> {
+      if (hasInitialFxNotional && index == 0) {
+        FxResetCalculation fxReset = notionalSchedule.getFxReset().get();
+        //If Fx reset leg with fixed initial notional then return the fixed amount in the payment currency
+        double notional = payReceive.normalize(fxReset.getInitialNotionalValue().getAsDouble());
+        Currency currency = fxReset.getIndex().getCurrencyPair().other(fxReset.getReferenceCurrency());
+        return CurrencyAmount.of(currency, notional);
+      } else {
+        double notional = payReceive.normalize(notionals.get(index));
+        return CurrencyAmount.of(notionalSchedule.getCurrency(), notional);
+      }
+    };
+  }
+
   // create the payment period
   private NotionalPaymentPeriod createPaymentPeriod(
+      int paymentPeriodIndex,
       SchedulePeriod paymentPeriod,
       List<RateAccrualPeriod> periods,
       DateAdjuster paymentDateAdjuster,
-      Function<SchedulePeriod, FxReset> fxResetFn,
+      BiFunction<Integer, SchedulePeriod, Optional<FxReset>> fxResetFn,
       DayCount dayCount,
-      Currency currency,
-      double notional) {
+      CurrencyAmount notional) {
 
     // FpML cash flow example 3 shows payment offset calculated from adjusted accrual date (not unadjusted)
     LocalDate paymentDate = paymentDateAdjuster.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod));
 
     // extract FX reset information
-    FxReset fxReset = fxResetFn.apply(paymentPeriod);
+    FxReset fxReset = fxResetFn.apply(paymentPeriodIndex, paymentPeriod).orElse(null);
 
     // handle special case where amount is known
     if (periods.size() == 1 && periods.get(0).getRateComputation() instanceof KnownAmountRateComputation) {
       CurrencyAmount amount = ((KnownAmountRateComputation) periods.get(0).getRateComputation()).getAmount();
       Payment payment = Payment.of(amount, paymentDate);
       if (fxReset != null) {
-        CurrencyAmount notionalAmount = CurrencyAmount.of(fxReset.getReferenceCurrency(), notional);
-        return KnownAmountNotionalSwapPaymentPeriod.of(payment, paymentPeriod, notionalAmount, fxReset.getObservation());
+        CurrencyAmount notionalAmount = CurrencyAmount.of(fxReset.getReferenceCurrency(), amount.getAmount());
+        return KnownAmountNotionalSwapPaymentPeriod.of(
+            payment,
+            paymentPeriod,
+            notionalAmount,
+            fxReset.getObservation());
       } else {
-        CurrencyAmount notionalAmount = CurrencyAmount.of(currency, notional);
-        return KnownAmountNotionalSwapPaymentPeriod.of(payment, paymentPeriod, notionalAmount);
+        return KnownAmountNotionalSwapPaymentPeriod.of(payment, paymentPeriod, notional);
       }
     }
     // rate based computation
-    return new RatePaymentPeriod(paymentDate, periods, dayCount, currency, fxReset, notional, compoundingMethod);
+    return new RatePaymentPeriod(
+        paymentDate,
+        periods,
+        dayCount,
+        notional.getCurrency(),
+        fxReset,
+        notional.getAmount(),
+        compoundingMethod);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
