@@ -108,7 +108,7 @@ public final class FxResetCalculation
    * If not present, the initial notional amount is calculated by applying an fx conversion
    * to the reference currency in the same manner as all other period notional calculations.
    */
-  @PropertyDefinition(get="optional")
+  @PropertyDefinition(get = "optional")
   private final Double initialNotionalValue;
 
   //-------------------------------------------------------------------------
