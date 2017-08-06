@@ -160,7 +160,7 @@ public final class FxResetCalculation
       DateAdjuster fixingDateAdjuster,
       Function<LocalDate, FxIndexObservation> obsFn) {
 
-    if (periodIndex == 0 && initialNotionalValue != null){
+    if (periodIndex == 0 && initialNotionalValue != null) {
       //if first notional is fixed then no FxReset is applied
       return Optional.empty();
     }
