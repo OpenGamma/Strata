@@ -15,8 +15,11 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -77,8 +80,8 @@ public class FxResetCalculationTest {
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
-    FxReset test = base.resolve(REF_DATA).apply(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 3, 27), REF_DATA), GBP));
+    Optional<FxReset> test = base.resolve(REF_DATA).apply(0, SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
+    assertEquals(test, Optional.of(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 3, 27), REF_DATA), GBP)));
   }
 
   public void test_resolve_beforeEnd_weekend() {
@@ -88,8 +91,8 @@ public class FxResetCalculationTest {
         .fixingDateOffset(MINUS_TWO_DAYS)
         .fixingRelativeTo(FxResetFixingRelativeTo.PERIOD_END)
         .build();
-    FxReset test = base.resolve(REF_DATA).apply(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 6, 26), REF_DATA), GBP));
+    Optional<FxReset> test = base.resolve(REF_DATA).apply(0, SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
+    assertEquals(test, Optional.of(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 6, 26), REF_DATA), GBP)));
   }
 
   public void test_resolve_beforeStart_threeDays() {
@@ -98,8 +101,24 @@ public class FxResetCalculationTest {
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_THREE_DAYS)
         .build();
-    FxReset test = base.resolve(REF_DATA).apply(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 3, 26), REF_DATA), GBP));
+    Optional<FxReset> test = base.resolve(REF_DATA).apply(0, SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
+    assertEquals(test, Optional.of(FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 3, 26), REF_DATA), GBP)));
+  }
+
+  public void test_resolve_initial_notional_override() {
+    FxResetCalculation base = FxResetCalculation.builder()
+        .index(EUR_GBP_ECB)
+        .referenceCurrency(GBP)
+        .fixingDateOffset(MINUS_TWO_DAYS)
+        .initialNotionalValue(100000d)
+        .build();
+    Optional<FxReset> fxResetFirstPeriod =
+        base.resolve(REF_DATA).apply(0, SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
+    assertFalse(fxResetFirstPeriod.isPresent());
+
+    Optional<FxReset> fxResetSecondPeriod =
+        base.resolve(REF_DATA).apply(1, SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
+    assertTrue(fxResetSecondPeriod.isPresent());
   }
 
   //-------------------------------------------------------------------------

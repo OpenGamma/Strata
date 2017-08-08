@@ -17,12 +17,15 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -150,6 +153,89 @@ public class SwapCrossCurrencyEnd2EndTest {
     }
   }
 
+  // XCcy swap with exchange of notional and FX Reset on the USD leg
+  public void test_XCcyFixedInitialNotional() {
+
+    DiscountingSwapTradePricer pricer = swapPricer();
+
+    //Create an MTM swap with initial notional override
+    double notional = 1_000_000d;
+    ResolvedSwapTrade fixedNotionalMtmTrade = getMtmTrade(true, true, true, notional).resolve(REF_DATA);
+    ExplainMap explainMap = pricer.explainPresentValue(fixedNotionalMtmTrade, provider());
+
+    CurrencyAmount fixedNotional = CurrencyAmount.of(Currency.USD, notional);
+    ExplainMap fixedNotionalMtmLeg = explainMap.get(ExplainKey.LEGS).get().get(1);
+
+    List<ExplainMap> events = fixedNotionalMtmLeg.get(ExplainKey.PAYMENT_EVENTS).get();
+
+    //First two payment events should use fixed initial notional
+    ExplainMap firstPaymentEvent = events.get(0);
+    assertFixedNotionalPaymentEvent(firstPaymentEvent, fixedNotional.negated());
+    ExplainMap secondPaymentEvent = events.get(1);
+    assertFixedNotionalPaymentEvent(secondPaymentEvent, fixedNotional);
+
+    //First coupon also uses fixed notional
+    ExplainMap firstCoupon = fixedNotionalMtmLeg.get(ExplainKey.PAYMENT_PERIODS).get().get(0);
+    assertEquals(firstCoupon.get(ExplainKey.TRADE_NOTIONAL), Optional.of(fixedNotional));
+    assertEquals(firstCoupon.get(ExplainKey.NOTIONAL), Optional.of(fixedNotional));
+
+    //Sum of all pv amounts which are impacted by overriding the first period with a  fixed notional
+    CurrencyAmount firstPaymentPv = firstPaymentEvent.get(ExplainKey.PRESENT_VALUE).get();
+    CurrencyAmount secondPaymentPv = secondPaymentEvent.get(ExplainKey.PRESENT_VALUE).get();
+    CurrencyAmount firstCouponPv = firstCoupon.get(ExplainKey.PRESENT_VALUE).get();
+    CurrencyAmount fixedNotionalImpactedEventsPv = firstPaymentPv.plus(secondPaymentPv).plus(firstCouponPv);
+
+    //----------------------------------------------------------------------------------------------------------
+
+    //Build identical trade but with no fixed notional
+    ResolvedSwapTrade noFixedNotionalMtmTrade = getMtmTrade(true, true, true, null).resolve(REF_DATA);
+    ExplainMap noFixedNotionalMtmLeg =
+        pricer.explainPresentValue(noFixedNotionalMtmTrade, provider()).get(ExplainKey.LEGS).get().get(1);
+
+    //Sum the pvs for the same combination of payments and events that are impacted by fixed notional in first trade
+    CurrencyAmount noFixedNotionalEventsPv =
+        noFixedNotionalMtmLeg.get(ExplainKey.PAYMENT_EVENTS).get().subList(0, 2).stream()
+            .map(payment -> payment.get(ExplainKey.PRESENT_VALUE).get())
+            .reduce(CurrencyAmount.zero(Currency.USD), CurrencyAmount::plus);
+
+    CurrencyAmount noFixedNotionalCouponsPv =
+        noFixedNotionalMtmLeg.get(ExplainKey.PAYMENT_PERIODS).get().get(0).get(ExplainKey.PRESENT_VALUE).get();
+    
+    CurrencyAmount noFixedNotionalImpactedEventsPv = noFixedNotionalCouponsPv.plus(noFixedNotionalEventsPv);
+
+    //----------------------------------------------------------------------------------------------------------
+
+    //PV difference of the events impacted by fixing notional
+    CurrencyAmount paymentsPvDifference = fixedNotionalImpactedEventsPv.minus(noFixedNotionalImpactedEventsPv);
+
+    //Calculate PV of the full trades
+    MultiCurrencyAmount fixedNotionalLegPv = pricer.presentValue(fixedNotionalMtmTrade, provider());
+    MultiCurrencyAmount noFixedNotionalLegPv = pricer.presentValue(noFixedNotionalMtmTrade, provider());
+
+    //EUR PV should not have changed
+    assertEquals(
+        fixedNotionalLegPv.getAmount(Currency.EUR).getAmount(),
+        noFixedNotionalLegPv.getAmount(Currency.EUR).getAmount(),
+        TOLERANCE_PV);
+
+    //Difference in USD PV should be equal the difference in PV of the three events impacted by the initial notional
+    //All else should remain equal
+    CurrencyAmount tradePvDifference =
+        fixedNotionalLegPv.getAmount(Currency.USD).minus(noFixedNotionalLegPv.getAmount(Currency.USD));
+    assertEquals(tradePvDifference.getAmount(), paymentsPvDifference.getAmount(), TOLERANCE_PV);
+  }
+
+  private void assertFixedNotionalPaymentEvent(ExplainMap paymentEvent, CurrencyAmount expectedNotional) {
+
+    assertEquals(paymentEvent.get(ExplainKey.TRADE_NOTIONAL), Optional.of(expectedNotional));
+    assertEquals(paymentEvent.get(ExplainKey.FORECAST_VALUE), Optional.of(expectedNotional));
+    double firstDiscountFactor = paymentEvent.get(ExplainKey.ACCRUAL_DAY_COUNT.DISCOUNT_FACTOR).get();
+
+    //Fixed notional, so PV is notional * DCF
+    CurrencyAmount expectedPv = expectedNotional.multipliedBy(firstDiscountFactor);
+    assertEquals(paymentEvent.get(ExplainKey.PRESENT_VALUE), Optional.of(expectedPv));
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "FxResetCalculation index EUR/USD-WM was specified but schedule does not include any notional exchanges")
   public void test_FxResetWithNoExchanges() {
@@ -158,6 +244,52 @@ public class SwapCrossCurrencyEnd2EndTest {
   }
 
   private void test_XCcyEurUSDFxReset(boolean initialExchange, boolean intermediateExchange, boolean finalExchange) {
+
+    ResolvedSwapTrade trade = getMtmTrade(initialExchange, intermediateExchange, finalExchange, null).resolve(REF_DATA);
+
+    DiscountingSwapTradePricer pricer = swapPricer();
+    MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
+
+    //Coupons are always included, so base is the total coupon pvs
+    double pvUsdExpected = 1447799.5318;
+    double pvEurExpected = -1020648.6461;
+    int usdExpectedPaymentEvents = 0;
+    int eurExpectedPaymentEvents = 0;
+
+    //Add PV amounts of included exchanges to arrive at total expected pv
+    if (initialExchange) {
+      pvUsdExpected += -143998710.0091;
+      pvEurExpected += 99999104.1730;
+      ++usdExpectedPaymentEvents;
+      ++eurExpectedPaymentEvents;
+    }
+
+    if (intermediateExchange) {
+      pvUsdExpected += -344525.1458;
+      usdExpectedPaymentEvents += 14;
+    }
+
+    if (finalExchange) {
+      pvUsdExpected += 143414059.1395;
+      pvEurExpected += -99709476.7047;
+      ++usdExpectedPaymentEvents;
+      ++eurExpectedPaymentEvents;
+    }
+
+    assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
+    assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
+
+    //Assert the payment event (exchange) count on each leg
+    List<ExplainMap> legs = pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();
+    assertThat(legs.get(0).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(eurExpectedPaymentEvents);
+    assertThat(legs.get(1).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(usdExpectedPaymentEvents);
+  }
+
+  private SwapTrade getMtmTrade(
+      boolean initialExchange,
+      boolean intermediateExchange,
+      boolean finalExchange,
+      Double initialNotional) {
 
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -206,6 +338,7 @@ public class SwapCrossCurrencyEnd2EndTest {
                 .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
                 .referenceCurrency(EUR)
                 .index(EUR_USD_WM)
+                .initialNotionalValue(initialNotional)
                 .build())
             .build())
         .calculation(IborRateCalculation.builder()
@@ -214,48 +347,10 @@ public class SwapCrossCurrencyEnd2EndTest {
             .build())
         .build();
 
-    ResolvedSwapTrade trade = SwapTrade.builder()
+    return SwapTrade.builder()
         .info(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
-        .build()
-        .resolve(REF_DATA);
-
-    DiscountingSwapTradePricer pricer = swapPricer();
-    MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
-
-    //Coupons are always included, so base is the total coupon pvs
-    double pvUsdExpected = 1447799.5318;
-    double pvEurExpected = -1020648.6461;
-    int usdExpectedPaymentEvents = 0;
-    int eurExpectedPaymentEvents = 0;
-
-    //Add PV amounts of included exchanges to arrive at total expected pv
-    if (initialExchange) {
-      pvUsdExpected += -143998710.0091;
-      pvEurExpected += 99999104.1730;
-      ++usdExpectedPaymentEvents;
-      ++eurExpectedPaymentEvents;
-    }
-
-    if (intermediateExchange) {
-      pvUsdExpected += -344525.1458;
-      usdExpectedPaymentEvents += 14;
-    }
-
-    if (finalExchange) {
-      pvUsdExpected += 143414059.1395;
-      pvEurExpected += -99709476.7047;
-      ++usdExpectedPaymentEvents;
-      ++eurExpectedPaymentEvents;
-    }
-
-    assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
-    assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
-
-    //Assert the payment event (exchange) count on each leg
-    List<ExplainMap> legs = pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();
-    assertThat(legs.get(0).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(eurExpectedPaymentEvents);
-    assertThat(legs.get(1).get(ExplainKey.PAYMENT_EVENTS).orElse(ImmutableList.of())).hasSize(usdExpectedPaymentEvents);
+        .build();
   }
 
   //-------------------------------------------------------------------------
