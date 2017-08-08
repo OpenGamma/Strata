@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -86,11 +87,24 @@ public class SwapTradeCalculationFunction
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
 
+  private final BiFunction<SwapTrade, ReferenceData, ResolvedSwapTrade> swapTradeResolver;
+
   /**
    * Creates an instance.
    */
   public SwapTradeCalculationFunction() {
+    this((swapTrade, referenceData) -> swapTrade.resolve(referenceData));
   }
+
+  /**
+   * Creates an instance using custom logic for resolving the SwapTrade
+   *
+   * @param swapTradeResolver function which calculates the resolved swap
+   */
+  public SwapTradeCalculationFunction(BiFunction<SwapTrade, ReferenceData, ResolvedSwapTrade> swapTradeResolver) {
+    this.swapTradeResolver = swapTradeResolver;
+  }
+
 
   //-------------------------------------------------------------------------
   @Override
@@ -140,7 +154,7 @@ public class SwapTradeCalculationFunction
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedSwapTrade resolved = trade.resolve(refData);
+    ResolvedSwapTrade resolved = swapTradeResolver.apply(trade, refData);
 
     // use lookup to query market data
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);

@@ -228,7 +228,8 @@ public final class PaymentSchedule
         }
         List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.subList(accrualStartIndex, accrualIndex + 1);
         paymentPeriods.add(createPaymentPeriod(
-            paymentIndex, payPeriod,
+            paymentIndex,
+            payPeriod,
             paymentAccrualPeriods,
             paymentDateAdjuster,
             fxResetFn,
