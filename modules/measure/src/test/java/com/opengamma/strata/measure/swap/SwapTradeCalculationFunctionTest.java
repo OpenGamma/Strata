@@ -10,6 +10,9 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -35,6 +38,7 @@ import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -45,6 +49,8 @@ import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
@@ -141,6 +147,48 @@ public class SwapTradeCalculationFunctionTest {
             Measures.PV01_CALIBRATED_SUM, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
             Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
+
+  }
+
+  public void test_swap_resolve_override() {
+    SwapTradeCalculationFunction overrideResolveFunction = new SwapTradeCalculationFunction(this::resolveToSingleCashflow);
+
+    ScenarioMarketData md = marketData();
+
+    Set<Measure> measures = ImmutableSet.of(Measures.EXPLAIN_PRESENT_VALUE);
+    Map<Measure, Result<?>> result = overrideResolveFunction.calculate(TRADE, measures, PARAMS, md, REF_DATA);
+
+    ExplainMap explainMap =
+        ((ScenarioArray<ExplainMap>) result.get(Measures.EXPLAIN_PRESENT_VALUE).getValue()).get(0);
+
+
+    for(ExplainMap legMap : explainMap.get(ExplainKey.LEGS).get()){
+      assertThat(legMap.get(ExplainKey.PAYMENT_PERIODS).get()).hasSize(1);
+    }
+  }
+
+  //Resolve a swap and remove all cashflows except for first
+  public ResolvedSwapTrade resolveToSingleCashflow(SwapTrade swapTrade, ReferenceData referenceData) {
+
+    ResolvedSwap resolvedSwap = swapTrade.resolve(referenceData).getProduct();
+    List<ResolvedSwapLeg> modifiedLegs = new ArrayList<>(2);
+    for (ResolvedSwapLeg leg : resolvedSwap.getLegs()) {
+
+      ResolvedSwapLeg modifiedLeg = leg.toBuilder()
+          .paymentPeriods(
+              leg.getPaymentPeriods().stream()
+                  .findFirst()
+                  .get())
+          .build();
+      modifiedLegs.add(modifiedLeg);
+    }
+
+    return ResolvedSwapTrade.builder()
+        .product(resolvedSwap.toBuilder()
+            .legs(modifiedLegs)
+            .build())
+        .info(swapTrade.getInfo())
+        .build();
   }
 
   //-------------------------------------------------------------------------
