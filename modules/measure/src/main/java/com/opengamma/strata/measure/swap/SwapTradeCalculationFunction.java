@@ -97,7 +97,7 @@ public class SwapTradeCalculationFunction
   }
 
   /**
-   * Creates an instance using custom logic for resolving the SwapTrade
+   * Creates an instance using custom logic for resolving the SwapTrade.
    *
    * @param swapTradeResolver function which calculates the resolved swap
    */
