@@ -168,7 +168,7 @@ public class SwapTradeCalculationFunctionTest {
   }
 
   //Resolve a swap and remove all cashflows except for first
-  public ResolvedSwapTrade resolveToSingleCashflow(SwapTrade swapTrade, ReferenceData referenceData) {
+  private ResolvedSwapTrade resolveToSingleCashflow(SwapTrade swapTrade, ReferenceData referenceData) {
 
     ResolvedSwap resolvedSwap = swapTrade.resolve(referenceData).getProduct();
     List<ResolvedSwapLeg> modifiedLegs = new ArrayList<>(2);
