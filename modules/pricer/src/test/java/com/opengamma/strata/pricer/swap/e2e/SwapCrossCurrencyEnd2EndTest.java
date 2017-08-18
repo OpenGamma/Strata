@@ -229,7 +229,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
     assertEquals(paymentEvent.get(ExplainKey.TRADE_NOTIONAL), Optional.of(expectedNotional));
     assertEquals(paymentEvent.get(ExplainKey.FORECAST_VALUE), Optional.of(expectedNotional));
-    double firstDiscountFactor = paymentEvent.get(ExplainKey.ACCRUAL_DAY_COUNT.DISCOUNT_FACTOR).get();
+    double firstDiscountFactor = paymentEvent.get(ExplainKey.DISCOUNT_FACTOR).get();
 
     //Fixed notional, so PV is notional * DCF
     CurrencyAmount expectedPv = expectedNotional.multipliedBy(firstDiscountFactor);

@@ -23,7 +23,6 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -144,18 +143,17 @@ final class FullSwapTradeCsvLoader {
    * 
    * @param row  the CSV row
    * @param info  the trade info
-   * @param refData  the reference data
    * @return the loaded trades, all errors are captured in the result
    */
-  static SwapTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
+  static SwapTrade parse(CsvRow row, TradeInfo info) {
     List<RateCalculationSwapLeg> legs = new ArrayList<>();
     // parse any number of legs by looking for 'Leg n Pay Receive'
-    Optional<String> payReceive = Optional.of(row.getValue("Leg 1 " + DIRECTION_FIELD));
+    Optional<String> payReceive = Optional.of(getValue(row, "Leg 1 ", DIRECTION_FIELD));
     int i = 1;
     while (payReceive.isPresent()) {
       legs.add(parseLeg(row, "Leg " + i + " "));
       i++;
-      payReceive = row.findValue("Leg " + i + " " + DIRECTION_FIELD);
+      payReceive = findValue(row, "Leg " + i + " ", DIRECTION_FIELD);
     }
     Swap swap = Swap.of(legs);
     return SwapTrade.of(info, swap);
@@ -163,7 +161,7 @@ final class FullSwapTradeCsvLoader {
 
   // parse a single leg
   private static RateCalculationSwapLeg parseLeg(CsvRow row, String leg) {
-    PayReceive payReceive = PayReceive.of(getValue(row, leg, DIRECTION_FIELD));
+    PayReceive payReceive = TradeCsvLoader.parsePayReceive(getValue(row, leg, DIRECTION_FIELD));
     PeriodicSchedule accrualSch = parseAccrualSchedule(row, leg);
     PaymentSchedule paymentSch = parsePaymentSchedule(row, leg, accrualSch.getFrequency());
     NotionalSchedule notionalSch = parseNotionalSchedule(row, leg);
@@ -274,7 +272,7 @@ final class FullSwapTradeCsvLoader {
       fxResetAdjOpt.ifPresent(v -> fxResetBuilder.fixingDateOffset(v));
       builder.fxReset(fxResetBuilder.build());
     } else if (notionalCurrencyOpt.isPresent() || fxFixingRelativeToOpt.isPresent() || fxResetAdjOpt.isPresent()) {
-      throw new IllegalArgumentException("Swap trade FX Reset must define field '" + FX_RESET_INDEX_FIELD + "'");
+      throw new IllegalArgumentException("Swap trade FX Reset must define field '" + leg + FX_RESET_INDEX_FIELD + "'");
     }
     // optionals
     findValue(row, leg, NOTIONAL_INITIAL_EXCHANGE_FIELD)
@@ -302,18 +300,20 @@ final class FullSwapTradeCsvLoader {
     Optional<String> indexOpt = findValue(row, leg, INDEX_FIELD);
     if (fixedRateOpt.isPresent()) {
       if (indexOpt.isPresent()) {
-        throw new IllegalArgumentException("Swap leg must not define both '" + FIXED_RATE_FIELD + "' and  '" + INDEX_FIELD + "'");
+        throw new IllegalArgumentException(
+            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and  '" + leg + INDEX_FIELD + "'");
       }
       return parseFixedRateCalculation(row, leg, fixedRateOpt.get(), currency);
     }
     if (!indexOpt.isPresent()) {
-      throw new IllegalArgumentException("Swap leg must define either '" + FIXED_RATE_FIELD + "' or  '" + INDEX_FIELD + "'");
+      throw new IllegalArgumentException(
+          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or  '" + leg + INDEX_FIELD + "'");
     }
     // index might be whole Ibor Index or Floating Rate Name
     String indexStr = indexOpt.get();
     Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(indexStr);
     if (frnOpt.isPresent()) {
-      FloatingRateName frn = FloatingRateName.of(indexStr);
+      FloatingRateName frn = frnOpt.get();
       switch (frn.getType()) {
         case IBOR: {
           // imply index from accrual frequency
@@ -362,7 +362,7 @@ final class FullSwapTradeCsvLoader {
         .map(s -> TradeCsvLoader.parseDouble(s));
     if (initialStubRateOpt.isPresent() && initialStubAmountOpt.isPresent()) {
       throw new IllegalArgumentException(
-          "Swap leg must not define both '" + INITIAL_STUB_RATE_FIELD + "' and  '" + INITIAL_STUB_AMOUNT_FIELD + "'");
+          "Swap leg must not define both '" + leg + INITIAL_STUB_RATE_FIELD + "' and  '" + leg + INITIAL_STUB_AMOUNT_FIELD + "'");
     }
     initialStubRateOpt.ifPresent(v -> builder.initialStub(
         FixedRateStubCalculation.ofFixedRate(v)));
@@ -375,7 +375,7 @@ final class FullSwapTradeCsvLoader {
         .map(s -> TradeCsvLoader.parseDouble(s));
     if (finalStubRateOpt.isPresent() && finalStubAmountOpt.isPresent()) {
       throw new IllegalArgumentException(
-          "Swap leg must not define both '" + FINAL_STUB_RATE_FIELD + "' and  '" + FINAL_STUB_AMOUNT_FIELD + "'");
+          "Swap leg must not define both '" + leg + FINAL_STUB_RATE_FIELD + "' and  '" + leg + FINAL_STUB_AMOUNT_FIELD + "'");
     }
     finalStubRateOpt.ifPresent(v -> builder.finalStub(
         FixedRateStubCalculation.ofFixedRate(v)));
@@ -400,7 +400,7 @@ final class FullSwapTradeCsvLoader {
     Optional<Frequency> resetFrequencyOpt = findValue(row, leg, RESET_FREQUENCY_FIELD).map(v -> Frequency.parse(v));
     IborRateResetMethod resetMethod = findValue(row, leg, RESET_METHOD_FIELD)
         .map(v -> IborRateResetMethod.of(v))
-        .orElse(IborRateResetMethod.UNWEIGHTED);
+        .orElse(IborRateResetMethod.WEIGHTED);
     BusinessDayAdjustment resetDateAdj =
         parseBusinessDayAdjustment(row, leg, RESET_DATE_CNV_FIELD, RESET_DATE_CAL_FIELD).orElse(bda);
     resetFrequencyOpt.ifPresent(freq -> builder.resetPeriods(ResetSchedule.builder()
@@ -435,70 +435,65 @@ final class FullSwapTradeCsvLoader {
         .map(s -> TradeCsvLoader.parseDoublePercent(s))
         .ifPresent(v -> builder.spread(ValueSchedule.of(v)));
     // initial stub
-    Optional<Double> initialStubRateOpt = findValue(row, leg, INITIAL_STUB_RATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s));
-    Optional<Double> initialStubAmountOpt = findValue(row, leg, INITIAL_STUB_AMOUNT_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s));
-    Optional<IborIndex> initialStubIndexOpt = findValue(row, leg, INITIAL_STUB_INDEX_FIELD)
-        .map(s -> IborIndex.of(s));
-    Optional<IborIndex> initialStubIndex2Opt = findValue(row, leg, INITIAL_STUB_INTERPOLATED_INDEX_FIELD)
-        .map(s -> IborIndex.of(s));
-    if (initialStubRateOpt.isPresent() && !initialStubAmountOpt.isPresent() &&
-        !initialStubIndexOpt.isPresent() && !initialStubIndex2Opt.isPresent()) {
-      builder.initialStub(IborRateStubCalculation.ofFixedRate(initialStubRateOpt.get()));
-
-    } else if (!initialStubRateOpt.isPresent() && initialStubAmountOpt.isPresent() &&
-        !initialStubIndexOpt.isPresent() && !initialStubIndex2Opt.isPresent()) {
-      builder.initialStub(IborRateStubCalculation.ofKnownAmount(CurrencyAmount.of(currency, initialStubAmountOpt.get())));
-
-    } else if (!initialStubRateOpt.isPresent() && !initialStubAmountOpt.isPresent() && initialStubIndexOpt.isPresent()) {
-      if (initialStubIndex2Opt.isPresent()) {
-        builder.initialStub(
-            IborRateStubCalculation.ofIborInterpolatedRate(initialStubIndexOpt.get(), initialStubIndex2Opt.get()));
-      } else {
-        builder.initialStub(IborRateStubCalculation.ofIborRate(initialStubIndexOpt.get()));
-      }
-    } else if (initialStubRateOpt.isPresent() || initialStubAmountOpt.isPresent() ||
-        initialStubIndexOpt.isPresent() || initialStubIndex2Opt.isPresent()) {
-      throw new IllegalArgumentException(
-          "Swap leg must define only one of the following fields " +
-              ImmutableList.of(leg + INITIAL_STUB_RATE_FIELD, leg + INITIAL_STUB_AMOUNT_FIELD, leg + INITIAL_STUB_INDEX_FIELD) +
-              ", and '" + leg + INITIAL_STUB_INTERPOLATED_INDEX_FIELD + "' is only allowed with '" +
-              leg + INITIAL_STUB_INDEX_FIELD + "'");
-    }
+    Optional<IborRateStubCalculation> initialStub = parseIborStub(
+        row,
+        leg,
+        currency,
+        builder,
+        INITIAL_STUB_RATE_FIELD,
+        INITIAL_STUB_AMOUNT_FIELD,
+        INITIAL_STUB_INDEX_FIELD,
+        INITIAL_STUB_INTERPOLATED_INDEX_FIELD);
+    initialStub.ifPresent(stub -> builder.initialStub(stub));
     // final stub
-    Optional<Double> finalStubRateOpt = findValue(row, leg, FINAL_STUB_RATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s));
-    Optional<Double> finalStubAmountOpt = findValue(row, leg, FINAL_STUB_AMOUNT_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s));
-    Optional<IborIndex> finalStubIndexOpt = findValue(row, leg, FINAL_STUB_INDEX_FIELD)
-        .map(s -> IborIndex.of(s));
-    Optional<IborIndex> finalStubIndex2Opt = findValue(row, leg, FINAL_STUB_INTERPOLATED_INDEX_FIELD)
-        .map(s -> IborIndex.of(s));
-    if (finalStubRateOpt.isPresent() && !finalStubAmountOpt.isPresent() &&
-        !finalStubIndexOpt.isPresent() && !finalStubIndex2Opt.isPresent()) {
-      builder.finalStub(IborRateStubCalculation.ofFixedRate(finalStubRateOpt.get()));
+    Optional<IborRateStubCalculation> finalStub = parseIborStub(
+        row,
+        leg,
+        currency,
+        builder,
+        FINAL_STUB_RATE_FIELD,
+        FINAL_STUB_AMOUNT_FIELD,
+        FINAL_STUB_INDEX_FIELD,
+        FINAL_STUB_INTERPOLATED_INDEX_FIELD);
+    finalStub.ifPresent(stub -> builder.finalStub(stub));
+    return builder.build();
+  }
 
-    } else if (!finalStubRateOpt.isPresent() && finalStubAmountOpt.isPresent() &&
-        !finalStubIndexOpt.isPresent() && !finalStubIndex2Opt.isPresent()) {
-      builder.finalStub(IborRateStubCalculation.ofKnownAmount(CurrencyAmount.of(currency, finalStubAmountOpt.get())));
+  // an Ibor stub
+  private static Optional<IborRateStubCalculation> parseIborStub(
+      CsvRow row, 
+      String leg, 
+      Currency currency, 
+      IborRateCalculation.Builder builder,
+      String rateField, 
+      String amountField, 
+      String indexField, 
+      String interpolatedField) {
+    
+    Optional<Double> stubRateOpt = findValue(row, leg, rateField).map(s -> TradeCsvLoader.parseDoublePercent(s));
+    Optional<Double> stubAmountOpt = findValue(row, leg, amountField).map(s -> TradeCsvLoader.parseDouble(s));
+    Optional<IborIndex> stubIndexOpt = findValue(row, leg, indexField).map(s -> IborIndex.of(s));
+    Optional<IborIndex> stubIndex2Opt = findValue(row, leg, interpolatedField).map(s -> IborIndex.of(s));
+    if (stubRateOpt.isPresent() && !stubAmountOpt.isPresent() && !stubIndexOpt.isPresent() && !stubIndex2Opt.isPresent()) {
+      return Optional.of(IborRateStubCalculation.ofFixedRate(stubRateOpt.get()));
 
-    } else if (!finalStubRateOpt.isPresent() && !finalStubAmountOpt.isPresent() && finalStubIndexOpt.isPresent()) {
-      if (finalStubIndex2Opt.isPresent()) {
-        builder.finalStub(
-            IborRateStubCalculation.ofIborInterpolatedRate(finalStubIndexOpt.get(), finalStubIndex2Opt.get()));
+    } else if (!stubRateOpt.isPresent() && stubAmountOpt.isPresent() && !stubIndexOpt.isPresent() && !stubIndex2Opt.isPresent()) {
+      return Optional.of(IborRateStubCalculation.ofKnownAmount(CurrencyAmount.of(currency, stubAmountOpt.get())));
+
+    } else if (!stubRateOpt.isPresent() && !stubAmountOpt.isPresent() && stubIndexOpt.isPresent()) {
+      if (stubIndex2Opt.isPresent()) {
+        return Optional.of(IborRateStubCalculation.ofIborInterpolatedRate(stubIndexOpt.get(), stubIndex2Opt.get()));
       } else {
-        builder.finalStub(IborRateStubCalculation.ofIborRate(finalStubIndexOpt.get()));
+        return Optional.of(IborRateStubCalculation.ofIborRate(stubIndexOpt.get()));
       }
-    } else if (finalStubRateOpt.isPresent() || finalStubAmountOpt.isPresent() ||
-        finalStubIndexOpt.isPresent() || finalStubIndex2Opt.isPresent()) {
+    } else if (stubRateOpt.isPresent() || stubAmountOpt.isPresent() ||
+        stubIndexOpt.isPresent() || stubIndex2Opt.isPresent()) {
       throw new IllegalArgumentException(
           "Swap leg must define only one of the following fields " +
-              ImmutableList.of(leg + FINAL_STUB_RATE_FIELD, leg + FINAL_STUB_AMOUNT_FIELD, leg + FINAL_STUB_INDEX_FIELD) +
-              ", and '" + leg + FINAL_STUB_INTERPOLATED_INDEX_FIELD + "' is only allowed with '" +
-              leg + FINAL_STUB_INDEX_FIELD + "'");
+              ImmutableList.of(leg + rateField, leg + amountField, leg + indexField) +
+              ", and '" + leg + interpolatedField + "' is only allowed with '" + leg + indexField + "'");
     }
-    return builder.build();
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

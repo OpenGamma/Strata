@@ -36,6 +36,8 @@ import com.opengamma.strata.collect.result.ValueWithFailures;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -117,6 +119,7 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <ul>
  * <li>'Convention', 'Trade Date', 'Period To Start', 'Tenor'
  * <li>'Convention', 'Start Date', 'End Date'
+ * <li>Explicitly by defining each leg (not detailed here)
  * </ul>
  * 
  * <h4>Term Deposit</h4>
@@ -145,7 +148,7 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  */
 public final class TradeCsvLoader {
 
-  // DMY with slashes format
+  // date formats
   private static final DateTimeFormatter DD_MM_YY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yy", Locale.ENGLISH);
   private static final DateTimeFormatter DD_MM_YYYY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
   private static final DateTimeFormatter YYYY_MM_DD_SLASH = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.ENGLISH);
@@ -191,12 +194,12 @@ public final class TradeCsvLoader {
    * 
    * @return the loader
    */
-  public static TradeCsvLoader of() {
+  public static TradeCsvLoader standard() {
     return new TradeCsvLoader(ReferenceData.standard());
   }
 
   /**
-   * Obtains an instance that uses the standard set of reference data.
+   * Obtains an instance that uses the specified set of reference data.
    * 
    * @param refData  the reference data
    * @return the loader
@@ -262,7 +265,7 @@ public final class TradeCsvLoader {
   /**
    * Parses one or more CSV format trade files.
    * <p>
-   * A predicate is specified that can be used to filter the trades based on the trade type.
+   * A type is specified to filter the trades.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
    * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
@@ -333,11 +336,11 @@ public final class TradeCsvLoader {
                 FailureItem.of(FailureReason.PARSING, "CSV file trade type '{}' is not known at line {}", typeRaw, line));
             break;
         }
-        line++;
       } catch (RuntimeException ex) {
         failures.add(
             FailureItem.of(FailureReason.PARSING, ex, "CSV file trade could not be parsed at line {}: " + ex.getMessage(), line));
       }
+      line++;
     }
     return ValueWithFailures.of(trades, failures);
   }
@@ -360,10 +363,12 @@ public final class TradeCsvLoader {
       case "TRUE":
       case "T":
       case "YES":
+      case "Y":
         return true;
       case "FALSE":
       case "F":
       case "NO":
+      case "N":
         return false;
       default:
         throw new IllegalArgumentException("Unknown boolean value, must 'True' or 'False' but was '" + str + "'");
@@ -393,7 +398,7 @@ public final class TradeCsvLoader {
       }
       // dd/MM/yy
       // dd/MM/yyyy
-      if (str.length() >= 6 && str.charAt(2) == '/' && str.charAt(5) == '/') {
+      if (str.length() >= 8 && str.charAt(2) == '/' && str.charAt(5) == '/') {
         if (str.length() == 8) {
           return LocalDate.parse(str, DD_MM_YY_SLASH);
         } else {
@@ -416,6 +421,35 @@ public final class TradeCsvLoader {
           "Unknown date format, must be formatted as " +
               "yyyy-MM-dd, yyyyMMdd, dd/MM/yyyy, yyyy/MM/dd, 'd-MMM-yyyy' or 'dMMMyyyy' but was: " + str,
           ex);
+    }
+  }
+
+  // parses buy/sell
+  static BuySell parseBuySell(String str) {
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "BUY":
+      case "B":
+        return BuySell.BUY;
+      case "SELL":
+      case "S":
+        return BuySell.SELL;
+      default:
+        throw new IllegalArgumentException("Unknown BuySell value, must 'Buy' or 'Sell' but was '" + str + "'");
+    }
+  }
+
+  // parses pay/receive
+  static PayReceive parsePayReceive(String str) {
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "PAY":
+      case "P":
+        return PayReceive.PAY;
+      case "RECEIVE":
+      case "REC":
+      case "R":
+        return PayReceive.RECEIVE;
+      default:
+        throw new IllegalArgumentException("Unknown PayReceive value, must 'Pay' or 'Receive' but was '" + str + "'");
     }
   }
 

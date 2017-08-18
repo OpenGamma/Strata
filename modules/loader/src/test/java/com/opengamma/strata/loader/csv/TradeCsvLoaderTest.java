@@ -101,7 +101,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_failures() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     assertEquals(trades.getFailures().size(), 0, trades.getFailures().toString());
@@ -109,7 +109,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_fra() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<FraTrade> filtered = trades.getValue().stream()
@@ -163,7 +163,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_swap() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<SwapTrade> filtered = trades.getValue().stream()
@@ -248,7 +248,7 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_swap_full5() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(FILE.getCharSource()), SwapTrade.class);
     assertEquals(result.getFailures().size(), 0);
     assertEquals(result.getValue().size(), NUMBER_SWAPS);
@@ -299,7 +299,7 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_swap_full6() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(FILE.getCharSource()), SwapTrade.class);
     assertEquals(result.getFailures().size(), 0);
     assertEquals(result.getValue().size(), NUMBER_SWAPS);
@@ -351,7 +351,7 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_swap_full7() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(FILE.getCharSource()), SwapTrade.class);
     assertEquals(result.getFailures().size(), 0);
     assertEquals(result.getValue().size(), NUMBER_SWAPS);
@@ -537,7 +537,7 @@ public class TradeCsvLoaderTest {
         .build();
     String csv = Joiner.on(',').join(csvMap.keySet()) + "\n" + Joiner.on(',').join(csvMap.values());
 
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
     assertEquals(result.getFailures().size(), 0, result.getFailures().toString());
     assertEquals(result.getValue().size(), 1);
@@ -743,7 +743,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_termDeposit() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<TermDepositTrade> filtered = trades.getValue().stream()
@@ -793,7 +793,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_invalidNoHeader() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("")));
 
     assertEquals(trades.getFailures().size(), 1);
@@ -803,7 +803,7 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_invalidNoType() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Id")));
 
     assertEquals(trades.getFailures().size(), 1);
@@ -813,7 +813,7 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_invalidUnknownType() {
-    TradeCsvLoader test = TradeCsvLoader.of();
+    TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type\nFoo")));
 
     assertEquals(trades.getFailures().size(), 1);
@@ -823,8 +823,8 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_invalidFra() {
-    TradeCsvLoader test = TradeCsvLoader.of();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type\nFra")));
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type,Buy Sell\nFra,Buy")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
@@ -833,8 +833,8 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_invalidSwap() {
-    TradeCsvLoader test = TradeCsvLoader.of();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type\nSwap")));
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type,Buy Sell\nSwap,Buy")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
@@ -845,8 +845,8 @@ public class TradeCsvLoaderTest {
   }
 
   public void test_load_invalidTermDeposit() {
-    TradeCsvLoader test = TradeCsvLoader.of();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type\nTermDeposit")));
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type,Buy Sell\nTermDeposit,Buy")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
@@ -857,6 +857,9 @@ public class TradeCsvLoaderTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(FraTradeCsvLoader.class);
+    coverPrivateConstructor(SwapTradeCsvLoader.class);
+    coverPrivateConstructor(TermDepositTradeCsvLoader.class);
+    coverPrivateConstructor(FullSwapTradeCsvLoader.class);
   }
 
 }

@@ -64,13 +64,11 @@ final class SwapTradeCsvLoader {
   static SwapTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
     Optional<String> conventionOpt = row.findValue(CONVENTION_FIELD);
     if (conventionOpt.isPresent()) {
-      // using an 'unnecessary' nested class to allow parsing logic to be split
-      // into smaller methods without passing lots of parameters around
       return parseWithConvention(row, info, refData, conventionOpt.get());
     } else {
       Optional<String> payReceive = row.findValue("Leg 1 " + DIRECTION_FIELD);
       if (payReceive.isPresent()) {
-        return FullSwapTradeCsvLoader.parse(row, info, refData);
+        return FullSwapTradeCsvLoader.parse(row, info);
       }
       throw new IllegalArgumentException(
           "Swap trade had invalid combination of fields. Must include either '" +
@@ -80,7 +78,7 @@ final class SwapTradeCsvLoader {
 
   // parse a trade based on a convention
   static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, ReferenceData refData, String conventionStr) {
-    BuySell buySell = row.findValue(BUY_SELL_FIELD).map(s -> BuySell.of(s)).orElse(BuySell.BUY);
+    BuySell buySell = TradeCsvLoader.parseBuySell(row.getValue(BUY_SELL_FIELD));
     double notional = TradeCsvLoader.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = TradeCsvLoader.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> Tenor.parse(s).getPeriod());

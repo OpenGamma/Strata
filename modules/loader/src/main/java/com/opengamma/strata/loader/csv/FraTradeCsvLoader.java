@@ -53,7 +53,7 @@ final class FraTradeCsvLoader {
    * @return the loaded trades, all errors are captured in the result
    */
   static FraTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
-    BuySell buySell = row.findValue(BUY_SELL_FIELD).map(s -> BuySell.of(s)).orElse(BuySell.BUY);
+    BuySell buySell = TradeCsvLoader.parseBuySell(row.getValue(BUY_SELL_FIELD));
     double notional = TradeCsvLoader.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = TradeCsvLoader.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<FraConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> FraConvention.of(s));
