@@ -109,7 +109,7 @@ public class ExportUtils {
   public static void export(String string, String fileName) {
     File file = new File(fileName);
     Unchecked.wrap(() -> Files.createParentDirs(file));
-    Unchecked.wrap(() -> Files.write(string, file, StandardCharsets.UTF_8));
+    Unchecked.wrap(() -> Files.asCharSink(file, StandardCharsets.UTF_8).write(string));
   }
 
 }

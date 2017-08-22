@@ -164,7 +164,7 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Header not found: Curve Name")
+      expectedExceptionsMessageRegExp = "Header not found: 'Curve Name'")
   public void test_invalid_settings_missing_column_file() {
     LegalEntityRatesCurvesCsvLoader.load(
         ALL_DATES.get(6),
