@@ -532,7 +532,7 @@ public class TradeCsvLoaderTest {
         .put("Leg 7 Index", "GB-RPI")
         .put("Leg 7 Inflation Lag", "2")
         .put("Leg 7 Inflation Method", "Interpolated")
-        .put("Leg 7 Inflation First Value", "121")
+        .put("Leg 7 Inflation First Index Value", "121")
         .put("Leg 7 Gearing", "2")
         .build();
     String csv = Joiner.on(',').join(csvMap.keySet()) + "\n" + Joiner.on(',').join(csvMap.values());

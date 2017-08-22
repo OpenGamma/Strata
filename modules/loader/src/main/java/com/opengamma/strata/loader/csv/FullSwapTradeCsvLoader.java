@@ -133,7 +133,7 @@ final class FullSwapTradeCsvLoader {
   private static final String RATE_CUT_OFF_DAYS_FIELD = "Rate Cut Off Days";
   private static final String INFLATION_LAG_FIELD = "Inflation Lag";
   private static final String INFLATION_METHOD_FIELD = "Inflation Method";
-  private static final String INFLATION_FIRST_VALUE_FIELD = "Inflation First Value";
+  private static final String INFLATION_FIRST_INDEX_VALUE_FIELD = "Inflation First Index Value";
   
   private static final String GEARING_FIELD = "Gearing";
   private static final String SPREAD_FIELD = "Spread";
@@ -537,7 +537,7 @@ final class FullSwapTradeCsvLoader {
     builder.lag(parseInflationLag(findValue(row, leg, INFLATION_LAG_FIELD), currency));
     builder.indexCalculationMethod(parseInflationMethod(findValue(row, leg, INFLATION_METHOD_FIELD), currency));
     // optionals
-    findValue(row, leg, INFLATION_FIRST_VALUE_FIELD)
+    findValue(row, leg, INFLATION_FIRST_INDEX_VALUE_FIELD)
         .map(s -> TradeCsvLoader.parseDouble(s))
         .ifPresent(v -> builder.firstIndexValue(v));
     findValue(row, leg, GEARING_FIELD)

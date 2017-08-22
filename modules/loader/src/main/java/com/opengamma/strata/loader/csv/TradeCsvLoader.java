@@ -119,6 +119,7 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <ul>
  * <li>'Convention', 'Trade Date', 'Period To Start', 'Tenor'
  * <li>'Convention', 'Start Date', 'End Date'
+ * <li>'Convention', 'Start Date', 'Tenor'
  * <li>Explicitly by defining each leg (not detailed here)
  * </ul>
  * 
