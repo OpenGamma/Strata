@@ -192,6 +192,14 @@ public final class Tenor
    * A tenor of 30 years.
    */
   public static final Tenor TENOR_30Y = ofYears(30);
+  /**
+   * A tenor of 40 years.
+   */
+  public static final Tenor TENOR_40Y = ofYears(40);
+  /**
+   * A tenor of 50 years.
+   */
+  public static final Tenor TENOR_50Y = ofYears(50);
 
   /**
    * The period of the tenor.
