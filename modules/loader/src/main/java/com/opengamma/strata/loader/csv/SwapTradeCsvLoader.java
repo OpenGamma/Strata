@@ -106,16 +106,24 @@ final class SwapTradeCsvLoader {
       }
       LocalDate startDate = startDateOpt.get();
       LocalDate endDate = endDateOpt.get();
-      if (fxRateOpt.isPresent()) {
-        XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
-        double notionalFlat = notional * fxRateOpt.get();
-        SwapTrade trade = convention.toTrade(info, startDate, endDate, buySell, notional, notionalFlat, fixedRate);
-        return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
-      } else {
-        SingleCurrencySwapConvention convention = SingleCurrencySwapConvention.of(conventionStr);
-        SwapTrade trade = convention.toTrade(info, startDate, endDate, buySell, notional, fixedRate);
-        return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
+      SwapTrade trade = createSwap(info, conventionStr, startDate, endDate, buySell, notional, fixedRate, fxRateOpt);
+      return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
+    }
+
+    // start date + tenor
+    if (startDateOpt.isPresent() && tenorOpt.isPresent()) {
+      if (periodToStartOpt.isPresent() || endDateOpt.isPresent()) {
+        throw new IllegalArgumentException(
+            "Swap trade had invalid combination of fields. When these fields are found " +
+                ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, TENOR_FIELD) +
+                " then these fields must not be present " +
+                ImmutableList.of(PERIOD_TO_START_FIELD, END_DATE_FIELD));
       }
+      LocalDate startDate = startDateOpt.get();
+      Tenor tenor = tenorOpt.get();
+      LocalDate endDate = startDate.plus(tenor);
+      SwapTrade trade = createSwap(info, conventionStr, startDate, endDate, buySell, notional, fixedRate, fxRateOpt);
+      return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
     }
 
     // relative dates
@@ -152,7 +160,30 @@ final class SwapTradeCsvLoader {
             " and one of these combinations is mandatory: " +
             ImmutableList.of(CONVENTION_FIELD, TRADE_DATE_FIELD, PERIOD_TO_START_FIELD, TENOR_FIELD) +
             " or " +
+            ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, TENOR_FIELD) +
+            " or " +
             ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, END_DATE_FIELD));
+  }
+
+  // create a swap from known start/end dates
+  private static SwapTrade createSwap(
+      TradeInfo info,
+      String conventionStr,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      Optional<Double> fxRateOpt) {
+
+    if (fxRateOpt.isPresent()) {
+      XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
+      double notionalFlat = notional * fxRateOpt.get();
+      return convention.toTrade(info, startDate, endDate, buySell, notional, notionalFlat, fixedRate);
+    } else {
+      SingleCurrencySwapConvention convention = SingleCurrencySwapConvention.of(conventionStr);
+      return convention.toTrade(info, startDate, endDate, buySell, notional, fixedRate);
+    }
   }
 
   // adjust trade based on additional fields specified
