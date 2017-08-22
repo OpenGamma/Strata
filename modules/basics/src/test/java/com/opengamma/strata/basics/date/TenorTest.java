@@ -20,8 +20,10 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_3D;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3Y;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_40Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_4M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_4Y;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_50Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6W;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -117,6 +119,8 @@ public class TenorTest {
     assertEquals(Tenor.ofWeeks(2), TENOR_2W);
     assertEquals(Tenor.ofMonths(1), TENOR_1M);
     assertEquals(Tenor.ofYears(1), TENOR_1Y);
+    assertEquals(Tenor.ofYears(40), TENOR_40Y);
+    assertEquals(Tenor.ofYears(50), TENOR_50Y);
   }
 
   public void test_of_notZero() {
