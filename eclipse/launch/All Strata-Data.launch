@@ -3,6 +3,9 @@
 <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
 <listEntry value="=strata-data/src\/main\/java"/>
 </listAttribute>
+<listAttribute key="org.eclipse.eclemma.core.SCOPE_IDS">
+<listEntry value="=strata-data/src\/main\/java"/>
+</listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-data"/>
