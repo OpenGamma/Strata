@@ -13,7 +13,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A index used to provide floating rates, typically in interest rate swaps.
+ * An index used to provide floating rates, typically in interest rate swaps.
  * <p>
  * See {@link IborIndex}, {@link OvernightIndex} and  {@link PriceIndex} for more details.
  * <p>
