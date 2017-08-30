@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.location.Country;
 import com.opengamma.strata.basics.schedule.Frequency;
 
@@ -90,6 +91,12 @@ public class PriceIndexTest {
 
   public void test_of_lookup_null() {
     assertThrowsIllegalArg(() -> PriceIndex.of(null));
+  }
+
+  public void test_gb_rpi() {
+    assertEquals(PriceIndices.GB_RPI.getCurrency(), GBP);
+    assertEquals(PriceIndices.GB_RPI.getDayCount(), DayCounts.ONE_ONE);
+    assertEquals(PriceIndices.GB_RPI.getDefaultFixedLegDayCount(), DayCounts.ONE_ONE);
   }
 
   //-------------------------------------------------------------------------

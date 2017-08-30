@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.MoreObjects;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DateAdjuster;
@@ -128,6 +129,15 @@ public final class ImmutableIborIndex
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
   /**
+   * The default day count convention for the associated fixed leg.
+   * <p>
+   * A rate index is often paid against a fixed leg, such as in a vanilla Swap.
+   * The day count convention of the fixed leg often differs from that of the index,
+   * and the default is value is available here.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final DayCount defaultFixedLegDayCount;
+  /**
    * The floating rate name, such as 'GBP-LIBOR'.
    */
   private final transient String floatingRateName;  // derived
@@ -145,7 +155,9 @@ public final class ImmutableIborIndex
       DaysAdjustment fixingDateOffset,
       DaysAdjustment effectiveDateOffset,
       TenorAdjustment maturityDateOffset,
-      DayCount dayCount) {
+      DayCount dayCount,
+      DayCount defaultFixedLegDayCount) {
+
     this.name = ArgChecker.notNull(name, "name");
     this.currency = ArgChecker.notNull(currency, "currency");
     this.active = active;
@@ -156,6 +168,7 @@ public final class ImmutableIborIndex
     this.effectiveDateOffset = ArgChecker.notNull(effectiveDateOffset, "effectiveDateOffset");
     this.maturityDateOffset = ArgChecker.notNull(maturityDateOffset, "maturityDateOffset");
     this.dayCount = ArgChecker.notNull(dayCount, "dayCount");
+    this.defaultFixedLegDayCount = MoreObjects.firstNonNull(defaultFixedLegDayCount, dayCount);
     // derive from name, but don't store FloatingRateName, to avoid directly linking data at this point
     String suffix = "-" + maturityDateOffset.getTenor().toString();
     if (!name.endsWith(suffix)) {
@@ -182,7 +195,8 @@ public final class ImmutableIborIndex
         fixingDateOffset,
         effectiveDateOffset,
         maturityDateOffset,
-        dayCount);
+        dayCount,
+        defaultFixedLegDayCount);
   }
 
   //-------------------------------------------------------------------------
@@ -447,6 +461,20 @@ public final class ImmutableIborIndex
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the default day count convention for the associated fixed leg.
+   * <p>
+   * A rate index is often paid against a fixed leg, such as in a vanilla Swap.
+   * The day count convention of the fixed leg often differs from that of the index,
+   * and the default is value is available here.
+   * @return the value of the property, not null
+   */
+  @Override
+  public DayCount getDefaultFixedLegDayCount() {
+    return defaultFixedLegDayCount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -515,6 +543,11 @@ public final class ImmutableIborIndex
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", ImmutableIborIndex.class, DayCount.class);
     /**
+     * The meta-property for the {@code defaultFixedLegDayCount} property.
+     */
+    private final MetaProperty<DayCount> defaultFixedLegDayCount = DirectMetaProperty.ofImmutable(
+        this, "defaultFixedLegDayCount", ImmutableIborIndex.class, DayCount.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -528,7 +561,8 @@ public final class ImmutableIborIndex
         "fixingDateOffset",
         "effectiveDateOffset",
         "maturityDateOffset",
-        "dayCount");
+        "dayCount",
+        "defaultFixedLegDayCount");
 
     /**
      * Restricted constructor.
@@ -559,6 +593,8 @@ public final class ImmutableIborIndex
           return maturityDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
+        case -2037801138:  // defaultFixedLegDayCount
+          return defaultFixedLegDayCount;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -659,6 +695,14 @@ public final class ImmutableIborIndex
       return dayCount;
     }
 
+    /**
+     * The meta-property for the {@code defaultFixedLegDayCount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DayCount> defaultFixedLegDayCount() {
+      return defaultFixedLegDayCount;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -683,6 +727,8 @@ public final class ImmutableIborIndex
           return ((ImmutableIborIndex) bean).getMaturityDateOffset();
         case 1905311443:  // dayCount
           return ((ImmutableIborIndex) bean).getDayCount();
+        case -2037801138:  // defaultFixedLegDayCount
+          return ((ImmutableIborIndex) bean).getDefaultFixedLegDayCount();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -714,6 +760,7 @@ public final class ImmutableIborIndex
     private DaysAdjustment effectiveDateOffset;
     private TenorAdjustment maturityDateOffset;
     private DayCount dayCount;
+    private DayCount defaultFixedLegDayCount;
 
     /**
      * Restricted constructor.
@@ -737,6 +784,7 @@ public final class ImmutableIborIndex
       this.effectiveDateOffset = beanToCopy.getEffectiveDateOffset();
       this.maturityDateOffset = beanToCopy.getMaturityDateOffset();
       this.dayCount = beanToCopy.getDayCount();
+      this.defaultFixedLegDayCount = beanToCopy.getDefaultFixedLegDayCount();
     }
 
     //-----------------------------------------------------------------------
@@ -763,6 +811,8 @@ public final class ImmutableIborIndex
           return maturityDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
+        case -2037801138:  // defaultFixedLegDayCount
+          return defaultFixedLegDayCount;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -800,6 +850,9 @@ public final class ImmutableIborIndex
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
+          break;
+        case -2037801138:  // defaultFixedLegDayCount
+          this.defaultFixedLegDayCount = (DayCount) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -855,7 +908,8 @@ public final class ImmutableIborIndex
           fixingDateOffset,
           effectiveDateOffset,
           maturityDateOffset,
-          dayCount);
+          dayCount,
+          defaultFixedLegDayCount);
     }
 
     //-----------------------------------------------------------------------
@@ -988,10 +1042,25 @@ public final class ImmutableIborIndex
       return this;
     }
 
+    /**
+     * Sets the default day count convention for the associated fixed leg.
+     * <p>
+     * A rate index is often paid against a fixed leg, such as in a vanilla Swap.
+     * The day count convention of the fixed leg often differs from that of the index,
+     * and the default is value is available here.
+     * @param defaultFixedLegDayCount  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder defaultFixedLegDayCount(DayCount defaultFixedLegDayCount) {
+      JodaBeanUtils.notNull(defaultFixedLegDayCount, "defaultFixedLegDayCount");
+      this.defaultFixedLegDayCount = defaultFixedLegDayCount;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("ImmutableIborIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
@@ -1002,7 +1071,8 @@ public final class ImmutableIborIndex
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("effectiveDateOffset").append('=').append(JodaBeanUtils.toString(effectiveDateOffset)).append(',').append(' ');
       buf.append("maturityDateOffset").append('=').append(JodaBeanUtils.toString(maturityDateOffset)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("defaultFixedLegDayCount").append('=').append(JodaBeanUtils.toString(defaultFixedLegDayCount));
       buf.append('}');
       return buf.toString();
     }

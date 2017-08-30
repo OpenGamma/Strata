@@ -73,6 +73,7 @@ final class IborIndexCsvLookup
   private static final String TENOR_CONVENTION_FIELD = "Tenor Convention";
   private static final String FIXING_TIME_FIELD = "FixingTime";
   private static final String FIXING_ZONE_FIELD = "FixingZone";
+  private static final String FIXED_LEG_DAY_COUNT = "Fixed Leg Day Count";
 
   /**
    * The time formatter.
@@ -115,17 +116,18 @@ final class IborIndexCsvLookup
   }
 
   private static IborIndex parseIborIndex(CsvRow row) {
-    String name = row.getField(NAME_FIELD);
-    Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
-    boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
-    DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
-    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
-    int offsetDays = Integer.parseInt(row.getField(OFFSET_DAYS_FIELD));
-    HolidayCalendarId offsetCal = HolidayCalendarId.of(row.getField(OFFSET_CALENDAR_FIELD));
-    HolidayCalendarId effectiveCal = HolidayCalendarId.of(row.getField(EFFECTIVE_DATE_CALENDAR_FIELD));
-    Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
-    LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
-    ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
+    String name = row.getValue(NAME_FIELD);
+    Currency currency = Currency.parse(row.getValue(CURRENCY_FIELD));
+    boolean active = Boolean.parseBoolean(row.getValue(ACTIVE_FIELD));
+    DayCount dayCount = DayCount.of(row.getValue(DAY_COUNT_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getValue(FIXING_CALENDAR_FIELD));
+    int offsetDays = Integer.parseInt(row.getValue(OFFSET_DAYS_FIELD));
+    HolidayCalendarId offsetCal = HolidayCalendarId.of(row.getValue(OFFSET_CALENDAR_FIELD));
+    HolidayCalendarId effectiveCal = HolidayCalendarId.of(row.getValue(EFFECTIVE_DATE_CALENDAR_FIELD));
+    Tenor tenor = Tenor.parse(row.getValue(TENOR_FIELD));
+    LocalTime time = LocalTime.parse(row.getValue(FIXING_TIME_FIELD), TIME_FORMAT);
+    ZoneId zoneId = ZoneId.of(row.getValue(FIXING_ZONE_FIELD));
+    DayCount fixedLegDayCount = row.findValue(FIXED_LEG_DAY_COUNT).map(s -> DayCount.of(s)).orElse(dayCount);
 
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(
@@ -155,6 +157,7 @@ final class IborIndexCsvLookup
         .maturityDateOffset(tenorAdjustment)
         .fixingTime(time)
         .fixingZone(zoneId)
+        .defaultFixedLegDayCount(fixedLegDayCount)
         .build();
   }
 

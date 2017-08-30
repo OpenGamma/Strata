@@ -49,6 +49,7 @@ final class OvernightIndexCsvLookup
   private static final String FIXING_CALENDAR_FIELD = "Fixing Calendar";
   private static final String PUBLICATION_DAYS_FIELD = "Publication Offset Days";
   private static final String EFFECTIVE_DAYS_FIELD = "Effective Offset Days";
+  private static final String FIXED_LEG_DAY_COUNT = "Fixed Leg Day Count";
 
   /**
    * The cache by name.
@@ -87,13 +88,14 @@ final class OvernightIndexCsvLookup
   }
 
   private static OvernightIndex parseOvernightIndex(CsvRow row) {
-    String name = row.getField(NAME_FIELD);
-    Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
-    boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
-    DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
-    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
-    int publicationDays = Integer.parseInt(row.getField(PUBLICATION_DAYS_FIELD));
-    int effectiveDays = Integer.parseInt(row.getField(EFFECTIVE_DAYS_FIELD));
+    String name = row.getValue(NAME_FIELD);
+    Currency currency = Currency.parse(row.getValue(CURRENCY_FIELD));
+    boolean active = Boolean.parseBoolean(row.getValue(ACTIVE_FIELD));
+    DayCount dayCount = DayCount.of(row.getValue(DAY_COUNT_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getValue(FIXING_CALENDAR_FIELD));
+    int publicationDays = Integer.parseInt(row.getValue(PUBLICATION_DAYS_FIELD));
+    int effectiveDays = Integer.parseInt(row.getValue(EFFECTIVE_DAYS_FIELD));
+    DayCount fixedLegDayCount = row.findValue(FIXED_LEG_DAY_COUNT).map(s -> DayCount.of(s)).orElse(dayCount);
     // build result
     return ImmutableOvernightIndex.builder()
         .name(name)
@@ -103,6 +105,7 @@ final class OvernightIndexCsvLookup
         .fixingCalendar(fixingCal)
         .publicationDateOffset(publicationDays)
         .effectiveDateOffset(effectiveDays)
+        .defaultFixedLegDayCount(fixedLegDayCount)
         .build();
   }
 

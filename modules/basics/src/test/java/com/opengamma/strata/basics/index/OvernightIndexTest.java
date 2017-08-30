@@ -54,6 +54,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.getFloatingRateName(), FloatingRateName.of("GBP-SONIA"));
     assertEquals(test.toString(), "GBP-SONIA");
   }
@@ -94,6 +95,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 1);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "USD-FED-FUND");
   }
 
@@ -127,6 +129,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "AUD-AONIA");
   }
 
@@ -151,6 +154,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 1);
     assertEquals(test.getEffectiveDateOffset(), 1);
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "DKK-TNR");
   }
 
@@ -163,6 +167,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "PLN-POLONIA");
   }
 
@@ -175,6 +180,7 @@ public class OvernightIndexTest {
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 1);
     assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "SEK-SIOR");
   }
 

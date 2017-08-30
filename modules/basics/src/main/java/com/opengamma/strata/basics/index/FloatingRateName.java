@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.index;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.convert.FromString;
@@ -65,6 +66,31 @@ public interface FloatingRateName
     return FloatingRateNames.ENUM_LOOKUP;
   }
 
+  /**
+   * Parses a string, with extended handling of indices.
+   * <p>
+   * This tries a number of ways to parse the input:
+   * <ul>
+   * <li>{@link FloatingRateName#of(String)}
+   * <li>{@link IborIndex#of(String)}
+   * <li>{@link OvernightIndex#of(String)}
+   * <li>{@link PriceIndex#of(String)}
+   * </ul>
+   * Note that if an {@link IborIndex} is parsed, the tenor will be lost.
+   * 
+   * @param str  the string to parse
+   * @return the floating rate
+   * @throws IllegalArgumentException if the name is not known
+   */
+  public static FloatingRateName parse(String str) {
+    ArgChecker.notNull(str, "str");
+    Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(str);
+    if (frnOpt.isPresent()) {
+      return frnOpt.get();
+    }
+    return FloatingRateIndex.parse(str).getFloatingRateName();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the default Ibor index for a currency.
@@ -118,6 +144,39 @@ public interface FloatingRateName
   public abstract Set<Tenor> getTenors();
 
   /**
+   * Gets a default tenor applicable for this floating rate.
+   * <p>
+   * This is useful for providing a basic default where errors need to be avoided.
+   * The value returned is not intended to be based on market conventions.
+   * <p>
+   * Ibor floating rates will return 3M, or 13W if that is not available, otherwise
+   * the first entry from the set of tenors.
+   * Overnight floating rates will return 1D.
+   * All other floating rates will return return 1Y.
+   * 
+   * @return the default tenor
+   */
+  public default Tenor getDefaultTenor() {
+    switch (getType()) {
+      case IBOR: {
+        Set<Tenor> tenors = getTenors();
+        if (tenors.contains(Tenor.TENOR_3M)) {
+          return Tenor.TENOR_3M;
+        }
+        if (tenors.contains(Tenor.TENOR_13W)) {
+          return Tenor.TENOR_13W;
+        }
+        return tenors.iterator().next();
+      }
+      case OVERNIGHT_AVERAGED:
+      case OVERNIGHT_COMPOUNDED:
+        return Tenor.TENOR_1D;
+      default:
+        return Tenor.TENOR_1Y;
+    }
+  }
+
+  /**
    * Gets the normalized form of the floating rate name.
    * <p>
    * The normalized for is the name that Strata uses for the index.
@@ -130,6 +189,54 @@ public interface FloatingRateName
   public abstract FloatingRateName normalized();
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns a floating rate index.
+   * <p>
+   * Returns a {@link FloatingRateIndex} for this rate name.
+   * Only Ibor, Overnight and Price indices are handled.
+   * If the rate name is an Ibor rate, the {@linkplain #getDefaultTenor() default tenor} is used.
+   * 
+   * @return the index
+   */
+  public default FloatingRateIndex toFloatingRateIndex() {
+    // code copied to avoid calling getDefaultTenor() unless necessary
+    switch (getType()) {
+      case IBOR:
+        return toIborIndex(getDefaultTenor());
+      case OVERNIGHT_COMPOUNDED:
+      case OVERNIGHT_AVERAGED:
+        return toOvernightIndex();
+      case PRICE:
+        return toPriceIndex();
+      default:
+        throw new IllegalArgumentException("Floating rate index type not known: " + getType());
+    }
+  }
+
+  /**
+   * Returns a floating rate index.
+   * <p>
+   * Returns a {@link FloatingRateIndex} for this rate name.
+   * Only Ibor, Overnight and Price indices are handled.
+   * If the rate name is an Ibor rate, the specified tenor is used.
+   * 
+   * @param iborTenor  the tenor to use if this rate is Ibor
+   * @return the index
+   */
+  public default FloatingRateIndex toFloatingRateIndex(Tenor iborTenor) {
+    switch (getType()) {
+      case IBOR:
+        return toIborIndex(iborTenor);
+      case OVERNIGHT_COMPOUNDED:
+      case OVERNIGHT_AVERAGED:
+        return toOvernightIndex();
+      case PRICE:
+        return toPriceIndex();
+      default:
+        throw new IllegalArgumentException("Floating rate index type not known: " + getType());
+    }
+  }
+
   /**
    * Checks and returns an Ibor index.
    * <p>
