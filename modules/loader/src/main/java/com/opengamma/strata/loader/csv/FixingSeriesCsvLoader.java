@@ -121,7 +121,7 @@ public final class FixingSeriesCsvLoader {
 
         Index index = LoaderUtils.findIndex(referenceStr);
         ObservableId id = IndexQuoteId.of(index);
-        LocalDate date = LocalDate.parse(dateStr);
+        LocalDate date = LoaderUtils.parseDate(dateStr);
         double value = Double.parseDouble(valueStr);
 
         LocalDateDoubleTimeSeriesBuilder builder = builders.computeIfAbsent(id, k -> LocalDateDoubleTimeSeries.builder());

@@ -9,12 +9,17 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PayReceive;
 
 /**
  * Test {@link LoaderUtils}.
@@ -28,6 +33,76 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.findIndex("GB-RPI"), PriceIndices.GB_RPI);
     assertEquals(LoaderUtils.findIndex("GBP/USD-WM"), FxIndices.GBP_USD_WM);
     assertThrowsIllegalArg(() -> LoaderUtils.findIndex("Rubbish"));
+  }
+
+  public void test_parseBoolean() {
+    assertEquals(LoaderUtils.parseBoolean("TRUE"), true);
+    assertEquals(LoaderUtils.parseBoolean("True"), true);
+    assertEquals(LoaderUtils.parseBoolean("true"), true);
+    assertEquals(LoaderUtils.parseBoolean("t"), true);
+    assertEquals(LoaderUtils.parseBoolean("yes"), true);
+    assertEquals(LoaderUtils.parseBoolean("y"), true);
+    assertEquals(LoaderUtils.parseBoolean("FALSE"), false);
+    assertEquals(LoaderUtils.parseBoolean("False"), false);
+    assertEquals(LoaderUtils.parseBoolean("false"), false);
+    assertEquals(LoaderUtils.parseBoolean("f"), false);
+    assertEquals(LoaderUtils.parseBoolean("no"), false);
+    assertEquals(LoaderUtils.parseBoolean("n"), false);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+  }
+
+  public void test_parseDouble() {
+    assertEquals(LoaderUtils.parseDouble("1.2"), 1.2d, 1e-10);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseDouble("Rubbish"));
+  }
+
+  public void test_parseDoublePercent() {
+    assertEquals(LoaderUtils.parseDoublePercent("1.2"), 0.012d, 1e-10);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseDouble("Rubbish"));
+  }
+
+  public void test_parseDate() {
+    assertEquals(LoaderUtils.parseDate("2012-06-30"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("20120630"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("2012/06/30"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("30/06/2012"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("30/06/12"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("30-Jun-2012"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("30Jun2012"), LocalDate.of(2012, 6, 30));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseDate("Rubbish"));
+  }
+
+  public void test_parseTime() {
+    assertEquals(LoaderUtils.parseTime("11"), LocalTime.of(11, 0));
+    assertEquals(LoaderUtils.parseTime("11:30"), LocalTime.of(11, 30));
+    assertEquals(LoaderUtils.parseTime("11:30:20"), LocalTime.of(11, 30, 20));
+    assertEquals(LoaderUtils.parseTime("11:30:20.123"), LocalTime.of(11, 30, 20, 123_000_000));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseTime("Rubbish"));
+  }
+
+  public void test_parseBuySell() {
+    assertEquals(LoaderUtils.parseBuySell("BUY"), BuySell.BUY);
+    assertEquals(LoaderUtils.parseBuySell("Buy"), BuySell.BUY);
+    assertEquals(LoaderUtils.parseBuySell("buy"), BuySell.BUY);
+    assertEquals(LoaderUtils.parseBuySell("b"), BuySell.BUY);
+    assertEquals(LoaderUtils.parseBuySell("SELL"), BuySell.SELL);
+    assertEquals(LoaderUtils.parseBuySell("Sell"), BuySell.SELL);
+    assertEquals(LoaderUtils.parseBuySell("sell"), BuySell.SELL);
+    assertEquals(LoaderUtils.parseBuySell("s"), BuySell.SELL);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+  }
+
+  public void test_parsePayReceive() {
+    assertEquals(LoaderUtils.parsePayReceive("PAY"), PayReceive.PAY);
+    assertEquals(LoaderUtils.parsePayReceive("Pay"), PayReceive.PAY);
+    assertEquals(LoaderUtils.parsePayReceive("pay"), PayReceive.PAY);
+    assertEquals(LoaderUtils.parsePayReceive("p"), PayReceive.PAY);
+    assertEquals(LoaderUtils.parsePayReceive("RECEIVE"), PayReceive.RECEIVE);
+    assertEquals(LoaderUtils.parsePayReceive("Receive"), PayReceive.RECEIVE);
+    assertEquals(LoaderUtils.parsePayReceive("receive"), PayReceive.RECEIVE);
+    assertEquals(LoaderUtils.parsePayReceive("rec"), PayReceive.RECEIVE);
+    assertEquals(LoaderUtils.parsePayReceive("r"), PayReceive.RECEIVE);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
   }
 
   public void coverage() {

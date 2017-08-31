@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.Fra;
@@ -50,16 +51,16 @@ final class FraTradeCsvLoader {
    * @param row  the CSV row
    * @param info  the trade info
    * @param refData  the reference data
-   * @return the loaded trades, all errors are captured in the result
+   * @return the parsed trade
    */
   static FraTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
-    BuySell buySell = TradeCsvLoader.parseBuySell(row.getValue(BUY_SELL_FIELD));
-    double notional = TradeCsvLoader.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = TradeCsvLoader.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
+    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<FraConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> FraConvention.of(s));
     Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> Tenor.parse(s).getPeriod());
-    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
-    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
+    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
+    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<IborIndex> indexOpt = row.findValue(INDEX_FIELD).map(s -> IborIndex.of(s));
     Optional<IborIndex> interpolatedOpt = row.findValue(INTERPOLATED_INDEX_FIELD).map(s -> IborIndex.of(s));
     Optional<DayCount> dayCountOpt = row.findValue(DAY_COUNT_FIELD).map(s -> DayCount.of(s));

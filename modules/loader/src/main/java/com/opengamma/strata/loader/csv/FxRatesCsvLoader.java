@@ -27,6 +27,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.loader.LoaderUtils;
 
 /**
  * Loads a set of FX rates into memory from CSV resources.
@@ -209,7 +210,7 @@ public final class FxRatesCsvLoader {
       CsvFile csv = CsvFile.of(resource, true);
       for (CsvRow row : csv.rows()) {
         String dateText = row.getField(DATE_FIELD);
-        LocalDate date = LocalDate.parse(dateText);
+        LocalDate date = LoaderUtils.parseDate(dateText);
         if (datePredicate.test(date)) {
           String currencyPairStr = row.getField(CURRENCY_PAIR_FIELD);
           String valueStr = row.getField(VALUE_FIELD);
