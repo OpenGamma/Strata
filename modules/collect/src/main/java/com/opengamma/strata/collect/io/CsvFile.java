@@ -5,11 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
-
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -52,10 +49,6 @@ public final class CsvFile {
    * The header row, ordered as the headers appear in the file.
    */
   private final ImmutableList<String> headers;
-  /**
-   * The header map, transformed for case-insensitive searching.
-   */
-  private final ImmutableMap<String, Integer> searchHeaders;
   /**
    * The data rows in the CSV file.
    */
@@ -151,15 +144,17 @@ public final class CsvFile {
 
   // creates the file
   private static CsvFile create(List<String> lines, boolean headerRow, char separator) {
-    ArrayList<ImmutableList<String>> parsedCsv = parseAll(lines, separator);
-    if (!headerRow) {
-      return new CsvFile(ImmutableList.of(), ImmutableMap.of(), ImmutableList.copyOf(parsedCsv));
-    }
-    if (parsedCsv.isEmpty()) {
+    if (headerRow) {
+      for (int i = 0; i < lines.size(); i++) {
+        ImmutableList<String> headers = parseLine(lines.get(i), i + 1, separator);
+        if (!headers.isEmpty()) {
+          ImmutableMap<String, Integer> searchHeaders = buildSearchHeaders(headers);
+          return parseAll(lines, i + 1, separator, headers, searchHeaders);
+        }
+      }
       throw new IllegalArgumentException("Could not read header row from empty CSV file");
     }
-    ImmutableList<String> headers = parsedCsv.remove(0);
-    return new CsvFile(headers, buildSearchHeaders(headers), ImmutableList.copyOf(parsedCsv));
+    return parseAll(lines, 0, separator, ImmutableList.of(), ImmutableMap.of());
   }
 
   //------------------------------------------------------------------------
@@ -182,27 +177,36 @@ public final class CsvFile {
       throw new IllegalArgumentException("Invalid data rows, each row must have same columns as header row");
     }
     ImmutableList<String> copiedHeaders = ImmutableList.copyOf(headers);
-    ImmutableList<ImmutableList<String>> copiedRows = rows.stream()
-        .map(row -> ImmutableList.copyOf(row))
-        .collect(toImmutableList());
-    return new CsvFile(copiedHeaders, buildSearchHeaders(copiedHeaders), copiedRows);
+    ImmutableMap<String, Integer> searchHeaders = buildSearchHeaders(copiedHeaders);
+    ImmutableList.Builder<CsvRow> csvRows = ImmutableList.builder();
+    int firstLine = copiedHeaders.isEmpty() ? 1 : 2;
+    for (int i = 0; i < rows.size(); i++) {
+      csvRows.add(new CsvRow(copiedHeaders, searchHeaders, i + firstLine, ImmutableList.copyOf(rows.get(i))));
+    }
+    return new CsvFile(copiedHeaders, csvRows.build());
   }
 
   //------------------------------------------------------------------------
   // parses the CSV file format
-  private static ArrayList<ImmutableList<String>> parseAll(List<String> lines, char separator) {
-    ArrayList<ImmutableList<String>> parsedLines = new ArrayList<>();
-    for (String line : lines) {
-      ImmutableList<String> parsed = parseLine(line, separator);
-      if (!parsed.isEmpty()) {
-        parsedLines.add(parsed);
+  private static CsvFile parseAll(
+      List<String> lines, 
+      int lineIndex,
+      char separator,
+      ImmutableList<String> headers,
+      ImmutableMap<String, Integer> searchHeaders) {
+    
+    ImmutableList.Builder<CsvRow> rows = ImmutableList.builder();
+    for (int i = lineIndex; i < lines.size(); i++) {
+      ImmutableList<String> fields = parseLine(lines.get(i), i + 1, separator);
+      if (!fields.isEmpty()) {
+        rows.add(new CsvRow(headers, searchHeaders, i + 1, fields));
       }
     }
-    return parsedLines;
+    return new CsvFile(headers, rows.build());
   }
 
   // parse a single line
-  static ImmutableList<String> parseLine(String line, char separator) {
+  static ImmutableList<String> parseLine(String line, int lineNumber, char separator) {
     if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
       return ImmutableList.of();
     }
@@ -220,7 +224,7 @@ public final class CsvFile {
           } else {
             nextSeparator = terminated.indexOf(separator, nextSeparator + 1);
             if (nextSeparator < 0) {
-              throw new IllegalArgumentException("Mismatched quotes on line: " + line);
+              throw new IllegalArgumentException("Mismatched quotes in CSV on line " + lineNumber);
             }
             possible = terminated.substring(start, nextSeparator).trim();
           }
@@ -266,16 +270,9 @@ public final class CsvFile {
    * @param headers  the header row
    * @param rows  the data rows
    */
-  private CsvFile(
-      ImmutableList<String> headers,
-      ImmutableMap<String, Integer> searchHeaders,
-      ImmutableList<ImmutableList<String>> rows) {
-
+  private CsvFile(ImmutableList<String> headers, ImmutableList<CsvRow> rows) {
     this.headers = headers;
-    this.searchHeaders = searchHeaders;
-    this.rows = rows.stream()
-        .map(cols -> new CsvRow(headers, this.searchHeaders, cols))
-        .collect(toImmutableList());
+    this.rows = rows;
   }
 
   //------------------------------------------------------------------------

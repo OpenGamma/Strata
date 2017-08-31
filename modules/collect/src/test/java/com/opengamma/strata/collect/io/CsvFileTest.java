@@ -69,6 +69,11 @@ public class CsvFileTest {
       "r11\n" +
       "r21,r22";
 
+  private final String CSV7 = "" +
+      "# Comment about the file\n" +
+      "h1,h2\n" +
+      "r1,r2\n";
+
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
     assertThrows(
@@ -90,6 +95,11 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 4);
+    assertEquals(csvFile.row(0).lineNumber(), 1);
+    assertEquals(csvFile.row(1).lineNumber(), 2);
+    assertEquals(csvFile.row(2).lineNumber(), 3);
+    assertEquals(csvFile.row(3).lineNumber(), 4);
+
     assertEquals(csvFile.row(0).headers().size(), 0);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "h1");
@@ -112,6 +122,10 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1T), false, '\t');
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 3);
+    assertEquals(csvFile.row(0).lineNumber(), 1);
+    assertEquals(csvFile.row(1).lineNumber(), 2);
+    assertEquals(csvFile.row(2).lineNumber(), 3);
+
     assertEquals(csvFile.row(0).headers().size(), 0);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "h1");
@@ -133,6 +147,10 @@ public class CsvFileTest {
     assertEquals(headers.get(0), "h1");
     assertEquals(headers.get(1), "h2");
     assertEquals(csvFile.rowCount(), 3);
+    assertEquals(csvFile.row(0).lineNumber(), 2);
+    assertEquals(csvFile.row(1).lineNumber(), 3);
+    assertEquals(csvFile.row(2).lineNumber(), 4);
+
     assertEquals(csvFile.row(0).headers(), headers);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "r11");
@@ -228,6 +246,9 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV2), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 2);
+    assertEquals(csvFile.row(0).lineNumber(), 1);
+    assertEquals(csvFile.row(1).lineNumber(), 5);
+
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "h1");
     assertEquals(csvFile.row(0).field(1), "h2");
@@ -244,6 +265,8 @@ public class CsvFileTest {
     assertEquals(headers.get(1), "h2");
     assertEquals(csvFile.rows().size(), 1);
     assertEquals(csvFile.rowCount(), 1);
+    assertEquals(csvFile.row(0).lineNumber(), 5);
+
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "r21");
     assertEquals(csvFile.row(0).field(1), "r22");
@@ -265,12 +288,28 @@ public class CsvFileTest {
   public void test_of_blank_row() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV3), false);
     assertEquals(csvFile.rowCount(), 2);
+    assertEquals(csvFile.row(0).lineNumber(), 1);
+    assertEquals(csvFile.row(1).lineNumber(), 3);
+
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "r11");
     assertEquals(csvFile.row(0).field(1), "r12");
     assertEquals(csvFile.row(1).fieldCount(), 2);
     assertEquals(csvFile.row(1).field(0), "r21");
     assertEquals(csvFile.row(1).field(1), "r22");
+  }
+
+  public void test_of_headerComment() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV7), true);
+    assertEquals(csvFile.rowCount(), 1);
+    assertEquals(csvFile.row(0).lineNumber(), 3);
+
+    assertEquals(csvFile.headers().size(), 2);
+    assertEquals(csvFile.headers().get(0), "h1");
+    assertEquals(csvFile.headers().get(1), "h2");
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "r1");
+    assertEquals(csvFile.row(0).field(1), "r2");
   }
 
   public void test_of_quoting() {
@@ -288,7 +327,7 @@ public class CsvFileTest {
   }
 
   public void test_of_quoting_mismatched() {
-    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"alpha"), false));
+    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"alpha"), false), "Mismatched quotes in CSV on line 1");
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"pha"), false));
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"\"pha"), false));
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al,pha"), false));

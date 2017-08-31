@@ -52,6 +52,11 @@ public class CsvIteratorTest {
       ",\n" +
       "r21,r22\n";
 
+  private final String CSV4 = "" +
+      "# Comment about the file\n" +
+      "h1,h2\n" +
+      "r1,r2\n";
+
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
     assertThrows(
@@ -84,16 +89,19 @@ public class CsvIteratorTest {
       CsvRow row0 = csvFile.next();
       assertEquals(row0, peeked);
       assertEquals(row0.headers().size(), 0);
+      assertEquals(row0.lineNumber(), 1);
       assertEquals(row0.fieldCount(), 2);
       assertEquals(row0.field(0), "h1");
       assertEquals(row0.field(1), "h2");
       CsvRow row1 = csvFile.next();
       assertEquals(row1.headers().size(), 0);
+      assertEquals(row1.lineNumber(), 2);
       assertEquals(row1.fieldCount(), 2);
       assertEquals(row1.field(0), "r11");
       assertEquals(row1.field(1), "r12");
       CsvRow row2 = csvFile.next();
       assertEquals(row2.headers().size(), 0);
+      assertEquals(row2.lineNumber(), 3);
       assertEquals(row2.fieldCount(), 2);
       assertEquals(row2.field(0), "r21");
       assertEquals(row2.field(1), "r22");
@@ -143,11 +151,13 @@ public class CsvIteratorTest {
       CsvRow row0 = csvFile.next();
       assertEquals(row0, peeked);
       assertEquals(row0.headers(), headers);
+      assertEquals(row0.lineNumber(), 2);
       assertEquals(row0.fieldCount(), 2);
       assertEquals(row0.field(0), "r11");
       assertEquals(row0.field(1), "r12");
       CsvRow row1 = csvFile.next();
       assertEquals(row1.headers(), headers);
+      assertEquals(row1.lineNumber(), 3);
       assertEquals(row1.fieldCount(), 2);
       assertEquals(row1.field(0), "r21");
       assertEquals(row1.field(1), "r22");
@@ -165,10 +175,12 @@ public class CsvIteratorTest {
       assertEquals(csvFile.headers().size(), 0);
       assertEquals(csvFile.hasNext(), true);
       CsvRow row0 = csvFile.next();
+      assertEquals(row0.lineNumber(), 1);
       assertEquals(row0.fieldCount(), 2);
       assertEquals(row0.field(0), "h1");
       assertEquals(row0.field(1), "h2");
       CsvRow row1 = csvFile.next();
+      assertEquals(row1.lineNumber(), 5);
       assertEquals(row1.fieldCount(), 2);
       assertEquals(row1.field(0), "r21");
       assertEquals(row1.field(1), "r22");
@@ -184,6 +196,7 @@ public class CsvIteratorTest {
       assertEquals(headers.get(1), "h2");
       assertEquals(csvFile.hasNext(), true);
       CsvRow row0 = csvFile.next();
+      assertEquals(row0.lineNumber(), 5);
       assertEquals(row0.fieldCount(), 2);
       assertEquals(row0.field(0), "r21");
       assertEquals(row0.field(1), "r22");
@@ -203,6 +216,20 @@ public class CsvIteratorTest {
       assertEquals(row1.field(0), "r21");
       assertEquals(row1.field(1), "r22");
       assertEquals(csvFile.hasNext(), false);
+    }
+  }
+
+  public void test_of_headerComment() {
+    try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV4), true)) {
+      assertEquals(csvFile.hasNext(), true);
+      CsvRow row0 = csvFile.next();
+      assertEquals(row0.lineNumber(), 3);
+      assertEquals(csvFile.headers().size(), 2);
+      assertEquals(csvFile.headers().get(0), "h1");
+      assertEquals(csvFile.headers().get(1), "h2");
+      assertEquals(row0.fieldCount(), 2);
+      assertEquals(row0.field(0), "r1");
+      assertEquals(row0.field(1), "r2");
     }
   }
 

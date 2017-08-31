@@ -77,6 +77,10 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    * The next row.
    */
   private CsvRow nextRow;
+  /**
+   * The current line number in the source file.
+   */
+  private int currentLineNumber;
 
   //------------------------------------------------------------------------
   /**
@@ -162,14 +166,19 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   private static CsvIterator create(BufferedReader breader, boolean headerRow, char separator) {
     try {
       if (!headerRow) {
-        return new CsvIterator(breader, separator, ImmutableList.of(), ImmutableMap.of());
+        return new CsvIterator(breader, separator, ImmutableList.of(), ImmutableMap.of(), 0);
       }
       String line = breader.readLine();
-      if (line == null) {
-        throw new IllegalArgumentException("Could not read header row from empty CSV file");
+      int lineNumber = 1;
+      while (line != null) {
+        ImmutableList<String> headers = CsvFile.parseLine(line, lineNumber, separator);
+        if (!headers.isEmpty()) {
+          return new CsvIterator(breader, separator, headers, CsvFile.buildSearchHeaders(headers), lineNumber);
+        }
+        line = breader.readLine();
+        lineNumber++;
       }
-      ImmutableList<String> headers = CsvFile.parseLine(line, separator);
-      return new CsvIterator(breader, separator, headers, CsvFile.buildSearchHeaders(headers));
+      throw new IllegalArgumentException("Could not read header row from empty CSV file");
 
     } catch (RuntimeException ex) {
       try {
@@ -201,12 +210,14 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
       BufferedReader reader,
       char separator,
       ImmutableList<String> headers,
-      ImmutableMap<String, Integer> searchHeaders) {
+      ImmutableMap<String, Integer> searchHeaders,
+      int currentLineNumber) {
 
     this.reader = reader;
     this.separator = separator;
     this.headers = headers;
     this.searchHeaders = searchHeaders;
+    this.currentLineNumber = currentLineNumber;
   }
 
   //------------------------------------------------------------------------
@@ -249,9 +260,10 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
     } else {
       String line = null;
       while ((line = Unchecked.wrap(() -> reader.readLine())) != null) {
-        ImmutableList<String> fields = CsvFile.parseLine(line, separator);
+        currentLineNumber++;
+        ImmutableList<String> fields = CsvFile.parseLine(line, currentLineNumber, separator);
         if (!fields.isEmpty()) {
-          nextRow = new CsvRow(headers, searchHeaders, fields);
+          nextRow = new CsvRow(headers, searchHeaders, currentLineNumber, fields);
           return true;
         }
       }
