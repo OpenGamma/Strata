@@ -99,7 +99,7 @@ public final class CharSources {
    * @param url  the url to create a {@link CharSource} from
    * @return  a new instance of {@link CharSource} with UTF-8 for charset.
    */
-  public static CharSource ofURL(URL url) {
+  public static CharSource ofUrl(URL url) {
     return Resources.asCharSource(url, Charsets.UTF_8);
   }
 
@@ -111,7 +111,7 @@ public final class CharSources {
    * @param charset  the charset to build the new CharSource based on
    * @return  a new instance of {@link CharSource}.
    */
-  public static CharSource ofURL(URL url, Charset charset) {
+  public static CharSource ofUrl(URL url, Charset charset) {
     return Resources.asCharSource(url, charset);
   }
 

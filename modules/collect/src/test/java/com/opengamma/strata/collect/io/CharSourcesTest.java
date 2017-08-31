@@ -66,18 +66,18 @@ public class CharSourcesTest {
   }
 
   @Test
-  public void testOfURL() throws Exception {
+  public void testOfUrl() throws Exception {
     String fullPathToFile = "file:///" + System.getProperty("user.dir") + "/" + fileName;
     URL url = new URL(fullPathToFile);
-    CharSource charSource = CharSources.ofURL(url);
+    CharSource charSource = CharSources.ofUrl(url);
     assertEquals(charSource.readFirstLine(), "H\u0000e\u0000l\u0000l\u0000o\u0000");
   }
 
   @Test
-  public void testOfURLWithCharset() throws Exception {
+  public void testOfUrlWithCharset() throws Exception {
     String fullPathToFile = "file:///" + System.getProperty("user.dir") + "/" + fileName;
     URL url = new URL(fullPathToFile);
-    CharSource charSource = CharSources.ofURL(url, Charsets.UTF_16LE);
+    CharSource charSource = CharSources.ofUrl(url, Charsets.UTF_16LE);
     assertEquals(charSource.readFirstLine(), "Hello");
   }
 
