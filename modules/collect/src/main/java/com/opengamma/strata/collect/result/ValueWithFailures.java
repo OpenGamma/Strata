@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.BinaryOperator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -84,6 +86,28 @@ public final class ValueWithFailures<T>
    */
   public static <T> ValueWithFailures<T> of(T successValue, List<FailureItem> failures) {
     return new ValueWithFailures<>(successValue, failures);
+  }
+
+  /**
+   * Returns a collector that can be used to create a ValueWithFailure instance from a stream of ValueWithFailure
+   * instances.
+   * <p>
+   * The {@link Collector} returned performs a reduction of its {@link ValueWithFailures} input elements under a
+   * specified {@link BinaryOperator} using the provided identity.
+   *
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @param identityValue  the identity value
+   * @param operator  the operator used for the reduction.
+   * @return a {@link Collector}
+   */
+  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<T>> toValueWithFailures(
+      T identityValue,
+      BinaryOperator<T> operator) {
+
+    BinaryOperator<ValueWithFailures<T>> reduceFunction =
+        (result1, result2) -> result1.combinedWith(result2, operator);
+
+    return Collectors.reducing(ValueWithFailures.of(identityValue), reduceFunction);
   }
 
   //-------------------------------------------------------------------------
