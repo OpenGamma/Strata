@@ -88,16 +88,16 @@ public final class ValueWithFailures<T>
     return new ValueWithFailures<>(successValue, failures);
   }
 
-  //-------------------------------------------------------------------------
-
   /**
-   * Returns a {@link Collector} which performs a reduction of its
-   * {@link ValueWithFailures} input elements under a specified {@link BinaryOperator} using the
-   * provided identity.
+   * Returns a collector that can be used to create a ValueWithFailure instance from a stream of ValueWithFailure
+   * instances.
+   * <p>
+   * The {@link Collector} returned performs a reduction of its {@link ValueWithFailures} input elements under a
+   * specified {@link BinaryOperator} using the provided identity.
    *
-   * @param identityValue the identity value
-   * @param operator the operator used for the reduction.
-   * @param <T> the type of the success value in the {@link ValueWithFailures}
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @param identityValue  the identity value
+   * @param operator  the operator used for the reduction.
    * @return a {@link Collector}
    */
   public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<T>> toValueWithFailures(
@@ -110,6 +110,7 @@ public final class ValueWithFailures<T>
     return Collectors.reducing(ValueWithFailures.of(identityValue), reduceFunction);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Combines this instance with another.
    * <p>
