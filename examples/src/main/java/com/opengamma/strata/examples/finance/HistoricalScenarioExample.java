@@ -49,8 +49,9 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurvePointShifts;
-import com.opengamma.strata.market.curve.CurvePointShiftsBuilder;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.ParameterizedDataPointShifts;
+import com.opengamma.strata.market.param.ParameterizedDataPointShiftsBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
@@ -162,18 +163,18 @@ public class HistoricalScenarioExample {
 
     // create mappings which will cause the point shift perturbations generated above
     // to be applied to the correct curves
-    PerturbationMapping<Curve> discountCurveMappings = PerturbationMapping.of(
-        Curve.class,
+    PerturbationMapping<ParameterizedData> discountCurveMappings = PerturbationMapping.of(
+        ParameterizedData.class,
         MarketDataFilter.ofName(CurveName.of("USD-Disc")),
         buildShifts(usdDiscountCurves));
 
-    PerturbationMapping<Curve> libor3mMappings = PerturbationMapping.of(
-        Curve.class,
+    PerturbationMapping<ParameterizedData> libor3mMappings = PerturbationMapping.of(
+        ParameterizedData.class,
         MarketDataFilter.ofName(CurveName.of("USD-3ML")),
         buildShifts(libor3mCurves));
 
-    PerturbationMapping<Curve> libor6mMappings = PerturbationMapping.of(
-        Curve.class,
+    PerturbationMapping<ParameterizedData> libor6mMappings = PerturbationMapping.of(
+        ParameterizedData.class,
         MarketDataFilter.ofName(CurveName.of("USD-6ML")),
         buildShifts(libor6mCurves));
 
@@ -184,8 +185,8 @@ public class HistoricalScenarioExample {
         libor6mMappings);
   }
 
-  private static CurvePointShifts buildShifts(List<Curve> historicalCurves) {
-    CurvePointShiftsBuilder builder = CurvePointShifts.builder(ShiftType.ABSOLUTE);
+  private static ParameterizedDataPointShifts buildShifts(List<Curve> historicalCurves) {
+    ParameterizedDataPointShiftsBuilder builder = ParameterizedDataPointShifts.builder(ShiftType.ABSOLUTE);
 
     for (int scenarioIndex = 1; scenarioIndex < historicalCurves.size(); scenarioIndex++) {
       Curve previousCurve = historicalCurves.get(scenarioIndex - 1);

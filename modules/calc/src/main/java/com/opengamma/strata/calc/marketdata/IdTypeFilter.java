@@ -41,7 +41,7 @@ final class IdTypeFilter<T>
   }
 
   @Override
-  public boolean matches(MarketDataId<T> marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
+  public boolean matches(MarketDataId<T> marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData) {
     return true;
   }
 
