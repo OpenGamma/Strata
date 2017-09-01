@@ -15,6 +15,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -96,11 +97,27 @@ public final class ImmutableOvernightIndex
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
+  /**
+   * The default day count convention for the associated fixed leg.
+   * <p>
+   * A rate index is often paid against a fixed leg, such as in a vanilla Swap.
+   * The day count convention of the fixed leg often differs from that of the index,
+   * and the default is value is available here.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final DayCount defaultFixedLegDayCount;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.active = true;
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.defaultFixedLegDayCount == null) {
+      builder.defaultFixedLegDayCount = builder.dayCount;
+    }
   }
 
   @Override
@@ -206,13 +223,15 @@ public final class ImmutableOvernightIndex
       HolidayCalendarId fixingCalendar,
       int publicationDateOffset,
       int effectiveDateOffset,
-      DayCount dayCount) {
+      DayCount dayCount,
+      DayCount defaultFixedLegDayCount) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(publicationDateOffset, "publicationDateOffset");
     JodaBeanUtils.notNull(effectiveDateOffset, "effectiveDateOffset");
     JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(defaultFixedLegDayCount, "defaultFixedLegDayCount");
     this.name = name;
     this.currency = currency;
     this.active = active;
@@ -220,6 +239,7 @@ public final class ImmutableOvernightIndex
     this.publicationDateOffset = publicationDateOffset;
     this.effectiveDateOffset = effectiveDateOffset;
     this.dayCount = dayCount;
+    this.defaultFixedLegDayCount = defaultFixedLegDayCount;
   }
 
   @Override
@@ -323,6 +343,20 @@ public final class ImmutableOvernightIndex
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the default day count convention for the associated fixed leg.
+   * <p>
+   * A rate index is often paid against a fixed leg, such as in a vanilla Swap.
+   * The day count convention of the fixed leg often differs from that of the index,
+   * and the default is value is available here.
+   * @return the value of the property, not null
+   */
+  @Override
+  public DayCount getDefaultFixedLegDayCount() {
+    return defaultFixedLegDayCount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -376,6 +410,11 @@ public final class ImmutableOvernightIndex
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", ImmutableOvernightIndex.class, DayCount.class);
     /**
+     * The meta-property for the {@code defaultFixedLegDayCount} property.
+     */
+    private final MetaProperty<DayCount> defaultFixedLegDayCount = DirectMetaProperty.ofImmutable(
+        this, "defaultFixedLegDayCount", ImmutableOvernightIndex.class, DayCount.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -386,7 +425,8 @@ public final class ImmutableOvernightIndex
         "fixingCalendar",
         "publicationDateOffset",
         "effectiveDateOffset",
-        "dayCount");
+        "dayCount",
+        "defaultFixedLegDayCount");
 
     /**
      * Restricted constructor.
@@ -411,6 +451,8 @@ public final class ImmutableOvernightIndex
           return effectiveDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
+        case -2037801138:  // defaultFixedLegDayCount
+          return defaultFixedLegDayCount;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -487,6 +529,14 @@ public final class ImmutableOvernightIndex
       return dayCount;
     }
 
+    /**
+     * The meta-property for the {@code defaultFixedLegDayCount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DayCount> defaultFixedLegDayCount() {
+      return defaultFixedLegDayCount;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -505,6 +555,8 @@ public final class ImmutableOvernightIndex
           return ((ImmutableOvernightIndex) bean).getEffectiveDateOffset();
         case 1905311443:  // dayCount
           return ((ImmutableOvernightIndex) bean).getDayCount();
+        case -2037801138:  // defaultFixedLegDayCount
+          return ((ImmutableOvernightIndex) bean).getDefaultFixedLegDayCount();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -533,6 +585,7 @@ public final class ImmutableOvernightIndex
     private int publicationDateOffset;
     private int effectiveDateOffset;
     private DayCount dayCount;
+    private DayCount defaultFixedLegDayCount;
 
     /**
      * Restricted constructor.
@@ -553,6 +606,7 @@ public final class ImmutableOvernightIndex
       this.publicationDateOffset = beanToCopy.getPublicationDateOffset();
       this.effectiveDateOffset = beanToCopy.getEffectiveDateOffset();
       this.dayCount = beanToCopy.getDayCount();
+      this.defaultFixedLegDayCount = beanToCopy.getDefaultFixedLegDayCount();
     }
 
     //-----------------------------------------------------------------------
@@ -573,6 +627,8 @@ public final class ImmutableOvernightIndex
           return effectiveDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
+        case -2037801138:  // defaultFixedLegDayCount
+          return defaultFixedLegDayCount;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -601,6 +657,9 @@ public final class ImmutableOvernightIndex
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
+          break;
+        case -2037801138:  // defaultFixedLegDayCount
+          this.defaultFixedLegDayCount = (DayCount) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -646,6 +705,7 @@ public final class ImmutableOvernightIndex
 
     @Override
     public ImmutableOvernightIndex build() {
+      preBuild(this);
       return new ImmutableOvernightIndex(
           name,
           currency,
@@ -653,7 +713,8 @@ public final class ImmutableOvernightIndex
           fixingCalendar,
           publicationDateOffset,
           effectiveDateOffset,
-          dayCount);
+          dayCount,
+          defaultFixedLegDayCount);
     }
 
     //-----------------------------------------------------------------------
@@ -747,10 +808,25 @@ public final class ImmutableOvernightIndex
       return this;
     }
 
+    /**
+     * Sets the default day count convention for the associated fixed leg.
+     * <p>
+     * A rate index is often paid against a fixed leg, such as in a vanilla Swap.
+     * The day count convention of the fixed leg often differs from that of the index,
+     * and the default is value is available here.
+     * @param defaultFixedLegDayCount  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder defaultFixedLegDayCount(DayCount defaultFixedLegDayCount) {
+      JodaBeanUtils.notNull(defaultFixedLegDayCount, "defaultFixedLegDayCount");
+      this.defaultFixedLegDayCount = defaultFixedLegDayCount;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("ImmutableOvernightIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
@@ -758,7 +834,8 @@ public final class ImmutableOvernightIndex
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("publicationDateOffset").append('=').append(JodaBeanUtils.toString(publicationDateOffset)).append(',').append(' ');
       buf.append("effectiveDateOffset").append('=').append(JodaBeanUtils.toString(effectiveDateOffset)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("defaultFixedLegDayCount").append('=').append(JodaBeanUtils.toString(defaultFixedLegDayCount));
       buf.append('}');
       return buf.toString();
     }

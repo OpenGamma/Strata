@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.basics.index;
 
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 
@@ -20,31 +18,7 @@ import com.opengamma.strata.basics.date.Tenor;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface RateIndex
-    extends Index {
-
-  /**
-   * Gets the currency of the index.
-   * 
-   * @return the currency of the index
-   */
-  public abstract Currency getCurrency();
-
-  /**
-   * Gets whether the index is active.
-   * <p>
-   * Over time some indices become inactive and are no longer produced.
-   * If this occurs, this method will return false.
-   * 
-   * @return true if the index is active, false if inactive
-   */
-  public abstract boolean isActive();
-
-  /**
-   * Gets the day count convention of the index.
-   * 
-   * @return the day count convention
-   */
-  public abstract DayCount getDayCount();
+    extends FloatingRateIndex {
 
   /**
    * Gets the calendar that determines which dates are fixing dates.
@@ -61,15 +35,5 @@ public interface RateIndex
    * @return the tenor
    */
   public abstract Tenor getTenor();
-
-  /**
-   * Gets the floating rate name for this index.
-   * <p>
-   * For an Ibor index, the {@link FloatingRateName} does not include the tenor.
-   * It can be used to find the other tenors available for this index.
-   * 
-   * @return the floating rate name
-   */
-  public abstract FloatingRateName getFloatingRateName();
 
 }

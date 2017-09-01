@@ -117,6 +117,15 @@ public class FloatingRateNameTest {
     assertThrowsIllegalArg(() -> FloatingRateName.of(null));
   }
 
+  public void test_parse() {
+    assertEquals(FloatingRateName.parse("GBP-LIBOR"), FloatingRateNames.GBP_LIBOR);
+    assertEquals(FloatingRateName.parse("GBP-LIBOR-3M"), FloatingRateNames.GBP_LIBOR);
+    assertEquals(FloatingRateName.parse("GBP-SONIA"), FloatingRateNames.GBP_SONIA);
+    assertEquals(FloatingRateName.parse("GB-RPI"), FloatingRateNames.GB_RPI);
+    assertThrowsIllegalArg(() -> FloatingRateName.parse(null));
+    assertThrowsIllegalArg(() -> FloatingRateName.parse("NotAnIndex"));
+  }
+
   //-------------------------------------------------------------------------
   public void test_defaultIborIndex() {
     assertEquals(FloatingRateName.defaultIborIndex(Currency.GBP), FloatingRateName.of("GBP-LIBOR"));
@@ -140,7 +149,10 @@ public class FloatingRateNameTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toIborIndex_tenor() {
+  public void test_iborIndex_tenor() {
+    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").getDefaultTenor(), Tenor.TENOR_3M);
+    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toFloatingRateIndex(), IborIndices.GBP_LIBOR_3M);
+    assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toFloatingRateIndex(Tenor.TENOR_1M), IborIndices.GBP_LIBOR_1M);
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_6M), IborIndices.GBP_LIBOR_6M);
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_12M), IborIndices.GBP_LIBOR_12M);
     assertEquals(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_1Y), IborIndices.GBP_LIBOR_12M);
@@ -153,7 +165,10 @@ public class FloatingRateNameTest {
         DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
   }
 
-  public void test_toOvernightIndex() {
+  public void test_overnightIndex() {
+    assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").getDefaultTenor(), Tenor.TENOR_1D);
+    assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toFloatingRateIndex(), OvernightIndices.GBP_SONIA);
+    assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toFloatingRateIndex(Tenor.TENOR_1M), OvernightIndices.GBP_SONIA);
     assertEquals(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toOvernightIndex(), OvernightIndices.GBP_SONIA);
     assertEquals(FloatingRateNames.USD_FED_FUND.toOvernightIndex(), OvernightIndices.USD_FED_FUND);
     assertEquals(FloatingRateNames.USD_FED_FUND_AVG.toOvernightIndex(), OvernightIndices.USD_FED_FUND);
@@ -162,7 +177,10 @@ public class FloatingRateNameTest {
     assertThrows(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndexFixingOffset(), IllegalStateException.class);
   }
 
-  public void test_toPriceIndex() {
+  public void test_priceIndex() {
+    assertEquals(FloatingRateName.of("UK-HICP").getDefaultTenor(), Tenor.TENOR_1Y);
+    assertEquals(FloatingRateName.of("UK-HICP").toFloatingRateIndex(), PriceIndices.GB_HICP);
+    assertEquals(FloatingRateName.of("UK-HICP").toFloatingRateIndex(Tenor.TENOR_1M), PriceIndices.GB_HICP);
     assertEquals(FloatingRateName.of("UK-HICP").toPriceIndex(), PriceIndices.GB_HICP);
     assertThrows(() -> FloatingRateName.of("GBP-LIBOR-BBA").toPriceIndex(), IllegalStateException.class);
     assertEquals(FloatingRateName.of("UK-HICP").getTenors(), ImmutableSet.of());
@@ -170,7 +188,10 @@ public class FloatingRateNameTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toIborIndex_cibor() {
+  public void test_cibor() {
+    assertEquals(FloatingRateName.of("DKK-CIBOR-DKNA13").getDefaultTenor(), Tenor.TENOR_3M);
+    assertEquals(FloatingRateName.of("DKK-CIBOR-DKNA13").toFloatingRateIndex(), IborIndices.DKK_CIBOR_3M);
+    assertEquals(FloatingRateName.of("DKK-CIBOR-DKNA13").toFloatingRateIndex(Tenor.TENOR_1M), IborIndices.DKK_CIBOR_1M);
     assertEquals(FloatingRateName.of("DKK-CIBOR-DKNA13").toIborIndex(Tenor.TENOR_6M), IborIndices.DKK_CIBOR_6M);
     assertEquals(FloatingRateName.of("DKK-CIBOR2-DKNA13").toIborIndex(Tenor.TENOR_6M), IborIndices.DKK_CIBOR_6M);
     assertEquals(
@@ -181,7 +202,10 @@ public class FloatingRateNameTest {
         DaysAdjustment.ofBusinessDays(-2, DKCO));
   }
 
-  public void test_toIborInde_tiee() {
+  public void test_tiee() {
+    assertEquals(FloatingRateName.of("MXN-TIIE").getDefaultTenor(), Tenor.TENOR_13W);
+    assertEquals(FloatingRateName.of("MXN-TIIE").toFloatingRateIndex(), IborIndices.MXN_TIIE_13W);
+    assertEquals(FloatingRateName.of("MXN-TIIE").toFloatingRateIndex(Tenor.TENOR_4W), IborIndices.MXN_TIIE_4W);
     assertEquals(FloatingRateName.of("MXN-TIIE").toIborIndex(Tenor.TENOR_4W), IborIndices.MXN_TIIE_4W);
     assertEquals(FloatingRateName.of("MXN-TIIE").toIborIndexFixingOffset(), DaysAdjustment.ofBusinessDays(-1, MXMC));
   }
