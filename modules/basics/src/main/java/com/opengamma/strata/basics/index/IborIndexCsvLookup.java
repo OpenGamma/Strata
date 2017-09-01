@@ -127,7 +127,7 @@ final class IborIndexCsvLookup
     Tenor tenor = Tenor.parse(row.getValue(TENOR_FIELD));
     LocalTime time = LocalTime.parse(row.getValue(FIXING_TIME_FIELD), TIME_FORMAT);
     ZoneId zoneId = ZoneId.of(row.getValue(FIXING_ZONE_FIELD));
-    DayCount fixedLegDayCount = row.findValue(FIXED_LEG_DAY_COUNT).map(s -> DayCount.of(s)).orElse(dayCount);
+    DayCount fixedLegDayCount = DayCount.of(row.getValue(FIXED_LEG_DAY_COUNT));
 
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(

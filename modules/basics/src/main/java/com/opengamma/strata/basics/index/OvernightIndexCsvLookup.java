@@ -95,7 +95,7 @@ final class OvernightIndexCsvLookup
     HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getValue(FIXING_CALENDAR_FIELD));
     int publicationDays = Integer.parseInt(row.getValue(PUBLICATION_DAYS_FIELD));
     int effectiveDays = Integer.parseInt(row.getValue(EFFECTIVE_DAYS_FIELD));
-    DayCount fixedLegDayCount = row.findValue(FIXED_LEG_DAY_COUNT).map(s -> DayCount.of(s)).orElse(dayCount);
+    DayCount fixedLegDayCount = DayCount.of(row.getValue(FIXED_LEG_DAY_COUNT));
     // build result
     return ImmutableOvernightIndex.builder()
         .name(name)
