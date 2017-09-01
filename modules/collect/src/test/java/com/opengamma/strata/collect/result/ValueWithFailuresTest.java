@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Test {@link ValueWithFailures}.
@@ -57,6 +58,21 @@ public class ValueWithFailuresTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_toValueWithFailures() {
+    List<Double> testList = ImmutableList.of(5d, 6d, 7d);
+    ValueWithFailures<Double> result = testList.stream()
+        .map(value -> mockCalc(value))
+        .collect(ValueWithFailures.toValueWithFailures(1d, (val1, val2) -> val1 * val2));
+
+    assertEquals(result.getValue(), 210d); //5 * 6 * 7 = 210
+    List<FailureItem> failures = result.getFailures();
+    assertEquals(failures.size(), 3); //One failure item for each element in testList.
+    assertEquals(failures.get(0).getMessage(), Messages.format("Error calculating result for input value {}", 5d));
+    assertEquals(failures.get(1).getMessage(), Messages.format("Error calculating result for input value {}", 6d));
+    assertEquals(failures.get(2).getMessage(), Messages.format("Error calculating result for input value {}", 7d));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     ValueWithFailures<String> test = ValueWithFailures.of("success", FAILURE1, FAILURE2);
     coverImmutableBean(test);
@@ -67,6 +83,15 @@ public class ValueWithFailuresTest {
   public void test_serialization() {
     ValueWithFailures<String> test = ValueWithFailures.of("success", FAILURE1, FAILURE2);
     assertSerialization(test);
+  }
+
+  private static ValueWithFailures<Double> mockCalc(double value) {
+    FailureItem failure = FailureItem.of(
+        FailureReason.CALCULATION_FAILED,
+        "Error calculating result for input value {}",
+        value);
+
+    return ValueWithFailures.of(value, ImmutableList.of(failure));
   }
 
 }
