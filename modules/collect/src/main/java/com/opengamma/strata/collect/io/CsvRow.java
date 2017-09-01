@@ -35,6 +35,10 @@ public final class CsvRow {
    * The fields in the row.
    */
   private final ImmutableList<String> fields;
+  /**
+   * The line number in the source file.
+   */
+  private final int lineNumber;
 
   //------------------------------------------------------------------------
   /**
@@ -45,7 +49,7 @@ public final class CsvRow {
    * @param headers  the headers
    * @param fields  the fields
    */
-  private CsvRow(ImmutableList<String> headers, ImmutableList<String> fields) {
+  private CsvRow(ImmutableList<String> headers, int lineNumber, ImmutableList<String> fields) {
     this.headers = headers;
     // need to allow duplicate headers and only store the first instance
     Map<String, Integer> searchHeaders = new HashMap<>();
@@ -54,6 +58,7 @@ public final class CsvRow {
       searchHeaders.putIfAbsent(searchHeader, i);
     }
     this.searchHeaders = ImmutableMap.copyOf(searchHeaders);
+    this.lineNumber = lineNumber;
     this.fields = fields;
   }
 
@@ -66,10 +71,15 @@ public final class CsvRow {
    * @param searchHeaders  the search headers
    * @param fields  the fields
    */
-  CsvRow(ImmutableList<String> headers, ImmutableMap<String, Integer> searchHeaders, ImmutableList<String> fields) {
+  CsvRow(
+      ImmutableList<String> headers,
+      ImmutableMap<String, Integer> searchHeaders,
+      int lineNumber,
+      ImmutableList<String> fields) {
 
     this.headers = headers;
     this.searchHeaders = searchHeaders;
+    this.lineNumber = lineNumber;
     this.fields = fields;
   }
 
@@ -83,6 +93,15 @@ public final class CsvRow {
    */
   public ImmutableList<String> headers() {
     return headers;
+  }
+
+  /**
+   * Gets the line number in the source file.
+   * 
+   * @return the line number
+   */
+  public int lineNumber() {
+    return lineNumber;
   }
 
   /**
@@ -276,6 +295,7 @@ public final class CsvRow {
   public CsvRow subRow(int startInclusive, int endExclusive) {
     return new CsvRow(
         headers.subList(Math.min(startInclusive, headers.size()), Math.min(endExclusive, headers.size())),
+        lineNumber,
         fields.subList(startInclusive, endExclusive));
   }
 

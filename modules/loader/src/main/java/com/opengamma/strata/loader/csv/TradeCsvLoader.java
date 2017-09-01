@@ -309,7 +309,6 @@ public final class TradeCsvLoader {
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
-    int line = 2;
     for (CsvRow row : (Iterable<CsvRow>) () -> csv) {
       try {
         String typeRaw = row.getField(TYPE_FIELD);
@@ -333,15 +332,14 @@ public final class TradeCsvLoader {
             }
             break;
           default:
-            failures.add(
-                FailureItem.of(FailureReason.PARSING, "CSV file trade type '{}' is not known at line {}", typeRaw, line));
+            failures.add(FailureItem.of(
+                FailureReason.PARSING, "CSV file trade type '{}' is not known at line {}", typeRaw, row.lineNumber()));
             break;
         }
       } catch (RuntimeException ex) {
-        failures.add(
-            FailureItem.of(FailureReason.PARSING, ex, "CSV file trade could not be parsed at line {}: " + ex.getMessage(), line));
+        failures.add(FailureItem.of(
+            FailureReason.PARSING, ex, "CSV file trade could not be parsed at line {}: " + ex.getMessage(), row.lineNumber()));
       }
-      line++;
     }
     return ValueWithFailures.of(trades, failures);
   }
