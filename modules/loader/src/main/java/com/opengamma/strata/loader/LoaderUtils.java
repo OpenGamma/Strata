@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
 import java.util.Locale;
 
 import com.opengamma.strata.basics.index.FxIndex;
@@ -47,15 +48,26 @@ public final class LoaderUtils {
   public static final String DEFAULT_SECURITY_SCHEME = "OG-Security";
 
   // date formats
-  private static final DateTimeFormatter DD_MM_YY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yy", Locale.ENGLISH);
-  private static final DateTimeFormatter DD_MM_YYYY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
-  private static final DateTimeFormatter YYYY_MM_DD_SLASH = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.ENGLISH);
+  private static final DateTimeFormatter D_M_YEAR_SLASH = new DateTimeFormatterBuilder()
+      .appendPattern("d/M/")
+      .parseLenient()
+      .appendValueReduced(ChronoField.YEAR_OF_ERA, 2, 2, 2000)
+      .toFormatter(Locale.ENGLISH);
+  private static final DateTimeFormatter YYYY_M_D_SLASH = DateTimeFormatter.ofPattern("yyyy/M/d", Locale.ENGLISH);
   private static final DateTimeFormatter YYYY_MM_DD_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
   private static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.ENGLISH);
-  private static final DateTimeFormatter D_MMM_YYYY_DASH =
-      new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("d-MMM-yyyy").toFormatter(Locale.ENGLISH);
-  private static final DateTimeFormatter D_MMM_YYYY_NODASH =
-      new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("dMMMyyyy").toFormatter(Locale.ENGLISH);
+  private static final DateTimeFormatter D_MMM_YEAR_DASH = new DateTimeFormatterBuilder()
+      .parseCaseInsensitive()
+      .appendPattern("d-MMM-")
+      .parseLenient()
+      .appendValueReduced(ChronoField.YEAR_OF_ERA, 2, 2, 2000)
+      .toFormatter(Locale.ENGLISH);
+  private static final DateTimeFormatter D_MMM_YEAR_NODASH = new DateTimeFormatterBuilder()
+      .parseCaseInsensitive()
+      .appendPattern("dMMM")
+      .parseLenient()
+      .appendValueReduced(ChronoField.YEAR_OF_ERA, 2, 2, 2000)
+      .toFormatter(Locale.ENGLISH);
   // time formats
   private static final DateTimeFormatter HH_MM_SS_COLON = new DateTimeFormatterBuilder()
       .appendValue(HOUR_OF_DAY, 2)
@@ -123,7 +135,9 @@ public final class LoaderUtils {
       case "N":
         return false;
       default:
-        throw new IllegalArgumentException("Unknown boolean value, must 'True' or 'False' but was '" + str + "'");
+        throw new IllegalArgumentException(
+            "Unknown BuySell value, must be 'True' or 'False' but was '" + str + "'; " +
+                "parser is case insensitive and also accepts 'T', 'Yes', 'Y', 'F', 'No' and 'N'");
     }
   }
 
@@ -132,7 +146,7 @@ public final class LoaderUtils {
    * 
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws NumberFormatException if the string cannot be parsed
    */
   public static double parseDouble(String str) {
     return new BigDecimal(str).doubleValue();
@@ -143,7 +157,7 @@ public final class LoaderUtils {
    * 
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws NumberFormatException if the string cannot be parsed
    */
   public static double parseDoublePercent(String str) {
     return new BigDecimal(str).movePointLeft(2).doubleValue();
@@ -153,7 +167,8 @@ public final class LoaderUtils {
    * Parses a date from the input string.
    * <p>
    * Parsing is case insensitive.
-   * It accepts formats 'yyyy-MM-dd', 'yyyy/MM/dd', 'dd/MM/yy', 'dd/MM/yyyy', 'd-MMM-yyyy', 'yyyyMMdd', 'dMMMyyyy'.
+   * It accepts formats 'yyyy-MM-dd', 'yyyyMMdd', 'yyyy/M/d', 'd/M/yyyy', 'd-MMM-yyyy' or 'dMMMyyyy'.
+   * Some formats also accept two-digits years (use is not recommended): 'd/M/yy', 'd-MMM-yy' or 'dMMMyy'.
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -165,35 +180,32 @@ public final class LoaderUtils {
       if (str.length() == 10 && str.charAt(4) == '-' && str.charAt(7) == '-') {
         return LocalDate.parse(str, YYYY_MM_DD_DASH);
       }
-      // yyyy/MM/dd
-      if (str.length() == 10 && str.charAt(4) == '/' && str.charAt(7) == '/') {
-        return LocalDate.parse(str, YYYY_MM_DD_SLASH);
+      // yyyy/M/d
+      if (str.length() >= 8 && str.charAt(4) == '/') {
+        return LocalDate.parse(str, YYYY_M_D_SLASH);
       }
-      // dd/MM/yy
-      // dd/MM/yyyy
-      if (str.length() >= 8 && str.charAt(2) == '/' && str.charAt(5) == '/') {
-        if (str.length() == 8) {
-          return LocalDate.parse(str, DD_MM_YY_SLASH);
-        } else {
-          return LocalDate.parse(str, DD_MM_YYYY_SLASH);
-        }
+      // d/M/yy
+      // d/M/yyyy
+      if (str.length() >= 6 && (str.charAt(1) == '/' || str.charAt(2) == '/')) {
+        return LocalDate.parse(str, D_M_YEAR_SLASH);
       }
+      // d-MMM-yy
       // d-MMM-yyyy
-      if (str.length() >= 10 && str.charAt(str.length() - 5) == '-') {
-        return LocalDate.parse(str, D_MMM_YYYY_DASH);
+      if (str.length() >= 8 && (str.charAt(1) == '-' || str.charAt(2) == '-')) {
+        return LocalDate.parse(str, D_MMM_YEAR_DASH);
       }
+      // yyyyMMdd
       if (str.length() == 8 && Character.isDigit(str.charAt(2))) {
-        // yyyyMMdd (and all others)
         return LocalDate.parse(str, YYYYMMDD);
       }
-      // dMMMyyyy (and all others)
-      return LocalDate.parse(str, D_MMM_YYYY_NODASH);
+      // dMMMyy
+      // dMMMyyyy
+      return LocalDate.parse(str, D_MMM_YEAR_NODASH);
 
     } catch (DateTimeParseException ex) {
       throw new IllegalArgumentException(
-          "Unknown date format, must be formatted as " +
-              "yyyy-MM-dd, yyyyMMdd, dd/MM/yyyy, yyyy/MM/dd, 'd-MMM-yyyy' or 'dMMMyyyy' but was: " + str,
-          ex);
+          "Unknown date format, must be formatted as 'yyyy-MM-dd', 'yyyyMMdd', 'yyyy/M/d', 'd/M/yyyy', " +
+              "'d-MMM-yyyy', 'dMMMyyyy', 'd/M/yy', 'd-MMM-yy' or 'dMMMyy' but was: " + str);
     }
   }
 
@@ -212,9 +224,7 @@ public final class LoaderUtils {
 
     } catch (DateTimeParseException ex) {
       throw new IllegalArgumentException(
-          "Unknown date format, must be formatted as " +
-              "yyyy-MM-dd, yyyyMMdd, dd/MM/yyyy, yyyy/MM/dd, 'd-MMM-yyyy' or 'dMMMyyyy' but was: " + str,
-          ex);
+          "Unknown time format, must be formatted as 'HH', 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.SSS' but was: " + str);
     }
   }
 
@@ -239,7 +249,9 @@ public final class LoaderUtils {
       case "S":
         return BuySell.SELL;
       default:
-        throw new IllegalArgumentException("Unknown BuySell value, must 'Buy' or 'Sell' but was '" + str + "'");
+        throw new IllegalArgumentException(
+            "Unknown BuySell value, must be 'Buy' or 'Sell' but was '" + str + "'; " +
+                "parser is case insensitive and also accepts 'B' and 'S'");
     }
   }
 
@@ -265,7 +277,9 @@ public final class LoaderUtils {
       case "R":
         return PayReceive.RECEIVE;
       default:
-        throw new IllegalArgumentException("Unknown PayReceive value, must 'Pay' or 'Receive' but was '" + str + "'");
+        throw new IllegalArgumentException(
+            "Unknown PayReceive value, must be 'Pay' or 'Receive' but was '" + str + "'; " +
+                "parser is case insensitive and also accepts 'P', 'Rec' and 'R'");
     }
   }
 

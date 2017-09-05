@@ -68,7 +68,20 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseDate("30/06/2012"), LocalDate.of(2012, 6, 30));
     assertEquals(LoaderUtils.parseDate("30/06/12"), LocalDate.of(2012, 6, 30));
     assertEquals(LoaderUtils.parseDate("30-Jun-2012"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("30-Jun-12"), LocalDate.of(2012, 6, 30));
     assertEquals(LoaderUtils.parseDate("30Jun2012"), LocalDate.of(2012, 6, 30));
+    assertEquals(LoaderUtils.parseDate("30Jun12"), LocalDate.of(2012, 6, 30));
+
+    assertEquals(LoaderUtils.parseDate("2012-05-04"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("20120504"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("2012/5/4"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("4/5/2012"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("4/5/12"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("4-May-2012"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("4-May-12"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("4May2012"), LocalDate.of(2012, 5, 4));
+    assertEquals(LoaderUtils.parseDate("4May12"), LocalDate.of(2012, 5, 4));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseDate("040512"));
     assertThrowsIllegalArg(() -> LoaderUtils.parseDate("Rubbish"));
   }
 
