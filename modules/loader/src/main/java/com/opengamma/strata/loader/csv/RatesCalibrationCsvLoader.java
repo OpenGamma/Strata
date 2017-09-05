@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static java.util.stream.Collectors.toList;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -35,6 +34,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -340,7 +340,7 @@ public final class RatesCalibrationCsvLoader {
       return CurveNodeDate.END;
     }
     if (dateStr.length() == 10 && dateStr.charAt(4) == '-' && dateStr.charAt(7) == '-') {
-      return CurveNodeDate.of(LocalDate.parse(dateStr));
+      return CurveNodeDate.of(LoaderUtils.parseDate(dateStr));
     }
     String dateUpper = dateStr.toUpperCase(Locale.ENGLISH);
     if (dateUpper.equals("END")) {

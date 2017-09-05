@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -49,16 +50,16 @@ final class TermDepositTradeCsvLoader {
    * @param row  the CSV row
    * @param info  the trade info
    * @param refData  the reference data
-   * @return the loaded trades, all errors are captured in the result
+   * @return the parsed trade
    */
   static TermDepositTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
-    BuySell buySell = TradeCsvLoader.parseBuySell(row.getValue(BUY_SELL_FIELD));
-    double notional = TradeCsvLoader.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = TradeCsvLoader.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
+    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<TermDepositConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> TermDepositConvention.of(s));
     Optional<Period> tenorOpt = row.findValue(TENOR_FIELD).map(s -> Tenor.parse(s).getPeriod());
-    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
-    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
+    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
+    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(s -> Currency.parse(s));
     Optional<DayCount> dayCountOpt = row.findValue(DAY_COUNT_FIELD).map(s -> DayCount.of(s));
     BusinessDayConvention dateCnv = row.findValue(DATE_ADJ_CNV_FIELD)

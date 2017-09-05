@@ -7,13 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static java.util.stream.Collectors.toList;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,11 +27,10 @@ import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
-import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -149,16 +142,8 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  */
 public final class TradeCsvLoader {
 
-  // date formats
-  private static final DateTimeFormatter DD_MM_YY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yy", Locale.ENGLISH);
-  private static final DateTimeFormatter DD_MM_YYYY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
-  private static final DateTimeFormatter YYYY_MM_DD_SLASH = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.ENGLISH);
-  private static final DateTimeFormatter YYYY_MM_DD_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
-  private static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.ENGLISH);
-  private static final DateTimeFormatter D_MMM_YYYY_DASH =
-      new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("d-MMM-yyyy").toFormatter(Locale.ENGLISH);
-  private static final DateTimeFormatter D_MMM_YYYY_NODASH =
-      new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("dMMMyyyy").toFormatter(Locale.ENGLISH);
+  // default schemes
+  private static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
 
   // shared CSV headers
   static final String TRADE_DATE_FIELD = "Trade Date";
@@ -347,109 +332,12 @@ public final class TradeCsvLoader {
   // parse the trade info
   private TradeInfo parseTradeInfo(CsvRow row) {
     TradeInfoBuilder infoBuilder = TradeInfo.builder();
-    String scheme = row.findField(ID_SCHEME_FIELD).orElse("OG-Trade");
+    String scheme = row.findField(ID_SCHEME_FIELD).orElse(DEFAULT_TRADE_SCHEME);
     row.findValue(ID_FIELD).ifPresent(id -> infoBuilder.id(StandardId.of(scheme, id)));
-    row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(parseDate(dateStr)));
-    row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LocalTime.parse(timeStr)));
+    row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
+    row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));
     return infoBuilder.build();
-  }
-
-  //-------------------------------------------------------------------------
-  // parses a date
-  static boolean parseBoolean(String str) {
-    switch (str.toUpperCase(Locale.ENGLISH)) {
-      case "TRUE":
-      case "T":
-      case "YES":
-      case "Y":
-        return true;
-      case "FALSE":
-      case "F":
-      case "NO":
-      case "N":
-        return false;
-      default:
-        throw new IllegalArgumentException("Unknown boolean value, must 'True' or 'False' but was '" + str + "'");
-    }
-  }
-
-  // parses a double
-  static Double parseDouble(String s) {
-    return new BigDecimal(s).doubleValue();
-  }
-
-  // parses a double as a percentage
-  static Double parseDoublePercent(String s) {
-    return new BigDecimal(s).movePointLeft(2).doubleValue();
-  }
-
-  // parses a date
-  static LocalDate parseDate(String str) {
-    try {
-      // yyyy-MM-dd
-      if (str.length() == 10 && str.charAt(4) == '-' && str.charAt(7) == '-') {
-        return LocalDate.parse(str, YYYY_MM_DD_DASH);
-      }
-      // yyyy/MM/dd
-      if (str.length() == 10 && str.charAt(4) == '/' && str.charAt(7) == '/') {
-        return LocalDate.parse(str, YYYY_MM_DD_SLASH);
-      }
-      // dd/MM/yy
-      // dd/MM/yyyy
-      if (str.length() >= 8 && str.charAt(2) == '/' && str.charAt(5) == '/') {
-        if (str.length() == 8) {
-          return LocalDate.parse(str, DD_MM_YY_SLASH);
-        } else {
-          return LocalDate.parse(str, DD_MM_YYYY_SLASH);
-        }
-      }
-      // d-MMM-yyyy
-      if (str.length() >= 10 && str.charAt(str.length() - 5) == '-') {
-        return LocalDate.parse(str, D_MMM_YYYY_DASH);
-      }
-      if (str.length() == 8 && Character.isDigit(str.charAt(2))) {
-        // yyyyMMdd (and all others)
-        return LocalDate.parse(str, YYYYMMDD);
-      }
-      // dMMMyyyy (and all others)
-      return LocalDate.parse(str, D_MMM_YYYY_NODASH);
-
-    } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException(
-          "Unknown date format, must be formatted as " +
-              "yyyy-MM-dd, yyyyMMdd, dd/MM/yyyy, yyyy/MM/dd, 'd-MMM-yyyy' or 'dMMMyyyy' but was: " + str,
-          ex);
-    }
-  }
-
-  // parses buy/sell
-  static BuySell parseBuySell(String str) {
-    switch (str.toUpperCase(Locale.ENGLISH)) {
-      case "BUY":
-      case "B":
-        return BuySell.BUY;
-      case "SELL":
-      case "S":
-        return BuySell.SELL;
-      default:
-        throw new IllegalArgumentException("Unknown BuySell value, must 'Buy' or 'Sell' but was '" + str + "'");
-    }
-  }
-
-  // parses pay/receive
-  static PayReceive parsePayReceive(String str) {
-    switch (str.toUpperCase(Locale.ENGLISH)) {
-      case "PAY":
-      case "P":
-        return PayReceive.PAY;
-      case "RECEIVE":
-      case "REC":
-      case "R":
-        return PayReceive.RECEIVE;
-      default:
-        throw new IllegalArgumentException("Unknown PayReceive value, must 'Pay' or 'Receive' but was '" + str + "'");
-    }
   }
 
 }

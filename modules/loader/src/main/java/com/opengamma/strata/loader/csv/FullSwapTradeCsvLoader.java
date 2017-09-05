@@ -46,6 +46,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
@@ -143,7 +144,7 @@ final class FullSwapTradeCsvLoader {
    * 
    * @param row  the CSV row
    * @param info  the trade info
-   * @return the loaded trades, all errors are captured in the result
+   * @return the parsed trade
    */
   static SwapTrade parse(CsvRow row, TradeInfo info) {
     List<RateCalculationSwapLeg> legs = new ArrayList<>();
@@ -161,7 +162,7 @@ final class FullSwapTradeCsvLoader {
 
   // parse a single leg
   private static RateCalculationSwapLeg parseLeg(CsvRow row, String leg) {
-    PayReceive payReceive = TradeCsvLoader.parsePayReceive(getValue(row, leg, DIRECTION_FIELD));
+    PayReceive payReceive = LoaderUtils.parsePayReceive(getValue(row, leg, DIRECTION_FIELD));
     PeriodicSchedule accrualSch = parseAccrualSchedule(row, leg);
     PaymentSchedule paymentSch = parsePaymentSchedule(row, leg, accrualSch.getFrequency());
     NotionalSchedule notionalSch = parseNotionalSchedule(row, leg);
@@ -181,8 +182,8 @@ final class FullSwapTradeCsvLoader {
   private static PeriodicSchedule parseAccrualSchedule(CsvRow row, String leg) {
     PeriodicSchedule.Builder builder = PeriodicSchedule.builder();
     // basics
-    builder.startDate(TradeCsvLoader.parseDate(getValueWithFallback(row, leg, START_DATE_FIELD)));
-    builder.endDate(TradeCsvLoader.parseDate(getValueWithFallback(row, leg, END_DATE_FIELD)));
+    builder.startDate(LoaderUtils.parseDate(getValueWithFallback(row, leg, START_DATE_FIELD)));
+    builder.endDate(LoaderUtils.parseDate(getValueWithFallback(row, leg, END_DATE_FIELD)));
     builder.frequency(Frequency.parse(getValue(row, leg, FREQUENCY_FIELD)));
     // adjustments
     BusinessDayAdjustment dateAdj = parseBusinessDayAdjustment(row, leg, DATE_ADJ_CNV_FIELD, DATE_ADJ_CAL_FIELD)
@@ -206,10 +207,10 @@ final class FullSwapTradeCsvLoader {
         .map(s -> RollConvention.of(s))
         .ifPresent(v -> builder.rollConvention(v));
     findValue(row, leg, FIRST_REGULAR_START_DATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDate(s))
+        .map(s -> LoaderUtils.parseDate(s))
         .ifPresent(v -> builder.firstRegularStartDate(v));
     findValue(row, leg, LAST_REGULAR_END_DATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDate(s))
+        .map(s -> LoaderUtils.parseDate(s))
         .ifPresent(v -> builder.lastRegularEndDate(v));
     parseAdjustableDate(
         row, leg, OVERRIDE_START_DATE_FIELD, OVERRIDE_START_DATE_CNV_FIELD, OVERRIDE_START_DATE_CAL_FIELD)
@@ -250,7 +251,7 @@ final class FullSwapTradeCsvLoader {
     // basics
     Currency currency = Currency.of(getValueWithFallback(row, leg, CURRENCY_FIELD));
     builder.currency(currency);
-    builder.amount(ValueSchedule.of(TradeCsvLoader.parseDouble(getValueWithFallback(row, leg, NOTIONAL_FIELD))));
+    builder.amount(ValueSchedule.of(LoaderUtils.parseDouble(getValueWithFallback(row, leg, NOTIONAL_FIELD))));
     // fx reset
     Optional<FxIndex> fxIndexOpt = findValue(row, leg, FX_RESET_INDEX_FIELD).map(s -> FxIndex.of(s));
     Optional<Currency> notionalCurrencyOpt = findValue(row, leg, NOTIONAL_CURRENCY_FIELD).map(s -> Currency.of(s));
@@ -276,13 +277,13 @@ final class FullSwapTradeCsvLoader {
     }
     // optionals
     findValue(row, leg, NOTIONAL_INITIAL_EXCHANGE_FIELD)
-        .map(s -> TradeCsvLoader.parseBoolean(s))
+        .map(s -> LoaderUtils.parseBoolean(s))
         .ifPresent(v -> builder.initialExchange(v));
     findValue(row, leg, NOTIONAL_INTERMEDIATE_EXCHANGE_FIELD)
-        .map(s -> TradeCsvLoader.parseBoolean(s))
+        .map(s -> LoaderUtils.parseBoolean(s))
         .ifPresent(v -> builder.intermediateExchange(v));
     findValue(row, leg, NOTIONAL_FINAL_EXCHANGE_FIELD)
-        .map(s -> TradeCsvLoader.parseBoolean(s))
+        .map(s -> LoaderUtils.parseBoolean(s))
         .ifPresent(v -> builder.finalExchange(v));
     return builder.build();
   }
@@ -296,7 +297,7 @@ final class FullSwapTradeCsvLoader {
       Frequency accrualFrequency,
       Currency currency) {
 
-    Optional<Double> fixedRateOpt = findValue(row, leg, FIXED_RATE_FIELD).map(s -> TradeCsvLoader.parseDoublePercent(s));
+    Optional<Double> fixedRateOpt = findValue(row, leg, FIXED_RATE_FIELD).map(s -> LoaderUtils.parseDoublePercent(s));
     Optional<String> indexOpt = findValue(row, leg, INDEX_FIELD);
     if (fixedRateOpt.isPresent()) {
       if (indexOpt.isPresent()) {
@@ -357,9 +358,9 @@ final class FullSwapTradeCsvLoader {
     builder.rate(ValueSchedule.of(fixedRate));
     // initial stub
     Optional<Double> initialStubRateOpt = findValue(row, leg, INITIAL_STUB_RATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s));
+        .map(s -> LoaderUtils.parseDoublePercent(s));
     Optional<Double> initialStubAmountOpt = findValue(row, leg, INITIAL_STUB_AMOUNT_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s));
+        .map(s -> LoaderUtils.parseDouble(s));
     if (initialStubRateOpt.isPresent() && initialStubAmountOpt.isPresent()) {
       throw new IllegalArgumentException(
           "Swap leg must not define both '" + leg + INITIAL_STUB_RATE_FIELD + "' and  '" + leg + INITIAL_STUB_AMOUNT_FIELD + "'");
@@ -370,9 +371,9 @@ final class FullSwapTradeCsvLoader {
         FixedRateStubCalculation.ofKnownAmount(CurrencyAmount.of(currency, v))));
     // final stub
     Optional<Double> finalStubRateOpt = findValue(row, leg, FINAL_STUB_RATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s));
+        .map(s -> LoaderUtils.parseDoublePercent(s));
     Optional<Double> finalStubAmountOpt = findValue(row, leg, FINAL_STUB_AMOUNT_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s));
+        .map(s -> LoaderUtils.parseDouble(s));
     if (finalStubRateOpt.isPresent() && finalStubAmountOpt.isPresent()) {
       throw new IllegalArgumentException(
           "Swap leg must not define both '" + leg + FINAL_STUB_RATE_FIELD + "' and  '" + leg + FINAL_STUB_AMOUNT_FIELD + "'");
@@ -426,13 +427,13 @@ final class FullSwapTradeCsvLoader {
     findValue(row, leg, NEGATIVE_RATE_METHOD_FIELD).map(s -> NegativeRateMethod.of(s))
         .ifPresent(v -> builder.negativeRateMethod(v));
     findValue(row, leg, FIRST_RATE_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s))
+        .map(s -> LoaderUtils.parseDoublePercent(s))
         .ifPresent(v -> builder.firstRate(v));
     findValue(row, leg, GEARING_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s))
+        .map(s -> LoaderUtils.parseDouble(s))
         .ifPresent(v -> builder.gearing(ValueSchedule.of(v)));
     findValue(row, leg, SPREAD_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s))
+        .map(s -> LoaderUtils.parseDoublePercent(s))
         .ifPresent(v -> builder.spread(ValueSchedule.of(v)));
     // initial stub
     Optional<IborRateStubCalculation> initialStub = parseIborStub(
@@ -470,8 +471,8 @@ final class FullSwapTradeCsvLoader {
       String indexField, 
       String interpolatedField) {
     
-    Optional<Double> stubRateOpt = findValue(row, leg, rateField).map(s -> TradeCsvLoader.parseDoublePercent(s));
-    Optional<Double> stubAmountOpt = findValue(row, leg, amountField).map(s -> TradeCsvLoader.parseDouble(s));
+    Optional<Double> stubRateOpt = findValue(row, leg, rateField).map(s -> LoaderUtils.parseDoublePercent(s));
+    Optional<Double> stubAmountOpt = findValue(row, leg, amountField).map(s -> LoaderUtils.parseDouble(s));
     Optional<IborIndex> stubIndexOpt = findValue(row, leg, indexField).map(s -> IborIndex.of(s));
     Optional<IborIndex> stubIndex2Opt = findValue(row, leg, interpolatedField).map(s -> IborIndex.of(s));
     if (stubRateOpt.isPresent() && !stubAmountOpt.isPresent() && !stubIndexOpt.isPresent() && !stubIndex2Opt.isPresent()) {
@@ -520,10 +521,10 @@ final class FullSwapTradeCsvLoader {
     findValue(row, leg, NEGATIVE_RATE_METHOD_FIELD).map(s -> NegativeRateMethod.of(s))
         .ifPresent(v -> builder.negativeRateMethod(v));
     findValue(row, leg, GEARING_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s))
+        .map(s -> LoaderUtils.parseDouble(s))
         .ifPresent(v -> builder.gearing(ValueSchedule.of(v)));
     findValue(row, leg, SPREAD_FIELD)
-        .map(s -> TradeCsvLoader.parseDoublePercent(s))
+        .map(s -> LoaderUtils.parseDoublePercent(s))
         .ifPresent(v -> builder.spread(ValueSchedule.of(v)));
     return builder.build();
   }
@@ -538,10 +539,10 @@ final class FullSwapTradeCsvLoader {
     builder.indexCalculationMethod(parseInflationMethod(findValue(row, leg, INFLATION_METHOD_FIELD), currency));
     // optionals
     findValue(row, leg, INFLATION_FIRST_INDEX_VALUE_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s))
+        .map(s -> LoaderUtils.parseDouble(s))
         .ifPresent(v -> builder.firstIndexValue(v));
     findValue(row, leg, GEARING_FIELD)
-        .map(s -> TradeCsvLoader.parseDouble(s))
+        .map(s -> LoaderUtils.parseDouble(s))
         .ifPresent(v -> builder.gearing(ValueSchedule.of(v)));
     return builder.build();
   }
@@ -625,7 +626,7 @@ final class FullSwapTradeCsvLoader {
       String cnvField,
       String calField) {
 
-    Optional<LocalDate> dateOpt = findValue(row, leg, dateField).map(s -> TradeCsvLoader.parseDate(s));
+    Optional<LocalDate> dateOpt = findValue(row, leg, dateField).map(s -> LoaderUtils.parseDate(s));
     if (!dateOpt.isPresent()) {
       return Optional.empty();
     }

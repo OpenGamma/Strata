@@ -26,6 +26,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.observable.QuoteId;
 
 /**
@@ -214,7 +215,7 @@ public final class QuotesCsvLoader {
       CsvFile csv = CsvFile.of(resource, true);
       for (CsvRow row : csv.rows()) {
         String dateText = row.getField(DATE_FIELD);
-        LocalDate date = LocalDate.parse(dateText);
+        LocalDate date = LoaderUtils.parseDate(dateText);
         if (datePredicate.test(date)) {
           String symbologyStr = row.getField(SYMBOLOGY_FIELD);
           String tickerStr = row.getField(TICKER_FIELD);

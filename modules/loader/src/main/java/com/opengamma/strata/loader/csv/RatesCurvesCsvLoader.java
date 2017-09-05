@@ -48,6 +48,7 @@ import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -301,9 +302,9 @@ public final class RatesCurvesCsvLoader {
       String pointValueStr = row.getField(CURVE_POINT_VALUE);
       String pointLabel = row.getField(CURVE_POINT_LABEL);
 
-      LocalDate date = LocalDate.parse(dateStr);
+      LocalDate date = LoaderUtils.parseDate(dateStr);
       if (datePredicate.test(date)) {
-        LocalDate pointDate = LocalDate.parse(pointDateStr);
+        LocalDate pointDate = LoaderUtils.parseDate(pointDateStr);
         double pointValue = Double.valueOf(pointValueStr);
 
         LoadedCurveKey key = LoadedCurveKey.of(date, CurveName.of(curveNameStr));

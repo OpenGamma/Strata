@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
@@ -59,7 +60,7 @@ final class SwapTradeCsvLoader {
    * @param row  the CSV row
    * @param info  the trade info
    * @param refData  the reference data
-   * @return the loaded trades, all errors are captured in the result
+   * @return the parsed trade
    */
   static SwapTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
     Optional<String> conventionOpt = row.findValue(CONVENTION_FIELD);
@@ -78,22 +79,22 @@ final class SwapTradeCsvLoader {
 
   // parse a trade based on a convention
   static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, ReferenceData refData, String conventionStr) {
-    BuySell buySell = TradeCsvLoader.parseBuySell(row.getValue(BUY_SELL_FIELD));
-    double notional = TradeCsvLoader.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = TradeCsvLoader.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
+    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> Tenor.parse(s).getPeriod());
     Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD).map(s -> Tenor.parse(s));
-    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
-    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
+    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
+    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<RollConvention> rollCnvOpt = row.findValue(ROLL_CONVENTION_FIELD).map(s -> RollConvention.of(s));
     Optional<StubConvention> stubCnvOpt = row.findValue(STUB_CONVENTION_FIELD).map(s -> StubConvention.of(s));
     Optional<LocalDate> firstRegStartDateOpt =
-        row.findValue(FIRST_REGULAR_START_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
-    Optional<LocalDate> lastRegEndDateOpt = row.findValue(LAST_REGULAR_END_DATE_FIELD).map(s -> TradeCsvLoader.parseDate(s));
+        row.findValue(FIRST_REGULAR_START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
+    Optional<LocalDate> lastRegEndDateOpt = row.findValue(LAST_REGULAR_END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     BusinessDayConvention dateCnv = row.findValue(DATE_ADJ_CNV_FIELD)
         .map(s -> BusinessDayConvention.of(s)).orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
     Optional<HolidayCalendarId> dateCalOpt = row.findValue(DATE_ADJ_CAL_FIELD).map(s -> HolidayCalendarId.of(s));
-    Optional<Double> fxRateOpt = row.findValue(FX_RATE_FIELD).map(str -> TradeCsvLoader.parseDouble(str));
+    Optional<Double> fxRateOpt = row.findValue(FX_RATE_FIELD).map(str -> LoaderUtils.parseDouble(str));
 
     // explicit dates take precedence over relative ones
     if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
