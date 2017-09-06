@@ -139,7 +139,7 @@ public final class SyntheticCurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the market data
    */
-  MarketData marketData(
+  public MarketData marketData(
       CurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
