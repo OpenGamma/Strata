@@ -55,6 +55,8 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
+import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -798,6 +800,40 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_load_security() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE);
+
+    List<SecurityTrade> filtered = trades.getValue().stream()
+        .filter(SecurityTrade.class::isInstance)
+        .map(SecurityTrade.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 2);
+
+    SecurityTrade expected1 = SecurityTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123431"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .securityId(SecurityId.of("OG-Security", "AAPL"))
+        .quantity(12)
+        .price(14.5)
+        .build();
+    assertBeanEquals(expected1, filtered.get(0));
+
+    SecurityTrade expected2 = SecurityTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123432"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .securityId(SecurityId.of("BBG", "MSFT"))
+        .quantity(20)
+        .price(17.8)
+        .build();
+    assertBeanEquals(expected2, filtered.get(1));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_invalidNoHeader() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("")));
@@ -864,6 +900,7 @@ public class TradeCsvLoaderTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(FraTradeCsvLoader.class);
+    coverPrivateConstructor(SecurityCsvLoader.class);
     coverPrivateConstructor(SwapTradeCsvLoader.class);
     coverPrivateConstructor(TermDepositTradeCsvLoader.class);
     coverPrivateConstructor(FullSwapTradeCsvLoader.class);

@@ -11,6 +11,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -20,6 +21,7 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Test {@link LoaderUtils}.
@@ -49,6 +51,11 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseBoolean("no"), false);
     assertEquals(LoaderUtils.parseBoolean("n"), false);
     assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+  }
+
+  public void test_parseInteger() {
+    assertEquals(LoaderUtils.parseInteger("2"), 2);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseInteger("Rubbish"));
   }
 
   public void test_parseDouble() {
@@ -85,6 +92,24 @@ public class LoaderUtilsTest {
     assertThrowsIllegalArg(() -> LoaderUtils.parseDate("Rubbish"));
   }
 
+  public void test_parseYearMonth() {
+    assertEquals(LoaderUtils.parseYearMonth("2012-06"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("201206"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("Jun-2012"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("Jun-12"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("Jun2012"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("Jun12"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("1/6/2012"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("01/6/2012"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("1/06/2012"), YearMonth.of(2012, 6));
+    assertEquals(LoaderUtils.parseYearMonth("01/06/2012"), YearMonth.of(2012, 6));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("2/6/2012"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("1/6/12"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("Jun1"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("12345678"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("Rubbish"));
+  }
+
   public void test_parseTime() {
     assertEquals(LoaderUtils.parseTime("11"), LocalTime.of(11, 0));
     assertEquals(LoaderUtils.parseTime("11:30"), LocalTime.of(11, 30));
@@ -118,6 +143,19 @@ public class LoaderUtilsTest {
     assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
   }
 
+  public void test_parsePutCall() {
+    assertEquals(LoaderUtils.parsePutCall("PUT"), PutCall.PUT);
+    assertEquals(LoaderUtils.parsePutCall("Put"), PutCall.PUT);
+    assertEquals(LoaderUtils.parsePutCall("put"), PutCall.PUT);
+    assertEquals(LoaderUtils.parsePutCall("p"), PutCall.PUT);
+    assertEquals(LoaderUtils.parsePutCall("CALL"), PutCall.CALL);
+    assertEquals(LoaderUtils.parsePutCall("Call"), PutCall.CALL);
+    assertEquals(LoaderUtils.parsePutCall("call"), PutCall.CALL);
+    assertEquals(LoaderUtils.parsePutCall("c"), PutCall.CALL);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(LoaderUtils.class);
   }

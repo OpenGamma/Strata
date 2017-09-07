@@ -13,6 +13,7 @@ import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -28,6 +29,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Contains utilities for loading market data from input files.
@@ -65,6 +67,18 @@ public final class LoaderUtils {
   private static final DateTimeFormatter D_MMM_YEAR_NODASH = new DateTimeFormatterBuilder()
       .parseCaseInsensitive()
       .appendPattern("dMMM")
+      .parseLenient()
+      .appendValueReduced(ChronoField.YEAR_OF_ERA, 2, 2, 2000)
+      .toFormatter(Locale.ENGLISH);
+  // year-month formats
+  private static final DateTimeFormatter YYYY_MM_DASH = DateTimeFormatter.ofPattern("yyyy-MM", Locale.ENGLISH);
+  private static final DateTimeFormatter YYYYMM = DateTimeFormatter.ofPattern("yyyyMM", Locale.ENGLISH);
+  private static final DateTimeFormatter MMM_YEAR = new DateTimeFormatterBuilder()
+      .parseCaseInsensitive()
+      .appendPattern("MMM")
+      .optionalStart()
+      .appendLiteral('-')
+      .optionalEnd()
       .parseLenient()
       .appendValueReduced(ChronoField.YEAR_OF_ERA, 2, 2, 2000)
       .toFormatter(Locale.ENGLISH);
@@ -142,6 +156,17 @@ public final class LoaderUtils {
   }
 
   /**
+   * Parses an integer from the input string.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws NumberFormatException if the string cannot be parsed
+   */
+  public static int parseInteger(String str) {
+    return Integer.parseInt(str);
+  }
+
+  /**
    * Parses a double from the input string.
    * 
    * @param str  the string to parse
@@ -206,6 +231,48 @@ public final class LoaderUtils {
       throw new IllegalArgumentException(
           "Unknown date format, must be formatted as 'yyyy-MM-dd', 'yyyyMMdd', 'yyyy/M/d', 'd/M/yyyy', " +
               "'d-MMM-yyyy', 'dMMMyyyy', 'd/M/yy', 'd-MMM-yy' or 'dMMMyy' but was: " + str);
+    }
+  }
+
+  /**
+   * Parses a year-month from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * It accepts formats 'yyyy-MM', 'yyyyMM', 'MMM-yyyy' or 'MMMyyyy'.
+   * Some formats also accept two-digits years (use is not recommended): 'MMM-yy' or 'MMMyy'.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static YearMonth parseYearMonth(String str) {
+    try {
+      // yyyy-MM
+      if (str.length() == 7 && str.charAt(4) == '-') {
+        return YearMonth.parse(str, YYYY_MM_DASH);
+      }
+      // MMM-yy
+      // MMM-yyyy
+      // MMMyy
+      // MMMyyyy
+      if (str.length() >= 5 && !Character.isDigit(str.charAt(0))) {
+        return YearMonth.parse(str, MMM_YEAR);
+      }
+      // d/M/yyyy - handle Excel converting YearMonth to date
+      if (str.length() >= 8 && (str.charAt(1) == '/' || str.charAt(2) == '/')) {
+        LocalDate date = LocalDate.parse(str, D_M_YEAR_SLASH);
+        if (date.getDayOfMonth() == 1) {
+          return YearMonth.of(date.getYear(), date.getMonth());
+        }
+        throw new IllegalArgumentException("Found Excel-style date but day-of-month was not set to 1:" + str);
+      }
+      // yyyyMM
+      return YearMonth.parse(str, YYYYMM);
+
+    } catch (DateTimeParseException ex) {
+      throw new IllegalArgumentException(
+          "Unknown date format, must be formatted as 'yyyy-MM', 'yyyyMM', " +
+              "'MMM-yyyy', 'MMMyyyy', 'MMM-yy' or 'MMMyy' but was: " + str);
     }
   }
 
@@ -280,6 +347,33 @@ public final class LoaderUtils {
         throw new IllegalArgumentException(
             "Unknown PayReceive value, must be 'Pay' or 'Receive' but was '" + str + "'; " +
                 "parser is case insensitive and also accepts 'P', 'Rec' and 'R'");
+    }
+  }
+
+  /**
+   * Parses put/call from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * Put is parsed as 'PUT', 'P'.
+   * Call is parsed as 'CALL', 'C'.
+   * Other strings are rejected.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static PutCall parsePutCall(String str) {
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "PUT":
+      case "P":
+        return PutCall.PUT;
+      case "CALL":
+      case "C":
+        return PutCall.CALL;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown PutCall value, must be 'Put' or 'Call' but was '" + str + "'; " +
+                "parser is case insensitive and also accepts 'P' and 'C'");
     }
   }
 
