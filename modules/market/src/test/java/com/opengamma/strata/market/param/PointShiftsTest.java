@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -21,15 +21,18 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.ShiftType;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 
 /**
- * Test {@link CurvePointShifts}.
+ * Test {@link PointShifts}.
  */
 @Test
-public class CurvePointShiftsTest {
+public class PointShiftsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
@@ -39,6 +42,8 @@ public class CurvePointShiftsTest {
   private static final String TNR_6M = "6M";
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LOG_LINEAR;
 
+  // TODO test volatilities with surface, SABR params
+
   public void absolute() {
     List<LabelDateParameterMetadata> nodeMetadata = ImmutableList.of(
         LabelDateParameterMetadata.of(date(2011, 3, 8), TNR_1M),
@@ -46,8 +51,8 @@ public class CurvePointShiftsTest {
         LabelDateParameterMetadata.of(date(2011, 8, 8), TNR_6M));
 
     // This should create 4 scenarios. Scenario zero has no shifts and scenario 3 doesn't have shifts on all nodes
-    CurvePointShifts shift = CurvePointShifts.builder(ShiftType.ABSOLUTE)
-        .addShift(1, TNR_1W, 0.1) // Tenor not in the curve, should be ignored
+    PointShifts shift = PointShifts.builder(ShiftType.ABSOLUTE)
+        .addShift(1, TNR_1W, 0.1) // Tenor not in the data, should be ignored
         .addShift(1, TNR_1M, 0.2)
         .addShift(1, TNR_3M, 0.3)
         .addShift(2, TNR_1M, 0.4)
@@ -62,7 +67,8 @@ public class CurvePointShiftsTest {
         DoubleArray.of(5, 6, 7),
         INTERPOLATOR);
 
-    MarketDataBox<Curve> shiftedCurveBox = shift.applyTo(MarketDataBox.ofSingleValue(curve), REF_DATA);
+    MarketDataBox<ParameterizedData> shiftedCurveBox = shift.applyTo(
+        MarketDataBox.ofSingleValue(curve), REF_DATA);
 
     Curve scenario1Curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
@@ -90,7 +96,7 @@ public class CurvePointShiftsTest {
       for (int xIndex = 0; xIndex <= 40; xIndex++) {
         double xValue = xIndex * 0.1;
         Curve expectedCurve = expectedCurves.get(scenarioIndex);
-        Curve shiftedCurve = shiftedCurveBox.getValue(scenarioIndex);
+        Curve shiftedCurve = (Curve) shiftedCurveBox.getValue(scenarioIndex);
         double shiftedY = shiftedCurve.yValue(xValue);
         double expectedY = expectedCurve.yValue(xValue);
         assertThat(shiftedY)
@@ -112,8 +118,8 @@ public class CurvePointShiftsTest {
         LabelDateParameterMetadata.of(date(2011, 8, 8), TNR_6M));
 
     // This should create 4 scenarios. Scenario zero has no shifts and scenario 3 doesn't have shifts on all nodes
-    CurvePointShifts shift = CurvePointShifts.builder(ShiftType.RELATIVE)
-        .addShift(1, TNR_1W, 0.1) // Tenor not in the curve, should be ignored
+    PointShifts shift = PointShifts.builder(ShiftType.RELATIVE)
+        .addShift(1, TNR_1W, 0.1) // Tenor not in the data, should be ignored
         .addShift(1, TNR_1M, 0.2)
         .addShift(1, TNR_3M, 0.3)
         .addShift(2, TNR_1M, 0.4)
@@ -128,7 +134,8 @@ public class CurvePointShiftsTest {
         DoubleArray.of(5, 6, 7),
         INTERPOLATOR);
 
-    MarketDataBox<Curve> shiftedCurveBox = shift.applyTo(MarketDataBox.ofSingleValue(curve), REF_DATA);
+    MarketDataBox<ParameterizedData> shiftedCurveBox = shift.applyTo(
+        MarketDataBox.ofSingleValue(curve), REF_DATA);
 
     Curve scenario1Curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
@@ -156,7 +163,7 @@ public class CurvePointShiftsTest {
       for (int xIndex = 0; xIndex <= 40; xIndex++) {
         double xValue = xIndex * 0.1;
         Curve expectedCurve = expectedCurves.get(scenarioIndex);
-        Curve shiftedCurve = shiftedCurveBox.getValue(scenarioIndex);
+        Curve shiftedCurve = (Curve) shiftedCurveBox.getValue(scenarioIndex);
         double shiftedY = shiftedCurve.yValue(xValue);
         double expectedY = expectedCurve.yValue(xValue);
         assertThat(shiftedY)
@@ -173,13 +180,13 @@ public class CurvePointShiftsTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurvePointShifts test = CurvePointShifts.builder(ShiftType.RELATIVE)
+    PointShifts test = PointShifts.builder(ShiftType.RELATIVE)
         .addShift(0, Tenor.TENOR_1W, 0.1)
         .addShift(0, Tenor.TENOR_1M, 0.2)
         .addShift(0, Tenor.TENOR_3M, 0.3)
         .build();
     coverImmutableBean(test);
-    CurvePointShifts test2 = CurvePointShifts.builder(ShiftType.ABSOLUTE)
+    PointShifts test2 = PointShifts.builder(ShiftType.ABSOLUTE)
         .addShift(0, Tenor.TENOR_1M, 0.2)
         .addShift(0, Tenor.TENOR_3M, 0.3)
         .build();

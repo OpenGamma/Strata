@@ -24,10 +24,16 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.PointShifts;
+import com.opengamma.strata.market.param.PointShiftsBuilder;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.SurfaceName;
@@ -40,6 +46,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 @Test
 public class SabrSwaptionVolatilitiesTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE = LocalDate.of(2014, 1, 3);
   private static final LocalTime TIME = LocalTime.of(10, 0);
   private static final ZoneId ZONE = ZoneId.of("Europe/London");
@@ -214,6 +221,23 @@ public class SabrSwaptionVolatilitiesTest {
           computed.getSensitivity(PARAM.getNuSurface().getName(), USD).getSensitivity().toArray(),
           expected.getSensitivity(PARAM.getNuSurface().getName(), USD).getSensitivity().toArray(),
           TOLERANCE_VOL);
+    }
+  }
+
+  public void test_pointShifts() {
+    SabrParametersSwaptionVolatilities base = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
+    PointShiftsBuilder builder = PointShifts.builder(ShiftType.ABSOLUTE);
+    for (int i = 0; i < base.getParameterCount(); ++i) {
+      builder.addShift(0, base.getParameterMetadata(i).getIdentifier(), 0.1d * (i + 1d));
+      builder.addShift(1, base.getParameterMetadata(i).getIdentifier(), 10d * (i + 1d));
+    }
+    PointShifts shifts = builder.build();
+    MarketDataBox<ParameterizedData> resBox = shifts.applyTo(MarketDataBox.ofSingleValue(base), REF_DATA);
+    SabrParametersSwaptionVolatilities computed0 = (SabrParametersSwaptionVolatilities) resBox.getValue(0);
+    SabrParametersSwaptionVolatilities computed1 = (SabrParametersSwaptionVolatilities) resBox.getValue(1);
+    for (int i = 0; i < base.getParameterCount(); ++i) {
+      assertEquals(computed0.getParameter(i), base.getParameter(i) + 0.1d * (i + 1d));
+      assertEquals(computed1.getParameter(i), base.getParameter(i) + 10d * (i + 1d));
     }
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
@@ -16,17 +16,13 @@ import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ShiftType;
-import com.opengamma.strata.market.param.PointShiftsBuilder;
 
 /**
- * Mutable builder for building instances of {@link CurvePointShifts}.
+ * Mutable builder for building instances of {@link PointShifts}.
  * <p>
- * This is created via {@link CurvePointShifts#builder(ShiftType)}.
- * 
- * @deprecated Use {@link PointShiftsBuilder}.
+ * This is created via {@link PointShifts#builder(ShiftType)}.
  */
-@Deprecated
-public final class CurvePointShiftsBuilder {
+public final class PointShiftsBuilder {
 
   /**
    * The type of shift to apply to the rates.
@@ -43,25 +39,28 @@ public final class CurvePointShiftsBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Restricted constructor used by {@link CurvePointShifts#builder}.
+   * Restricted constructor used by {@link ParameterizedDataPointShifts#builder}.
    *
    * @param shiftType  the type of shift to apply to the rates
    */
-  CurvePointShiftsBuilder(ShiftType shiftType) {
+  PointShiftsBuilder(ShiftType shiftType) {
     this.shiftType = ArgChecker.notNull(shiftType, "shiftType");
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a shift for a curve node to the builder.
+   * Adds a shift for a parameter to the builder.
    *
    * @param scenarioIndex  the index of the scenario containing the shift
    * @param nodeIdentifier  the identifier of the node to which the shift should be applied
    * @param shiftAmount  the size of the shift
    * @return this builder
    */
-  public CurvePointShiftsBuilder addShift(int scenarioIndex, Object nodeIdentifier,
+  public PointShiftsBuilder addShift(
+      int scenarioIndex,
+      Object nodeIdentifier,
       double shiftAmount) {
+
     ArgChecker.notNull(nodeIdentifier, "nodeIdentifier");
     ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
     shifts.put(Pair.of(scenarioIndex, nodeIdentifier), shiftAmount);
@@ -75,7 +74,7 @@ public final class CurvePointShiftsBuilder {
    * @param shiftMap  the shift amounts, keyed by the identifier of the node to which they should be applied
    * @return this builder
    */
-  public CurvePointShiftsBuilder addShifts(int scenarioIndex, Map<?, Double> shiftMap) {
+  public PointShiftsBuilder addShifts(int scenarioIndex, Map<?, Double> shiftMap) {
     ArgChecker.notNull(shiftMap, "shiftMap");
     ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
     MapStream.of(shiftMap).forEach((id, shift) -> shifts.put(Pair.of(scenarioIndex, id), shift));
@@ -84,11 +83,11 @@ public final class CurvePointShiftsBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns an instance of {@link CurvePointShifts} built from the data in this builder.
+   * Returns an instance of {@link PointShifts} built from the data in this builder.
    *
-   * @return an instance of {@link CurvePointShifts} built from the data in this builder
+   * @return an instance of {@link PointShifts} built from the data in this builder
    */
-  public CurvePointShifts build() {
+  public PointShifts build() {
     // This finds the scenario count by finding the maximum index and adding 1.
     // If OptionalInt had map() it could be written more sensibly as: ...max().map(i -> i + 1).orElse(0)
     // but it doesn't, hence using -1 and adding 1 to it for the case of zero scenarios
@@ -101,9 +100,8 @@ public final class CurvePointShiftsBuilder {
         .distinct() // Use distinct to preserve order. Collecting to a set wouldn't preserve it
         .collect(toImmutableList());
     DoubleMatrix shiftMatrix =
-        DoubleMatrix.of(scenarioCount, nodeIdentifiers.size(),
-            (r, c) -> shiftValue(r, nodeIdentifiers.get(c)));
-    return new CurvePointShifts(shiftType, shiftMatrix, nodeIdentifiers);
+        DoubleMatrix.of(scenarioCount, nodeIdentifiers.size(), (r, c) -> shiftValue(r, nodeIdentifiers.get(c)));
+    return new PointShifts(shiftType, shiftMatrix, nodeIdentifiers);
   }
 
   private double shiftValue(int scenarioIndex, Object nodeIdentifier) {

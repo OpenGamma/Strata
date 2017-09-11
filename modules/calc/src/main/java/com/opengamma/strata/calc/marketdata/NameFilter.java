@@ -26,14 +26,14 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
  * @param <T>  the type of the market data handled by the filter
  */
 @BeanDefinition(style = "light", constructorScope = "package")
-final class NameFilter<T>
-    implements MarketDataFilter<T, NamedMarketDataId<T>>, ImmutableBean {
+final class NameFilter<T, I extends T>
+    implements MarketDataFilter<T, NamedMarketDataId<I>>, ImmutableBean {
 
   /**
    * The name that is matched by this filter.
    */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataName<T> name;
+  private final MarketDataName<I> name;
 
   //-------------------------------------------------------------------------
   @Override
@@ -42,7 +42,7 @@ final class NameFilter<T>
   }
 
   @Override
-  public boolean matches(NamedMarketDataId<T> marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
+  public boolean matches(NamedMarketDataId<I> marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData) {
     return marketDataId.getMarketDataName().equals(name);
   }
 
@@ -70,7 +70,7 @@ final class NameFilter<T>
    * @param name  the value of the property, not null
    */
   NameFilter(
-      MarketDataName<T> name) {
+      MarketDataName<I> name) {
     JodaBeanUtils.notNull(name, "name");
     this.name = name;
   }
@@ -95,7 +95,7 @@ final class NameFilter<T>
    * Gets the name that is matched by this filter.
    * @return the value of the property, not null
    */
-  public MarketDataName<T> getName() {
+  public MarketDataName<I> getName() {
     return name;
   }
 
@@ -106,7 +106,7 @@ final class NameFilter<T>
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      NameFilter<?> other = (NameFilter<?>) obj;
+      NameFilter<?, ?> other = (NameFilter<?, ?>) obj;
       return JodaBeanUtils.equal(name, other.name);
     }
     return false;

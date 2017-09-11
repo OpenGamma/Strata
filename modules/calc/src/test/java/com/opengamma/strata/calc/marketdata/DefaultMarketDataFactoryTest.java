@@ -1162,7 +1162,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public boolean matches(I marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
+    public boolean matches(I marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData) {
       return false;
     }
 
@@ -1228,7 +1228,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public boolean matches(I marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
+    public boolean matches(I marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData) {
       return id.equals(marketDataId);
     }
 

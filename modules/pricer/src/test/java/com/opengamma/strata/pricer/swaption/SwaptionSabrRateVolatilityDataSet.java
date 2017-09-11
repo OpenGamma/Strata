@@ -28,6 +28,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -92,43 +93,47 @@ public class SwaptionSabrRateVolatilityDataSet {
       -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0, -0.25, -0.25, 0, -0.25, -0.25, 0, -0.25, -0.25, 0};
   private static final double[] NU_NODE_USD = new double[] {
       0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3, 0.5, 0.5, 0.3};
+  private static final List<ParameterMetadata> ALPHA_PARAM_METADATA = new ArrayList<>();
+  private static final List<ParameterMetadata> BETA_PARAM_METADATA = new ArrayList<>();
+  private static final List<ParameterMetadata> RHO_PARAM_METADATA = new ArrayList<>();
+  private static final List<ParameterMetadata> NU_PARAM_METADATA = new ArrayList<>();
+  static {
+    for (int i = 0; i < EXPIRY_NODE_USD.length; ++i) {
+      SwaptionSurfaceExpiryTenorParameterMetadata base =
+          SwaptionSurfaceExpiryTenorParameterMetadata.of(EXPIRY_NODE_USD[i], TENOR_NODE_USD[i]);
+      ALPHA_PARAM_METADATA.add(LabelParameterMetadata.of("Alpha, " + base.getLabel()));
+      BETA_PARAM_METADATA.add(LabelParameterMetadata.of("Beta, " + base.getLabel()));
+      RHO_PARAM_METADATA.add(LabelParameterMetadata.of("Rho, " + base.getLabel()));
+      NU_PARAM_METADATA.add(LabelParameterMetadata.of("Nu, " + base.getLabel()));
+    }
+  }
   static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test-SABR");
-  static final SurfaceMetadata META_ALPHA =
-      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA);
+  static final SurfaceMetadata META_ALPHA = Surfaces.sabrParameterByExpiryTenor(
+      "Test-SABR-Alpha", ACT_ACT_ISDA, ValueType.SABR_ALPHA).withParameterMetadata(ALPHA_PARAM_METADATA);
   private static final InterpolatedNodalSurface SURFACE_ALPHA_USD = InterpolatedNodalSurface.of(
       META_ALPHA,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
       DoubleArray.copyOf(TENOR_NODE_USD),
       DoubleArray.copyOf(ALPHA_NODE_USD),
       INTERPOLATOR_2D);
-  private static final List<ParameterMetadata> PARAMETER_META_LIST_USD;
-  static {
-    int n = EXPIRY_NODE_USD.length;
-    PARAMETER_META_LIST_USD = new ArrayList<ParameterMetadata>(n);
-    for (int i = 0; i < n; ++i) {
-      PARAMETER_META_LIST_USD.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(EXPIRY_NODE_USD[i], TENOR_NODE_USD[i]));
-    }
-  }
-
-  static final SurfaceMetadata META_BETA_USD =
-      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, ValueType.SABR_BETA)
-          .withParameterMetadata(PARAMETER_META_LIST_USD);
+  static final SurfaceMetadata META_BETA_USD = Surfaces.sabrParameterByExpiryTenor(
+      "Test-SABR-Beta", ACT_ACT_ISDA, ValueType.SABR_BETA).withParameterMetadata(BETA_PARAM_METADATA);
   private static final InterpolatedNodalSurface SURFACE_BETA_USD = InterpolatedNodalSurface.of(
       META_BETA_USD,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
       DoubleArray.copyOf(TENOR_NODE_USD),
       DoubleArray.copyOf(BETA_NODE_USD),
       INTERPOLATOR_2D);
-  static final SurfaceMetadata META_RHO =
-      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, ValueType.SABR_RHO);
+  static final SurfaceMetadata META_RHO = Surfaces.sabrParameterByExpiryTenor(
+      "Test-SABR-Rho", ACT_ACT_ISDA, ValueType.SABR_RHO).withParameterMetadata(RHO_PARAM_METADATA);
   private static final InterpolatedNodalSurface SURFACE_RHO_USD = InterpolatedNodalSurface.of(
       META_RHO,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
       DoubleArray.copyOf(TENOR_NODE_USD),
       DoubleArray.copyOf(RHO_NODE_USD),
       INTERPOLATOR_2D);
-  static final SurfaceMetadata META_NU =
-      Surfaces.sabrParameterByExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, ValueType.SABR_NU);
+  static final SurfaceMetadata META_NU = Surfaces.sabrParameterByExpiryTenor(
+      "Test-SABR-Nu", ACT_ACT_ISDA, ValueType.SABR_NU).withParameterMetadata(NU_PARAM_METADATA);
   private static final InterpolatedNodalSurface SURFACE_NU_USD = InterpolatedNodalSurface.of(
       META_NU,
       DoubleArray.copyOf(EXPIRY_NODE_USD),

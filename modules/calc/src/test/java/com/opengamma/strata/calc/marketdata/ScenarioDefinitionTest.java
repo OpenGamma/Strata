@@ -165,7 +165,7 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
-    public boolean matches(MarketDataId<Object> marketDataId, MarketDataBox<Object> marketData, ReferenceData refData) {
+    public boolean matches(MarketDataId<Object> marketDataId, MarketDataBox<? extends Object> marketData, ReferenceData refData) {
       return false;
     }
 
