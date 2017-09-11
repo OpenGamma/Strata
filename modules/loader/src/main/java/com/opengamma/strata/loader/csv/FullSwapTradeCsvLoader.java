@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -161,32 +162,28 @@ final class FullSwapTradeCsvLoader {
     Optional<String> payReceiveOpt = Optional.of(getValue(row, legPrefix, DIRECTION_FIELD));
     int i = 1;
     while (payReceiveOpt.isPresent()) {
-      // parse this leg
+      // parse this leg, capturing the day count for floating legs
       FloatingRateIndex index = parseIndex(row, legPrefix);
+      indices.add(index);
       if (index != null) {
-        // floating leg
-        indices.add(index);
         dayCounts.add(index.getDefaultFixedLegDayCount());
-      } else {
-        // fixed leg
-        indices.add(null);
-        if (!findValue(row, legPrefix, DAY_COUNT_FIELD).isPresent()) {
-          missingDayCount = true;
-        }
+      }
+      // defaulting only triggered if a fixed leg actually has a missing day count
+      if (index == null && !findValue(row, legPrefix, DAY_COUNT_FIELD).isPresent()) {
+        missingDayCount = true;
       }
       // check if there is another leg
       i++;
       legPrefix = "Leg " + i + " ";
       payReceiveOpt = findValue(row, legPrefix, DIRECTION_FIELD);
     }
-    // determine the default day count for the fixed leg
+    // determine the default day count for the fixed leg (only if there is a fixed leg)
     DayCount defaultFixedLegDayCount = null;
     if (missingDayCount) {
-      if (dayCounts.size() > 1) {
-        throw new IllegalArgumentException(
-            "Swap leg must define day count on fixed legs when more than 2 floating legs");
+      if (dayCounts.size() != 1) {
+        throw new IllegalArgumentException("Invalid swap definition, day count must be defined on each fixed leg");
       }
-      defaultFixedLegDayCount = dayCounts.iterator().next();
+      defaultFixedLegDayCount = Iterables.getOnlyElement(dayCounts);
     }
     // parse fully now we know the number of legs and the default fixed leg day count
     List<SwapLeg> legs = parseLegs(row, indices, defaultFixedLegDayCount);
@@ -249,7 +246,6 @@ final class FullSwapTradeCsvLoader {
         index,
         defaultFixedLegDayCount,
         accrualSch.getBusinessDayAdjustment(),
-        accrualSch.getFrequency(),
         notionalSch.getCurrency());
 
     return RateCalculationSwapLeg.builder()
@@ -380,7 +376,6 @@ final class FullSwapTradeCsvLoader {
       FloatingRateIndex index,
       DayCount defaultFixedLegDayCount,
       BusinessDayAdjustment bda,
-      Frequency accrualFrequency,
       Currency currency) {
 
     if (index instanceof IborIndex) {
