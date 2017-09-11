@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.BRL;
+import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
@@ -16,6 +17,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
@@ -78,6 +80,20 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 14));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 14));
+  }
+
+  public void test_chfSaron() {
+    OvernightIndex test = OvernightIndex.of("CHF-SARON");
+    assertEquals(test.getName(), "CHF-SARON");
+    assertEquals(test.getCurrency(), CHF);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), CHZU);
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
+    assertEquals(test.getFloatingRateName(), FloatingRateName.of("CHF-SARON"));
+    assertEquals(test.toString(), "CHF-SARON");
   }
 
   public void test_getFloatingRateName() {
