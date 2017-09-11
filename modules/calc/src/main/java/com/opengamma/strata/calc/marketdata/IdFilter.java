@@ -21,7 +21,8 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 /**
  * A market data filter that matches a specific identifier.
  * 
- * @param <T>  the type of the market data handled by the filter
+ * @param <T>  the generic type of the market data handled by the filter
+ * @param <I>  the type of the market data handled by the filter
  */
 final class IdFilter<T, I extends T>
     implements MarketDataFilter<T, MarketDataId<I>>, ImmutableBean {

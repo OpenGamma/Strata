@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.param;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
@@ -36,30 +36,31 @@ import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 import com.opengamma.strata.market.ShiftType;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.PointShifts;
 
 /**
- * A perturbation that applies different shifts to specific points in a parameterized data.
+ * A perturbation that applies different shifts to specific points on a curve.
  * <p>
- * Examples of parameterized data include curve, option volatilities and model parameters.
+ * This class contains a set of shifts, each one associated with a different node on the curve.
+ * Each shift has an associated key that is matched against the curve.
+ * In order for this to work the curve must have matching parameter metadata.
  * <p>
- * This class contains a set of shifts, each one associated with a different parameter in the data.
- * Each shift has an associated key that is matched against the parameterized data.
- * In order for this to work the parameterized data must have matching and unique parameter metadata.
- * <p>
- * When matching the shift to the parameterized data, either the identifier or label parameter may be used.
- * A shift is not applied if there is no point on the parameterized data with a matching identifier.
- *
- * @see ParameterMetadata#getIdentifier()
+ * When matching the shift to the curve, either the identifier or label parameter may be used.
+ * A shift is not applied if there is no point on the curve with a matching identifier.
+ * 
+ * @deprecated Use {@link PointShifts}. 
  */
+@Deprecated
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class ParameterizedDataPointShifts
-    implements ScenarioPerturbation<ParameterizedData>, ImmutableBean, Serializable {
+public final class CurvePointShifts
+    implements ScenarioPerturbation<Curve>, ImmutableBean, Serializable {
 
   /** Logger. */
-  private static final Logger log = LoggerFactory.getLogger(ParameterizedDataPointShifts.class);
+  private static final Logger log = LoggerFactory.getLogger(CurvePointShifts.class);
 
   /**
-   * The type of shift applied to the parameters.
+   * The type of shift applied to the curve rates.
    */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType shiftType;
@@ -67,14 +68,14 @@ public final class ParameterizedDataPointShifts
   /**
    * The shift to apply to the rates.
    * <p>
-   * There is one row in the matrix for each scenario and one column for each parameter in the data.
+   * There is one row in the matrix for each scenario and one column for each node in the curve.
    * Node indices are found using {@code nodeIndices}.
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix shifts;
 
   /**
-   * Indices of each parameter, keyed by an object identifying the node.
+   * Indices of each curve node, keyed by an object identifying the node.
    * <p>
    * The key is typically the node {@linkplain ParameterMetadata#getIdentifier() identifier}.
    * The key may also be the node {@linkplain ParameterMetadata#getLabel() label}.
@@ -84,13 +85,13 @@ public final class ParameterizedDataPointShifts
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new mutable builder for building instances of {@code ParameterizedDataPointShifts}.
+   * Returns a new mutable builder for building instances of {@code CurvePointShift}.
    *
    * @param shiftType  the type of shift to apply to the rates
-   * @return a new mutable builder for building instances of {@code ParameterizedDataPointShifts}
+   * @return a new mutable builder for building instances of {@code CurvePointShift}
    */
-  public static ParameterizedDataPointShiftsBuilder builder(ShiftType shiftType) {
-    return new ParameterizedDataPointShiftsBuilder(shiftType);
+  public static CurvePointShiftsBuilder builder(ShiftType shiftType) {
+    return new CurvePointShiftsBuilder(shiftType);
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -99,14 +100,10 @@ public final class ParameterizedDataPointShifts
    * Creates a new set of point shifts.
    *
    * @param shiftType  the type of the shift, absolute or relative
-   * @param shifts  the shifts, with one row per scenario and one column per parameter
+   * @param shifts  the shifts, with one row per scenario and one column per curve node
    * @param nodeIdentifiers  the node identifiers corresponding to the columns in the matrix of shifts
    */
-  ParameterizedDataPointShifts(
-      ShiftType shiftType,
-      DoubleMatrix shifts,
-      List<Object> nodeIdentifiers) {
-
+  CurvePointShifts(ShiftType shiftType, DoubleMatrix shifts, List<Object> nodeIdentifiers) {
     this(shiftType, shifts, buildNodeMap(nodeIdentifiers));
   }
 
@@ -118,19 +115,14 @@ public final class ParameterizedDataPointShifts
   //-------------------------------------------------------------------------
 
   @Override
-  public MarketDataBox<ParameterizedData> applyTo(
-      MarketDataBox<ParameterizedData> marketData,
-      ReferenceData refData) {
-
-    log.debug("Applying {} point shift to ParameterizedData '{}'", shiftType,
-        marketData.getValue(0).toString());
-    return marketData.mapWithIndex(
-        shifts.rowCount(),
-        (prams, scenarioIndex) -> applyShifts(scenarioIndex, prams));
+  public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> marketData, ReferenceData refData) {
+    log.debug("Applying {} point shift to curve '{}'", shiftType, marketData.getValue(0).getName());
+    return marketData.mapWithIndex(shifts.rowCount(),
+        (curve, scenarioIndex) -> applyShifts(scenarioIndex, curve));
   }
 
-  private ParameterizedData applyShifts(int scenarioIndex, ParameterizedData prams) {
-    return prams.withPerturbation((index, value, meta) -> {
+  private Curve applyShifts(int scenarioIndex, Curve curve) {
+    return curve.withPerturbation((index, value, meta) -> {
       Double shiftAmount = shiftForNode(scenarioIndex, meta);
       return shiftType.applyShift(value, shiftAmount);
     });
@@ -158,15 +150,15 @@ public final class ParameterizedDataPointShifts
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ParameterizedDataPointShifts}.
+   * The meta-bean for {@code CurvePointShifts}.
    * @return the meta-bean, not null
    */
-  public static ParameterizedDataPointShifts.Meta meta() {
-    return ParameterizedDataPointShifts.Meta.INSTANCE;
+  public static CurvePointShifts.Meta meta() {
+    return CurvePointShifts.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ParameterizedDataPointShifts.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CurvePointShifts.Meta.INSTANCE);
   }
 
   /**
@@ -180,7 +172,7 @@ public final class ParameterizedDataPointShifts
    * @param shifts  the value of the property, not null
    * @param nodeIndices  the value of the property, not null
    */
-  ParameterizedDataPointShifts(
+  CurvePointShifts(
       ShiftType shiftType,
       DoubleMatrix shifts,
       Map<Object, Integer> nodeIndices) {
@@ -193,8 +185,8 @@ public final class ParameterizedDataPointShifts
   }
 
   @Override
-  public ParameterizedDataPointShifts.Meta metaBean() {
-    return ParameterizedDataPointShifts.Meta.INSTANCE;
+  public CurvePointShifts.Meta metaBean() {
+    return CurvePointShifts.Meta.INSTANCE;
   }
 
   @Override
@@ -209,7 +201,7 @@ public final class ParameterizedDataPointShifts
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of shift applied to the parameters.
+   * Gets the type of shift applied to the curve rates.
    * @return the value of the property, not null
    */
   public ShiftType getShiftType() {
@@ -220,7 +212,7 @@ public final class ParameterizedDataPointShifts
   /**
    * Gets the shift to apply to the rates.
    * <p>
-   * There is one row in the matrix for each scenario and one column for each parameter in the data.
+   * There is one row in the matrix for each scenario and one column for each node in the curve.
    * Node indices are found using {@code nodeIndices}.
    * @return the value of the property, not null
    */
@@ -230,7 +222,7 @@ public final class ParameterizedDataPointShifts
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indices of each parameter, keyed by an object identifying the node.
+   * Gets indices of each curve node, keyed by an object identifying the node.
    * <p>
    * The key is typically the node {@linkplain ParameterMetadata#getIdentifier() identifier}.
    * The key may also be the node {@linkplain ParameterMetadata#getLabel() label}.
@@ -247,7 +239,7 @@ public final class ParameterizedDataPointShifts
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ParameterizedDataPointShifts other = (ParameterizedDataPointShifts) obj;
+      CurvePointShifts other = (CurvePointShifts) obj;
       return JodaBeanUtils.equal(shiftType, other.shiftType) &&
           JodaBeanUtils.equal(shifts, other.shifts) &&
           JodaBeanUtils.equal(nodeIndices, other.nodeIndices);
@@ -267,7 +259,7 @@ public final class ParameterizedDataPointShifts
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
-    buf.append("ParameterizedDataPointShifts{");
+    buf.append("CurvePointShifts{");
     buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
     buf.append("shifts").append('=').append(shifts).append(',').append(' ');
     buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(nodeIndices));
@@ -277,7 +269,7 @@ public final class ParameterizedDataPointShifts
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ParameterizedDataPointShifts}.
+   * The meta-bean for {@code CurvePointShifts}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -289,18 +281,18 @@ public final class ParameterizedDataPointShifts
      * The meta-property for the {@code shiftType} property.
      */
     private final MetaProperty<ShiftType> shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", ParameterizedDataPointShifts.class, ShiftType.class);
+        this, "shiftType", CurvePointShifts.class, ShiftType.class);
     /**
      * The meta-property for the {@code shifts} property.
      */
     private final MetaProperty<DoubleMatrix> shifts = DirectMetaProperty.ofImmutable(
-        this, "shifts", ParameterizedDataPointShifts.class, DoubleMatrix.class);
+        this, "shifts", CurvePointShifts.class, DoubleMatrix.class);
     /**
      * The meta-property for the {@code nodeIndices} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<Object, Integer>> nodeIndices = DirectMetaProperty.ofImmutable(
-        this, "nodeIndices", ParameterizedDataPointShifts.class, (Class) ImmutableMap.class);
+        this, "nodeIndices", CurvePointShifts.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -330,13 +322,13 @@ public final class ParameterizedDataPointShifts
     }
 
     @Override
-    public BeanBuilder<? extends ParameterizedDataPointShifts> builder() {
-      return new ParameterizedDataPointShifts.Builder();
+    public BeanBuilder<? extends CurvePointShifts> builder() {
+      return new CurvePointShifts.Builder();
     }
 
     @Override
-    public Class<? extends ParameterizedDataPointShifts> beanType() {
-      return ParameterizedDataPointShifts.class;
+    public Class<? extends CurvePointShifts> beanType() {
+      return CurvePointShifts.class;
     }
 
     @Override
@@ -374,11 +366,11 @@ public final class ParameterizedDataPointShifts
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
-          return ((ParameterizedDataPointShifts) bean).getShiftType();
+          return ((CurvePointShifts) bean).getShiftType();
         case -903338959:  // shifts
-          return ((ParameterizedDataPointShifts) bean).getShifts();
+          return ((CurvePointShifts) bean).getShifts();
         case -1547874491:  // nodeIndices
-          return ((ParameterizedDataPointShifts) bean).getNodeIndices();
+          return ((CurvePointShifts) bean).getNodeIndices();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -396,9 +388,9 @@ public final class ParameterizedDataPointShifts
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ParameterizedDataPointShifts}.
+   * The bean-builder for {@code CurvePointShifts}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<ParameterizedDataPointShifts> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurvePointShifts> {
 
     private ShiftType shiftType;
     private DoubleMatrix shifts;
@@ -446,8 +438,8 @@ public final class ParameterizedDataPointShifts
     }
 
     @Override
-    public ParameterizedDataPointShifts build() {
-      return new ParameterizedDataPointShifts(
+    public CurvePointShifts build() {
+      return new CurvePointShifts(
           shiftType,
           shifts,
           nodeIndices);
@@ -457,7 +449,7 @@ public final class ParameterizedDataPointShifts
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("ParameterizedDataPointShifts.Builder{");
+      buf.append("CurvePointShifts.Builder{");
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
       buf.append("shifts").append('=').append(JodaBeanUtils.toString(shifts)).append(',').append(' ');
       buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(nodeIndices));

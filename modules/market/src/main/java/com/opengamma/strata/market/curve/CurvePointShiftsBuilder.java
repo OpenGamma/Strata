@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.param;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
@@ -16,13 +16,17 @@ import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ShiftType;
+import com.opengamma.strata.market.param.PointShiftsBuilder;
 
 /**
- * Mutable builder for building instances of {@link ParameterizedDataPointShifts}.
+ * Mutable builder for building instances of {@link CurvePointShifts}.
  * <p>
- * This is created via {@link ParameterizedDataPointShifts#builder(ShiftType)}.
+ * This is created via {@link CurvePointShifts#builder(ShiftType)}.
+ * 
+ * @deprecated Use {@link PointShiftsBuilder}.
  */
-public final class ParameterizedDataPointShiftsBuilder {
+@Deprecated
+public final class CurvePointShiftsBuilder {
 
   /**
    * The type of shift to apply to the rates.
@@ -39,28 +43,25 @@ public final class ParameterizedDataPointShiftsBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Restricted constructor used by {@link ParameterizedDataPointShifts#builder}.
+   * Restricted constructor used by {@link CurvePointShifts#builder}.
    *
    * @param shiftType  the type of shift to apply to the rates
    */
-  ParameterizedDataPointShiftsBuilder(ShiftType shiftType) {
+  CurvePointShiftsBuilder(ShiftType shiftType) {
     this.shiftType = ArgChecker.notNull(shiftType, "shiftType");
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a shift for a parameter to the builder.
+   * Adds a shift for a curve node to the builder.
    *
    * @param scenarioIndex  the index of the scenario containing the shift
    * @param nodeIdentifier  the identifier of the node to which the shift should be applied
    * @param shiftAmount  the size of the shift
    * @return this builder
    */
-  public ParameterizedDataPointShiftsBuilder addShift(
-      int scenarioIndex,
-      Object nodeIdentifier,
+  public CurvePointShiftsBuilder addShift(int scenarioIndex, Object nodeIdentifier,
       double shiftAmount) {
-
     ArgChecker.notNull(nodeIdentifier, "nodeIdentifier");
     ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
     shifts.put(Pair.of(scenarioIndex, nodeIdentifier), shiftAmount);
@@ -74,7 +75,7 @@ public final class ParameterizedDataPointShiftsBuilder {
    * @param shiftMap  the shift amounts, keyed by the identifier of the node to which they should be applied
    * @return this builder
    */
-  public ParameterizedDataPointShiftsBuilder addShifts(int scenarioIndex, Map<?, Double> shiftMap) {
+  public CurvePointShiftsBuilder addShifts(int scenarioIndex, Map<?, Double> shiftMap) {
     ArgChecker.notNull(shiftMap, "shiftMap");
     ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
     MapStream.of(shiftMap).forEach((id, shift) -> shifts.put(Pair.of(scenarioIndex, id), shift));
@@ -83,11 +84,11 @@ public final class ParameterizedDataPointShiftsBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns an instance of {@link ParameterizedDataPointShifts} built from the data in this builder.
+   * Returns an instance of {@link CurvePointShifts} built from the data in this builder.
    *
-   * @return an instance of {@link ParameterizedDataPointShifts} built from the data in this builder
+   * @return an instance of {@link CurvePointShifts} built from the data in this builder
    */
-  public ParameterizedDataPointShifts build() {
+  public CurvePointShifts build() {
     // This finds the scenario count by finding the maximum index and adding 1.
     // If OptionalInt had map() it could be written more sensibly as: ...max().map(i -> i + 1).orElse(0)
     // but it doesn't, hence using -1 and adding 1 to it for the case of zero scenarios
@@ -100,8 +101,9 @@ public final class ParameterizedDataPointShiftsBuilder {
         .distinct() // Use distinct to preserve order. Collecting to a set wouldn't preserve it
         .collect(toImmutableList());
     DoubleMatrix shiftMatrix =
-        DoubleMatrix.of(scenarioCount, nodeIdentifiers.size(), (r, c) -> shiftValue(r, nodeIdentifiers.get(c)));
-    return new ParameterizedDataPointShifts(shiftType, shiftMatrix, nodeIdentifiers);
+        DoubleMatrix.of(scenarioCount, nodeIdentifiers.size(),
+            (r, c) -> shiftValue(r, nodeIdentifiers.get(c)));
+    return new CurvePointShifts(shiftType, shiftMatrix, nodeIdentifiers);
   }
 
   private double shiftValue(int scenarioIndex, Object nodeIdentifier) {

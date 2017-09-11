@@ -27,15 +27,12 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.param.LabelDateParameterMetadata;
-import com.opengamma.strata.market.param.ParameterizedData;
-import com.opengamma.strata.market.param.ParameterizedDataPointShifts;
 
 /**
- * Test {@link ParameterizedDataPointShifts}.
+ * Test {@link PointShifts}.
  */
 @Test
-public class ParameterizedDataPointShiftsTest {
+public class PointShiftsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
@@ -54,7 +51,7 @@ public class ParameterizedDataPointShiftsTest {
         LabelDateParameterMetadata.of(date(2011, 8, 8), TNR_6M));
 
     // This should create 4 scenarios. Scenario zero has no shifts and scenario 3 doesn't have shifts on all nodes
-    ParameterizedDataPointShifts shift = ParameterizedDataPointShifts.builder(ShiftType.ABSOLUTE)
+    PointShifts shift = PointShifts.builder(ShiftType.ABSOLUTE)
         .addShift(1, TNR_1W, 0.1) // Tenor not in the data, should be ignored
         .addShift(1, TNR_1M, 0.2)
         .addShift(1, TNR_3M, 0.3)
@@ -121,7 +118,7 @@ public class ParameterizedDataPointShiftsTest {
         LabelDateParameterMetadata.of(date(2011, 8, 8), TNR_6M));
 
     // This should create 4 scenarios. Scenario zero has no shifts and scenario 3 doesn't have shifts on all nodes
-    ParameterizedDataPointShifts shift = ParameterizedDataPointShifts.builder(ShiftType.RELATIVE)
+    PointShifts shift = PointShifts.builder(ShiftType.RELATIVE)
         .addShift(1, TNR_1W, 0.1) // Tenor not in the data, should be ignored
         .addShift(1, TNR_1M, 0.2)
         .addShift(1, TNR_3M, 0.3)
@@ -183,13 +180,13 @@ public class ParameterizedDataPointShiftsTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ParameterizedDataPointShifts test = ParameterizedDataPointShifts.builder(ShiftType.RELATIVE)
+    PointShifts test = PointShifts.builder(ShiftType.RELATIVE)
         .addShift(0, Tenor.TENOR_1W, 0.1)
         .addShift(0, Tenor.TENOR_1M, 0.2)
         .addShift(0, Tenor.TENOR_3M, 0.3)
         .build();
     coverImmutableBean(test);
-    ParameterizedDataPointShifts test2 = ParameterizedDataPointShifts.builder(ShiftType.ABSOLUTE)
+    PointShifts test2 = PointShifts.builder(ShiftType.ABSOLUTE)
         .addShift(0, Tenor.TENOR_1M, 0.2)
         .addShift(0, Tenor.TENOR_3M, 0.3)
         .build();

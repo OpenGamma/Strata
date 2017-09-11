@@ -32,8 +32,8 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterizedData;
-import com.opengamma.strata.market.param.ParameterizedDataPointShifts;
-import com.opengamma.strata.market.param.ParameterizedDataPointShiftsBuilder;
+import com.opengamma.strata.market.param.PointShifts;
+import com.opengamma.strata.market.param.PointShiftsBuilder;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.SurfaceName;
@@ -226,12 +226,12 @@ public class SabrSwaptionVolatilitiesTest {
 
   public void test_pointShifts() {
     SabrParametersSwaptionVolatilities base = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
-    ParameterizedDataPointShiftsBuilder builder = ParameterizedDataPointShifts.builder(ShiftType.ABSOLUTE);
+    PointShiftsBuilder builder = PointShifts.builder(ShiftType.ABSOLUTE);
     for (int i = 0; i < base.getParameterCount(); ++i) {
       builder.addShift(0, base.getParameterMetadata(i).getIdentifier(), 0.1d * (i + 1d));
       builder.addShift(1, base.getParameterMetadata(i).getIdentifier(), 10d * (i + 1d));
     }
-    ParameterizedDataPointShifts shifts = builder.build();
+    PointShifts shifts = builder.build();
     MarketDataBox<ParameterizedData> resBox = shifts.applyTo(MarketDataBox.ofSingleValue(base), REF_DATA);
     SabrParametersSwaptionVolatilities computed0 = (SabrParametersSwaptionVolatilities) resBox.getValue(0);
     SabrParametersSwaptionVolatilities computed1 = (SabrParametersSwaptionVolatilities) resBox.getValue(1);
