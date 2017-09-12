@@ -28,6 +28,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex GBP_SONIA = OvernightIndex.of("GBP-SONIA");
   /**
+   * The SARON index for CHF.
+   * <p>
+   * SARON is an "Overnight" index.
+   */
+  public static final OvernightIndex CHF_SARON = OvernightIndex.of("CHF-SARON");
+  /**
    * The TOIS index for CHF.
    * <p>
    * TOIS is a "Tomorrow/Next" index.
