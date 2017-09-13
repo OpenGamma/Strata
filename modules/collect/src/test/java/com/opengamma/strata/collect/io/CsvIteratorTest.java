@@ -17,6 +17,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import org.testng.annotations.Test;
 
@@ -67,6 +68,7 @@ public class CsvIteratorTest {
   public void test_of_empty_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(""), false)) {
       assertEquals(csvFile.headers().size(), 0);
+      assertEquals(csvFile.containsHeader("a"), false);
       assertEquals(csvFile.hasNext(), false);
       assertEquals(csvFile.hasNext(), false);
       assertThrows(() -> csvFile.peek(), NoSuchElementException.class);
@@ -145,6 +147,11 @@ public class CsvIteratorTest {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), true)) {
       ImmutableList<String> headers = csvFile.headers();
       assertEquals(headers.size(), 2);
+      assertEquals(csvFile.containsHeader("h1"), true);
+      assertEquals(csvFile.containsHeader("h2"), true);
+      assertEquals(csvFile.containsHeader("a"), false);
+      assertEquals(csvFile.containsHeader(Pattern.compile("h.")), true);
+      assertEquals(csvFile.containsHeader(Pattern.compile("a")), false);
       assertEquals(headers.get(0), "h1");
       assertEquals(headers.get(1), "h2");
       CsvRow peeked = csvFile.peek();
