@@ -298,7 +298,7 @@ public final class TradeCsvLoader {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.headers().contains(TYPE_FIELD)) {
         return ValueWithFailures.of(ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '" + TYPE_FIELD + "' header: {}", charSource));
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{}' header: {}", TYPE_FIELD, charSource));
       }
       return parseFile(csv, tradeType);
 
