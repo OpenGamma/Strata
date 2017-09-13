@@ -100,6 +100,12 @@ public class TradeCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades.csv");
 
   //-------------------------------------------------------------------------
+  public void test_isKnownFormat() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    assertEquals(test.isKnownFormat(FILE.getCharSource()), true);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_failures() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -403,7 +409,7 @@ public class TradeCsvLoaderTest {
 
   public void test_load_swap_all() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
-        .put("Type", "Swap")
+        .put("Strata Trade Type", "Swap")
         .put("Id Scheme", "OG")
         .put("Id", "1234")
         .put("Trade Date", "20170101")
@@ -809,12 +815,12 @@ public class TradeCsvLoaderTest {
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
     assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage().contains("CSV file does not contain 'Type' header"), true);
+    assertEquals(failure.getMessage().contains("CSV file does not contain 'Strata Trade Type' header"), true);
   }
 
   public void test_load_invalidUnknownType() {
     TradeCsvLoader test = TradeCsvLoader.standard();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type\nFoo")));
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFoo")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
@@ -824,7 +830,7 @@ public class TradeCsvLoaderTest {
 
   public void test_load_invalidFra() {
     TradeCsvLoader test = TradeCsvLoader.standard();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type,Buy Sell\nFra,Buy")));
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nFra,Buy")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
@@ -834,7 +840,7 @@ public class TradeCsvLoaderTest {
 
   public void test_load_invalidSwap() {
     TradeCsvLoader test = TradeCsvLoader.standard();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type,Buy Sell\nSwap,Buy")));
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nSwap,Buy")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
@@ -846,7 +852,8 @@ public class TradeCsvLoaderTest {
 
   public void test_load_invalidTermDeposit() {
     TradeCsvLoader test = TradeCsvLoader.standard();
-    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type,Buy Sell\nTermDeposit,Buy")));
+    ValueWithFailures<List<Trade>> trades =
+        test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nTermDeposit,Buy")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);

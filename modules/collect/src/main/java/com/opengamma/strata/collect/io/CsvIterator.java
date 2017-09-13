@@ -11,9 +11,11 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -230,6 +232,35 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    */
   public ImmutableList<String> headers() {
     return headers;
+  }
+
+  /**
+   * Checks if the header is known.
+   * <p>
+   * Matching is case insensitive.
+   * 
+   * @param header  the column header to match
+   * @return true if the header is known
+   */
+  public boolean containsHeader(String header) {
+    return searchHeaders.containsKey(header.toLowerCase(Locale.ENGLISH));
+  }
+
+  /**
+   * Checks if the header pattern is known.
+   * <p>
+   * Matching is case insensitive.
+   * 
+   * @param headerPattern  the header pattern to match
+   * @return true if the header is known
+   */
+  public boolean containsHeader(Pattern headerPattern) {
+    for (int i = 0; i < headers.size(); i++) {
+      if (headerPattern.matcher(headers.get(i)).matches()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

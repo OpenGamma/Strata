@@ -49,7 +49,7 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <p>
  * The following standard columns are supported:<br />
  * <ul>
- * <li>The 'Type' column is required, and must be the instrument type,
+ * <li>The 'Strata Trade Type' column is required, and must be the instrument type,
  *   such as 'Fra' or 'Swap'
  * <li>The 'Id Scheme' column is optional, and is the name of the scheme that the trade
  *   identifier is unique within, such as 'OG-Trade'
@@ -163,7 +163,7 @@ public final class TradeCsvLoader {
   static final String DAY_COUNT_FIELD = "Day Count";
 
   // CSV column headers
-  private static final String TYPE_FIELD = "Type";
+  private static final String TYPE_FIELD = "Strata Trade Type";
   private static final String ID_SCHEME_FIELD = "Id Scheme";
   private static final String ID_FIELD = "Id";
   private static final String TRADE_TIME_FIELD = "Trade Time";
@@ -236,6 +236,24 @@ public final class TradeCsvLoader {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks whether the source is a CSV format trade file.
+   * <p>
+   * This parses the headers as CSV and checks that mandatory headers are present.
+   * This is determined entirely from the 'Strata Trade Type' column.
+   * 
+   * @param charSource  the CSV character source to check
+   * @return true if the source is a CSV file with known headers, false otherwise
+   */
+  public boolean isKnownFormat(CharSource charSource) {
+    try (CsvIterator csv = CsvIterator.of(charSource, true)) {
+      return csv.containsHeader(TYPE_FIELD);
+    } catch (RuntimeException ex) {
+      return false;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Parses one or more CSV format trade files.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
@@ -280,7 +298,7 @@ public final class TradeCsvLoader {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.headers().contains(TYPE_FIELD)) {
         return ValueWithFailures.of(ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain 'Type' header: {}", charSource));
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{}' header: {}", TYPE_FIELD, charSource));
       }
       return parseFile(csv, tradeType);
 
