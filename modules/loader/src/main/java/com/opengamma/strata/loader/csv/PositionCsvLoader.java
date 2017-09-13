@@ -49,7 +49,7 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <p>
  * The following standard columns are supported:<br />
  * <ul>
- * <li>The 'Type' column is option, and defines the instrument type,
+ * <li>The 'Strata Position Type' column is option, and defines the instrument type,
  *   'SEC' or'Security' for standard securities,
  *   'FUT' or 'Future' for ETD futures, and
  *   'OPT' or 'Option' for ETD options.
@@ -134,7 +134,7 @@ public final class PositionCsvLoader {
   static final String DEFAULT_SECURITY_SCHEME = "OG-Security";
 
   // CSV column headers
-  private static final String TYPE_FIELD = "Type";
+  private static final String TYPE_FIELD = "Strata Position Type";
   private static final String ID_SCHEME_FIELD = "Id Scheme";
   private static final String ID_FIELD = "Id";
 
@@ -210,6 +210,24 @@ public final class PositionCsvLoader {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks whether the source is a CSV format position file.
+   * <p>
+   * This parses the headers as CSV and checks that mandatory headers are present.
+   * This is determined entirely from the 'Strata Position Type' column.
+   * 
+   * @param charSource  the CSV character source to check
+   * @return true if the source is a CSV file with known headers, false otherwise
+   */
+  public boolean isKnownFormat(CharSource charSource) {
+    try (CsvIterator csv = CsvIterator.of(charSource, true)) {
+      return csv.containsHeader(TYPE_FIELD);
+    } catch (RuntimeException ex) {
+      return false;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Parses one or more CSV format position files.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
@@ -254,7 +272,7 @@ public final class PositionCsvLoader {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.headers().contains(TYPE_FIELD)) {
         return ValueWithFailures.of(ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain 'Type' header: {}", charSource));
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{}' header: {}", TYPE_FIELD, charSource));
       }
       return parseFile(csv, positionType);
 

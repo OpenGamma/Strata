@@ -1,4 +1,4 @@
-Type,Id Scheme,Id,Security Id Scheme,Security Id,Quantity,Long Quantity,Short Quantity,Exchange,Contract Code,Expiry,Expiry Week,Expiry Day,Settlement Type,Exercise Style,Put Call,Exercise Price
+Strata Position Type,Id Scheme,Id,Security Id Scheme,Security Id,Quantity,Long Quantity,Short Quantity,Exchange,Contract Code,Expiry,Expiry Week,Expiry Day,Settlement Type,Exercise Style,Put Call,Exercise Price
 SEC,OG,123431,,AAPL,,12,14.5,,,,,,,,,
 ,OG,123432,BBG,MSFT,20,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,

@@ -53,6 +53,12 @@ public class PositionCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/positions.csv");
 
   //-------------------------------------------------------------------------
+  public void test_isKnownFormat() {
+    PositionCsvLoader test = PositionCsvLoader.standard();
+    assertEquals(test.isKnownFormat(FILE.getCharSource()), true);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_security() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.load(FILE);
@@ -217,12 +223,12 @@ public class PositionCsvLoaderTest {
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
     assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage().contains("CSV file does not contain 'Type' header"), true);
+    assertEquals(failure.getMessage().contains("CSV file does not contain 'Strata Position Type' header"), true);
   }
 
   public void test_load_invalidUnknownType() {
     PositionCsvLoader test = PositionCsvLoader.standard();
-    ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("Type\nFoo")));
+    ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Position Type\nFoo")));
 
     assertEquals(trades.getFailures().size(), 1);
     FailureItem failure = trades.getFailures().get(0);
