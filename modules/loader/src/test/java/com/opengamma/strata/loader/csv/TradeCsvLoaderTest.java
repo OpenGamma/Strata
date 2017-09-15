@@ -749,6 +749,99 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected, result.getValue().get(0));
   }
 
+  public void test_load_swap_defaultFixedLegDayCount() {
+    ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
+        .put("Type", "Swap")
+        .put("Id Scheme", "OG")
+        .put("Id", "1234")
+        .put("Trade Date", "20170101")
+        .put("Trade Time", "12:30")
+        .put("Trade Zone", "Europe/Paris")
+
+        .put("Leg 1 Direction", "Pay")
+        .put("Leg 1 Start Date", "2017-05-02")
+        .put("Leg 1 End Date", "2022-05-02")
+        .put("Leg 1 Date Convention", "Following")
+        .put("Leg 1 Date Calendar", "GBLO")
+        .put("Leg 1 Frequency", "12M")
+        .put("Leg 1 Currency", "GBP")
+        .put("Leg 1 Notional", "1000000")
+        .put("Leg 1 Fixed Rate", "1.1")
+
+        .put("Leg 2 Direction", "Pay")
+        .put("Leg 2 Start Date", "2017-05-02")
+        .put("Leg 2 End Date", "2022-05-02")
+        .put("Leg 2 Date Convention", "Following")
+        .put("Leg 2 Date Calendar", "GBLO")
+        .put("Leg 2 Frequency", "6M")
+        .put("Leg 2 Currency", "GBP")
+        .put("Leg 2 Notional", "1000000")
+        .put("Leg 2 Index", "CHF-LIBOR-6M")
+        .build();
+    String csv = Joiner.on(',').join(csvMap.keySet()) + "\n" + Joiner.on(',').join(csvMap.values());
+
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
+    assertEquals(result.getFailures().size(), 0, result.getFailures().toString());
+    assertEquals(result.getValue().size(), 1);
+
+    Swap expectedSwap = Swap.builder()
+        .legs(
+            RateCalculationSwapLeg.builder()  // Fixed fixed stub
+                .payReceive(PAY)
+                .accrualSchedule(PeriodicSchedule.builder()
+                    .startDate(date(2017, 5, 2))
+                    .endDate(date(2022, 5, 2))
+                    .frequency(Frequency.P12M)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+                    .stubConvention(StubConvention.SHORT_INITIAL)
+                    .build())
+                .paymentSchedule(PaymentSchedule.builder()
+                    .paymentFrequency(Frequency.P12M)
+                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
+                    .build())
+                .notionalSchedule(NotionalSchedule.builder()
+                    .currency(GBP)
+                    .amount(ValueSchedule.of(1_000_000))
+                    .build())
+                .calculation(FixedRateCalculation.builder()
+                    .dayCount(DayCounts.THIRTY_U_360)  // defaulted from CHF-LIBOR-6M
+                    .rate(ValueSchedule.of(0.011))
+                    .build())
+                .build(),
+            RateCalculationSwapLeg.builder()
+                .payReceive(PAY)
+                .accrualSchedule(PeriodicSchedule.builder()
+                    .startDate(date(2017, 5, 2))
+                    .endDate(date(2022, 5, 2))
+                    .frequency(Frequency.P6M)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+                    .stubConvention(StubConvention.SHORT_INITIAL)
+                    .build())
+                .paymentSchedule(PaymentSchedule.builder()
+                    .paymentFrequency(Frequency.P6M)
+                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .build())
+                .notionalSchedule(NotionalSchedule.of(GBP, 1_000_000))
+                .calculation(IborRateCalculation.builder()
+                    .dayCount(DayCounts.ACT_360)
+                    .index(IborIndices.CHF_LIBOR_6M)
+                    .build())
+                .build())
+        .build();
+    SwapTrade expected = SwapTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "1234"))
+            .tradeDate(date(2017, 1, 1))
+            .tradeTime(LocalTime.of(12, 30))
+            .zone(ZoneId.of("Europe/Paris"))
+            .build())
+        .product(expectedSwap)
+        .build();
+    assertBeanEquals(expected, result.getValue().get(0));
+  }
+
   //-------------------------------------------------------------------------
   public void test_load_termDeposit() {
     TradeCsvLoader test = TradeCsvLoader.standard();
