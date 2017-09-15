@@ -24,7 +24,6 @@ import java.time.Period;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -50,10 +49,10 @@ final class FraTradeCsvLoader {
    * 
    * @param row  the CSV row
    * @param info  the trade info
-   * @param refData  the reference data
+   * @param resolver  the resolver used to parse additional information
    * @return the parsed trade
    */
-  static FraTrade parse(CsvRow row, TradeInfo info, ReferenceData refData) {
+  static FraTrade parse(CsvRow row, TradeInfo info, CsvInfoResolver resolver) {
     BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
@@ -104,7 +103,8 @@ final class FraTradeCsvLoader {
         }
         LocalDate tradeDate = info.getTradeDate().get();
         Period periodToStart = periodToStartOpt.get();
-        FraTrade trade = convention.createTrade(tradeDate, periodToStart, buySell, notional, fixedRate, refData);
+        FraTrade trade =
+            convention.createTrade(tradeDate, periodToStart, buySell, notional, fixedRate, resolver.getReferenceData());
         trade = trade.toBuilder().info(info).build();
         return adjustTrade(trade, dateCnv, dateCalOpt);
       }

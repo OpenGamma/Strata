@@ -1,0 +1,12 @@
+Strata Position Type,Id Scheme,Id,Security Id Scheme,Security Id,Quantity,Long Quantity,Short Quantity,Exchange,Contract Code,Expiry,Expiry Week,Expiry Day,Settlement Type,Exercise Style,Put Call,Exercise Price
+SEC,OG,123431,,AAPL,,12,14.5,,,,,,,,,
+,OG,123432,BBG,MSFT,20,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+FUT,OG,123421,,,,15,2,ECAG,FGBL,2017-06,,,,,,
+FUT,OG,123422,,,,,13,ECAG,FGBL,01/06/2017,,13,C,,,
+FUT,OG,123423,,,-20,,,ECAG,FGBL,2017-06,2,,,,,
+,OG,123424,,,30,,,ECAG,FGBL,2017-06,,3,,,,
+,,,,,,,,,,,,,,,,
+OPT,OG,123431,,,,15,2,ECAG,OGBL,2017-06,,,,,P,3
+OPT,OG,123432,,,,,13,ECAG,OGBL,01/06/2017,,13,C,A,C,4
+,OG,123433,,,-20,,,ECAG,OGBL,01/06/2017,2,,,,P,5.1
