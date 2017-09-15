@@ -381,7 +381,7 @@ public final class TradeCsvLoader {
     row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));
-    resolver.parseTradeAttributes(row, infoBuilder);
+    resolver.parseTradeInfo(row, infoBuilder);
     return infoBuilder.build();
   }
 

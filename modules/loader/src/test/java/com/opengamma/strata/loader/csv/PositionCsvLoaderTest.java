@@ -236,4 +236,28 @@ public class PositionCsvLoaderTest {
     assertEquals(failure.getMessage(), "CSV file position type 'Foo' is not known at line 2");
   }
 
+  public void test_load_invalidNoQuantity() {
+    EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
+    EtdContractSpec contract = EtdContractSpec.builder()
+        .id(specId)
+        .type(EtdType.FUTURE)
+        .exchangeId(ExchangeIds.ECAG)
+        .contractCode(EtdContractCode.of("FGBL"))
+        .description("Dummy")
+        .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
+        .build();
+    ReferenceData refData = ImmutableReferenceData.of(specId, contract);
+    PositionCsvLoader test = PositionCsvLoader.of(refData);
+    ValueWithFailures<List<Position>> trades =
+        test.parse(
+            ImmutableList.of(CharSource.wrap("Strata Position Type,Exchange,Contract Code,Expiry\nFUT,ECAG,FGBL,2017-06")));
+
+    assertEquals(trades.getFailures().size(), 1);
+    FailureItem failure = trades.getFailures().get(0);
+    assertEquals(failure.getReason(), FailureReason.PARSING);
+    assertEquals(failure.getMessage(),
+        "CSV file position could not be parsed at line 2: " +
+            "Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
+  }
+
 }

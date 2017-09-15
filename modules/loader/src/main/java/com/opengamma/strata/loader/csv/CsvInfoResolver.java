@@ -53,21 +53,28 @@ public interface CsvInfoResolver {
 
   /**
    * Parses attributes into {@code TradeInfo}.
+   * <p>
+   * If they are available, the trade ID, date, time and zone will have been set
+   * before this method is called. They may be altered if necessary, although
+   * this is not recommended.
    * 
    * @param row  the CSV row to parse
    * @param builder  the builder to update
    */
-  public default void parseTradeAttributes(CsvRow row, TradeInfoBuilder builder) {
+  public default void parseTradeInfo(CsvRow row, TradeInfoBuilder builder) {
     // do nothing
   }
 
   /**
    * Parses attributes into {@code PositionInfo}.
+   * <p>
+   * If it is available, the position ID will have been set before this method is called.
+   * It may be altered if necessary, although this is not recommended.
    * 
    * @param row  the CSV row to parse
    * @param builder  the builder to update
    */
-  public default void parsePositionAttributes(CsvRow row, PositionInfoBuilder builder) {
+  public default void parsePositionInfo(CsvRow row, PositionInfoBuilder builder) {
     // do nothing
   }
 

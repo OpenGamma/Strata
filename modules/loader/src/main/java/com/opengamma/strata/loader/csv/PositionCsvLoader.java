@@ -49,7 +49,8 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <p>
  * The following standard columns are supported:<br />
  * <ul>
- * <li>The 'Strata Position Type' column is option, and defines the instrument type,
+ * <li>The 'Strata Position Type' column is optional, but mandatory when checking headers
+ * to see if the file is a known format. It defines the instrument type,
  *   'SEC' or'Security' for standard securities,
  *   'FUT' or 'Future' for ETD futures, and
  *   'OPT' or 'Option' for ETD options.
@@ -96,7 +97,8 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * The quantity will normally be set from the 'Quantity' column.
  * If that column is not found, the 'Long Quantity' and 'Short Quantity' columns will be used instead.
  * <p>
- * The single 'Expiry' column will normally just be set. Flex futures will also set the 'Expiry Day' and 'Settlement Type'.
+ * The expiry is normally controlled using just the 'Expiry' column.
+ * Flex options will also set the 'Expiry Day' and 'Settlement Type'.
  * 
  * <h4>OPT/Option</h4>
  * <p>
@@ -124,8 +126,8 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * The quantity will normally be set from the 'Quantity' column.
  * If that column is not found, the 'Long Quantity' and 'Short Quantity' columns will be used instead.
  * <p>
- * The single 'Expiry' column will normally just be set.
- * Flex futures will also set the 'Expiry Day', 'Settlement Type' and 'Exercise Style'.
+ * The expiry is normally controlled using just the 'Expiry' column.
+ * Flex options will also set the 'Expiry Day', 'Settlement Type' and 'Exercise Style'.
  */
 public final class PositionCsvLoader {
 
@@ -339,7 +341,7 @@ public final class PositionCsvLoader {
     PositionInfoBuilder infoBuilder = PositionInfo.builder();
     String scheme = row.findField(ID_SCHEME_FIELD).orElse(DEFAULT_POSITION_SCHEME);
     row.findValue(ID_FIELD).ifPresent(id -> infoBuilder.id(StandardId.of(scheme, id)));
-    resolver.parsePositionAttributes(row, infoBuilder);
+    resolver.parsePositionInfo(row, infoBuilder);
     return infoBuilder.build();
   }
 

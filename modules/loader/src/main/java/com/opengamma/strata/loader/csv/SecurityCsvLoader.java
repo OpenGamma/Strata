@@ -10,12 +10,14 @@ import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY
 
 import java.time.YearMonth;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Position;
@@ -39,6 +41,10 @@ import com.opengamma.strata.product.etd.EtdVariant;
  * Loads security trades from CSV files.
  */
 final class SecurityCsvLoader {
+
+  // lookup settlement by code
+  private static final ImmutableMap<String, EtdSettlementType> SETTLEMENT_BY_CODE =
+      Stream.of(EtdSettlementType.values()).collect(toImmutableMap(EtdSettlementType::getCode));
 
   // CSV column headers
   private static final String SECURITY_ID_SCHEME_FIELD = "Security Id Scheme";
@@ -74,16 +80,9 @@ final class SecurityCsvLoader {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
-    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
     double price = LoaderUtils.parseDouble(row.getValue(PRICE_FIELD));
-    if (quantityOpt.isPresent()) {
-      return SecurityTrade.of(info, securityId, quantityOpt.get(), price);
-    }
-    // handle longQuantity and shortQuantity
-    double longQuantity = parseQuantity(row, LONG_QUANTITY_FIELD);
-    double shortQuantity = parseQuantity(row, SHORT_QUANTITY_FIELD);
-    double quantity = longQuantity - shortQuantity;
-    return SecurityTrade.of(info, securityId, quantity, price);
+    DoublesPair quantity = parseQuantity(row);
+    return SecurityTrade.of(info, securityId, quantity.getFirst() - quantity.getSecond(), price);
   }
 
   //-------------------------------------------------------------------------
@@ -121,14 +120,8 @@ final class SecurityCsvLoader {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
-    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
-    if (quantityOpt.isPresent()) {
-      return SecurityPosition.ofNet(info, securityId, quantityOpt.get());
-    }
-    // handle longQuantity and shortQuantity
-    double longQuantity = parseQuantity(row, LONG_QUANTITY_FIELD);
-    double shortQuantity = parseQuantity(row, SHORT_QUANTITY_FIELD);
-    return SecurityPosition.ofLongShort(info, securityId, longQuantity, shortQuantity);
+    DoublesPair quantity = parseQuantity(row);
+    return SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
   }
 
   //-------------------------------------------------------------------------
@@ -144,14 +137,8 @@ final class SecurityCsvLoader {
     EtdContractSpec contract = resolver.parseEtdContractSpec(row, EtdType.FUTURE);
     Pair<YearMonth, EtdVariant> variant = parseVariant(row, EtdType.FUTURE);
     EtdFutureSecurity security = contract.createFuture(variant.getFirst(), variant.getSecond());
-    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
-    if (quantityOpt.isPresent()) {
-      return EtdFuturePosition.ofNet(info, security, quantityOpt.get());
-    }
-    // handle longQuantity and shortQuantity
-    double longQuantity = parseQuantity(row, LONG_QUANTITY_FIELD);
-    double shortQuantity = parseQuantity(row, SHORT_QUANTITY_FIELD);
-    return EtdFuturePosition.ofLongShort(info, security, longQuantity, shortQuantity);
+    DoublesPair quantity = parseQuantity(row);
+    return EtdFuturePosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
   }
 
   /**
@@ -169,22 +156,28 @@ final class SecurityCsvLoader {
     PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
     double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
     EtdOptionSecurity security = contract.createOption(variant.getFirst(), variant.getSecond(), version, putCall, strikePrice);
-    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
-    if (quantityOpt.isPresent()) {
-      return EtdOptionPosition.ofNet(info, security, quantityOpt.get());
-    }
-    // handle longQuantity and shortQuantity
-    double longQuantity = parseQuantity(row, LONG_QUANTITY_FIELD);
-    double shortQuantity = parseQuantity(row, SHORT_QUANTITY_FIELD);
-    return EtdOptionPosition.ofLongShort(info, security, longQuantity, shortQuantity);
+    DoublesPair quantity = parseQuantity(row);
+    return EtdOptionPosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
   }
 
   //-------------------------------------------------------------------------
   // parses a quantity field
-  private static double parseQuantity(CsvRow row, String field) {
-    Optional<Double> quantityOpt = row.findValue(field).map(s -> LoaderUtils.parseDouble(s));
-    quantityOpt.ifPresent(q -> ArgChecker.notNegative(q, field));
-    return quantityOpt.orElse(0d);
+  private static DoublesPair parseQuantity(CsvRow row) {
+    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    if (quantityOpt.isPresent()) {
+      double quantity = quantityOpt.get();
+      return DoublesPair.of(quantity >= 0 ? quantity : 0, quantity >= 0 ? 0 : -quantity);
+    }
+    Optional<Double> longQuantityOpt = row.findValue(LONG_QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    if (!longQuantityOpt.isPresent() && !shortQuantityOpt.isPresent()) {
+      throw new IllegalArgumentException(
+          Messages.format("Security must contain a quantity column, either '{}' or '{}' and '{}'",
+              QUANTITY_FIELD, LONG_QUANTITY_FIELD, SHORT_QUANTITY_FIELD));
+    }
+    double longQuantity = ArgChecker.notNegative(longQuantityOpt.orElse(0d), LONG_QUANTITY_FIELD);
+    double shortQuantity = ArgChecker.notNegative(shortQuantityOpt.orElse(0d), SHORT_QUANTITY_FIELD);
+    return DoublesPair.of(longQuantity, shortQuantity);
   }
 
   // parses the year-month and variant
@@ -230,9 +223,7 @@ final class SecurityCsvLoader {
   // parses the ETD settlement type form short code or full name
   private static EtdSettlementType parseEtdSettlementType(String str) {
     String upper = str.toUpperCase(Locale.ENGLISH);
-    Map<String, EtdSettlementType> valuesByCode =
-        Stream.of(EtdSettlementType.values()).collect(toImmutableMap(EtdSettlementType::getCode));
-    EtdSettlementType fromCode = valuesByCode.get(upper);
+    EtdSettlementType fromCode = SETTLEMENT_BY_CODE.get(upper);
     return fromCode != null ? fromCode : EtdSettlementType.of(str);
   }
 
