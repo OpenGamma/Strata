@@ -751,7 +751,7 @@ public class TradeCsvLoaderTest {
 
   public void test_load_swap_defaultFixedLegDayCount() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
-        .put("Type", "Swap")
+        .put("Strata Trade Type", "Swap")
         .put("Id Scheme", "OG")
         .put("Id", "1234")
         .put("Trade Date", "20170101")
