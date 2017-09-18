@@ -18,10 +18,13 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -34,7 +37,9 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.FloatingRateIndex;
 import com.opengamma.strata.basics.index.FloatingRateName;
+import com.opengamma.strata.basics.index.FloatingRateType;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
@@ -70,6 +75,7 @@ import com.opengamma.strata.product.swap.RateCalculation;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResetSchedule;
 import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -147,27 +153,101 @@ final class FullSwapTradeCsvLoader {
    * @return the parsed trade
    */
   static SwapTrade parse(CsvRow row, TradeInfo info) {
-    List<RateCalculationSwapLeg> legs = new ArrayList<>();
     // parse any number of legs by looking for 'Leg n Pay Receive'
-    Optional<String> payReceive = Optional.of(getValue(row, "Leg 1 ", DIRECTION_FIELD));
+    // this finds the index for each leg, using null for fixed legs
+    List<FloatingRateIndex> indices = new ArrayList<>();
+    Set<DayCount> dayCounts = new LinkedHashSet<>();
+    boolean missingDayCount = false;
+    String legPrefix = "Leg 1 ";
+    Optional<String> payReceiveOpt = Optional.of(getValue(row, legPrefix, DIRECTION_FIELD));
     int i = 1;
-    while (payReceive.isPresent()) {
-      legs.add(parseLeg(row, "Leg " + i + " "));
+    while (payReceiveOpt.isPresent()) {
+      // parse this leg, capturing the day count for floating legs
+      FloatingRateIndex index = parseIndex(row, legPrefix);
+      indices.add(index);
+      if (index != null) {
+        dayCounts.add(index.getDefaultFixedLegDayCount());
+      }
+      // defaulting only triggered if a fixed leg actually has a missing day count
+      if (index == null && !findValue(row, legPrefix, DAY_COUNT_FIELD).isPresent()) {
+        missingDayCount = true;
+      }
+      // check if there is another leg
       i++;
-      payReceive = findValue(row, "Leg " + i + " ", DIRECTION_FIELD);
+      legPrefix = "Leg " + i + " ";
+      payReceiveOpt = findValue(row, legPrefix, DIRECTION_FIELD);
     }
+    // determine the default day count for the fixed leg (only if there is a fixed leg)
+    DayCount defaultFixedLegDayCount = null;
+    if (missingDayCount) {
+      if (dayCounts.size() != 1) {
+        throw new IllegalArgumentException("Invalid swap definition, day count must be defined on each fixed leg");
+      }
+      defaultFixedLegDayCount = Iterables.getOnlyElement(dayCounts);
+    }
+    // parse fully now we know the number of legs and the default fixed leg day count
+    List<SwapLeg> legs = parseLegs(row, indices, defaultFixedLegDayCount);
     Swap swap = Swap.of(legs);
     return SwapTrade.of(info, swap);
   }
 
+  //-------------------------------------------------------------------------
+  // parse the index and default fixed leg day count
+  private static FloatingRateIndex parseIndex(CsvRow row, String leg) {
+    Optional<String> fixedRateOpt = findValue(row, leg, FIXED_RATE_FIELD);
+    Optional<String> indexOpt = findValue(row, leg, INDEX_FIELD);
+    if (fixedRateOpt.isPresent()) {
+      if (indexOpt.isPresent()) {
+        throw new IllegalArgumentException(
+            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and  '" + leg + INDEX_FIELD + "'");
+      }
+      return null;
+    }
+    if (!indexOpt.isPresent()) {
+      throw new IllegalArgumentException(
+          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or  '" + leg + INDEX_FIELD + "'");
+    }
+    // use FloatingRateName to identify Ibor vs other
+    String indexStr = indexOpt.get();
+    FloatingRateName frn = FloatingRateName.parse(indexStr);
+    if (frn.getType() == FloatingRateType.IBOR) {
+      // re-parse Ibor using tenor, which ensures tenor picked up from indexStr if present
+      Frequency freq = Frequency.parse(getValue(row, leg, FREQUENCY_FIELD));
+      Tenor iborTenor = freq.isTerm() ? frn.getDefaultTenor() : Tenor.of(freq.getPeriod());
+      return FloatingRateIndex.parse(indexStr, iborTenor);
+    }
+    return frn.toFloatingRateIndex();
+  }
+
+  // parses all the legs
+  private static List<SwapLeg> parseLegs(CsvRow row, List<FloatingRateIndex> indices, DayCount defaultFixedLegDayCount) {
+    List<SwapLeg> legs = new ArrayList<>();
+    for (int i = 0; i < indices.size(); i++) {
+      String legPrefix = "Leg " + (i + 1) + " ";
+      legs.add(parseLeg(row, legPrefix, indices.get(i), defaultFixedLegDayCount));
+    }
+    return legs;
+  }
+
   // parse a single leg
-  private static RateCalculationSwapLeg parseLeg(CsvRow row, String leg) {
+  private static RateCalculationSwapLeg parseLeg(
+      CsvRow row,
+      String leg,
+      FloatingRateIndex index,
+      DayCount defaultFixedLegDayCount) {
+
     PayReceive payReceive = LoaderUtils.parsePayReceive(getValue(row, leg, DIRECTION_FIELD));
     PeriodicSchedule accrualSch = parseAccrualSchedule(row, leg);
     PaymentSchedule paymentSch = parsePaymentSchedule(row, leg, accrualSch.getFrequency());
     NotionalSchedule notionalSch = parseNotionalSchedule(row, leg);
     RateCalculation calc = parseRateCalculation(
-        row, leg, accrualSch.getBusinessDayAdjustment(), accrualSch.getFrequency(), notionalSch.getCurrency());
+        row,
+        leg,
+        index,
+        defaultFixedLegDayCount,
+        accrualSch.getBusinessDayAdjustment(),
+        notionalSch.getCurrency());
+
     return RateCalculationSwapLeg.builder()
         .payReceive(payReceive)
         .accrualSchedule(accrualSch)
@@ -293,68 +373,48 @@ final class FullSwapTradeCsvLoader {
   private static RateCalculation parseRateCalculation(
       CsvRow row,
       String leg,
+      FloatingRateIndex index,
+      DayCount defaultFixedLegDayCount,
       BusinessDayAdjustment bda,
-      Frequency accrualFrequency,
       Currency currency) {
 
-    Optional<Double> fixedRateOpt = findValue(row, leg, FIXED_RATE_FIELD).map(s -> LoaderUtils.parseDoublePercent(s));
-    Optional<String> indexOpt = findValue(row, leg, INDEX_FIELD);
-    if (fixedRateOpt.isPresent()) {
-      if (indexOpt.isPresent()) {
-        throw new IllegalArgumentException(
-            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and  '" + leg + INDEX_FIELD + "'");
+    if (index instanceof IborIndex) {
+      return parseIborRateCalculation(row, leg, (IborIndex) index, bda, currency);
+
+    } else if (index instanceof OvernightIndex) {
+      Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(getValue(row, leg, INDEX_FIELD));
+      if (frnOpt.isPresent()) {
+        FloatingRateName frn = frnOpt.get();
+        if (frn.getType() == FloatingRateType.OVERNIGHT_AVERAGED) {
+          return parseOvernightRateCalculation(row, leg, (OvernightIndex) index, OvernightAccrualMethod.AVERAGED);
+        }
       }
-      return parseFixedRateCalculation(row, leg, fixedRateOpt.get(), currency);
+      return parseOvernightRateCalculation(row, leg, (OvernightIndex) index, OvernightAccrualMethod.COMPOUNDED);
+
+    } else if (index instanceof PriceIndex) {
+      return parseInflationRateCalculation(row, leg, (PriceIndex) index, currency);
+
+    } else {
+      return parseFixedRateCalculation(row, leg, currency, defaultFixedLegDayCount);
     }
-    if (!indexOpt.isPresent()) {
-      throw new IllegalArgumentException(
-          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or  '" + leg + INDEX_FIELD + "'");
-    }
-    // index might be whole Ibor Index or Floating Rate Name
-    String indexStr = indexOpt.get();
-    Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(indexStr);
-    if (frnOpt.isPresent()) {
-      FloatingRateName frn = frnOpt.get();
-      switch (frn.getType()) {
-        case IBOR: {
-          // imply index from accrual frequency
-          IborIndex ibor = frn.toIborIndex(Tenor.of(accrualFrequency.getPeriod()));
-          return parseIborRateCalculation(row, leg, ibor, bda, currency);
-        }
-        case OVERNIGHT_COMPOUNDED: {
-          return parseOvernightRateCalculation(row, leg, frn.toOvernightIndex(), OvernightAccrualMethod.COMPOUNDED);
-        }
-        case OVERNIGHT_AVERAGED: {
-          return parseOvernightRateCalculation(row, leg, frn.toOvernightIndex(), OvernightAccrualMethod.AVERAGED);
-        }
-        case PRICE: {
-          return parseInflationRateCalculation(row, leg, frn.toPriceIndex(), currency);
-        }
-        default:
-          throw new IllegalArgumentException("Swap trade index type not known: " + indexStr);
-      }
-    }
-    Optional<IborIndex> iborOpt = IborIndex.extendedEnum().find(indexStr);
-    if (iborOpt.isPresent()) {
-      return parseIborRateCalculation(row, leg, iborOpt.get(), bda, currency);
-    }
-    Optional<OvernightIndex> overnightOpt = OvernightIndex.extendedEnum().find(indexStr);
-    if (overnightOpt.isPresent()) {
-      return parseOvernightRateCalculation(row, leg, overnightOpt.get(), OvernightAccrualMethod.COMPOUNDED);
-    }
-    Optional<PriceIndex> priceOpt = PriceIndex.extendedEnum().find(indexStr);
-    if (priceOpt.isPresent()) {
-      return parseInflationRateCalculation(row, leg, priceOpt.get(), currency);
-    }
-    throw new IllegalArgumentException("Swap trade index not known: " + indexStr);
   }
 
   //-------------------------------------------------------------------------
   // fixed rate calculation
-  private static RateCalculation parseFixedRateCalculation(CsvRow row, String leg, double fixedRate, Currency currency) {
+  private static RateCalculation parseFixedRateCalculation(
+      CsvRow row,
+      String leg,
+      Currency currency,
+      DayCount defaultFixedLegDayCount) {
+
     FixedRateCalculation.Builder builder = FixedRateCalculation.builder();
     // basics
-    builder.dayCount(DayCount.of(getValue(row, leg, DAY_COUNT_FIELD)));
+    double fixedRate = LoaderUtils.parseDoublePercent(getValue(row, leg, FIXED_RATE_FIELD));
+    DayCount dayCount = findValue(row, leg, DAY_COUNT_FIELD).map(s -> DayCount.of(s)).orElse(defaultFixedLegDayCount);
+    if (dayCount == null) {
+      throw new IllegalArgumentException("Swap leg must define day count using '" + leg + DAY_COUNT_FIELD + "'");
+    }
+    builder.dayCount(dayCount);
     builder.rate(ValueSchedule.of(fixedRate));
     // initial stub
     Optional<Double> initialStubRateOpt = findValue(row, leg, INITIAL_STUB_RATE_FIELD)
