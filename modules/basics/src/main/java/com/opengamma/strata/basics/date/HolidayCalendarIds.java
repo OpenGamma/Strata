@@ -67,6 +67,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId FRPA = HolidayCalendarId.of("FRPA");
   /**
+   * An identifier for the holiday calendar of Frankfurt, Germany, with code 'DEFR'.
+   * <p>
+   * This constant references the calendar for Frankfurt public holidays.
+   */
+  public static final HolidayCalendarId DEFR = HolidayCalendarId.of("DEFR");
+  /**
    * An identifier for the holiday calendar of Zurich, Switzerland, with code 'EUTA'.
    * <p>
    * This constant references the calendar for Zurich public holidays.
