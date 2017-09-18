@@ -327,6 +327,35 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar DEFR = GlobalHolidayCalendars.generateFrankfurt();
+
+  @DataProvider(name = "defr")
+  Object[][] data_defr() {
+    return new Object[][] {
+        // dates not shifted if fall on a weekend
+        {2014, mds(2014, md(1, 1), md(4, 18), md(4, 21), md(5, 1), md(5, 29), md(6, 9), md(6, 19),
+            md(10, 3), md(12, 25), md(12, 26), md(12, 31))},
+        {2015, mds(2015, md(1, 1), md(4, 3), md(4, 6), md(5, 1), md(5, 14), md(5, 25), md(6, 4),
+            md(10, 3), md(12, 25), md(12, 26), md(12, 31))},
+        {2016, mds(2016, md(1, 1), md(3, 25), md(3, 28), md(5, 1), md(5, 5), md(5, 16), md(5, 26),
+            md(10, 3), md(12, 25), md(12, 26), md(12, 31))},
+        {2017, mds(2017, md(1, 1), md(4, 14), md(4, 17), md(5, 1), md(5, 25), md(6, 5), md(6, 15),
+            md(10, 3), md(10, 31), md(12, 25), md(12, 26), md(12, 31))},
+    };
+  }
+
+  @Test(dataProvider = "defr")
+  public void test_defr(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(DEFR.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static final HolidayCalendar CHZU = GlobalHolidayCalendars.generateZurich();
 
   @DataProvider(name = "chzu")

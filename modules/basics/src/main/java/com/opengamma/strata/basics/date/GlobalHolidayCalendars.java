@@ -16,6 +16,7 @@ import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 import static java.time.temporal.TemporalAdjusters.firstInMonth;
 import static java.time.temporal.TemporalAdjusters.lastInMonth;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
+import static java.time.temporal.TemporalAdjusters.previous;
 import static java.util.stream.Collectors.toSet;
 
 import java.time.DayOfWeek;
@@ -54,6 +55,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar FRPA = generateParis();
+  /**
+   * The holiday calendar for Frankfurt, Germany, with code 'DEFR'.
+   * <p>
+   * This constant provides the calendar for Frankfurt public holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar DEFR = generateFrankfurt();
   /**
    * The holiday calendar for Zurich, Switzerland, with code 'EUTA'.
    * <p>
@@ -335,6 +345,37 @@ final class GlobalHolidayCalendars {
     applyBridging(holidays);
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.FRPA, holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // generate DEFR
+  // data sources
+  // https://www.feiertagskalender.ch/index.php?geo=3122&klasse=3&jahr=2017&hl=en
+  // http://jollyday.sourceforge.net/data/de.html
+  static ImmutableHolidayCalendar generateFrankfurt() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      holidays.add(date(year, 1, 1));  // new year
+      holidays.add(easter(year).minusDays(2));  // good friday
+      holidays.add(easter(year).plusDays(1));  // easter monday
+      holidays.add(date(year, 5, 1));  // labour day
+      holidays.add(easter(year).plusDays(39));  // ascension day
+      holidays.add(easter(year).plusDays(50));  // whit monday
+      holidays.add(easter(year).plusDays(60));  // corpus christi
+      if (year >= 2000) {
+        holidays.add(date(year, 10, 3));  // german unity
+      }
+      if (year <= 1994) {
+        // Wed before the Sunday that is 2 weeks before first advent, which is 4th Sunday before Christmas
+        holidays.add(date(year, 12, 25).with(previous(SUNDAY)).minusWeeks(6).minusDays(4));  // repentance
+      }
+      holidays.add(date(year, 12, 25));  // christmas day
+      holidays.add(date(year, 12, 26));  // saint stephen
+      holidays.add(date(year, 12, 31));  // new year
+    }
+    holidays.add(date(2017, 10, 31));  // reformation day
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.DEFR, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
