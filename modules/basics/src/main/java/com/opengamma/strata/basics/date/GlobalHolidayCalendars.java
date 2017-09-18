@@ -64,6 +64,26 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar CHZU = generateZurich();
   /**
+   * The holiday calendar for Frankfurt, Germany, with code 'DEFR'.
+   * <p>
+   * This constant provides the calendar for Frankfurt holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar DEFR = generateFrankfurt();
+  /**
+   * The holiday calendar for the Frankfurt Stock Exchange (Xetra), with code 'FSX'.
+   * <p>
+   * This constant provides the calendar for the Frankfurt Stock Exchange.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   * <p>
+   * Referenced by the 2006 ISDA definitions 1.10.
+   */
+  public static final HolidayCalendar FSX = generateFrankfurtStockExchange();
+  /**
    * The holiday calendar for the European Union TARGET system, with code 'EUTA'.
    * <p>
    * This constant provides the calendar for the TARGET interbank payment system holidays.
@@ -362,6 +382,51 @@ final class GlobalHolidayCalendars {
     holidays.add(date(2000, 1, 3));  // millennium
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.CHZU, holidays, SATURDAY, SUNDAY);
+  }
+  
+  //-------------------------------------------------------------------------
+  // generate DEFR
+  // data sources
+  // https://de.wikipedia.org/wiki/Gesetzliche_Feiertage_in_Deutschland
+  static ImmutableHolidayCalendar generateFrankfurt() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      holidays.add(date(year, 1, 1));  // new year
+      holidays.add(easter(year).minusDays(2));  // good friday
+      holidays.add(easter(year).plusDays(1));  // easter monday
+      holidays.add(date(year, 5, 1));  // labour day
+      holidays.add(easter(year).plusDays(39));  // ascension day
+      holidays.add(easter(year).plusDays(50));  // whit monday
+      holidays.add(date(year, 10, 3));  // unification
+      holidays.add(date(year, 12, 25));  // christmas day
+      holidays.add(date(year, 12, 26));  // saint stephen
+    }
+    holidays.add(date(1999, 12, 31));  // millennium
+    holidays.add(date(2017, 10, 31));  // reformation day
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.DEFR, holidays, SATURDAY, SUNDAY);
+  }
+  
+  //-------------------------------------------------------------------------
+  // generate FSX
+  // data sources
+  // http://www.xetra.com/xetra-en/trading/trading-information/trading-calendar
+  // http://www.wallstreet-online.de/boersenfeiertage
+  static ImmutableHolidayCalendar generateFrankfurtStockExchange() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      holidays.add(easter(year).minusDays(2));  // good friday
+      holidays.add(easter(year).plusDays(1));  // easter monday
+      holidays.add(date(year, 5, 1));  // labour day
+      holidays.add(easter(year).plusDays(50));  // whit monday
+      holidays.add(date(year, 10, 3));  // unification
+      holidays.add(date(year, 12, 25));  // christmas day
+      holidays.add(date(year, 12, 26));  // saint stephen
+    }
+    holidays.add(date(1999, 12, 31));  // millennium
+    holidays.add(date(2017, 10, 31));  // reformation day
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.FSX, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
