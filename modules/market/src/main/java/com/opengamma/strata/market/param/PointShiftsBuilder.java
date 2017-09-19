@@ -39,7 +39,7 @@ public final class PointShiftsBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Restricted constructor used by {@link ParameterizedDataPointShifts#builder}.
+   * Restricted constructor used by {@code PointShifts.builder}.
    *
    * @param shiftType  the type of shift to apply to the rates
    */
