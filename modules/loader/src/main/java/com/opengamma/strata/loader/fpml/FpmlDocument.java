@@ -711,7 +711,11 @@ public final class FpmlDocument {
    * @throws RuntimeException if unable to parse
    */
   public DayCount parseDayCountFraction(XmlElement baseEl) {
-    validateScheme(baseEl, "dayCountFractionScheme", "http://www.fpml.org/coding-scheme/day-count-fraction");
+    validateScheme(
+        baseEl,
+        "dayCountFractionScheme",
+        "http://www.fpml.org/coding-scheme/day-count-fraction",  // standard form
+        "http://www.fpml.org/spec/2004/day-count-fraction");  // seen in the wild
     return convertDayCount(baseEl.getContent());
   }
 
