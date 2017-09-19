@@ -691,7 +691,15 @@ public final class FpmlDocument {
    * @throws RuntimeException if unable to parse
    */
   public Currency parseCurrency(XmlElement baseEl) {
-    validateScheme(baseEl, "currencyScheme", "http://www.fpml.org/coding-scheme/external/iso4217");
+    // allow various schemes
+    // http://www.fpml.org/docs/FpML-AWG-Expanding-the-Currency-Codes-v2016.pdf
+    validateScheme(
+        baseEl,
+        "currencyScheme",
+        "http://www.fpml.org/coding-scheme/external/iso4217",  // standard form
+        "http://www.fpml.org/ext/iso4217",  // seen in the wild
+        "http://www.fpml.org/coding-scheme/currency",  // newer, see link above
+        "http://www.fpml.org/codingscheme/non-iso-currency");  // newer, see link above
     return Currency.of(baseEl.getContent());
   }
 
@@ -703,7 +711,11 @@ public final class FpmlDocument {
    * @throws RuntimeException if unable to parse
    */
   public DayCount parseDayCountFraction(XmlElement baseEl) {
-    validateScheme(baseEl, "dayCountFractionScheme", "http://www.fpml.org/coding-scheme/day-count-fraction");
+    validateScheme(
+        baseEl,
+        "dayCountFractionScheme",
+        "http://www.fpml.org/coding-scheme/day-count-fraction",  // standard form
+        "http://www.fpml.org/spec/2004/day-count-fraction");  // seen in the wild
     return convertDayCount(baseEl.getContent());
   }
 
@@ -858,15 +870,18 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML element to parse 
    * @param schemeAttr  the scheme attribute name
-   * @param schemeValue  the scheme attribute value
+   * @param schemeValues  the scheme attribute values that are accepted
    * @throws FpmlParseException if the scheme does not match
    */
-  public void validateScheme(XmlElement baseEl, String schemeAttr, String schemeValue) {
+  public void validateScheme(XmlElement baseEl, String schemeAttr, String... schemeValues) {
     if (baseEl.getAttributes().containsKey(schemeAttr)) {
       String scheme = baseEl.getAttribute(schemeAttr);
-      if (!scheme.startsWith(schemeValue)) {
-        throw new FpmlParseException("Unknown '" + schemeAttr + "' attribute value: " + scheme);
+      for (String schemeValue : schemeValues) {
+        if (scheme.startsWith(schemeValue)) {
+          return;
+        }
       }
+      throw new FpmlParseException("Unknown '" + schemeAttr + "' attribute value: " + scheme);
     }
   }
 
