@@ -25,7 +25,6 @@ import java.util.stream.DoubleStream;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -63,7 +62,7 @@ public final class DoubleArray
    */
   private static final long serialVersionUID = 1L;
   static {
-    JodaBeanUtils.registerMetaBean(Meta.META);
+    MetaBean.register(Meta.META);
   }
 
   /**
@@ -1294,6 +1293,11 @@ public final class DoubleArray
     private static final ImmutableMap<String, MetaProperty<?>> MAP = ImmutableMap.of("array", ARRAY);
 
     private Meta() {
+    }
+
+    @Override
+    public boolean isBuildable() {
+      return true;
     }
 
     @Override

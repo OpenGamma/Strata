@@ -662,14 +662,6 @@ public class TestHelper {
         for (Object setValue : sampleValues(mp)) {
           ignoreThrows(() -> metaBean.builder().set(mp.name(), setValue));
         }
-        for (String setStr : sampleStrings(mp)) {
-          ignoreThrows(() -> metaBean.builder().setString(mp, setStr));
-        }
-        for (String setStr : sampleStrings(mp)) {
-          ignoreThrows(() -> metaBean.builder().setString(mp.name(), setStr));
-        }
-        ignoreThrows(() -> metaBean.builder().setString(mp, JodaBeanTests.TEST_COVERAGE_STRING));
-        ignoreThrows(() -> metaBean.builder().setString(mp.name(), JodaBeanTests.TEST_COVERAGE_STRING));
       }
       ignoreThrows(() -> {
         Method m = metaBean.getClass().getDeclaredMethod(mp.name());
@@ -691,9 +683,7 @@ public class TestHelper {
     });
     MetaProperty<String> fakeMetaProp = StandaloneMetaProperty.of("fake", metaBean, String.class);
     ignoreThrows(() -> metaBean.builder().set(fakeMetaProp, JodaBeanTests.TEST_COVERAGE_STRING));
-    ignoreThrows(() -> metaBean.builder().setString(fakeMetaProp, JodaBeanTests.TEST_COVERAGE_STRING));
     ignoreThrows(() -> metaBean.builder().set(JodaBeanTests.TEST_COVERAGE_PROPERTY, JodaBeanTests.TEST_COVERAGE_STRING));
-    ignoreThrows(() -> metaBean.builder().setString(JodaBeanTests.TEST_COVERAGE_PROPERTY, JodaBeanTests.TEST_COVERAGE_STRING));
     ignoreThrows(() -> bean.property(JodaBeanTests.TEST_COVERAGE_PROPERTY));
   }
 
@@ -702,10 +692,8 @@ public class TestHelper {
   private static void coverNonProperties(Bean bean) {
     MetaBean metaBean = bean.metaBean();
     assertFalse(metaBean.metaPropertyExists(""));
-    metaBean.builder().setAll(ImmutableMap.of());
     assertThrows(() -> metaBean.builder().get("foo_bar"), NoSuchElementException.class);
     assertThrows(() -> metaBean.builder().set("foo_bar", ""), NoSuchElementException.class);
-    assertThrows(() -> metaBean.builder().setString("foo_bar", ""), NoSuchElementException.class);
     assertThrows(() -> metaBean.metaProperty("foo_bar"), NoSuchElementException.class);
 
     if (metaBean instanceof DirectMetaBean) {
@@ -846,14 +834,6 @@ public class TestHelper {
       }
     }
     return builder.build();
-  }
-
-  // sample strings for setters
-  private static List<String> sampleStrings(MetaProperty<?> mp) {
-    List<?> values = sampleValues(mp);
-    List<String> strings = values.stream().map(Object::toString).collect(Collectors.toList());
-    strings.add("");
-    return strings;
   }
 
   private static final Map<Class<?>, List<?>> SAMPLES =

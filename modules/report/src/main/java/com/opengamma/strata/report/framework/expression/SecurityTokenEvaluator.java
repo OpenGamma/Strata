@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
@@ -34,7 +33,7 @@ public class SecurityTokenEvaluator extends TokenEvaluator<Security> {
 
   @Override
   public Set<String> tokens(Security security) {
-    MetaBean metaBean = JodaBeanUtils.metaBean(security.getClass());
+    MetaBean metaBean = MetaBean.of(security.getClass());
     return Sets.union(
         Sets.union(metaBean.metaPropertyMap().keySet(), security.getInfo().propertyNames()),
         security.getInfo().getPriceInfo().propertyNames());
@@ -47,7 +46,7 @@ public class SecurityTokenEvaluator extends TokenEvaluator<Security> {
       String firstToken,
       List<String> remainingTokens) {
 
-    MetaBean metaBean = JodaBeanUtils.metaBean(security.getClass());
+    MetaBean metaBean = MetaBean.of(security.getClass());
 
     // security
     Optional<String> securityPropertyName = metaBean.metaPropertyMap().keySet().stream()
