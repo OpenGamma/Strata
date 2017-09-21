@@ -192,6 +192,8 @@ public interface IborIndexRates
     child.put(ExplainKey.ENTRY_TYPE, "IborIndexObservation");
     child.put(ExplainKey.FIXING_DATE, fixingDate);
     child.put(ExplainKey.INDEX, observation.getIndex());
+    child.put(ExplainKey.FORWARD_RATE_START_DATE, observation.getEffectiveDate());
+    child.put(ExplainKey.FORWARD_RATE_END_DATE, observation.getMaturityDate());
     child.put(ExplainKey.INDEX_VALUE, rate);
     if (fixingDate.isBefore(getValuationDate()) ||
         (fixingDate.equals(getValuationDate()) && getFixings().containsDate(fixingDate))) {

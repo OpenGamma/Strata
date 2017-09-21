@@ -166,6 +166,14 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Index> INDEX = of("Index");
   /**
+   * The start date used to calculate the forward rate.
+   */
+  public static final ExplainKey<LocalDate> FORWARD_RATE_START_DATE = of("ForwardRateStartDate");
+  /**
+   * The end date used to calculate the forward rate.
+   */
+  public static final ExplainKey<LocalDate> FORWARD_RATE_END_DATE = of("ForwardRateEndDate");
+  /**
    * The fixing date.
    */
   public static final ExplainKey<LocalDate> FIXING_DATE = of("FixingDate");
