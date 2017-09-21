@@ -60,8 +60,7 @@ public final class CurvePointShiftsBuilder {
    * @param shiftAmount  the size of the shift
    * @return this builder
    */
-  public CurvePointShiftsBuilder addShift(int scenarioIndex, Object nodeIdentifier,
-      double shiftAmount) {
+  public CurvePointShiftsBuilder addShift(int scenarioIndex, Object nodeIdentifier, double shiftAmount) {
     ArgChecker.notNull(nodeIdentifier, "nodeIdentifier");
     ArgChecker.notNegative(scenarioIndex, "scenarioIndex");
     shifts.put(Pair.of(scenarioIndex, nodeIdentifier), shiftAmount);
@@ -101,8 +100,7 @@ public final class CurvePointShiftsBuilder {
         .distinct() // Use distinct to preserve order. Collecting to a set wouldn't preserve it
         .collect(toImmutableList());
     DoubleMatrix shiftMatrix =
-        DoubleMatrix.of(scenarioCount, nodeIdentifiers.size(),
-            (r, c) -> shiftValue(r, nodeIdentifiers.get(c)));
+        DoubleMatrix.of(scenarioCount, nodeIdentifiers.size(), (r, c) -> shiftValue(r, nodeIdentifiers.get(c)));
     return new CurvePointShifts(shiftType, shiftMatrix, nodeIdentifiers);
   }
 

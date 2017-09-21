@@ -28,6 +28,9 @@ import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 
 /**
  * Contains a market data perturbation and a filter that decides what market data it applies to.
+ * <p>
+ * The mapping links the perturbation to be applied to the filter that decides whether it applies.
+ * The generic types of the filter can be for a subtype of the type that the perturbation applies to.
  *
  * @param <T>  the type of the market data handled by the mapping
  */
@@ -40,7 +43,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
 
   /** The filter that decides whether the perturbation should be applied to a piece of market data. */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataFilter<T, ?> filter;
+  private final MarketDataFilter<? extends T, ?> filter;
 
   /** Perturbation that should be applied to market data as part of a scenario. */
   @PropertyDefinition(validate = "notNull")
@@ -49,16 +52,32 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   //-------------------------------------------------------------------------
   /**
    * Returns a mapping containing a single perturbation.
+   * <p>
+   * This uses the type from {@link ScenarioPerturbation} as the type of the mapping.
+   *
+   * @param <T>  the type of the market data handled by the mapping
+   * @param filter  the filter used to choose the market data
+   * @param perturbation  the perturbation applied to any market data matching the filter
+   * @return a mapping containing a single perturbation
+   */
+  public static <T> PerturbationMapping<T> of(MarketDataFilter<? extends T, ?> filter, ScenarioPerturbation<T> perturbation) {
+    return new PerturbationMapping<T>(perturbation.getMarketDataType(), filter, perturbation);
+  }
+
+  /**
+   * Returns a mapping containing a single perturbation.
    *
    * @param <T>  the type of the market data handled by the mapping
    * @param marketDataType the type of market data handled by the mapping
    * @param filter  the filter used to choose the market data
    * @param perturbation  the perturbation applied to any market data matching the filter
    * @return a mapping containing a single perturbation
+   * @deprecated Use the two-argument version, now that {@link ScenarioPerturbation} knows its type
    */
+  @Deprecated
   public static <T> PerturbationMapping<T> of(
       Class<T> marketDataType,
-      MarketDataFilter<T, ?> filter,
+      MarketDataFilter<? extends T, ?> filter,
       ScenarioPerturbation<T> perturbation) {
 
     return new PerturbationMapping<>(marketDataType, filter, perturbation);
@@ -151,7 +170,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
 
   private PerturbationMapping(
       Class<T> marketDataType,
-      MarketDataFilter<T, ?> filter,
+      MarketDataFilter<? extends T, ?> filter,
       ScenarioPerturbation<T> perturbation) {
     JodaBeanUtils.notNull(marketDataType, "marketDataType");
     JodaBeanUtils.notNull(filter, "filter");
@@ -181,7 +200,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    * Gets the filter that decides whether the perturbation should be applied to a piece of market data.
    * @return the value of the property, not null
    */
-  public MarketDataFilter<T, ?> getFilter() {
+  public MarketDataFilter<? extends T, ?> getFilter() {
     return filter;
   }
 
@@ -259,7 +278,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
      * The meta-property for the {@code filter} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<MarketDataFilter<T, ?>> filter = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<MarketDataFilter<? extends T, ?>> filter = DirectMetaProperty.ofImmutable(
         this, "filter", PerturbationMapping.class, (Class) MarketDataFilter.class);
     /**
      * The meta-property for the {@code perturbation} property.
@@ -324,7 +343,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
      * The meta-property for the {@code filter} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataFilter<T, ?>> filter() {
+    public MetaProperty<MarketDataFilter<? extends T, ?>> filter() {
       return filter;
     }
 
@@ -369,7 +388,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   public static final class Builder<T> extends DirectFieldsBeanBuilder<PerturbationMapping<T>> {
 
     private Class<T> marketDataType;
-    private MarketDataFilter<T, ?> filter;
+    private MarketDataFilter<? extends T, ?> filter;
     private ScenarioPerturbation<T> perturbation;
 
     /**
@@ -411,7 +430,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
           this.marketDataType = (Class<T>) newValue;
           break;
         case -1274492040:  // filter
-          this.filter = (MarketDataFilter<T, ?>) newValue;
+          this.filter = (MarketDataFilter<? extends T, ?>) newValue;
           break;
         case -924739417:  // perturbation
           this.perturbation = (ScenarioPerturbation<T>) newValue;
@@ -453,7 +472,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
      * @param filter  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> filter(MarketDataFilter<T, ?> filter) {
+    public Builder<T> filter(MarketDataFilter<? extends T, ?> filter) {
       JodaBeanUtils.notNull(filter, "filter");
       this.filter = filter;
       return this;

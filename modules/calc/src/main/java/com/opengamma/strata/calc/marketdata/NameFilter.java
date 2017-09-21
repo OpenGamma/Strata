@@ -26,14 +26,14 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
  * @param <T>  the type of the market data handled by the filter
  */
 @BeanDefinition(style = "light", constructorScope = "package")
-final class NameFilter<T, I extends T>
-    implements MarketDataFilter<T, NamedMarketDataId<I>>, ImmutableBean {
+final class NameFilter<T>
+    implements MarketDataFilter<T, NamedMarketDataId<T>>, ImmutableBean {
 
   /**
    * The name that is matched by this filter.
    */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataName<I> name;
+  private final MarketDataName<T> name;
 
   //-------------------------------------------------------------------------
   @Override
@@ -42,7 +42,7 @@ final class NameFilter<T, I extends T>
   }
 
   @Override
-  public boolean matches(NamedMarketDataId<I> marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData) {
+  public boolean matches(NamedMarketDataId<T> marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
     return marketDataId.getMarketDataName().equals(name);
   }
 
@@ -70,15 +70,15 @@ final class NameFilter<T, I extends T>
    * @param name  the value of the property, not null
    */
   NameFilter(
-      MarketDataName<I> name) {
+      MarketDataName<T> name) {
     JodaBeanUtils.notNull(name, "name");
     this.name = name;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public TypedMetaBean<NameFilter<T, I>> metaBean() {
-    return (TypedMetaBean<NameFilter<T, I>>) META_BEAN;
+  public TypedMetaBean<NameFilter<T>> metaBean() {
+    return (TypedMetaBean<NameFilter<T>>) META_BEAN;
   }
 
   //-----------------------------------------------------------------------
@@ -86,7 +86,7 @@ final class NameFilter<T, I extends T>
    * Gets the name that is matched by this filter.
    * @return the value of the property, not null
    */
-  public MarketDataName<I> getName() {
+  public MarketDataName<T> getName() {
     return name;
   }
 
@@ -97,7 +97,7 @@ final class NameFilter<T, I extends T>
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      NameFilter<?, ?> other = (NameFilter<?, ?>) obj;
+      NameFilter<?> other = (NameFilter<?>) obj;
       return JodaBeanUtils.equal(name, other.name);
     }
     return false;

@@ -114,7 +114,6 @@ public class CurveScenarioExample {
     // mappings that select which market data to apply perturbations to
     // this applies the perturbations above to all curves
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
-        Curve.class,
         MarketDataFilter.ofIdType(CurveId.class),
         // no shift for the base scenario, 1bp absolute shift to calibrated curves (zeros)
         CurveParallelShifts.absolute(0, ONE_BP));

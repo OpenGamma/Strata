@@ -25,7 +25,7 @@ import com.opengamma.strata.data.scenario.ScenarioPerturbation;
  * @param <T>  the type of the market data handled by the filter
  * @param <I>  the type of the market data ID handled by the filter
  */
-public interface MarketDataFilter<T, I extends MarketDataId<? extends T>> {
+public interface MarketDataFilter<T, I extends MarketDataId<T>> {
 
   /**
    * Obtains a filter that matches any value with the specified identifier type.
@@ -41,25 +41,23 @@ public interface MarketDataFilter<T, I extends MarketDataId<? extends T>> {
   /**
    * Obtains a filter that matches the specified identifier.
    *
-   * @param <T>  the generic type of market data handled by the filter
-   * @param <I>  the type of market data handled by the filter
+   * @param <T>  the type of market data handled by the filter
    * @param id  the identifier that is matched by this filter
    * @return a filter matching the specified identifier
    */
-  public static <T, I extends T> MarketDataFilter<T, MarketDataId<I>> ofId(MarketDataId<I> id) {
-    return new IdFilter<T, I>(id);
+  public static <T> MarketDataFilter<T, MarketDataId<T>> ofId(MarketDataId<T> id) {
+    return new IdFilter<T>(id);
   }
 
   /**
    * Obtains a filter that matches the specified name.
    *
-   * @param <T>  the generic type of market data handled by the filter
-   * @param <I>  the type of market data handled by the filter
+   * @param <T>  the type of market data handled by the filter
    * @param name  the name that is matched by this filter
    * @return a filter matching the specified name
    */
-  public static <T, I extends T> MarketDataFilter<T, NamedMarketDataId<I>> ofName(MarketDataName<I> name) {
-    return new NameFilter<T, I>(name);
+  public static <T> MarketDataFilter<T, NamedMarketDataId<T>> ofName(MarketDataName<T> name) {
+    return new NameFilter<T>(name);
   }
 
   //-------------------------------------------------------------------------
@@ -81,6 +79,6 @@ public interface MarketDataFilter<T, I extends MarketDataId<? extends T>> {
    * @param refData  the reference data
    * @return true if the filter matches
    */
-  public abstract boolean matches(I marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData);
+  public abstract boolean matches(I marketDataId, MarketDataBox<T> marketData, ReferenceData refData);
 
 }

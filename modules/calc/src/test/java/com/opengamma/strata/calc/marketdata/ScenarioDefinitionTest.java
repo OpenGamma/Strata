@@ -30,14 +30,11 @@ public class ScenarioDefinitionTest {
   private static final TestPerturbation PERTURBATION_B1 = new TestPerturbation(3, 4);
   private static final TestPerturbation PERTURBATION_C1 = new TestPerturbation(5, 6);
 
-  private static final PerturbationMapping<Object> MAPPING_A =
-      PerturbationMapping.of(Object.class, FILTER_A, PERTURBATION_A1);
+  private static final PerturbationMapping<Object> MAPPING_A = PerturbationMapping.of(FILTER_A, PERTURBATION_A1);
 
-  private static final PerturbationMapping<Object> MAPPING_B =
-      PerturbationMapping.of(Object.class, FILTER_B, PERTURBATION_B1);
+  private static final PerturbationMapping<Object> MAPPING_B = PerturbationMapping.of(FILTER_B, PERTURBATION_B1);
 
-  private static final PerturbationMapping<Object> MAPPING_C =
-      PerturbationMapping.of(Object.class, FILTER_C, PERTURBATION_C1);
+  private static final PerturbationMapping<Object> MAPPING_C = PerturbationMapping.of(FILTER_C, PERTURBATION_C1);
 
   public void ofMappings() {
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
@@ -72,7 +69,7 @@ public class ScenarioDefinitionTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void ofMappingsDifferentNumberOfScenarios() {
-    PerturbationMapping<Object> mappingC = PerturbationMapping.of(Object.class, FILTER_C, new TestPerturbation(27));
+    PerturbationMapping<Object> mappingC = PerturbationMapping.of(FILTER_C, new TestPerturbation(27));
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
     ScenarioDefinition.ofMappings(mappings);
   }
@@ -82,7 +79,7 @@ public class ScenarioDefinitionTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void ofMappingsWithNamesDifferentNumberOfScenarios() {
-    PerturbationMapping<Object> mappingC = PerturbationMapping.of(Object.class, FILTER_C, new TestPerturbation(27));
+    PerturbationMapping<Object> mappingC = PerturbationMapping.of(FILTER_C, new TestPerturbation(27));
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
     List<String> scenarioNames = ImmutableList.of("foo", "bar");
     ScenarioDefinition.ofMappings(mappings, scenarioNames);
@@ -146,6 +143,11 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
+    public Class<Object> getMarketDataType() {
+      return Object.class;
+    }
+
+    @Override
     public int hashCode() {
       return Objects.hash(new Object[] {values});
     }
@@ -165,7 +167,7 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
-    public boolean matches(MarketDataId<Object> marketDataId, MarketDataBox<? extends Object> marketData, ReferenceData refData) {
+    public boolean matches(MarketDataId<Object> marketDataId, MarketDataBox<Object> marketData, ReferenceData refData) {
       return false;
     }
 

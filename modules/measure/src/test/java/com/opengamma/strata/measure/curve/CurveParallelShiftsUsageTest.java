@@ -43,7 +43,6 @@ public class CurveParallelShiftsUsageTest {
     CurveGroupName curveGroupName = CurveGroupName.of("curveGroupName");
     Curve curve = ConstantCurve.of(curveName, 2);
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
-        Curve.class,
         MarketDataFilter.ofName(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
     CurveId curveId = CurveId.of(curveGroupName, curveName);

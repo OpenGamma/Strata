@@ -22,18 +22,17 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 /**
  * A market data filter that matches a specific identifier.
  * 
- * @param <T>  the generic type of the market data handled by the filter
- * @param <I>  the type of the market data handled by the filter
+ * @param <T>  the type of the market data handled by the filter
  */
 @BeanDefinition(style = "light", constructorScope = "package")
-final class IdFilter<T, I extends T>
-    implements MarketDataFilter<T, MarketDataId<I>>, ImmutableBean {
+final class IdFilter<T>
+    implements MarketDataFilter<T, MarketDataId<T>>, ImmutableBean {
 
   /**
    * The identifier that is matched by this filter.
    */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataId<I> id;
+  private final MarketDataId<T> id;
 
   //-------------------------------------------------------------------------
   @Override
@@ -42,7 +41,7 @@ final class IdFilter<T, I extends T>
   }
 
   @Override
-  public boolean matches(MarketDataId<I> marketDataId, MarketDataBox<? extends T> marketData, ReferenceData refData) {
+  public boolean matches(MarketDataId<T> marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
     return marketDataId.equals(id);
   }
 
@@ -70,15 +69,15 @@ final class IdFilter<T, I extends T>
    * @param id  the value of the property, not null
    */
   IdFilter(
-      MarketDataId<I> id) {
+      MarketDataId<T> id) {
     JodaBeanUtils.notNull(id, "id");
     this.id = id;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public TypedMetaBean<IdFilter<T, I>> metaBean() {
-    return (TypedMetaBean<IdFilter<T, I>>) META_BEAN;
+  public TypedMetaBean<IdFilter<T>> metaBean() {
+    return (TypedMetaBean<IdFilter<T>>) META_BEAN;
   }
 
   //-----------------------------------------------------------------------
@@ -86,7 +85,7 @@ final class IdFilter<T, I extends T>
    * Gets the identifier that is matched by this filter.
    * @return the value of the property, not null
    */
-  public MarketDataId<I> getId() {
+  public MarketDataId<T> getId() {
     return id;
   }
 
@@ -97,7 +96,7 @@ final class IdFilter<T, I extends T>
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IdFilter<?, ?> other = (IdFilter<?, ?>) obj;
+      IdFilter<?> other = (IdFilter<?>) obj;
       return JodaBeanUtils.equal(id, other.id);
     }
     return false;
