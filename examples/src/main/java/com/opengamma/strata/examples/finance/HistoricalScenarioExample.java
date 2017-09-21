@@ -164,17 +164,14 @@ public class HistoricalScenarioExample {
     // create mappings which will cause the point shift perturbations generated above
     // to be applied to the correct curves
     PerturbationMapping<ParameterizedData> discountCurveMappings = PerturbationMapping.of(
-        ParameterizedData.class,
         MarketDataFilter.ofName(CurveName.of("USD-Disc")),
         buildShifts(usdDiscountCurves));
 
     PerturbationMapping<ParameterizedData> libor3mMappings = PerturbationMapping.of(
-        ParameterizedData.class,
         MarketDataFilter.ofName(CurveName.of("USD-3ML")),
         buildShifts(libor3mCurves));
 
     PerturbationMapping<ParameterizedData> libor6mMappings = PerturbationMapping.of(
-        ParameterizedData.class,
         MarketDataFilter.ofName(CurveName.of("USD-6ML")),
         buildShifts(libor6mCurves));
 

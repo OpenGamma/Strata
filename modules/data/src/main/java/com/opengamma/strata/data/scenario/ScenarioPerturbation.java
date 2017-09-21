@@ -56,4 +56,11 @@ public interface ScenarioPerturbation<T> {
    */
   public abstract int getScenarioCount();
 
+  /**
+   * Returns the market data type that the perturbation changes.
+   *
+   * @return the data type
+   */
+  public abstract Class<T> getMarketDataType();
+
 }
