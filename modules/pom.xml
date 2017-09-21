@@ -386,6 +386,20 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-data</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-math</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-product</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
@@ -400,7 +414,35 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-market</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-loader</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-pricer</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-calc</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-measure</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
@@ -409,7 +451,6 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
