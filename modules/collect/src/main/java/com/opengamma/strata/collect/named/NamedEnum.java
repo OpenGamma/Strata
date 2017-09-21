@@ -9,7 +9,7 @@ package com.opengamma.strata.collect.named;
  * A named enum instance.
  * <p>
  * This extends {@link Named} for implementations of {@link Enum}.
- * The name is provided by the {@link #toString()} method of the enum, typically
+ * The name is provided by the {@link Enum#toString()} method of the enum, typically
  * using the {@link EnumNames} helper class.
  * <p>
  * Implementations must provide a static method {@code of(String)} that allows the
