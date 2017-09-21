@@ -24,7 +24,7 @@ The JAR files are available in [Maven Central](http://search.maven.org/#search%7
 <dependency>
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-measure</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@ The source code can be cloned using [git](http://git-scm.com/) from GitHub:
 ```
 
 The projects use [Apache Maven](http://maven.apache.org/) as the build system.
-Version 3.2.0 or later is required.
+Version 3.5.0 or later is required.
 Simply run this command to compile and install the source code locally:
 
 ```
