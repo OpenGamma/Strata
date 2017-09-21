@@ -4,7 +4,7 @@ Strata is licensed under The Apache Software License, Version 2.0
 http://strata.opengamma.io/
 
 
-Strata includes modified code from CERN licensed as follows:
+Strata includes code originally developed at CERN, which is licensed as follows:
 
 Copyright � 1999 CERN - European Organization for Nuclear Research.
 Permission to use, copy, modify, distribute and sell this software and its documentation for any purpose 

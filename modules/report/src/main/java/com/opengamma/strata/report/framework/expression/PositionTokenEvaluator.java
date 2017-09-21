@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
@@ -32,7 +31,7 @@ public class PositionTokenEvaluator extends TokenEvaluator<Position> {
 
   @Override
   public Set<String> tokens(Position position) {
-    MetaBean metaBean = JodaBeanUtils.metaBean(position.getClass());
+    MetaBean metaBean = MetaBean.of(position.getClass());
     return Sets.union(metaBean.metaPropertyMap().keySet(), position.getInfo().propertyNames());
   }
 
@@ -43,7 +42,7 @@ public class PositionTokenEvaluator extends TokenEvaluator<Position> {
       String firstToken,
       List<String> remainingTokens) {
 
-    MetaBean metaBean = JodaBeanUtils.metaBean(position.getClass());
+    MetaBean metaBean = MetaBean.of(position.getClass());
 
     // position
     Optional<String> positionPropertyName = metaBean.metaPropertyMap().keySet().stream()

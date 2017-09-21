@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.io;
 import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,7 +22,7 @@ import javax.xml.namespace.QName;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
+import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
@@ -50,7 +51,13 @@ public final class XmlElement
    * The meta-bean.
    * This is a manually coded bean.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(XmlElement.class);
+  private static MetaBean META_BEAN = LightMetaBean.of(
+      XmlElement.class,
+      MethodHandles.lookup(),
+      null,
+      ImmutableMap.of(),
+      null,
+      ImmutableList.of());
 
   /**
    * The element name.
