@@ -694,7 +694,7 @@
     <assertj.version>3.8.0</assertj.version>
     <guava.version>23.0</guava.version>
     <jcommander.version>1.72</jcommander.version>
-    <joda-convert.version>1.9</joda-convert.version>
+    <joda-convert.version>1.9.2</joda-convert.version>
     <joda-beans.version>2.0</joda-beans.version>
     <mockito.version>2.10.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
