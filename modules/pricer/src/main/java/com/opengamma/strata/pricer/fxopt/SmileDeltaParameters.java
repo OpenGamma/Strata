@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.fxopt;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -23,11 +24,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 
 /**
@@ -58,9 +62,14 @@ public final class SmileDeltaParameters
   @PropertyDefinition
   private final DoubleArray volatility;
 
+  @PropertyDefinition
+  private final ImmutableList<ParameterMetadata> parameterMetadata;
+
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from volatility.
+   * <p>
+   * {@code GenericVolatilitySurfaceYearFractionParameterMetadata} is used for parameter metadata.
    * 
    * @param expiry  the time to expiry associated to the data
    * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
@@ -69,13 +78,35 @@ public final class SmileDeltaParameters
    * @return the smile definition
    */
   public static SmileDeltaParameters of(double expiry, DoubleArray delta, DoubleArray volatility) {
+
+    return of(expiry, delta, volatility, createParameterMetadata(expiry, delta));
+  }
+
+  /**
+   * Obtains an instance from volatility.
+   * 
+   * @param expiry  the time to expiry associated to the data
+   * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
+   *   the put will have as delta the opposite of the numbers
+   * @param volatility  the volatilities
+   * @param parameterMetadata  the parameter metadata
+   * @return the smile definition
+   */
+  public static SmileDeltaParameters of(
+      double expiry,
+      DoubleArray delta,
+      DoubleArray volatility,
+      List<ParameterMetadata> parameterMetadata) {
+
     ArgChecker.notNull(delta, "delta");
     ArgChecker.notNull(volatility, "volatility");
-    return new SmileDeltaParameters(expiry, delta, volatility);
+    return new SmileDeltaParameters(expiry, delta, volatility, parameterMetadata);
   }
 
   /**
    * Obtains an instance from market data at-the-money, delta, risk-reversal and strangle.
+   * <p>
+   * {@code GenericVolatilitySurfaceYearFractionParameterMetadata} is used for parameter metadata.
    * 
    * @param expiry  the time to expiry associated to the data
    * @param atmVolatility  the at-the-money volatility
@@ -92,21 +123,59 @@ public final class SmileDeltaParameters
       DoubleArray riskReversal,
       DoubleArray strangle) {
 
+    return of(expiry, atmVolatility, delta, riskReversal, strangle, createParameterMetadata(expiry, delta));
+  }
+
+  /**
+   * Obtains an instance from market data at-the-money, delta, risk-reversal and strangle.
+   * 
+   * @param expiry  the time to expiry associated to the data
+   * @param atmVolatility  the at-the-money volatility
+   * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
+   *   the put will have as delta the opposite of the numbers
+   * @param riskReversal  the risk reversal volatility figures, in the same order as the delta
+   * @param strangle  the strangle volatility figures, in the same order as the delta
+   * @param parameterMetadata  the parameter metadata
+   * @return the smile definition
+   */
+  public static SmileDeltaParameters of(
+      double expiry,
+      double atmVolatility,
+      DoubleArray delta,
+      DoubleArray riskReversal,
+      DoubleArray strangle,
+      List<ParameterMetadata> parameterMetadata) {
+
     ArgChecker.notNull(delta, "delta");
     ArgChecker.notNull(riskReversal, "riskReversal");
     ArgChecker.notNull(strangle, "strangle");
-    ArgChecker.isTrue(delta.size() == riskReversal.size(),
-        "Length of delta {} should be equal to length of riskReversal {}", delta.size(), riskReversal.size());
-    ArgChecker.isTrue(delta.size() == strangle.size(),
-        "Length of delta {} should be equal to length of strangle {} ", delta.size(), strangle.size());
     int nbDelta = delta.size();
+    ArgChecker.isTrue(nbDelta == riskReversal.size(),
+        "Length of delta {} should be equal to length of riskReversal {}", delta.size(), riskReversal.size());
+    ArgChecker.isTrue(nbDelta == strangle.size(),
+        "Length of delta {} should be equal to length of strangle {} ", delta.size(), strangle.size());
+
     double[] volatility = new double[2 * nbDelta + 1];
     volatility[nbDelta] = atmVolatility;
     for (int i = 0; i < nbDelta; i++) {
       volatility[i] = strangle.get(i) + atmVolatility - riskReversal.get(i) / 2.0; // Put
       volatility[2 * nbDelta - i] = strangle.get(i) + atmVolatility + riskReversal.get(i) / 2.0; // Call
     }
-    return new SmileDeltaParameters(expiry, delta, DoubleArray.ofUnsafe(volatility));
+    return of(expiry, delta, DoubleArray.ofUnsafe(volatility), parameterMetadata);
+  }
+
+  //-------------------------------------------------------------------------
+  private static ImmutableList<ParameterMetadata> createParameterMetadata(double expiry, DoubleArray delta) {
+    ArgChecker.notNull(delta, "delta");
+    int nbDelta = delta.size();
+    ParameterMetadata[] parameterMetadata = new ParameterMetadata[2 * nbDelta + 1];
+    parameterMetadata[nbDelta] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(0.5d));
+    for (int i = 0; i < nbDelta; i++) {
+      parameterMetadata[i] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(1d - delta.get(i))); // Put
+      parameterMetadata[2 * nbDelta - i] =
+          GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(delta.get(i))); // Call
+    }
+    return ImmutableList.copyOf(parameterMetadata);
   }
 
   @ImmutableValidator
@@ -114,6 +183,8 @@ public final class SmileDeltaParameters
     int nbDelta = delta.size();
     ArgChecker.isTrue(2 * nbDelta + 1 == volatility.size(),
         "Length of delta {} should be coherent with volatility length {}", 2 * delta.size() + 1, volatility.size());
+    ArgChecker.isTrue(2 * nbDelta + 1 == parameterMetadata.size(),
+        "Length of delta {} should be coherent with parameterMetadata length {}", 2 * delta.size() + 1, parameterMetadata.size());
     if (nbDelta > 1) {
       for (int i = 1; i < nbDelta; ++i) {
         ArgChecker.isTrue(delta.get(i - 1) < delta.get(i), "delta should be sorted in ascending order");
@@ -134,12 +205,12 @@ public final class SmileDeltaParameters
 
   @Override
   public ParameterMetadata getParameterMetadata(int parameterIndex) {
-    return ParameterMetadata.empty();
+    return parameterMetadata.get(parameterIndex);
   }
 
   @Override
   public SmileDeltaParameters withParameter(int parameterIndex, double newValue) {
-    return new SmileDeltaParameters(expiry, delta, volatility.with(parameterIndex, newValue));
+    return new SmileDeltaParameters(expiry, delta, volatility.with(parameterIndex, newValue), parameterMetadata);
   }
 
   @Override
@@ -147,7 +218,7 @@ public final class SmileDeltaParameters
     int size = volatility.size();
     DoubleArray perturbedValues = DoubleArray.of(
         size, i -> perturbation.perturbParameter(i, volatility.get(i), getParameterMetadata(i)));
-    return new SmileDeltaParameters(expiry, delta, perturbedValues);
+    return new SmileDeltaParameters(expiry, delta, perturbedValues, parameterMetadata);
   }
 
   //-------------------------------------------------------------------------
@@ -194,10 +265,12 @@ public final class SmileDeltaParameters
   private SmileDeltaParameters(
       double expiry,
       DoubleArray delta,
-      DoubleArray volatility) {
+      DoubleArray volatility,
+      List<ParameterMetadata> parameterMetadata) {
     this.expiry = expiry;
     this.delta = delta;
     this.volatility = volatility;
+    this.parameterMetadata = (parameterMetadata != null ? ImmutableList.copyOf(parameterMetadata) : null);
     validate();
   }
 
@@ -236,6 +309,15 @@ public final class SmileDeltaParameters
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the parameterMetadata.
+   * @return the value of the property
+   */
+  public ImmutableList<ParameterMetadata> getParameterMetadata() {
+    return parameterMetadata;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -245,7 +327,8 @@ public final class SmileDeltaParameters
       SmileDeltaParameters other = (SmileDeltaParameters) obj;
       return JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(delta, other.delta) &&
-          JodaBeanUtils.equal(volatility, other.volatility);
+          JodaBeanUtils.equal(volatility, other.volatility) &&
+          JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata);
     }
     return false;
   }
@@ -256,16 +339,18 @@ public final class SmileDeltaParameters
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(delta);
     hash = hash * 31 + JodaBeanUtils.hashCode(volatility);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SmileDeltaParameters{");
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("delta").append('=').append(delta).append(',').append(' ');
-    buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility));
+    buf.append("volatility").append('=').append(volatility).append(',').append(' ');
+    buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();
   }
@@ -296,13 +381,20 @@ public final class SmileDeltaParameters
     private final MetaProperty<DoubleArray> volatility = DirectMetaProperty.ofImmutable(
         this, "volatility", SmileDeltaParameters.class, DoubleArray.class);
     /**
+     * The meta-property for the {@code parameterMetadata} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<ParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
+        this, "parameterMetadata", SmileDeltaParameters.class, (Class) ImmutableList.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "expiry",
         "delta",
-        "volatility");
+        "volatility",
+        "parameterMetadata");
 
     /**
      * Restricted constructor.
@@ -319,6 +411,8 @@ public final class SmileDeltaParameters
           return delta;
         case -1917967323:  // volatility
           return volatility;
+        case -1169106440:  // parameterMetadata
+          return parameterMetadata;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -363,6 +457,14 @@ public final class SmileDeltaParameters
       return volatility;
     }
 
+    /**
+     * The meta-property for the {@code parameterMetadata} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableList<ParameterMetadata>> parameterMetadata() {
+      return parameterMetadata;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -373,6 +475,8 @@ public final class SmileDeltaParameters
           return ((SmileDeltaParameters) bean).getDelta();
         case -1917967323:  // volatility
           return ((SmileDeltaParameters) bean).getVolatility();
+        case -1169106440:  // parameterMetadata
+          return ((SmileDeltaParameters) bean).getParameterMetadata();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -397,6 +501,7 @@ public final class SmileDeltaParameters
     private double expiry;
     private DoubleArray delta;
     private DoubleArray volatility;
+    private List<ParameterMetadata> parameterMetadata;
 
     /**
      * Restricted constructor.
@@ -414,11 +519,14 @@ public final class SmileDeltaParameters
           return delta;
         case -1917967323:  // volatility
           return volatility;
+        case -1169106440:  // parameterMetadata
+          return parameterMetadata;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
@@ -431,6 +539,9 @@ public final class SmileDeltaParameters
         case -1917967323:  // volatility
           this.volatility = (DoubleArray) newValue;
           break;
+        case -1169106440:  // parameterMetadata
+          this.parameterMetadata = (List<ParameterMetadata>) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -442,17 +553,19 @@ public final class SmileDeltaParameters
       return new SmileDeltaParameters(
           expiry,
           delta,
-          volatility);
+          volatility,
+          parameterMetadata);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("SmileDeltaParameters.Builder{");
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("delta").append('=').append(JodaBeanUtils.toString(delta)).append(',').append(' ');
-      buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility));
+      buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility)).append(',').append(' ');
+      buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
       buf.append('}');
       return buf.toString();
     }

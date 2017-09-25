@@ -171,7 +171,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     ImmutableList.Builder<CurveGroup> builder = ImmutableList.builder();
 
     for (int i = 0; i < scenarioCount; i++) {
-      LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
+      LocalDate valuationDate = valuationDateBox.getValue(i);
       CurveGroupDefinition filteredGroup = configuredGroup.filtered(valuationDate, refData);
       List<CurveInputs> curveInputsList = inputsForScenario(inputBoxes, i);
       MarketData inputs = inputsByKey(valuationDate, curveInputsList, fixings);
