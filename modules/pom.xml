@@ -243,7 +243,8 @@
           </execution>
         </executions>
       </plugin>
-      <!--  Running Maven tests without slow HTML reports -->
+      <!--  remove slow SuiteHTMLReporter - 
+            already defined in corporate parent, but appears to be necessary for some configurations -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
 	      <configuration>
