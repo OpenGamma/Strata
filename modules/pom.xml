@@ -289,22 +289,17 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-product</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-data</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-math</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-product</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -324,12 +319,17 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-report</artifactId>
+        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-measure</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-report</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Third party -->
@@ -399,6 +399,13 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-product</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-data</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
@@ -407,20 +414,6 @@
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-math</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-product</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
