@@ -243,6 +243,19 @@
           </execution>
         </executions>
       </plugin>
+      <!--  remove slow SuiteHTMLReporter - 
+            already defined in corporate parent, but appears to be necessary for some configurations -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+	      <configuration>
+	        <properties>
+	            <property>
+	                <name>usedefaultlisteners</name>
+	                <value>false</value>
+	            </property>
+	        </properties>
+	      </configuration>
+	 </plugin>
     </plugins>
   </build>
 
