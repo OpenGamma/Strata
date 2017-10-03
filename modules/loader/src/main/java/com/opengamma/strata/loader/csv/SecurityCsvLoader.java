@@ -76,7 +76,13 @@ final class SecurityCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the parsed trade
    */
-  static SecurityTrade parseTrade(CsvRow row, TradeInfo info, CsvInfoResolver resolver) {
+  static SecurityTrade parseTrade(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+    SecurityTrade trade = parseRow(row, info, resolver);
+    return resolver.completeTrade(row, trade);
+  }
+
+  // parse the row to a trade
+  private static SecurityTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
@@ -94,7 +100,7 @@ final class SecurityCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the parsed position
    */
-  static Position parsePosition(CsvRow row, PositionInfo info, CsvInfoResolver resolver) {
+  static Position parsePosition(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     if (row.findValue(EXPIRY_FIELD).isPresent()) {
       // etd
       if (row.findValue(PUT_CALL_FIELD).isPresent() || row.findValue(EXERCISE_PRICE_FIELD).isPresent()) {
@@ -116,12 +122,13 @@ final class SecurityCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the parsed position
    */
-  static SecurityPosition parseSimple(CsvRow row, PositionInfo info, CsvInfoResolver resolver) {
+  static SecurityPosition parseSimple(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
     DoublesPair quantity = parseQuantity(row);
-    return SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
+    SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
+    return resolver.completePosition(row, position);
   }
 
   //-------------------------------------------------------------------------
@@ -133,12 +140,13 @@ final class SecurityCsvLoader {
    * @param resolver  the resolver of additional security information
    * @return the parsed position
    */
-  static EtdFuturePosition parseFuture(CsvRow row, PositionInfo info, CsvInfoResolver resolver) {
+  static EtdFuturePosition parseFuture(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     EtdContractSpec contract = resolver.parseEtdContractSpec(row, EtdType.FUTURE);
     Pair<YearMonth, EtdVariant> variant = parseVariant(row, EtdType.FUTURE);
     EtdFutureSecurity security = contract.createFuture(variant.getFirst(), variant.getSecond());
     DoublesPair quantity = parseQuantity(row);
-    return EtdFuturePosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
+    EtdFuturePosition position = EtdFuturePosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
+    return resolver.completePosition(row, position, contract);
   }
 
   /**
@@ -149,7 +157,7 @@ final class SecurityCsvLoader {
    * @param resolver  the resolver of additional security information
    * @return the parsed position
    */
-  static EtdOptionPosition parseOption(CsvRow row, PositionInfo info, CsvInfoResolver resolver) {
+  static EtdOptionPosition parseOption(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     EtdContractSpec contract = resolver.parseEtdContractSpec(row, EtdType.OPTION);
     Pair<YearMonth, EtdVariant> variant = parseVariant(row, EtdType.OPTION);
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
@@ -157,7 +165,8 @@ final class SecurityCsvLoader {
     double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
     EtdOptionSecurity security = contract.createOption(variant.getFirst(), variant.getSecond(), version, putCall, strikePrice);
     DoublesPair quantity = parseQuantity(row);
-    return EtdOptionPosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
+    EtdOptionPosition position = EtdOptionPosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
+    return resolver.completePosition(row, position, contract);
   }
 
   //-------------------------------------------------------------------------

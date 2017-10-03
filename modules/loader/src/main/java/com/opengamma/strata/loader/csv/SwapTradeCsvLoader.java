@@ -61,7 +61,13 @@ final class SwapTradeCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the parsed trade
    */
-  static SwapTrade parse(CsvRow row, TradeInfo info, CsvInfoResolver resolver) {
+  static SwapTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+    SwapTrade trade = parseRow(row, info, resolver);
+    return resolver.completeTrade(row, trade);
+  }
+
+  // parse the row to a trade
+  private static SwapTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     Optional<String> conventionOpt = row.findValue(CONVENTION_FIELD);
     if (conventionOpt.isPresent()) {
       return parseWithConvention(row, info, resolver, conventionOpt.get());
@@ -77,7 +83,7 @@ final class SwapTradeCsvLoader {
   }
 
   // parse a trade based on a convention
-  static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, CsvInfoResolver resolver, String conventionStr) {
+  static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver, String conventionStr) {
     BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));

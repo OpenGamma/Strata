@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.time.ZoneId;
@@ -188,7 +189,7 @@ public final class TradeCsvLoader {
   /**
    * The resolver, providing additional information.
    */
-  private final CsvInfoResolver resolver;
+  private final TradeCsvInfoResolver resolver;
 
   //-------------------------------------------------------------------------
   /**
@@ -197,7 +198,7 @@ public final class TradeCsvLoader {
    * @return the loader
    */
   public static TradeCsvLoader standard() {
-    return new TradeCsvLoader(CsvInfoResolver.standard());
+    return new TradeCsvLoader(TradeCsvInfoResolver.standard());
   }
 
   /**
@@ -207,7 +208,7 @@ public final class TradeCsvLoader {
    * @return the loader
    */
   public static TradeCsvLoader of(ReferenceData refData) {
-    return new TradeCsvLoader(CsvInfoResolver.of(refData));
+    return new TradeCsvLoader(TradeCsvInfoResolver.of(refData));
   }
 
   /**
@@ -216,12 +217,12 @@ public final class TradeCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the loader
    */
-  public static TradeCsvLoader of(CsvInfoResolver resolver) {
+  public static TradeCsvLoader of(TradeCsvInfoResolver resolver) {
     return new TradeCsvLoader(resolver);
   }
 
   // restricted constructor
-  private TradeCsvLoader(CsvInfoResolver resolver) {
+  private TradeCsvLoader(TradeCsvInfoResolver resolver) {
     this.resolver = ArgChecker.notNull(resolver, "resolver");
   }
 
@@ -288,9 +289,44 @@ public final class TradeCsvLoader {
   }
 
   /**
-   * Parses one or more CSV format trade files.
+   * Parses one or more CSV format trade files with an error-creating type filter.
+   * <p>
+   * A list of types is specified to filter the trades.
+   * Trades that do not match the type will be included in the failure list.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
+   * 
+   * @param charSources  the CSV character sources
+   * @param tradeTypes  the trade types to return
+   * @return the loaded trades, all errors are captured in the result
+   */
+  public ValueWithFailures<List<Trade>> parse(
+      Collection<CharSource> charSources,
+      List<Class<? extends Trade>> tradeTypes) {
+
+    ValueWithFailures<List<Trade>> parsed = parse(charSources, Trade.class);
+    List<Trade> valid = new ArrayList<>();
+    List<FailureItem> failures = new ArrayList<>(parsed.getFailures());
+    for (Trade trade : parsed.getValue()) {
+      if (tradeTypes.contains(trade.getClass())) {
+        valid.add(trade);
+      } else {
+        failures.add(FailureItem.of(
+            FailureReason.PARSING,
+            "Trade type not allowed {}, only these types are supported: {}",
+            trade.getClass().getName(),
+            tradeTypes.stream().map(t -> t.getSimpleName()).collect(joining(", "))));
+      }
+    }
+    return ValueWithFailures.of(valid, failures);
+  }
+
+  /**
+   * Parses one or more CSV format trade files with a quiet type filter.
    * <p>
    * A type is specified to filter the trades.
+   * Trades that do not match the type are silently dropped.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
    * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
