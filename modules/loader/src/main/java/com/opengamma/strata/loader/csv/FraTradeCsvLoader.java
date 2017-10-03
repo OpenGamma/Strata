@@ -52,7 +52,13 @@ final class FraTradeCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the parsed trade
    */
-  static FraTrade parse(CsvRow row, TradeInfo info, CsvInfoResolver resolver) {
+  static FraTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+    FraTrade trade = parseRow(row, info, resolver);
+    return resolver.completeTrade(row, trade);
+  }
+
+  // parse the row to a trade
+  private static FraTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));

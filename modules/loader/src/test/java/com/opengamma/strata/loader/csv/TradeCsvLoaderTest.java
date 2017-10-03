@@ -27,6 +27,7 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
@@ -51,6 +52,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -890,6 +892,46 @@ public class TradeCsvLoaderTest {
             .build())
         .build();
     assertBeanEquals(expected3, filtered.get(2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_filtered() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.parse(
+        ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
+
+    assertEquals(trades.getValue().size(), 6);
+    assertEquals(trades.getFailures().size(), 9);
+    assertEquals(trades.getFailures().get(0).getMessage(),
+        "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_resolver() {
+    AtomicInteger fraCount = new AtomicInteger();
+    AtomicInteger termCount = new AtomicInteger();
+    TradeCsvInfoResolver resolver = new TradeCsvInfoResolver() {
+      @Override
+      public FraTrade completeTrade(CsvRow row, FraTrade trade) {
+        fraCount.incrementAndGet();
+        return trade;
+      }
+
+      @Override
+      public TermDepositTrade completeTrade(CsvRow row, TermDepositTrade trade) {
+        termCount.incrementAndGet();
+        return trade;
+      }
+
+      @Override
+      public ReferenceData getReferenceData() {
+        return ReferenceData.standard();
+      }
+    };
+    TradeCsvLoader test = TradeCsvLoader.of(resolver);
+    test.parse(ImmutableList.of(FILE.getCharSource()));
+    assertEquals(fraCount.get(), 3);
+    assertEquals(termCount.get(), 3);
   }
 
   //-------------------------------------------------------------------------

@@ -143,7 +143,7 @@ public final class PositionCsvLoader {
   /**
    * The resolver, providing additional information.
    */
-  private final CsvInfoResolver resolver;
+  private final PositionCsvInfoResolver resolver;
 
   //-------------------------------------------------------------------------
   /**
@@ -152,7 +152,7 @@ public final class PositionCsvLoader {
    * @return the loader
    */
   public static PositionCsvLoader standard() {
-    return new PositionCsvLoader(CsvInfoResolver.standard());
+    return new PositionCsvLoader(PositionCsvInfoResolver.standard());
   }
 
   /**
@@ -162,7 +162,7 @@ public final class PositionCsvLoader {
    * @return the loader
    */
   public static PositionCsvLoader of(ReferenceData refData) {
-    return new PositionCsvLoader(CsvInfoResolver.of(refData));
+    return new PositionCsvLoader(PositionCsvInfoResolver.of(refData));
   }
 
   /**
@@ -171,12 +171,12 @@ public final class PositionCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the loader
    */
-  public static PositionCsvLoader of(CsvInfoResolver resolver) {
+  public static PositionCsvLoader of(PositionCsvInfoResolver resolver) {
     return new PositionCsvLoader(resolver);
   }
 
   // restricted constructor
-  private PositionCsvLoader(CsvInfoResolver resolver) {
+  private PositionCsvLoader(PositionCsvInfoResolver resolver) {
     this.resolver = ArgChecker.notNull(resolver, "resolver");
   }
 
