@@ -369,12 +369,12 @@ public final class TradeCsvLoader {
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
-    for (CsvRow row : (Iterable<CsvRow>) () -> csv) {
+    while (csv.hasNext()) {
+      CsvRow row = csv.next();
       try {
         String typeRaw = row.getField(TYPE_FIELD);
-        String type = typeRaw.toUpperCase(Locale.ENGLISH);
         TradeInfo info = parseTradeInfo(row);
-        switch (type.toUpperCase(Locale.ENGLISH)) {
+        switch (typeRaw.toUpperCase(Locale.ENGLISH)) {
           case "FRA":
             if (tradeType == FraTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(FraTradeCsvLoader.parse(row, info, resolver)));
@@ -387,7 +387,11 @@ public final class TradeCsvLoader {
             break;
           case "SWAP":
             if (tradeType == SwapTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(SwapTradeCsvLoader.parse(row, info, resolver)));
+              List<CsvRow> variableRows = new ArrayList<>();
+              while (csv.hasNext() && csv.peek().getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE")) {
+                variableRows.add(csv.next());
+              }
+              trades.add(tradeType.cast(SwapTradeCsvLoader.parse(row, variableRows, info, resolver)));
             }
             break;
           case "TERMDEPOSIT":
@@ -395,6 +399,12 @@ public final class TradeCsvLoader {
             if (tradeType == TermDepositTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(TermDepositTradeCsvLoader.parse(row, info, resolver)));
             }
+            break;
+          case "VARIABLE":
+            failures.add(FailureItem.of(
+                FailureReason.PARSING,
+                "CSV file contained a 'Variable' type at line {} that was not preceeded by a 'Swap'",
+                row.lineNumber()));
             break;
           default:
             failures.add(FailureItem.of(

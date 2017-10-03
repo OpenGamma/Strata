@@ -20,6 +20,7 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_DATE_FIELD;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
@@ -31,10 +32,15 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -61,9 +67,67 @@ final class SwapTradeCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the parsed trade
    */
-  static SwapTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+  static SwapTrade parse(CsvRow row, List<CsvRow> variableRows, TradeInfo info, TradeCsvInfoResolver resolver) {
     SwapTrade trade = parseRow(row, info, resolver);
+    trade = parseVariableNotional(trade, variableRows);
+    trade = parseVariableRates(trade, variableRows);
     return resolver.completeTrade(row, trade);
+  }
+
+  // variable notional
+  private static SwapTrade parseVariableNotional(SwapTrade trade, List<CsvRow> variableRows) {
+    // parse notionals
+    ImmutableList.Builder<ValueStep> stepBuilder = ImmutableList.builder();
+    for (CsvRow row : variableRows) {
+      LocalDate date = LoaderUtils.parseDate(row.getValue(START_DATE_FIELD));
+      row.findValue(NOTIONAL_FIELD)
+          .map(str -> LoaderUtils.parseDouble(str))
+          .ifPresent(notional -> stepBuilder.add(ValueStep.of(date, ValueAdjustment.ofReplace(notional))));
+    }
+    ImmutableList<ValueStep> vnotionals = stepBuilder.build();
+    if (vnotionals.isEmpty()) {
+      return trade;
+    }
+    // adjust the trade, inserting the variable notionals
+    ImmutableList.Builder<SwapLeg> legBuilder = ImmutableList.builder();
+    for (SwapLeg swapLeg : trade.getProduct().getLegs()) {
+      RateCalculationSwapLeg leg = (RateCalculationSwapLeg) swapLeg;
+      NotionalSchedule notionalSchedule = leg.getNotionalSchedule().toBuilder()
+          .amount(ValueSchedule.of(leg.getNotionalSchedule().getAmount().getInitialValue(), vnotionals))
+          .build();
+      legBuilder.add(leg.toBuilder().notionalSchedule(notionalSchedule).build());
+    }
+    return replaceLegs(trade, legBuilder.build());
+  }
+
+  // variable fixed rate
+  private static SwapTrade parseVariableRates(SwapTrade trade, List<CsvRow> variableRows) {
+    ImmutableList.Builder<ValueStep> stepBuilder = ImmutableList.builder();
+    for (CsvRow row : variableRows) {
+      LocalDate date = LoaderUtils.parseDate(row.getValue(START_DATE_FIELD));
+      row.findValue(FIXED_RATE_FIELD)
+          .map(str -> LoaderUtils.parseDoublePercent(str))
+          .ifPresent(fixedRate -> stepBuilder.add(ValueStep.of(date, ValueAdjustment.ofReplace(fixedRate))));
+    }
+    ImmutableList<ValueStep> vnotionals = stepBuilder.build();
+    if (vnotionals.isEmpty()) {
+      return trade;
+    }
+    // adjust the trade, inserting the variable rates
+    ImmutableList.Builder<SwapLeg> legBuilder = ImmutableList.builder();
+    for (SwapLeg swapLeg : trade.getProduct().getLegs()) {
+      RateCalculationSwapLeg leg = (RateCalculationSwapLeg) swapLeg;
+      if (leg.getCalculation() instanceof FixedRateCalculation) {
+        FixedRateCalculation baseCalc = (FixedRateCalculation) leg.getCalculation();
+        FixedRateCalculation calc = baseCalc.toBuilder()
+            .rate(ValueSchedule.of(baseCalc.getRate().getInitialValue(), vnotionals))
+            .build();
+        legBuilder.add(leg.toBuilder().calculation(calc).build());
+      } else {
+        legBuilder.add(leg);
+      }
+    }
+    return replaceLegs(trade, legBuilder.build());
   }
 
   // parse the row to a trade
@@ -223,9 +287,14 @@ final class SwapTradeCsvLoader {
           .accrualSchedule(scheduleBuilder.build())
           .build());
     }
+    return replaceLegs(trade, legBuilder.build());
+  }
+
+  // replace the legs
+  private static SwapTrade replaceLegs(SwapTrade trade, ImmutableList<SwapLeg> legs) {
     return trade.toBuilder()
         .product(trade.getProduct().toBuilder()
-            .legs(legBuilder.build())
+            .legs(legs)
             .build())
         .build();
   }
