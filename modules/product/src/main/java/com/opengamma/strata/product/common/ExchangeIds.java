@@ -41,6 +41,12 @@ public final class ExchangeIds {
 
   /** ICE Futures Europe - Oil and Refined Products Division. */
   public static final ExchangeId IFEN = ExchangeId.of("IFEN");
+  
+  /** Osaka Exchange. */
+  public static final ExchangeId XOSE = ExchangeId.of("XOSE");
+  
+  /** Hong Kong Exchanges And Clearing Ltd. */
+  public static final ExchangeId XHKG = ExchangeId.of("XHKG");
 
   //-------------------------------------------------------------------------
   /**
