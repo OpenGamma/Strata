@@ -84,8 +84,8 @@ final class SwapTradeCsvLoader {
           .map(str -> LoaderUtils.parseDouble(str))
           .ifPresent(notional -> stepBuilder.add(ValueStep.of(date, ValueAdjustment.ofReplace(notional))));
     }
-    ImmutableList<ValueStep> vnotionals = stepBuilder.build();
-    if (vnotionals.isEmpty()) {
+    ImmutableList<ValueStep> varNotionals = stepBuilder.build();
+    if (varNotionals.isEmpty()) {
       return trade;
     }
     // adjust the trade, inserting the variable notionals
@@ -93,7 +93,7 @@ final class SwapTradeCsvLoader {
     for (SwapLeg swapLeg : trade.getProduct().getLegs()) {
       RateCalculationSwapLeg leg = (RateCalculationSwapLeg) swapLeg;
       NotionalSchedule notionalSchedule = leg.getNotionalSchedule().toBuilder()
-          .amount(ValueSchedule.of(leg.getNotionalSchedule().getAmount().getInitialValue(), vnotionals))
+          .amount(ValueSchedule.of(leg.getNotionalSchedule().getAmount().getInitialValue(), varNotionals))
           .build();
       legBuilder.add(leg.toBuilder().notionalSchedule(notionalSchedule).build());
     }
@@ -109,8 +109,8 @@ final class SwapTradeCsvLoader {
           .map(str -> LoaderUtils.parseDoublePercent(str))
           .ifPresent(fixedRate -> stepBuilder.add(ValueStep.of(date, ValueAdjustment.ofReplace(fixedRate))));
     }
-    ImmutableList<ValueStep> vnotionals = stepBuilder.build();
-    if (vnotionals.isEmpty()) {
+    ImmutableList<ValueStep> varRates = stepBuilder.build();
+    if (varRates.isEmpty()) {
       return trade;
     }
     // adjust the trade, inserting the variable rates
@@ -120,7 +120,7 @@ final class SwapTradeCsvLoader {
       if (leg.getCalculation() instanceof FixedRateCalculation) {
         FixedRateCalculation baseCalc = (FixedRateCalculation) leg.getCalculation();
         FixedRateCalculation calc = baseCalc.toBuilder()
-            .rate(ValueSchedule.of(baseCalc.getRate().getInitialValue(), vnotionals))
+            .rate(ValueSchedule.of(baseCalc.getRate().getInitialValue(), varRates))
             .build();
         legBuilder.add(leg.toBuilder().calculation(calc).build());
       } else {
