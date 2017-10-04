@@ -51,7 +51,9 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
@@ -202,6 +204,13 @@ public class TradeCsvLoaderTest {
         .build();
     assertBeanEquals(expected2, filtered.get(1));
 
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP,
+        ValueSchedule.of(
+            5_000_000,
+            ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(4_000_000)),
+            ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofReplace(3_000_000)),
+            ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(2_000_000)),
+            ValueStep.of(date(2021, 8, 1), ValueAdjustment.ofReplace(1_000_000))));
     Swap expectedSwap3 = Swap.builder()
         .legs(
             RateCalculationSwapLeg.builder()
@@ -217,8 +226,14 @@ public class TradeCsvLoaderTest {
                     .paymentFrequency(Frequency.P6M)
                     .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
-                .notionalSchedule(NotionalSchedule.of(GBP, 4_000_000))
-                .calculation(FixedRateCalculation.of(0.005, DayCounts.ACT_365F))
+                .notionalSchedule(notionalSchedule)
+                .calculation(FixedRateCalculation.builder()
+                    .rate(ValueSchedule.of(
+                        0.005,
+                        ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(0.006)),
+                        ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(0.007))))
+                    .dayCount(DayCounts.ACT_365F)
+                    .build())
                 .build(),
             RateCalculationSwapLeg.builder()
                 .payReceive(RECEIVE)
@@ -233,7 +248,7 @@ public class TradeCsvLoaderTest {
                     .paymentFrequency(Frequency.P6M)
                     .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
-                .notionalSchedule(NotionalSchedule.of(GBP, 4_000_000))
+                .notionalSchedule(notionalSchedule)
                 .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_6M))
                 .build())
         .build();
