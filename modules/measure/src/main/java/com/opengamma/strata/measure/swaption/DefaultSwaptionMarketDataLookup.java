@@ -129,6 +129,8 @@ final class DefaultSwaptionMarketDataLookup
       LightMetaBean.of(
           DefaultSwaptionMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "volatilityIds"},
           ImmutableMap.of());
 
   /**

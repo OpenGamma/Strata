@@ -80,6 +80,8 @@ public final class TenorRawOptionData
       LightMetaBean.of(
           TenorRawOptionData.class,
           MethodHandles.lookup(),
+          new String[] {
+              "data"},
           ImmutableSortedMap.of());
 
   /**

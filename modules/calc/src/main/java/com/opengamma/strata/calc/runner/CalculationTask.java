@@ -329,6 +329,11 @@ public final class CalculationTask implements ImmutableBean {
       LightMetaBean.of(
           CalculationTask.class,
           MethodHandles.lookup(),
+          new String[] {
+              "target",
+              "function",
+              "parameters",
+              "cells"},
           null,
           null,
           null,

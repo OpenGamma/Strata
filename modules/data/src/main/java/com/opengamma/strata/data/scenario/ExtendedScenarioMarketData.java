@@ -155,7 +155,14 @@ final class ExtendedScenarioMarketData<T>
    * The meta-bean for {@code ExtendedScenarioMarketData}.
    */
   private static final MetaBean META_BEAN =
-      LightMetaBean.of(ExtendedScenarioMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          ExtendedScenarioMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "id",
+              "value",
+              "underlying"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code ExtendedScenarioMarketData}.

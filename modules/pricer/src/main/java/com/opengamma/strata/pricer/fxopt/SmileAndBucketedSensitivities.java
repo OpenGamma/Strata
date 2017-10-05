@@ -56,7 +56,13 @@ public final class SmileAndBucketedSensitivities
    * The meta-bean for {@code SmileAndBucketedSensitivities}.
    */
   private static final TypedMetaBean<SmileAndBucketedSensitivities> META_BEAN =
-      LightMetaBean.of(SmileAndBucketedSensitivities.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          SmileAndBucketedSensitivities.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "smile",
+              "sensitivities"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code SmileAndBucketedSensitivities}.

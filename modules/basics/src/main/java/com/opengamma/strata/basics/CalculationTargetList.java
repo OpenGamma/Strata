@@ -63,6 +63,8 @@ public final class CalculationTargetList implements ImmutableBean, Serializable 
       LightMetaBean.of(
           CalculationTargetList.class,
           MethodHandles.lookup(),
+          new String[] {
+              "targets"},
           ImmutableList.of());
 
   /**

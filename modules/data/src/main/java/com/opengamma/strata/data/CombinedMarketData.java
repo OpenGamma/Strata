@@ -112,7 +112,13 @@ final class CombinedMarketData
    * The meta-bean for {@code CombinedMarketData}.
    */
   private static final TypedMetaBean<CombinedMarketData> META_BEAN =
-      LightMetaBean.of(CombinedMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          CombinedMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "underlying1",
+              "underlying2"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code CombinedMarketData}.

@@ -106,7 +106,13 @@ final class DefaultFxOptionScenarioMarketData
    * The meta-bean for {@code DefaultFxOptionScenarioMarketData}.
    */
   private static final TypedMetaBean<DefaultFxOptionScenarioMarketData> META_BEAN =
-      LightMetaBean.of(DefaultFxOptionScenarioMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultFxOptionScenarioMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultFxOptionScenarioMarketData}.

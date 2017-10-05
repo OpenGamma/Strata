@@ -51,7 +51,12 @@ final class NameFilter<T>
    * The meta-bean for {@code NameFilter}.
    */
   private static final MetaBean META_BEAN =
-      LightMetaBean.of(NameFilter.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          NameFilter.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "name"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code NameFilter}.

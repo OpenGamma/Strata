@@ -61,7 +61,14 @@ public final class NormalFunctionData
    * The meta-bean for {@code NormalFunctionData}.
    */
   private static final TypedMetaBean<NormalFunctionData> META_BEAN =
-      LightMetaBean.of(NormalFunctionData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          NormalFunctionData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "forward",
+              "numeraire",
+              "normalVolatility"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code NormalFunctionData}.

@@ -89,7 +89,13 @@ final class DefaultRatesMarketData
    * The meta-bean for {@code DefaultRatesMarketData}.
    */
   private static final TypedMetaBean<DefaultRatesMarketData> META_BEAN =
-      LightMetaBean.of(DefaultRatesMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultRatesMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultRatesMarketData}.

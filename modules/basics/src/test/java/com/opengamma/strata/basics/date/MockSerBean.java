@@ -46,6 +46,11 @@ public final class MockSerBean implements Bean {
   private static final TypedMetaBean<MockSerBean> META_BEAN =
       MinimalMetaBean.of(
           MockSerBean.class,
+          new String[] {
+              "bdConvention",
+              "holidayCalendar",
+              "dayCount",
+              "objects"},
           () -> new BasicBeanBuilder<>(new MockSerBean()),
           Arrays.<Function<MockSerBean, Object>>asList(
               b -> b.getBdConvention(),

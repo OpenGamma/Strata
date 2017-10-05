@@ -190,6 +190,11 @@ final class DefaultRatesMarketDataLookup
       LightMetaBean.of(
           DefaultRatesMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "discountCurves",
+              "forwardCurves",
+              "observableSource",
+              "fxLookup"},
           ImmutableMap.of(),
           ImmutableMap.of(),
           null,

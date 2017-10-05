@@ -190,6 +190,15 @@ public final class SimpleRatesProvider
   private static final TypedMetaBean<SimpleRatesProvider> META_BEAN =
       MinimalMetaBean.of(
           SimpleRatesProvider.class,
+          new String[] {
+              "valuationDate",
+              "dayCount",
+              "discountFactors",
+              "fxIndexRates",
+              "fxForwardRates",
+              "iborRates",
+              "overnightRates",
+              "priceIndexValues"},
           () -> new BasicBeanBuilder<>(new SimpleRatesProvider()),
           Arrays.<Function<SimpleRatesProvider, Object>>asList(
               b -> b.getValuationDate(),

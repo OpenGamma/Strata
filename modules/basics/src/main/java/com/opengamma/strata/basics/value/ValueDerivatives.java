@@ -68,7 +68,13 @@ public final class ValueDerivatives
    * The meta-bean for {@code ValueDerivatives}.
    */
   private static final TypedMetaBean<ValueDerivatives> META_BEAN =
-      LightMetaBean.of(ValueDerivatives.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          ValueDerivatives.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "value",
+              "derivatives"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code ValueDerivatives}.

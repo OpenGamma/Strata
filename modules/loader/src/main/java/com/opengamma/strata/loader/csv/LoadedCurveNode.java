@@ -75,7 +75,14 @@ final class LoadedCurveNode
    * The meta-bean for {@code LoadedCurveNode}.
    */
   private static final TypedMetaBean<LoadedCurveNode> META_BEAN =
-      LightMetaBean.of(LoadedCurveNode.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          LoadedCurveNode.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "date",
+              "value",
+              "label"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code LoadedCurveNode}.

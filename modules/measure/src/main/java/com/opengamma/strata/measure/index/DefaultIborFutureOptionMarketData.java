@@ -86,7 +86,13 @@ final class DefaultIborFutureOptionMarketData
    * The meta-bean for {@code DefaultIborFutureOptionMarketData}.
    */
   private static final TypedMetaBean<DefaultIborFutureOptionMarketData> META_BEAN =
-      LightMetaBean.of(DefaultIborFutureOptionMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultIborFutureOptionMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultIborFutureOptionMarketData}.

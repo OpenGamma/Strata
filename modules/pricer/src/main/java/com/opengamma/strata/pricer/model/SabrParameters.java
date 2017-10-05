@@ -372,7 +372,17 @@ public final class SabrParameters
    * The meta-bean for {@code SabrParameters}.
    */
   private static final TypedMetaBean<SabrParameters> META_BEAN =
-      LightMetaBean.of(SabrParameters.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          SabrParameters.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "alphaCurve",
+              "betaCurve",
+              "rhoCurve",
+              "nuCurve",
+              "shiftCurve",
+              "sabrVolatilityFormula"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code SabrParameters}.

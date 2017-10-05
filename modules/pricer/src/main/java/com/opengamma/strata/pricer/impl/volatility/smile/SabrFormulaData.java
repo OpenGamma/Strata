@@ -196,7 +196,12 @@ public final class SabrFormulaData
    * The meta-bean for {@code SabrFormulaData}.
    */
   private static final TypedMetaBean<SabrFormulaData> META_BEAN =
-      LightMetaBean.of(SabrFormulaData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          SabrFormulaData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "parameters"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code SabrFormulaData}.

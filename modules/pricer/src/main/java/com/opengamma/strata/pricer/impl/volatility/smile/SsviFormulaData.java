@@ -176,7 +176,12 @@ public final class SsviFormulaData
    * The meta-bean for {@code SsviFormulaData}.
    */
   private static final TypedMetaBean<SsviFormulaData> META_BEAN =
-      LightMetaBean.of(SsviFormulaData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          SsviFormulaData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "parameters"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code SsviFormulaData}.

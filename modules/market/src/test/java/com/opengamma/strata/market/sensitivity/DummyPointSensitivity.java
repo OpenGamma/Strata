@@ -148,7 +148,15 @@ public final class DummyPointSensitivity
    * The meta-bean for {@code DummyPointSensitivity}.
    */
   private static final TypedMetaBean<DummyPointSensitivity> META_BEAN =
-      LightMetaBean.of(DummyPointSensitivity.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DummyPointSensitivity.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "curveCurrency",
+              "date",
+              "currency",
+              "sensitivity"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DummyPointSensitivity}.

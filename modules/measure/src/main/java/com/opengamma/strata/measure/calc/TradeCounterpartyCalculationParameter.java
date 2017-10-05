@@ -111,6 +111,10 @@ public final class TradeCounterpartyCalculationParameter
       LightMetaBean.of(
           TradeCounterpartyCalculationParameter.class,
           MethodHandles.lookup(),
+          new String[] {
+              "queryType",
+              "parameters",
+              "defaultParameter"},
           null,
           ImmutableMap.of(),
           null);

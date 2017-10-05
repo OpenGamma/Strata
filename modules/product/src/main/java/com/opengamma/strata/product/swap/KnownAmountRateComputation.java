@@ -63,7 +63,12 @@ final class KnownAmountRateComputation
    * The meta-bean for {@code KnownAmountRateComputation}.
    */
   private static final TypedMetaBean<KnownAmountRateComputation> META_BEAN =
-      LightMetaBean.of(KnownAmountRateComputation.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          KnownAmountRateComputation.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "amount"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code KnownAmountRateComputation}.

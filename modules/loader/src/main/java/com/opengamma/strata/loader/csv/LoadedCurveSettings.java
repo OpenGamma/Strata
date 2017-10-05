@@ -160,7 +160,18 @@ final class LoadedCurveSettings
    * The meta-bean for {@code LoadedCurveSettings}.
    */
   private static final TypedMetaBean<LoadedCurveSettings> META_BEAN =
-      LightMetaBean.of(LoadedCurveSettings.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          LoadedCurveSettings.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "curveName",
+              "xValueType",
+              "yValueType",
+              "dayCount",
+              "interpolator",
+              "extrapolatorLeft",
+              "extrapolatorRight"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code LoadedCurveSettings}.

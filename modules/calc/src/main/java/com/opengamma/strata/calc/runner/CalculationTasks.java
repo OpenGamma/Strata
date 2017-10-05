@@ -223,6 +223,10 @@ public final class CalculationTasks implements ImmutableBean {
       LightMetaBean.of(
           CalculationTasks.class,
           MethodHandles.lookup(),
+          new String[] {
+              "targets",
+              "columns",
+              "tasks"},
           ImmutableList.of(),
           ImmutableList.of(),
           ImmutableList.of());

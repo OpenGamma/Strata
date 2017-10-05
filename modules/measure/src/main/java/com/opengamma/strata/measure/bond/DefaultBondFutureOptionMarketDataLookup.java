@@ -134,6 +134,8 @@ final class DefaultBondFutureOptionMarketDataLookup
       LightMetaBean.of(
           DefaultBondFutureOptionMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "volatilityIds"},
           ImmutableMap.of());
 
   /**

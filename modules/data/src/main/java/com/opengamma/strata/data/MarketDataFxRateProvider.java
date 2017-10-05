@@ -162,7 +162,14 @@ public final class MarketDataFxRateProvider
    * The meta-bean for {@code MarketDataFxRateProvider}.
    */
   private static final TypedMetaBean<MarketDataFxRateProvider> META_BEAN =
-      LightMetaBean.of(MarketDataFxRateProvider.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          MarketDataFxRateProvider.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "marketData",
+              "fxRatesSource",
+              "triangulationCurrency"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code MarketDataFxRateProvider}.

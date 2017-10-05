@@ -62,7 +62,13 @@ final class CombinedReferenceData
    * The meta-bean for {@code CombinedReferenceData}.
    */
   private static final TypedMetaBean<CombinedReferenceData> META_BEAN =
-      LightMetaBean.of(CombinedReferenceData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          CombinedReferenceData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "refData1",
+              "refData2"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code CombinedReferenceData}.
