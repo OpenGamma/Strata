@@ -111,6 +111,7 @@ public class LoaderUtilsTest {
   }
 
   public void test_parseTime() {
+    assertEquals(LoaderUtils.parseTime("2"), LocalTime.of(2, 0));
     assertEquals(LoaderUtils.parseTime("11"), LocalTime.of(11, 0));
     assertEquals(LoaderUtils.parseTime("11:30"), LocalTime.of(11, 30));
     assertEquals(LoaderUtils.parseTime("11:30:20"), LocalTime.of(11, 30, 20));
