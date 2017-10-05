@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.DoubleStream;
 
 import org.testng.annotations.Test;
 
@@ -55,6 +56,11 @@ public class DoubleArrayTest {
     AtomicInteger counter = new AtomicInteger(2);
     assertContent(DoubleArray.of(1, i -> counter.getAndIncrement()), 2d);
     assertContent(DoubleArray.of(2, i -> counter.getAndIncrement()), 3d, 4d);
+  }
+
+  public void test_of_stream() {
+    assertContent(DoubleArray.of(DoubleStream.empty()));
+    assertContent(DoubleArray.of(DoubleStream.of(1d, 2d, 3d)), 1d, 2d, 3d);
   }
 
   public void test_ofUnsafe() {
@@ -182,6 +188,7 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unlikely-arg-type")
   public void test_toList() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
