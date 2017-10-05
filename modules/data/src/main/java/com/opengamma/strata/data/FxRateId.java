@@ -133,7 +133,7 @@ public final class FxRateId
   /**
    * The cached hash code, using the racy single-check idiom.
    */
-  private int cachedHashCode;
+  private transient int cacheHashCode;
 
   @Override
   public FxRateId.Meta metaBean() {
@@ -176,12 +176,12 @@ public final class FxRateId
 
   @Override
   public int hashCode() {
-    int hash = cachedHashCode;
+    int hash = cacheHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
       hash = hash * 31 + JodaBeanUtils.hashCode(pair);
       hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
-      cachedHashCode = hash;
+      cacheHashCode = hash;
     }
     return hash;
   }

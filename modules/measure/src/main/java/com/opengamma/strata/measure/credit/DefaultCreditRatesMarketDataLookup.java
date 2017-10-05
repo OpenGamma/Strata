@@ -122,6 +122,11 @@ final class DefaultCreditRatesMarketDataLookup
       LightMetaBean.of(
           DefaultCreditRatesMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "creditCurveIds",
+              "discountCurveIds",
+              "recoveryRateCurveIds",
+              "observableSource"},
           ImmutableMap.of(),
           ImmutableMap.of(),
           ImmutableMap.of(),

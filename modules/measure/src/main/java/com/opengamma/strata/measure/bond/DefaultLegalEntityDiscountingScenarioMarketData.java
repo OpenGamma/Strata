@@ -106,7 +106,13 @@ final class DefaultLegalEntityDiscountingScenarioMarketData
    * The meta-bean for {@code DefaultLegalEntityDiscountingScenarioMarketData}.
    */
   private static final TypedMetaBean<DefaultLegalEntityDiscountingScenarioMarketData> META_BEAN =
-      LightMetaBean.of(DefaultLegalEntityDiscountingScenarioMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultLegalEntityDiscountingScenarioMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultLegalEntityDiscountingScenarioMarketData}.

@@ -93,7 +93,7 @@ public final class IborFutureOptionVolatilitiesId
   /**
    * The cached hash code, using the racy single-check idiom.
    */
-  private int cachedHashCode;
+  private transient int cacheHashCode;
 
   private IborFutureOptionVolatilitiesId(
       IborFutureOptionVolatilitiesName name) {
@@ -130,11 +130,11 @@ public final class IborFutureOptionVolatilitiesId
 
   @Override
   public int hashCode() {
-    int hash = cachedHashCode;
+    int hash = cacheHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
       hash = hash * 31 + JodaBeanUtils.hashCode(name);
-      cachedHashCode = hash;
+      cacheHashCode = hash;
     }
     return hash;
   }

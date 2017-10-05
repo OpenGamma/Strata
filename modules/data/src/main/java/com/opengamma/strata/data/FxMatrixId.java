@@ -90,7 +90,7 @@ public final class FxMatrixId
   /**
    * The cached hash code, using the racy single-check idiom.
    */
-  private int cachedHashCode;
+  private transient int cacheHashCode;
 
   private FxMatrixId(
       ObservableSource observableSource) {
@@ -128,11 +128,11 @@ public final class FxMatrixId
 
   @Override
   public int hashCode() {
-    int hash = cachedHashCode;
+    int hash = cacheHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
       hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
-      cachedHashCode = hash;
+      cacheHashCode = hash;
     }
     return hash;
   }

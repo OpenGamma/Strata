@@ -251,7 +251,13 @@ final class DefaultLookupCreditRatesProvider
    * The meta-bean for {@code DefaultLookupCreditRatesProvider}.
    */
   private static final TypedMetaBean<DefaultLookupCreditRatesProvider> META_BEAN =
-      LightMetaBean.of(DefaultLookupCreditRatesProvider.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultLookupCreditRatesProvider.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultLookupCreditRatesProvider}.

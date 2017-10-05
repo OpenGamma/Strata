@@ -53,7 +53,13 @@ final class LoadedCurveKey
    * The meta-bean for {@code LoadedCurveKey}.
    */
   private static final TypedMetaBean<LoadedCurveKey> META_BEAN =
-      LightMetaBean.of(LoadedCurveKey.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          LoadedCurveKey.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "curveDate",
+              "curveName"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code LoadedCurveKey}.

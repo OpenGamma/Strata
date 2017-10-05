@@ -56,7 +56,13 @@ final class CompositeCalculationFunctions implements CalculationFunctions, Immut
    * The meta-bean for {@code CompositeCalculationFunctions}.
    */
   private static final TypedMetaBean<CompositeCalculationFunctions> META_BEAN =
-      LightMetaBean.of(CompositeCalculationFunctions.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          CompositeCalculationFunctions.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "functions1",
+              "functions2"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code CompositeCalculationFunctions}.

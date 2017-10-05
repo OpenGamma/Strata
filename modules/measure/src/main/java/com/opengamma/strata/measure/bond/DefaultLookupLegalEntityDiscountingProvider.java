@@ -211,7 +211,13 @@ final class DefaultLookupLegalEntityDiscountingProvider
    * The meta-bean for {@code DefaultLookupLegalEntityDiscountingProvider}.
    */
   private static final TypedMetaBean<DefaultLookupLegalEntityDiscountingProvider> META_BEAN =
-      LightMetaBean.of(DefaultLookupLegalEntityDiscountingProvider.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultLookupLegalEntityDiscountingProvider.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultLookupLegalEntityDiscountingProvider}.

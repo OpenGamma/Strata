@@ -182,6 +182,12 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
       LightMetaBean.of(
           DefaultLegalEntityDiscountingMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "repoCurveGroups",
+              "repoCurves",
+              "issuerCurveGroups",
+              "issuerCurves",
+              "observableSource"},
           ImmutableMap.of(),
           ImmutableMap.of(),
           ImmutableMap.of(),

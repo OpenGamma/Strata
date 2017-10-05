@@ -221,6 +221,8 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
       LightMetaBean.of(
           CalculationParameters.class,
           MethodHandles.lookup(),
+          new String[] {
+              "parameters"},
           ImmutableMap.of());
 
   /**

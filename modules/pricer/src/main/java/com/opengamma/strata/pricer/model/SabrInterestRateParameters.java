@@ -386,7 +386,17 @@ public final class SabrInterestRateParameters
    * The meta-bean for {@code SabrInterestRateParameters}.
    */
   private static final TypedMetaBean<SabrInterestRateParameters> META_BEAN =
-      LightMetaBean.of(SabrInterestRateParameters.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          SabrInterestRateParameters.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "alphaSurface",
+              "betaSurface",
+              "rhoSurface",
+              "nuSurface",
+              "shiftSurface",
+              "sabrVolatilityFormula"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code SabrInterestRateParameters}.

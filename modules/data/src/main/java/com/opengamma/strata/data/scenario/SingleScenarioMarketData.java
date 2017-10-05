@@ -117,7 +117,13 @@ final class SingleScenarioMarketData
    * The meta-bean for {@code SingleScenarioMarketData}.
    */
   private static final TypedMetaBean<SingleScenarioMarketData> META_BEAN =
-      LightMetaBean.of(SingleScenarioMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          SingleScenarioMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "marketData",
+              "scenarioIndex"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code SingleScenarioMarketData}.

@@ -86,7 +86,13 @@ final class DefaultSwaptionMarketData
    * The meta-bean for {@code DefaultSwaptionMarketData}.
    */
   private static final TypedMetaBean<DefaultSwaptionMarketData> META_BEAN =
-      LightMetaBean.of(DefaultSwaptionMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultSwaptionMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultSwaptionMarketData}.

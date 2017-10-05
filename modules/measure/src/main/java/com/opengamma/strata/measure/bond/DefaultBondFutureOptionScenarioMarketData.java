@@ -106,7 +106,13 @@ final class DefaultBondFutureOptionScenarioMarketData
    * The meta-bean for {@code DefaultBondFutureOptionScenarioMarketData}.
    */
   private static final TypedMetaBean<DefaultBondFutureOptionScenarioMarketData> META_BEAN =
-      LightMetaBean.of(DefaultBondFutureOptionScenarioMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultBondFutureOptionScenarioMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultBondFutureOptionScenarioMarketData}.
