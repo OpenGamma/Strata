@@ -153,20 +153,21 @@ public final class CurrencyScenarioArray
    *
    * @param other  another array of multiple currency values.
    * @return a new array containing the values from this array added to the values in the other array
-   * @throws IllegalArgumentException if the arrays have different sizes
+   * @throws IllegalArgumentException if the arrays have different sizes or different currencies
    */
   public CurrencyScenarioArray plus(CurrencyScenarioArray other) {
     return CurrencyScenarioArray.of(amounts.plus(other.amounts));
   }
   
   /**
-   * Returns a new array containing the values from this array with the values from the amount added.
+   * Returns a new array containing the values from this array with the specified amount added.
    * <p>
    * The amount is added to each element in this array.
    * The currency must be the same as the currency of this array.
    *
    * @param amount  the amount to add
-   * @return a new array containing the values from this array added to the values in the other array
+   * @return a new array containing the values from this array with the specified amount added
+   * @throws IllegalArgumentException if the array and the amount have different currencies 
    */
   public CurrencyScenarioArray plus(CurrencyAmount amount) {
     return CurrencyScenarioArray.of(amounts.plus(amount));
@@ -180,21 +181,22 @@ public final class CurrencyScenarioArray
    * The arrays must have the same size.
    *
    * @param other  another array of multiple currency values.
-   * @return a new array containing the values from this array added with the values from the other array subtracted
-   * @throws IllegalArgumentException if the arrays have different sizes
+   * @return a new array containing the values from this array with the values from the other array subtracted
+   * @throws IllegalArgumentException if the arrays have different sizes or different currencies
    */
   public CurrencyScenarioArray minus(CurrencyScenarioArray other) {
     return CurrencyScenarioArray.of(amounts.minus(other.amounts));
   }
   
   /**
-   * Returns a new array containing the values from this array with the values from the amount subtracted.
+   * Returns a new array containing the values from this array with the specified amount subtracted.
    * <p>
    * The amount is subtracted from each element in this array.
    * The currency must be the same as the currency of this array.
    *
    * @param amount  the amount to subtract
-   * @return a new array containing the values from this array with the values from the amount subtracted
+   * @return a new array containing the values from this array with the specified amount subtracted
+   * @throws IllegalArgumentException if the array and the amount have different currencies
    */
   public CurrencyScenarioArray minus(CurrencyAmount amount) {
     return CurrencyScenarioArray.of(amounts.minus(amount));
