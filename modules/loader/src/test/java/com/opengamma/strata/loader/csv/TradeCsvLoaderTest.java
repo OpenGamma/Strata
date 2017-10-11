@@ -22,13 +22,17 @@ import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Joiner;
@@ -69,6 +73,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
+import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixedRateStubCalculation;
@@ -117,6 +122,28 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     assertEquals(trades.getFailures().size(), 0, trades.getFailures().toString());
+  }
+
+  @Test
+  public void test_load_fx_forwards() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
+    ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
+    assertEquals(loadedData.getFailures().size(), 0);
+    assertEquals(loadedData.getValue().size(), 7);
+
+    //Test that all ID schemes are "OG"
+    assertTrue(loadedData.getValue().stream().map(x -> x.getInfo().getId().map(y -> y.getScheme()).orElse("N/A")).allMatch(x -> x.equals("OG")));
+
+    List<String> expectedTradeIds = Arrays.asList(
+        "AE2016120627641476_27641476_20171208",
+        "AE2016122234069117_34069117_20171228",
+        "AE2017010557865107_57865107_20180108",
+        "AE2017011023494211_23494211_20180112",
+        "AE2017011160671557_60671557_20170713",
+        "AE2017012581960798_81960798_20180129",
+        "AE2017012588828754_88828754_20180129");
+    assertEquals(loadedData.getValue().stream().map(x -> x.getInfo().getId().map(StandardId::getValue).orElse("N/A")).collect(Collectors.toList()), expectedTradeIds);
   }
 
   //-------------------------------------------------------------------------
