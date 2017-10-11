@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.product.common.PayReceive.PAY;
@@ -24,7 +29,7 @@ class FxSingleTradeCsvLoader {
   private static final String LEG_2_DIRECTION_HEADER = "Leg 2 Direction";
   private static final String LEG_2_CURRENCY_HEADER = "Leg 2 Currency";
   private static final String LEG_2_NOTIONAL_HEADER = "Leg 2 Notional";
-  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   /**
    * Parses the data from a CSV row.
@@ -49,7 +54,7 @@ class FxSingleTradeCsvLoader {
    */
   private static FxSingleTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     LocalDate paymentDate = LocalDate.parse(row.getField(PAYMENT_DATE_HEADER),
-        DATE_TIME_FORMATTER);
+        DATE_TIME_FORMATTER); // TODO: use LoaderUtils.parseDate
     PayReceive leg1Direction = PayReceive.of(row.getField(LEG_1_DIRECTION_HEADER));
     Currency leg1Currency = Currency.of(row.getField(LEG_1_CURRENCY_HEADER));
     double leg1Notional = Double.parseDouble(row.getField(LEG_1_NOTIONAL_HEADER));
@@ -57,8 +62,8 @@ class FxSingleTradeCsvLoader {
     Currency leg2Currency = Currency.of(row.getField(LEG_2_CURRENCY_HEADER));
     double leg2Notional = Double.parseDouble(row.getField(LEG_2_NOTIONAL_HEADER));
 
-    int leg1DirectionMultiplier = leg1Direction.equals(PAY) ? 1 : -1;
-    int leg2DirectionMultiplier = leg2Direction.equals(PAY) ? 1 : -1;
+    int leg1DirectionMultiplier = leg1Direction.equals(PAY) ? -1 : 1;
+    int leg2DirectionMultiplier = leg2Direction.equals(PAY) ? -1 : 1;
     CurrencyAmount firstLeg = CurrencyAmount.of(leg1Currency, leg1DirectionMultiplier * leg1Notional);
     CurrencyAmount secondLeg = CurrencyAmount.of(leg2Currency, leg2DirectionMultiplier * leg2Notional);
 
