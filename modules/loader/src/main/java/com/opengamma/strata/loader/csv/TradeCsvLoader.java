@@ -141,6 +141,19 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <li>'Convention', 'Start Date', 'End Date'
  * <li>'Start Date', 'End Date', 'Currency', 'Day Count'
  * </ul>
+ *
+ * <h4>FX Forwards</h4>
+ * <p>
+ * The following columns are supported for 'FX Forwards' trades:
+ * <ul>
+ * <li>Payment Date - mandatory
+ * <li>Leg 1 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
+ * <li>Leg 1 Currency - mandatory
+ * <li>Leg 1 Notional - mandatory
+ * <li>Leg 2 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
+ * <li>Leg 2 Currency - mandatory
+ * <li>Leg 2 Notional - mandatory
+ * </ul>
  * 
  * <h4>Security</h4>
  * <p>
@@ -405,6 +418,9 @@ public final class TradeCsvLoader {
                 FailureReason.PARSING,
                 "CSV file contained a 'Variable' type at line {} that was not preceeded by a 'Swap'",
                 row.lineNumber()));
+            break;
+          case "FX":
+            trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
             break;
           default:
             failures.add(FailureItem.of(
