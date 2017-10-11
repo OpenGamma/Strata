@@ -8,7 +8,6 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
