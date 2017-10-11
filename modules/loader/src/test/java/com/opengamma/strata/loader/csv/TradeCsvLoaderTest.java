@@ -136,13 +136,13 @@ public class TradeCsvLoaderTest {
     assertTrue(loadedData.getValue().stream().map(x -> x.getInfo().getId().map(y -> y.getScheme()).orElse("N/A")).allMatch(x -> x.equals("OG")));
 
     List<String> expectedTradeIds = Arrays.asList(
-        "AE2016120627641476_27641476_20171208",
-        "AE2016122234069117_34069117_20171228",
-        "AE2017010557865107_57865107_20180108",
-        "AE2017011023494211_23494211_20180112",
-        "AE2017011160671557_60671557_20170713",
-        "AE2017012581960798_81960798_20180129",
-        "AE2017012588828754_88828754_20180129");
+        "tradeId1",
+        "tradeId2",
+        "tradeId3",
+        "tradeId4",
+        "tradeId5",
+        "tradeId6",
+        "tradeId7");
     assertEquals(loadedData.getValue().stream().map(x -> x.getInfo().getId().map(StandardId::getValue).orElse("N/A")).collect(Collectors.toList()), expectedTradeIds);
   }
 
