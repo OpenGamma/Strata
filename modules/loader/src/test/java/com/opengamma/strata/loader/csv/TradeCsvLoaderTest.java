@@ -131,7 +131,7 @@ public class TradeCsvLoaderTest {
     assertEquals(loadedData.getFailures().size(), 0);
 
     List<Trade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 7);
+    assertEquals(loadedTrades.size(), 9);
 
     FxSingleTrade expectedTrade1 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -216,6 +216,18 @@ public class TradeCsvLoaderTest {
             LocalDate.parse("2018-01-29")))
         .build();
     assertEquals(loadedTrades.get(6), expectedTrade7);
+    FxSingleTrade expectedTrade8 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId8"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, 1920000),
+            CurrencyAmount.of(Currency.CZK, -12256000),
+            LocalDate.parse("2018-01-29")))
+        .build();
+    assertEquals(loadedTrades.get(7), expectedTrade8);
+    assertEquals(loadedTrades.get(8), expectedTrade8);
   }
 
   //-------------------------------------------------------------------------

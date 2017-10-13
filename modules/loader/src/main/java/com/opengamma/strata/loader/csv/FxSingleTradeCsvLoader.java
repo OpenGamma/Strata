@@ -19,7 +19,7 @@ import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 
 /**
- * Loads FX Trades from CSV files. So far, support exists for FX Forwards.
+ * Loads FX trades (spot of forward) from CSV files.
  */
 class FxSingleTradeCsvLoader {
   private static final String PAYMENT_DATE_HEADER = "Payment Date";
