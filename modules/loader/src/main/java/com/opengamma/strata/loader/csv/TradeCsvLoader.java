@@ -142,9 +142,9 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <li>'Start Date', 'End Date', 'Currency', 'Day Count'
  * </ul>
  *
- * <h4>FX Forwards</h4>
+ * <h4>FX Singles</h4>
  * <p>
- * The following columns are supported for 'FX Forwards' trades:
+ * The following columns are supported for 'FX Singles' (FX Spots and FX Forwards) trades:
  * <ul>
  * <li>Payment Date - mandatory
  * <li>Leg 1 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
