@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
@@ -53,12 +54,18 @@ class FxSingleTradeCsvLoader {
    */
   private static FxSingleTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     LocalDate paymentDate = LoaderUtils.parseDate(row.getField(PAYMENT_DATE_HEADER));
-    PayReceive leg1Direction = PayReceive.of(row.getField(LEG_1_DIRECTION_HEADER));
+    PayReceive leg1Direction = LoaderUtils.parsePayReceive(row.getField(LEG_1_DIRECTION_HEADER));
     Currency leg1Currency = Currency.of(row.getField(LEG_1_CURRENCY_HEADER));
-    double leg1Notional = Double.parseDouble(row.getField(LEG_1_NOTIONAL_HEADER));
-    PayReceive leg2Direction = PayReceive.of(row.getField(LEG_2_DIRECTION_HEADER));
+    double leg1Notional = LoaderUtils.parseDouble(row.getField(LEG_1_NOTIONAL_HEADER));
+    PayReceive leg2Direction = LoaderUtils.parsePayReceive(row.getField(LEG_2_DIRECTION_HEADER));
     Currency leg2Currency = Currency.of(row.getField(LEG_2_CURRENCY_HEADER));
-    double leg2Notional = Double.parseDouble(row.getField(LEG_2_NOTIONAL_HEADER));
+    double leg2Notional = LoaderUtils.parseDouble(row.getField(LEG_2_NOTIONAL_HEADER));
+
+    if(leg1Direction.equals(leg2Direction)) {
+      throw new IllegalArgumentException(Messages.format("Detected two legs having the same direction: {}, {}.",
+          leg1Direction.toString(),
+          leg2Direction.toString()));
+    }
 
     int leg1DirectionMultiplier = leg1Direction.equals(PAY) ? -1 : 1;
     int leg2DirectionMultiplier = leg2Direction.equals(PAY) ? -1 : 1;

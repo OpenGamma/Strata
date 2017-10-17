@@ -230,6 +230,20 @@ public class TradeCsvLoaderTest {
     assertEquals(loadedTrades.get(8), expectedTrade8);
   }
 
+  @Test
+  public void test_load_fx_forwards_with_legs_in_same_direction() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades_legs_same_direction.csv");
+    ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
+    assertEquals(loadedData.getFailures().size(), 1);
+    FailureItem failureItem = loadedData.getFailures().get(0);
+    assertEquals(failureItem.getReason().toString(), "PARSING");
+    assertEquals(failureItem.getMessage(), "CSV file trade could not be parsed at line 2: Detected two legs having the same direction: Pay, Pay.");
+
+    List<Trade> loadedTrades = loadedData.getValue();
+    assertEquals(loadedTrades.size(), 0);
+  }
+
   //-------------------------------------------------------------------------
   public void test_load_fra() {
     TradeCsvLoader test = TradeCsvLoader.standard();
