@@ -61,8 +61,9 @@ class FxSingleTradeCsvLoader {
     Currency leg2Currency = Currency.of(row.getField(LEG_2_CURRENCY_HEADER));
     double leg2Notional = LoaderUtils.parseDouble(row.getField(LEG_2_NOTIONAL_HEADER));
 
-    if(leg1Direction.equals(leg2Direction)) {
-      throw new IllegalArgumentException(Messages.format("Detected two legs having the same direction: {}, {}.",
+    if (leg1Direction.equals(leg2Direction)) {
+      throw new IllegalArgumentException(Messages.format(
+          "Detected two legs having the same direction: {}, {}.",
           leg1Direction.toString(),
           leg2Direction.toString()));
     }
