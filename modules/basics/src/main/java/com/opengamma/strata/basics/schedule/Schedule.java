@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -170,6 +171,28 @@ public final class Schedule
     return getLastPeriod().getEndDate();
   }
 
+  /**
+   * Gets the unadjusted start date.
+   * <p>
+   * The start date before any business day adjustment.
+   * 
+   * @return the unadjusted schedule start date
+   */
+  public LocalDate getUnadjustedStartDate() {
+    return getFirstPeriod().getUnadjustedStartDate();
+  }
+
+  /**
+   * Gets the unadjusted end date.
+   * <p>
+   * The end date before any business day adjustment.
+   * 
+   * @return the unadjusted schedule end date
+   */
+  public LocalDate getUnadjustedEndDate() {
+    return getLastPeriod().getUnadjustedEndDate();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the initial stub if it exists.
@@ -224,6 +247,23 @@ public final class Schedule
     return (startStub == 0 && endStub == 0 ? periods : periods.subList(startStub, periods.size() - endStub));
   }
 
+  /**
+   * Gets the complete list of unadjusted dates.
+   * <p>
+   * This returns a list including all the unadjusted period boundary dates.
+   * This is the same as the unadjusted start date of each period plus the final unadjusted end date.
+   * 
+   * @return the list of unadjusted dates, in order
+   */
+  public ImmutableList<LocalDate> getUnadjustedDates() {
+    ImmutableList.Builder<LocalDate> dates = ImmutableList.builder();
+    dates.add(periods.get(0).getUnadjustedStartDate());
+    for (SchedulePeriod period : periods) {
+      dates.add(period.getUnadjustedEndDate());
+    }
+    return dates.build();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if the end of month convention is in use.
@@ -276,6 +316,92 @@ public final class Schedule
         last.getEndDate(),
         first.getUnadjustedStartDate(),
         last.getUnadjustedEndDate()));
+  }
+
+  /**
+   * Merges this schedule to form a new schedule by combining the schedule periods.
+   * <p>
+   * This produces a schedule where some periods are merged together.
+   * For example, this could be used to convert a 3 monthly schedule into a 6 monthly schedule.
+   * <p>
+   * The merging is controlled by the group size, which defines the number of periods
+   * to merge together in the result. For example, to convert a 3 monthly schedule into
+   * a 6 monthly schedule the group size would be 2 (6 divided by 3).
+   * <p>
+   * A group size of zero or less will throw an exception.
+   * A group size of 1 will return this schedule providing that the specified start and end date match.
+   * A larger group size will return a schedule where each group of regular periods are merged.
+   * <p>
+   * The specified dates must be one of the dates of this schedule (unadjusted or adjusted).
+   * All periods of this schedule before the first regular start date, if any, will form a single period in the result.
+   * All periods of this schedule after the last regular start date, if any, will form a single period in the result.
+   * If this schedule has an initial or final stub, it may be merged with a regular period as part of the process.
+   * <p>
+   * For example, a schedule with an initial stub and 5 regular periods can be grouped by 2 if the
+   * specified {@code firstRegularStartDate} equals the end of the first regular period.
+   * 
+   * @param groupSize  the group size
+   * @param firstRegularStartDate  the unadjusted start date of the first regular payment period
+   * @param lastRegularEndDate  the unadjusted end date of the last regular payment period
+   * @return the merged schedule
+   * @throws IllegalArgumentException if the group size is zero or less
+   * @throws ScheduleException if the merged schedule cannot be created because the dates don't
+   *   match this schedule or the regular periods don't match the grouping size
+   */
+  public Schedule merge(int groupSize, LocalDate firstRegularStartDate, LocalDate lastRegularEndDate) {
+    ArgChecker.notNegativeOrZero(groupSize, "groupSize");
+    ArgChecker.inOrderOrEqual(firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
+    if (isTerm() || groupSize == 1) {
+      return this;
+    }
+    // determine stubs and regular
+    int startRegularIndex = -1;
+    int endRegularIndex = -1;
+    for (int i = 0; i < size(); i++) {
+      SchedulePeriod period = periods.get(i);
+      if (period.getUnadjustedStartDate().equals(firstRegularStartDate) || period.getStartDate().equals(firstRegularStartDate)) {
+        startRegularIndex = i;
+      }
+      if (period.getUnadjustedEndDate().equals(lastRegularEndDate) || period.getEndDate().equals(lastRegularEndDate)) {
+        endRegularIndex = i + 1;
+      }
+    }
+    if (startRegularIndex < 0) {
+      throw new ScheduleException(
+          "Unable to merge schedule, firstRegularStartDate {} does not match any date in the underlying schedule {}",
+          firstRegularStartDate,
+          getUnadjustedDates());
+    }
+    if (endRegularIndex < 0) {
+      throw new ScheduleException(
+          "Unable to merge schedule, lastRegularEndDate {} does not match any date in the underlying schedule {}",
+          lastRegularEndDate,
+          getUnadjustedDates());
+    }
+    int numberRegular = endRegularIndex - startRegularIndex;
+    if ((numberRegular % groupSize) != 0) {
+      Period newFrequency = frequency.getPeriod().multipliedBy(groupSize);
+      throw new ScheduleException(
+          "Unable to merge schedule, firstRegularStartDate {} and lastRegularEndDate {} cannot be used to " +
+              "create regular periods of frequency '{}'",
+          firstRegularStartDate, lastRegularEndDate, newFrequency);
+    }
+    List<SchedulePeriod> newSchedule = new ArrayList<>();
+    if (startRegularIndex > 0) {
+      newSchedule.add(createSchedulePeriod(periods.subList(0, startRegularIndex)));
+    }
+    for (int i = startRegularIndex; i < endRegularIndex; i += groupSize) {
+      newSchedule.add(createSchedulePeriod(periods.subList(i, i + groupSize)));
+    }
+    if (endRegularIndex < periods.size()) {
+      newSchedule.add(createSchedulePeriod(periods.subList(endRegularIndex, periods.size())));
+    }
+    // build schedule
+    return Schedule.builder()
+        .periods(newSchedule)
+        .frequency(Frequency.of(frequency.getPeriod().multipliedBy(groupSize)))
+        .rollConvention(rollConvention)
+        .build();
   }
 
   /**

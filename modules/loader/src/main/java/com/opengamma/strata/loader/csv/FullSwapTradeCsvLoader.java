@@ -105,6 +105,8 @@ final class FullSwapTradeCsvLoader {
   private static final String PAYMENT_OFFSET_ADJ_CNV_FIELD = "Payment Offset Adjustment Convention";
   private static final String PAYMENT_OFFSET_ADJ_CAL_FIELD = "Payment Offset Adjustment Calendar";
   private static final String COMPOUNDING_METHOD_FIELD = "Compounding Method";
+  private static final String PAYMENT_FIRST_REGULAR_START_DATE_FIELD = "Payment First Regular Start Date";
+  private static final String PAYMENT_LAST_REGULAR_END_DATE_FIELD = "Payment Last Regular End Date";
 
   private static final String NOTIONAL_CURRENCY_FIELD = "Notional Currency";
   private static final String NOTIONAL_INITIAL_EXCHANGE_FIELD = "Notional Initial Exchange";
@@ -321,6 +323,12 @@ final class FullSwapTradeCsvLoader {
     findValue(row, leg, COMPOUNDING_METHOD_FIELD)
         .map(s -> CompoundingMethod.of(s))
         .ifPresent(v -> builder.compoundingMethod(v));
+    findValue(row, leg, PAYMENT_FIRST_REGULAR_START_DATE_FIELD)
+        .map(s -> LoaderUtils.parseDate(s))
+        .ifPresent(v -> builder.firstRegularStartDate(v));
+    findValue(row, leg, PAYMENT_LAST_REGULAR_END_DATE_FIELD)
+        .map(s -> LoaderUtils.parseDate(s))
+        .ifPresent(v -> builder.lastRegularEndDate(v));
     return builder.build();
   }
 

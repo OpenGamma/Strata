@@ -251,19 +251,32 @@ final class SwapFpmlParserPlugin
     //  'paymentDates/paymentDaysOffset?'
     //  'paymentDates/paymentDatesAdjustments'
     //  'calculationPeriodAmount/calculation/compoundingMethod'
+    //  'paymentDates/firstPaymentDate?'
+    //  'paymentDates/lastRegularPaymentDate?'
     // ignored elements:
     //  'paymentDates/calculationPeriodDatesReference'
     //  'paymentDates/resetDatesReference'
     //  'paymentDates/valuationDatesReference'
-    //  'paymentDates/firstPaymentDate?'
-    //  'paymentDates/lastRegularPaymentDate?'
     PaymentSchedule.Builder paymentScheduleBuilder = PaymentSchedule.builder();
     // payment dates
     XmlElement paymentDatesEl = legEl.getChild("paymentDates");
     // frequency
     paymentScheduleBuilder.paymentFrequency(document.parseFrequency(
         paymentDatesEl.getChild("paymentFrequency")));
-    paymentScheduleBuilder.paymentRelativeTo(parsePayRelativeTo(paymentDatesEl.getChild("payRelativeTo")));
+    PaymentRelativeTo payRelativeTo = parsePayRelativeTo(paymentDatesEl.getChild("payRelativeTo"));
+    paymentScheduleBuilder.paymentRelativeTo(payRelativeTo);
+    // dates
+    if (payRelativeTo == PaymentRelativeTo.PERIOD_END) {
+      // ignore data if not PeriodEnd and hope schedule is worked out correctly by other means
+      // this provides compatibility for old code that ignored these FpML fields
+      paymentDatesEl.findChild("firstPaymentDate")
+          .map(el -> document.parseDate(el))
+          .ifPresent(date -> paymentScheduleBuilder.firstRegularStartDate(date));
+      paymentDatesEl.findChild("lastRegularPaymentDate")
+          .map(el -> document.parseDate(el))
+          .ifPresent(date -> paymentScheduleBuilder.lastRegularEndDate(date));
+
+    }
     // offset
     Optional<XmlElement> paymentOffsetEl = paymentDatesEl.findChild("paymentDaysOffset");
     BusinessDayAdjustment payAdjustment = document.parseBusinessDayAdjustments(
