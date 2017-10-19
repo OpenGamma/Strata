@@ -880,7 +880,7 @@ public final class PeriodicSchedule
       //Find the valid (unadjusted) roll date for the given month or week
       LocalDate unadjustedValidRollDate = rollConvention.adjust(baseDate);
       
-      if(!unadjustedValidRollDate.equals(baseDate)) {
+      if (!unadjustedValidRollDate.equals(baseDate)) {
   
         //If roll date is relative to the month the assumption is that the adjusted date is not in a different month to
         //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically 
