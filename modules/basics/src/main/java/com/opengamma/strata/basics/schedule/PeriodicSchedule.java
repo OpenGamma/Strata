@@ -835,13 +835,9 @@ public final class PeriodicSchedule
     // and day-of-month actually differs
     // and reference data is available
     // and explicit start adjustment must be NONE (not ideal, but meets backwards compatibility)
-    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
-    if (rollDom > 0 &&
-        startDate.getDayOfMonth() != rollDom &&
-        refData != null &&
-        BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
 
-      return calculatedUnadjustedDateFromAdjusted(startDate, rollDom, businessDayAdjustment, refData);
+    if (refData != null && BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
+        return calculatedUnadjustedDateFromAdjusted(startDate, rollConvention, businessDayAdjustment, refData);
     }
     return startDate;
   }
@@ -849,29 +845,60 @@ public final class PeriodicSchedule
   // calculates the applicable end date
   // adjust when numeric roll convention present
   private LocalDate calculatedUnadjustedEndDate(ReferenceData refData) {
-    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
-    if (rollDom > 0 && endDate.getDayOfMonth() != rollDom && refData != null) {
-      return calculatedUnadjustedDateFromAdjusted(endDate, rollDom, calculatedEndDateBusinessDayAdjustment(), refData);
+    if (refData != null) {
+      return calculatedUnadjustedDateFromAdjusted(endDate, rollConvention, calculatedEndDateBusinessDayAdjustment(), refData);
     }
     return endDate;
   }
 
-  // calculates the applicable date based on the roll day-of-month
+  // calculates an unadjusted date
+  // for EOM and day of month roll conventions the unadjusted date is based on the roll day-of-month
+  // for other conventions, the nearest unadjusted roll date is calculated, adjusted and compared to the base date
+  // fhis is known not to work for day of week conventions if the passed adjusted date has been rolled forwards
   private static LocalDate calculatedUnadjustedDateFromAdjusted(
       LocalDate baseDate,
-      int rollDom,
+      RollConvention rollConvention,
       BusinessDayAdjustment businessDayAdjustment,
       ReferenceData refData) {
-
-    int lengthOfMonth = baseDate.lengthOfMonth();
-    int actualDom = Math.min(rollDom, lengthOfMonth);
-    // startDate is already the expected day, then nothing to do
-    if (baseDate.getDayOfMonth() != actualDom) {
-      LocalDate rollImpliedDate = baseDate.withDayOfMonth(actualDom);
-      LocalDate adjDate = businessDayAdjustment.adjust(rollImpliedDate, refData);
-      if (adjDate.equals(baseDate)) {
-        return rollImpliedDate;
+  
+    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
+    
+    if (rollDom > 0 && baseDate.getDayOfMonth() != rollDom) {
+      int lengthOfMonth = baseDate.lengthOfMonth();
+      int actualDom = Math.min(rollDom, lengthOfMonth);
+      // startDate is already the expected day, then nothing to do
+      if (baseDate.getDayOfMonth() != actualDom) {
+        LocalDate rollImpliedDate = baseDate.withDayOfMonth(actualDom);
+        LocalDate adjDate = businessDayAdjustment.adjust(rollImpliedDate, refData);
+        if (adjDate.equals(baseDate)) {
+          return rollImpliedDate;
+        }
       }
+    } else if (rollDom == 0) {
+      //0 roll day implies that the roll date is calculated relative to the month or week
+      
+      //Find the valid (unadjusted) roll date for the given month or week
+      LocalDate unadjustedValidRollDate = rollConvention.adjust(baseDate);
+      
+      if(!unadjustedValidRollDate.equals(baseDate)) {
+  
+        //If roll date is relative to the month the assumption is that the adjusted date is not in a different month to
+        //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically 
+        //not close to the end of the month and hence any reasonable adjustment will not move into the next month.
+        //adjust() method for "day of week" roll conventions will roll forward from the passed date; hence this logic
+        //will not work for "day of week" conventions if the passed baseDate has been adjusted to be after the original 
+        //unadjusted date (i.e. has been rolled forward).
+  
+        //Calculate the expected adjusted roll date, based on the valid unadjusted roll date
+        LocalDate adjustedRollDate = businessDayAdjustment.adjust(unadjustedValidRollDate, refData);
+  
+        //If the adjusted roll date equals the original base date then that the base date is in fact an adjusted date
+        //and hence return the unadjusted date for building the schedule.
+        if (adjustedRollDate.equals(baseDate)) {
+          return unadjustedValidRollDate;
+        }
+      }
+
     }
     return baseDate;
   }
@@ -894,9 +921,8 @@ public final class PeriodicSchedule
     if (firstRegularStartDate == null) {
       return unadjStart;
     }
-    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
-    if (rollDom > 0 && firstRegularStartDate.getDayOfMonth() != rollDom && refData != null) {
-      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollDom, businessDayAdjustment, refData);
+    if (refData != null) {
+      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollConvention, businessDayAdjustment, refData);
     }
     return firstRegularStartDate;
   }
@@ -918,9 +944,8 @@ public final class PeriodicSchedule
     if (lastRegularEndDate == null) {
       return unadjEnd;
     }
-    int rollDom = rollConvention != null ? rollConvention.getDayOfMonth() : 0;
-    if (rollDom > 0 && lastRegularEndDate.getDayOfMonth() != rollDom && refData != null) {
-      return calculatedUnadjustedDateFromAdjusted(lastRegularEndDate, rollDom, businessDayAdjustment, refData);
+    if (refData != null) {
+      return calculatedUnadjustedDateFromAdjusted(lastRegularEndDate, rollConvention, businessDayAdjustment, refData);
     }
     return lastRegularEndDate;
   }
