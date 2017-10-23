@@ -251,13 +251,14 @@ public final class Schedule
    * Gets the complete list of unadjusted dates.
    * <p>
    * This returns a list including all the unadjusted period boundary dates.
-   * This is the same as the unadjusted start date of each period plus the final unadjusted end date.
+   * This is the same as a list containing the unadjusted start date of the schedule
+   * followed by the unadjusted end date of each period.
    * 
    * @return the list of unadjusted dates, in order
    */
   public ImmutableList<LocalDate> getUnadjustedDates() {
     ImmutableList.Builder<LocalDate> dates = ImmutableList.builder();
-    dates.add(periods.get(0).getUnadjustedStartDate());
+    dates.add(getUnadjustedStartDate());
     for (SchedulePeriod period : periods) {
       dates.add(period.getUnadjustedEndDate());
     }
