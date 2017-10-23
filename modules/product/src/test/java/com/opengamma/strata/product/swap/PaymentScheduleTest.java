@@ -14,6 +14,8 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -33,6 +35,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.ScheduleException;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
@@ -50,6 +53,7 @@ public class PaymentScheduleTest {
   private static final LocalDate DATE_04_04 = date(2014, 4, 4);
   private static final LocalDate DATE_04_05 = date(2014, 4, 5);
   private static final LocalDate DATE_04_07 = date(2014, 4, 7);
+  private static final LocalDate DATE_04_30 = date(2014, 4, 30);
   private static final LocalDate DATE_05_05 = date(2014, 5, 5);
   private static final LocalDate DATE_05_06 = date(2014, 5, 6);
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
@@ -60,6 +64,7 @@ public class PaymentScheduleTest {
   private static final SchedulePeriod ACCRUAL3 = SchedulePeriod.of(DATE_03_05, DATE_04_07, DATE_03_05, DATE_04_05);
   private static final SchedulePeriod ACCRUAL4 = SchedulePeriod.of(DATE_04_07, DATE_05_06, DATE_04_05, DATE_05_05);
   private static final SchedulePeriod ACCRUAL3STUB = SchedulePeriod.of(DATE_03_05, DATE_04_04, DATE_03_05, DATE_04_04);
+  private static final SchedulePeriod ACCRUAL4STUB = SchedulePeriod.of(DATE_04_07, DATE_04_30, DATE_04_05, DATE_04_30);
   private static final Schedule ACCRUAL_SCHEDULE_SINGLE = Schedule.builder()
       .periods(ACCRUAL1)
       .frequency(P1M)
@@ -87,6 +92,11 @@ public class PaymentScheduleTest {
       .build();
   private static final Schedule ACCRUAL_SCHEDULE_FINAL_STUB = Schedule.builder()
       .periods(ACCRUAL1, ACCRUAL2, ACCRUAL3STUB)
+      .frequency(P1M)
+      .rollConvention(DAY_5)
+      .build();
+  private static final Schedule ACCRUAL_SCHEDULE_FINAL_STUB_4PERIODS = Schedule.builder()
+      .periods(ACCRUAL1, ACCRUAL2, ACCRUAL3, ACCRUAL4STUB)
       .frequency(P1M)
       .rollConvention(DAY_5)
       .build();
@@ -130,6 +140,24 @@ public class PaymentScheduleTest {
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(schedule, ACCRUAL_SCHEDULE_TERM);
+  }
+
+  public void test_createSchedule_term_badFirstRegular() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(TERM)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_05_05)
+        .build();
+    assertThrowsIllegalArg(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
+  }
+
+  public void test_createSchedule_term_badLastRegular() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(TERM)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .lastRegularEndDate(DATE_05_05)
+        .build();
+    assertThrowsIllegalArg(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
   public void test_createSchedule_fullMerge() {
@@ -205,6 +233,187 @@ public class PaymentScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_createSchedule_firstAndLastDate() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P3M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_01_06)
+        .lastRegularEndDate(DATE_04_07)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(SchedulePeriod.of(DATE_01_06, DATE_04_07, DATE_01_05, DATE_04_05))
+        .frequency(P3M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  public void test_createSchedule_firstAndLastDate_validInitialStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_02_05)
+        .lastRegularEndDate(DATE_04_07)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(
+            SchedulePeriod.of(DATE_01_06, DATE_02_05, DATE_01_05, DATE_02_05),
+            SchedulePeriod.of(DATE_02_05, DATE_04_07, DATE_02_05, DATE_04_05))
+        .frequency(P2M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  public void test_createSchedule_firstAndLastDate_invalidInitialStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_01_06)
+        .lastRegularEndDate(DATE_04_07)
+        .build();
+    assertThrows(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA), ScheduleException.class);
+  }
+
+  public void test_createSchedule_firstAndLastDate_initialAccrualStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_03_05)
+        .lastRegularEndDate(DATE_05_05)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(
+            SchedulePeriod.of(DATE_01_08, DATE_03_05, DATE_01_08, DATE_03_05),
+            SchedulePeriod.of(DATE_03_05, DATE_05_06, DATE_03_05, DATE_05_05))
+        .frequency(P2M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createSchedule_firstDate() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P3M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_01_06)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(SchedulePeriod.of(DATE_01_06, DATE_04_07, DATE_01_05, DATE_04_05))
+        .frequency(P3M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  public void test_createSchedule_firstDate_validInitialStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_02_05)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(
+            SchedulePeriod.of(DATE_01_06, DATE_02_05, DATE_01_05, DATE_02_05),
+            SchedulePeriod.of(DATE_02_05, DATE_04_07, DATE_02_05, DATE_04_05))
+        .frequency(P2M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  public void test_createSchedule_firstDate_invalidInitialStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_01_06)
+        .build();
+    assertThrows(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA), ScheduleException.class);
+  }
+
+  public void test_createSchedule_firstDate_initialAccrualStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .firstRegularStartDate(DATE_03_05)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(
+            SchedulePeriod.of(DATE_01_08, DATE_03_05, DATE_01_08, DATE_03_05),
+            SchedulePeriod.of(DATE_03_05, DATE_05_06, DATE_03_05, DATE_05_05))
+        .frequency(P2M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createSchedule_lastDate() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P3M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .lastRegularEndDate(DATE_04_05)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(SchedulePeriod.of(DATE_01_06, DATE_04_07, DATE_01_05, DATE_04_05))
+        .frequency(P3M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  public void test_createSchedule_lastDate_validFinalStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .lastRegularEndDate(DATE_03_05)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(
+            SchedulePeriod.of(DATE_01_06, DATE_03_05, DATE_01_05, DATE_03_05),
+            SchedulePeriod.of(DATE_03_05, DATE_04_07, DATE_03_05, DATE_04_05))
+        .frequency(P2M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  public void test_createSchedule_lastDate_invalidFinalStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .lastRegularEndDate(DATE_04_05)
+        .build();
+    assertThrows(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA), ScheduleException.class);
+  }
+
+  public void test_createSchedule_lastDate_finalAccrualStub() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(P2M)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .lastRegularEndDate(DATE_03_05)
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_FINAL_STUB_4PERIODS, REF_DATA);
+    Schedule expected = Schedule.builder()
+        .periods(
+            SchedulePeriod.of(DATE_01_06, DATE_03_05, DATE_01_05, DATE_03_05),
+            SchedulePeriod.of(DATE_03_05, DATE_04_30, DATE_03_05, DATE_04_30))
+        .frequency(P2M)
+        .rollConvention(DAY_5)
+        .build();
+    assertEquals(schedule, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
@@ -217,6 +426,8 @@ public class PaymentScheduleTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
         .paymentRelativeTo(PERIOD_START)
         .compoundingMethod(STRAIGHT)
+        .firstRegularStartDate(DATE_01_06)
+        .lastRegularEndDate(DATE_02_05)
         .build();
     coverBeanEquals(test, test2);
   }
