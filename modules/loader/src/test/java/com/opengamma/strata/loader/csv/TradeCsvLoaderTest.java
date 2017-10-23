@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CZPR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
@@ -42,6 +43,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
@@ -239,9 +241,82 @@ public class TradeCsvLoaderTest {
     FailureItem failureItem = loadedData.getFailures().get(0);
     assertEquals(failureItem.getReason().toString(), "PARSING");
     assertEquals(failureItem.getMessage(), "CSV file trade could not be parsed at line 2: Detected two legs having the same direction: Pay, Pay.");
-
     List<Trade> loadedTrades = loadedData.getValue();
     assertEquals(loadedTrades.size(), 0);
+  }
+  
+  public void test_load_fx_forwards_bda() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
+    ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
+    assertEquals(loadedData.getFailures().size(), 0);
+
+    List<Trade> loadedTrades = loadedData.getValue();
+    assertEquals(loadedTrades.size(), 5);
+
+    FxSingleTrade expectedTrade1 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2016-12-06"))
+            .id(StandardId.of("OG", "tradeId1"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, -3850000),
+            CurrencyAmount.of(Currency.INR, 715405000),
+            LocalDate.parse("2017-12-08")))
+        .build();
+    assertEquals(loadedTrades.get(0), expectedTrade1);
+
+    FxSingleTrade expectedTrade2 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-11"))
+            .id(StandardId.of("OG", "tradeId5"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, -6608000),
+            CurrencyAmount.of(Currency.TWD, 95703040),
+            LocalDate.parse("2017-07-13")))
+        .build();
+    assertEquals(loadedTrades.get(1), expectedTrade2);
+
+    FxSingleTrade expectedTrade3 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .tradeTime(LocalTime.of(11, 00))
+            .zone(ZoneId.of("Europe/London"))
+            .id(StandardId.of("OG", "tradeId6"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, -1920000),
+            CurrencyAmount.of(Currency.CZK, 12448000),
+            LocalDate.parse("2018-01-29"),
+            BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA.combinedWith(CZPR))))
+        .build();
+    assertEquals(loadedTrades.get(2), expectedTrade3);
+
+    FxSingleTrade expectedTrade4 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId7"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, -1920000),
+            CurrencyAmount.of(Currency.CZK, 12256000),
+            LocalDate.parse("2018-01-29")))
+        .build();
+    assertEquals(loadedTrades.get(3), expectedTrade4);
+    
+    FxSingleTrade expectedTrade5 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId8"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, 1920000),
+            CurrencyAmount.of(Currency.CZK, -12256000),
+            LocalDate.parse("2018-01-29"),
+            BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUTA.combinedWith(CZPR))))
+        .build();
+    assertEquals(loadedTrades.get(4), expectedTrade5);
   }
 
   //-------------------------------------------------------------------------
