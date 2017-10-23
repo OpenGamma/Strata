@@ -446,12 +446,30 @@ public class PeriodicScheduleTest {
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 1)), IMM},
 
         //IMM with adjusted start dates and various conventions
+        //MF, no stub 
         {date(2018, 3, 22), date(2020, 03, 18), P6M, STUB_NONE, IMM, BDA_JPY_MF, null, null, BDA_NONE,
             ImmutableList.of(date(2018, 3, 21), date(2018, 9, 19), date(2019, 3, 20), date(2019, 9, 18), date(2020, 3, 18)),
             ImmutableList.of(date(2018, 3, 22), date(2018, 9, 19), date(2019, 3, 20), date(2019, 9, 18), date(2020, 3, 18)), IMM},
+        //Preceding, no stub
         {date(2018, 3, 20), date(2019, 03, 20), P6M, STUB_NONE, IMM, BDA_JPY_P, null, null, BDA_NONE,
             ImmutableList.of(date(2018, 3, 21), date(2018, 9, 19), date(2019, 3, 20)),
             ImmutableList.of(date(2018, 3, 20), date(2018, 9, 19), date(2019, 3, 20)), IMM},
+        //MF, null stub
+        {date(2018, 3, 22), date(2019, 03, 20), P6M, null, IMM, BDA_JPY_MF, null, null, BDA_NONE,
+            ImmutableList.of(date(2018, 3, 21), date(2018, 9, 19), date(2019, 3, 20)),
+            ImmutableList.of(date(2018, 3, 22), date(2018, 9, 19), date(2019, 3, 20)), IMM},
+        //Explicit long front stub with (adjusted) first regular start date
+        {date(2017, 9, 2), date(2018, 9, 19), P6M, LONG_INITIAL, IMM, BDA_JPY_MF, date(2018, 3, 22), null, BDA_NONE,
+            ImmutableList.of(date(2017, 9, 2), date(2018, 3, 21), date(2018, 9, 19)),
+            ImmutableList.of(date(2017, 9, 2), date(2018, 3, 22), date(2018, 9, 19)), IMM},
+        //Implicit short front stub with (adjusted) first regular start date
+        {date(2018, 1, 2), date(2018, 9, 19), P6M, null, IMM, BDA_JPY_MF, date(2018, 3, 22), null, BDA_NONE,
+            ImmutableList.of(date(2018, 1, 2), date(2018, 3, 21), date(2018, 9, 19)),
+            ImmutableList.of(date(2018, 1, 2), date(2018, 3, 22), date(2018, 9, 19)), IMM},
+        //Implicit back stub with (adjusted) last regular start date
+        {date(2017, 3, 15), date(2018, 5, 19), P6M, null, IMM, BDA_JPY_MF, null, date(2018, 3, 22), BDA_NONE,
+            ImmutableList.of(date(2017, 3, 15), date(2017, 9, 20), date(2018, 3, 21), date(2018, 5, 19)),
+            ImmutableList.of(date(2017, 3, 15), date(2017, 9, 20), date(2018, 3, 22), date(2018, 5, 21)), IMM},
         
         // Day30 rolling with February
         {date(2015, 1, 30), date(2015, 4, 30), P1M, STUB_NONE, DAY_30, BDA, null, null, null,
