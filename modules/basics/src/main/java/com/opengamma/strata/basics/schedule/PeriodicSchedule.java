@@ -830,11 +830,16 @@ public final class PeriodicSchedule
   // applies de facto rule where EOM means last business day for startDate
   // and similar rule for numeric roll conventions
   // http://www.fpml.org/forums/topic/can-a-roll-convention-imply-a-stub/#post-7659
+  // For 'StandardRollConventions', such as IMM, adjusted date is identified by finding the closest valid roll date
+  // and applying the the trade level business day adjustment
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
-    // change date if numeric roll convention
-    // and day-of-month actually differs
-    // and reference data is available
+    // change date if 
+    // reference data is available
     // and explicit start adjustment must be NONE (not ideal, but meets backwards compatibility)
+    // and either
+    // numeric roll convention and day-of-month actually differs 
+    // or  
+    // StandardDayConvention is used and the day is not a valid roll date
 
     if (refData != null && BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
         return calculatedUnadjustedDateFromAdjusted(startDate, rollConvention, businessDayAdjustment, refData);
@@ -843,7 +848,6 @@ public final class PeriodicSchedule
   }
 
   // calculates the applicable end date
-  // adjust when numeric roll convention present
   private LocalDate calculatedUnadjustedEndDate(ReferenceData refData) {
     if (refData != null) {
       return calculatedUnadjustedDateFromAdjusted(endDate, rollConvention, calculatedEndDateBusinessDayAdjustment(), refData);
@@ -854,7 +858,7 @@ public final class PeriodicSchedule
   // calculates an unadjusted date
   // for EOM and day of month roll conventions the unadjusted date is based on the roll day-of-month
   // for other conventions, the nearest unadjusted roll date is calculated, adjusted and compared to the base date
-  // this is known not to work for day of week conventions if the passed adjusted date has been rolled forwards
+  // this is known not to work for day of week conventions if the passed date has been adjusted forwards
   private static LocalDate calculatedUnadjustedDateFromAdjusted(
       LocalDate baseDate,
       RollConvention rollConvention,
