@@ -36,6 +36,7 @@ import com.opengamma.strata.product.etd.EtdContractSpec;
 import com.opengamma.strata.product.etd.EtdContractSpecId;
 import com.opengamma.strata.product.etd.EtdFuturePosition;
 import com.opengamma.strata.product.etd.EtdFutureSecurity;
+import com.opengamma.strata.product.etd.EtdIdUtils;
 import com.opengamma.strata.product.etd.EtdOptionPosition;
 import com.opengamma.strata.product.etd.EtdOptionSecurity;
 import com.opengamma.strata.product.etd.EtdOptionType;
@@ -48,6 +49,26 @@ import com.opengamma.strata.product.etd.EtdVariant;
  */
 @Test
 public class PositionCsvLoaderTest {
+
+  private static final EtdContractCode FGBL = EtdContractCode.of("FGBL");
+  private static final EtdContractCode OGBL = EtdContractCode.of("OGBL");
+
+  private static final SecurityPosition SECURITY2 = SecurityPosition.builder()
+      .info(PositionInfo.builder()
+          .id(StandardId.of("OG", "123432"))
+          .build())
+      .securityId(SecurityId.of("BBG", "MSFT"))
+      .longQuantity(20d)
+      .shortQuantity(0d)
+      .build();
+  private static final SecurityPosition SECURITY1 = SecurityPosition.builder()
+      .info(PositionInfo.builder()
+          .id(StandardId.of("OG", "123431"))
+          .build())
+      .securityId(SecurityId.of("OG-Security", "AAPL"))
+      .longQuantity(12d)
+      .shortQuantity(14.5d)
+      .build();
 
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/positions.csv");
@@ -69,25 +90,8 @@ public class PositionCsvLoaderTest {
         .collect(toImmutableList());
     assertEquals(filtered.size(), 2);
 
-    SecurityPosition expected1 = SecurityPosition.builder()
-        .info(PositionInfo.builder()
-            .id(StandardId.of("OG", "123431"))
-            .build())
-        .securityId(SecurityId.of("OG-Security", "AAPL"))
-        .longQuantity(12d)
-        .shortQuantity(14.5d)
-        .build();
-    assertBeanEquals(expected1, filtered.get(0));
-
-    SecurityPosition expected2 = SecurityPosition.builder()
-        .info(PositionInfo.builder()
-            .id(StandardId.of("OG", "123432"))
-            .build())
-        .securityId(SecurityId.of("BBG", "MSFT"))
-        .longQuantity(20d)
-        .shortQuantity(0d)
-        .build();
-    assertBeanEquals(expected2, filtered.get(1));
+    assertBeanEquals(SECURITY1, filtered.get(0));
+    assertBeanEquals(SECURITY2, filtered.get(1));
   }
 
   //-------------------------------------------------------------------------
@@ -97,7 +101,7 @@ public class PositionCsvLoaderTest {
         .id(specId)
         .type(EtdType.FUTURE)
         .exchangeId(ExchangeIds.ECAG)
-        .contractCode(EtdContractCode.of("FGBL"))
+        .contractCode(FGBL)
         .description("Dummy")
         .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
         .build();
@@ -156,7 +160,7 @@ public class PositionCsvLoaderTest {
         .id(specId)
         .type(EtdType.OPTION)
         .exchangeId(ExchangeIds.ECAG)
-        .contractCode(EtdContractCode.of("OGBL"))
+        .contractCode(OGBL)
         .description("Dummy")
         .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
         .build();
@@ -206,6 +210,97 @@ public class PositionCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_parseLightweight() {
+    PositionCsvLoader test = PositionCsvLoader.standard();
+    ValueWithFailures<List<SecurityPosition>> trades = test.parseLightweight(ImmutableList.of(FILE.getCharSource()));
+    List<SecurityPosition> filtered = trades.getValue();
+    assertEquals(filtered.size(), 9);
+
+    assertBeanEquals(SECURITY1, filtered.get(0));
+    assertBeanEquals(SECURITY2, filtered.get(1));
+
+    SecurityPosition expected3 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123421"))
+            .build())
+        .securityId(EtdIdUtils.futureId(ExchangeIds.ECAG, FGBL, YearMonth.of(2017, 6), EtdVariant.ofMonthly()))
+        .longQuantity(15d)
+        .shortQuantity(2d)
+        .build();
+    assertBeanEquals(expected3, filtered.get(2));
+
+    SecurityPosition expected4 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123422"))
+            .build())
+        .securityId(EtdIdUtils.futureId(
+            ExchangeIds.ECAG, FGBL, YearMonth.of(2017, 6), EtdVariant.ofFlexFuture(13, EtdSettlementType.CASH)))
+        .longQuantity(0d)
+        .shortQuantity(13d)
+        .build();
+    assertBeanEquals(expected4, filtered.get(3));
+
+    SecurityPosition expected5 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123423"))
+            .build())
+        .securityId(EtdIdUtils.futureId(ExchangeIds.ECAG, FGBL, YearMonth.of(2017, 6), EtdVariant.ofWeekly(2)))
+        .longQuantity(0d)
+        .shortQuantity(20d)
+        .build();
+    assertBeanEquals(expected5, filtered.get(4));
+
+    SecurityPosition expected6 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123424"))
+            .build())
+        .securityId(EtdIdUtils.futureId(ExchangeIds.ECAG, FGBL, YearMonth.of(2017, 6), EtdVariant.ofDaily(3)))
+        .longQuantity(30d)
+        .shortQuantity(0d)
+        .build();
+    assertBeanEquals(expected6, filtered.get(5));
+
+    SecurityPosition expected7 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123431"))
+            .build())
+        .securityId(EtdIdUtils.optionId(
+            ExchangeIds.ECAG, OGBL, YearMonth.of(2017, 6), EtdVariant.ofMonthly(), 0, PutCall.PUT, 3d))
+        .longQuantity(15d)
+        .shortQuantity(2d)
+        .build();
+    assertBeanEquals(expected7, filtered.get(6));
+
+    SecurityPosition expected8 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123432"))
+            .build())
+        .securityId(EtdIdUtils.optionId(
+            ExchangeIds.ECAG,
+            OGBL,
+            YearMonth.of(2017, 6),
+            EtdVariant.ofFlexOption(13, EtdSettlementType.CASH, EtdOptionType.AMERICAN),
+            0,
+            PutCall.CALL,
+            4d))
+        .longQuantity(0d)
+        .shortQuantity(13d)
+        .build();
+    assertBeanEquals(expected8, filtered.get(7));
+
+    SecurityPosition expected9 = SecurityPosition.builder()
+        .info(PositionInfo.builder()
+            .id(StandardId.of("OG", "123433"))
+            .build())
+        .securityId(EtdIdUtils.optionId(
+            ExchangeIds.ECAG, OGBL, YearMonth.of(2017, 6), EtdVariant.ofWeekly(2), 0, PutCall.PUT, 5.1d))
+        .longQuantity(0d)
+        .shortQuantity(20d)
+        .build();
+    assertBeanEquals(expected9, filtered.get(8));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_invalidNoHeader() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("")));
@@ -242,7 +337,7 @@ public class PositionCsvLoaderTest {
         .id(specId)
         .type(EtdType.FUTURE)
         .exchangeId(ExchangeIds.ECAG)
-        .contractCode(EtdContractCode.of("FGBL"))
+        .contractCode(FGBL)
         .description("Dummy")
         .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
         .build();

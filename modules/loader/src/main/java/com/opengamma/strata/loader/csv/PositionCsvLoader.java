@@ -31,8 +31,10 @@ import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.PositionInfoBuilder;
 import com.opengamma.strata.product.SecurityPosition;
+import com.opengamma.strata.product.etd.EtdContractSpec;
 import com.opengamma.strata.product.etd.EtdContractSpecId;
 import com.opengamma.strata.product.etd.EtdFuturePosition;
+import com.opengamma.strata.product.etd.EtdIdUtils;
 import com.opengamma.strata.product.etd.EtdOptionPosition;
 import com.opengamma.strata.product.etd.EtdOptionType;
 import com.opengamma.strata.product.etd.EtdPosition;
@@ -230,7 +232,12 @@ public final class PositionCsvLoader {
 
   //-------------------------------------------------------------------------
   /**
-   * Parses one or more CSV format position files.
+   * Parses one or more CSV format position files, returning ETD futures and
+   * options using information from reference data.
+   * <p>
+   * When an ETD row is found, reference data is used to find the correct security.
+   * This uses {@link EtdContractSpec} by default, although this can be overridden in the resolver.
+   * Futures and options will be returned as {@link EtdFuturePosition} and {@link EtdOptionPosition}.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
    * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
@@ -243,9 +250,28 @@ public final class PositionCsvLoader {
   }
 
   /**
+   * Parses one or more CSV format position files, returning ETD futures and
+   * options by identifier without using reference data.
+   * <p>
+   * When an ETD row is found, {@link EtdIdUtils} is used to create an identifier.
+   * The identifier is used to create a {@link SecurityPosition}, with no call to reference data.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
+   * 
+   * @param charSources  the CSV character sources
+   * @return the loaded positions, all errors are captured in the result
+   */
+  public ValueWithFailures<List<SecurityPosition>> parseLightweight(Collection<CharSource> charSources) {
+    return parse(charSources, SecurityPosition.class);
+  }
+
+  /**
    * Parses one or more CSV format position files.
    * <p>
    * A type is specified to filter the positions.
+   * If the type is {@link SecurityPosition}, then ETD parsing will proceed as per {@link #parseLightweight(Collection)}.
+   * Otherwise, ETD parsing will proceed as per {@link #parse(Collection)}.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
    * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
@@ -306,13 +332,17 @@ public final class PositionCsvLoader {
             case "FUT":
             case "FUTURE":
               if (posType == EtdPosition.class || posType == EtdFuturePosition.class || posType == Position.class) {
-                positions.add(posType.cast(SecurityCsvLoader.parseFuture(row, info, resolver)));
+                positions.add(posType.cast((Position) resolver.parseEtdFuturePosition(row, info)));
+              } else if (posType == SecurityPosition.class) {
+                positions.add(posType.cast(resolver.parseEtdFutureSecurityPosition(row, info)));
               }
               break;
             case "OPT":
             case "OPTION":
               if (posType == EtdPosition.class || posType == EtdOptionPosition.class || posType == Position.class) {
-                positions.add(posType.cast(SecurityCsvLoader.parseOption(row, info, resolver)));
+                positions.add(posType.cast(resolver.parseEtdOptionPosition(row, info)));
+              } else if (posType == SecurityPosition.class) {
+                positions.add(posType.cast(resolver.parseEtdOptionSecurityPosition(row, info)));
               }
               break;
             default:
@@ -322,9 +352,13 @@ public final class PositionCsvLoader {
           }
         } else {
           // infer type
-          Position position = SecurityCsvLoader.parsePosition(row, info, resolver);
-          if (posType.isInstance(position)) {
-            positions.add(posType.cast(position));
+          if (posType == SecurityPosition.class) {
+            positions.add(posType.cast(SecurityCsvLoader.parsePositionLightweight(row, info, resolver)));
+          } else {
+            Position position = SecurityCsvLoader.parsePosition(row, info, resolver);
+            if (posType.isInstance(position)) {
+              positions.add(posType.cast(position));
+            }
           }
         }
       } catch (RuntimeException ex) {

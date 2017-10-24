@@ -14,9 +14,6 @@ import com.opengamma.strata.collect.ArgChecker;
 @SuppressWarnings("deprecation")
 final class StandardCsvInfoResolver implements CsvInfoResolver, TradeCsvInfoResolver, PositionCsvInfoResolver {
 
-  static final String EXCHANGE_FIELD = "Exchange";
-  static final String CONTRACT_CODE_FIELD = "Contract Code";
-
   /**
    * The reference data.
    */

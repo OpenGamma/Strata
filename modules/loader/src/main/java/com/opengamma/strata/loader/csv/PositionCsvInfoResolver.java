@@ -5,18 +5,37 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_CODE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.DEFAULT_OPTION_VERSION_NUMBER;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXCHANGE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.VERSION_FIELD;
+
+import java.time.YearMonth;
+
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.Position;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.PositionInfoBuilder;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.common.ExchangeId;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.etd.EtdContractCode;
 import com.opengamma.strata.product.etd.EtdContractSpec;
 import com.opengamma.strata.product.etd.EtdContractSpecId;
 import com.opengamma.strata.product.etd.EtdFuturePosition;
+import com.opengamma.strata.product.etd.EtdFutureSecurity;
 import com.opengamma.strata.product.etd.EtdIdUtils;
 import com.opengamma.strata.product.etd.EtdOptionPosition;
+import com.opengamma.strata.product.etd.EtdOptionSecurity;
 import com.opengamma.strata.product.etd.EtdType;
+import com.opengamma.strata.product.etd.EtdVariant;
 
 /**
  * Resolves additional information when parsing position CSV files.
@@ -114,19 +133,109 @@ public interface PositionCsvInfoResolver {
     return position;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Parses the contract specification from the row.
    * 
    * @param row  the CSV row to parse
    * @param type  the ETD type
-   * @return the loaded positions, position-level errors are captured in the result
+   * @return the contract specification
+   * @throws IllegalArgumentException if the specification is not found
    */
   public default EtdContractSpec parseEtdContractSpec(CsvRow row, EtdType type) {
-    ExchangeId exchangeId = ExchangeId.of(row.getValue(StandardCsvInfoResolver.EXCHANGE_FIELD));
-    EtdContractCode contractCode = EtdContractCode.of(row.getValue(StandardCsvInfoResolver.CONTRACT_CODE_FIELD));
+    ExchangeId exchangeId = ExchangeId.of(row.getValue(EXCHANGE_FIELD));
+    EtdContractCode contractCode = EtdContractCode.of(row.getValue(CONTRACT_CODE_FIELD));
     EtdContractSpecId specId = EtdIdUtils.contractSpecId(type, exchangeId, contractCode);
     return getReferenceData().findValue(specId).orElseThrow(
         () -> new IllegalArgumentException("ETD contract specification not found in reference data: " + specId));
+  }
+
+  /**
+   * Parses an ETD future position from the CSV row.
+   * <p>
+   * In most cases this will return {@link EtdFuturePosition}, however for flexibility
+   * it is allowed to return any position, such as {@link SecurityPosition}.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the position information
+   * @return the parsed position
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  public default EtdFuturePosition parseEtdFuturePosition(CsvRow row, PositionInfo info) {
+    EtdContractSpec contract = parseEtdContractSpec(row, EtdType.FUTURE);
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE);
+    EtdFutureSecurity security = contract.createFuture(variant.getFirst(), variant.getSecond());
+    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
+    EtdFuturePosition position = EtdFuturePosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
+    return completePosition(row, position, contract);
+  }
+
+  /**
+   * Parses an ETD future position from the CSV row.
+   * <p>
+   * In most cases this will return {@link EtdOptionPosition}, however for flexibility
+   * it is allowed to return any position, such as {@link SecurityPosition}.
+   * 
+   * @param row  the CSV row
+   * @param info  the position info
+   * @return the parsed position
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  public default Position parseEtdOptionPosition(CsvRow row, PositionInfo info) {
+    EtdContractSpec contract = parseEtdContractSpec(row, EtdType.OPTION);
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
+    int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
+    PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
+    double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
+    EtdOptionSecurity security = contract.createOption(variant.getFirst(), variant.getSecond(), version, putCall, strikePrice);
+    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
+    EtdOptionPosition position = EtdOptionPosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
+    return completePosition(row, position, contract);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses an ETD future position from the CSV row without using reference data.
+   * <p>
+   * This returns a {@link SecurityPosition} based on a standard ETD identifier from {@link EtdIdUtils}.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the position information
+   * @return the loaded positions, position-level errors are captured in the result
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  public default SecurityPosition parseEtdFutureSecurityPosition(CsvRow row, PositionInfo info) {
+    ExchangeId exchangeId = ExchangeId.of(row.getValue(EXCHANGE_FIELD));
+    EtdContractCode contractCode = EtdContractCode.of(row.getValue(CONTRACT_CODE_FIELD));
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE);
+    SecurityId securityId = EtdIdUtils.futureId(exchangeId, contractCode, variant.getFirst(), variant.getSecond());
+    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
+    SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
+    return completePosition(row, position);
+  }
+
+  /**
+   * Parses an ETD option position from the CSV row without using reference data.
+   * <p>
+   * This returns a {@link SecurityPosition} based on a standard ETD identifier from {@link EtdIdUtils}.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the position information
+   * @return the loaded positions, position-level errors are captured in the result
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  public default SecurityPosition parseEtdOptionSecurityPosition(CsvRow row, PositionInfo info) {
+    ExchangeId exchangeId = ExchangeId.of(row.getValue(EXCHANGE_FIELD));
+    EtdContractCode contractCode = EtdContractCode.of(row.getValue(CONTRACT_CODE_FIELD));
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
+    int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
+    PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
+    double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
+    SecurityId securityId =
+        EtdIdUtils.optionId(exchangeId, contractCode, variant.getFirst(), variant.getSecond(), version, putCall, strikePrice);
+    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
+    SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
+    return completePosition(row, position);
   }
 
 }
