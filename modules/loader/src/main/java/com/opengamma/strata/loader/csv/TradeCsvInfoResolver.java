@@ -11,6 +11,7 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -119,6 +120,21 @@ public interface TradeCsvInfoResolver {
    */
   public default TermDepositTrade completeTrade(CsvRow row, TermDepositTrade trade) {
     // do nothing
+    return trade;
+  }
+
+  /**
+   * Completes the FX Forward trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade, as an instance of {@link FxSingleTrade}
+   * @return the updated trade, as an instance of {@link FxSingleTrade}
+   */
+  public default FxSingleTrade completeTrade(CsvRow row, FxSingleTrade trade) {
+    //do nothing
     return trade;
   }
 
