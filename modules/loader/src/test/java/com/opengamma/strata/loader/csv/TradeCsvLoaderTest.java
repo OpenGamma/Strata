@@ -178,7 +178,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_load_fra_cpty() {
+  public void test_load_fra_bothCounterpartyColumnsPresent() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY);
 
@@ -209,7 +209,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(date(2017, 6, 1))
             .tradeTime(LocalTime.of(12, 35))
             .zone(ZoneId.of("Europe/London"))
-            .counterparty(StandardId.of("CPTY", "Bank B"))
+            .counterparty(StandardId.of("OG-Counterparty", "Bank B"))
             .build())
         .build();
     assertBeanEquals(expected2, filtered.get(1));
@@ -234,7 +234,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_load_fra_cpty2() {
+  public void test_load_fra_counterpartyColumnPresentNoScheme() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY2);
 
