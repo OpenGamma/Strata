@@ -147,6 +147,8 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * The following columns are supported for 'FX Singles' (FX Spots and FX Forwards) trades:
  * <ul>
  * <li>Payment Date - mandatory
+ * <li>Payment Date Convention - optional field. See {@link com.opengamma.strata.basics.date.BusinessDayConventions} for possible values.
+ * <li>Payment Date Calendar - optional field. See {@link com.opengamma.strata.basics.date.HolidayCalendarIds} for possible values.
  * <li>Leg 1 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
  * <li>Leg 1 Currency - mandatory
  * <li>Leg 1 Notional - mandatory
