@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
@@ -57,6 +58,10 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  *   identifier is unique within, such as 'OG-Trade'
  * <li>The 'Id' column is optional, and is the identifier of the trade,
  *   such as 'FRA12345'
+ * <li>The 'Counterparty Scheme' column is optional, and is the name of the scheme that the trade
+ *   identifier is unique within, such as 'OG-Counterparty'
+ * <li>The 'Counterparty' column is optional, and is the identifier of the trade's counterparty,
+ *   such as 'Bank-A'
  * <li>The 'Trade Date' column is optional, and is the date that the trade occurred,
  *   such as '2017-08-01'
  * <li>The 'Trade Time' column is optional, and is the time of day that the trade occurred,
@@ -161,6 +166,8 @@ public final class TradeCsvLoader {
 
   // default schemes
   private static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
+  private static final String DEFAULT_CTPY_SCHEME = "OG-Counterparty";
+  private static final String EMPTY = "";
 
   // shared CSV headers
   static final String TRADE_DATE_FIELD = "Trade Date";
@@ -183,6 +190,8 @@ public final class TradeCsvLoader {
   private static final String TYPE_FIELD = "Strata Trade Type";
   private static final String ID_SCHEME_FIELD = "Id Scheme";
   private static final String ID_FIELD = "Id";
+  private static final String CTPY_SCHEME_FIELD = "Counterparty Scheme";
+  private static final String CTPY_FIELD = "Counterparty";
   private static final String TRADE_TIME_FIELD = "Trade Time";
   private static final String TRADE_ZONE_FIELD = "Trade Zone";
 
@@ -424,6 +433,11 @@ public final class TradeCsvLoader {
     TradeInfoBuilder infoBuilder = TradeInfo.builder();
     String scheme = row.findField(ID_SCHEME_FIELD).orElse(DEFAULT_TRADE_SCHEME);
     row.findValue(ID_FIELD).ifPresent(id -> infoBuilder.id(StandardId.of(scheme, id)));
+    String schemeCpty = row.findField(CTPY_SCHEME_FIELD).orElse(DEFAULT_CTPY_SCHEME);
+    Optional<String> cptyOption = row.findValue(CTPY_FIELD);
+    if (cptyOption.isPresent() && !cptyOption.get().equals(EMPTY)) {
+      infoBuilder.counterparty(StandardId.of(schemeCpty, cptyOption.get()));
+    }
     row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));

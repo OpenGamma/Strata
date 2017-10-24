@@ -104,6 +104,10 @@ public class TradeCsvLoaderTest {
 
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades.csv");
+  private static final ResourceLocator FILE_CPTY =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades-cpty.csv");
+  private static final ResourceLocator FILE_CPTY2 =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades-cpty2.csv");
 
   //-------------------------------------------------------------------------
   public void test_isKnownFormat() {
@@ -150,6 +154,118 @@ public class TradeCsvLoaderTest {
             .tradeDate(date(2017, 6, 1))
             .tradeTime(LocalTime.of(12, 35))
             .zone(ZoneId.of("Europe/London"))
+            .build())
+        .build();
+    assertBeanEquals(expected2, filtered.get(1));
+
+    FraTrade expected3 = FraTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123403"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(Fra.builder()
+            .buySell(SELL)
+            .startDate(date(2017, 8, 1))
+            .endDate(date(2018, 1, 15))
+            .notional(1_000_000)
+            .fixedRate(0.0055)
+            .index(IborIndices.GBP_LIBOR_3M)
+            .indexInterpolated(IborIndices.GBP_LIBOR_6M)
+            .dayCount(DayCounts.ACT_360)
+            .build())
+        .build();
+    assertBeanEquals(expected3, filtered.get(2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_fra_cpty() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY);
+
+    List<FraTrade> filtered = trades.getValue().stream()
+        .filter(FraTrade.class::isInstance)
+        .map(FraTrade.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 3);
+
+    FraTrade expected1 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
+        .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123401"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(11, 5))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("CPTY", "Bank A"))
+            .build())
+        .build();
+    assertBeanEquals(expected1, filtered.get(0));
+
+    FraTrade expected2 = FraConventions.of(IborIndices.GBP_LIBOR_6M)
+        .toTrade(date(2017, 6, 1), date(2017, 8, 1), date(2018, 2, 1), date(2017, 8, 1), SELL, 1_000_000, 0.007)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123402"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(12, 35))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("CPTY", "Bank B"))
+            .build())
+        .build();
+    assertBeanEquals(expected2, filtered.get(1));
+
+    FraTrade expected3 = FraTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123403"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(Fra.builder()
+            .buySell(SELL)
+            .startDate(date(2017, 8, 1))
+            .endDate(date(2018, 1, 15))
+            .notional(1_000_000)
+            .fixedRate(0.0055)
+            .index(IborIndices.GBP_LIBOR_3M)
+            .indexInterpolated(IborIndices.GBP_LIBOR_6M)
+            .dayCount(DayCounts.ACT_360)
+            .build())
+        .build();
+    assertBeanEquals(expected3, filtered.get(2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_fra_cpty2() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY2);
+
+    List<FraTrade> filtered = trades.getValue().stream()
+        .filter(FraTrade.class::isInstance)
+        .map(FraTrade.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 3);
+
+    FraTrade expected1 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
+        .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123401"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(11, 5))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("OG-Counterparty", "Bank A"))
+            .build())
+        .build();
+    assertBeanEquals(expected1, filtered.get(0));
+
+    FraTrade expected2 = FraConventions.of(IborIndices.GBP_LIBOR_6M)
+        .toTrade(date(2017, 6, 1), date(2017, 8, 1), date(2018, 2, 1), date(2017, 8, 1), SELL, 1_000_000, 0.007)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123402"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(12, 35))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("OG-Counterparty", "Bank B"))
             .build())
         .build();
     assertBeanEquals(expected2, filtered.get(1));
