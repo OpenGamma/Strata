@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
@@ -166,8 +165,7 @@ public final class TradeCsvLoader {
 
   // default schemes
   private static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
-  private static final String DEFAULT_CTPY_SCHEME = "OG-Counterparty";
-  private static final String EMPTY = "";
+  private static final String DEFAULT_CPTY_SCHEME = "OG-Counterparty";
 
   // shared CSV headers
   static final String TRADE_DATE_FIELD = "Trade Date";
@@ -190,8 +188,8 @@ public final class TradeCsvLoader {
   private static final String TYPE_FIELD = "Strata Trade Type";
   private static final String ID_SCHEME_FIELD = "Id Scheme";
   private static final String ID_FIELD = "Id";
-  private static final String CTPY_SCHEME_FIELD = "Counterparty Scheme";
-  private static final String CTPY_FIELD = "Counterparty";
+  private static final String CPTY_SCHEME_FIELD = "Counterparty Scheme";
+  private static final String CPTY_FIELD = "Counterparty";
   private static final String TRADE_TIME_FIELD = "Trade Time";
   private static final String TRADE_ZONE_FIELD = "Trade Zone";
 
@@ -433,11 +431,8 @@ public final class TradeCsvLoader {
     TradeInfoBuilder infoBuilder = TradeInfo.builder();
     String scheme = row.findField(ID_SCHEME_FIELD).orElse(DEFAULT_TRADE_SCHEME);
     row.findValue(ID_FIELD).ifPresent(id -> infoBuilder.id(StandardId.of(scheme, id)));
-    String schemeCpty = row.findField(CTPY_SCHEME_FIELD).orElse(DEFAULT_CTPY_SCHEME);
-    Optional<String> cptyOption = row.findValue(CTPY_FIELD);
-    if (cptyOption.isPresent() && !cptyOption.get().equals(EMPTY)) {
-      infoBuilder.counterparty(StandardId.of(schemeCpty, cptyOption.get()));
-    }
+    String schemeCpty = row.findValue(CPTY_SCHEME_FIELD).orElse(DEFAULT_CPTY_SCHEME);
+    row.findValue(CPTY_FIELD).ifPresent(cpty -> infoBuilder.counterparty(StandardId.of(schemeCpty, cpty)));
     row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));
