@@ -23,6 +23,7 @@ import com.opengamma.strata.collect.Unchecked;
  * Each entry may be quoted using a double quote.
  * If an entry contains a double quote, comma or trimmable whitespace, it will be quoted.
  * Two double quotes will be used to escape a double quote.
+ * If it starts with an expression character, the quote section will be preceeded by equals.
  */
 public final class CsvOutput {
 
@@ -132,17 +133,28 @@ public final class CsvOutput {
     }
   }
 
-  // quoting is required if entry contains quote, comma or trimmable whitespace
-  private boolean isQuotingRequired(String line) {
-    return line.indexOf('"') >= 0 || line.indexOf(',') >= 0 || line.trim().length() != line.length();
+  // quoting is required if entry contains quote, comma, trimmable whitespace, or starts with an expression character
+  private boolean isQuotingRequired(String entry) {
+    return entry.indexOf('"') >= 0 ||
+        entry.indexOf(',') >= 0 ||
+        entry.trim().length() != entry.length() ||
+        isExpressionPrefix(entry);
+  }
+
+  private boolean isExpressionPrefix(String entry) {
+    char first = entry.length() == 0 ? ' ' : entry.charAt(0);
+    return first == '=' || first == '+' || first == '-' || first == '@';
   }
 
   // quotes the entry
   private String quotedEntry(String entry) {
     StringBuilder buf = new StringBuilder(entry.length() + 8);
-    buf.append('"')
-        .append(entry.replace("\"", "\"\""))
-        .append('"');
+    if (isExpressionPrefix(entry)) {
+      buf.append('=');
+    }
+    buf.append('"');
+    buf.append(entry.replace("\"", "\"\""));
+    buf.append('"');
     return buf.toString();
   }
 
