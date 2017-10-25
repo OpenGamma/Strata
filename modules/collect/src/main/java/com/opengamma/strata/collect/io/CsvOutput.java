@@ -142,7 +142,10 @@ public final class CsvOutput {
   }
 
   private boolean isExpressionPrefix(String entry) {
-    char first = entry.length() == 0 ? ' ' : entry.charAt(0);
+    if (entry.isEmpty()) {
+      return false;
+    }
+    char first = entry.charAt(0);
     return first == '=' || first == '+' || first == '-' || first == '@';
   }
 
