@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.fpml;
 
+import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -14,8 +15,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
@@ -23,6 +26,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.index.IborIndices.AUD_BBSW_3M;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
@@ -58,6 +62,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteSource;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
@@ -124,6 +129,8 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResetSchedule;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.Swaption;
@@ -1154,6 +1161,82 @@ public class FpmlDocumentParserTest {
         .build();
     assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
     assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  public void iborFloatingLegNoResetDates() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ibor-no-reset-dates.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), SwapTrade.class);
+    SwapTrade swapTrade = (SwapTrade) trade;
+    Swap swap = swapTrade.getProduct();
+  
+    List<SwapLeg> floatLegs = swap.getLegs(SwapLegType.IBOR);
+    assertEquals(floatLegs.size(), 1);
+    SwapLeg floatLeg = Iterables.getOnlyElement(floatLegs);
+    
+    RateCalculationSwapLeg expectedFloatLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PayReceive.PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2018, 9, 28))
+            .endDate(date(2019, 9, 29))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY))
+            .frequency(Frequency.P3M)
+            .rollConvention(RollConvention.ofDayOfMonth(29))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P3M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, AUSY)))
+            .build())
+        .notionalSchedule(NotionalSchedule.of(AUD, 500000000))
+        .calculation(IborRateCalculation.builder()
+            .index(AUD_BBSW_3M)
+            .dayCount(ACT_365F)
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-1, AUSY))
+            .build())
+        .build();   
+    assertEqualsBean((Bean) floatLeg, expectedFloatLeg);
+  }
+  
+  public void oisFloatingLegNoResetDates() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ois-no-reset-dates.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), SwapTrade.class);
+    SwapTrade swapTrade = (SwapTrade) trade;
+    Swap swap = swapTrade.getProduct();
+    
+    List<SwapLeg> oisLegs = swap.getLegs(SwapLegType.OVERNIGHT);
+    assertEquals(oisLegs.size(), 1);
+    SwapLeg oisLeg = Iterables.getOnlyElement(oisLegs);
+  
+    RateCalculationSwapLeg expectedOisLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2001, 1, 29))
+            .endDate(date(2001, 4, 29))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA))
+            .frequency(Frequency.TERM)
+            .rollConvention(RollConventions.NONE)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.TERM)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(1, EUTA))
+            .build())
+        .notionalSchedule(NotionalSchedule.of(EUR, 100000000))
+        .calculation(OvernightRateCalculation.builder()
+            .dayCount(ACT_360)
+            .index(EUR_EONIA)
+            .build())
+        .build();
+    assertEqualsBean((Bean) oisLeg, expectedOisLeg);
   }
 
   //-------------------------------------------------------------------------
