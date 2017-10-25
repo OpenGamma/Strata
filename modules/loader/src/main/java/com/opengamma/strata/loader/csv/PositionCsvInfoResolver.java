@@ -153,15 +153,17 @@ public interface PositionCsvInfoResolver {
   /**
    * Parses an ETD future position from the CSV row.
    * <p>
-   * In most cases this will return {@link EtdFuturePosition}, however for flexibility
-   * it is allowed to return any position, such as {@link SecurityPosition}.
+   * This is intended to use reference data to find the ETD future security,
+   * returning it as an instance of {@link EtdFuturePosition}.
+   * The reference data lookup uses {@link #parseEtdContractSpec(CsvRow, EtdType)} by default,
+   * however it could be overridden to lookup the security directly in reference data.
    * 
    * @param row  the CSV row to parse
    * @param info  the position information
    * @return the parsed position
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  public default EtdFuturePosition parseEtdFuturePosition(CsvRow row, PositionInfo info) {
+  public default Position parseEtdFuturePosition(CsvRow row, PositionInfo info) {
     EtdContractSpec contract = parseEtdContractSpec(row, EtdType.FUTURE);
     Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE);
     EtdFutureSecurity security = contract.createFuture(variant.getFirst(), variant.getSecond());
@@ -173,8 +175,10 @@ public interface PositionCsvInfoResolver {
   /**
    * Parses an ETD future position from the CSV row.
    * <p>
-   * In most cases this will return {@link EtdOptionPosition}, however for flexibility
-   * it is allowed to return any position, such as {@link SecurityPosition}.
+   * This is intended to use reference data to find the ETD future security,
+   * returning it as an instance of {@link EtdOptionPosition}.
+   * The reference data lookup uses {@link #parseEtdContractSpec(CsvRow, EtdType)} by default,
+   * however it could be overridden to lookup the security directly in reference data.
    * 
    * @param row  the CSV row
    * @param info  the position info
