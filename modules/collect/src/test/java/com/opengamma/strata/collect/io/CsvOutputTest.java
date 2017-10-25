@@ -64,4 +64,10 @@ public class CsvOutputTest {
     assertEquals(buf.toString(), "a\t\"1,000\"\n");
   }
 
+  public void test_expressionPrefix() {
+    StringBuilder buf = new StringBuilder();
+    new CsvOutput(buf, "\n").writeLine(Arrays.asList("=cmd", "+cmd", "-cmd", "@cmd"));
+    assertEquals(buf.toString(), "=\"=cmd\",=\"+cmd\",=\"-cmd\",=\"@cmd\"\n");
+  }
+
 }

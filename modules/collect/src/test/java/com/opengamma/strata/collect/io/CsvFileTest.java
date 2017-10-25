@@ -60,6 +60,11 @@ public class CsvFileTest {
       "\"alpha\"\",\"be\"\"\", \"\"at\"\", one\"\n" +
       "r21,\" r22 \"\n";
 
+  private final String CSV4B = "" +
+      "=\"alpha\",=\"be, \"\"at\"\", one\"\n" +
+      "=\"alpha\"\",\"be\"\"\", =\"\"at\"\", one\"\n" +
+      "r21,=\" r22 \"\n";
+
   private final String CSV5 = "" +
       "a,b,c,b,c\n" +
       "aa,b1,c1,b2,c2\n";
@@ -314,6 +319,20 @@ public class CsvFileTest {
 
   public void test_of_quoting() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV4), false);
+    assertEquals(csvFile.rowCount(), 3);
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "alpha");
+    assertEquals(csvFile.row(0).field(1), "be, \"at\", one");
+    assertEquals(csvFile.row(1).fieldCount(), 2);
+    assertEquals(csvFile.row(1).field(0), "alpha\",\"be\"");
+    assertEquals(csvFile.row(1).field(1), "\"at\", one");
+    assertEquals(csvFile.row(2).fieldCount(), 2);
+    assertEquals(csvFile.row(2).field(0), "r21");
+    assertEquals(csvFile.row(2).field(1), " r22 ");
+  }
+
+  public void test_of_quotingWithEquals() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV4B), false);
     assertEquals(csvFile.rowCount(), 3);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "alpha");
