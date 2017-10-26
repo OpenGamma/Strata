@@ -429,6 +429,8 @@ public final class TradeCsvLoader {
                 row.lineNumber()));
             break;
           case "FX":
+          case "FXSINGLE":
+          case "FX SINGLE":
             trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
             break;
           default:
