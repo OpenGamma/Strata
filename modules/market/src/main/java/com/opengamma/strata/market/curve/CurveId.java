@@ -118,7 +118,7 @@ public final class CurveId
   /**
    * The cached hash code, using the racy single-check idiom.
    */
-  private int cachedHashCode;
+  private transient int cacheHashCode;
 
   private CurveId(
       CurveGroupName curveGroupName,
@@ -181,13 +181,13 @@ public final class CurveId
 
   @Override
   public int hashCode() {
-    int hash = cachedHashCode;
+    int hash = cacheHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
       hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
       hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
       hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
-      cachedHashCode = hash;
+      cacheHashCode = hash;
     }
     return hash;
   }

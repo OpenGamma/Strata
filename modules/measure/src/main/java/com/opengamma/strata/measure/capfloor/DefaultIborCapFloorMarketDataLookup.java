@@ -129,6 +129,8 @@ final class DefaultIborCapFloorMarketDataLookup
       LightMetaBean.of(
           DefaultIborCapFloorMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "volatilityIds"},
           ImmutableMap.of());
 
   /**

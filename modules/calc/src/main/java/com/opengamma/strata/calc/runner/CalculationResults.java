@@ -62,6 +62,9 @@ public final class CalculationResults
       LightMetaBean.of(
           CalculationResults.class,
           MethodHandles.lookup(),
+          new String[] {
+              "target",
+              "cells"},
           null,
           ImmutableList.of());
 

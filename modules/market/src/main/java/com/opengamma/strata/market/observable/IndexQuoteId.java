@@ -134,7 +134,7 @@ public final class IndexQuoteId
   /**
    * The cached hash code, using the racy single-check idiom.
    */
-  private int cachedHashCode;
+  private transient int cacheHashCode;
 
   private IndexQuoteId(
       Index index,
@@ -200,13 +200,13 @@ public final class IndexQuoteId
 
   @Override
   public int hashCode() {
-    int hash = cachedHashCode;
+    int hash = cacheHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
       hash = hash * 31 + JodaBeanUtils.hashCode(index);
       hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
       hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
-      cachedHashCode = hash;
+      cacheHashCode = hash;
     }
     return hash;
   }

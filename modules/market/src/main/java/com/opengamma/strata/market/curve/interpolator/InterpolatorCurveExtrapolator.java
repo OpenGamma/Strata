@@ -77,7 +77,7 @@ final class InterpolatorCurveExtrapolator
     //-------------------------------------------------------------------------
     @Override
     public double leftExtrapolate(double xValue) {
-      return interpolator.doInterpolate(xValue);
+      return interpolator.doInterpolateFromExtrapolator(xValue);
     }
 
     @Override
@@ -93,7 +93,7 @@ final class InterpolatorCurveExtrapolator
     //-------------------------------------------------------------------------
     @Override
     public double rightExtrapolate(double xValue) {
-      return interpolator.doInterpolate(xValue);
+      return interpolator.doInterpolateFromExtrapolator(xValue);
     }
 
     @Override

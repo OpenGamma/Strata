@@ -65,7 +65,13 @@ final class DefaultFxRateLookup
    * The meta-bean for {@code DefaultFxRateLookup}.
    */
   private static final TypedMetaBean<DefaultFxRateLookup> META_BEAN =
-      LightMetaBean.of(DefaultFxRateLookup.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultFxRateLookup.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "currency",
+              "observableSource"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultFxRateLookup}.

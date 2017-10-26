@@ -182,7 +182,15 @@ public final class CalculationTaskCell implements ImmutableBean {
    * The meta-bean for {@code CalculationTaskCell}.
    */
   private static final TypedMetaBean<CalculationTaskCell> META_BEAN =
-      LightMetaBean.of(CalculationTaskCell.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          CalculationTaskCell.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "rowIndex",
+              "columnIndex",
+              "measure",
+              "reportingCurrency"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code CalculationTaskCell}.

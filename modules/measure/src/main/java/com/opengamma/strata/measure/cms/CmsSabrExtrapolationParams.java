@@ -73,7 +73,13 @@ public final class CmsSabrExtrapolationParams
    * The meta-bean for {@code CmsSabrExtrapolationParams}.
    */
   private static final TypedMetaBean<CmsSabrExtrapolationParams> META_BEAN =
-      LightMetaBean.of(CmsSabrExtrapolationParams.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          CmsSabrExtrapolationParams.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "cutOffStrike",
+              "mu"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code CmsSabrExtrapolationParams}.

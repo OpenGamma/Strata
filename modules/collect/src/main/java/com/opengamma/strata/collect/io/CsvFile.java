@@ -33,6 +33,7 @@ import com.opengamma.strata.collect.Unchecked;
  * Each line can contain one or more fields.
  * Each field is separated by a comma character ({@literal ,}) or tab.
  * Any field may be quoted using a double quote at the start and end.
+ * A quoted field may additionally be prefixed by an equals sign.
  * The content of a quoted field may include commas and additional double quotes.
  * Two adjacent double quotes in a quoted field will be replaced by a single double quote.
  * Quoted fields are not trimmed. Non-quoted fields are trimmed.
@@ -216,6 +217,12 @@ public final class CsvFile {
     int nextSeparator = terminated.indexOf(separator, start);
     while (nextSeparator >= 0) {
       String possible = terminated.substring(start, nextSeparator).trim();
+      // handle convention where ="xxx" means xxx
+      if (possible.startsWith("=\"")) {
+        start++;
+        possible = possible.substring(1);
+      }
+      // handle quoting where "xxx""yyy" means xxx"yyy
       if (possible.startsWith("\"")) {
         while (true) {
           if (possible.substring(1).replace("\"\"", "").endsWith("\"")) {

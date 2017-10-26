@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-examples</artifactId>
-  <version>1.4.1-SNAPSHOT</version>
+  <version>1.4.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Strata-Examples</name>
   <description>Example code to demonstrate use of Strata</description>

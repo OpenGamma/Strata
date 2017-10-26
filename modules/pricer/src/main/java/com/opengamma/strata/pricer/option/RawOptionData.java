@@ -222,6 +222,14 @@ public final class RawOptionData
       LightMetaBean.of(
           RawOptionData.class,
           MethodHandles.lookup(),
+          new String[] {
+              "expiries",
+              "strikes",
+              "strikeType",
+              "data",
+              "error",
+              "dataType",
+              "shift"},
           ImmutableList.of(),
           null,
           null,

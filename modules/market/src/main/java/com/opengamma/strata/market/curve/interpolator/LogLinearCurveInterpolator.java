@@ -99,6 +99,21 @@ final class LogLinearCurveInterpolator
     }
 
     @Override
+    protected double doInterpolateFromExtrapolator(double xValue) {
+      int lowerIndex = lowerBoundIndex(xValue, xValues);
+      // check if x-value is at the last node
+      if (lowerIndex == intervalCount) {
+        // if value is at last node, calculate using the previous interval
+        lowerIndex--;
+      }
+      double x1 = xValues[lowerIndex];
+      double x2 = xValues[lowerIndex + 1];
+      double y1 = yValues[lowerIndex];
+      double y2 = yValues[lowerIndex + 1];
+      return Math.pow(y2 / y1, (xValue - x1) / (x2 - x1)) * y1;
+    }
+
+    @Override
     protected double doFirstDerivative(double xValue) {
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       // check if x-value is at the last node

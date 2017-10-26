@@ -53,6 +53,8 @@ public final class TradeList implements ImmutableBean {
       LightMetaBean.of(
           TradeList.class,
           MethodHandles.lookup(),
+          new String[] {
+              "trades"},
           ImmutableList.of());
 
   /**

@@ -127,7 +127,17 @@ public final class DummyFraCurveNode
    * The meta-bean for {@code DummyFraCurveNode}.
    */
   private static final TypedMetaBean<DummyFraCurveNode> META_BEAN =
-      LightMetaBean.of(DummyFraCurveNode.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DummyFraCurveNode.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "periodToStart",
+              "periodToEnd",
+              "rateId",
+              "spread",
+              "label",
+              "order"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DummyFraCurveNode}.

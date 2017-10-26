@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>1.4.1-SNAPSHOT</version>
+  <version>1.4.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -243,6 +243,19 @@
           </execution>
         </executions>
       </plugin>
+      <!--  remove slow SuiteHTMLReporter - 
+            already defined in corporate parent, but appears to be necessary for some configurations -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+	      <configuration>
+	        <properties>
+	            <property>
+	                <name>usedefaultlisteners</name>
+	                <value>false</value>
+	            </property>
+	        </properties>
+	      </configuration>
+	 </plugin>
     </plugins>
   </build>
 
@@ -276,22 +289,17 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-product</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-data</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-math</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-product</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -311,12 +319,17 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-report</artifactId>
+        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-measure</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-report</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Third party -->
@@ -386,6 +399,13 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-product</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-data</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
@@ -394,20 +414,6 @@
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-math</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-product</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-calc</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
@@ -692,10 +698,10 @@
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.8.0</assertj.version>
-    <guava.version>23.0</guava.version>
+    <guava.version>23.2-jre</guava.version>
     <jcommander.version>1.72</jcommander.version>
     <joda-convert.version>1.9.2</joda-convert.version>
-    <joda-beans.version>2.0</joda-beans.version>
+    <joda-beans.version>2.0.2</joda-beans.version>
     <mockito.version>2.10.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <testng.version>6.11</testng.version>

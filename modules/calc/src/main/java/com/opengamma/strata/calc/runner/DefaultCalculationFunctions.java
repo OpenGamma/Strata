@@ -139,6 +139,8 @@ final class DefaultCalculationFunctions
       LightMetaBean.of(
           DefaultCalculationFunctions.class,
           MethodHandles.lookup(),
+          new String[] {
+              "functions"},
           ImmutableMap.of());
 
   /**

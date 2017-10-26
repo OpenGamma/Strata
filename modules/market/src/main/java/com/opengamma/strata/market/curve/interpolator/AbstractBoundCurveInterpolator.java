@@ -93,11 +93,28 @@ public abstract class AbstractBoundCurveInterpolator
 
   /**
    * Method for subclasses to calculate the interpolated value.
+   * <p>
+   * Callers can assume that {@code xValue} is less than the x-value of the last node.
    * 
    * @param xValue  the x-value
    * @return the interpolated y-value
    */
   protected abstract double doInterpolate(double xValue);
+
+  /**
+   * Method for {@code InterpolatorCurveExtrapolator} to calculate the interpolated value.
+   * <p>
+   * This is separated from {@link #doInterpolate(double)} to allow the check for x-values
+   * beyond the last node to be treated separately.
+   * 
+   * @param xValue  the x-value
+   * @return the interpolated y-value
+   */
+  protected double doInterpolateFromExtrapolator(double xValue) {
+    // calling this method may fail on right extrapolation depending on the implementation
+    // if it fails, then this method should be overridden to fix the problem
+    return doInterpolate(xValue);
+  }
 
   @Override
   public final double firstDerivative(double xValue) {

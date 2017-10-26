@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.time.ZoneId;
@@ -56,6 +57,10 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  *   identifier is unique within, such as 'OG-Trade'
  * <li>The 'Id' column is optional, and is the identifier of the trade,
  *   such as 'FRA12345'
+ * <li>The 'Counterparty Scheme' column is optional, and is the name of the scheme that the trade
+ *   identifier is unique within, such as 'OG-Counterparty'
+ * <li>The 'Counterparty' column is optional, and is the identifier of the trade's counterparty,
+ *   such as 'Bank-A'
  * <li>The 'Trade Date' column is optional, and is the date that the trade occurred,
  *   such as '2017-08-01'
  * <li>The 'Trade Time' column is optional, and is the time of day that the trade occurred,
@@ -140,6 +145,21 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <li>'Convention', 'Start Date', 'End Date'
  * <li>'Start Date', 'End Date', 'Currency', 'Day Count'
  * </ul>
+ *
+ * <h4>FX Singles</h4>
+ * <p>
+ * The following columns are supported for 'FX Singles' (FX Spots and FX Forwards) trades:
+ * <ul>
+ * <li>Payment Date - mandatory
+ * <li>Payment Date Convention - optional field. See {@link com.opengamma.strata.basics.date.BusinessDayConventions} for possible values.
+ * <li>Payment Date Calendar - optional field. See {@link com.opengamma.strata.basics.date.HolidayCalendarIds} for possible values.
+ * <li>Leg 1 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
+ * <li>Leg 1 Currency - mandatory
+ * <li>Leg 1 Notional - mandatory
+ * <li>Leg 2 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
+ * <li>Leg 2 Currency - mandatory
+ * <li>Leg 2 Notional - mandatory
+ * </ul>
  * 
  * <h4>Security</h4>
  * <p>
@@ -160,6 +180,7 @@ public final class TradeCsvLoader {
 
   // default schemes
   private static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
+  private static final String DEFAULT_CPTY_SCHEME = "OG-Counterparty";
 
   // shared CSV headers
   static final String TRADE_DATE_FIELD = "Trade Date";
@@ -182,13 +203,15 @@ public final class TradeCsvLoader {
   private static final String TYPE_FIELD = "Strata Trade Type";
   private static final String ID_SCHEME_FIELD = "Id Scheme";
   private static final String ID_FIELD = "Id";
+  private static final String CPTY_SCHEME_FIELD = "Counterparty Scheme";
+  private static final String CPTY_FIELD = "Counterparty";
   private static final String TRADE_TIME_FIELD = "Trade Time";
   private static final String TRADE_ZONE_FIELD = "Trade Zone";
 
   /**
    * The resolver, providing additional information.
    */
-  private final CsvInfoResolver resolver;
+  private final TradeCsvInfoResolver resolver;
 
   //-------------------------------------------------------------------------
   /**
@@ -197,7 +220,7 @@ public final class TradeCsvLoader {
    * @return the loader
    */
   public static TradeCsvLoader standard() {
-    return new TradeCsvLoader(CsvInfoResolver.standard());
+    return new TradeCsvLoader(TradeCsvInfoResolver.standard());
   }
 
   /**
@@ -207,7 +230,7 @@ public final class TradeCsvLoader {
    * @return the loader
    */
   public static TradeCsvLoader of(ReferenceData refData) {
-    return new TradeCsvLoader(CsvInfoResolver.of(refData));
+    return new TradeCsvLoader(TradeCsvInfoResolver.of(refData));
   }
 
   /**
@@ -216,12 +239,12 @@ public final class TradeCsvLoader {
    * @param resolver  the resolver used to parse additional information
    * @return the loader
    */
-  public static TradeCsvLoader of(CsvInfoResolver resolver) {
+  public static TradeCsvLoader of(TradeCsvInfoResolver resolver) {
     return new TradeCsvLoader(resolver);
   }
 
   // restricted constructor
-  private TradeCsvLoader(CsvInfoResolver resolver) {
+  private TradeCsvLoader(TradeCsvInfoResolver resolver) {
     this.resolver = ArgChecker.notNull(resolver, "resolver");
   }
 
@@ -288,9 +311,44 @@ public final class TradeCsvLoader {
   }
 
   /**
-   * Parses one or more CSV format trade files.
+   * Parses one or more CSV format trade files with an error-creating type filter.
+   * <p>
+   * A list of types is specified to filter the trades.
+   * Trades that do not match the type will be included in the failure list.
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
+   * 
+   * @param charSources  the CSV character sources
+   * @param tradeTypes  the trade types to return
+   * @return the loaded trades, all errors are captured in the result
+   */
+  public ValueWithFailures<List<Trade>> parse(
+      Collection<CharSource> charSources,
+      List<Class<? extends Trade>> tradeTypes) {
+
+    ValueWithFailures<List<Trade>> parsed = parse(charSources, Trade.class);
+    List<Trade> valid = new ArrayList<>();
+    List<FailureItem> failures = new ArrayList<>(parsed.getFailures());
+    for (Trade trade : parsed.getValue()) {
+      if (tradeTypes.contains(trade.getClass())) {
+        valid.add(trade);
+      } else {
+        failures.add(FailureItem.of(
+            FailureReason.PARSING,
+            "Trade type not allowed {}, only these types are supported: {}",
+            trade.getClass().getName(),
+            tradeTypes.stream().map(t -> t.getSimpleName()).collect(joining(", "))));
+      }
+    }
+    return ValueWithFailures.of(valid, failures);
+  }
+
+  /**
+   * Parses one or more CSV format trade files with a quiet type filter.
    * <p>
    * A type is specified to filter the trades.
+   * Trades that do not match the type are silently dropped.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
    * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
@@ -333,12 +391,12 @@ public final class TradeCsvLoader {
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
-    for (CsvRow row : (Iterable<CsvRow>) () -> csv) {
+    while (csv.hasNext()) {
+      CsvRow row = csv.next();
       try {
         String typeRaw = row.getField(TYPE_FIELD);
-        String type = typeRaw.toUpperCase(Locale.ENGLISH);
         TradeInfo info = parseTradeInfo(row);
-        switch (type.toUpperCase(Locale.ENGLISH)) {
+        switch (typeRaw.toUpperCase(Locale.ENGLISH)) {
           case "FRA":
             if (tradeType == FraTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(FraTradeCsvLoader.parse(row, info, resolver)));
@@ -351,7 +409,11 @@ public final class TradeCsvLoader {
             break;
           case "SWAP":
             if (tradeType == SwapTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(SwapTradeCsvLoader.parse(row, info, resolver)));
+              List<CsvRow> variableRows = new ArrayList<>();
+              while (csv.hasNext() && csv.peek().getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE")) {
+                variableRows.add(csv.next());
+              }
+              trades.add(tradeType.cast(SwapTradeCsvLoader.parse(row, variableRows, info, resolver)));
             }
             break;
           case "TERMDEPOSIT":
@@ -359,6 +421,17 @@ public final class TradeCsvLoader {
             if (tradeType == TermDepositTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(TermDepositTradeCsvLoader.parse(row, info, resolver)));
             }
+            break;
+          case "VARIABLE":
+            failures.add(FailureItem.of(
+                FailureReason.PARSING,
+                "CSV file contained a 'Variable' type at line {} that was not preceeded by a 'Swap'",
+                row.lineNumber()));
+            break;
+          case "FX":
+          case "FXSINGLE":
+          case "FX SINGLE":
+            trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
             break;
           default:
             failures.add(FailureItem.of(
@@ -378,6 +451,8 @@ public final class TradeCsvLoader {
     TradeInfoBuilder infoBuilder = TradeInfo.builder();
     String scheme = row.findField(ID_SCHEME_FIELD).orElse(DEFAULT_TRADE_SCHEME);
     row.findValue(ID_FIELD).ifPresent(id -> infoBuilder.id(StandardId.of(scheme, id)));
+    String schemeCpty = row.findValue(CPTY_SCHEME_FIELD).orElse(DEFAULT_CPTY_SCHEME);
+    row.findValue(CPTY_FIELD).ifPresent(cpty -> infoBuilder.counterparty(StandardId.of(schemeCpty, cpty)));
     row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));

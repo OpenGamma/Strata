@@ -128,6 +128,8 @@ final class DefaultFxOptionMarketDataLookup
       LightMetaBean.of(
           DefaultFxOptionMarketDataLookup.class,
           MethodHandles.lookup(),
+          new String[] {
+              "volatilityIds"},
           ImmutableMap.of());
 
   /**

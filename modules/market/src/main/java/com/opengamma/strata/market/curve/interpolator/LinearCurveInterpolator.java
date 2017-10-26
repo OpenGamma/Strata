@@ -106,6 +106,19 @@ final class LinearCurveInterpolator
     }
 
     @Override
+    protected double doInterpolateFromExtrapolator(double xValue) {
+      int lowerIndex = lowerBoundIndex(xValue, xValues);
+      // check if x-value is at the last node
+      if (lowerIndex == intervalCount) {
+        // if value is at last node, calculate the gradient from the previous interval
+        lowerIndex--;
+      }
+      double x1 = xValues[lowerIndex];
+      double y1 = yValues[lowerIndex];
+      return y1 + (xValue - x1) * gradients[lowerIndex];
+    }
+
+    @Override
     protected double doFirstDerivative(double xValue) {
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       // check if x-value is at the last node

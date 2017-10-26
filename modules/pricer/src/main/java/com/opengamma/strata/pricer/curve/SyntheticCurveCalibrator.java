@@ -139,7 +139,7 @@ public final class SyntheticCurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the market data
    */
-  public MarketData marketData(
+  public ImmutableMarketData marketData(
       CurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
@@ -188,7 +188,9 @@ public final class SyntheticCurveCalibrator {
       FxRateId fxId = FxRateId.of(ccyPair);
       mapIdSy.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));
     }
-    return MarketData.of(valuationDate, mapIdSy, ts);
+    return ImmutableMarketData.builder(valuationDate)
+        .addValueMap(mapIdSy)
+        .addTimeSeriesMap(ts).build();
   }
 
   //-------------------------------------------------------------------------

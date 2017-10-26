@@ -50,7 +50,12 @@ final class IdFilter<T>
    * The meta-bean for {@code IdFilter}.
    */
   private static final MetaBean META_BEAN =
-      LightMetaBean.of(IdFilter.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          IdFilter.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "id"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code IdFilter}.

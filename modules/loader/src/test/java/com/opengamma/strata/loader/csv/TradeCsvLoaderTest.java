@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CZPR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
@@ -23,10 +24,12 @@ import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
@@ -36,9 +39,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
@@ -50,7 +55,10 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
+import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -65,6 +73,8 @@ import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
+import com.opengamma.strata.product.fx.FxSingle;
+import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixedRateStubCalculation;
@@ -100,6 +110,10 @@ public class TradeCsvLoaderTest {
 
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades.csv");
+  private static final ResourceLocator FILE_CPTY =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades-cpty.csv");
+  private static final ResourceLocator FILE_CPTY2 =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades-cpty2.csv");
 
   //-------------------------------------------------------------------------
   public void test_isKnownFormat() {
@@ -113,6 +127,200 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     assertEquals(trades.getFailures().size(), 0, trades.getFailures().toString());
+  }
+
+  @Test
+  public void test_load_fx_forwards() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
+    ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
+    assertEquals(loadedData.getFailures().size(), 0);
+
+    List<Trade> loadedTrades = loadedData.getValue();
+    assertEquals(loadedTrades.size(), 9);
+
+    FxSingleTrade expectedTrade1 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2016-12-06"))
+            .id(StandardId.of("OG", "tradeId1"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, -3850000),
+            CurrencyAmount.of(Currency.INR, 715405000),
+            LocalDate.parse("2017-12-08")))
+        .build();
+    assertEquals(loadedTrades.get(0), expectedTrade1);
+
+    FxSingleTrade expectedTrade2 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2016-12-22"))
+            .id(StandardId.of("OG", "tradeId2"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, 7000000),
+            CurrencyAmount.of(Currency.CNY, -55679000),
+            LocalDate.parse("2017-12-28")))
+        .build();
+    assertEquals(loadedTrades.get(1), expectedTrade2);
+
+    FxSingleTrade expectedTrade3 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-05"))
+            .id(StandardId.of("OG", "tradeId3"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, 92000000),
+            CurrencyAmount.of(Currency.CNY, -137664000),
+            LocalDate.parse("2018-01-08")))
+        .build();
+    assertEquals(loadedTrades.get(2), expectedTrade3);
+
+    FxSingleTrade expectedTrade4 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-10"))
+            .id(StandardId.of("OG", "tradeId4"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, 19808000),
+            CurrencyAmount.of(Currency.CNY, -86001152),
+            LocalDate.parse("2018-01-12")))
+        .build();
+    assertEquals(loadedTrades.get(3), expectedTrade4);
+
+    FxSingleTrade expectedTrade5 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-11"))
+            .id(StandardId.of("OG", "tradeId5"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, -6608000),
+            CurrencyAmount.of(Currency.TWD, 95703040),
+            LocalDate.parse("2017-07-13")))
+        .build();
+    assertEquals(loadedTrades.get(4), expectedTrade5);
+
+    FxSingleTrade expectedTrade6 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId6"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, -1920000),
+            CurrencyAmount.of(Currency.CZK, 12448000),
+            LocalDate.parse("2018-01-29")))
+        .build();
+    assertEquals(loadedTrades.get(5), expectedTrade6);
+
+    FxSingleTrade expectedTrade7 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId7"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, -1920000),
+            CurrencyAmount.of(Currency.CZK, 12256000),
+            LocalDate.parse("2018-01-29")))
+        .build();
+    assertEquals(loadedTrades.get(6), expectedTrade7);
+    FxSingleTrade expectedTrade8 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId8"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, 1920000),
+            CurrencyAmount.of(Currency.CZK, -12256000),
+            LocalDate.parse("2018-01-29")))
+        .build();
+    assertEquals(loadedTrades.get(7), expectedTrade8);
+    assertEquals(loadedTrades.get(8), expectedTrade8);
+  }
+
+  @Test
+  public void test_load_fx_forwards_with_legs_in_same_direction() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades_legs_same_direction.csv");
+    ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
+    assertEquals(loadedData.getFailures().size(), 1);
+    FailureItem failureItem = loadedData.getFailures().get(0);
+    assertEquals(failureItem.getReason().toString(), "PARSING");
+    assertEquals(failureItem.getMessage(), "CSV file trade could not be parsed at line 2: Detected two legs having the same direction: Pay, Pay.");
+    List<Trade> loadedTrades = loadedData.getValue();
+    assertEquals(loadedTrades.size(), 0);
+  }
+  
+  public void test_load_fx_forwards_bda() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
+    ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
+    assertEquals(loadedData.getFailures().size(), 0);
+
+    List<Trade> loadedTrades = loadedData.getValue();
+    assertEquals(loadedTrades.size(), 5);
+
+    FxSingleTrade expectedTrade1 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2016-12-06"))
+            .id(StandardId.of("OG", "tradeId1"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, -3850000),
+            CurrencyAmount.of(Currency.INR, 715405000),
+            LocalDate.parse("2017-12-08")))
+        .build();
+    assertEquals(loadedTrades.get(0), expectedTrade1);
+
+    FxSingleTrade expectedTrade2 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-11"))
+            .id(StandardId.of("OG", "tradeId5"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.USD, -6608000),
+            CurrencyAmount.of(Currency.TWD, 95703040),
+            LocalDate.parse("2017-07-13")))
+        .build();
+    assertEquals(loadedTrades.get(1), expectedTrade2);
+
+    FxSingleTrade expectedTrade3 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .tradeTime(LocalTime.of(11, 00))
+            .zone(ZoneId.of("Europe/London"))
+            .id(StandardId.of("OG", "tradeId6"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, -1920000),
+            CurrencyAmount.of(Currency.CZK, 12448000),
+            LocalDate.parse("2018-01-29"),
+            BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA.combinedWith(CZPR))))
+        .build();
+    assertEquals(loadedTrades.get(2), expectedTrade3);
+
+    FxSingleTrade expectedTrade4 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId7"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, -1920000),
+            CurrencyAmount.of(Currency.CZK, 12256000),
+            LocalDate.parse("2018-01-29")))
+        .build();
+    assertEquals(loadedTrades.get(3), expectedTrade4);
+    
+    FxSingleTrade expectedTrade5 = FxSingleTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2017-01-25"))
+            .id(StandardId.of("OG", "tradeId8"))
+            .build())
+        .product(FxSingle.of(
+            CurrencyAmount.of(Currency.EUR, 1920000),
+            CurrencyAmount.of(Currency.CZK, -12256000),
+            LocalDate.parse("2018-01-29"),
+            BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUTA.combinedWith(CZPR))))
+        .build();
+    assertEquals(loadedTrades.get(4), expectedTrade5);
   }
 
   //-------------------------------------------------------------------------
@@ -170,6 +378,118 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_load_fra_bothCounterpartyColumnsPresent() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY);
+
+    List<FraTrade> filtered = trades.getValue().stream()
+        .filter(FraTrade.class::isInstance)
+        .map(FraTrade.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 3);
+
+    FraTrade expected1 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
+        .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123401"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(11, 5))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("CPTY", "Bank A"))
+            .build())
+        .build();
+    assertBeanEquals(expected1, filtered.get(0));
+
+    FraTrade expected2 = FraConventions.of(IborIndices.GBP_LIBOR_6M)
+        .toTrade(date(2017, 6, 1), date(2017, 8, 1), date(2018, 2, 1), date(2017, 8, 1), SELL, 1_000_000, 0.007)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123402"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(12, 35))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("OG-Counterparty", "Bank B"))
+            .build())
+        .build();
+    assertBeanEquals(expected2, filtered.get(1));
+
+    FraTrade expected3 = FraTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123403"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(Fra.builder()
+            .buySell(SELL)
+            .startDate(date(2017, 8, 1))
+            .endDate(date(2018, 1, 15))
+            .notional(1_000_000)
+            .fixedRate(0.0055)
+            .index(IborIndices.GBP_LIBOR_3M)
+            .indexInterpolated(IborIndices.GBP_LIBOR_6M)
+            .dayCount(DayCounts.ACT_360)
+            .build())
+        .build();
+    assertBeanEquals(expected3, filtered.get(2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_fra_counterpartyColumnPresentNoScheme() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY2);
+
+    List<FraTrade> filtered = trades.getValue().stream()
+        .filter(FraTrade.class::isInstance)
+        .map(FraTrade.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 3);
+
+    FraTrade expected1 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
+        .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123401"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(11, 5))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("OG-Counterparty", "Bank A"))
+            .build())
+        .build();
+    assertBeanEquals(expected1, filtered.get(0));
+
+    FraTrade expected2 = FraConventions.of(IborIndices.GBP_LIBOR_6M)
+        .toTrade(date(2017, 6, 1), date(2017, 8, 1), date(2018, 2, 1), date(2017, 8, 1), SELL, 1_000_000, 0.007)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123402"))
+            .tradeDate(date(2017, 6, 1))
+            .tradeTime(LocalTime.of(12, 35))
+            .zone(ZoneId.of("Europe/London"))
+            .counterparty(StandardId.of("OG-Counterparty", "Bank B"))
+            .build())
+        .build();
+    assertBeanEquals(expected2, filtered.get(1));
+
+    FraTrade expected3 = FraTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123403"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(Fra.builder()
+            .buySell(SELL)
+            .startDate(date(2017, 8, 1))
+            .endDate(date(2018, 1, 15))
+            .notional(1_000_000)
+            .fixedRate(0.0055)
+            .index(IborIndices.GBP_LIBOR_3M)
+            .indexInterpolated(IborIndices.GBP_LIBOR_6M)
+            .dayCount(DayCounts.ACT_360)
+            .build())
+        .build();
+    assertBeanEquals(expected3, filtered.get(2));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_swap() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -200,6 +520,13 @@ public class TradeCsvLoaderTest {
         .build();
     assertBeanEquals(expected2, filtered.get(1));
 
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP,
+        ValueSchedule.of(
+            5_000_000,
+            ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(4_000_000)),
+            ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofReplace(3_000_000)),
+            ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(2_000_000)),
+            ValueStep.of(date(2021, 8, 1), ValueAdjustment.ofReplace(1_000_000))));
     Swap expectedSwap3 = Swap.builder()
         .legs(
             RateCalculationSwapLeg.builder()
@@ -215,8 +542,14 @@ public class TradeCsvLoaderTest {
                     .paymentFrequency(Frequency.P6M)
                     .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
-                .notionalSchedule(NotionalSchedule.of(GBP, 4_000_000))
-                .calculation(FixedRateCalculation.of(0.005, DayCounts.ACT_365F))
+                .notionalSchedule(notionalSchedule)
+                .calculation(FixedRateCalculation.builder()
+                    .rate(ValueSchedule.of(
+                        0.005,
+                        ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(0.006)),
+                        ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(0.007))))
+                    .dayCount(DayCounts.ACT_365F)
+                    .build())
                 .build(),
             RateCalculationSwapLeg.builder()
                 .payReceive(RECEIVE)
@@ -231,7 +564,7 @@ public class TradeCsvLoaderTest {
                     .paymentFrequency(Frequency.P6M)
                     .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
-                .notionalSchedule(NotionalSchedule.of(GBP, 4_000_000))
+                .notionalSchedule(notionalSchedule)
                 .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_6M))
                 .build())
         .build();
@@ -442,6 +775,8 @@ public class TradeCsvLoaderTest {
         .put("Leg 1 Payment Offset Adjustment Calendar", "USNY")
         .put("Leg 1 Payment Relative To", "PeriodStart")
         .put("Leg 1 Compounding Method", "Flat")
+        .put("Leg 1 Payment First Regular Start Date", "2017-05-10")
+        .put("Leg 1 Payment Last Regular End Date", "2022-05-10")
         .put("Leg 1 Currency", "GBP")
         .put("Leg 1 Notional Currency", "USD")
         .put("Leg 1 Notional", "1000000")
@@ -572,6 +907,8 @@ public class TradeCsvLoaderTest {
                     .paymentDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO, BusinessDayAdjustment.of(FOLLOWING, USNY)))
                     .paymentRelativeTo(PaymentRelativeTo.PERIOD_START)
                     .compoundingMethod(CompoundingMethod.FLAT)
+                    .firstRegularStartDate(date(2017, 5, 10))
+                    .lastRegularEndDate(date(2022, 5, 10))
                     .build())
                 .notionalSchedule(NotionalSchedule.builder()
                     .currency(GBP)
@@ -890,6 +1227,46 @@ public class TradeCsvLoaderTest {
             .build())
         .build();
     assertBeanEquals(expected3, filtered.get(2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_filtered() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.parse(
+        ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
+
+    assertEquals(trades.getValue().size(), 6);
+    assertEquals(trades.getFailures().size(), 9);
+    assertEquals(trades.getFailures().get(0).getMessage(),
+        "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_load_resolver() {
+    AtomicInteger fraCount = new AtomicInteger();
+    AtomicInteger termCount = new AtomicInteger();
+    TradeCsvInfoResolver resolver = new TradeCsvInfoResolver() {
+      @Override
+      public FraTrade completeTrade(CsvRow row, FraTrade trade) {
+        fraCount.incrementAndGet();
+        return trade;
+      }
+
+      @Override
+      public TermDepositTrade completeTrade(CsvRow row, TermDepositTrade trade) {
+        termCount.incrementAndGet();
+        return trade;
+      }
+
+      @Override
+      public ReferenceData getReferenceData() {
+        return ReferenceData.standard();
+      }
+    };
+    TradeCsvLoader test = TradeCsvLoader.of(resolver);
+    test.parse(ImmutableList.of(FILE.getCharSource()));
+    assertEquals(fraCount.get(), 3);
+    assertEquals(termCount.get(), 3);
   }
 
   //-------------------------------------------------------------------------

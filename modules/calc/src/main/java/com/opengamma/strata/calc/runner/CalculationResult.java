@@ -111,7 +111,14 @@ public final class CalculationResult
    * The meta-bean for {@code CalculationResult}.
    */
   private static final TypedMetaBean<CalculationResult> META_BEAN =
-      LightMetaBean.of(CalculationResult.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          CalculationResult.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "rowIndex",
+              "columnIndex",
+              "result"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code CalculationResult}.

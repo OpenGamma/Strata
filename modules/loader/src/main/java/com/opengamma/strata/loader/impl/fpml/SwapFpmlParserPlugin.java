@@ -251,19 +251,36 @@ final class SwapFpmlParserPlugin
     //  'paymentDates/paymentDaysOffset?'
     //  'paymentDates/paymentDatesAdjustments'
     //  'calculationPeriodAmount/calculation/compoundingMethod'
+    //  'paymentDates/firstPaymentDate?'
+    //  'paymentDates/lastRegularPaymentDate?'
     // ignored elements:
     //  'paymentDates/calculationPeriodDatesReference'
     //  'paymentDates/resetDatesReference'
     //  'paymentDates/valuationDatesReference'
-    //  'paymentDates/firstPaymentDate?'
-    //  'paymentDates/lastRegularPaymentDate?'
     PaymentSchedule.Builder paymentScheduleBuilder = PaymentSchedule.builder();
     // payment dates
     XmlElement paymentDatesEl = legEl.getChild("paymentDates");
     // frequency
     paymentScheduleBuilder.paymentFrequency(document.parseFrequency(
         paymentDatesEl.getChild("paymentFrequency")));
-    paymentScheduleBuilder.paymentRelativeTo(parsePayRelativeTo(paymentDatesEl.getChild("payRelativeTo")));
+    //default for IRS is pay relative to period end; Strata model will apply the defaulting but the values is needed
+    //here for first and last payment date checks
+    PaymentRelativeTo payRelativeTo = paymentDatesEl.findChild("payRelativeTo")
+        .map(el -> parsePayRelativeTo(el))
+        .orElse(PaymentRelativeTo.PERIOD_END);
+    paymentScheduleBuilder.paymentRelativeTo(payRelativeTo);
+    // dates
+    if (payRelativeTo == PaymentRelativeTo.PERIOD_END) {
+      // ignore data if not PeriodEnd and hope schedule is worked out correctly by other means
+      // this provides compatibility for old code that ignored these FpML fields
+      paymentDatesEl.findChild("firstPaymentDate")
+          .map(el -> document.parseDate(el))
+          .ifPresent(date -> paymentScheduleBuilder.firstRegularStartDate(date));
+      paymentDatesEl.findChild("lastRegularPaymentDate")
+          .map(el -> document.parseDate(el))
+          .ifPresent(date -> paymentScheduleBuilder.lastRegularEndDate(date));
+
+    }
     // offset
     Optional<XmlElement> paymentOffsetEl = paymentDatesEl.findChild("paymentDaysOffset");
     BusinessDayAdjustment payAdjustment = document.parseBusinessDayAdjustments(
@@ -438,25 +455,27 @@ final class SwapFpmlParserPlugin
         iborRateBuilder.negativeRateMethod(parseNegativeInterestRateTreatment(el));
       });
       // resets
-      XmlElement resetDatesEl = legEl.getChild("resetDates");
-      document.validateNotPresent(resetDatesEl, "initialFixingDate");
-      document.validateNotPresent(resetDatesEl, "rateCutOffDaysOffset");
-      resetDatesEl.findChild("resetRelativeTo").ifPresent(el -> {
-        iborRateBuilder.fixingRelativeTo(parseResetRelativeTo(el));
-      });
-      // fixing date offset
-      iborRateBuilder.fixingDateOffset(document.parseRelativeDateOffsetDays(resetDatesEl.getChild("fixingDates")));
-      Frequency resetFreq = document.parseFrequency(resetDatesEl.getChild("resetFrequency"));
-      if (!accrualSchedule.getFrequency().equals(resetFreq)) {
-        ResetSchedule.Builder resetScheduleBuilder = ResetSchedule.builder();
-        resetScheduleBuilder.resetFrequency(resetFreq);
-        floatingEl.findChild("averagingMethod").ifPresent(el -> {
-          resetScheduleBuilder.resetMethod(parseAveragingMethod(el));
+      legEl.findChild("resetDates").ifPresent(resetDatesEl -> {
+        document.validateNotPresent(resetDatesEl, "initialFixingDate");
+        document.validateNotPresent(resetDatesEl, "rateCutOffDaysOffset");
+        resetDatesEl.findChild("resetRelativeTo").ifPresent(el -> {
+          iborRateBuilder.fixingRelativeTo(parseResetRelativeTo(el));
         });
-        resetScheduleBuilder.businessDayAdjustment(
-            document.parseBusinessDayAdjustments(resetDatesEl.getChild("resetDatesAdjustments")));
-        iborRateBuilder.resetPeriods(resetScheduleBuilder.build());
-      }
+        // fixing date offset
+        iborRateBuilder.fixingDateOffset(document.parseRelativeDateOffsetDays(resetDatesEl.getChild("fixingDates")));
+        Frequency resetFreq = document.parseFrequency(resetDatesEl.getChild("resetFrequency"));
+        if (!accrualSchedule.getFrequency().equals(resetFreq)) {
+          ResetSchedule.Builder resetScheduleBuilder = ResetSchedule.builder();
+          resetScheduleBuilder.resetFrequency(resetFreq);
+          floatingEl.findChild("averagingMethod").ifPresent(el -> {
+            resetScheduleBuilder.resetMethod(parseAveragingMethod(el));
+          });
+          resetScheduleBuilder.businessDayAdjustment(
+              document.parseBusinessDayAdjustments(resetDatesEl.getChild("resetDatesAdjustments")));
+          iborRateBuilder.resetPeriods(resetScheduleBuilder.build());
+        }
+      });
+      
       // stubs
       legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
         stubsEl.findChild("initialStub").ifPresent(el -> {
@@ -506,17 +525,17 @@ final class SwapFpmlParserPlugin
         overnightRateBuilder.negativeRateMethod(parseNegativeInterestRateTreatment(el));
       });
       // rate cut off
-      XmlElement resetDatesEl = legEl.getChild("resetDates");
-      document.validateNotPresent(resetDatesEl, "initialFixingDate");
-      resetDatesEl.findChild("rateCutOffDaysOffset").ifPresent(el -> {
-        Period cutOff = document.parsePeriod(el);
-        if (cutOff.toTotalMonths() != 0) {
-          throw new FpmlParseException("Invalid 'rateCutOffDaysOffset' value, expected days-based period: " + cutOff);
-        }
-        overnightRateBuilder.rateCutOffDays(-cutOff.getDays());
+      legEl.findChild("resetDates").ifPresent(resetDatesEl -> {
+        document.validateNotPresent(resetDatesEl, "initialFixingDate");
+        resetDatesEl.findChild("rateCutOffDaysOffset").ifPresent(el -> {
+          Period cutOff = document.parsePeriod(el);
+          if (cutOff.toTotalMonths() != 0) {
+            throw new FpmlParseException("Invalid 'rateCutOffDaysOffset' value, expected days-based period: " + cutOff);
+          }
+          overnightRateBuilder.rateCutOffDays(-cutOff.getDays());
+        });
       });
       return overnightRateBuilder.build();
-
     } else {
       throw new FpmlParseException("Invalid 'floatingRateIndex' type, not Ibor or Overnight");
     }

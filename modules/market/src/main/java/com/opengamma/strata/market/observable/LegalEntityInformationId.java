@@ -86,7 +86,7 @@ public final class LegalEntityInformationId
   /**
    * The cached hash code, using the racy single-check idiom.
    */
-  private int cachedHashCode;
+  private transient int cacheHashCode;
 
   private LegalEntityInformationId(
       StandardId legalEntityId) {
@@ -123,11 +123,11 @@ public final class LegalEntityInformationId
 
   @Override
   public int hashCode() {
-    int hash = cachedHashCode;
+    int hash = cacheHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
       hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
-      cachedHashCode = hash;
+      cacheHashCode = hash;
     }
     return hash;
   }

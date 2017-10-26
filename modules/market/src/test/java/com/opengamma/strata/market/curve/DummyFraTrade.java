@@ -54,7 +54,13 @@ public final class DummyFraTrade
    * The meta-bean for {@code DummyFraTrade}.
    */
   private static final TypedMetaBean<DummyFraTrade> META_BEAN =
-      LightMetaBean.of(DummyFraTrade.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DummyFraTrade.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "date",
+              "fixedRate"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DummyFraTrade}.

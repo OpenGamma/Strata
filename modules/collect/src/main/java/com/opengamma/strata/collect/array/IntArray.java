@@ -246,6 +246,18 @@ public final class IntArray
   }
 
   /**
+   * Obtains an instance with entries filled from a stream.
+   * <p>
+   * The stream is converted to an array using {@link IntStream#toArray()}.
+   * 
+   * @param stream  the stream of elements
+   * @return an array initialized using the stream
+   */
+  public static IntArray of(IntStream stream) {
+    return ofUnsafe(stream.toArray());
+  }
+
+  /**
    * Obtains an instance by wrapping an array.
    * <p>
    * This method is inherently unsafe as it relies on good behavior by callers.

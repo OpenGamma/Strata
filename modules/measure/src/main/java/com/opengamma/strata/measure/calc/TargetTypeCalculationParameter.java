@@ -101,6 +101,10 @@ public final class TargetTypeCalculationParameter
       LightMetaBean.of(
           TargetTypeCalculationParameter.class,
           MethodHandles.lookup(),
+          new String[] {
+              "queryType",
+              "parameters",
+              "defaultParameter"},
           null,
           ImmutableMap.of(),
           null);

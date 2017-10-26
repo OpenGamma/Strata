@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<requestLimitCheck fpmlVersion="5-8" xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <trade>
+    <tradeHeader>
+      <tradeDate>2017-10-28</tradeDate>
+    </tradeHeader>
+    <swap>
+      <productType>InterestRate:IRSwap:FixedFloat</productType>
+      <swapStream>
+        <payerPartyReference href="party1" />
+        <receiverPartyReference href="party2" />
+        <calculationPeriodDates id="floatingCalcPeriodDates1">
+          <effectiveDate>
+            <unadjustedDate>2018-09-28</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>2019-09-29</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>AUSY</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>AUSY</businessCenter>
+            </businessCenters>
+          </calculationPeriodDatesAdjustments>
+          <calculationPeriodFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+            <rollConvention>29</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="floatingCalcPeriodDates1" />
+          <paymentFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <paymentDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>AUSY</businessCenter>
+            </businessCenters>
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>500000000</initialValue>
+                <currency>AUD</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <floatingRateCalculation>
+              <floatingRateIndex>AUD-BBR-BBSW</floatingRateIndex>
+              <indexTenor>
+                <periodMultiplier>3</periodMultiplier>
+                <period>M</period>
+              </indexTenor>
+            </floatingRateCalculation>
+            <dayCountFraction>ACT/365.FIXED</dayCountFraction>
+          </calculation>    
+        </calculationPeriodAmount>
+      </swapStream>
+      <swapStream>
+        <payerPartyReference href="party2" />
+        <receiverPartyReference href="party1" />
+        <calculationPeriodDates id="fixedCalcPeriodDates1">
+          <effectiveDate>
+            <unadjustedDate>2018-09-28</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>2019-09-29</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>AUSY</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>AUSY</businessCenter>
+            </businessCenters>
+          </calculationPeriodDatesAdjustments>
+          <calculationPeriodFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+            <rollConvention>29</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="fixedCalcPeriodDates1"/>
+          <paymentFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <paymentDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>AUSY</businessCenter>
+            </businessCenters>
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>500000000</initialValue>
+                <currency>AUD</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <fixedRateSchedule>
+              <initialValue>0.0555</initialValue>
+            </fixedRateSchedule>
+            <dayCountFraction>ACT/365.FIXED</dayCountFraction>
+          </calculation>
+        </calculationPeriodAmount>
+      </swapStream>
+    </swap>
+  </trade>
+  <party id="party1">
+    <partyId>Party1</partyId>
+  </party>
+  <party id="party2">
+    <partyId>Party2</partyId>
+  </party>
+</requestLimitCheck>

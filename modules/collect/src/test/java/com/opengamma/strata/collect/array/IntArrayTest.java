@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 import org.testng.annotations.Test;
 
@@ -54,6 +55,11 @@ public class IntArrayTest {
     AtomicInteger counter = new AtomicInteger(2);
     assertContent(IntArray.of(1, i -> counter.getAndIncrement()), 2);
     assertContent(IntArray.of(2, i -> counter.getAndIncrement()), 3, 4);
+  }
+
+  public void test_of_stream() {
+    assertContent(IntArray.of(IntStream.empty()));
+    assertContent(IntArray.of(IntStream.of(1, 2, 3)), 1, 2, 3);
   }
 
   public void test_ofUnsafe() {

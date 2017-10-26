@@ -14,14 +14,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.MetaBean;
-import org.joda.beans.Property;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
@@ -54,6 +52,7 @@ public final class XmlElement
   private static MetaBean META_BEAN = LightMetaBean.of(
       XmlElement.class,
       MethodHandles.lookup(),
+      new String[] {"name", "attributes", "content", "children"},
       null,
       ImmutableMap.of(),
       null,
@@ -312,16 +311,6 @@ public final class XmlElement
   @Override
   public MetaBean metaBean() {
     return META_BEAN;
-  }
-
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
   }
 
   //-------------------------------------------------------------------------

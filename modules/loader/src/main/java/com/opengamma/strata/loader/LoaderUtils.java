@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
 
@@ -84,7 +85,7 @@ public final class LoaderUtils {
       .toFormatter(Locale.ENGLISH);
   // time formats
   private static final DateTimeFormatter HH_MM_SS_COLON = new DateTimeFormatterBuilder()
-      .appendValue(HOUR_OF_DAY, 2)
+      .appendValue(HOUR_OF_DAY, 1, 2, SignStyle.NEVER)
       .optionalStart()
       .appendLiteral(':')
       .appendValue(MINUTE_OF_HOUR, 2)

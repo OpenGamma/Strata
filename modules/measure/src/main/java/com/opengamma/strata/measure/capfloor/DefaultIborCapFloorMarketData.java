@@ -86,7 +86,13 @@ final class DefaultIborCapFloorMarketData
    * The meta-bean for {@code DefaultIborCapFloorMarketData}.
    */
   private static final TypedMetaBean<DefaultIborCapFloorMarketData> META_BEAN =
-      LightMetaBean.of(DefaultIborCapFloorMarketData.class, MethodHandles.lookup());
+      LightMetaBean.of(
+          DefaultIborCapFloorMarketData.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "lookup",
+              "marketData"},
+          new Object[0]);
 
   /**
    * The meta-bean for {@code DefaultIborCapFloorMarketData}.

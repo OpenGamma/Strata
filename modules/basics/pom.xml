@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.strata</groupId>
     <artifactId>strata-parent</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.3-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
   <artifactId>strata-basics</artifactId>
