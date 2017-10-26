@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.io;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +27,13 @@ import com.opengamma.strata.collect.Unchecked;
  * If it starts with an expression character, the quote section will be preceeded by equals.
  */
 public final class CsvOutput {
+
+  // regex for a number
+  private static final String DIGITS = "([0-9]+)";
+  private static final String EXPONENT = "[eE][+-]?" + DIGITS;
+  private static final Pattern FP_REGEX = Pattern.compile(
+          "(" + DIGITS + "(\\.)?(" + DIGITS + "?)(" + EXPONENT + ")?)|" +
+          "(\\.(" + DIGITS + ")(" + EXPONENT + ")?)");
 
   /**
    * The header row, ordered as the headers appear in the file.
@@ -146,7 +154,13 @@ public final class CsvOutput {
       return false;
     }
     char first = entry.charAt(0);
-    return first == '=' || first == '+' || first == '-' || first == '@';
+    if (first == '=' || first == '@') {
+      return true;
+    }
+    if (first == '+' || first == '-') {
+      return !FP_REGEX.matcher(entry.substring(1)).matches();
+    }
+    return false;
   }
 
   // quotes the entry

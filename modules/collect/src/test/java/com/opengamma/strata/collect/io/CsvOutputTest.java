@@ -70,4 +70,10 @@ public class CsvOutputTest {
     assertEquals(buf.toString(), "=\"=cmd\",=\"+cmd\",=\"-cmd\",=\"@cmd\"\n");
   }
 
+  public void test_expressionPrefixNumbers() {
+    StringBuilder buf = new StringBuilder();
+    new CsvOutput(buf, "\n").writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
+    assertEquals(buf.toString(), "+8,-7,=\"+8-7\",=\"-7+8\",NaN,=\"-Infinity\"\n");
+  }
+
 }
