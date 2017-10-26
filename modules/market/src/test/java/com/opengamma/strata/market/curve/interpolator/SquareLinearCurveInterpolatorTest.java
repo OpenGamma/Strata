@@ -74,6 +74,28 @@ public class SquareLinearCurveInterpolatorTest {
     assertEquals(bci.parameterSensitivity(5.0).get(X_DATA.size() - 1), 1d, TOL);
   }
 
+  public void test_interpolatorExtrapolator() {
+    DoubleArray xValues = DoubleArray.of(1, 2, 3);
+    DoubleArray yValues = DoubleArray.of(2, 3, 5);
+    CurveExtrapolator extrap = InterpolatorCurveExtrapolator.INSTANCE;
+    BoundCurveInterpolator bci = SQUARE_LINEAR_INTERPOLATOR.bind(xValues, yValues, extrap, extrap);
+    assertEquals(bci.interpolate(0.5), calc(0.5, 1, 2, 2, 3), TOL);
+    assertEquals(bci.interpolate(1), 2, TOL);
+    assertEquals(bci.interpolate(1.5), calc(1.5, 1, 2, 2, 3), TOL);
+    assertEquals(bci.interpolate(2), 3, TOL);
+    assertEquals(bci.interpolate(2.5), calc(2.5, 2, 3, 3, 5), TOL);
+    assertEquals(bci.interpolate(3), 5, TOL);
+    assertEquals(bci.interpolate(3.5), calc(3.5, 2, 3, 3, 5), TOL);
+  }
+
+  private double calc(double xValue, double x1, double x2, double y1, double y2) {
+    double w = (x2 - xValue) / (x2 - x1);
+    double y21 = y1 * y1;
+    double y22 = y2 * y2;
+    double ySq = w * y21 + (1.0 - w) * y22;
+    return Math.sqrt(ySq);
+  }
+
   //-------------------------------------------------------------------------
   public void test_serialization() {
     assertSerialization(SQUARE_LINEAR_INTERPOLATOR);

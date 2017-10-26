@@ -77,6 +77,23 @@ public class LogLinearCurveInterpolatorTest {
     assertEquals(bci.firstDerivative(5.0), bci.firstDerivative(4.99999999), 1e-6);
   }
 
+  public void test_interpolatorExtrapolator() {
+    DoubleArray xValues = DoubleArray.of(1, 2, 3);
+    DoubleArray yValues = DoubleArray.of(2, 3, 5);
+    DoubleArray yValuesLog = DoubleArray.of(Math.log(2), Math.log(3), Math.log(5));
+    CurveExtrapolator extrap = InterpolatorCurveExtrapolator.INSTANCE;
+    // log-linear same as linear where y-values have had log applied
+    BoundCurveInterpolator bciLinear = CurveInterpolators.LINEAR.bind(xValues, yValuesLog, extrap, extrap);
+    BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(xValues, yValues, extrap, extrap);
+    assertEquals(Math.log(bci.interpolate(0.5)), bciLinear.interpolate(0.5), EPS);
+    assertEquals(Math.log(bci.interpolate(1)), bciLinear.interpolate(1), EPS);
+    assertEquals(Math.log(bci.interpolate(1.5)), bciLinear.interpolate(1.5), EPS);
+    assertEquals(Math.log(bci.interpolate(2)), bciLinear.interpolate(2), EPS);
+    assertEquals(Math.log(bci.interpolate(2.5)), bciLinear.interpolate(2.5), EPS);
+    assertEquals(Math.log(bci.interpolate(3)), bciLinear.interpolate(3), EPS);
+    assertEquals(Math.log(bci.interpolate(3.5)), bciLinear.interpolate(3.5), EPS);
+  }
+
   //-------------------------------------------------------------------------
   public void test_serialization() {
     assertSerialization(LL_INTERPOLATOR);

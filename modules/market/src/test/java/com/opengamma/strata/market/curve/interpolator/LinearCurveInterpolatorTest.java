@@ -76,6 +76,20 @@ public class LinearCurveInterpolatorTest {
     assertEquals(bci.parameterSensitivity(5.0).get(X_DATA.size() - 1), 1d, TOL);
   }
 
+  public void test_interpolatorExtrapolator() {
+    DoubleArray xValues = DoubleArray.of(1, 2, 3);
+    DoubleArray yValues = DoubleArray.of(2, 3, 5);
+    CurveExtrapolator extrap = InterpolatorCurveExtrapolator.INSTANCE;
+    BoundCurveInterpolator boundInterp = LINEAR_INTERPOLATOR.bind(xValues, yValues, extrap, extrap);
+    assertEquals(boundInterp.interpolate(0.5), 1.5, TOL);
+    assertEquals(boundInterp.interpolate(1), 2, TOL);
+    assertEquals(boundInterp.interpolate(1.5), 2.5, TOL);
+    assertEquals(boundInterp.interpolate(2), 3, TOL);
+    assertEquals(boundInterp.interpolate(2.5), 4, TOL);
+    assertEquals(boundInterp.interpolate(3), 5, TOL);
+    assertEquals(boundInterp.interpolate(3.5), 6, TOL);
+  }
+
   //-------------------------------------------------------------------------
   public void test_serialization() {
     assertSerialization(LINEAR_INTERPOLATOR);
