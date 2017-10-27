@@ -75,7 +75,7 @@ public class BlackFxVanillaOptionTradePricer {
     CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, volatilities);
     Payment premium = trade.getPremium();
     CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
-    return MultiCurrencyAmount.of(pvProduct, pvPremium);
+    return MultiCurrencyAmount.of(pvProduct).plus(pvPremium);
   }
 
   //-------------------------------------------------------------------------

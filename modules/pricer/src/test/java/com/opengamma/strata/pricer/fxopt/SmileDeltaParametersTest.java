@@ -9,8 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.option.DeltaStrike;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 
 /**
@@ -25,6 +29,12 @@ public class SmileDeltaParametersTest {
   private static final DoubleArray DELTA = DoubleArray.of(0.10, 0.25);
   private static final DoubleArray RISK_REVERSAL = DoubleArray.of(-0.0130, -0.0050);
   private static final DoubleArray STRANGLE = DoubleArray.of(0.0300, 0.0100);
+  private static final ImmutableList<ParameterMetadata> PARAMETER_METADATA = ImmutableList.of(
+      GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME_TO_EXPIRY, DeltaStrike.of(0.9d)),
+      GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME_TO_EXPIRY, DeltaStrike.of(0.75d)),
+      GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME_TO_EXPIRY, DeltaStrike.of(0.5d)),
+      GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME_TO_EXPIRY, DeltaStrike.of(0.25d)),
+      GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME_TO_EXPIRY, DeltaStrike.of(0.1d)));
 
   private static final SmileDeltaParameters SMILE = SmileDeltaParameters.of(
       TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
@@ -49,7 +59,7 @@ public class SmileDeltaParametersTest {
    */
   public void constructorVolatility() {
     DoubleArray volatility = SMILE.getVolatility();
-    SmileDeltaParameters smileFromVolatility = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, volatility);
+    SmileDeltaParameters smileFromVolatility = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, volatility, PARAMETER_METADATA);
     assertEquals("Smile by delta: constructor", SMILE, smileFromVolatility);
   }
 

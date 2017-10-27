@@ -114,6 +114,14 @@ public final class ValueType
    * Type used when each value is the SABR nu parameter - 'SabrNu'.
    */
   public static final ValueType SABR_NU = of("SabrNu");
+  /**
+   * Type used when each value is a risk reversal - 'RiskReversal'.
+   */
+  public static final ValueType RISK_REVERSAL = of("RiskReversal");
+  /**
+   * Type used when each value is a strangle - 'Strangle'.
+   */
+  public static final ValueType STRANGLE = of("Strangle");
 
   //-------------------------------------------------------------------------
   /**
