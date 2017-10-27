@@ -82,9 +82,19 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
     QUOTE_IDS = quoteBuilder.build();
   }
 
-  public void test_of() {
-    BlackFxOptionSmileVolatilitiesSpecification test = BlackFxOptionSmileVolatilitiesSpecification.of(
-        VOL_NAME, EUR_GBP, ACT_360, NODES, PCHIP, LINEAR, FLAT, DOUBLE_QUADRATIC, FLAT, LINEAR);
+  public void test_builder() {
+    BlackFxOptionSmileVolatilitiesSpecification test = BlackFxOptionSmileVolatilitiesSpecification.builder()
+        .name(VOL_NAME)
+        .currencyPair(EUR_GBP)
+        .dayCount(ACT_360)
+        .nodes(NODES)
+        .timeInterpolator(PCHIP)
+        .timeExtrapolatorLeft(LINEAR)
+        .timeExtrapolatorRight(FLAT)
+        .strikeInterpolator(DOUBLE_QUADRATIC)
+        .strikeExtrapolatorLeft(FLAT)
+        .strikeExtrapolatorRight(LINEAR)
+        .build();
     assertEquals(test.getCurrencyPair(), EUR_GBP);
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getName(), VOL_NAME);
@@ -100,8 +110,14 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
   }
 
   public void test_volatilities() {
-    BlackFxOptionSmileVolatilitiesSpecification base = BlackFxOptionSmileVolatilitiesSpecification.of(
-        VOL_NAME, EUR_GBP, ACT_360, NODES, PCHIP, PCHIP);
+    BlackFxOptionSmileVolatilitiesSpecification base = BlackFxOptionSmileVolatilitiesSpecification.builder()
+        .name(VOL_NAME)
+        .currencyPair(EUR_GBP)
+        .dayCount(ACT_360)
+        .nodes(NODES)
+        .timeInterpolator(PCHIP)
+        .strikeInterpolator(PCHIP)
+        .build();
     ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Z"));
     DoubleArray parameters = DoubleArray.of(0.05, -0.05, 0.15, 0.25, 0.1, -0.1);
     BlackFxOptionSmileVolatilities computed = base.volatilities(dateTime, parameters, REF_DATA);
@@ -118,8 +134,18 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    BlackFxOptionSmileVolatilitiesSpecification test1 = BlackFxOptionSmileVolatilitiesSpecification.of(
-        VOL_NAME, EUR_GBP, ACT_360, NODES, PCHIP, LINEAR, LINEAR, PCHIP, LINEAR, LINEAR);
+    BlackFxOptionSmileVolatilitiesSpecification test1 = BlackFxOptionSmileVolatilitiesSpecification.builder()
+        .name(VOL_NAME)
+        .currencyPair(EUR_GBP)
+        .dayCount(ACT_360)
+        .nodes(NODES)
+        .timeInterpolator(PCHIP)
+        .timeExtrapolatorLeft(LINEAR)
+        .timeExtrapolatorRight(LINEAR)
+        .strikeInterpolator(PCHIP)
+        .strikeExtrapolatorLeft(LINEAR)
+        .strikeExtrapolatorRight(LINEAR)
+        .build();
     coverImmutableBean(test1);
     CurrencyPair eurUsd = CurrencyPair.of(EUR, USD);
     ImmutableList.Builder<FxOptionVolatilitiesNode> builder = ImmutableList.builder();
@@ -129,14 +155,30 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
       builder.add(FxOptionVolatilitiesNode.of(eurUsd, DaysAdjustment.NONE, BusinessDayAdjustment.NONE, QUOTE_TYPE.get(i), id,
           TENORS.get(i), DeltaStrike.of(DELTAS.get(i))));
     }
-    BlackFxOptionSmileVolatilitiesSpecification test2 = BlackFxOptionSmileVolatilitiesSpecification.of(
-        FxOptionVolatilitiesName.of("other"), eurUsd, ACT_365F, builder.build(), DOUBLE_QUADRATIC, DOUBLE_QUADRATIC);
+    BlackFxOptionSmileVolatilitiesSpecification test2 = BlackFxOptionSmileVolatilitiesSpecification.builder()
+        .name(FxOptionVolatilitiesName.of("other"))
+        .currencyPair(eurUsd)
+        .dayCount(ACT_365F)
+        .nodes(builder.build())
+        .timeInterpolator(DOUBLE_QUADRATIC)
+        .strikeInterpolator(DOUBLE_QUADRATIC)
+        .build();
     coverBeanEquals(test1, test2);
   }
 
   public void serialization() {
-    BlackFxOptionSmileVolatilitiesSpecification test = BlackFxOptionSmileVolatilitiesSpecification.of(
-        VOL_NAME, EUR_GBP, ACT_360, NODES, PCHIP, LINEAR, FLAT, DOUBLE_QUADRATIC, FLAT, LINEAR);
+    BlackFxOptionSmileVolatilitiesSpecification test = BlackFxOptionSmileVolatilitiesSpecification.builder()
+        .name(VOL_NAME)
+        .currencyPair(EUR_GBP)
+        .dayCount(ACT_360)
+        .nodes(NODES)
+        .timeInterpolator(PCHIP)
+        .timeExtrapolatorLeft(LINEAR)
+        .timeExtrapolatorRight(FLAT)
+        .strikeInterpolator(DOUBLE_QUADRATIC)
+        .strikeExtrapolatorLeft(FLAT)
+        .strikeExtrapolatorRight(LINEAR)
+        .build();
     assertSerialization(test);
   }
 

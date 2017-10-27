@@ -60,9 +60,9 @@ public class FxOptionVolatilitiesMarketDataFunction
         .map(q -> marketData.getValue(q))
         .collect(toImmutableList());
     ImmutableList<FxOptionVolatilities> vols = IntStream.range(0, nScenarios)
-        .mapToObj(i -> volatilitiesDefinition.volatilities(
-            valuationDateTimes.getValue(i),
-            DoubleArray.of(nParameters, n -> inputs.get(n).getValue(i)),
+        .mapToObj(scenarioIndex -> volatilitiesDefinition.volatilities(
+            valuationDateTimes.getValue(scenarioIndex),
+            DoubleArray.of(nParameters, paramIndex -> inputs.get(paramIndex).getValue(scenarioIndex)),
             refData))
         .collect(toImmutableList());
 

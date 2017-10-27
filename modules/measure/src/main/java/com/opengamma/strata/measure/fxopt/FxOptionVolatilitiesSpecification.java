@@ -20,7 +20,9 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesName;
 /**
  * The specification of how to build FX option volatilities.
  * <p>
- * This is the specification for a single volatility object, {@link FxOptionVolatilities}.
+ * This is the specification for a single volatility object, {@link FxOptionVolatilities}. 
+ * Each implementation of this interface must have the ability to create an instance of the respective implementation 
+ * of {@link FxOptionVolatilities}.
  */
 public interface FxOptionVolatilitiesSpecification {
 

@@ -170,6 +170,7 @@ public final class BlackFxOptionSmileVolatilities
       int nDeltas = deltas.size();
       int nDeltasTotal = 2 * nDeltas + 1;
       double[] deltasTotal = new double[nDeltasTotal]; // absolute delta
+      deltasTotal[nDeltas] = 0.5d;
       for (int j = 0; j < nDeltas; ++j) {
         deltasTotal[j] = 1d - deltas.get(j);
         deltasTotal[2 * nDeltas - j] = deltas.get(j);

@@ -17,6 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaBean;
@@ -176,6 +177,15 @@ public final class SmileDeltaParameters
           GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(delta.get(i))); // Call
     }
     return ImmutableList.copyOf(parameterMetadata);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.parameterMetadata == null) {
+      if (builder.delta != null) {
+        builder.parameterMetadata = createParameterMetadata(builder.expiry, builder.delta);
+      }
+    }
   }
 
   @ImmutableValidator
@@ -550,6 +560,7 @@ public final class SmileDeltaParameters
 
     @Override
     public SmileDeltaParameters build() {
+      preBuild(this);
       return new SmileDeltaParameters(
           expiry,
           delta,

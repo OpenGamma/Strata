@@ -73,8 +73,15 @@ public class FxOptionVolatilitiesDefinitionTest {
     NODES = builder.build();
     QUOTE_IDS = quoteBuilder.build();
   }
-  private static final BlackFxOptionSmileVolatilitiesSpecification SPEC = BlackFxOptionSmileVolatilitiesSpecification.of(
-      VOL_NAME, EUR_GBP, ACT_365F, NODES, LINEAR, LINEAR);
+  private static final BlackFxOptionSmileVolatilitiesSpecification SPEC = BlackFxOptionSmileVolatilitiesSpecification.builder()
+      .name(VOL_NAME)
+      .currencyPair(EUR_GBP)
+      .currencyPair(EUR_GBP)
+      .dayCount(ACT_365F)
+      .nodes(NODES)
+      .timeInterpolator(LINEAR)
+      .strikeInterpolator(LINEAR)
+      .build();
 
   public void test_of() {
     FxOptionVolatilitiesDefinition test = FxOptionVolatilitiesDefinition.of(SPEC);
@@ -90,8 +97,14 @@ public class FxOptionVolatilitiesDefinitionTest {
   public void coverage() {
     FxOptionVolatilitiesDefinition test1 = FxOptionVolatilitiesDefinition.of(SPEC);
     coverImmutableBean(test1);
-    BlackFxOptionSmileVolatilitiesSpecification spec2 = BlackFxOptionSmileVolatilitiesSpecification.of(
-        VOL_NAME, EUR_GBP, ACT_360, NODES, LINEAR, LINEAR);
+    BlackFxOptionSmileVolatilitiesSpecification spec2 = BlackFxOptionSmileVolatilitiesSpecification.builder()
+        .name(VOL_NAME)
+        .currencyPair(EUR_GBP)
+        .dayCount(ACT_360)
+        .nodes(NODES)
+        .timeInterpolator(LINEAR)
+        .strikeInterpolator(LINEAR)
+        .build();
     FxOptionVolatilitiesDefinition test2 = FxOptionVolatilitiesDefinition.of(spec2);
     coverBeanEquals(test1, test2);
   }

@@ -62,7 +62,6 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
 import com.opengamma.strata.data.scenario.MarketDataBox;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 import com.opengamma.strata.market.GenericDoubleShifts;
@@ -119,11 +118,11 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
   private static final LocalDate VALUATION_DATE = LocalDate.of(2017, 2, 15);
   private static final LocalTime VALUATION_TIME = LocalTime.NOON;
   private static final LocalTime VALUATION_TIME_1 = LocalTime.MIDNIGHT;
-  private static final ZoneId ZONE = ZoneId.of("Z");
+  private static final ZoneId ZONE = ZoneId.of("Europe/London");
   private static final CurrencyPair GBP_USD = CurrencyPair.of(GBP, USD);
   private static final HolidayCalendarId NY_LO = USNY.combinedWith(GBLO);
   private static final DaysAdjustment SPOT_OFFSET = DaysAdjustment.NONE;
-  private static final BusinessDayAdjustment BUSS_ADJ = BusinessDayAdjustment.of(FOLLOWING, NY_LO);
+  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(FOLLOWING, NY_LO);
 
   private static final List<Tenor> VOL_TENORS = ImmutableList.of(Tenor.TENOR_3M, Tenor.TENOR_6M);
   private static final List<Strike> STRIKES = ImmutableList.of(
@@ -170,7 +169,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
         QuoteId quoteId = QuoteId.of(StandardId.of(
             "OG", VOL_TENORS.get(i).toString() + "_" + STRIKES.get(j).getLabel() + "_" + VALUE_TYPES.get(j).toString()));
         volNodeBuilder.add(FxOptionVolatilitiesNode.of(
-            GBP_USD, SPOT_OFFSET, BUSS_ADJ, VALUE_TYPES.get(j), quoteId, VOL_TENORS.get(i), STRIKES.get(j)));
+            GBP_USD, SPOT_OFFSET, BDA, VALUE_TYPES.get(j), quoteId, VOL_TENORS.get(i), STRIKES.get(j)));
         marketQuoteBuilder.put(quoteId, VOL_QUOTES[i][j]);
         scenarioMarketQuoteBuilder.put(quoteId, MarketDataBox.ofScenarioValues(VOL_QUOTES[i][j], VOL_QUOTES_1[i][j]));
       }
@@ -209,12 +208,18 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
   private static final FxOptionVolatilitiesName VOL_NAME = FxOptionVolatilitiesName.of(GBP_USD.toString() + "_VOL");
   private static final FxOptionVolatilitiesId VOL_ID = FxOptionVolatilitiesId.of(VOL_NAME);
   private static final FxOptionVolatilitiesDefinition VOL_DEFINITION =
-      FxOptionVolatilitiesDefinition.of(BlackFxOptionSmileVolatilitiesSpecification.of(
-          VOL_NAME, GBP_USD, ACT_365F, VOL_NODES, LINEAR, PCHIP));
+      FxOptionVolatilitiesDefinition.of(BlackFxOptionSmileVolatilitiesSpecification.builder()
+          .name(VOL_NAME)
+          .currencyPair(GBP_USD)
+          .dayCount(ACT_365F)
+          .nodes(VOL_NODES)
+          .timeInterpolator(LINEAR)
+          .strikeInterpolator(PCHIP)
+          .build());
   private static final ValuationZoneTimeDefinition ZT_DEFINITION = ValuationZoneTimeDefinition.of(
-      ScenarioArray.of(VALUATION_TIME), ZONE);
+      VALUATION_TIME, ZONE);
   private static final ValuationZoneTimeDefinition SCENARIO_ZT_DEFINITION = ValuationZoneTimeDefinition.of(
-      ScenarioArray.of(VALUATION_TIME, VALUATION_TIME_1), ZONE);
+      VALUATION_TIME, ZONE, VALUATION_TIME, VALUATION_TIME_1);
 
   private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("USD-DSCONOIS-GBP-DSCFX");
   private static final CurveName USD_CURVE_NAME = CurveName.of("USD-DSCON-OIS");
@@ -301,7 +306,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
   private static final BlackFxOptionSmileVolatilities EXP_VOLS_1;
   static {
     List<Double> expiry = VOL_TENORS.stream().map(t -> ACT_365F.relativeYearFraction(
-        VALUATION_DATE, BUSS_ADJ.adjust(SPOT_OFFSET.adjust(VALUATION_DATE, REF_DATA).plus(t), REF_DATA))).collect(toList());
+        VALUATION_DATE, BDA.adjust(SPOT_OFFSET.adjust(VALUATION_DATE, REF_DATA).plus(t), REF_DATA))).collect(toList());
     int nSmiles = expiry.size();
     double[] atm = new double[nSmiles];
     double[][] rr = new double[nSmiles][2];
@@ -336,7 +341,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     MarketData marketDataCalibrated = StandardComponents.marketDataFactory().create(
         REQUIREMENTS, CONFIG, MARKET_DATA, REF_DATA);
     Results results = CALC_RUNNER.calculate(RULES, TARGETS, COLUMN, marketDataCalibrated, REF_DATA);
-    CurrencyAmount computed = (CurrencyAmount) results.get(0, 0).getValue();
+    CurrencyAmount computed = results.get(0, 0, CurrencyAmount.class).getValue();
     CurrencyAmount expected = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
     assertEquals(computed, expected);
@@ -346,7 +351,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     ScenarioMarketData marketDataCalibrated = StandardComponents.marketDataFactory().createMultiScenario(
         REQUIREMENTS, SCENARIO_CONFIG, SCENARIO_MARKET_DATA, REF_DATA, ScenarioDefinition.empty());
     Results results = CALC_RUNNER.calculateMultiScenario(RULES, TARGETS, COLUMN, marketDataCalibrated, REF_DATA);
-    CurrencyScenarioArray pvs = (CurrencyScenarioArray) results.get(0, 0).getValue();
+    CurrencyScenarioArray pvs = results.get(0, 0, CurrencyScenarioArray.class).getValue();
     CurrencyAmount pv0 = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
     CurrencyAmount pv1 = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES_1, EXP_VOLS_1)
@@ -367,7 +372,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     ScenarioMarketData marketDataCalibrated = StandardComponents.marketDataFactory().createMultiScenario(
         REQUIREMENTS, SCENARIO_CONFIG, MARKET_DATA, REF_DATA, scenarioDefinition);
     Results results = CALC_RUNNER.calculateMultiScenario(RULES, TARGETS, COLUMN, marketDataCalibrated, REF_DATA);
-    CurrencyScenarioArray pvs = (CurrencyScenarioArray) results.get(0, 0).getValue();
+    CurrencyScenarioArray pvs = results.get(0, 0, CurrencyScenarioArray.class).getValue();
     for (int i = 0; i < nScenarios; ++i) {
       ImmutableMap.Builder<QuoteId, Double> builder = ImmutableMap.builder();
       for (Entry<QuoteId, Double> entry : MARKET_QUOTES.entrySet()) {
@@ -380,7 +385,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
       MarketData shiftedMarketDataCalibrated = StandardComponents.marketDataFactory().create(
           REQUIREMENTS, CONFIG, shiftedMarketData, REF_DATA);
       Results shiftedResults = CALC_RUNNER.calculate(RULES, TARGETS, COLUMN, shiftedMarketDataCalibrated, REF_DATA);
-      CurrencyAmount pv = (CurrencyAmount) shiftedResults.get(0, 0).getValue();
+      CurrencyAmount pv = shiftedResults.get(0, 0, CurrencyAmount.class).getValue();
       assertEquals(pvs.get(i), pv);
     }
   }
@@ -402,7 +407,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     ScenarioMarketData marketDataCalibrated = StandardComponents.marketDataFactory().createMultiScenario(
         REQUIREMENTS, SCENARIO_CONFIG, MARKET_DATA, REF_DATA, scenarioDefinition);
     Results results = CALC_RUNNER.calculateMultiScenario(RULES, TARGETS, COLUMN, marketDataCalibrated, REF_DATA);
-    CurrencyScenarioArray pvs = (CurrencyScenarioArray) results.get(0, 0).getValue();
+    CurrencyScenarioArray pvs = results.get(0, 0, CurrencyScenarioArray.class).getValue();
     for (int i = 0; i < nScenarios; ++i) {
       int index = i;
       BlackFxOptionSmileVolatilities shiftedSmile = EXP_VOLS.withPerturbation((j, v, m) -> Math.pow(0.9, index) * v);
@@ -431,7 +436,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     ScenarioMarketData marketDataCalibrated = StandardComponents.marketDataFactory().createMultiScenario(
         REQUIREMENTS, SCENARIO_CONFIG, dataWithSurface, REF_DATA, scenarioDefinition);
     Results results = CALC_RUNNER.calculateMultiScenario(RULES, TARGETS, COLUMN, marketDataCalibrated, REF_DATA);
-    CurrencyScenarioArray computed = (CurrencyScenarioArray) results.get(0, 0).getValue();
+    CurrencyScenarioArray computed = results.get(0, 0, CurrencyScenarioArray.class).getValue();
     CurrencyAmount expected = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
     // dependency graph is absent, thus scenarios are not created
@@ -454,7 +459,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
             "OG", GBP_USD.toString() + "_" + SURFACE_TENORS.get(i).toString() + "_" + SURFACE_STRIKES.get(j)));
         quoteBuilder.put(quoteId, SURFACE_VOL_QUOTES[i][j]);
         nodeBuilder.add(FxOptionVolatilitiesNode.of(
-            GBP_USD, SPOT_OFFSET, BUSS_ADJ, ValueType.BLACK_VOLATILITY, quoteId, SURFACE_TENORS.get(i),
+            GBP_USD, SPOT_OFFSET, BDA, ValueType.BLACK_VOLATILITY, quoteId, SURFACE_TENORS.get(i),
             SimpleStrike.of(SURFACE_STRIKES.get(j))));
       }
     }
@@ -463,8 +468,18 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
   }
   private static final MarketData SURFACE_MARKET_DATA = MARKET_DATA.combinedWith(MarketData.of(VALUATION_DATE, SURFACE_QUOTES));
   private static final FxOptionVolatilitiesDefinition VOL_DEFINITION_SURFACE = FxOptionVolatilitiesDefinition.of(
-      BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.of(
-          VOL_NAME, GBP_USD, ACT_365F, SURFACE_NODES, LINEAR, FLAT, FLAT, PCHIP, FLAT, FLAT));
+      BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
+          .name(VOL_NAME)
+          .currencyPair(GBP_USD)
+          .dayCount(ACT_365F)
+          .nodes(SURFACE_NODES)
+          .timeInterpolator(LINEAR)
+          .timeExtrapolatorLeft(FLAT)
+          .timeExtrapolatorRight(FLAT)
+          .strikeInterpolator(PCHIP)
+          .strikeExtrapolatorLeft(FLAT)
+          .strikeExtrapolatorLeft(FLAT)
+          .build());
   private static final MarketDataConfig SURFACE_CONFIG = MarketDataConfig.builder()
       .add(CURVE_GROUP_NAME, CURVE_GROUP_DEFINITION)
       .add(VOL_ID.getName().getName(), VOL_DEFINITION_SURFACE)
@@ -478,7 +493,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     for (int i = 0; i < SURFACE_TENORS.size(); ++i) {
       for (int j = 0; j < SURFACE_STRIKES.size(); ++j) {
         double yearFraction = ACT_365F.relativeYearFraction(
-            VALUATION_DATE, BUSS_ADJ.adjust(SPOT_OFFSET.adjust(VALUATION_DATE, REF_DATA).plus(SURFACE_TENORS.get(i)), REF_DATA));
+            VALUATION_DATE, BDA.adjust(SPOT_OFFSET.adjust(VALUATION_DATE, REF_DATA).plus(SURFACE_TENORS.get(i)), REF_DATA));
         expiry.add(yearFraction);
         strike.add(SURFACE_STRIKES.get(j));
         vols.add(SURFACE_VOL_QUOTES[i][j]);
@@ -496,7 +511,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     MarketData marketDataCalibrated = StandardComponents.marketDataFactory().create(
         REQUIREMENTS, SURFACE_CONFIG, SURFACE_MARKET_DATA, REF_DATA);
     Results results = CALC_RUNNER.calculate(RULES, TARGETS, COLUMN, marketDataCalibrated, REF_DATA);
-    CurrencyAmount computed = (CurrencyAmount) results.get(0, 0).getValue();
+    CurrencyAmount computed = results.get(0, 0, CurrencyAmount.class).getValue();
     CurrencyAmount expected = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, SURFACE_EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
     assertEquals(computed, expected);

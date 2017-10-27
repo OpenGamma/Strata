@@ -32,7 +32,8 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 /**
  * The definition of how to build FX option volatilities.
  * <p>
- * This stores an instance of specification {@code FxOptionVolatilitiesSpecification}.
+ * This stores an instance of specification {@code FxOptionVolatilitiesSpecification}
+ * which allows different kinds of volatility to be created.
  */
 @BeanDefinition(builderScope = "private")
 public final class FxOptionVolatilitiesDefinition

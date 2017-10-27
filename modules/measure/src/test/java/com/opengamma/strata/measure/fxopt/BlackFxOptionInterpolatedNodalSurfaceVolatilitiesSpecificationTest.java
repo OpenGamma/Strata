@@ -60,11 +60,9 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
   private static final CurrencyPair GBP_USD = CurrencyPair.of(GBP, USD);
   private static final HolidayCalendarId NY_LO = USNY.combinedWith(GBLO);
   private static final DaysAdjustment SPOT_OFFSET = DaysAdjustment.ofBusinessDays(2, NY_LO);
-  private static final BusinessDayAdjustment BUSS_ADJ = BusinessDayAdjustment.of(FOLLOWING, NY_LO);
+  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(FOLLOWING, NY_LO);
   private static final List<Tenor> TENORS = ImmutableList.of(Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_1Y);
   private static final List<Double> STRIKES = ImmutableList.of(1.35, 1.5, 1.65, 1.7);
-  private static final double[][] VOL_QUOTES = new double[][] {
-      {0.19, 0.15, 0.13, 0.14}, {0.14, 0.11, 0.09, 0.09}, {0.11, 0.09, 0.07, 0.07}};
   private static final ImmutableList<FxOptionVolatilitiesNode> NODES;
   private static final ImmutableList<QuoteId> QUOTE_IDS;
   static {
@@ -75,8 +73,7 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
         QuoteId quoteId = QuoteId.of(StandardId.of(
             "OG", GBP_USD.toString() + "_" + TENORS.get(i).toString() + "_" + STRIKES.get(j)));
         nodeBuilder.add(FxOptionVolatilitiesNode.of(
-            GBP_USD, SPOT_OFFSET, BUSS_ADJ, ValueType.BLACK_VOLATILITY, quoteId, TENORS.get(i),
-            SimpleStrike.of(STRIKES.get(j))));
+            GBP_USD, SPOT_OFFSET, BDA, ValueType.BLACK_VOLATILITY, quoteId, TENORS.get(i), SimpleStrike.of(STRIKES.get(j))));
         quoteIdBuilder.add(quoteId);
       }
     }
@@ -84,10 +81,20 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
     QUOTE_IDS = quoteIdBuilder.build();
   }
 
-  public void test_of() {
+  public void test_builder() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test =
-        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.of(
-            VOL_NAME, GBP_USD, ACT_365F, NODES, PCHIP, LINEAR, FLAT, DOUBLE_QUADRATIC, FLAT, LINEAR);
+        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
+            .name(VOL_NAME)
+            .currencyPair(GBP_USD)
+            .dayCount(ACT_365F)
+            .nodes(NODES)
+            .timeInterpolator(PCHIP)
+            .timeExtrapolatorLeft(LINEAR)
+            .timeExtrapolatorRight(FLAT)
+            .strikeInterpolator(DOUBLE_QUADRATIC)
+            .strikeExtrapolatorLeft(FLAT)
+            .strikeExtrapolatorRight(LINEAR)
+            .build();
     assertEquals(test.getCurrencyPair(), GBP_USD);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getName(), VOL_NAME);
@@ -104,8 +111,14 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
 
   public void test_volatilities() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification base =
-        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.of(
-            VOL_NAME, GBP_USD, ACT_365F, NODES, PCHIP, DOUBLE_QUADRATIC);
+        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
+            .name(VOL_NAME)
+            .currencyPair(GBP_USD)
+            .dayCount(ACT_365F)
+            .nodes(NODES)
+            .timeInterpolator(PCHIP)
+            .strikeInterpolator(DOUBLE_QUADRATIC)
+            .build();
     ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Z"));
     DoubleArray parameters = DoubleArray.of(0.19, 0.15, 0.13, 0.14, 0.14, 0.11, 0.09, 0.09, 0.11, 0.09, 0.07, 0.07);
     BlackFxOptionSurfaceVolatilities computed = base.volatilities(dateTime, parameters, REF_DATA);
@@ -115,7 +128,7 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
     for (int i = 0; i < TENORS.size(); ++i) {
       double expiry = ACT_365F.relativeYearFraction(
           dateTime.toLocalDate(),
-          BUSS_ADJ.adjust(SPOT_OFFSET.adjust(dateTime.toLocalDate(), REF_DATA).plus(TENORS.get(i)), REF_DATA));
+          BDA.adjust(SPOT_OFFSET.adjust(dateTime.toLocalDate(), REF_DATA).plus(TENORS.get(i)), REF_DATA));
       for (int j = 0; j < STRIKES.size(); ++j) {
         paramMetadata.add(FxVolatilitySurfaceYearFractionParameterMetadata.of(expiry, SimpleStrike.of(STRIKES.get(j)), GBP_USD));
         expiries[STRIKES.size() * i + j] = expiry;
@@ -133,8 +146,18 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
   //-------------------------------------------------------------------------
   public void coverage() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test1 =
-        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.of(
-            VOL_NAME, GBP_USD, ACT_365F, NODES, PCHIP, LINEAR, LINEAR, PCHIP, LINEAR, LINEAR);
+        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
+            .name(VOL_NAME)
+            .currencyPair(GBP_USD)
+            .dayCount(ACT_365F)
+            .nodes(NODES)
+            .timeInterpolator(PCHIP)
+            .timeExtrapolatorLeft(LINEAR)
+            .timeExtrapolatorRight(LINEAR)
+            .strikeInterpolator(PCHIP)
+            .strikeExtrapolatorLeft(LINEAR)
+            .strikeExtrapolatorRight(LINEAR)
+            .build();
     coverImmutableBean(test1);
     CurrencyPair eurUsd = CurrencyPair.of(EUR, USD);
     ImmutableList.Builder<FxOptionVolatilitiesNode> nodeBuilder = ImmutableList.builder();
@@ -143,20 +166,35 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
         QuoteId quoteId = QuoteId.of(StandardId.of(
             "OG", eurUsd.toString() + "_" + TENORS.get(i).toString() + "_" + STRIKES.get(j)));
         nodeBuilder.add(FxOptionVolatilitiesNode.of(
-            eurUsd, SPOT_OFFSET, BUSS_ADJ, ValueType.BLACK_VOLATILITY, quoteId, TENORS.get(i),
-            SimpleStrike.of(STRIKES.get(j))));
+            eurUsd, SPOT_OFFSET, BDA, ValueType.BLACK_VOLATILITY, quoteId, TENORS.get(i), SimpleStrike.of(STRIKES.get(j))));
       }
     }
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test2 =
-        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.of(
-            FxOptionVolatilitiesName.of("other"), eurUsd, ACT_360, nodeBuilder.build(), DOUBLE_QUADRATIC, DOUBLE_QUADRATIC);
+        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
+            .name(FxOptionVolatilitiesName.of("other"))
+            .currencyPair(eurUsd)
+            .dayCount(ACT_360)
+            .nodes(nodeBuilder.build())
+            .timeInterpolator(DOUBLE_QUADRATIC)
+            .strikeInterpolator(DOUBLE_QUADRATIC)
+            .build();
     coverBeanEquals(test1, test2);
   }
 
   public void serialization() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test =
-        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.of(
-            VOL_NAME, GBP_USD, ACT_365F, NODES, PCHIP, LINEAR, FLAT, DOUBLE_QUADRATIC, FLAT, LINEAR);
+        BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
+            .name(VOL_NAME)
+            .currencyPair(GBP_USD)
+            .dayCount(ACT_365F)
+            .nodes(NODES)
+            .timeInterpolator(PCHIP)
+            .timeExtrapolatorLeft(LINEAR)
+            .timeExtrapolatorRight(FLAT)
+            .strikeInterpolator(DOUBLE_QUADRATIC)
+            .strikeExtrapolatorLeft(FLAT)
+            .strikeExtrapolatorRight(LINEAR)
+            .build();
     assertSerialization(test);
   }
 

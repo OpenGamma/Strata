@@ -147,6 +147,8 @@ public final class StandardComponents {
    *  <li>Curve groups from par rates
    *  <li>Curves from curve groups
    *  <li>Discount factors and index rates from curves
+   *  <li>Fx rates from quotes
+   *  <li>FX option volatilities from quotes
    * </ul>
    *
    * @return the standard market data functions

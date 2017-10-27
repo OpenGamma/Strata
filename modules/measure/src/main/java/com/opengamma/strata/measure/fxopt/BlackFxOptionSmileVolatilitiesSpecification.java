@@ -26,6 +26,7 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableConstructor;
+import org.joda.beans.gen.ImmutableDefaults;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
@@ -127,69 +128,6 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
   private final transient ImmutableList<Double> deltas;  // not a property
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates an instance with flat extrapolator. 
-   * 
-   * @param name  the name
-   * @param currencyPair  currency pair
-   * @param dayCount  the day count
-   * @param nodes  the nodes
-   * @param timeInterpolator  the time interpolator
-   * @param strikeInterpolator  the strike interpolator
-   * @return the instance
-   */
-  public static BlackFxOptionSmileVolatilitiesSpecification of(
-      FxOptionVolatilitiesName name,
-      CurrencyPair currencyPair,
-      DayCount dayCount,
-      List<FxOptionVolatilitiesNode> nodes,
-      CurveInterpolator timeInterpolator,
-      CurveInterpolator strikeInterpolator) {
-
-    return of(name, currencyPair, dayCount, nodes, timeInterpolator, FLAT, FLAT, strikeInterpolator, FLAT, FLAT);
-  }
-
-  /**
-   * Creates an instance.
-   * 
-   * @param name  the name
-   * @param currencyPair  currency pair
-   * @param dayCount  the day count
-   * @param nodes  the nodes
-   * @param timeInterpolator  the time interpolator
-   * @param timeExtrapolatorLeft  the time left extrapolator
-   * @param timeExtrapolatorRight  the time right extrapolator
-   * @param strikeInterpolator  the strike interpolator
-   * @param strikeExtrapolatorLeft  the strike left extrapolator
-   * @param strikeExtrapolatorRight  the strike right extrapolator
-   * @return the instance
-   */
-  public static BlackFxOptionSmileVolatilitiesSpecification of(
-      FxOptionVolatilitiesName name,
-      CurrencyPair currencyPair,
-      DayCount dayCount,
-      List<FxOptionVolatilitiesNode> nodes,
-      CurveInterpolator timeInterpolator,
-      CurveExtrapolator timeExtrapolatorLeft,
-      CurveExtrapolator timeExtrapolatorRight,
-      CurveInterpolator strikeInterpolator,
-      CurveExtrapolator strikeExtrapolatorLeft,
-      CurveExtrapolator strikeExtrapolatorRight) {
-
-    return new BlackFxOptionSmileVolatilitiesSpecification(
-        name,
-        currencyPair,
-        dayCount,
-        nodes,
-        timeInterpolator,
-        timeExtrapolatorLeft,
-        timeExtrapolatorRight,
-        strikeInterpolator,
-        strikeExtrapolatorLeft,
-        strikeExtrapolatorRight);
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public BlackFxOptionSmileVolatilities volatilities(
       ZonedDateTime valuationDateTime,
@@ -201,7 +139,7 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
     ImmutableListMultimap.Builder<Tenor, Pair<FxOptionVolatilitiesNode, Double>> builder = ImmutableListMultimap.builder();
     for (Tenor tenor : nodesByTenor.keys()) {
       ImmutableList<Pair<FxOptionVolatilitiesNode, Double>> nodesAndQuotes = nodesByTenor.get(tenor).stream()
-          .map(n -> Pair.of(n, parameters.get(nodes.indexOf(n))))
+          .map(node -> Pair.of(node, parameters.get(nodes.indexOf(node))))
           .collect(toImmutableList());
       builder.putAll(tenor, nodesAndQuotes);
     }
@@ -221,10 +159,18 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
           valuationDateTime, nodesAndQuotesByTenor.get(tenors.get(i)), i, expiries, atm, rr, str, refData);
     }
     InterpolatedStrikeSmileDeltaTermStructure smiles = InterpolatedStrikeSmileDeltaTermStructure.of(
-        DoubleArray.copyOf(expiries), DoubleArray.copyOf(deltas.subList(0, nDeltas)),
-        DoubleArray.copyOf(atm), DoubleMatrix.copyOf(rr), DoubleMatrix.copyOf(str), dayCount,
-        timeInterpolator, timeExtrapolatorLeft, timeExtrapolatorRight,
-        strikeInterpolator, strikeExtrapolatorLeft, strikeExtrapolatorRight);
+        DoubleArray.copyOf(expiries),
+        DoubleArray.copyOf(deltas.subList(0, nDeltas)),
+        DoubleArray.copyOf(atm),
+        DoubleMatrix.copyOf(rr),
+        DoubleMatrix.copyOf(str),
+        dayCount,
+        timeInterpolator,
+        timeExtrapolatorLeft,
+        timeExtrapolatorRight,
+        strikeInterpolator,
+        strikeExtrapolatorLeft,
+        strikeExtrapolatorRight);
 
     return BlackFxOptionSmileVolatilities.of(name, currencyPair, valuationDateTime, smiles);
   }
@@ -262,6 +208,15 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
         throw new IllegalArgumentException("unsupported value type");
       }
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.strikeExtrapolatorLeft = FLAT;
+    builder.strikeExtrapolatorRight = FLAT;
+    builder.timeExtrapolatorLeft = FLAT;
+    builder.timeExtrapolatorRight = FLAT;
   }
 
   //-------------------------------------------------------------------------
@@ -803,6 +758,7 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**

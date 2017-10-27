@@ -29,9 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.opengamma.strata.collect.ArgChecker;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.data.scenario.MarketDataBox;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
  * Definition of valuation zone and time. 
@@ -43,32 +42,46 @@ public final class ValuationZoneTimeDefinition
     implements ImmutableBean, Serializable {
 
   /**
+   * The default local time.
+   * <p>
+   * The default local time will be used if the input date is not scenario value or 
+   * if the scenario size of the input date exceeds the size of {@code localTimes}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalTime defaultLocalTime;
+  /**
+   * The zone ID.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ZoneId zoneId;
+  /**
    * The local time.
    * <p>
    * The local time in {@code zoneId}. 
    * The number of the scenarios must be coherent to that of {@code ScenarioMarketData}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ScenarioArray<LocalTime> localTimes;
-  /**
-   * The zone ID.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ZoneId zoneId;
+  private final ImmutableList<LocalTime> localTimes;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
    * 
-   * @param localTimes  the local time
+   * @param defaultLocalTime default local time
    * @param zoneId  the zone ID
+   * @param localTimes  the local time
    * @return the instance
    */
-  public static ValuationZoneTimeDefinition of(ScenarioArray<LocalTime> localTimes, ZoneId zoneId) {
-    return new ValuationZoneTimeDefinition(localTimes, zoneId);
+  public static ValuationZoneTimeDefinition of(LocalTime defaultLocalTime, ZoneId zoneId, LocalTime... localTimes) {
+    return new ValuationZoneTimeDefinition(defaultLocalTime, zoneId, ImmutableList.copyOf(localTimes));
   }
 
   /**
    * Creates zoned date time. 
+   * <p>
+   * If the scenario size of {@code dates} is greater than the size of {@code localTimes}, 
+   * {@code defaultLocalTime} is used.
+   * If {@code dates} is single value, {@code defaultLocalTime} is used.
    * 
    * @param dates  the local date
    * @return the zoned date time
@@ -76,13 +89,13 @@ public final class ValuationZoneTimeDefinition
   public MarketDataBox<ZonedDateTime> toZonedDateTime(MarketDataBox<LocalDate> dates) {
     if (dates.isScenarioValue()) {
       int nScenarios = dates.getScenarioCount();
-      ArgChecker.isTrue(nScenarios == localTimes.getScenarioCount(), "the number of scenarios must be the same");
+      int nTimes = localTimes.size();
       List<ZonedDateTime> zonedDateTimes = IntStream.range(0, nScenarios)
-          .mapToObj(i -> dates.getValue(i).atTime(localTimes.get(i)).atZone(zoneId))
+          .mapToObj(i -> dates.getValue(i).atTime(i < nTimes ? localTimes.get(i) : defaultLocalTime).atZone(zoneId))
           .collect(Collectors.toList());
       return MarketDataBox.ofScenarioValues(zonedDateTimes);
     }
-    ZonedDateTime zonedDateTime = dates.getSingleValue().atTime(localTimes.get(0)).atZone(zoneId);
+    ZonedDateTime zonedDateTime = dates.getSingleValue().atTime(defaultLocalTime).atZone(zoneId);
     return MarketDataBox.ofSingleValue(zonedDateTime);
   }
 
@@ -105,12 +118,15 @@ public final class ValuationZoneTimeDefinition
   private static final long serialVersionUID = 1L;
 
   private ValuationZoneTimeDefinition(
-      ScenarioArray<LocalTime> localTimes,
-      ZoneId zoneId) {
-    JodaBeanUtils.notNull(localTimes, "localTimes");
+      LocalTime defaultLocalTime,
+      ZoneId zoneId,
+      List<LocalTime> localTimes) {
+    JodaBeanUtils.notNull(defaultLocalTime, "defaultLocalTime");
     JodaBeanUtils.notNull(zoneId, "zoneId");
-    this.localTimes = localTimes;
+    JodaBeanUtils.notNull(localTimes, "localTimes");
+    this.defaultLocalTime = defaultLocalTime;
     this.zoneId = zoneId;
+    this.localTimes = ImmutableList.copyOf(localTimes);
   }
 
   @Override
@@ -120,14 +136,14 @@ public final class ValuationZoneTimeDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the local time.
+   * Gets the default local time.
    * <p>
-   * The local time in {@code zoneId}.
-   * The number of the scenarios must be coherent to that of {@code ScenarioMarketData}.
+   * The default local time will be used if the input date is not scenario value or
+   * if the scenario size of the input date exceeds the size of {@code localTimes}.
    * @return the value of the property, not null
    */
-  public ScenarioArray<LocalTime> getLocalTimes() {
-    return localTimes;
+  public LocalTime getDefaultLocalTime() {
+    return defaultLocalTime;
   }
 
   //-----------------------------------------------------------------------
@@ -140,6 +156,18 @@ public final class ValuationZoneTimeDefinition
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the local time.
+   * <p>
+   * The local time in {@code zoneId}.
+   * The number of the scenarios must be coherent to that of {@code ScenarioMarketData}.
+   * @return the value of the property, not null
+   */
+  public ImmutableList<LocalTime> getLocalTimes() {
+    return localTimes;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -147,8 +175,9 @@ public final class ValuationZoneTimeDefinition
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ValuationZoneTimeDefinition other = (ValuationZoneTimeDefinition) obj;
-      return JodaBeanUtils.equal(localTimes, other.localTimes) &&
-          JodaBeanUtils.equal(zoneId, other.zoneId);
+      return JodaBeanUtils.equal(defaultLocalTime, other.defaultLocalTime) &&
+          JodaBeanUtils.equal(zoneId, other.zoneId) &&
+          JodaBeanUtils.equal(localTimes, other.localTimes);
     }
     return false;
   }
@@ -156,17 +185,19 @@ public final class ValuationZoneTimeDefinition
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(localTimes);
+    hash = hash * 31 + JodaBeanUtils.hashCode(defaultLocalTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(zoneId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(localTimes);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("ValuationZoneTimeDefinition{");
-    buf.append("localTimes").append('=').append(localTimes).append(',').append(' ');
-    buf.append("zoneId").append('=').append(JodaBeanUtils.toString(zoneId));
+    buf.append("defaultLocalTime").append('=').append(defaultLocalTime).append(',').append(' ');
+    buf.append("zoneId").append('=').append(zoneId).append(',').append(' ');
+    buf.append("localTimes").append('=').append(JodaBeanUtils.toString(localTimes));
     buf.append('}');
     return buf.toString();
   }
@@ -182,23 +213,29 @@ public final class ValuationZoneTimeDefinition
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code localTimes} property.
+     * The meta-property for the {@code defaultLocalTime} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ScenarioArray<LocalTime>> localTimes = DirectMetaProperty.ofImmutable(
-        this, "localTimes", ValuationZoneTimeDefinition.class, (Class) ScenarioArray.class);
+    private final MetaProperty<LocalTime> defaultLocalTime = DirectMetaProperty.ofImmutable(
+        this, "defaultLocalTime", ValuationZoneTimeDefinition.class, LocalTime.class);
     /**
      * The meta-property for the {@code zoneId} property.
      */
     private final MetaProperty<ZoneId> zoneId = DirectMetaProperty.ofImmutable(
         this, "zoneId", ValuationZoneTimeDefinition.class, ZoneId.class);
     /**
+     * The meta-property for the {@code localTimes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<LocalTime>> localTimes = DirectMetaProperty.ofImmutable(
+        this, "localTimes", ValuationZoneTimeDefinition.class, (Class) ImmutableList.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "localTimes",
-        "zoneId");
+        "defaultLocalTime",
+        "zoneId",
+        "localTimes");
 
     /**
      * Restricted constructor.
@@ -209,10 +246,12 @@ public final class ValuationZoneTimeDefinition
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1293230747:  // localTimes
-          return localTimes;
+        case 605993879:  // defaultLocalTime
+          return defaultLocalTime;
         case -696323609:  // zoneId
           return zoneId;
+        case 1293230747:  // localTimes
+          return localTimes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -234,11 +273,11 @@ public final class ValuationZoneTimeDefinition
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code localTimes} property.
+     * The meta-property for the {@code defaultLocalTime} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ScenarioArray<LocalTime>> localTimes() {
-      return localTimes;
+    public MetaProperty<LocalTime> defaultLocalTime() {
+      return defaultLocalTime;
     }
 
     /**
@@ -249,14 +288,24 @@ public final class ValuationZoneTimeDefinition
       return zoneId;
     }
 
+    /**
+     * The meta-property for the {@code localTimes} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableList<LocalTime>> localTimes() {
+      return localTimes;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1293230747:  // localTimes
-          return ((ValuationZoneTimeDefinition) bean).getLocalTimes();
+        case 605993879:  // defaultLocalTime
+          return ((ValuationZoneTimeDefinition) bean).getDefaultLocalTime();
         case -696323609:  // zoneId
           return ((ValuationZoneTimeDefinition) bean).getZoneId();
+        case 1293230747:  // localTimes
+          return ((ValuationZoneTimeDefinition) bean).getLocalTimes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -278,8 +327,9 @@ public final class ValuationZoneTimeDefinition
    */
   private static final class Builder extends DirectPrivateBeanBuilder<ValuationZoneTimeDefinition> {
 
-    private ScenarioArray<LocalTime> localTimes;
+    private LocalTime defaultLocalTime;
     private ZoneId zoneId;
+    private List<LocalTime> localTimes = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -291,10 +341,12 @@ public final class ValuationZoneTimeDefinition
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1293230747:  // localTimes
-          return localTimes;
+        case 605993879:  // defaultLocalTime
+          return defaultLocalTime;
         case -696323609:  // zoneId
           return zoneId;
+        case 1293230747:  // localTimes
+          return localTimes;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -304,11 +356,14 @@ public final class ValuationZoneTimeDefinition
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1293230747:  // localTimes
-          this.localTimes = (ScenarioArray<LocalTime>) newValue;
+        case 605993879:  // defaultLocalTime
+          this.defaultLocalTime = (LocalTime) newValue;
           break;
         case -696323609:  // zoneId
           this.zoneId = (ZoneId) newValue;
+          break;
+        case 1293230747:  // localTimes
+          this.localTimes = (List<LocalTime>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -319,17 +374,19 @@ public final class ValuationZoneTimeDefinition
     @Override
     public ValuationZoneTimeDefinition build() {
       return new ValuationZoneTimeDefinition(
-          localTimes,
-          zoneId);
+          defaultLocalTime,
+          zoneId,
+          localTimes);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("ValuationZoneTimeDefinition.Builder{");
-      buf.append("localTimes").append('=').append(JodaBeanUtils.toString(localTimes)).append(',').append(' ');
-      buf.append("zoneId").append('=').append(JodaBeanUtils.toString(zoneId));
+      buf.append("defaultLocalTime").append('=').append(JodaBeanUtils.toString(defaultLocalTime)).append(',').append(' ');
+      buf.append("zoneId").append('=').append(JodaBeanUtils.toString(zoneId)).append(',').append(' ');
+      buf.append("localTimes").append('=').append(JodaBeanUtils.toString(localTimes));
       buf.append('}');
       return buf.toString();
     }

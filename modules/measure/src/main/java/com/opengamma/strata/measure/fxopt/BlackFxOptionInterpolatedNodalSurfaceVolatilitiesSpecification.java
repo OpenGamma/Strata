@@ -16,18 +16,18 @@ import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableDefaults;
 import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -57,7 +57,7 @@ import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceYearFractionParamete
  * This is the specification for a single volatility object, {@link BlackFxOptionSurfaceVolatilities}. 
  * The underlying surface in the volatilities is {@code InterpolatedNodalSurface}.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification
     implements FxOptionVolatilitiesSpecification, ImmutableBean, Serializable {
 
@@ -104,77 +104,23 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
   private final CurveExtrapolator strikeExtrapolatorRight;
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates an instance with flat extrapolator. 
-   * 
-   * @param name  the name
-   * @param currencyPair  currency pair
-   * @param dayCount  the day count
-   * @param nodes  the nodes
-   * @param timeInterpolator  the time interpolator
-   * @param strikeInterpolator  the strike interpolator
-   * @return the instance
-   */
-  public static BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification of(
-      FxOptionVolatilitiesName name,
-      CurrencyPair currencyPair,
-      DayCount dayCount,
-      List<FxOptionVolatilitiesNode> nodes,
-      CurveInterpolator timeInterpolator,
-      CurveInterpolator strikeInterpolator) {
-
-    return of(name, currencyPair, dayCount, nodes, timeInterpolator, FLAT, FLAT, strikeInterpolator, FLAT, FLAT);
-  }
-
-  /**
-   * Creates an instance.
-   * 
-   * @param name  the name
-   * @param currencyPair  currency pair
-   * @param dayCount  the day count
-   * @param nodes  the nodes
-   * @param timeInterpolator  the time interpolator
-   * @param timeExtrapolatorLeft  the time left extrapolator
-   * @param timeExtrapolatorRight  the time right extrapolator
-   * @param strikeInterpolator  the strike interpolator
-   * @param strikeExtrapolatorLeft  the strike left extrapolator
-   * @param strikeExtrapolatorRight  the strike right extrapolator
-   * @return the instance
-   */
-  public static BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification of(
-      FxOptionVolatilitiesName name,
-      CurrencyPair currencyPair,
-      DayCount dayCount,
-      List<FxOptionVolatilitiesNode> nodes,
-      CurveInterpolator timeInterpolator,
-      CurveExtrapolator timeExtrapolatorLeft,
-      CurveExtrapolator timeExtrapolatorRight,
-      CurveInterpolator strikeInterpolator,
-      CurveExtrapolator strikeExtrapolatorLeft,
-      CurveExtrapolator strikeExtrapolatorRight) {
-
-    return new BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification(
-        name,
-        currencyPair,
-        dayCount,
-        nodes,
-        timeInterpolator,
-        timeExtrapolatorLeft,
-        timeExtrapolatorRight,
-        strikeInterpolator,
-        strikeExtrapolatorLeft,
-        strikeExtrapolatorRight);
-  }
-
   @ImmutableValidator
   private void validate() {
     int nParams = nodes.size();
     for (int i = 0; i < nParams; ++i) {
-      ArgChecker.isTrue(nodes.get(i).getCurrencyPair().equals(currencyPair), "currency pair must be the same");
+      ArgChecker.isTrue(nodes.get(i).getCurrencyPair().equals(currencyPair), "Currency pair must be the same");
       ArgChecker.isTrue(nodes.get(i).getStrike() instanceof SimpleStrike, "Strike must be SimpleStrike");
       ArgChecker.isTrue(nodes.get(i).getQuoteValueType().equals(ValueType.BLACK_VOLATILITY),
-          "quote value type must be BLACK_VOLATILITY");
+          "Quote value type must be BLACK_VOLATILITY");
     }
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.strikeExtrapolatorLeft = FLAT;
+    builder.strikeExtrapolatorRight = FLAT;
+    builder.timeExtrapolatorLeft = FLAT;
+    builder.timeExtrapolatorRight = FLAT;
   }
 
   //-------------------------------------------------------------------------
@@ -184,18 +130,21 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
       DoubleArray parameters,
       ReferenceData refData) {
 
-    ArgChecker.isTrue(parameters.size() == getParameterCount(),
-        Messages.format("size of parameters must be {}, but found {}", getParameterCount(), parameters.size()));
-    DoubleArray strikes = DoubleArray.ofUnsafe(
-        nodes.stream().mapToDouble(n -> n.getStrike().getValue()).toArray());
-    DoubleArray expiries = DoubleArray.ofUnsafe(
-        nodes.stream().mapToDouble(n -> n.timeToExpiry(valuationDateTime, dayCount, refData)).toArray());
+    int nNodes = getParameterCount();
+    ArgChecker.isTrue(parameters.size() == nNodes,
+        Messages.format("size of parameters must be {}, but found {}", nNodes, parameters.size()));
+    DoubleArray strikes = DoubleArray.of(nNodes, i -> nodes.get(i).getStrike().getValue());
+    DoubleArray expiries = DoubleArray.of(nNodes, i -> nodes.get(i).timeToExpiry(valuationDateTime, dayCount, refData));
     SurfaceMetadata metadata = Surfaces.blackVolatilityByExpiryStrike(SurfaceName.of(name.getName()), dayCount)
         .withParameterMetadata(parameterMetadata(expiries));
     
     SurfaceInterpolator interp = GridSurfaceInterpolator.of(
-        timeInterpolator, timeExtrapolatorLeft, timeExtrapolatorRight,
-        strikeInterpolator, strikeExtrapolatorLeft, strikeExtrapolatorRight);
+        timeInterpolator,
+        timeExtrapolatorLeft,
+        timeExtrapolatorRight,
+        strikeInterpolator,
+        strikeExtrapolatorLeft,
+        strikeExtrapolatorRight);
     InterpolatedNodalSurface surface = InterpolatedNodalSurface.ofUnsorted(metadata, expiries, strikes, parameters, interp);
     return BlackFxOptionSurfaceVolatilities.of(name, currencyPair, valuationDateTime, surface);
   }
@@ -225,6 +174,14 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.Builder builder() {
+    return new BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.Builder();
+  }
 
   private BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification(
       FxOptionVolatilitiesName name,
@@ -359,6 +316,14 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -525,7 +490,7 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
     }
 
     @Override
-    public BeanBuilder<? extends BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification> builder() {
+    public BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.Builder builder() {
       return new BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.Builder();
     }
 
@@ -663,7 +628,7 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
   /**
    * The bean-builder for {@code BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification> {
+  public static final class Builder extends DirectFieldsBeanBuilder<BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification> {
 
     private FxOptionVolatilitiesName name;
     private CurrencyPair currencyPair;
@@ -680,6 +645,24 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification beanToCopy) {
+      this.name = beanToCopy.getName();
+      this.currencyPair = beanToCopy.getCurrencyPair();
+      this.dayCount = beanToCopy.getDayCount();
+      this.nodes = beanToCopy.getNodes();
+      this.timeInterpolator = beanToCopy.getTimeInterpolator();
+      this.timeExtrapolatorLeft = beanToCopy.getTimeExtrapolatorLeft();
+      this.timeExtrapolatorRight = beanToCopy.getTimeExtrapolatorRight();
+      this.strikeInterpolator = beanToCopy.getStrikeInterpolator();
+      this.strikeExtrapolatorLeft = beanToCopy.getStrikeExtrapolatorLeft();
+      this.strikeExtrapolatorRight = beanToCopy.getStrikeExtrapolatorRight();
     }
 
     //-----------------------------------------------------------------------
@@ -752,6 +735,12 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
     public BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification build() {
       return new BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification(
           name,
@@ -764,6 +753,127 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
           strikeInterpolator,
           strikeExtrapolatorLeft,
           strikeExtrapolatorRight);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the name.
+     * @param name  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder name(FxOptionVolatilitiesName name) {
+      JodaBeanUtils.notNull(name, "name");
+      this.name = name;
+      return this;
+    }
+
+    /**
+     * Sets the currencyPair.
+     * @param currencyPair  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currencyPair(CurrencyPair currencyPair) {
+      JodaBeanUtils.notNull(currencyPair, "currencyPair");
+      this.currencyPair = currencyPair;
+      return this;
+    }
+
+    /**
+     * Sets the dayCount.
+     * @param dayCount  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder dayCount(DayCount dayCount) {
+      JodaBeanUtils.notNull(dayCount, "dayCount");
+      this.dayCount = dayCount;
+      return this;
+    }
+
+    /**
+     * Sets the nodes.
+     * @param nodes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder nodes(List<FxOptionVolatilitiesNode> nodes) {
+      JodaBeanUtils.notNull(nodes, "nodes");
+      this.nodes = nodes;
+      return this;
+    }
+
+    /**
+     * Sets the {@code nodes} property in the builder
+     * from an array of objects.
+     * @param nodes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder nodes(FxOptionVolatilitiesNode... nodes) {
+      return nodes(ImmutableList.copyOf(nodes));
+    }
+
+    /**
+     * Sets the interpolator used in the time dimension.
+     * @param timeInterpolator  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder timeInterpolator(CurveInterpolator timeInterpolator) {
+      JodaBeanUtils.notNull(timeInterpolator, "timeInterpolator");
+      this.timeInterpolator = timeInterpolator;
+      return this;
+    }
+
+    /**
+     * Sets the left extrapolator used in the time dimension.
+     * @param timeExtrapolatorLeft  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder timeExtrapolatorLeft(CurveExtrapolator timeExtrapolatorLeft) {
+      JodaBeanUtils.notNull(timeExtrapolatorLeft, "timeExtrapolatorLeft");
+      this.timeExtrapolatorLeft = timeExtrapolatorLeft;
+      return this;
+    }
+
+    /**
+     * Sets the right extrapolator used in the time dimension.
+     * @param timeExtrapolatorRight  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder timeExtrapolatorRight(CurveExtrapolator timeExtrapolatorRight) {
+      JodaBeanUtils.notNull(timeExtrapolatorRight, "timeExtrapolatorRight");
+      this.timeExtrapolatorRight = timeExtrapolatorRight;
+      return this;
+    }
+
+    /**
+     * Sets the interpolator used in the strike dimension.
+     * @param strikeInterpolator  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder strikeInterpolator(CurveInterpolator strikeInterpolator) {
+      JodaBeanUtils.notNull(strikeInterpolator, "strikeInterpolator");
+      this.strikeInterpolator = strikeInterpolator;
+      return this;
+    }
+
+    /**
+     * Sets the left extrapolator used in the strike dimension.
+     * @param strikeExtrapolatorLeft  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder strikeExtrapolatorLeft(CurveExtrapolator strikeExtrapolatorLeft) {
+      JodaBeanUtils.notNull(strikeExtrapolatorLeft, "strikeExtrapolatorLeft");
+      this.strikeExtrapolatorLeft = strikeExtrapolatorLeft;
+      return this;
+    }
+
+    /**
+     * Sets the right extrapolator used in the strike dimension.
+     * @param strikeExtrapolatorRight  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder strikeExtrapolatorRight(CurveExtrapolator strikeExtrapolatorRight) {
+      JodaBeanUtils.notNull(strikeExtrapolatorRight, "strikeExtrapolatorRight");
+      this.strikeExtrapolatorRight = strikeExtrapolatorRight;
+      return this;
     }
 
     //-----------------------------------------------------------------------
