@@ -135,7 +135,7 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
       ReferenceData refData) {
 
     ArgChecker.isTrue(parameters.size() == getParameterCount(),
-        Messages.format("size of parameters must be {}, but found {}", getParameterCount(), parameters.size()));
+        Messages.format("Size of parameters must be {}, but found {}", getParameterCount(), parameters.size()));
     ImmutableListMultimap.Builder<Tenor, Pair<FxOptionVolatilitiesNode, Double>> builder = ImmutableListMultimap.builder();
     for (Tenor tenor : nodesByTenor.keys()) {
       ImmutableList<Pair<FxOptionVolatilitiesNode, Double>> nodesAndQuotes = nodesByTenor.get(tenor).stream()
@@ -205,7 +205,7 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
           }
         }
       } else {
-        throw new IllegalArgumentException("unsupported value type");
+        throw new IllegalArgumentException("Unsupported value type");
       }
     }
   }
@@ -273,20 +273,20 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
       ImmutableList<FxOptionVolatilitiesNode> nodesForTenor = nodesByTenor.get(tenor);
       // value type, delta, size
       List<Double> atmDelta = nodesForTenor.stream()
-          .filter(n -> n.getQuoteValueType().equals(ValueType.BLACK_VOLATILITY))
-          .map(n -> n.getStrike().getValue())
+          .filter(node -> node.getQuoteValueType().equals(ValueType.BLACK_VOLATILITY))
+          .map(node -> node.getStrike().getValue())
           .sorted()
           .collect(toList());
       ArgChecker.isTrue(atmDelta.equals(fullDeltas.subList(nDeltas, nDeltas + 1)));
       List<Double> rrDelta = nodesForTenor.stream()
-          .filter(n -> n.getQuoteValueType().equals(ValueType.RISK_REVERSAL))
-          .map(n -> n.getStrike().getValue())
+          .filter(node -> node.getQuoteValueType().equals(ValueType.RISK_REVERSAL))
+          .map(node -> node.getStrike().getValue())
           .sorted()
           .collect(toList());
       ArgChecker.isTrue(rrDelta.equals(deltas));
       List<Double> strDelta = nodesForTenor.stream()
-          .filter(n -> n.getQuoteValueType().equals(ValueType.STRANGLE))
-          .map(n -> n.getStrike().getValue())
+          .filter(node -> node.getQuoteValueType().equals(ValueType.STRANGLE))
+          .map(node -> node.getStrike().getValue())
           .sorted()
           .collect(toList());
       ArgChecker.isTrue(strDelta.equals(deltas));

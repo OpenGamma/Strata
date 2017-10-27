@@ -88,7 +88,7 @@ public class FxOptionVolatilitiesDefinitionTest {
     assertEquals(test.getSpecification(), SPEC);
     assertEquals(test.getParameterCount(), SPEC.getParameterCount());
     assertEquals(test.volatilitiesInputs(), SPEC.volatilitiesInputs());
-    ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Z"));
+    ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Europe/London"));
     DoubleArray parameters = DoubleArray.of(0.05, -0.05, 0.15, 0.25, 0.1, -0.1);
     assertEquals(test.volatilities(dateTime, parameters, REF_DATA), SPEC.volatilities(dateTime, parameters, REF_DATA));
   }

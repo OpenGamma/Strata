@@ -119,7 +119,7 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
             .timeInterpolator(PCHIP)
             .strikeInterpolator(DOUBLE_QUADRATIC)
             .build();
-    ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Z"));
+    ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Europe/London"));
     DoubleArray parameters = DoubleArray.of(0.19, 0.15, 0.13, 0.14, 0.14, 0.11, 0.09, 0.09, 0.11, 0.09, 0.07, 0.07);
     BlackFxOptionSurfaceVolatilities computed = base.volatilities(dateTime, parameters, REF_DATA);
     double[] expiries = new double[STRIKES.size() * TENORS.size()];

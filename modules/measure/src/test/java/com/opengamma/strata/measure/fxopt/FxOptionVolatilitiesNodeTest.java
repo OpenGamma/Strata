@@ -66,7 +66,7 @@ public class FxOptionVolatilitiesNodeTest {
   public void test_expiry() {
     FxOptionVolatilitiesNode test = FxOptionVolatilitiesNode.of(
         EUR_GBP, SPOT_DATE_OFFSET, BDA, ValueType.BLACK_VOLATILITY, QUOTE_ID, Tenor.TENOR_3M, STRIKE);
-    ZonedDateTime dateTime = LocalDate.of(2016, 1, 23).atStartOfDay(ZoneId.of("Z"));
+    ZonedDateTime dateTime = LocalDate.of(2016, 1, 23).atStartOfDay(ZoneId.of("Europe/London"));
     double computed = test.timeToExpiry(dateTime, ACT_365F, REF_DATA);
     double expected = ACT_365F.relativeYearFraction(
         dateTime.toLocalDate(),

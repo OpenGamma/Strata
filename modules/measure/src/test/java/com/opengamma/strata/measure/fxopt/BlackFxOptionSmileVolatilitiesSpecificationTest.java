@@ -118,7 +118,7 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
         .timeInterpolator(PCHIP)
         .strikeInterpolator(PCHIP)
         .build();
-    ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Z"));
+    ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Europe/London"));
     DoubleArray parameters = DoubleArray.of(0.05, -0.05, 0.15, 0.25, 0.1, -0.1);
     BlackFxOptionSmileVolatilities computed = base.volatilities(dateTime, parameters, REF_DATA);
     LocalDate spotDate = SPOT_OFFSET.adjust(dateTime.toLocalDate(), REF_DATA);
