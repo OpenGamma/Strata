@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.basics.schedule;
 
-import static java.time.temporal.ChronoField.PROLEPTIC_MONTH;
-
 import java.time.LocalDate;
 
 import org.joda.convert.FromString;
@@ -259,7 +257,7 @@ public enum StubConvention implements NamedEnum {
     // dates are at the end of the month, and in different months
     if (this == NONE) {
       if (start.getDayOfMonth() != end.getDayOfMonth() &&
-          start.getLong(PROLEPTIC_MONTH) != end.getLong(PROLEPTIC_MONTH) &&
+          start.getMonth() != end.getMonth() &&
           (start.getDayOfMonth() == start.lengthOfMonth() || end.getDayOfMonth() == end.lengthOfMonth())) {
         return RollConvention.ofDayOfMonth(Math.max(start.getDayOfMonth(), end.getDayOfMonth()));
       }
