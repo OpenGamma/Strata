@@ -58,7 +58,8 @@ public final class ValuationZoneTimeDefinition
    * The local time.
    * <p>
    * The local time in {@code zoneId}. 
-   * The number of the scenarios must be coherent to that of {@code ScenarioMarketData}.
+   * The size is not necessarily the same as the scenario size. 
+   * {@code defaultLocalTime} will be used if extra {@code LocalTime} is required.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<LocalTime> localTimes;
@@ -164,7 +165,8 @@ public final class ValuationZoneTimeDefinition
    * Gets the local time.
    * <p>
    * The local time in {@code zoneId}.
-   * The number of the scenarios must be coherent to that of {@code ScenarioMarketData}.
+   * The size is not necessarily the same as the scenario size.
+   * {@code defaultLocalTime} will be used if extra {@code LocalTime} is required.
    * @return the value of the property, not null
    */
   public ImmutableList<LocalTime> getLocalTimes() {
