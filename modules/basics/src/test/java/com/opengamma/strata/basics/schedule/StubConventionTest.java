@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.schedule;
 
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2W;
+import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_14;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_16;
@@ -27,9 +28,11 @@ import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.Month.APRIL;
 import static java.time.Month.AUGUST;
+import static java.time.Month.FEBRUARY;
 import static java.time.Month.JANUARY;
 import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
+import static java.time.Month.MARCH;
 import static java.time.Month.OCTOBER;
 import static org.testng.Assert.assertEquals;
 
@@ -76,6 +79,13 @@ public class StubConventionTest {
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
         {NONE, date(2014, JANUARY, 31), date(2014, APRIL, 30), P1M, true, RollConventions.EOM},
         {NONE, date(2014, APRIL, 30), date(2014, AUGUST, 31), P1M, true, RollConventions.EOM},
+        {NONE, date(2014, APRIL, 30), date(2014, FEBRUARY, 28), P1M, true, RollConventions.EOM},
+        {NONE, date(2016, FEBRUARY, 29), date(2019, FEBRUARY, 28), P6M, true, RollConventions.EOM},
+        {NONE, date(2015, FEBRUARY, 28), date(2016, FEBRUARY, 29), P6M, true, RollConventions.EOM},
+        {NONE, date(2015, APRIL, 30), date(2016, FEBRUARY, 29), P1M, true, RollConventions.EOM},
+        {NONE, date(2016, MARCH, 31), date(2017, MARCH, 27), P6M, true, RollConventions.EOM},
+        {NONE, date(2016, MARCH, 16), date(2016, MARCH, 31), P6M, true, RollConvention.ofDayOfMonth(16)},
+        {NONE, date(2016, MARCH, 16), date(2017, MARCH, 31), P6M, true, RollConventions.EOM},
 
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_16},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_16},
