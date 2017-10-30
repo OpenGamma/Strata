@@ -12,17 +12,17 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.option.Strike;
@@ -40,7 +41,7 @@ import com.opengamma.strata.market.option.Strike;
  * Each node is not necessarily associated with an instrument, 
  * but provides the necessary information to create {@code FxOptionVolatilities}. 
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class FxOptionVolatilitiesNode
     implements ImmutableBean, Serializable {
 
@@ -58,14 +59,27 @@ public final class FxOptionVolatilitiesNode
   private final String label;
   /**
    * The offset of the spot value date from the valuation date.
+   * <p>
+   * Typically this is the same as the standard convention of the spot date offset of the underlying FX forward.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment spotDateOffset;
   /**
-   * The business day adjustment to apply to the expiry date.
+   * The business day adjustment to apply to the delivery date.
+   * <p>
+   * Typically this is the same as the standard convention of the business day adjustment 
+   * applied to the delivery date of the underlying FX forward.
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
+  /**
+   * The offset of the expiry date from the delivery date.
+   * <p>
+   * By default the expiry date offset is the inverse of {@code spotDateOffset}. 
+   * In this case {@code BusinessDayAdjustment} in {@code spotDateOffset} must be {@code NONE}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DaysAdjustment expiryDateOffset;
   /**
    * The value type of the quote.
    */
@@ -78,6 +92,9 @@ public final class FxOptionVolatilitiesNode
   private final QuoteId quoteId;
   /**
    * The tenor.
+   * <p>
+   * Typically the tenor is coherent to that of the underlying FX forward. 
+   * Thus it spans the period between spot date to delivery date.
    */
   @PropertyDefinition(validate = "notNull")
   private final Tenor tenor;
@@ -111,49 +128,34 @@ public final class FxOptionVolatilitiesNode
       Tenor tenor,
       Strike strike) {
 
-    return of(
+    DaysAdjustment expiryDateOffset = expiryDateOffset(spotDateOffset);
+
+    return new FxOptionVolatilitiesNode(
         currencyPair,
         quoteId.toString(),
         spotDateOffset,
         businessDayAdjustment,
+        expiryDateOffset,
         quoteValueType,
         quoteId,
         tenor,
         strike);
   }
 
-  /**
-   * Creates an instance.
-   * 
-   * @param currencyPair  the currency pair
-   * @param label  the label
-   * @param spotDateOffset  the spot date offset
-   * @param businessDayAdjustment  the business day adjustment
-   * @param quoteValueType  the quote value type
-   * @param quoteId  the quote ID
-   * @param tenor  the tenor
-   * @param strike  the strike
-   * @return the instance
-   */
-  public static FxOptionVolatilitiesNode of(
-      CurrencyPair currencyPair,
-      String label,
-      DaysAdjustment spotDateOffset,
-      BusinessDayAdjustment businessDayAdjustment,
-      ValueType quoteValueType,
-      QuoteId quoteId,
-      Tenor tenor,
-      Strike strike) {
+  private static DaysAdjustment expiryDateOffset(DaysAdjustment spotDateOffset) {
+    ArgChecker.isTrue(spotDateOffset.getAdjustment().equals(BusinessDayAdjustment.NONE),
+        "BusinessDayAdjustment in spotDateOffset must be NONE if expiryDateOffset is created from spotDateOffset");
+    DaysAdjustment adj = spotDateOffset.toBuilder().days(-spotDateOffset.getDays()).build();
+    return adj;
+  }
 
-    return new FxOptionVolatilitiesNode(
-        currencyPair,
-        label,
-        spotDateOffset,
-        businessDayAdjustment,
-        quoteValueType,
-        quoteId,
-        tenor,
-        strike);
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.expiryDateOffset == null) {
+      if (builder.spotDateOffset != null) {
+        builder.expiryDateOffset = expiryDateOffset(builder.spotDateOffset);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -168,8 +170,9 @@ public final class FxOptionVolatilitiesNode
   public double timeToExpiry(ZonedDateTime valuationDateTime, DayCount dayCount, ReferenceData refData) {
     LocalDate valuationDate = valuationDateTime.toLocalDate();
     LocalDate spotDate = spotDateOffset.adjust(valuationDate, refData);
-    LocalDate endDate = businessDayAdjustment.adjust(spotDate.plus(tenor), refData);
-    return dayCount.relativeYearFraction(valuationDate, endDate);
+    LocalDate deliveryDate = businessDayAdjustment.adjust(spotDate.plus(tenor), refData);
+    LocalDate expiryDate = expiryDateOffset.adjust(deliveryDate, refData);
+    return dayCount.relativeYearFraction(valuationDate, expiryDate);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -190,11 +193,20 @@ public final class FxOptionVolatilitiesNode
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static FxOptionVolatilitiesNode.Builder builder() {
+    return new FxOptionVolatilitiesNode.Builder();
+  }
+
   private FxOptionVolatilitiesNode(
       CurrencyPair currencyPair,
       String label,
       DaysAdjustment spotDateOffset,
       BusinessDayAdjustment businessDayAdjustment,
+      DaysAdjustment expiryDateOffset,
       ValueType quoteValueType,
       QuoteId quoteId,
       Tenor tenor,
@@ -203,6 +215,7 @@ public final class FxOptionVolatilitiesNode
     JodaBeanUtils.notNull(label, "label");
     JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
     JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
+    JodaBeanUtils.notNull(expiryDateOffset, "expiryDateOffset");
     JodaBeanUtils.notNull(quoteValueType, "quoteValueType");
     JodaBeanUtils.notNull(quoteId, "quoteId");
     JodaBeanUtils.notNull(tenor, "tenor");
@@ -211,6 +224,7 @@ public final class FxOptionVolatilitiesNode
     this.label = label;
     this.spotDateOffset = spotDateOffset;
     this.businessDayAdjustment = businessDayAdjustment;
+    this.expiryDateOffset = expiryDateOffset;
     this.quoteValueType = quoteValueType;
     this.quoteId = quoteId;
     this.tenor = tenor;
@@ -245,6 +259,8 @@ public final class FxOptionVolatilitiesNode
   //-----------------------------------------------------------------------
   /**
    * Gets the offset of the spot value date from the valuation date.
+   * <p>
+   * Typically this is the same as the standard convention of the spot date offset of the underlying FX forward.
    * @return the value of the property, not null
    */
   public DaysAdjustment getSpotDateOffset() {
@@ -253,11 +269,26 @@ public final class FxOptionVolatilitiesNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjustment to apply to the expiry date.
+   * Gets the business day adjustment to apply to the delivery date.
+   * <p>
+   * Typically this is the same as the standard convention of the business day adjustment
+   * applied to the delivery date of the underlying FX forward.
    * @return the value of the property, not null
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the offset of the expiry date from the delivery date.
+   * <p>
+   * By default the expiry date offset is the inverse of {@code spotDateOffset}.
+   * In this case {@code BusinessDayAdjustment} in {@code spotDateOffset} must be {@code NONE}.
+   * @return the value of the property, not null
+   */
+  public DaysAdjustment getExpiryDateOffset() {
+    return expiryDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -281,6 +312,9 @@ public final class FxOptionVolatilitiesNode
   //-----------------------------------------------------------------------
   /**
    * Gets the tenor.
+   * <p>
+   * Typically the tenor is coherent to that of the underlying FX forward.
+   * Thus it spans the period between spot date to delivery date.
    * @return the value of the property, not null
    */
   public Tenor getTenor() {
@@ -297,6 +331,14 @@ public final class FxOptionVolatilitiesNode
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -308,6 +350,7 @@ public final class FxOptionVolatilitiesNode
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(expiryDateOffset, other.expiryDateOffset) &&
           JodaBeanUtils.equal(quoteValueType, other.quoteValueType) &&
           JodaBeanUtils.equal(quoteId, other.quoteId) &&
           JodaBeanUtils.equal(tenor, other.tenor) &&
@@ -323,6 +366,7 @@ public final class FxOptionVolatilitiesNode
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(expiryDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(quoteValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(quoteId);
     hash = hash * 31 + JodaBeanUtils.hashCode(tenor);
@@ -332,12 +376,13 @@ public final class FxOptionVolatilitiesNode
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("FxOptionVolatilitiesNode{");
     buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("spotDateOffset").append('=').append(spotDateOffset).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("expiryDateOffset").append('=').append(expiryDateOffset).append(',').append(' ');
     buf.append("quoteValueType").append('=').append(quoteValueType).append(',').append(' ');
     buf.append("quoteId").append('=').append(quoteId).append(',').append(' ');
     buf.append("tenor").append('=').append(tenor).append(',').append(' ');
@@ -377,6 +422,11 @@ public final class FxOptionVolatilitiesNode
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "businessDayAdjustment", FxOptionVolatilitiesNode.class, BusinessDayAdjustment.class);
     /**
+     * The meta-property for the {@code expiryDateOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> expiryDateOffset = DirectMetaProperty.ofImmutable(
+        this, "expiryDateOffset", FxOptionVolatilitiesNode.class, DaysAdjustment.class);
+    /**
      * The meta-property for the {@code quoteValueType} property.
      */
     private final MetaProperty<ValueType> quoteValueType = DirectMetaProperty.ofImmutable(
@@ -405,6 +455,7 @@ public final class FxOptionVolatilitiesNode
         "label",
         "spotDateOffset",
         "businessDayAdjustment",
+        "expiryDateOffset",
         "quoteValueType",
         "quoteId",
         "tenor",
@@ -427,6 +478,8 @@ public final class FxOptionVolatilitiesNode
           return spotDateOffset;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
+        case 508197748:  // expiryDateOffset
+          return expiryDateOffset;
         case 758636847:  // quoteValueType
           return quoteValueType;
         case 664377527:  // quoteId
@@ -440,7 +493,7 @@ public final class FxOptionVolatilitiesNode
     }
 
     @Override
-    public BeanBuilder<? extends FxOptionVolatilitiesNode> builder() {
+    public FxOptionVolatilitiesNode.Builder builder() {
       return new FxOptionVolatilitiesNode.Builder();
     }
 
@@ -488,6 +541,14 @@ public final class FxOptionVolatilitiesNode
     }
 
     /**
+     * The meta-property for the {@code expiryDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> expiryDateOffset() {
+      return expiryDateOffset;
+    }
+
+    /**
      * The meta-property for the {@code quoteValueType} property.
      * @return the meta-property, not null
      */
@@ -531,6 +592,8 @@ public final class FxOptionVolatilitiesNode
           return ((FxOptionVolatilitiesNode) bean).getSpotDateOffset();
         case -1065319863:  // businessDayAdjustment
           return ((FxOptionVolatilitiesNode) bean).getBusinessDayAdjustment();
+        case 508197748:  // expiryDateOffset
+          return ((FxOptionVolatilitiesNode) bean).getExpiryDateOffset();
         case 758636847:  // quoteValueType
           return ((FxOptionVolatilitiesNode) bean).getQuoteValueType();
         case 664377527:  // quoteId
@@ -558,12 +621,13 @@ public final class FxOptionVolatilitiesNode
   /**
    * The bean-builder for {@code FxOptionVolatilitiesNode}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<FxOptionVolatilitiesNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FxOptionVolatilitiesNode> {
 
     private CurrencyPair currencyPair;
     private String label;
     private DaysAdjustment spotDateOffset;
     private BusinessDayAdjustment businessDayAdjustment;
+    private DaysAdjustment expiryDateOffset;
     private ValueType quoteValueType;
     private QuoteId quoteId;
     private Tenor tenor;
@@ -573,6 +637,22 @@ public final class FxOptionVolatilitiesNode
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(FxOptionVolatilitiesNode beanToCopy) {
+      this.currencyPair = beanToCopy.getCurrencyPair();
+      this.label = beanToCopy.getLabel();
+      this.spotDateOffset = beanToCopy.getSpotDateOffset();
+      this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
+      this.expiryDateOffset = beanToCopy.getExpiryDateOffset();
+      this.quoteValueType = beanToCopy.getQuoteValueType();
+      this.quoteId = beanToCopy.getQuoteId();
+      this.tenor = beanToCopy.getTenor();
+      this.strike = beanToCopy.getStrike();
     }
 
     //-----------------------------------------------------------------------
@@ -587,6 +667,8 @@ public final class FxOptionVolatilitiesNode
           return spotDateOffset;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
+        case 508197748:  // expiryDateOffset
+          return expiryDateOffset;
         case 758636847:  // quoteValueType
           return quoteValueType;
         case 664377527:  // quoteId
@@ -615,6 +697,9 @@ public final class FxOptionVolatilitiesNode
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
+        case 508197748:  // expiryDateOffset
+          this.expiryDateOffset = (DaysAdjustment) newValue;
+          break;
         case 758636847:  // quoteValueType
           this.quoteValueType = (ValueType) newValue;
           break;
@@ -634,12 +719,20 @@ public final class FxOptionVolatilitiesNode
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
     public FxOptionVolatilitiesNode build() {
+      preBuild(this);
       return new FxOptionVolatilitiesNode(
           currencyPair,
           label,
           spotDateOffset,
           businessDayAdjustment,
+          expiryDateOffset,
           quoteValueType,
           quoteId,
           tenor,
@@ -647,14 +740,128 @@ public final class FxOptionVolatilitiesNode
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the currency pair.
+     * <p>
+     * The quote must be based on this currency pair and direction.
+     * @param currencyPair  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currencyPair(CurrencyPair currencyPair) {
+      JodaBeanUtils.notNull(currencyPair, "currencyPair");
+      this.currencyPair = currencyPair;
+      return this;
+    }
+
+    /**
+     * Sets the label to use for the node.
+     * @param label  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder label(String label) {
+      JodaBeanUtils.notNull(label, "label");
+      this.label = label;
+      return this;
+    }
+
+    /**
+     * Sets the offset of the spot value date from the valuation date.
+     * <p>
+     * Typically this is the same as the standard convention of the spot date offset of the underlying FX forward.
+     * @param spotDateOffset  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder spotDateOffset(DaysAdjustment spotDateOffset) {
+      JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
+      this.spotDateOffset = spotDateOffset;
+      return this;
+    }
+
+    /**
+     * Sets the business day adjustment to apply to the delivery date.
+     * <p>
+     * Typically this is the same as the standard convention of the business day adjustment
+     * applied to the delivery date of the underlying FX forward.
+     * @param businessDayAdjustment  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
+      this.businessDayAdjustment = businessDayAdjustment;
+      return this;
+    }
+
+    /**
+     * Sets the offset of the expiry date from the delivery date.
+     * <p>
+     * By default the expiry date offset is the inverse of {@code spotDateOffset}.
+     * In this case {@code BusinessDayAdjustment} in {@code spotDateOffset} must be {@code NONE}.
+     * @param expiryDateOffset  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder expiryDateOffset(DaysAdjustment expiryDateOffset) {
+      JodaBeanUtils.notNull(expiryDateOffset, "expiryDateOffset");
+      this.expiryDateOffset = expiryDateOffset;
+      return this;
+    }
+
+    /**
+     * Sets the value type of the quote.
+     * @param quoteValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder quoteValueType(ValueType quoteValueType) {
+      JodaBeanUtils.notNull(quoteValueType, "quoteValueType");
+      this.quoteValueType = quoteValueType;
+      return this;
+    }
+
+    /**
+     * Sets the quote ID.
+     * @param quoteId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder quoteId(QuoteId quoteId) {
+      JodaBeanUtils.notNull(quoteId, "quoteId");
+      this.quoteId = quoteId;
+      return this;
+    }
+
+    /**
+     * Sets the tenor.
+     * <p>
+     * Typically the tenor is coherent to that of the underlying FX forward.
+     * Thus it spans the period between spot date to delivery date.
+     * @param tenor  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder tenor(Tenor tenor) {
+      JodaBeanUtils.notNull(tenor, "tenor");
+      this.tenor = tenor;
+      return this;
+    }
+
+    /**
+     * Sets the strike.
+     * @param strike  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder strike(Strike strike) {
+      JodaBeanUtils.notNull(strike, "strike");
+      this.strike = strike;
+      return this;
+    }
+
+    //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("FxOptionVolatilitiesNode.Builder{");
       buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+      buf.append("expiryDateOffset").append('=').append(JodaBeanUtils.toString(expiryDateOffset)).append(',').append(' ');
       buf.append("quoteValueType").append('=').append(JodaBeanUtils.toString(quoteValueType)).append(',').append(' ');
       buf.append("quoteId").append('=').append(JodaBeanUtils.toString(quoteId)).append(',').append(' ');
       buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
