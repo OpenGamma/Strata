@@ -81,6 +81,8 @@ public class StubConventionTest {
         {NONE, date(2014, APRIL, 30), date(2014, AUGUST, 31), P1M, true, RollConventions.EOM},
         {NONE, date(2014, APRIL, 30), date(2014, FEBRUARY, 28), P1M, true, RollConventions.EOM},
         {NONE, date(2016, FEBRUARY, 29), date(2019, FEBRUARY, 28), P6M, true, RollConventions.EOM},
+        {NONE, date(2015, FEBRUARY, 28), date(2016, FEBRUARY, 29), P6M, true, RollConventions.EOM},
+        {NONE, date(2015, APRIL, 30), date(2016, FEBRUARY, 29), P1M, true, RollConventions.EOM},
         {NONE, date(2016, MARCH, 31), date(2017, MARCH, 27), P6M, true, RollConventions.EOM},
         {NONE, date(2016, MARCH, 16), date(2016, MARCH, 31), P6M, true, RollConvention.ofDayOfMonth(16)},
         {NONE, date(2016, MARCH, 16), date(2017, MARCH, 31), P6M, true, RollConventions.EOM},
