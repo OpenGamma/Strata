@@ -136,7 +136,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combinedWith(USNY))));
     assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.getFloatingRateName(), FloatingRateName.of("USD-LIBOR"));
     assertEquals(test.toString(), "USD-LIBOR-3M");
   }
@@ -409,7 +409,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CZPR)));
     assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "CZK-PRIBOR-3M");
   }
 
@@ -439,7 +439,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HUBU)));
     assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "HUF-BUBOR-3M");
   }
 
@@ -454,7 +454,7 @@ public class IborIndexTest {
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(TENOR_4W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, MXMC)));
     assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "MXN-TIIE-4W");
   }
 
