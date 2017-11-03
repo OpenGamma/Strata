@@ -180,7 +180,7 @@ public class ForwardOvernightCompoundedRateComputationFn
 
     // Composition - forward part in non-cutoff period; past/valuation date case dealt with in previous methods
     private double compositionFactorNonCutoff() {
-      if (!nextFixing.isAfter(lastFixingNonCutoff)) { // (!nextFixing.isAfter(lastFixingNonCutoff)) { // (nextFixing.isBefore(lastFixingNonCutoff)) {
+      if (!nextFixing.isAfter(lastFixingNonCutoff)) {
         OvernightIndexObservation obs = computation.observeOn(nextFixing);
         LocalDate startDate = obs.getEffectiveDate();
         LocalDate endDate = computation.calculateMaturityFromFixing(lastFixingNonCutoff);
