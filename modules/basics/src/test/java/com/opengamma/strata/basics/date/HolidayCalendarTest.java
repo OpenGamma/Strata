@@ -24,12 +24,15 @@ import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Test {@link HolidayCalendar}.
  */
 @Test
 public class HolidayCalendarTest {
 
+  private static final LocalDate MON_2014_07_07 = LocalDate.of(2014, 7, 7);
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
   private static final LocalDate FRI_2014_07_11 = LocalDate.of(2014, 7, 11);
@@ -123,23 +126,33 @@ public class HolidayCalendarTest {
   }
 
   public void test_SAT_SUN_shift() {
-    assertEquals(HolidayCalendars.SAT_SUN.shift(THU_2014_07_10, 2), MON_2014_07_14);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, 2), TUE_2014_07_15);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(SUN_2014_07_13, 2), TUE_2014_07_15);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(MON_2014_07_14, 2), WED_2014_07_16);
+    ImmutableHolidayCalendar equivalent =
+        ImmutableHolidayCalendar.of(HolidayCalendarId.of("TEST-SAT-SUN"), ImmutableList.of(), ImmutableList.of(SATURDAY, SUNDAY));
+    assertSatSun(equivalent);
+    assertSatSun(HolidayCalendars.SAT_SUN);
+  }
 
-    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, -2), WED_2014_07_09);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(SAT_2014_07_12, -2), THU_2014_07_10);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(SUN_2014_07_13, -2), THU_2014_07_10);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(MON_2014_07_14, -2), THU_2014_07_10);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(TUE_2014_07_15, -2), FRI_2014_07_11);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(WED_2014_07_16, -2), MON_2014_07_14);
+  private void assertSatSun(HolidayCalendar test) {
+    assertEquals(test.shift(THU_2014_07_10, 2), MON_2014_07_14);
+    assertEquals(test.shift(FRI_2014_07_11, 2), TUE_2014_07_15);
+    assertEquals(test.shift(SUN_2014_07_13, 2), TUE_2014_07_15);
+    assertEquals(test.shift(MON_2014_07_14, 2), WED_2014_07_16);
 
-    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, 5), FRI_2014_07_18);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, 6), MON_2014_07_21);
+    assertEquals(test.shift(FRI_2014_07_11, -2), WED_2014_07_09);
+    assertEquals(test.shift(SAT_2014_07_12, -2), THU_2014_07_10);
+    assertEquals(test.shift(SUN_2014_07_13, -2), THU_2014_07_10);
+    assertEquals(test.shift(MON_2014_07_14, -2), THU_2014_07_10);
+    assertEquals(test.shift(TUE_2014_07_15, -2), FRI_2014_07_11);
+    assertEquals(test.shift(WED_2014_07_16, -2), MON_2014_07_14);
 
-    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_18, -5), FRI_2014_07_11);
-    assertEquals(HolidayCalendars.SAT_SUN.shift(MON_2014_07_21, -6), FRI_2014_07_11);
+    assertEquals(test.shift(FRI_2014_07_11, 5), FRI_2014_07_18);
+    assertEquals(test.shift(FRI_2014_07_11, 6), MON_2014_07_21);
+
+    assertEquals(test.shift(FRI_2014_07_18, -5), FRI_2014_07_11);
+    assertEquals(test.shift(MON_2014_07_21, -6), FRI_2014_07_11);
+
+    assertEquals(test.shift(SAT_2014_07_12, 5), FRI_2014_07_18);
+    assertEquals(test.shift(SAT_2014_07_12, -5), MON_2014_07_07);
   }
 
   public void test_SAT_SUN_next() {
