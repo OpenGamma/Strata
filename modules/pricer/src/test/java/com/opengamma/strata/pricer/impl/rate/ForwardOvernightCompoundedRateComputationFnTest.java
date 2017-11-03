@@ -169,6 +169,64 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
+  /** No cutoff period and the period entirely forward. One day period. */
+  public void rateFedFundNoCutOffForward1d() { // publication=1, cutoff=0, effective offset=0, Forward
+    LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
+    OvernightCompoundedRateComputation ro =
+        OvernightCompoundedRateComputation.of(USD_FED_FUND, FIXING_END_DATE.minusDays(1), FIXING_END_DATE, 0, REF_DATA);
+    OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
+    when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
+
+    double rateCmp = 0.0123;
+    when(mockRates.periodRate(USD_OBS[5], FIXING_END_DATE)).thenReturn(rateCmp);
+    double rateExpected = rateCmp;
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+
+  /** No cutoff period and the period entirely forward. Test the forward part only against FD approximation. */
+  public void rateFedFundNoCutOffForwardSensitivit1dy() { // publication=1, cutoff=0, effective offset=0, Forward
+    LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
+    OvernightCompoundedRateComputation ro =
+        OvernightCompoundedRateComputation.of(USD_FED_FUND, FIXING_END_DATE.minusDays(1), FIXING_END_DATE, 0, REF_DATA);
+    OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
+    when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
+
+    double rateCmp = 0.0123;
+    when(mockRates.periodRate(USD_OBS[5], FIXING_END_DATE)).thenReturn(rateCmp);
+    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.ofPeriod(USD_OBS[5], FIXING_END_DATE, 1.0);
+    when(mockRates.periodRatePointSensitivity(USD_OBS[5], FIXING_END_DATE)).thenReturn(
+        rateSensitivity);
+    OvernightIndexRates mockRatesUp = mock(OvernightIndexRates.class);
+    SimpleRatesProvider simpleProvUp = new SimpleRatesProvider(mockRatesUp);
+    when(mockRatesUp.periodRate(USD_OBS[5], FIXING_END_DATE)).thenReturn(
+        rateCmp + EPS_FD);
+    OvernightIndexRates mockRatesDw = mock(OvernightIndexRates.class);
+    SimpleRatesProvider simpleProvDw = new SimpleRatesProvider(mockRatesDw);
+    when(mockRatesDw.periodRate(USD_OBS[5], FIXING_END_DATE)).thenReturn(
+        rateCmp - EPS_FD);
+
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
+      double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
+      double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
+      PointSensitivityBuilder sensitivityBuilderExpected =
+          OvernightRateSensitivity.ofPeriod(USD_OBS[5], FIXING_END_DATE, sensitivityExpected);
+      PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
+          DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), 10*EPS_FD));
+    }
+  }
+
   /** Two days cutoff and the period is entirely forward. Test forward part plus cutoff specifics.
    * Almost all Overnight Compounding coupon (OIS) don't use cutoff period.*/
   public void rateFedFund2CutOffForward() { // publication=1, cutoff=2, effective offset=0, Forward
