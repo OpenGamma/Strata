@@ -180,7 +180,7 @@ public class ForwardOvernightCompoundedRateComputationFn
 
     // Composition - forward part in non-cutoff period; past/valuation date case dealt with in previous methods
     private double compositionFactorNonCutoff() {
-      if (nextFixing.isBefore(lastFixingNonCutoff)) {
+      if (!nextFixing.isAfter(lastFixingNonCutoff)) {
         OvernightIndexObservation obs = computation.observeOn(nextFixing);
         LocalDate startDate = obs.getEffectiveDate();
         LocalDate endDate = computation.calculateMaturityFromFixing(lastFixingNonCutoff);
@@ -193,7 +193,7 @@ public class ForwardOvernightCompoundedRateComputationFn
 
     // Composition - forward part in non-cutoff period; past/valuation date case dealt with in previous methods
     private ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff() {
-      if (nextFixing.isBefore(lastFixingNonCutoff)) {
+      if (!nextFixing.isAfter(lastFixingNonCutoff)) {
         OvernightIndexObservation obs = computation.observeOn(nextFixing);
         LocalDate startDate = obs.getEffectiveDate();
         LocalDate endDate = computation.calculateMaturityFromFixing(lastFixingNonCutoff);
@@ -208,7 +208,7 @@ public class ForwardOvernightCompoundedRateComputationFn
 
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
     private double compositionFactorCutoff() {
-      if (nextFixing.isBefore(lastFixingNonCutoff)) {
+      if (!nextFixing.isAfter(lastFixingNonCutoff)) {
         OvernightIndexObservation obs = computation.observeOn(lastFixingNonCutoff);
         double rate = rates.rate(obs);
         double compositionFactor = 1.0d;
@@ -223,7 +223,7 @@ public class ForwardOvernightCompoundedRateComputationFn
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
     private ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff() {
       OvernightIndexObservation obs = computation.observeOn(lastFixingNonCutoff);
-      if (nextFixing.isBefore(lastFixingNonCutoff)) {
+      if (!nextFixing.isAfter(lastFixingNonCutoff)) {
         double rate = rates.rate(obs);
         double compositionFactor = 1.0d;
         double compositionFactorDerivative = 0.0;
