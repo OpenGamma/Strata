@@ -8,6 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -35,7 +37,7 @@ import com.opengamma.strata.market.observable.IndexQuoteId;
  * {@code Reference, Date, Value}.
  * <ul>
  * <li>The 'Reference' column is the name of the index that the data is for, such as 'USD-LIBOR-3M'.
- * <li>The 'Date' column is the date that the fixing was taken.
+ * <li>The 'Date' column is the date that the fixing was taken, this should be a year-month for price indices.
  * <li>The 'Value' column is the fixed value.
  * </ul>
  * <p>
@@ -121,8 +123,22 @@ public final class FixingSeriesCsvLoader {
 
         Index index = LoaderUtils.findIndex(referenceStr);
         ObservableId id = IndexQuoteId.of(index);
-        LocalDate date = LoaderUtils.parseDate(dateStr);
         double value = Double.parseDouble(valueStr);
+        LocalDate date;
+        if (index instanceof PriceIndex) {
+          try {
+            YearMonth ym = LoaderUtils.parseYearMonth(dateStr);
+            date = ym.atEndOfMonth();
+          } catch (RuntimeException ex) {
+            date = LoaderUtils.parseDate(dateStr);
+            if (date.getDayOfMonth() != date.lengthOfMonth()) {
+              throw new IllegalArgumentException(
+                  Messages.format("Fixing Series CSV loader for price index must have date at end of month: {}", resource));
+            }
+          }
+        } else {
+          date = LoaderUtils.parseDate(dateStr);
+        }
 
         LocalDateDoubleTimeSeriesBuilder builder = builders.computeIfAbsent(id, k -> LocalDateDoubleTimeSeries.builder());
         builder.put(date, value);
