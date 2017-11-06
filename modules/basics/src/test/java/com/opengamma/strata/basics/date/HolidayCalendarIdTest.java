@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
@@ -20,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Test {@link HolidayCalendarId}.
@@ -49,6 +51,13 @@ public class HolidayCalendarIdTest {
     assertEquals(test.getName(), "EU+GB");
     assertEquals(test.getReferenceDataType(), HolidayCalendar.class);
     assertEquals(test.toString(), "EU+GB");
+  }
+
+  public void test_defaultByCurrency() {
+    assertEquals(HolidayCalendarId.defaultByCurrency(Currency.GBP), HolidayCalendarIds.GBLO);
+    assertEquals(HolidayCalendarId.defaultByCurrency(Currency.CZK), HolidayCalendarIds.CZPR);
+    assertEquals(HolidayCalendarId.defaultByCurrency(Currency.HKD), HolidayCalendarId.of("HKHK"));
+    assertThrowsIllegalArg(() -> HolidayCalendarId.defaultByCurrency(Currency.XAG));
   }
 
   //-------------------------------------------------------------------------

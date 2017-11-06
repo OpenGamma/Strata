@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataId;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.Resolvable;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.named.Named;
@@ -111,6 +112,20 @@ public final class HolidayCalendarId
     HolidayCalendarId id = CACHE.computeIfAbsent(normalizedName, n -> new HolidayCalendarId(normalizedName, resolver));
     CACHE.putIfAbsent(name, id);
     return id;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the default calendar for a currency.
+   * <p>
+   * This uses data from {@code HolidayCalendarDefaultData.ini} to provide a default.
+   * 
+   * @param currency  the currency to find the default for
+   * @return the holiday calendar
+   * @throws IllegalArgumentException if there is no default for the currency
+   */
+  public static HolidayCalendarId defaultByCurrency(Currency currency) {
+    return HolidayCalendarIniLookup.INSTANCE.defaltByCurrency(currency);
   }
 
   //-------------------------------------------------------------------------
