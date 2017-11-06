@@ -7,20 +7,24 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_12M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_15M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_18M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1D;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1Y;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_21M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2D;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2Y;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_35Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3D;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_40Y;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_45Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_4M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_4Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_50Y;
@@ -118,8 +122,13 @@ public class TenorTest {
     assertEquals(Tenor.ofDays(7), TENOR_1W);
     assertEquals(Tenor.ofWeeks(2), TENOR_2W);
     assertEquals(Tenor.ofMonths(1), TENOR_1M);
+    assertEquals(Tenor.ofMonths(15), TENOR_15M);
+    assertEquals(Tenor.ofMonths(18), TENOR_18M);
+    assertEquals(Tenor.ofMonths(21), TENOR_21M);
     assertEquals(Tenor.ofYears(1), TENOR_1Y);
+    assertEquals(Tenor.ofYears(35), TENOR_35Y);
     assertEquals(Tenor.ofYears(40), TENOR_40Y);
+    assertEquals(Tenor.ofYears(45), TENOR_45Y);
     assertEquals(Tenor.ofYears(50), TENOR_50Y);
   }
 

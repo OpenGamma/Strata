@@ -141,9 +141,17 @@ public final class Tenor
    */
   public static final Tenor TENOR_12M = ofMonths(12);
   /**
+   * A tenor of 15 months.
+   */
+  public static final Tenor TENOR_15M = ofMonths(15);
+  /**
    * A tenor of 18 months.
    */
   public static final Tenor TENOR_18M = ofMonths(18);
+  /**
+   * A tenor of 21 months.
+   */
+  public static final Tenor TENOR_21M = ofMonths(21);
   /**
    * A tenor of 1 year.
    */
@@ -185,9 +193,21 @@ public final class Tenor
    */
   public static final Tenor TENOR_10Y = ofYears(10);
   /**
+   * A tenor of 11 years.
+   */
+  public static final Tenor TENOR_11Y = ofYears(11);
+  /**
    * A tenor of 12 years.
    */
   public static final Tenor TENOR_12Y = ofYears(12);
+  /**
+   * A tenor of 13 years.
+   */
+  public static final Tenor TENOR_13Y = ofYears(13);
+  /**
+   * A tenor of 14 years.
+   */
+  public static final Tenor TENOR_14Y = ofYears(14);
   /**
    * A tenor of 15 years.
    */
@@ -205,9 +225,17 @@ public final class Tenor
    */
   public static final Tenor TENOR_30Y = ofYears(30);
   /**
+   * A tenor of 35 years.
+   */
+  public static final Tenor TENOR_35Y = ofYears(35);
+  /**
    * A tenor of 40 years.
    */
   public static final Tenor TENOR_40Y = ofYears(40);
+  /**
+   * A tenor of 45 years.
+   */
+  public static final Tenor TENOR_45Y = ofYears(45);
   /**
    * A tenor of 50 years.
    */
