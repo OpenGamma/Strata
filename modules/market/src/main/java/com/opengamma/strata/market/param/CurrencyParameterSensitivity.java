@@ -93,7 +93,7 @@ public final class CurrencyParameterSensitivity
    * A single {@code CurrencyParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
    * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
    * For example, a curve formed from two underlying curves.
-   * This list is present, it represents how to split this sensitivity between the underlying instances.
+   * If this list is present, it represents how to split this sensitivity between the underlying instances.
    */
   @PropertyDefinition(get = "optional", type = "List<>")
   private final ImmutableList<ParameterSize> parameterSplit;
@@ -499,7 +499,7 @@ public final class CurrencyParameterSensitivity
    * A single {@code CurrencyParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
    * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
    * For example, a curve formed from two underlying curves.
-   * This list is present, it represents how to split this sensitivity between the underlying instances.
+   * If this list is present, it represents how to split this sensitivity between the underlying instances.
    * @return the optional value of the property, not null
    */
   public Optional<List<ParameterSize>> getParameterSplit() {

@@ -106,8 +106,7 @@ public final class CurrencyParameterSensitivities
   /**
    * Obtains an instance from an array of sensitivity entries.
    * <p>
-   * The order of sensitivities is typically unimportant, however it is retained
-   * and exposed in {@link #equals(Object)}.
+   * The sensitivities are sorted using {@link CurrencyParameterSensitivity#compareKey}.
    *
    * @param sensitivities  the sensitivities
    * @return the sensitivities instance
@@ -119,8 +118,7 @@ public final class CurrencyParameterSensitivities
   /**
    * Obtains an instance from a list of sensitivity entries.
    * <p>
-   * The order of sensitivities is typically unimportant, however it is retained
-   * and exposed in {@link #equals(Object)}.
+   * The sensitivities are sorted using {@link CurrencyParameterSensitivity#compareKey}.
    * 
    * @param sensitivities  the list of sensitivity entries
    * @return the sensitivities instance
