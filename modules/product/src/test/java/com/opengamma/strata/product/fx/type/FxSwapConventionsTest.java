@@ -29,7 +29,7 @@ public class FxSwapConventionsTest {
   static Object[][] data_spot_lag() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, 2},
-        {FxSwapConventions.GBP_EUR, 2},
+        {FxSwapConventions.EUR_GBP, 2},
         {FxSwapConventions.GBP_USD, 2}
     };
   }
@@ -43,7 +43,7 @@ public class FxSwapConventionsTest {
   static Object[][] data_currency_pair() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, CurrencyPair.of(EUR, USD)},
-        {FxSwapConventions.GBP_EUR, CurrencyPair.of(GBP, EUR)},
+        {FxSwapConventions.EUR_GBP, CurrencyPair.of(EUR, GBP)},
         {FxSwapConventions.GBP_USD, CurrencyPair.of(GBP, USD)}
     };
   }
@@ -57,7 +57,7 @@ public class FxSwapConventionsTest {
   static Object[][] data_calendar() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, EUTA_USNY},
-        {FxSwapConventions.GBP_EUR, GBLO_EUTA},
+        {FxSwapConventions.EUR_GBP, GBLO_EUTA},
         {FxSwapConventions.GBP_USD, GBLO_USNY}
     };
   }
