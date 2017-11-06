@@ -6,6 +6,7 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -17,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ObservableId;
@@ -30,6 +32,7 @@ public class FixingSeriesCsvLoaderTest {
 
   private static final IndexQuoteId ID_USD_LIBOR_3M = IndexQuoteId.of(IborIndices.USD_LIBOR_3M);
   private static final IndexQuoteId ID_USD_LIBOR_6M = IndexQuoteId.of(IborIndices.USD_LIBOR_6M);
+  private static final IndexQuoteId ID_GB_RPI = IndexQuoteId.of(PriceIndices.GB_RPI);
 
   private static final ResourceLocator FIXING_SERIES_1 =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-1.csv");
@@ -39,6 +42,12 @@ public class FixingSeriesCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-1-and-2.csv");
   private static final ResourceLocator FIXING_SERIES_INVALID_DATE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-invalid-date.csv");
+  private static final ResourceLocator FIXING_SERIES_PRICE1 =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-price1.csv");
+  private static final ResourceLocator FIXING_SERIES_PRICE2 =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-price2.csv");
+  private static final ResourceLocator FIXING_SERIES_PRICE_INVALID =
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fixings-price-invalid.csv");
 
   //-------------------------------------------------------------------------
   public void test_single_series_single_file() {
@@ -60,6 +69,24 @@ public class FixingSeriesCsvLoaderTest {
     Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.load(
         FIXING_SERIES_1, FIXING_SERIES_2);
     assertLibor3m6mSeries(ts);
+  }
+
+  public void test_priceIndex1() {
+    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE1);
+    assertEquals(ts.size(), 1);
+    assertTrue(ts.containsKey(ID_GB_RPI));
+    assertPriceIndexSeries(ts.get(ID_GB_RPI));
+  }
+
+  public void test_priceIndex2() {
+    Map<ObservableId, LocalDateDoubleTimeSeries> ts = FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE2);
+    assertEquals(ts.size(), 1);
+    assertTrue(ts.containsKey(ID_GB_RPI));
+    assertPriceIndexSeries(ts.get(ID_GB_RPI));
+  }
+
+  public void test_priceIndex_invalidDate() {
+    assertThrowsIllegalArg(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE_INVALID));
   }
 
   public void test_single_series_multiple_files() {
@@ -101,6 +128,16 @@ public class FixingSeriesCsvLoaderTest {
         .put(LocalDate.of(1971, 1, 4), 0.0681)
         .put(LocalDate.of(1971, 1, 5), 0.0675)
         .put(LocalDate.of(1971, 1, 6), 0.0669)
+        .build();
+    assertEquals(actualSeries, expectedSeries);
+  }
+
+  private void assertPriceIndexSeries(LocalDateDoubleTimeSeries actualSeries) {
+    assertEquals(actualSeries.size(), 3);
+    LocalDateDoubleTimeSeries expectedSeries = LocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2017, 1, 31), 200)
+        .put(LocalDate.of(2017, 2, 28), 300)
+        .put(LocalDate.of(2017, 3, 31), 390)
         .build();
     assertEquals(actualSeries, expectedSeries);
   }
