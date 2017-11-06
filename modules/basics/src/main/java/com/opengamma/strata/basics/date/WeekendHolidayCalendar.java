@@ -93,13 +93,6 @@ final class WeekendHolidayCalendar
     return dow == day1 || dow == day2;
   }
 
-  @Override
-  public LocalDate shift(LocalDate date, int amount) {
-    // optimize because we know there are 5 business days in a week
-    LocalDate weekAdjusted = date.plusWeeks(amount / 5);
-    return HolidayCalendar.super.shift(weekAdjusted, amount % 5);
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
