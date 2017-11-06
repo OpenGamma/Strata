@@ -277,19 +277,22 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
           .map(node -> node.getStrike().getValue())
           .sorted()
           .collect(toList());
-      ArgChecker.isTrue(atmDelta.equals(fullDeltas.subList(nDeltas, nDeltas + 1)));
+      ArgChecker.isTrue(atmDelta.equals(fullDeltas.subList(nDeltas, nDeltas + 1)),
+          "The ATM delta set must be " + fullDeltas.subList(nDeltas, nDeltas + 1) + ", but found " + atmDelta + ", for " + tenor);
       List<Double> rrDelta = nodesForTenor.stream()
           .filter(node -> node.getQuoteValueType().equals(ValueType.RISK_REVERSAL))
           .map(node -> node.getStrike().getValue())
           .sorted()
           .collect(toList());
-      ArgChecker.isTrue(rrDelta.equals(deltas));
+      ArgChecker.isTrue(rrDelta.equals(deltas),
+          "The delta set for risk reversal must be " + deltas + ", but found " + rrDelta + ", for " + tenor);
       List<Double> strDelta = nodesForTenor.stream()
           .filter(node -> node.getQuoteValueType().equals(ValueType.STRANGLE))
           .map(node -> node.getStrike().getValue())
           .sorted()
           .collect(toList());
-      ArgChecker.isTrue(strDelta.equals(deltas));
+      ArgChecker.isTrue(strDelta.equals(deltas),
+          "The delta set for strangle must be " + deltas + ", but found " + strDelta + ", for " + tenor);
       // convention
       Set<BusinessDayAdjustment> busAdj = nodesForTenor.stream()
           .map(FxOptionVolatilitiesNode::getBusinessDayAdjustment)
