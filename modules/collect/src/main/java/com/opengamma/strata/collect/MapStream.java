@@ -43,6 +43,7 @@ public final class MapStream<K, V>
   /** The stream of map entries. */
   private final Stream<Map.Entry<K, V>> underlying;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a stream over the entries in the map.
    *
@@ -56,8 +57,8 @@ public final class MapStream<K, V>
   }
 
   /**
-   * Returns a stream of map entries where the values are taken from a collection and the keys are created by
-   * applying a function to each value.
+   * Returns a stream of map entries where the values are taken from a collection
+   * and the keys are created by applying a function to each value.
    *
    * @param <K>  the key type
    * @param <V>  the value type
@@ -70,8 +71,8 @@ public final class MapStream<K, V>
   }
 
   /**
-   * Returns a stream of map entries where the values are taken from a stream and the keys are created by
-   * applying a function to each value.
+   * Returns a stream of map entries where the values are taken from a stream
+   * and the keys are created by applying a function to each value.
    *
    * @param <K>  the key type
    * @param <V>  the value type
@@ -94,12 +95,12 @@ public final class MapStream<K, V>
     return new MapStream<>(Stream.empty());
   }
 
+  // creates an instance
   private MapStream(Stream<Map.Entry<K, V>> underlying) {
     this.underlying = underlying;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Filters the stream by applying the predicate function to each key and value.
    * <p>
@@ -233,8 +234,7 @@ public final class MapStream<K, V>
     underlying.forEach(e -> action.accept(e.getKey(), e.getValue()));
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   @Override
   public MapStream<K, V> filter(Predicate<? super Map.Entry<K, V>> predicate) {
     return wrap(underlying.filter(predicate));
@@ -435,8 +435,7 @@ public final class MapStream<K, V>
     underlying.close();
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static <K, V> Map.Entry<K, V> entry(K k, V v) {
     return new AbstractMap.SimpleImmutableEntry<>(k, v);
   }
@@ -444,4 +443,5 @@ public final class MapStream<K, V>
   private static <K, V> MapStream<K, V> wrap(Stream<Map.Entry<K, V>> underlying) {
     return new MapStream<>(underlying);
   }
+
 }
