@@ -90,10 +90,26 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void ofCollection_2arg() {
+    List<String> letters = ImmutableList.of("a", "b", "c");
+    Map<String, String> expected = ImmutableMap.of("A", "aa", "B", "bb", "C", "cc");
+    Map<String, String> result =
+        MapStream.of(letters, letter -> letter.toUpperCase(Locale.ENGLISH), letter -> letter + letter).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
   public void ofStream() {
     Stream<String> letters = Stream.of("a", "b", "c");
     Map<String, String> expected = ImmutableMap.of("A", "a", "B", "b", "C", "c");
     Map<String, String> result = MapStream.of(letters, letter -> letter.toUpperCase(Locale.ENGLISH)).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void ofStream_2arg() {
+    Stream<String> letters = Stream.of("a", "b", "c");
+    Map<String, String> expected = ImmutableMap.of("A", "aa", "B", "bb", "C", "cc");
+    Map<String, String> result =
+        MapStream.of(letters, letter -> letter.toUpperCase(Locale.ENGLISH), letter -> letter + letter).toMap();
     assertThat(result).isEqualTo(expected);
   }
 

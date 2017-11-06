@@ -49,7 +49,7 @@ public final class MapStream<K, V>
    *
    * @param <K>  the key type
    * @param <V>  the value type
-   * @param map a map
+   * @param map  the map to wrap
    * @return a stream over the entries in the map
    */
   public static <K, V> MapStream<K, V> of(Map<K, V> map) {
@@ -67,7 +67,23 @@ public final class MapStream<K, V>
    * @return a stream of map entries derived from the values in the collection
    */
   public static <K, V> MapStream<K, V> of(Collection<V> collection, Function<V, K> keyFunction) {
-    return new MapStream<>(collection.stream().map(v -> entry(keyFunction.apply(v), v)));
+    return of(collection.stream(), keyFunction);
+  }
+
+  /**
+   * Returns a stream of map entries where the keys and values are extracted from a
+   * collection by applying a function to each item in the collection.
+   *
+   * @param <T>  the collection type
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @param collection  the collection of values
+   * @param keyFunction  a function which returns the key
+   * @param valueFunction  a function which returns the value
+   * @return a stream of map entries derived from the collection
+   */
+  public static <T, K, V> MapStream<K, V> of(Collection<T> collection, Function<T, K> keyFunction, Function<T, V> valueFunction) {
+    return of(collection.stream(), keyFunction, valueFunction);
   }
 
   /**
@@ -82,6 +98,22 @@ public final class MapStream<K, V>
    */
   public static <K, V> MapStream<K, V> of(Stream<V> stream, Function<V, K> keyFunction) {
     return new MapStream<>(stream.map(v -> entry(keyFunction.apply(v), v)));
+  }
+
+  /**
+   * Returns a stream of map entries where the keys and values are extracted from a
+   * stream by applying a function to each item in the stream.
+   *
+   * @param <T>  the collection type
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @param stream  the stream of values
+   * @param keyFunction  a function which returns the key for a value
+   * @param valueFunction  a function which returns the value
+   * @return a stream of map entries derived from the stream
+   */
+  public static <T, K, V> MapStream<K, V> of(Stream<T> stream, Function<T, K> keyFunction, Function<T, V> valueFunction) {
+    return new MapStream<>(stream.map(item -> entry(keyFunction.apply(item), valueFunction.apply(item))));
   }
 
   /**
