@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.MXN;
+import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -63,6 +64,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.PeriodAdditionConventions;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 
@@ -73,6 +75,7 @@ import com.opengamma.strata.basics.date.TenorAdjustment;
 public class IborIndexTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final HolidayCalendarId NZBD = HolidayCalendarId.of("NZBD");  // no constant for this
 
   public void test_gbpLibor3m() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
@@ -456,6 +459,23 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "MXN-TIIE-4W");
+  }
+
+  public void test_nzd_bkbm() {
+    IborIndex test = IborIndex.of("NZD-BKBM-3M");
+    assertEquals(test.getCurrency(), NZD);
+    assertEquals(test.getName(), "NZD-BKBM-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), NZBD);
+    assertEquals(test.getFixingDateOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, NZBD)));
+    assertEquals(test.getEffectiveDateOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, NZBD)));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, NZBD)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "NZD-BKBM-3M");
   }
 
   public void test_pln_wibor() {

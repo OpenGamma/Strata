@@ -213,6 +213,10 @@ public class FloatingRateNameTest {
     assertEquals(FloatingRateName.of("MXN-TIIE").toIborIndexFixingOffset(), DaysAdjustment.ofBusinessDays(-1, MXMC));
   }
 
+  public void test_nzd() {
+    assertEquals(FloatingRateName.of("NZD-BKBM").getCurrency(), Currency.NZD);
+    assertEquals(FloatingRateName.of("NZD-NZIONA").getCurrency(), Currency.NZD);
+  }
 
   //-------------------------------------------------------------------------
   public void coverage() {
