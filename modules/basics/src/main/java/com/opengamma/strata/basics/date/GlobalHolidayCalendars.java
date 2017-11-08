@@ -922,9 +922,10 @@ final class GlobalHolidayCalendars {
   }
 
   private static void newZealand(List<LocalDate> holidays, int year) {
-    // new year (resolves to one holiday if 1st is a Saturday)
-    holidays.add(bumpToMon(date(year, 1, 1)));
-    holidays.add(bumpToMon(date(year, 1, 2)));
+    // new year and day after
+    LocalDate newYear = bumpToMon(date(year, 1, 1));
+    holidays.add(newYear);
+    holidays.add(bumpToMon(newYear.plusDays(1)));
     // waitangi day
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/
     if (year >= 2014) {
