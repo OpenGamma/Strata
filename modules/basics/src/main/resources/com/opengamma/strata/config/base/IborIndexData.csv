@@ -179,6 +179,13 @@ NOK-NIBOR-6M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,6M,ModifiedFollowing,12:00,Europe
 NOK-NIBOR-9M,NOK,false,Act/360,NOOS,2,NOOS,NOOS,9M,ModifiedFollowing,12:00,Europe/Oslo,30U/360
 NOK-NIBOR-12M,NOK,false,Act/360,NOOS,2,NOOS,NOOS,12M,ModifiedFollowing,12:00,Europe/Oslo,30U/360
 ,,,,,,,,,,,
+NZD-BKBM-1M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,1M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
+NZD-BKBM-2M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,2M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
+NZD-BKBM-3M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,3M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
+NZD-BKBM-4M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,4M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
+NZD-BKBM-5M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,5M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
+NZD-BKBM-6M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,6M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
+,,,,,,,,,,,
 PLN-WIBOR-1W,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,1W,Following,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-1M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,1M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-3M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,3M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA

@@ -944,6 +944,96 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar NZAU = GlobalHolidayCalendars.generateAuckland();
+
+  @DataProvider(name = "nzau")
+  Object[][] data_nzau() {
+    // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
+    // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
+    return new Object[][] {
+        {2015, mds(2015, md(1, 1), md(1, 2), md(1, 26), md(2, 6), md(4, 3), md(4, 6),
+            md(4, 27), md(6, 1), md(10, 26), md(12, 25), md(12, 28))},
+        {2016, mds(2016, md(1, 1), md(1, 4), md(2, 1), md(2, 8), md(3, 25), md(3, 28),
+            md(4, 25), md(6, 6), md(10, 24), md(12, 26), md(12, 27))},
+        {2017, mds(2017, md(1, 2), md(1, 30), md(2, 6), md(4, 14), md(4, 17),
+            md(4, 25), md(6, 5), md(10, 23), md(12, 25), md(12, 26))},
+        {2018, mds(2018, md(1, 1), md(1, 2), md(1, 29), md(2, 6), md(3, 30), md(4, 2),
+            md(4, 25), md(6, 4), md(10, 22), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "nzau")
+  public void test_nzau(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(NZAU.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar NZWE = GlobalHolidayCalendars.generateWellington();
+
+  @DataProvider(name = "nzwe")
+  Object[][] data_nzwe() {
+    // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
+    // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
+    return new Object[][] {
+        {2015, mds(2015, md(1, 1), md(1, 2), md(1, 19), md(2, 6), md(4, 3), md(4, 6),
+            md(4, 27), md(6, 1), md(10, 26), md(12, 25), md(12, 28))},
+        {2016, mds(2016, md(1, 1), md(1, 4), md(1, 25), md(2, 8), md(3, 25), md(3, 28),
+            md(4, 25), md(6, 6), md(10, 24), md(12, 26), md(12, 27))},
+        {2017, mds(2017, md(1, 2), md(1, 23), md(2, 6), md(4, 14), md(4, 17),
+            md(4, 25), md(6, 5), md(10, 23), md(12, 25), md(12, 26))},
+        {2018, mds(2018, md(1, 1), md(1, 2), md(1, 22), md(2, 6), md(3, 30), md(4, 2),
+            md(4, 25), md(6, 4), md(10, 22), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "nzwe")
+  public void test_nzwe(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(NZWE.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar NZBD = GlobalHolidayCalendars.generateNewZealand();
+
+  @DataProvider(name = "nzbd")
+  Object[][] data_nzbd() {
+    // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
+    // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
+    return new Object[][] {
+        {2015, mds(2015, md(1, 1), md(1, 2), md(2, 6), md(4, 3), md(4, 6),
+            md(4, 27), md(6, 1), md(10, 26), md(12, 25), md(12, 28))},
+        {2016, mds(2016, md(1, 1), md(1, 4), md(2, 8), md(3, 25), md(3, 28),
+            md(4, 25), md(6, 6), md(10, 24), md(12, 26), md(12, 27))},
+        {2017, mds(2017, md(1, 2), md(2, 6), md(4, 14), md(4, 17),
+            md(4, 25), md(6, 5), md(10, 23), md(12, 25), md(12, 26))},
+        {2018, mds(2018, md(1, 1), md(1, 2), md(2, 6), md(3, 30), md(4, 2),
+            md(4, 25), md(6, 4), md(10, 22), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "nzbd")
+  public void test_nzbd(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(NZBD.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static final HolidayCalendar PLWA = GlobalHolidayCalendars.generateWarsaw();
 
   @DataProvider(name = "plwa")

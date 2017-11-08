@@ -210,6 +210,39 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar NOOS = generateOslo();
   /**
+   * The holiday calendar for Auckland, New Zealand, with code 'NZAU'.
+   * <p>
+   * This constant provides the calendar for Auckland holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar NZAU = generateAuckland();
+  /**
+   * The holiday calendar for Wellington, New Zealand, with code 'NZWE'.
+   * <p>
+   * This constant provides the calendar for Wellington holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar NZWE = generateWellington();
+  /**
+   * The holiday calendar for New Zealand, with code 'NZBD'.
+   * <p>
+   * This constant provides the calendar for New Zealand holidays.
+   * This code is non-standard, and is not included in the official ISDA list.
+   * The NZAU code includes Auckland anniversary day.
+   * The NZWE code includes Wellington anniversary day.
+   * NZBD includes neither, and is intended for use with the NZD-BKBM index only.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   * <p>
+   * NOTE: This code is NOT in {@link HolidayCalendarIds} as it should only be used in NZD-BKBM.
+   */
+  public static final HolidayCalendar NZBD = generateNewZealand();
+  /**
    * The holiday calendar for Warsaw, Poland, with code 'PLWA'.
    * <p>
    * This constant provides the calendar for Warsaw holidays.
@@ -846,6 +879,77 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // generate NZAU
+  // https://www.nzfma.org/Site/practices_standards/market_conventions.aspx
+  static ImmutableHolidayCalendar generateAuckland() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      newZealand(holidays, year);
+      // auckland anniversary day
+      holidays.add(date(year, 1, 29).minusDays(3).with(nextOrSame(MONDAY)));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NZAU"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // generate NZWE
+  // https://www.nzfma.org/Site/practices_standards/market_conventions.aspx
+  static ImmutableHolidayCalendar generateWellington() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      newZealand(holidays, year);
+      // wellington anniversary day
+      holidays.add(date(year, 1, 22).minusDays(3).with(nextOrSame(MONDAY)));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NZWE"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // generate NZBD
+  // https://www.nzfma.org/Site/practices_standards/market_conventions.aspx
+  static ImmutableHolidayCalendar generateNewZealand() {
+    // artificial non-ISDA definition named after BRBD for Brazil
+    // this is needed as NZD-BBR index is published on both Wellington and Auckland anniversary days
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      newZealand(holidays, year);
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NZBD"), holidays, SATURDAY, SUNDAY);
+  }
+
+  private static void newZealand(List<LocalDate> holidays, int year) {
+    // new year (resolves to one holiday if 1st is a Saturday)
+    holidays.add(bumpToMon(date(year, 1, 1)));
+    holidays.add(bumpToMon(date(year, 1, 2)));
+    // waitangi day
+    // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/
+    if (year >= 2014) {
+      holidays.add(bumpToMon(date(year, 2, 6)));
+    } else {
+      holidays.add(date(year, 2, 6));
+    }
+    // good friday
+    holidays.add(easter(year).minusDays(2));
+    // easter monday
+    holidays.add(easter(year).plusDays(1));
+    // anzac day
+    // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/
+    if (year >= 2014) {
+      holidays.add(bumpToMon(date(year, 4, 25)));
+    } else {
+      holidays.add(date(year, 4, 25));
+    }
+    // queens birthday
+    holidays.add(first(year, 6).with(firstInMonth(MONDAY)));
+    // labour day
+    holidays.add(first(year, 10).with(dayOfWeekInMonth(4, MONDAY)));
+    // christmas
+    holidays.add(christmasBumpedSatSun(year));
+    holidays.add(boxingDayBumpedSatSun(year));
   }
 
   //-------------------------------------------------------------------------

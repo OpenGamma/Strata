@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -38,6 +39,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 
 /**
  * Test Overnight Index.
@@ -172,6 +174,19 @@ public class OvernightIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "DKK-TNR");
+  }
+
+  public void test_nzdOis() {
+    OvernightIndex test = OvernightIndex.of("NZD-NZIONA");
+    assertEquals(test.getName(), "NZD-NZIONA");
+    assertEquals(test.getCurrency(), NZD);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), HolidayCalendarId.of("NZBD"));
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "NZD-NZIONA");
   }
 
   public void test_plnOis() {

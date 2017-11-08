@@ -173,6 +173,18 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId NOOS = HolidayCalendarId.of("NOOS");
   /**
+   * An identifier for the holiday calendar of Auckland, New Zealand, with code 'NZAU'.
+   * <p>
+   * This constant references the calendar for Auckland bank holidays.
+   */
+  public static final HolidayCalendarId NZAU = HolidayCalendarId.of("NZAU");
+  /**
+   * An identifier for the holiday calendar of Wellington, New Zealand, with code 'NZWE'.
+   * <p>
+   * This constant references the calendar for Wellington bank holidays.
+   */
+  public static final HolidayCalendarId NZWE = HolidayCalendarId.of("NZWE");
+  /**
    * An identifier for the holiday calendar of Warsaw, Poland, with code 'PLWA'.
    * <p>
    * This constant references the calendar for Warsaw bank holidays.
