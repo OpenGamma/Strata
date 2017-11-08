@@ -94,21 +94,22 @@ public class FloatingRateNameTest {
 
   @Test(dataProvider = "nameType")
   public void test_name(String name, String indexName, FloatingRateType type) {
-    FloatingRateName convention = FloatingRateName.of(name);
-    assertEquals(convention.getName(), name);
-    assertEquals(convention.getType(), type);
+    FloatingRateName test = FloatingRateName.of(name);
+    assertEquals(test.getName(), name);
+    assertEquals(test.getType(), type);
+    assertEquals(test.getCurrency(), test.toFloatingRateIndex().getCurrency());
   }
 
   @Test(dataProvider = "nameType")
   public void test_toString(String name, String indexName, FloatingRateType type) {
-    FloatingRateName convention = FloatingRateName.of(name);
-    assertEquals(convention.toString(), name);
+    FloatingRateName test = FloatingRateName.of(name);
+    assertEquals(test.toString(), name);
   }
 
   @Test(dataProvider = "nameType")
   public void test_of_lookup(String name, String indexName, FloatingRateType type) {
-    FloatingRateName convention = FloatingRateName.of(name);
-    assertEquals(FloatingRateName.of(name), convention);
+    FloatingRateName test = FloatingRateName.of(name);
+    assertEquals(FloatingRateName.of(name), test);
   }
 
   public void test_of_lookup_notFound() {
