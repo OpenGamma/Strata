@@ -116,7 +116,7 @@ public interface FloatingRateName
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name that uniquely identifies this index.
+   * Gets the name that uniquely identifies this floating rate.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.
    * It will be the external name, typically from FpML, such as 'GBP-LIBOR-BBA'.
@@ -133,6 +133,17 @@ public interface FloatingRateName
    * @return index type - Ibor, Overnight or Price
    */
   public abstract FloatingRateType getType();
+
+  /**
+   * Gets the currency of the floating rate.
+   * 
+   * @return the currency
+   * @throws IllegalArgumentException if unable to return an index, which should
+   *   only happen if the system is not configured correctly
+   */
+  public default Currency getCurrency() {
+    return toFloatingRateIndex().getCurrency();
+  }
 
   /**
    * Gets the active tenors that are applicable for this floating rate.
@@ -197,6 +208,8 @@ public interface FloatingRateName
    * If the rate name is an Ibor rate, the {@linkplain #getDefaultTenor() default tenor} is used.
    * 
    * @return the index
+   * @throws IllegalArgumentException if unable to return an index, which should
+   *   only happen if the system is not configured correctly
    */
   public default FloatingRateIndex toFloatingRateIndex() {
     // code copied to avoid calling getDefaultTenor() unless necessary
@@ -222,6 +235,8 @@ public interface FloatingRateName
    * 
    * @param iborTenor  the tenor to use if this rate is Ibor
    * @return the index
+   * @throws IllegalArgumentException if unable to return an index, which should
+   *   only happen if the system is not configured correctly
    */
   public default FloatingRateIndex toFloatingRateIndex(Tenor iborTenor) {
     switch (getType()) {
