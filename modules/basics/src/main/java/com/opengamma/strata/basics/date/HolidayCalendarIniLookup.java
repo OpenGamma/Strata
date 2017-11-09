@@ -26,9 +26,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
 import com.opengamma.strata.collect.io.ResourceConfig;
@@ -76,9 +78,14 @@ final class HolidayCalendarIniLookup
       .toFormatter(Locale.ENGLISH);
 
   /**
-   * The cache by name.
+   * The holiday calendars by name.
    */
   private static final ImmutableMap<String, HolidayCalendar> BY_NAME = loadFromIni("HolidayCalendarData.ini");
+  /**
+   * The default holiday calendars by currency.
+   */
+  private static final ImmutableMap<Currency, HolidayCalendarId> BY_CURRENCY =
+      loadDefaultsFromIni("HolidayCalendarDefaultData.ini");
 
   /**
    * Restricted constructor.
@@ -92,7 +99,17 @@ final class HolidayCalendarIniLookup
     return BY_NAME;
   }
 
-  // accessible for testing
+  // finds a default
+  HolidayCalendarId defaltByCurrency(Currency currency) {
+    HolidayCalendarId calId = BY_CURRENCY.get(currency);
+    if (calId == null) {
+      throw new IllegalArgumentException("No default Holiday Calendar for currency " + currency);
+    }
+    return calId;
+  }
+
+  //-------------------------------------------------------------------------
+  @VisibleForTesting
   static ImmutableMap<String, HolidayCalendar> loadFromIni(String filename) {
     List<ResourceLocator> resources = ResourceConfig.orderedResources(filename);
     Map<String, HolidayCalendar> map = new HashMap<>();
@@ -159,6 +176,26 @@ final class HolidayCalendarIniLookup
       }
       return date;
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @VisibleForTesting
+  static ImmutableMap<Currency, HolidayCalendarId> loadDefaultsFromIni(String filename) {
+    List<ResourceLocator> resources = ResourceConfig.orderedResources(filename);
+    Map<Currency, HolidayCalendarId> map = new HashMap<>();
+    for (ResourceLocator resource : resources) {
+      try {
+        IniFile ini = IniFile.of(resource.getCharSource());
+        PropertySet section = ini.section("defaultByCurrency");
+        for (String currencyCode : section.keys()) {
+          map.put(Currency.of(currencyCode), HolidayCalendarId.of(section.value(currencyCode)));
+        }
+      } catch (RuntimeException ex) {
+        log.log(Level.SEVERE, "Error processing resource as Holiday Calendar Defaults INI file: " + resource, ex);
+        return ImmutableMap.of();
+      }
+    }
+    return ImmutableMap.copyOf(map);
   }
 
 }

@@ -18,6 +18,7 @@ import java.util.logging.LogRecord;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Test {@link HolidayCalendar}.
@@ -78,6 +79,26 @@ public class HolidayCalendarIniLookupTest {
     assertEquals(record.getLevel(), Level.SEVERE);
     assertTrue(record.getThrown() instanceof DateTimeParseException);
     assertTrue(record.getThrown().getMessage().contains("'Bob'"));
+  }
+
+  //-------------------------------------------------------------------------
+  public synchronized void test_defaultByCurrency_valid() {
+    ImmutableMap<Currency, HolidayCalendarId> test =
+        HolidayCalendarIniLookup.loadDefaultsFromIni("HolidayCalendarDefaultDataValid.ini");
+    assertEquals(test.size(), 2);
+
+    assertEquals(test.get(Currency.GBP), HolidayCalendarIds.GBLO);
+    assertEquals(test.get(Currency.USD), HolidayCalendarIds.NYSE);
+  }
+
+  public synchronized void test_defaultByCurrency_invalid() {
+    List<LogRecord> captured = caputureLog(
+        HolidayCalendarIniLookup.class,
+        () -> HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDefaultDataInvalid.ini"));
+    assertEquals(captured.size(), 1);
+    LogRecord record = captured.get(0);
+    assertEquals(record.getLevel(), Level.SEVERE);
+    assertTrue(record.getMessage().contains("Error processing resource"));
   }
 
 }
