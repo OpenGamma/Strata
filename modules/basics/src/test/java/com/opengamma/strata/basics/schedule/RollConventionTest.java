@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_2;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_30;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_THU;
 import static com.opengamma.strata.basics.schedule.RollConventions.EOM;
 import static com.opengamma.strata.basics.schedule.RollConventions.IMM;
@@ -40,6 +41,8 @@ import static org.testng.Assert.assertSame;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Locale;
+import java.util.Optional;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -559,6 +562,11 @@ public class RollConventionTest {
   }
 
   @Test(dataProvider = "name")
+  public void test_lenientLookup_standardNames(RollConvention convention, String name) {
+    assertEquals(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)).get(), convention);
+  }
+
+  @Test(dataProvider = "name")
   public void test_extendedEnum(RollConvention convention, String name) {
     ImmutableMap<String, RollConvention> map = RollConvention.extendedEnum().lookupAll();
     assertEquals(map.get(name), convention);
@@ -570,6 +578,22 @@ public class RollConventionTest {
 
   public void test_of_lookup_null() {
     assertThrowsIllegalArg(() -> RollConvention.of(null));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "lenient")
+  static Object[][] data_lenient() {
+    return new Object[][] {
+        {"2", DAY_2},
+        {"30", DAY_30},
+        {"31", EOM},
+        {"THU", DAY_THU},
+    };
+  }
+
+  @Test(dataProvider = "lenient")
+  public void test_lenientLookup_specialNames(String name, RollConvention convention) {
+    assertEquals(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
   }
 
   //-------------------------------------------------------------------------

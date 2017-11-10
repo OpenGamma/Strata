@@ -99,6 +99,13 @@ public class ExtendedEnumTest {
     assertEquals(test.toString(), "ExtendedEnum[SampleOther]");
   }
 
+  public void test_enum_lenient() {
+    ExtendedEnum<SampleNamed> test = ExtendedEnum.of(SampleNamed.class);
+    assertEquals(test.findLenient("Standard"), Optional.of(SampleNameds.STANDARD));
+    assertEquals(test.findLenient("A1"), Optional.of(SampleNameds.STANDARD));
+    assertEquals(test.findLenient("A2"), Optional.of(MoreSampleNameds.MORE));
+  }
+
   public void test_enum_invalid() {
     Logger logger = Logger.getLogger(ExtendedEnum.class.getName());
     Level level = logger.getLevel();
