@@ -155,13 +155,13 @@ final class SwapTradeCsvLoader {
     Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD).map(s -> Tenor.parse(s));
     Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
-    Optional<RollConvention> rollCnvOpt = row.findValue(ROLL_CONVENTION_FIELD).map(s -> RollConvention.of(s));
+    Optional<RollConvention> rollCnvOpt = row.findValue(ROLL_CONVENTION_FIELD).map(s -> LoaderUtils.parseRollConvention(s));
     Optional<StubConvention> stubCnvOpt = row.findValue(STUB_CONVENTION_FIELD).map(s -> StubConvention.of(s));
     Optional<LocalDate> firstRegStartDateOpt =
         row.findValue(FIRST_REGULAR_START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<LocalDate> lastRegEndDateOpt = row.findValue(LAST_REGULAR_END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     BusinessDayConvention dateCnv = row.findValue(DATE_ADJ_CNV_FIELD)
-        .map(s -> BusinessDayConvention.of(s)).orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
+        .map(s -> LoaderUtils.parseBusinessDayConvention(s)).orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
     Optional<HolidayCalendarId> dateCalOpt = row.findValue(DATE_ADJ_CAL_FIELD).map(s -> HolidayCalendarId.of(s));
     Optional<Double> fxRateOpt = row.findValue(FX_RATE_FIELD).map(str -> LoaderUtils.parseDouble(str));
 
