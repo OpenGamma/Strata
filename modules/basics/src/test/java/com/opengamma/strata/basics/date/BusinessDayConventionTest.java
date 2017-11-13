@@ -22,6 +22,8 @@ import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.Optional;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -196,6 +198,11 @@ public class BusinessDayConventionTest {
   }
 
   @Test(dataProvider = "name")
+  public void test_lenientLookup_standardNames(BusinessDayConvention convention, String name) {
+    assertEquals(BusinessDayConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)).get(), convention);
+  }
+
+  @Test(dataProvider = "name")
   public void test_extendedEnum(BusinessDayConvention convention, String name) {
     ImmutableMap<String, BusinessDayConvention> map = BusinessDayConvention.extendedEnum().lookupAll();
     assertEquals(map.get(name), convention);
@@ -207,6 +214,34 @@ public class BusinessDayConventionTest {
 
   public void test_of_lookup_null() {
     assertThrowsIllegalArg(() -> BusinessDayConvention.of(null));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "lenient")
+  static Object[][] data_lenient() {
+    return new Object[][] {
+        {"F", FOLLOWING},
+        {"M", MODIFIED_FOLLOWING},
+        {"MF", MODIFIED_FOLLOWING},
+        {"P", PRECEDING},
+        {"MP", MODIFIED_PRECEDING},
+        {"Modified", MODIFIED_FOLLOWING},
+        {"Mod", MODIFIED_FOLLOWING},
+        {"Modified Following", MODIFIED_FOLLOWING},
+        {"ModifiedFollowing", MODIFIED_FOLLOWING},
+        {"Mod Following", MODIFIED_FOLLOWING},
+        {"ModFollowing", MODIFIED_FOLLOWING},
+        {"Modified Preceding", MODIFIED_PRECEDING},
+        {"ModifiedPreceding", MODIFIED_PRECEDING},
+        {"Mod Preceding", MODIFIED_PRECEDING},
+        {"ModPreceding", MODIFIED_PRECEDING},
+        {"None", NO_ADJUST},
+    };
+  }
+
+  @Test(dataProvider = "lenient")
+  public void test_lenientLookup_specialNames(String name, BusinessDayConvention convention) {
+    assertEquals(BusinessDayConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
   }
 
   //-------------------------------------------------------------------------

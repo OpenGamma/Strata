@@ -38,6 +38,8 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.Optional;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -1049,6 +1051,11 @@ public class DayCountTest {
   }
 
   @Test(dataProvider = "name")
+  public void test_lenientLookup_standardNames(DayCount convention, String name) {
+    assertEquals(DayCount.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)).get(), convention);
+  }
+
+  @Test(dataProvider = "name")
   public void test_extendedEnum(DayCount convention, String name) {
     ImmutableMap<String, DayCount> map = DayCount.extendedEnum().lookupAll();
     assertEquals(map.get(name), convention);
@@ -1060,6 +1067,109 @@ public class DayCountTest {
 
   public void test_of_lookup_null() {
     assertThrowsRuntime(() -> DayCount.of(null));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "lenient")
+  static Object[][] data_lenient() {
+    return new Object[][] {
+        {"Actual/Actual", ACT_ACT_ISDA},
+        {"Act/Act", ACT_ACT_ISDA},
+        {"A/A", ACT_ACT_ISDA},
+        {"Actual/Actual ISDA", ACT_ACT_ISDA},
+        {"A/A ISDA", ACT_ACT_ISDA},
+        {"Actual/Actual ISDA", ACT_ACT_ISDA},
+        {"A/A (ISDA)", ACT_ACT_ISDA},
+        {"Act/Act (ISDA)", ACT_ACT_ISDA},
+        {"Actual/Actual (ISDA)", ACT_ACT_ISDA},
+        {"Act/Act", ACT_ACT_ISDA},
+        {"Actual/Actual (Historical)", ACT_ACT_ISDA},
+
+        {"A/A ICMA", ACT_ACT_ICMA},
+        {"Actual/Actual ICMA", ACT_ACT_ICMA},
+        {"A/A (ICMA)", ACT_ACT_ICMA},
+        {"Act/Act (ICMA)", ACT_ACT_ICMA},
+        {"Actual/Actual (ICMA)", ACT_ACT_ICMA},
+        {"ISMA-99", ACT_ACT_ICMA},
+        {"Actual/Actual (Bond)", ACT_ACT_ICMA},
+
+        {"A/A AFB", ACT_ACT_AFB},
+        {"Actual/Actual AFB", ACT_ACT_AFB},
+        {"A/A (AFB)", ACT_ACT_AFB},
+        {"Act/Act (AFB)", ACT_ACT_AFB},
+        {"Actual/Actual (AFB)", ACT_ACT_AFB},
+        {"Actual/Actual (Euro)", ACT_ACT_AFB},
+
+        {"A/365 Actual", ACT_365_ACTUAL},
+        {"Actual/365 Actual", ACT_365_ACTUAL},
+        {"A/365 (Actual)", ACT_365_ACTUAL},
+        {"Act/365 (Actual)", ACT_365_ACTUAL},
+        {"Actual/365 (Actual)", ACT_365_ACTUAL},
+        {"A/365A", ACT_365_ACTUAL},
+        {"Act/365A", ACT_365_ACTUAL},
+        {"Actual/365A", ACT_365_ACTUAL},
+
+        {"A/365L", ACT_365L},
+        {"Actual/365L", ACT_365L},
+        {"A/365 Leap year", ACT_365L},
+        {"Act/365 Leap year", ACT_365L},
+        {"Actual/365 Leap year", ACT_365L},
+        {"ISMA-Year", ACT_365L},
+
+        {"Actual/360", ACT_360},
+        {"A/360", ACT_360},
+        {"French", ACT_360},
+
+        {"Actual/364", ACT_364},
+        {"A/364", ACT_364},
+
+        {"A/365F", ACT_365F},
+        {"Actual/365F", ACT_365F},
+        {"A/365", ACT_365F},
+        {"Act/365", ACT_365F},
+        {"Actual/365", ACT_365F},
+        {"Act/365 (Fixed)", ACT_365F},
+        {"Actual/365 (Fixed)", ACT_365F},
+        {"A/365 (Fixed)", ACT_365F},
+        {"Actual/Fixed 365", ACT_365F},
+        {"English", ACT_365F},
+
+        {"A/365.25", ACT_365_25},
+        {"Actual/365.25", ACT_365_25},
+
+        {"A/NL", NL_365},
+        {"Actual/NL", NL_365},
+        {"NL365", NL_365},
+        {"Act/365 No leap year", NL_365},
+
+        {"30/360", THIRTY_360_ISDA},
+
+        {"Eurobond Basis", THIRTY_E_360},
+        {"30S/360", THIRTY_E_360},
+        {"Special German", THIRTY_E_360},
+        {"30/360 ICMA", THIRTY_E_360},
+        {"30/360 (ICMA)", THIRTY_E_360},
+
+        {"30/360 German", THIRTY_E_360_ISDA},
+        {"German", THIRTY_E_360_ISDA},
+
+        {"30/360 US", THIRTY_U_360},
+        {"30/360 (US)", THIRTY_U_360},
+        {"30US/360", THIRTY_U_360},
+        {"360/360", THIRTY_U_360},
+        {"Bond Basis", THIRTY_U_360},
+        {"US", THIRTY_U_360},
+        {"ISMA-30/360", THIRTY_U_360},
+        {"30/360 SIA", THIRTY_U_360},
+        {"30/360 (SIA)", THIRTY_U_360},
+
+        {"BUS/252", DayCount.ofBus252(HolidayCalendarIds.BRBD)},
+    };
+  }
+
+  @Test(dataProvider = "lenient")
+  public void test_lenientLookup_specialNames(String name, DayCount convention) {
+    assertEquals(DayCount.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
   }
 
   //-------------------------------------------------------------------------

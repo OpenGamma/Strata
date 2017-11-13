@@ -8,12 +8,16 @@ package com.opengamma.strata.collect.named;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.joda.convert.RenameHandler;
 
@@ -26,6 +30,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
 import com.opengamma.strata.collect.io.ResourceConfig;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * Manager for extended enums controlled by code or configuration.
@@ -90,6 +95,10 @@ public final class ExtendedEnum<T extends Named> {
    * Section name used for externals.
    */
   private static final String EXTERNALS_SECTION = "externals.";
+  /**
+   * Section name used for lenient patterns.
+   */
+  private static final String LENIENT_PATTERNS_SECTION = "lenientPatterns";
 
   /**
    * The enum type.
@@ -109,6 +118,10 @@ public final class ExtendedEnum<T extends Named> {
    * The inner map holds the mapping from external name to our name.
    */
   private final ImmutableMap<String, ImmutableMap<String, String>> externalNames;
+  /**
+   * The list of regex patterns for lenient lookup.
+   */
+  private final ImmutableList<Pair<Pattern, String>> lenientRegex;
 
   //-------------------------------------------------------------------------
   /**
@@ -132,14 +145,15 @@ public final class ExtendedEnum<T extends Named> {
       ImmutableList<NamedLookup<R>> lookups = parseProviders(config, type);
       ImmutableMap<String, String> alternateNames = parseAlternates(config);
       ImmutableMap<String, ImmutableMap<String, String>> externalNames = parseExternals(config);
+      ImmutableList<Pair<Pattern, String>> lenientRegex = parseLenientPatterns(config);
       log.fine(() -> "Loaded extended enum: " + name + ", providers: " + lookups);
-      return new ExtendedEnum<>(type, lookups, alternateNames, externalNames);
+      return new ExtendedEnum<>(type, lookups, alternateNames, externalNames, lenientRegex);
 
     } catch (RuntimeException ex) {
       // logging used because this is loaded in a static variable
       log.severe("Failed to load ExtendedEnum for " + type + ": " + Throwables.getStackTraceAsString(ex));
       // return an empty instance to avoid ExceptionInInitializerError
-      return new ExtendedEnum<>(type, ImmutableList.of(), ImmutableMap.of(), ImmutableMap.of());
+      return new ExtendedEnum<>(type, ImmutableList.of(), ImmutableMap.of(), ImmutableMap.of(), ImmutableList.of());
     }
   }
 
@@ -231,7 +245,7 @@ public final class ExtendedEnum<T extends Named> {
     };
   }
 
-  // parses the alternate names.
+  // parses the alternate names
   private static ImmutableMap<String, String> parseAlternates(IniFile config) {
     if (!config.contains(ALTERNATES_SECTION)) {
       return ImmutableMap.of();
@@ -244,7 +258,7 @@ public final class ExtendedEnum<T extends Named> {
     return ImmutableMap.copyOf(alternates);
   }
 
-  // parses the external names.
+  // parses the external names
   private static ImmutableMap<String, ImmutableMap<String, String>> parseExternals(IniFile config) {
     ImmutableMap.Builder<String, ImmutableMap<String, String>> builder = ImmutableMap.builder();
     for (String sectionName : config.sections()) {
@@ -254,6 +268,18 @@ public final class ExtendedEnum<T extends Named> {
       }
     }
     return builder.build();
+  }
+
+  // parses the lenient patterns
+  private static ImmutableList<Pair<Pattern, String>> parseLenientPatterns(IniFile config) {
+    if (!config.contains(LENIENT_PATTERNS_SECTION)) {
+      return ImmutableList.of();
+    }
+    List<Pair<Pattern, String>> alternates = new ArrayList<>();
+    for (Entry<String, String> entry : config.section(LENIENT_PATTERNS_SECTION).asMap().entrySet()) {
+      alternates.add(Pair.of(Pattern.compile(entry.getKey(), Pattern.CASE_INSENSITIVE), entry.getValue()));
+    }
+    return ImmutableList.copyOf(alternates);
   }
 
   //-------------------------------------------------------------------------
@@ -269,12 +295,14 @@ public final class ExtendedEnum<T extends Named> {
       Class<T> type,
       ImmutableList<NamedLookup<T>> lookups,
       ImmutableMap<String, String> alternateNames,
-      ImmutableMap<String, ImmutableMap<String, String>> externalNames) {
+      ImmutableMap<String, ImmutableMap<String, String>> externalNames,
+      ImmutableList<Pair<Pattern, String>> lenientRegex) {
 
     this.type = ArgChecker.notNull(type, "type");
     this.lookups = ArgChecker.notNull(lookups, "lookups");
     this.alternateNames = ArgChecker.notNull(alternateNames, "alternateNames");
     this.externalNames = ArgChecker.notNull(externalNames, "externalNames");
+    this.lenientRegex = ArgChecker.notNull(lenientRegex, "lenientRegex");
   }
 
   //-------------------------------------------------------------------------
@@ -437,6 +465,32 @@ public final class ExtendedEnum<T extends Named> {
       throw new IllegalArgumentException(type.getSimpleName() + " group not found: " + group);
     }
     return new ExternalEnumNames<>(this, group, externals);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Looks up an instance by name leniently.
+   * <p>
+   * This finds the instance matching the specified name using a lenient lookup strategy.
+   * An extended enum may include additional configuration defining how lenient search occurs.
+   * 
+   * @param name  the enum name to return
+   * @return the named enum
+   * @throws IllegalArgumentException if the name is not found
+   */
+  public Optional<T> findLenient(String name) {
+    Optional<T> alreadyValid = find(name);
+    if (alreadyValid.isPresent()) {
+      return alreadyValid;
+    }
+    String current = name.toUpperCase(Locale.ENGLISH);
+    for (Pair<Pattern, String> pair : lenientRegex) {
+      Matcher matcher = pair.getFirst().matcher(current);
+      if (matcher.matches()) {
+        current = matcher.replaceFirst(pair.getSecond());
+      }
+    }
+    return find(current);
   }
 
   //-------------------------------------------------------------------------
