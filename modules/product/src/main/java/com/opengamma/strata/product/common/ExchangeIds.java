@@ -48,6 +48,9 @@ public final class ExchangeIds {
   /** Hong Kong Exchanges And Clearing Ltd. */
   public static final ExchangeId XHKG = ExchangeId.of("XHKG");
 
+  /** Hong Kong Futures Exchange Ltd. */
+  public static final ExchangeId XHKF = ExchangeId.of("XHKF");
+  
   /** Singapore Exchange Ltd. */
   public static final ExchangeId XSES = ExchangeId.of("XSES");
 
