@@ -174,7 +174,7 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "DayCount name not found: Act/365")
+      expectedExceptionsMessageRegExp = "Unknown DayCount value.*")
   public void test_invalid_settings_day_count_file() {
     LegalEntityRatesCurvesCsvLoader.load(
         ALL_DATES.get(1),

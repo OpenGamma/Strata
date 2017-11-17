@@ -92,7 +92,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "DayCount name not found: Act")
+      expectedExceptionsMessageRegExp = "Unknown DayCount value.*")
   public void test_invalid_settings_day_count_file() {
     testSettings(SETTINGS_INVALID_DAY_COUNT);
   }

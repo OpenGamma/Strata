@@ -271,15 +271,16 @@ public final class RatesCurvesCsvLoader {
       }
 
       CurveName curveName = CurveName.of(curveNameStr);
-      ValueType valueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
+      ValueType yValueType = VALUE_TYPE_MAP.get(valueTypeStr.toLowerCase(Locale.ENGLISH));
       CurveInterpolator interpolator = CurveInterpolator.of(interpolatorStr);
       CurveExtrapolator leftExtrap = CurveExtrapolator.of(leftExtrapolatorStr);
       CurveExtrapolator rightExtrap = CurveExtrapolator.of(rightExtrapolatorStr);
-      // ONE_ONE day count is not used
-      LoadedCurveSettings settings = (valueType.equals(ValueType.PRICE_INDEX)) ?
-          LoadedCurveSettings.of(curveName, ValueType.MONTHS, valueType, ONE_ONE, interpolator, leftExtrap, rightExtrap) :
-          LoadedCurveSettings.of(
-              curveName, ValueType.YEAR_FRACTION, valueType, DayCount.of(dayCountStr), interpolator, leftExtrap, rightExtrap);
+
+      boolean isPriceIndex = yValueType.equals(ValueType.PRICE_INDEX);
+      ValueType xValueType = isPriceIndex ? ValueType.MONTHS : ValueType.YEAR_FRACTION;
+      DayCount dayCount = isPriceIndex ? ONE_ONE : LoaderUtils.parseDayCount(dayCountStr);
+      LoadedCurveSettings settings =
+          LoadedCurveSettings.of(curveName, xValueType, yValueType, dayCount, interpolator, leftExtrap, rightExtrap);
       builder.put(curveName, settings);
     }
     return builder.build();

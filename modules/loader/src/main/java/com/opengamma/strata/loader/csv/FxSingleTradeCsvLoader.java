@@ -82,11 +82,11 @@ class FxSingleTradeCsvLoader {
     Optional<String> paymentDateCnv = row.findField(PAYMENT_DATE_CNV_HEADER); // Optional field with Business day adjustment
     boolean adjustment = false;
     if (paymentDateCnv.isPresent() && !paymentDateCnv.get().isEmpty()) {
-      BusinessDayConvention bdCnv = BusinessDayConvention.of(paymentDateCnv.get());
+      BusinessDayConvention bdCnv = LoaderUtils.parseBusinessDayConvention(paymentDateCnv.get());
       if (!bdCnv.equals(BusinessDayConventions.NO_ADJUST)) {
         String paymentDateCal = row.getField(PAYMENT_DATE_CAL_HEADER);
         BusinessDayAdjustment paymentDateAdjustment = BusinessDayAdjustment
-            .of(BusinessDayConvention.of(paymentDateCnv.get()), HolidayCalendarId.of(paymentDateCal));
+            .of(LoaderUtils.parseBusinessDayConvention(paymentDateCnv.get()), HolidayCalendarId.of(paymentDateCal));
         fx = FxSingle.of(firstLeg, secondLeg, paymentDate, paymentDateAdjustment);
         adjustment = true;
       }

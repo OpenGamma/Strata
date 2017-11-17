@@ -306,7 +306,7 @@ public final class PositionCsvLoader {
 
     } catch (RuntimeException ex) {
       return ValueWithFailures.of(ImmutableList.of(),
-          FailureItem.of(FailureReason.PARSING, ex, "CSV file could not be parsed: {}", charSource));
+          FailureItem.of(FailureReason.PARSING, ex, "CSV file could not be parsed: {}: {}", ex.getMessage(), charSource));
     }
   }
 

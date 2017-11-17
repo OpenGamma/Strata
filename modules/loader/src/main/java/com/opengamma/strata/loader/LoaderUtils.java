@@ -22,11 +22,14 @@ import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
 
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
@@ -294,6 +297,61 @@ public final class LoaderUtils {
       throw new IllegalArgumentException(
           "Unknown time format, must be formatted as 'HH', 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.SSS' but was: " + str);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses day count from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * It leniently handles a variety of known variants of day counts.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static DayCount parseDayCount(String str) {
+    return DayCount.extendedEnum().findLenient(str)
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Unknown DayCount value, must be one of " +
+                DayCount.extendedEnum().lookupAllNormalized().keySet() +
+                " but was '" + str + "'"));
+  }
+
+  /**
+   * Parses business day convention from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * It leniently handles a variety of known variants of business day conventions.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static BusinessDayConvention parseBusinessDayConvention(String str) {
+    return BusinessDayConvention.extendedEnum().findLenient(str)
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Unknown BusinessDayConvention value, must be one of " +
+                BusinessDayConvention.extendedEnum().lookupAllNormalized().keySet() +
+                " but was '" + str + "'"));
+  }
+
+  /**
+   * Parses roll convention from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * It leniently handles a variety of known variants of roll conventions.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static RollConvention parseRollConvention(String str) {
+    return RollConvention.extendedEnum().findLenient(str)
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Unknown RollConvention value, must be one of " +
+                RollConvention.extendedEnum().lookupAllNormalized().keySet() +
+                " but was '" + str + "'"));
   }
 
   /**

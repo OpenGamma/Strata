@@ -269,8 +269,9 @@ public class LegalEntityRatesCurvesCsvLoader {
       CurveExtrapolator leftExtrap = CurveExtrapolator.of(leftExtrapolatorStr);
       CurveExtrapolator rightExtrap = CurveExtrapolator.of(rightExtrapolatorStr);
       // ONE_ONE day count is not used
+      DayCount dayCount = LoaderUtils.parseDayCount(dayCountStr);
       LoadedCurveSettings settings = LoadedCurveSettings.of(
-          curveName, ValueType.YEAR_FRACTION, valueType, DayCount.of(dayCountStr), interpolator, leftExtrap, rightExtrap);
+          curveName, ValueType.YEAR_FRACTION, valueType, dayCount, interpolator, leftExtrap, rightExtrap);
       builder.put(curveName, settings);
     }
     return builder.build();

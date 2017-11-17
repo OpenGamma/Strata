@@ -46,7 +46,6 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.Guavate;
@@ -286,7 +285,7 @@ final class FullSwapTradeCsvLoader {
         .map(s -> StubConvention.of(s))
         .orElse(StubConvention.SHORT_INITIAL));
     findValue(row, leg, ROLL_CONVENTION_FIELD)
-        .map(s -> RollConvention.of(s))
+        .map(s -> LoaderUtils.parseRollConvention(s))
         .ifPresent(v -> builder.rollConvention(v));
     findValue(row, leg, FIRST_REGULAR_START_DATE_FIELD)
         .map(s -> LoaderUtils.parseDate(s))
@@ -418,7 +417,8 @@ final class FullSwapTradeCsvLoader {
     FixedRateCalculation.Builder builder = FixedRateCalculation.builder();
     // basics
     double fixedRate = LoaderUtils.parseDoublePercent(getValue(row, leg, FIXED_RATE_FIELD));
-    DayCount dayCount = findValue(row, leg, DAY_COUNT_FIELD).map(s -> DayCount.of(s)).orElse(defaultFixedLegDayCount);
+    DayCount dayCount = findValue(row, leg, DAY_COUNT_FIELD)
+        .map(s -> LoaderUtils.parseDayCount(s)).orElse(defaultFixedLegDayCount);
     if (dayCount == null) {
       throw new IllegalArgumentException("Swap leg must define day count using '" + leg + DAY_COUNT_FIELD + "'");
     }
@@ -479,7 +479,7 @@ final class FullSwapTradeCsvLoader {
         .build()));
     // optionals, no ability to set firstFixingDateOffset
     findValue(row, leg, DAY_COUNT_FIELD)
-        .map(s -> DayCount.of(s))
+        .map(s -> LoaderUtils.parseDayCount(s))
         .ifPresent(v -> builder.dayCount(v));
     findValue(row, leg, FIXING_RELATIVE_TO_FIELD)
         .map(s -> FixingRelativeTo.of(s))
@@ -581,7 +581,7 @@ final class FullSwapTradeCsvLoader {
         .orElse(accrualMethod));
     // optionals
     findValue(row, leg, DAY_COUNT_FIELD)
-        .map(s -> DayCount.of(s))
+        .map(s -> LoaderUtils.parseDayCount(s))
         .ifPresent(v -> builder.dayCount(v));
     findValue(row, leg, RATE_CUT_OFF_DAYS_FIELD)
         .map(s -> Integer.valueOf(s))
@@ -653,7 +653,7 @@ final class FullSwapTradeCsvLoader {
       String calField) {
 
     BusinessDayConvention dateCnv = findValue(row, leg, cnvField)
-        .map(s -> BusinessDayConvention.of(s))
+        .map(s -> LoaderUtils.parseBusinessDayConvention(s))
         .orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
     return findValue(row, leg, calField)
         .map(s -> HolidayCalendarId.of(s))
@@ -699,7 +699,7 @@ final class FullSwapTradeCsvLoader {
       return Optional.empty();
     }
     BusinessDayConvention dateCnv = findValue(row, leg, cnvField)
-        .map(s -> BusinessDayConvention.of(s))
+        .map(s -> LoaderUtils.parseBusinessDayConvention(s))
         .orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
     HolidayCalendarId cal = findValue(row, leg, calField)
         .map(s -> HolidayCalendarId.of(s))
