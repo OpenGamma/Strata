@@ -104,7 +104,7 @@ public final class Quote implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quoteId.
+   * Gets the id of the Quote we have a value for. As this is an instance of {@link QuoteId}, it will contain an ID from a specified scheme.
    * @return the value of the property, not null
    */
   public QuoteId getQuoteId() {
@@ -113,7 +113,7 @@ public final class Quote implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the value.
+   * Gets the value applicable for the given {@link QuoteId}.
    * @return the value of the property, not null
    */
   public Double getValue() {
