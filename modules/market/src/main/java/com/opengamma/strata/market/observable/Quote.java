@@ -26,23 +26,37 @@ import com.opengamma.strata.basics.StandardId;
  * A single value for a given security, represented by a quote, such as 'EUR/GBP 1W FX Opt ATM Straddle' - 10.0.
  * <p>
  *
+ * This represents a single numeric value of a given security, such as the mid point between the buy/sell.
+ * <p>
+ * See {@link QuoteId} fot the representation that does not contain a value.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @BeanDefinition(builderScope = "private", factoryName = "of")
 public final class Quote implements ImmutableBean {
 
   /**
-   *
+   * The id of the Quote we have a value for. As this is an instance of {@link QuoteId}, it will contain an ID from a specified scheme.
    */
   @PropertyDefinition(validate = "notNull")
   private final QuoteId quoteId;
 
   /**
-   *
+   * The value applicable for the given {@link QuoteId}.
    */
   @PropertyDefinition(validate = "notNull")
   private final Double value;
 
 
+  /**
+   * Obtains an instance from a the scheme ID, quote ID, and value.
+   *
+   * @param identifierScheme the identifier of the scheme used to indicate the quote
+   * @param identifier the identifier of the quotee
+   * @param value the value for the given quote
+   * @return an instance of {@link Quote} for the given values
+   * @throws IllegalArgumentException if the scheme ID, or scheme value are empty
+   */
   public static Quote of(String identifierScheme, String identifier, Double value) {
     return new Quote(QuoteId.of(StandardId.of(identifierScheme, identifier)), value);
   }
