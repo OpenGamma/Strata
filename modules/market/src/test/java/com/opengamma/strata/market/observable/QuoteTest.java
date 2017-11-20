@@ -32,11 +32,11 @@ public class QuoteTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Argument 'scheme' with value '' must match pattern:.+")
   public void test_of_EmptySchemeId() throws Exception {
-    Quote test = Quote.of("", "notEmpty", 1.2345);
+    Quote.of("", "notEmpty", 1.2345);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Argument 'value' with value '' must match pattern:.+")
   public void test_of_EmptyId() throws Exception {
-    Quote test = Quote.of("notEmpty", "", 1.2345);
+    Quote.of("notEmpty", "", 1.2345);
   }
 }
