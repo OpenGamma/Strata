@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.market.observable;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.collect.TestHelper;
 
 @Test
 public class QuoteTest {
@@ -32,7 +32,7 @@ public class QuoteTest {
   }
 
   public void test_of_EmptySchemeId() throws Exception {
-    TestHelper.assertThrowsIllegalArg(() -> Quote.of("", "notEmpty", 1.2345), "Argument 'scheme' with value '' must match pattern:.+");
-    TestHelper.assertThrowsIllegalArg(() -> Quote.of("notEmpty", "", 1.2345), "Argument 'value' with value '' must match pattern:.+");
+    assertThrowsIllegalArg(() -> Quote.of("", "notEmpty", 1.2345), "Argument 'scheme' with value '' must match pattern:.+");
+    assertThrowsIllegalArg(() -> Quote.of("notEmpty", "", 1.2345), "Argument 'value' with value '' must match pattern:.+");
   }
 }
