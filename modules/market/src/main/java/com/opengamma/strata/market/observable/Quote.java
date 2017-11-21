@@ -44,13 +44,12 @@ public final class Quote implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final double value;
 
-
   /**
    * Obtains an instance from a the scheme ID, quote ID, and value.
    *
-   * @param  identifierScheme the identifier of the scheme used to indicate the quote
-   * @param  identifier the identifier of the quotee
-   * @param  value the value for the given quote
+   * @param identifierScheme  the identifier of the scheme used to indicate the quote
+   * @param identifier  the identifier of the quotee
+   * @param value  the value for the given quote
    * @return an instance of {@link Quote} for the given values
    * @throws IllegalArgumentException if the scheme ID, or scheme value are empty
    */
