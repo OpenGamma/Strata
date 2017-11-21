@@ -261,6 +261,15 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar SEST = generateStockholm();
   /**
+   * The holiday calendar for Singapore, with code 'SEST'.
+   * <p>
+   * This constant provides the calendar for Singapore holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar SGSI = generateSingapore();
+  /**
    * The holiday calendar for Johannesburg, South Africa, with code 'ZAJO'.
    * <p>
    * This constant provides the calendar for Johannesburg holidays.
@@ -1047,6 +1056,37 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("SEST"), holidays, SATURDAY, SUNDAY);
+  }
+
+  // http://www.mom.gov.sg/newsroom/press-releases/2016/0405-singapore-public-holidays-2017
+  static ImmutableHolidayCalendar generateSingapore() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(bumpSunToMon(date(year, 1, 1)));
+      // chinese new year
+      holidays.add(bumpSunToMon(date(year, 1, 28)));  // TODO find rule
+      holidays.add(bumpSunToMon(date(year, 1, 29)));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // labour day 
+      holidays.add(bumpSunToMon(date(year, 5, 1)));
+      // vesak day
+      holidays.add(bumpSunToMon(date(year, 5, 10)));
+      // hari raya puasa day
+      holidays.add(bumpSunToMon(date(year, 6, 25)));  // TODO find rule
+      // national day
+      holidays.add(bumpSunToMon(date(year, 8, 9)));
+      // hari raya haji day
+      holidays.add(bumpSunToMon(date(year, 9, 1)));  // TODO find rule
+      // deepavali day
+      holidays.add(bumpSunToMon(date(year, 10, 18)));  // TODO find rule (non-predictable)
+      // christmas 
+      holidays.add(bumpSunToMon(date(year, 12, 25)));
+    }
+
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("SGSI"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
