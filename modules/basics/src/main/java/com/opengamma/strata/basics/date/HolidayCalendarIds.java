@@ -197,6 +197,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId SEST = HolidayCalendarId.of("SEST");
   /**
+   * An identifier for the holiday calendar of Singapore, with code 'SGSI'.
+   * <p>
+   * This constant references the calendar for Singapore bank holidays.
+   */
+  public static final HolidayCalendarId SGSI = HolidayCalendarId.of("SGSI");
+  /**
    * An identifier for the holiday calendar of Johannesburg, South Africa, with code 'ZAJO'.
    * <p>
    * This constant references the calendar for Johannesburg bank holidays.

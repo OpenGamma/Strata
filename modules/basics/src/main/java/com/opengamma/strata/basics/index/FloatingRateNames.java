@@ -89,6 +89,10 @@ public final class FloatingRateNames {
    */
   public static final FloatingRateName SEK_STIBOR = FloatingRateName.of("SEK-STIBOR");
   /**
+   * Constant for SGD-SIBOR.
+   */
+  public static final FloatingRateName SGD_SIBOR = FloatingRateName.of("SGD-SIBOR");
+  /**
    * Constant for ZAR-JIBAR.
    */
   public static final FloatingRateName ZAR_JIBAR = FloatingRateName.of("ZAR-JIBAR");

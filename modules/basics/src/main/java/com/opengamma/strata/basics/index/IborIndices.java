@@ -715,6 +715,32 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month SIBOR index.
+   * <p>
+   * The "Singapore Interbank Offered Rate".
+   */
+  public static final IborIndex SGD_SIBOR_1M = IborIndex.of("SGD-SIBOR-1M");
+  /**
+   * The 3 month SIBOR index.
+   * <p>
+   * The "Singapore Interbank Offered Rate".
+   */
+  public static final IborIndex SGD_SIBOR_3M = IborIndex.of("SGD-SIBOR-3M");
+  /**
+   * The 6 month SIBOR index.
+   * <p>
+   * The "Singapore Interbank Offered Rate".
+   */
+  public static final IborIndex SGD_SIBOR_6M = IborIndex.of("SGD-SIBOR-6M");
+  /**
+   * The 12 month SIBOR index.
+   * <p>
+   * The "Singapore Interbank Offered Rate".
+   */
+  public static final IborIndex SGD_SIBOR_12M = IborIndex.of("SGD-SIBOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 month JIBAR index.
    * <p>
    * The "Johannnesburg Interbank Average Rate".

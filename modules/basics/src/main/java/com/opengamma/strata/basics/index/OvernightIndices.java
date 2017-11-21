@@ -108,6 +108,12 @@ public final class OvernightIndices {
    * The "STIBOR T/N" index.
    */
   public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
+  /**
+   * The SONAR index for SGD.
+   * <p>
+   * The "Singapore Overnight" index.
+   */
+  public static final OvernightIndex SGD_SONAR = OvernightIndex.of("SGD-SONAR");
 
   //-------------------------------------------------------------------------
   /**
