@@ -88,6 +88,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex NOK_NOWA = OvernightIndex.of("NOK-NOWA");
   /**
+   * The NZIONA index for NZD.
+   * <p>
+   * The "New Zealand Overnight" index.
+   */
+  public static final OvernightIndex NZD_NZIONA = OvernightIndex.of("NZD-NZIONA");
+  /**
    * The PLONIA index for PLN.
    * <p>
    * The "Polish Overnight" index.
