@@ -11,6 +11,9 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * Constants and implementations for standard Ibor indices.
  * <p>
  * Each constant returns a standard definition of the specified index.
+ * <p>
+ * If a floating rate has a constant here, then it is fully supported by Strata
+ * with example holiday calendar data.
  */
 public final class IborIndices {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
