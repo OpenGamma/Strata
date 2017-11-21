@@ -25,10 +25,7 @@ import com.opengamma.strata.basics.StandardId;
 /**
  * A single value for a given security, represented by a quote, such as 'EUR/GBP 1W FX Opt ATM Straddle' - 10.0.
  * <p>
- *
  * This represents a single numeric value of a given security, such as the mid point between the buy/sell.
- * <p>
- * See {@link QuoteId} fot the representation that does not contain a value.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -45,19 +42,19 @@ public final class Quote implements ImmutableBean {
    * The value applicable for the given {@link QuoteId}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Double value;
+  private final double value;
 
 
   /**
    * Obtains an instance from a the scheme ID, quote ID, and value.
    *
-   * @param identifierScheme the identifier of the scheme used to indicate the quote
-   * @param identifier the identifier of the quotee
-   * @param value the value for the given quote
+   * @param  identifierScheme the identifier of the scheme used to indicate the quote
+   * @param  identifier the identifier of the quotee
+   * @param  value the value for the given quote
    * @return an instance of {@link Quote} for the given values
    * @throws IllegalArgumentException if the scheme ID, or scheme value are empty
    */
-  public static Quote of(String identifierScheme, String identifier, Double value) {
+  public static Quote of(String identifierScheme, String identifier, double value) {
     return new Quote(QuoteId.of(StandardId.of(identifierScheme, identifier)), value);
   }
 
@@ -82,7 +79,7 @@ public final class Quote implements ImmutableBean {
    */
   public static Quote of(
       QuoteId quoteId,
-      Double value) {
+      double value) {
     return new Quote(
       quoteId,
       value);
@@ -90,7 +87,7 @@ public final class Quote implements ImmutableBean {
 
   private Quote(
       QuoteId quoteId,
-      Double value) {
+      double value) {
     JodaBeanUtils.notNull(quoteId, "quoteId");
     JodaBeanUtils.notNull(value, "value");
     this.quoteId = quoteId;
@@ -116,7 +113,7 @@ public final class Quote implements ImmutableBean {
    * Gets the value applicable for the given {@link QuoteId}.
    * @return the value of the property, not null
    */
-  public Double getValue() {
+  public double getValue() {
     return value;
   }
 
@@ -171,7 +168,7 @@ public final class Quote implements ImmutableBean {
      * The meta-property for the {@code value} property.
      */
     private final MetaProperty<Double> value = DirectMetaProperty.ofImmutable(
-        this, "value", Quote.class, Double.class);
+        this, "value", Quote.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -259,7 +256,7 @@ public final class Quote implements ImmutableBean {
   private static final class Builder extends DirectPrivateBeanBuilder<Quote> {
 
     private QuoteId quoteId;
-    private Double value;
+    private double value;
 
     /**
      * Restricted constructor.
