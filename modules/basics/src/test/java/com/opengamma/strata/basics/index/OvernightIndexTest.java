@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
+import static com.opengamma.strata.basics.currency.Currency.SGD;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -213,6 +214,20 @@ public class OvernightIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "SEK-SIOR");
+  }
+
+  public void test_sgdSonar() {
+    HolidayCalendarId SGSI = HolidayCalendarId.of("SGSI");
+    OvernightIndex test = OvernightIndex.of("SGD-SONAR");
+    assertEquals(test.getName(), "SGD-SONAR");
+    assertEquals(test.getCurrency(), SGD);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), SGSI);
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "SGD-SONAR");
   }
 
   //-------------------------------------------------------------------------

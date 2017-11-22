@@ -16,6 +16,7 @@ import static com.opengamma.strata.basics.currency.Currency.MXN;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
+import static com.opengamma.strata.basics.currency.Currency.SGD;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.Currency.ZAR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
@@ -506,6 +507,22 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
     assertEquals(test.toString(), "SEK-STIBOR-3M");
+  }
+
+  public void test_sgd_sibor() {
+    HolidayCalendarId SGSI = HolidayCalendarId.of("SGSI");
+    IborIndex test = IborIndex.of("SGD-SIBOR-3M");
+    assertEquals(test.getCurrency(), SGD);
+    assertEquals(test.getName(), "SGD-SIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), SGSI);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, SGSI));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, SGSI));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SGSI)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "SGD-SIBOR-3M");
   }
 
   public void test_zar_jibar() {
