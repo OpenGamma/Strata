@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.CZK;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.HKD;
 import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.MXN;
@@ -430,6 +431,22 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
     assertEquals(test.toString(), "DKK-CIBOR-3M");
+  }
+
+  public void test_hkd_hibor() {
+    HolidayCalendarId HKHK = HolidayCalendarId.of("HKHK");
+    IborIndex test = IborIndex.of("HKD-HIBOR-3M");
+    assertEquals(test.getCurrency(), HKD);
+    assertEquals(test.getName(), "HKD-HIBOR-3M");
+    assertEquals(test.getTenor(), TENOR_3M);
+    assertEquals(test.getFixingCalendar(), HKHK);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, HKHK));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, HKHK));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HKHK)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "HKD-HIBOR-3M");
   }
 
   public void test_huf_bubor() {
