@@ -80,6 +80,7 @@ public class ScheduleTest {
     Schedule test = Schedule.ofTerm(P1_STUB);
     assertEquals(test.size(), 1);
     assertEquals(test.isTerm(), true);
+    assertEquals(test.isSinglePeriod(), false);
     assertEquals(test.getFrequency(), TERM);
     assertEquals(test.getRollConvention(), RollConventions.NONE);
     assertEquals(test.isEndOfMonthConvention(), false);
@@ -98,6 +99,33 @@ public class ScheduleTest {
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17));
   }
 
+  public void test_size1_stub() {
+    Schedule test = Schedule.builder()
+        .periods(ImmutableList.of(P1_STUB))
+        .frequency(P1M)
+        .rollConvention(DAY_17)
+        .build();
+    assertEquals(test.size(), 1);
+    assertEquals(test.isTerm(), true);
+    assertEquals(test.isSinglePeriod(), true);
+    assertEquals(test.getFrequency(), P1M);
+    assertEquals(test.getRollConvention(), DAY_17);
+    assertEquals(test.isEndOfMonthConvention(), false);
+    assertEquals(test.getPeriods(), ImmutableList.of(P1_STUB));
+    assertEquals(test.getPeriod(0), P1_STUB);
+    assertEquals(test.getStartDate(), P1_STUB.getStartDate());
+    assertEquals(test.getEndDate(), P1_STUB.getEndDate());
+    assertEquals(test.getUnadjustedStartDate(), P1_STUB.getUnadjustedStartDate());
+    assertEquals(test.getUnadjustedEndDate(), P1_STUB.getUnadjustedEndDate());
+    assertEquals(test.getFirstPeriod(), P1_STUB);
+    assertEquals(test.getLastPeriod(), P1_STUB);
+    assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
+    assertEquals(test.getFinalStub(), Optional.of(P1_STUB));
+    assertEquals(test.getRegularPeriods(), ImmutableList.of());
+    assertThrows(() -> test.getPeriod(1), IndexOutOfBoundsException.class);
+    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17));
+  }
+
   public void test_of_size2_initialStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL))
@@ -106,6 +134,7 @@ public class ScheduleTest {
         .build();
     assertEquals(test.size(), 2);
     assertEquals(test.isTerm(), false);
+    assertEquals(test.isSinglePeriod(), false);
     assertEquals(test.getFrequency(), P1M);
     assertEquals(test.getRollConvention(), DAY_17);
     assertEquals(test.isEndOfMonthConvention(), false);

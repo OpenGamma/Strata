@@ -114,6 +114,18 @@ public final class Schedule
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if this schedule represents a single period, but its frequency is not {@code Frequency.TERM}.
+   * <p>
+   * This occurs when the single period is stub.
+   * 
+   * @return true if this is a single period
+   */
+  public boolean isSinglePeriod() {
+    return !frequency.equals(Frequency.TERM) && size() == 1;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets a schedule period by index.
    * <p>
    * This returns a period using a zero-based index.
@@ -208,7 +220,9 @@ public final class Schedule
 
   // checks if there is an initial stub
   private boolean isInitialStub() {
-    return !isTerm() && !getFirstPeriod().isRegular(frequency, rollConvention);
+    return isSinglePeriod() ?
+        !getFirstPeriod().isRegular(frequency, rollConvention) :
+        (!isTerm() && !getFirstPeriod().isRegular(frequency, rollConvention));
   }
 
   /**
@@ -225,7 +239,9 @@ public final class Schedule
 
   // checks if there is a final stub
   private boolean isFinalStub() {
-    return !isTerm() && !getLastPeriod().isRegular(frequency, rollConvention);
+    return isSinglePeriod() ?
+        !getLastPeriod().isRegular(frequency, rollConvention) :
+        (!isTerm() && !getLastPeriod().isRegular(frequency, rollConvention));
   }
 
   /**
@@ -239,6 +255,9 @@ public final class Schedule
    * @return the non-stub schedule periods
    */
   public ImmutableList<SchedulePeriod> getRegularPeriods() {
+    if (isSinglePeriod()) {
+      return getFirstPeriod().isRegular(frequency, rollConvention) ? periods : ImmutableList.of();
+    }
     if (isTerm()) {
       return periods;
     }
