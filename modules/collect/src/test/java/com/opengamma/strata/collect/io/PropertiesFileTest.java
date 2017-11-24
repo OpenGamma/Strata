@@ -35,6 +35,8 @@ public class PropertiesFileTest {
   private final String FILE2 = "" +
       "a = x\n" +
       "a = y\n";
+  private final String FILE3 = "" +
+      "a=d= = x\n";
 
   public void test_of_noLists() {
     PropertiesFile test = PropertiesFile.of(CharSource.wrap(FILE1));
@@ -48,6 +50,12 @@ public class PropertiesFileTest {
     Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "a", "y");
     assertEquals(test.getProperties(), PropertySet.of(keyValues));
     assertEquals(test.toString(), "{a=[x, y]}");
+  }
+
+  public void test_of_escaping() {
+    PropertiesFile test = PropertiesFile.of(CharSource.wrap(FILE3));
+    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a=d=", "x");
+    assertEquals(test.getProperties(), PropertySet.of(keyValues1));
   }
 
   public void test_of_propertyNoEquals() {

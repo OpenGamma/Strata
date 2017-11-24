@@ -48,6 +48,9 @@ public class IniFileTest {
       "[section]\n" +
       "a = x\n" +
       "a = y\n";
+  private final String INI4 = "" +
+      "[section]\n" +
+      "a=d= = x\n";
 
   public void test_of_noLists() {
     IniFile test = IniFile.of(CharSource.wrap(INI1));
@@ -105,6 +108,12 @@ public class IniFileTest {
     assertEquals(test.section("section").keys(), ImmutableSet.of("a"));
     assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", "x", "a", "y"));
     assertEquals(test.toString(), "{section={a=[x, y]}}");
+  }
+
+  public void test_of_escaping() {
+    IniFile test = IniFile.of(CharSource.wrap(INI4));
+    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a=d=", "x");
+    assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
   }
 
   public void test_of_propertyNoEquals() {

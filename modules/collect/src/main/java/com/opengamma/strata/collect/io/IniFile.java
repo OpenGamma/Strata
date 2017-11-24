@@ -28,6 +28,8 @@ import com.opengamma.strata.collect.Unchecked;
  * <p>
  * The basic element is a key-value pair.
  * The key is separated from the value using the '=' symbol.
+ * The string ' = ' is searched for before '=' to allow an equals sign to be present
+ * in the key, which implies that this string cannot be in either the key or the value.
  * Duplicate keys are allowed.
  * For example 'key = value'.
  * The equals sign and value may be omitted, in which case the value is an empty string.
@@ -114,7 +116,8 @@ public final class IniFile {
         throw new IllegalArgumentException("Invalid INI file, properties must be within a [section], line " + lineNum);
 
       } else {
-        int equalsPosition = line.indexOf('=');
+        int equalsPosition = line.indexOf(" = ");
+        equalsPosition = equalsPosition < 0 ? line.indexOf('=') : equalsPosition + 1;
         String key = (equalsPosition < 0 ? line.trim() : line.substring(0, equalsPosition).trim());
         String value = (equalsPosition < 0 ? "" : line.substring(equalsPosition + 1).trim());
         if (key.length() == 0) {
