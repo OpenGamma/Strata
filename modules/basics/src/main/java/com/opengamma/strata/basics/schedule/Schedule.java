@@ -104,11 +104,20 @@ public final class Schedule
   /**
    * Checks if this schedule represents a single 'Term' period.
    * <p>
-   * A 'Term' schedule has one period.
+   * A 'Term' schedule has one period and a frequency of 'Term'.
    * 
    * @return true if this is a 'Term' schedule
    */
   public boolean isTerm() {
+    return size() == 1 && frequency.equals(Frequency.TERM);
+  }
+
+  /**
+   * Checks if this schedule has a single period.
+   * 
+   * @return true if this is a single period
+   */
+  public boolean isSinglePeriod() {
     return size() == 1;
   }
 
@@ -197,8 +206,10 @@ public final class Schedule
   /**
    * Gets the initial stub if it exists.
    * <p>
-   * There is an initial stub if there is more than one period and the first
-   * period is a stub.
+   * There is an initial stub if the first period is a stub and the frequency is not 'Term'.
+   * <p>
+   * A period will be allocated to one and only one of {@link #getInitialStub()},
+   * {@link #getRegularPeriods()} and {@link #getFinalStub()}.
    * 
    * @return the initial stub, empty if no initial stub
    */
@@ -216,6 +227,9 @@ public final class Schedule
    * <p>
    * There is a final stub if there is more than one period and the last
    * period is a stub.
+   * <p>
+   * A period will be allocated to one and only one of {@link #getInitialStub()},
+   * {@link #getRegularPeriods()} and {@link #getFinalStub()}.
    * 
    * @return the final stub, empty if no final stub
    */
@@ -225,7 +239,7 @@ public final class Schedule
 
   // checks if there is a final stub
   private boolean isFinalStub() {
-    return !isTerm() && !getLastPeriod().isRegular(frequency, rollConvention);
+    return !isSinglePeriod() && !getLastPeriod().isRegular(frequency, rollConvention);
   }
 
   /**
@@ -234,7 +248,11 @@ public final class Schedule
    * The regular periods exclude any initial or final stub.
    * In most cases, the periods returned will be regular, corresponding to the periodic
    * frequency and roll convention, however there are cases when this is not true.
+   * This includes the case where {@link #isTerm()} returns true.
    * See {@link SchedulePeriod#isRegular(Frequency, RollConvention)}.
+   * <p>
+   * A period will be allocated to one and only one of {@link #getInitialStub()},
+   * {@link #getRegularPeriods()} and {@link #getFinalStub()}.
    * 
    * @return the non-stub schedule periods
    */
@@ -352,7 +370,7 @@ public final class Schedule
   public Schedule merge(int groupSize, LocalDate firstRegularStartDate, LocalDate lastRegularEndDate) {
     ArgChecker.notNegativeOrZero(groupSize, "groupSize");
     ArgChecker.inOrderOrEqual(firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
-    if (isTerm() || groupSize == 1) {
+    if (isSinglePeriod() || groupSize == 1) {
       return this;
     }
     // determine stubs and regular
@@ -433,7 +451,7 @@ public final class Schedule
    */
   public Schedule mergeRegular(int groupSize, boolean rollForwards) {
     ArgChecker.notNegativeOrZero(groupSize, "groupSize");
-    if (isTerm() || groupSize == 1) {
+    if (isSinglePeriod() || groupSize == 1) {
       return this;
     }
     List<SchedulePeriod> newSchedule = new ArrayList<>();

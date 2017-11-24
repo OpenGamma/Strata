@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
@@ -110,6 +111,11 @@ public class IborRateCalculationTest {
   private static final Schedule ACCRUAL_SCHEDULE_FINAL_STUB = Schedule.builder()
       .periods(ACCRUAL1, ACCRUAL2, ACCRUAL3STUB)
       .frequency(P1M)
+      .rollConvention(DAY_5)
+      .build();
+  private static final Schedule SINGLE_ACCRUAL_SCHEDULE_STUB = Schedule.builder()
+      .periods(ACCRUAL1STUB)
+      .frequency(P3M)
       .rollConvention(DAY_5)
       .build();
 
@@ -350,6 +356,22 @@ public class IborRateCalculationTest {
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+  }
+
+  public void test_expand_singlePeriod_stubCalcsInitialStub_interpolated() {
+    IborRateCalculation test = IborRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(GBP_LIBOR_2M)
+        .fixingDateOffset(MINUS_TWO_DAYS)
+        .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(GBP_LIBOR_1W, GBP_LIBOR_1M))
+        .build();
+    RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
+        .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
+        .rateComputation(IborInterpolatedRateComputation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .build();
+    ImmutableList<RateAccrualPeriod> periods =
+        test.createAccrualPeriods(SINGLE_ACCRUAL_SCHEDULE_STUB, SINGLE_ACCRUAL_SCHEDULE_STUB, REF_DATA);
+    assertEquals(periods, ImmutableList.of(rap1));
   }
 
   //-------------------------------------------------------------------------
