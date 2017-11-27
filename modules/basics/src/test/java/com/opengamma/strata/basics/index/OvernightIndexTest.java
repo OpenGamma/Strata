@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.INR;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
@@ -175,6 +176,19 @@ public class OvernightIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
     assertEquals(test.toString(), "DKK-TNR");
+  }
+
+  public void test_inrOis() {
+    OvernightIndex test = OvernightIndex.of("INR-OMIBOR");
+    assertEquals(test.getName(), "INR-OMIBOR");
+    assertEquals(test.getCurrency(), INR);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), HolidayCalendarId.of("INMU"));
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "INR-OMIBOR");
   }
 
   public void test_nzdOis() {
