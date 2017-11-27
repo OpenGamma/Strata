@@ -55,6 +55,7 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <jpms.module.name>com.opengamma.strata.math</jpms.module.name>
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/../..</root.dir>
     <colt.version>1.2.0</colt.version>

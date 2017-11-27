@@ -76,6 +76,7 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <jpms.module.name>com.opengamma.strata.measure</jpms.module.name>
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/../..</root.dir>
     <!-- Properties for maven-surefire-plugin -->

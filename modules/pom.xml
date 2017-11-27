@@ -180,6 +180,7 @@
           <skipIfEmpty>true</skipIfEmpty>
           <archive>
             <manifestEntries>
+              <Automatic-Module-Name>${jpms.module.name}</Automatic-Module-Name>
               <Implementation-Build>${buildNumber}</Implementation-Build>
               <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
               <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
