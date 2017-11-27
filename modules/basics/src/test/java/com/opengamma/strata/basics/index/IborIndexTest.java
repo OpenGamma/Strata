@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
+import static com.opengamma.strata.basics.currency.Currency.KRW;
 import static com.opengamma.strata.basics.currency.Currency.MXN;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
@@ -39,6 +40,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.ZAJO;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_13W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
@@ -445,6 +447,22 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "HUF-BUBOR-3M");
+  }
+
+  public void test_krw_cd() {
+    HolidayCalendarId KRSE = HolidayCalendarId.of("KRSE");
+    IborIndex test = IborIndex.of("KRW-CD-13W");
+    assertEquals(test.getCurrency(), KRW);
+    assertEquals(test.getName(), "KRW-CD-13W");
+    assertEquals(test.getTenor(), TENOR_13W);
+    assertEquals(test.getFixingCalendar(), KRSE);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, KRSE));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, KRSE));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_13W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, KRSE)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "KRW-CD-13W");
   }
 
   public void test_mxn_tiie() {

@@ -164,6 +164,8 @@ HUF-BUBOR-10M,HUF,false,Act/360,HUBU,2,HUBU,HUBU,10M,ModifiedFollowing,11:00,Eur
 HUF-BUBOR-11M,HUF,false,Act/360,HUBU,2,HUBU,HUBU,11M,ModifiedFollowing,11:00,Europe/Budapest,Act/365F
 HUF-BUBOR-12M,HUF,true,Act/360,HUBU,2,HUBU,HUBU,12M,ModifiedFollowing,11:00,Europe/Budapest,Act/365F
 ,,,,,,,,,,,
+KRW-CD-13W,KRW,true,Act/365F,KRSE,1,KRSE,KRSE,13W,Following,15:30,Asia/Seoul,Act/365F
+,,,,,,,,,,,
 MXN-TIIE-4W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,4W,Following,11:00,America/Mexico_City,Act/360
 MXN-TIIE-13W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,13W,Following,11:00,America/Mexico_City,Act/360
 MXN-TIIE-26W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,26W,Following,11:00,America/Mexico_City,Act/360
