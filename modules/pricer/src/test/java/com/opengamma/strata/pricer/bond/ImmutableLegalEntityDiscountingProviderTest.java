@@ -82,6 +82,7 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
     assertEquals(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP),
         RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_SECURITY));
+    assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(ID_ISSUER, GBP));
     assertEquals(test.getValuationDate(), DATE);
   }
 
@@ -98,6 +99,8 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         test.issuerCurveDiscountFactors(ID_ISSUER, GBP),
         IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
     assertEquals(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP),
+        RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_ISSUER));
+    assertEquals(test.repoCurveDiscountFactors(ID_ISSUER, GBP),
         RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_ISSUER));
     assertEquals(test.getValuationDate(), DATE);
 

@@ -138,6 +138,15 @@ public final class ImmutableLegalEntityDiscountingProvider
     return repoCurveDiscountFactors(repoGroup, currency);
   }
 
+  @Override
+  public RepoCurveDiscountFactors repoCurveDiscountFactors(StandardId issuerId, Currency currency) {
+    RepoGroup repoGroup = repoCurveGroups.get(issuerId);
+    if (repoGroup == null) {
+      throw new IllegalArgumentException("Unable to find map for ID: " + issuerId);
+    }
+    return repoCurveDiscountFactors(repoGroup, currency);
+  }
+
   // lookup the discount factors for the repo group
   private RepoCurveDiscountFactors repoCurveDiscountFactors(RepoGroup repoGroup, Currency currency) {
     DiscountFactors discountFactors = repoCurves.get(Pair.of(repoGroup, currency));
