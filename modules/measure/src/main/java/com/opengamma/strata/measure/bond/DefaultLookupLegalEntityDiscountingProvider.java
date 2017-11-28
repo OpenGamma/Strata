@@ -112,6 +112,15 @@ final class DefaultLookupLegalEntityDiscountingProvider
     return repoCurveDiscountFactors(repoGroup, currency);
   }
 
+  @Override
+  public RepoCurveDiscountFactors repoCurveDiscountFactors(StandardId issuerId, Currency currency) {
+    RepoGroup repoGroup = lookup.getRepoCurveGroups().get(issuerId);
+    if (repoGroup == null) {
+      throw new MarketDataNotFoundException("Unable to find repo curve mapping for ID: " + issuerId);
+    }
+    return repoCurveDiscountFactors(repoGroup, currency);
+  }
+
   // lookup the discount factors for the repo group
   private RepoCurveDiscountFactors repoCurveDiscountFactors(RepoGroup repoGroup, Currency currency) {
     CurveId curveId = lookup.getRepoCurves().get(Pair.of(repoGroup, currency));
