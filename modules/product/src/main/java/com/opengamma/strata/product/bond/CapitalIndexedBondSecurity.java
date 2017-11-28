@@ -31,7 +31,6 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -48,7 +47,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  */
 @BeanDefinition
 public final class CapitalIndexedBondSecurity
-    implements Security, ImmutableBean, Serializable {
+    implements LegalEntitySecurity, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -110,7 +109,7 @@ public final class CapitalIndexedBondSecurity
    * <p>
    * This identifier is used for the legal entity that issues the bond.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId legalEntityId;
   /**
    * The number of days between valuation date and settlement date.
@@ -342,6 +341,7 @@ public final class CapitalIndexedBondSecurity
    * This identifier is used for the legal entity that issues the bond.
    * @return the value of the property, not null
    */
+  @Override
   public StandardId getLegalEntityId() {
     return legalEntityId;
   }
