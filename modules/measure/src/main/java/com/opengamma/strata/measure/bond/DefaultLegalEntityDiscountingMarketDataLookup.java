@@ -114,6 +114,29 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
         repoCurveGroups, repoCurveIds, issuerCurveGroups, issuerCurveIds, obsSource);
   }
 
+  /**
+   * Obtains an instance based on maps for repo curves.
+   * <p>
+   * The repo curves are defined in two parts.
+   * The first part maps the issuer ID to a group, and the second part maps the
+   * group and currency to the identifier of the curve.
+   * <p>
+   * Issuer curves are not defined in the instance.
+   * 
+   * @param repoCurveGroups  the repo curve groups, mapping issuer ID to group
+   * @param repoCurveIds  the repo curve identifiers, keyed by repo group and currency
+   * @param obsSource  the source of market data for quotes and other observable market data
+   * @return the rates lookup containing the specified curves
+   */
+  public static DefaultLegalEntityDiscountingMarketDataLookup of(
+      Map<StandardId, RepoGroup> repoCurveGroups,
+      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds,
+      ObservableSource obsSource) {
+
+    return new DefaultLegalEntityDiscountingMarketDataLookup(
+        repoCurveGroups, repoCurveIds, ImmutableMap.of(), ImmutableMap.of(), obsSource);
+  }
+
   @ImmutableValidator
   private void validate() {
     Set<RepoGroup> uniqueRepoGroups = new HashSet<>(repoCurveGroups.values());
@@ -163,6 +186,27 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
     // result
     return FunctionRequirements.builder()
         .valueRequirements(ImmutableSet.of(repoCurveId, issuerCurveId))
+        .outputCurrencies(currency)
+        .observableSource(observableSource)
+        .build();
+  }
+
+  @Override
+  public FunctionRequirements requirements(StandardId issuerId, Currency currency) {
+    // repo
+    RepoGroup repoKey = repoCurveGroups.get(issuerId);
+    if (repoKey == null) {
+      throw new IllegalArgumentException(Messages.format(
+          "Legal entity discounting lookup has no repo curve defined for '{}'", issuerId));
+    }
+    CurveId repoCurveId = repoCurves.get(Pair.of(repoKey, currency));
+    if (repoCurveId == null) {
+      throw new IllegalArgumentException(Messages.format(
+          "Legal entity discounting lookup has no repo curve defined for '{}'", issuerId));
+    }
+    // result
+    return FunctionRequirements.builder()
+        .valueRequirements(ImmutableSet.of(repoCurveId))
         .outputCurrencies(currency)
         .observableSource(observableSource)
         .build();
