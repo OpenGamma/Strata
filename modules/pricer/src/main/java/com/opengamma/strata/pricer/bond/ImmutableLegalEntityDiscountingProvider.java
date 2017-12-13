@@ -72,13 +72,13 @@ public final class ImmutableLegalEntityDiscountingProvider
    * <p>
    * This property was renamed in version 1.1 of Strata from {@code bondMap}.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<StandardId, RepoGroup> repoCurveGroups;
   /**
    * The repo curves, keyed by group and currency.
    * The curve data, predicting the future, associated with each repo group and currency.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> repoCurves;
   /**
    * The groups used to find an issuer curve.
@@ -88,13 +88,13 @@ public final class ImmutableLegalEntityDiscountingProvider
    * <p>
    * This property was renamed in version 1.1 of Strata from {@code legalEntityMap}.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<StandardId, LegalEntityGroup> issuerCurveGroups;
   /**
    * The issuer curves, keyed by group and currency.
    * The curve data, predicting the future, associated with each legal entity group and currency.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> issuerCurves;
 
   //-------------------------------------------------------------------------
@@ -287,7 +287,7 @@ public final class ImmutableLegalEntityDiscountingProvider
    * This property was renamed in version 1.1 of Strata from {@code bondMap}.
    * @return the value of the property, not null
    */
-  private ImmutableMap<StandardId, RepoGroup> getRepoCurveGroups() {
+  public ImmutableMap<StandardId, RepoGroup> getRepoCurveGroups() {
     return repoCurveGroups;
   }
 
@@ -297,7 +297,7 @@ public final class ImmutableLegalEntityDiscountingProvider
    * The curve data, predicting the future, associated with each repo group and currency.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> getRepoCurves() {
+  public ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> getRepoCurves() {
     return repoCurves;
   }
 
@@ -311,7 +311,7 @@ public final class ImmutableLegalEntityDiscountingProvider
    * This property was renamed in version 1.1 of Strata from {@code legalEntityMap}.
    * @return the value of the property, not null
    */
-  private ImmutableMap<StandardId, LegalEntityGroup> getIssuerCurveGroups() {
+  public ImmutableMap<StandardId, LegalEntityGroup> getIssuerCurveGroups() {
     return issuerCurveGroups;
   }
 
@@ -321,7 +321,7 @@ public final class ImmutableLegalEntityDiscountingProvider
    * The curve data, predicting the future, associated with each legal entity group and currency.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> getIssuerCurves() {
+  public ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> getIssuerCurves() {
     return issuerCurves;
   }
 
