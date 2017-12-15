@@ -104,6 +104,18 @@ public class SecurityPositionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_summarize() {
+    SecurityPosition trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(POSITION_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.POSITION)
+        .productType(ProductType.SECURITY)
+        .description("Id x 100")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
   static SecurityPosition sut() {
     return SecurityPosition.builder()
         .info(POSITION_INFO)

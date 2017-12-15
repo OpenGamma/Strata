@@ -49,6 +49,12 @@ public class EtdFutureSecurityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_summaryDescription() {
+    assertEquals(sut().summaryDescription(), "Jun17");
+    assertEquals(sut2().summaryDescription(), "Sep17W2");
+  }
+
+  //-------------------------------------------------------------------------
   static EtdFutureSecurity sut() {
     return EtdFutureSecurity.builder()
         .info(SecurityInfo.of(SecurityId.of("A", "B"), SecurityPriceInfo.of(Currency.GBP, 100)))

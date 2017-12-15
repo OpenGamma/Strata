@@ -50,6 +50,12 @@ public class EtdOptionSecurityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_summaryDescription() {
+    assertEquals(sut().summaryDescription(), "Jun17 P2");
+    assertEquals(sut2().summaryDescription(), "Sep17W2 V4 C3");
+  }
+
+  //-------------------------------------------------------------------------
   static EtdOptionSecurity sut() {
     return EtdOptionSecurity.builder()
         .info(SecurityInfo.of(SecurityId.of("A", "B"), SecurityPriceInfo.of(Currency.GBP, 100)))
@@ -66,6 +72,7 @@ public class EtdOptionSecurityTest {
         .contractSpecId(EtdContractSpecId.of("test", "234"))
         .expiry(YearMonth.of(2017, 9))
         .variant(EtdVariant.ofWeekly(2))
+        .version(4)
         .putCall(PutCall.CALL)
         .strikePrice(3)
         .build();

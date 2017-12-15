@@ -14,7 +14,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.PositionInfo;
+import com.opengamma.strata.product.ProductType;
 
 /**
  * Test {@link EtdOptionPosition}.
@@ -73,6 +76,19 @@ public class EtdOptionPositionTest {
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getSecurityId(), test.getSecurity().getSecurityId());
     assertEquals(test.getQuantity(), 1000d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    EtdOptionPosition trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(POSITION_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.POSITION)
+        .productType(ProductType.ETD_OPTION)
+        .currencies(SECURITY.getCurrency())
+        .description(SECURITY.getSecurityId().getStandardId().getValue() + " x 1000, Jun17 P2")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------
