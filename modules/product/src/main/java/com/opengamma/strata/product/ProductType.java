@@ -16,6 +16,7 @@ import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.capfloor.IborCapFloor;
 import com.opengamma.strata.product.cms.Cms;
 import com.opengamma.strata.product.credit.Cds;
+import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.dsf.Dsf;
 import com.opengamma.strata.product.etd.EtdFutureSecurity;
@@ -61,6 +62,10 @@ public final class ProductType
    */
   public static final ProductType CDS = ProductType.of("Cds", "CDS");
   /**
+   * A {@link CdsIndex}.
+   */
+  public static final ProductType CDS_INDEX = ProductType.of("Cds Index", "CDS Index");
+  /**
    * A {@link Cms}.
    */
   public static final ProductType CMS = ProductType.of("Cms", "CMS");
@@ -79,7 +84,7 @@ public final class ProductType
   /**
    * A {@link FxSingleBarrierOption}.
    */
-  public static final ProductType FX_SINGLE_BARRIER_OPTION = ProductType.of("FxSingleBarrierOption", "FX Single Barrier");
+  public static final ProductType FX_SINGLE_BARRIER_OPTION = ProductType.of("FxSingleBarrierOption", "FX Single Barrier Option");
   /**
    * A {@link FxSingle}.
    */
@@ -104,6 +109,10 @@ public final class ProductType
    * A {@link IborFutureOption}.
    */
   public static final ProductType IBOR_FUTURE_OPTION = ProductType.of("IborFutureOption", "STIR Future Option");
+  /**
+   * A representation based on sensitivities.
+   */
+  public static final ProductType SENSITIVITIES = ProductType.of("Sensitivities");
   /**
    * A {@link Swap}.
    */
@@ -180,9 +189,14 @@ public final class ProductType
    */
   private ProductType(String name, String description) {
     super(name);
-    this.description = ArgChecker.notEmpty(description, "description");
+    this.description = ArgChecker.notBlank(description, "description");
   }
 
+  /**
+   * Gets the human-readable description of the type.
+   * 
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
