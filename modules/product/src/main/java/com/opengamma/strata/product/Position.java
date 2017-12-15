@@ -5,7 +5,11 @@
  */
 package com.opengamma.strata.product;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A position in a security.
@@ -16,7 +20,19 @@ import com.opengamma.strata.basics.CalculationTarget;
  * Implementations of this interface must be immutable beans.
  */
 public interface Position
-    extends SecurityQuantity, CalculationTarget {
+    extends PortfolioItem, SecurityQuantity, CalculationTarget {
+
+  @Override
+  public default Optional<StandardId> getId() {
+    return getInfo().getId();
+  }
+
+  @Override
+  public default PortfolioItemSummary summarize() {
+    // AAPL x 200
+    String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
+    return SummarizerUtils.summary(this, ProductType.SECURITY, description);
+  }
 
   /**
    * Gets the standard position information.
