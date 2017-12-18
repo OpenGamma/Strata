@@ -208,6 +208,19 @@ public final class Swap
     return legs.stream().map(leg -> leg.getCurrency()).collect(toImmutableSet());
   }
 
+  /**
+   * Returns the set of currencies referred to by the swap.
+   * <p>
+   * This returns the complete set of currencies for the swap, not just the payment currencies.
+   * 
+   * @return the set of currencies referred to by this swap
+   */
+  public ImmutableSet<Currency> allCurrencies() {
+    ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
+    legs.stream().forEach(leg -> leg.collectCurrencies(builder));
+    return builder.build();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns the set of indices referred to by the swap.

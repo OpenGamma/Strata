@@ -83,6 +83,7 @@ public class KnownAmountSwapLegTest {
     assertEquals(test.getPaymentSchedule(), paymentSchedule);
     assertEquals(test.getAmount(), amountSchedule);
     assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
   }
 
   //-------------------------------------------------------------------------

@@ -227,6 +227,16 @@ public final class RatePeriodSwapLeg
 
   //-------------------------------------------------------------------------
   @Override
+  public void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
+    builder.add(currency);
+    for (RatePaymentPeriod paymentPeriod : paymentPeriods) {
+      builder.add(paymentPeriod.getCurrency());
+      paymentPeriod.getFxReset().ifPresent(fxr -> builder.add(fxr.getReferenceCurrency()));
+    }
+    paymentEvents.forEach(ev -> builder.add(ev.getCurrency()));
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     paymentPeriods.stream().forEach(period -> period.collectIndices(builder));
   }

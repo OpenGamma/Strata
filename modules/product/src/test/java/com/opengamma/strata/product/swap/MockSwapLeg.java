@@ -35,7 +35,10 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.index.FxIndices;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 
@@ -101,6 +104,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    builder.add(IborIndices.GBP_LIBOR_3M, FxIndices.EUR_GBP_ECB, OvernightIndices.EUR_EONIA);
   }
 
   @Override

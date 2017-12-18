@@ -152,6 +152,7 @@ public class RateCalculationSwapLegTest {
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
     assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
   }
 
   public void test_collectIndices_fxReset() {
@@ -187,6 +188,7 @@ public class RateCalculationSwapLegTest {
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, EUR_GBP_ECB));
     assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M, EUR_GBP_ECB));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, EUR));
   }
 
   //-------------------------------------------------------------------------
