@@ -133,6 +133,11 @@ public final class KnownAmountSwapLeg
   }
 
   @Override
+  public void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
+    builder.add(currency);
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     // no indices
   }

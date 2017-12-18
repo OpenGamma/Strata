@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
@@ -41,6 +42,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.FxIndices;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.rate.FixedRateComputation;
@@ -146,9 +150,15 @@ public class SwapTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_allCurrencies() {
+    Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD, EUR));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_allIndices() {
     Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
-    assertEquals(test.allIndices(), ImmutableSet.of());
+    assertEquals(test.allIndices(), ImmutableSet.of(IborIndices.GBP_LIBOR_3M, FxIndices.EUR_GBP_ECB, OvernightIndices.EUR_EONIA));
   }
 
   //-------------------------------------------------------------------------

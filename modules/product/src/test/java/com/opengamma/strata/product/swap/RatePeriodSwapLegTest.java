@@ -162,6 +162,19 @@ public class RatePeriodSwapLegTest {
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+  }
+
+  public void test_collectIndices_fxReset() {
+    RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(RECEIVE)
+        .paymentPeriods(RPP1_FXRESET)
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, GBP_USD_WM));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
   }
 
   //-------------------------------------------------------------------------

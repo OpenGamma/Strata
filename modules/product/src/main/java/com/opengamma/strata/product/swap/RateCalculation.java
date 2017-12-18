@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -40,6 +41,15 @@ public interface RateCalculation {
    * @return the day count convention
    */
   public abstract DayCount getDayCount();
+
+  /**
+   * Collects all the currencies referred to by this calculation.
+   * <p>
+   * This collects the complete set of currencies for the calculation, not just the payment currencies.
+   * 
+   * @param builder  the builder to populate
+   */
+  public abstract void collectCurrencies(ImmutableSet.Builder<Currency> builder);
 
   /**
    * Collects all the indices referred to by this calculation.

@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
@@ -182,6 +183,11 @@ public final class OvernightRateCalculation
   @Override
   public SwapLegType getType() {
     return SwapLegType.OVERNIGHT;
+  }
+
+  @Override
+  public void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
+    builder.add(index.getCurrency());
   }
 
   @Override

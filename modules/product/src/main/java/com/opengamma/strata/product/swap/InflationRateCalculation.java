@@ -33,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
@@ -193,6 +194,11 @@ public final class InflationRateCalculation
   @Override
   public DayCount getDayCount() {
     return DayCounts.ONE_ONE;  // inflation does not use a day count
+  }
+
+  @Override
+  public void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
+    builder.add(index.getCurrency());
   }
 
   @Override

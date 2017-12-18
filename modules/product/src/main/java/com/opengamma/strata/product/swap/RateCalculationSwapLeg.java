@@ -127,6 +127,13 @@ public final class RateCalculationSwapLeg
   }
 
   @Override
+  public void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
+    builder.add(getCurrency());
+    calculation.collectCurrencies(builder);
+    notionalSchedule.getFxReset().ifPresent(fxReset -> builder.add(fxReset.getReferenceCurrency()));
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     calculation.collectIndices(builder);
     notionalSchedule.getFxReset().ifPresent(fxReset -> builder.add(fxReset.getIndex()));
