@@ -11,6 +11,8 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
+import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
+import static com.opengamma.strata.basics.value.ValueAdjustment.ofDeltaAmount;
 import static com.opengamma.strata.collect.TestHelper.assertEqualsBean;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -42,12 +44,21 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStepSequence;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
+import com.opengamma.strata.product.swap.type.IborIborSwapConventions;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
 
 /**
  * Test.
@@ -59,6 +70,7 @@ public class SwapTest {
   private static final double RATE = 0.01d;
   private static final double NOTIONAL = 100_000d;
 
+  //-------------------------------------------------------------------------
   public void test_builder_list() {
     Swap test = Swap.builder()
         .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
@@ -159,6 +171,121 @@ public class SwapTest {
   public void test_allIndices() {
     Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
     assertEquals(test.allIndices(), ImmutableSet.of(IborIndices.GBP_LIBOR_3M, FxIndices.EUR_GBP_ECB, OvernightIndices.EUR_EONIA));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    Swap test = Swap.builder()
+        .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
+        .build();
+    assertEquals(test.summaryDescription(),
+        "7M Pay [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] / Rec [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] : 15Jan12-15Aug12");
+  }
+
+  public void test_summarize_irs() {
+    Swap test = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M
+        .createTrade(date(2018, 2, 12), Tenor.TENOR_5Y, BuySell.BUY, 1_500_000d, 0.015d, REF_DATA).getProduct();
+    assertEquals(test.summaryDescription(), "5Y GBP 1.5mm Rec GBP-LIBOR-3M / Pay 1.5% : 12Feb18-12Feb23");
+  }
+
+  public void test_summarize_irs_weird() {
+    PeriodicSchedule accrual = PeriodicSchedule.of(
+        date(2018, 2, 12), date(2020, 2, 12), Frequency.P3M, BusinessDayAdjustment.NONE, SHORT_INITIAL, false);
+    PaymentSchedule payment = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.P3M)
+        .paymentDateOffset(DaysAdjustment.NONE)
+        .build();
+    NotionalSchedule notional = NotionalSchedule.of(GBP, ValueSchedule.builder()
+        .initialValue(1_000_000)
+        .stepSequence(
+            ValueStepSequence.of(date(2018, 8, 12), date(2019, 8, 12), Frequency.P6M, ofDeltaAmount(-50_000)))
+        .build());
+    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrual)
+        .paymentSchedule(payment)
+        .notionalSchedule(notional)
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_360)
+            .rate(ValueSchedule.builder()
+                .initialValue(0.0012)
+                .stepSequence(ValueStepSequence.of(date(2018, 8, 12), date(2019, 8, 12), Frequency.P6M, ofDeltaAmount(0.0001)))
+                .build())
+            .build())
+        .build();
+    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrual)
+        .paymentSchedule(payment)
+        .notionalSchedule(notional)
+        .calculation(IborRateCalculation.builder()
+            .index(IborIndices.GBP_LIBOR_3M)
+            .gearing(ValueSchedule.of(1.1))
+            .spread(ValueSchedule.of(0.002))
+            .build())
+        .build();
+    Swap test = Swap.of(payLeg, recLeg);
+    assertEquals(
+        test.summaryDescription(),
+        "2Y GBP 1mm varying Rec GBP-LIBOR-3M * 1.1 + 0.2% / Pay 0.12% varying : 12Feb18-12Feb20");
+  }
+
+  public void test_summarize_ois() {
+    Swap test = FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS
+        .createTrade(date(2018, 2, 12), Tenor.TENOR_2Y, BuySell.SELL, 1_500_000d, 0.015d, REF_DATA).getProduct();
+    assertEquals(test.summaryDescription(), "2Y GBP 1.5mm Rec 1.5% / Pay GBP-SONIA : 12Feb18-12Feb20");
+  }
+
+  public void test_summarize_inf() {
+    Swap test = FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI
+        .createTrade(date(2018, 2, 12), Tenor.TENOR_2Y, BuySell.BUY, 1_500_000d, 0.015d, REF_DATA).getProduct();
+    assertEquals(test.summaryDescription(), "2Y GBP 1.5mm Rec GB-RPI / Pay 1.5% : 14Feb18-14Feb20");
+  }
+
+  public void test_summarize_bas() {
+    Swap test = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M
+        .createTrade(date(2018, 2, 12), Tenor.TENOR_2Y, BuySell.BUY, 2_500_000d, 0.007d, REF_DATA).getProduct();
+    assertEquals(test.summaryDescription(), "2Y USD 2.5mm Rec USD-LIBOR-6M / Pay USD-LIBOR-3M + 0.7% : 14Feb18-14Feb20");
+  }
+
+  public void test_summarize_xccy() {
+    Swap test = XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M
+        .createTrade(date(2018, 2, 12), Tenor.TENOR_2Y, BuySell.BUY, 2_500_000d, 3_000_000d, 0.007d, REF_DATA).getProduct();
+    assertEquals(test.summaryDescription(), "2Y Rec USD-LIBOR-3M USD 3mm / Pay GBP-LIBOR-3M + 0.7% GBP 2.5mm : 14Feb18-14Feb20");
+  }
+
+  public void test_summarize_knownAmount() {
+    Swap test = Swap.of(KnownAmountSwapLeg.builder()
+        .accrualSchedule(PeriodicSchedule.of(
+            date(2018, 2, 12), date(2020, 2, 12), Frequency.P3M, BusinessDayAdjustment.NONE, SHORT_INITIAL, false))
+        .amount(ValueSchedule.of(145_000))
+        .currency(GBP)
+        .payReceive(PAY)
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P3M)
+            .paymentDateOffset(DaysAdjustment.NONE)
+            .build())
+        .build());
+    assertEquals(test.summaryDescription(), "2Y Pay GBP 145k : 12Feb18-12Feb20");
+  }
+
+  public void test_summarize_knownAmountVarying() {
+    Swap test = Swap.of(KnownAmountSwapLeg.builder()
+        .accrualSchedule(PeriodicSchedule.of(
+            date(2018, 2, 12), date(2020, 2, 12), Frequency.P3M, BusinessDayAdjustment.NONE, SHORT_INITIAL, false))
+        .amount(ValueSchedule.builder()
+            .initialValue(145_000)
+            .stepSequence(
+                ValueStepSequence.of(date(2018, 8, 12), date(2019, 8, 12), Frequency.P6M, ofDeltaAmount(-20_000)))
+            .build())
+        .currency(GBP)
+        .payReceive(PAY)
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P3M)
+            .paymentDateOffset(DaysAdjustment.NONE)
+            .build())
+        .build());
+    assertEquals(test.summaryDescription(), "2Y Pay GBP 145k varying : 12Feb18-12Feb20");
   }
 
   //-------------------------------------------------------------------------

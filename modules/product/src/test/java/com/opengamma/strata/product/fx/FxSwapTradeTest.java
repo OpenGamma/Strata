@@ -14,6 +14,10 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -38,6 +42,18 @@ public class FxSwapTradeTest {
     FxSwapTrade test = sut();
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    FxSwapTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.FX_SWAP)
+        .currencies(Currency.GBP, Currency.USD)
+        .description("Rec GBP 1k @ GBP/USD 1.6 / Pay GBP 1k @ GBP/USD 1.55 : 21Nov11-21Dec11")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

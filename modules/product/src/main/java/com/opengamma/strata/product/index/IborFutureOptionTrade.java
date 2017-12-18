@@ -24,9 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecuritizedProductTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade representing an option on a futures contract based on an Ibor index.
@@ -95,6 +98,13 @@ public final class IborFutureOptionTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // ID x 200
+    String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
+    return SummarizerUtils.summary(this, ProductType.IBOR_FUTURE_OPTION, description, getCurrency());
+  }
+
   @Override
   public ResolvedIborFutureOptionTrade resolve(ReferenceData refData) {
     ResolvedIborFutureOption resolved = getProduct().resolve(refData);

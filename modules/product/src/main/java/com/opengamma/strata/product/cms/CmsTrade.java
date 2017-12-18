@@ -25,9 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in a constant maturity swap (CMS).
@@ -73,6 +76,44 @@ public final class CmsTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // 5Y USD 2mm Rec USD-LIBOR-1100-1Y Cap 1% / Pay Premium : 21Jan17-21Jan22
+    StringBuilder buf = new StringBuilder(96);
+    CmsLeg mainLeg = product.getCmsLeg();
+    buf.append(SummarizerUtils.datePeriod(mainLeg.getStartDate().getUnadjusted(), mainLeg.getEndDate().getUnadjusted()));
+    buf.append(' ');
+    buf.append(SummarizerUtils.amount(mainLeg.getCurrency(), mainLeg.getNotional().getInitialValue()));
+    buf.append(' ');
+    if (mainLeg.getPayReceive().isReceive()) {
+      buf.append("Rec ");
+      summarizeMainLeg(mainLeg, buf);
+      buf.append(getPremium().isPresent() ? " / Pay Premium" : (product.getPayLeg().isPresent() ? " /  Pay Periodic" : ""));
+    } else {
+      buf.append("Rec ");
+      buf.append(getPremium().isPresent() ? "Premium" : (product.getPayLeg().isPresent() ? "Periodic" : ""));
+      buf.append(" / Pay ");
+      summarizeMainLeg(mainLeg, buf);
+    }
+    buf.append(" : ");
+    buf.append(SummarizerUtils.dateRange(mainLeg.getStartDate().getUnadjusted(), mainLeg.getEndDate().getUnadjusted()));
+    return SummarizerUtils.summary(this, ProductType.CMS, buf.toString(), mainLeg.getCurrency());
+  }
+
+  // summarize the main leg
+  private void summarizeMainLeg(CmsLeg mainLeg, StringBuilder buf) {
+    buf.append(mainLeg.getIndex());
+    buf.append(' ');
+    if (mainLeg.getCapSchedule().isPresent()) {
+      buf.append("Cap ");
+      buf.append(SummarizerUtils.percent(mainLeg.getCapSchedule().get().getInitialValue()));
+    }
+    if (mainLeg.getFloorSchedule().isPresent()) {
+      buf.append("Floor ");
+      buf.append(SummarizerUtils.percent(mainLeg.getFloorSchedule().get().getInitialValue()));
+    }
+  }
+
   @Override
   public ResolvedCmsTrade resolve(ReferenceData refData) {
     return ResolvedCmsTrade.builder()

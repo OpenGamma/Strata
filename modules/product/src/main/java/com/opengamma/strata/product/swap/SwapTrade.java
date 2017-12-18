@@ -23,7 +23,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
 
@@ -72,6 +75,16 @@ public final class SwapTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    return PortfolioItemSummary.of(
+        getId().orElse(null),
+        PortfolioItemType.TRADE,
+        ProductType.SWAP,
+        product.allCurrencies(),
+        product.summaryDescription());
+  }
+
   @Override
   public ResolvedSwapTrade resolve(ReferenceData refData) {
     return new ResolvedSwapTrade(info, product.resolve(refData));

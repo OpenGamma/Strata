@@ -22,8 +22,12 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -44,11 +48,7 @@ public class CdsTradeTest {
   private static final AdjustablePayment UPFRONT = AdjustablePayment.of(USD, NOTIONAL, LocalDate.of(2014, 1, 12));
 
   public void test_full_builder() {
-    CdsTrade test = CdsTrade.builder()
-        .product(PRODUCT)
-        .upfrontFee(UPFRONT)
-        .info(TRADE_INFO)
-        .build();
+    CdsTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getUpfrontFee().get(), UPFRONT);
@@ -65,11 +65,7 @@ public class CdsTradeTest {
   }
 
   public void test_full_resolve() {
-    ResolvedCdsTrade test = CdsTrade.builder()
-        .product(PRODUCT)
-        .upfrontFee(UPFRONT)
-        .info(TRADE_INFO)
-        .build()
+    ResolvedCdsTrade test = sut()
         .resolve(REF_DATA);
     assertEquals(test.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(test.getInfo(), TRADE_INFO);
@@ -88,12 +84,21 @@ public class CdsTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
-    CdsTrade test1 = CdsTrade.builder()
-        .product(PRODUCT)
-        .upfrontFee(UPFRONT)
-        .info(TRADE_INFO)
+  public void test_summarize() {
+    CdsTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.CDS)
+        .currencies(Currency.USD)
+        .description("10Y9M Buy USD 1000mm ABC / 5% : 20Dec13-20Sep24")
         .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    CdsTrade test1 = sut();
     coverImmutableBean(test1);
     Cds product = Cds.of(BUY, LEGAL_ENTITY, USD, 1.e9, START_DATE, END_DATE, P3M, SAT_SUN, 0.067);
     CdsTrade test2 = CdsTrade.builder()
@@ -104,12 +109,17 @@ public class CdsTradeTest {
   }
 
   public void test_serialization() {
-    CdsTrade test = CdsTrade.builder()
+    CdsTrade test = sut();
+    assertSerialization(test);
+  }
+
+  //-------------------------------------------------------------------------
+  CdsTrade sut() {
+    return CdsTrade.builder()
         .product(PRODUCT)
         .upfrontFee(UPFRONT)
         .info(TRADE_INFO)
         .build();
-    assertSerialization(test);
   }
 
 }

@@ -24,9 +24,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in an FX single barrier option.
@@ -67,6 +72,22 @@ public final class FxSingleBarrierOptionTrade
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.info = TradeInfo.empty();
+  }
+
+  @Override
+  public PortfolioItemSummary summarize() {
+    // Long Barrier Pay USD 1mm @ GBP/USD 1.32 : 21Jan18
+    StringBuilder buf = new StringBuilder(96);
+    CurrencyAmount base = product.getUnderlyingOption().getUnderlying().getBaseCurrencyAmount();
+    CurrencyAmount counter = product.getUnderlyingOption().getUnderlying().getCounterCurrencyAmount();
+    buf.append(product.getUnderlyingOption().getLongShort());
+    buf.append(" Barrier ");
+    buf.append(SummarizerUtils.fx(base, counter));
+    buf.append(" : ");
+    buf.append(SummarizerUtils.date(product.getUnderlyingOption().getExpiryDate()));
+    CurrencyPair currencyPair = product.getCurrencyPair();
+    return SummarizerUtils.summary(
+        this, ProductType.FX_SINGLE_BARRIER_OPTION, buf.toString(), currencyPair.getBase(), currencyPair.getCounter());
   }
 
   @Override

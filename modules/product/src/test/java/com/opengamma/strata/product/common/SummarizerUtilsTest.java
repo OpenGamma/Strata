@@ -71,6 +71,12 @@ public class SummarizerUtilsTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_payReceive() {
+    assertEquals(SummarizerUtils.payReceive(PayReceive.PAY), "Pay");
+    assertEquals(SummarizerUtils.payReceive(PayReceive.RECEIVE), "Rec");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_fx() {
     assertEquals(SummarizerUtils.fx(amount(GBP, 100), amount(USD, -121)), "Rec GBP 100 @ GBP/USD 1.21");
     assertEquals(SummarizerUtils.fx(amount(GBP, -80), amount(USD, -100)), "Pay USD 100 @ GBP/USD 1.25");

@@ -23,9 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in a term deposit.
@@ -73,6 +77,21 @@ public final class TermDepositTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // 6M USD 2mm Deposit 0.8% :  21Jan18-21Jul18
+    StringBuilder buf = new StringBuilder(64);
+    buf.append(SummarizerUtils.datePeriod(product.getStartDate(), product.getEndDate()));
+    buf.append(' ');
+    buf.append(SummarizerUtils.amount(product.getCurrency(), product.getNotional()));
+    buf.append(' ');
+    buf.append(product.getBuySell() == BuySell.BUY ? "Deposit " : "Loan ");
+    buf.append(SummarizerUtils.percent(product.getRate()));
+    buf.append(" : ");
+    buf.append(SummarizerUtils.dateRange(product.getStartDate(), product.getEndDate()));
+    return SummarizerUtils.summary(this, ProductType.TERM_DEPOSIT, buf.toString(), product.getCurrency());
+  }
+
   @Override
   public ResolvedTermDepositTrade resolve(ReferenceData refData) {
     return ResolvedTermDepositTrade.builder()

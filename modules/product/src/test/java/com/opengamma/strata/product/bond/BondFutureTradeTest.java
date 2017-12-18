@@ -16,6 +16,10 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -45,6 +49,19 @@ public class BondFutureTradeTest {
     assertEquals(test.getProduct(), FUTURE);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    BondFutureTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.BOND_FUTURE)
+        .currencies(Currency.USD)
+        .description("BondFuture x 1234")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

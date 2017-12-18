@@ -142,6 +142,16 @@ public final class SummarizerUtils {
 
   //-------------------------------------------------------------------------
   /**
+   * Converts pay/receive to a string.
+   * 
+   * @param payReceive  the value
+   * @return the string form
+   */
+  public static String payReceive(PayReceive payReceive) {
+    return payReceive.toString().substring(0, 3);
+  }
+
+  /**
    * Converts an FX exchange to a string.
    * 
    * @param base  the base currency amount

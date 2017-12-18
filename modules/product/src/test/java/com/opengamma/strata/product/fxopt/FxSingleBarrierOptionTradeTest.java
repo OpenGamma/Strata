@@ -21,7 +21,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -62,23 +66,27 @@ public class FxSingleBarrierOptionTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    FxSingleBarrierOptionTrade test = FxSingleBarrierOptionTrade.builder()
-        .info(TRADE_INFO)
-        .product(PRODUCT)
-        .premium(PREMIUM)
-        .build();
+    FxSingleBarrierOptionTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getPremium(), PREMIUM);
   }
 
   //-------------------------------------------------------------------------
-  public void test_resolve() {
-    FxSingleBarrierOptionTrade base = FxSingleBarrierOptionTrade.builder()
-        .info(TRADE_INFO)
-        .product(PRODUCT)
-        .premium(PREMIUM)
+  public void test_summarize() {
+    FxSingleBarrierOptionTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.FX_SINGLE_BARRIER_OPTION)
+        .currencies(Currency.USD, Currency.EUR)
+        .description("Long Barrier Rec EUR 1mm @ EUR/USD 1.35 : 14Feb15")
         .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    FxSingleBarrierOptionTrade base = sut();
     ResolvedFxSingleBarrierOptionTrade expected = ResolvedFxSingleBarrierOptionTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
@@ -89,11 +97,7 @@ public class FxSingleBarrierOptionTradeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FxSingleBarrierOptionTrade test1 = FxSingleBarrierOptionTrade.builder()
-        .info(TRADE_INFO)
-        .product(PRODUCT)
-        .premium(PREMIUM)
-        .build();
+    FxSingleBarrierOptionTrade test1 = sut();
     FxSingleBarrierOptionTrade test2 = FxSingleBarrierOptionTrade.builder()
         .product(FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER))
         .premium(AdjustablePayment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.01), date(2014, 11, 13)))
@@ -103,12 +107,17 @@ public class FxSingleBarrierOptionTradeTest {
   }
 
   public void test_serialization() {
-    FxSingleBarrierOptionTrade test = FxSingleBarrierOptionTrade.builder()
+    FxSingleBarrierOptionTrade test = sut();
+    assertSerialization(test);
+  }
+
+  //-------------------------------------------------------------------------
+  static FxSingleBarrierOptionTrade sut() {
+    return FxSingleBarrierOptionTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
-    assertSerialization(test);
   }
 
 }

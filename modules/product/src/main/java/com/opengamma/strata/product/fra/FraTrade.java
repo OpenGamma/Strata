@@ -5,9 +5,13 @@
  */
 package com.opengamma.strata.product.fra;
 
+import static java.time.temporal.ChronoUnit.MONTHS;
+
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -23,9 +27,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in a forward rate agreement (FRA).
@@ -72,6 +79,31 @@ public final class FraTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // 3x6 USD 1mm Rec GBP-LIBOR / Pay 2.5% : 21Jan18-21Apr18
+    StringBuilder buf = new StringBuilder(64);
+    Optional<LocalDate> tradeDate = info.getTradeDate();
+    if (tradeDate.isPresent()) {
+      buf.append(MONTHS.between(tradeDate.get(), product.getStartDate().plusDays(3)));
+      buf.append("x");
+      buf.append(MONTHS.between(tradeDate.get(), product.getEndDate().plusDays(3)));
+    } else {
+      buf.append(product.getIndex().getTenor());
+    }
+    buf.append(' ');
+    String floatingRate = product.getIndex().getFloatingRateName().normalized().toString();
+    String fixedRate = SummarizerUtils.percent(product.getFixedRate());
+    buf.append(SummarizerUtils.amount(product.getCurrency(), product.getNotional()));
+    buf.append(" Rec ");
+    buf.append(product.getBuySell().isBuy() ? floatingRate : fixedRate);
+    buf.append(" / Pay ");
+    buf.append(product.getBuySell().isBuy() ? fixedRate : floatingRate);
+    buf.append(" : ");
+    buf.append(SummarizerUtils.dateRange(product.getStartDate(), product.getEndDate()));
+    return SummarizerUtils.summary(this, ProductType.FRA, buf.toString(), product.getCurrency());
+  }
+
   @Override
   public ResolvedFraTrade resolve(ReferenceData refData) {
     return ResolvedFraTrade.builder()

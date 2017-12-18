@@ -25,9 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in an option on an underlying swap.
@@ -95,6 +98,20 @@ public final class SwaptionTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // Long 5Y USD 2mm Rec USD-LIBOR-6M / Pay 1% : 21Jan18
+    String swapDesc = product.getUnderlying().summaryDescription();
+    swapDesc = swapDesc.contains(":") ? swapDesc.substring(0, swapDesc.lastIndexOf(':')).trim() : swapDesc;
+    StringBuilder buf = new StringBuilder(96);
+    buf.append(product.getLongShort());
+    buf.append(' ');
+    buf.append(swapDesc);
+    buf.append(" : ");
+    buf.append(SummarizerUtils.date(product.getExpiryDate().getUnadjusted()));
+    return SummarizerUtils.summary(this, ProductType.SWAPTION, buf.toString(), product.getCurrency());
+  }
+
   @Override
   public ResolvedSwaptionTrade resolve(ReferenceData refData) {
     return ResolvedSwaptionTrade.builder()

@@ -14,6 +14,10 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -40,6 +44,19 @@ public class BondFutureOptionTradeTest {
     assertEquals(test.getProduct(), OPTION_PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    BondFutureOptionTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.BOND_FUTURE_OPTION)
+        .currencies(Currency.USD)
+        .description("BondFutureOption x 1234")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------
