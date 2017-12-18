@@ -18,6 +18,7 @@ import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONT
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 
+import java.time.LocalDate;
 import java.time.Period;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -26,12 +27,14 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
@@ -50,6 +53,7 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
 
 /**
  * Basic dummy objects used when the data within is not important.
@@ -411,6 +415,11 @@ public final class SwapDummyData {
    */
   public static final ResolvedSwap SWAP =
       ResolvedSwap.of(IBOR_SWAP_LEG_REC_GBP, FIXED_SWAP_LEG_PAY);
+  /**
+   * OvernightIndexedSwap.
+   */
+  public static final ResolvedSwap OIS = FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS
+      .createTrade(LocalDate.of(2017, 6, 28), Tenor.TENOR_1Y, BuySell.BUY, 1_000_000, 0.01, REF_DATA).getProduct().resolve(REF_DATA);
   /**
    * Cross currency swap.
    */
