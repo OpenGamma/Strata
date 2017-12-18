@@ -229,7 +229,7 @@ public class DiscountOvernightIndexRatesTest {
         .build();
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(USD_FED_FUND, df, series);
     OvernightIndexObservation obs = OvernightIndexObservation.of(USD_FED_FUND, gbdBeforeValDate, REF_DATA);
-    OvernightRateSensitivity expected = OvernightRateSensitivity.ofPeriod(obs, gbdAfterValDate, GBP, 1d);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.ofPeriod(obs, gbdAfterValDate, USD, 1d);
     assertEquals(test.periodRatePointSensitivity(obs, gbdAfterValDate), expected);
   }
 
