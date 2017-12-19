@@ -76,13 +76,15 @@ public final class FxVanillaOptionTrade
 
   @Override
   public PortfolioItemSummary summarize() {
-    // Long Pay USD 1mm @ GBP/USD 1.32 : 21Jan18
+    // Long Pay USD 1mm @ GBP/USD 1.32 Premium USD 100k : 21Jan18
     StringBuilder buf = new StringBuilder(96);
     CurrencyAmount base = product.getUnderlying().getBaseCurrencyAmount();
     CurrencyAmount counter = product.getUnderlying().getCounterCurrencyAmount();
     buf.append(product.getLongShort());
     buf.append(' ');
     buf.append(SummarizerUtils.fx(base, counter));
+    buf.append(" Premium ");
+    buf.append(SummarizerUtils.amount(premium.getValue().mapAmount(v -> Math.abs(v))));
     buf.append(" : ");
     buf.append(SummarizerUtils.date(product.getExpiryDate()));
     CurrencyPair currencyPair = product.getCurrencyPair();

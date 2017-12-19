@@ -90,9 +90,8 @@ public final class CmsTrade
       summarizeMainLeg(mainLeg, buf);
       buf.append(getPremium().isPresent() ? " / Pay Premium" : (product.getPayLeg().isPresent() ? " /  Pay Periodic" : ""));
     } else {
-      buf.append("Rec ");
-      buf.append(getPremium().isPresent() ? "Premium" : (product.getPayLeg().isPresent() ? "Periodic" : ""));
-      buf.append(" / Pay ");
+      buf.append(
+          getPremium().isPresent() ? "Rec Premium / Pay " : (product.getPayLeg().isPresent() ? "Rec Periodic / Pay " : ""));
       summarizeMainLeg(mainLeg, buf);
     }
     buf.append(" : ");

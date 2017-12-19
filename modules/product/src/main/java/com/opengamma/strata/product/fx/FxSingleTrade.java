@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
@@ -90,9 +89,8 @@ public final class FxSingleTrade
     buf.append(SummarizerUtils.fx(base, counter));
     buf.append(" : ");
     buf.append(SummarizerUtils.date(product.getPaymentDate()));
-    CurrencyPair currencyPair = product.getCurrencyPair();
     return SummarizerUtils.summary(
-        this, ProductType.FX_SINGLE, buf.toString(), currencyPair.getBase(), currencyPair.getCounter());
+        this, ProductType.FX_SINGLE, buf.toString(), base.getCurrency(), counter.getCurrency());
   }
 
   @Override

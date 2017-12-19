@@ -52,7 +52,7 @@ public class FxVanillaOptionTradeTest {
         .portfolioItemType(PortfolioItemType.TRADE)
         .productType(ProductType.FX_VANILLA_OPTION)
         .currencies(Currency.USD, Currency.EUR)
-        .description("Long Rec EUR 1mm @ EUR/USD 1.35 : 14Feb15")
+        .description("Long Rec EUR 1mm @ EUR/USD 1.35 Premium EUR 50k : 14Feb15")
         .build();
     assertEquals(trade.summarize(), expected);
   }

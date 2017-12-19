@@ -227,7 +227,7 @@ public class SwapTest {
     Swap test = Swap.of(payLeg, recLeg);
     assertEquals(
         test.summaryDescription(),
-        "2Y GBP 1mm varying Rec GBP-LIBOR-3M * 1.1 + 0.2% / Pay 0.12% varying : 12Feb18-12Feb20");
+        "2Y GBP 1mm variable Rec GBP-LIBOR-3M * 1.1 + 0.2% / Pay 0.12% variable : 12Feb18-12Feb20");
   }
 
   public void test_summarize_ois() {
@@ -285,7 +285,7 @@ public class SwapTest {
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .build());
-    assertEquals(test.summaryDescription(), "2Y Pay GBP 145k varying : 12Feb18-12Feb20");
+    assertEquals(test.summaryDescription(), "2Y Pay GBP 145k variable : 12Feb18-12Feb20");
   }
 
   //-------------------------------------------------------------------------

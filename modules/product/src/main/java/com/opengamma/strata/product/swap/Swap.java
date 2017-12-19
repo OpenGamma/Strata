@@ -242,7 +242,7 @@ public final class Swap
 
   //-------------------------------------------------------------------------
   /**
-   * Summarizes this ETD future into string form.
+   * Summarizes this swap into string form.
    *
    * @return the summary description
    */
@@ -295,9 +295,9 @@ public final class Swap
       NotionalSchedule notionalSchedule = rcLeg.getNotionalSchedule();
       ValueSchedule amount = notionalSchedule.getAmount();
       double notional = amount.getInitialValue();
-      String varying = !amount.getSteps().isEmpty() || amount.getStepSequence().isPresent() ? " varying" : "";
+      String vary = !amount.getSteps().isEmpty() || amount.getStepSequence().isPresent() ? " variable" : "";
       Currency currency = notionalSchedule.getFxReset().map(fxr -> fxr.getReferenceCurrency()).orElse(rcLeg.getCurrency());
-      return SummarizerUtils.amount(currency, notional) + varying;
+      return SummarizerUtils.amount(currency, notional) + vary;
     }
     if (leg instanceof RatePeriodSwapLeg) {
       RatePeriodSwapLeg rpLeg = (RatePeriodSwapLeg) leg;
@@ -313,8 +313,8 @@ public final class Swap
       RateCalculation calculation = rcLeg.getCalculation();
       if (calculation instanceof FixedRateCalculation) {
         FixedRateCalculation calc = (FixedRateCalculation) calculation;
-        String varying = !calc.getRate().getSteps().isEmpty() || calc.getRate().getStepSequence().isPresent() ? " varying" : "";
-        return SummarizerUtils.percent(calc.getRate().getInitialValue()) + varying;
+        String vary = !calc.getRate().getSteps().isEmpty() || calc.getRate().getStepSequence().isPresent() ? " variable" : "";
+        return SummarizerUtils.percent(calc.getRate().getInitialValue()) + vary;
       }
       if (calculation instanceof IborRateCalculation) {
         IborRateCalculation calc = (IborRateCalculation) calculation;
@@ -337,9 +337,9 @@ public final class Swap
     }
     if (leg instanceof KnownAmountSwapLeg) {
       KnownAmountSwapLeg kaLeg = (KnownAmountSwapLeg) leg;
-      String varying =
-          !kaLeg.getAmount().getSteps().isEmpty() || kaLeg.getAmount().getStepSequence().isPresent() ? " varying" : "";
-      return SummarizerUtils.amount(kaLeg.getCurrency(), kaLeg.getAmount().getInitialValue()) + varying;
+      String vary =
+          !kaLeg.getAmount().getSteps().isEmpty() || kaLeg.getAmount().getStepSequence().isPresent() ? " variable" : "";
+      return SummarizerUtils.amount(kaLeg.getCurrency(), kaLeg.getAmount().getInitialValue()) + vary;
     }
     ImmutableSet<Index> allIndices = leg.allIndices();
     return allIndices.isEmpty() ? "Fixed" : allIndices.toString();

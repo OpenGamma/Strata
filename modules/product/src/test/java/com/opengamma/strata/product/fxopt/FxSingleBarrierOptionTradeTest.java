@@ -79,7 +79,7 @@ public class FxSingleBarrierOptionTradeTest {
         .portfolioItemType(PortfolioItemType.TRADE)
         .productType(ProductType.FX_SINGLE_BARRIER_OPTION)
         .currencies(Currency.USD, Currency.EUR)
-        .description("Long Barrier Rec EUR 1mm @ EUR/USD 1.35 : 14Feb15")
+        .description("Long Barrier Rec EUR 1mm @ EUR/USD 1.35 Premium EUR 50k : 14Feb15")
         .build();
     assertEquals(trade.summarize(), expected);
   }

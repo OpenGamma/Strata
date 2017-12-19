@@ -85,6 +85,7 @@ public final class FraTrade
     StringBuilder buf = new StringBuilder(64);
     Optional<LocalDate> tradeDate = info.getTradeDate();
     if (tradeDate.isPresent()) {
+      // use a three day fudge to avoid most holiday and end of month issues when calculating months
       buf.append(MONTHS.between(tradeDate.get(), product.getStartDate().plusDays(3)));
       buf.append("x");
       buf.append(MONTHS.between(tradeDate.get(), product.getEndDate().plusDays(3)));

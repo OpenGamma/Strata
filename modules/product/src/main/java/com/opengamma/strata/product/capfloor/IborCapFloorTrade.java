@@ -78,7 +78,7 @@ public final class IborCapFloorTrade
   //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
-    // 5Y USD 2mm Rec CMS USD-LIBOR-6M Cap 1% / Pay Premium : 21Jan17-21Jan22
+    // 5Y USD 2mm Rec USD-LIBOR-6M Cap 1% / Pay Premium : 21Jan17-21Jan22
     StringBuilder buf = new StringBuilder(96);
     IborCapFloorLeg mainLeg = product.getCapFloorLeg();
     buf.append(SummarizerUtils.datePeriod(mainLeg.getStartDate().getUnadjusted(), mainLeg.getEndDate().getUnadjusted()));
@@ -90,9 +90,8 @@ public final class IborCapFloorTrade
       summarizeMainLeg(mainLeg, buf);
       buf.append(getPremium().isPresent() ? " / Pay Premium" : (product.getPayLeg().isPresent() ? " /  Pay Periodic" : ""));
     } else {
-      buf.append("Rec ");
-      buf.append(getPremium().isPresent() ? "Premium" : (product.getPayLeg().isPresent() ? "Periodic" : ""));
-      buf.append(" / Pay ");
+      buf.append(
+          getPremium().isPresent() ? "Rec Premium / Pay " : (product.getPayLeg().isPresent() ? "Rec Periodic / Pay " : ""));
       summarizeMainLeg(mainLeg, buf);
     }
     buf.append(" : ");
