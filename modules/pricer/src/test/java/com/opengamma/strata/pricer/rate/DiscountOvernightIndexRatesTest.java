@@ -215,10 +215,26 @@ public class DiscountOvernightIndexRatesTest {
     OvernightRateSensitivity expected = OvernightRateSensitivity.ofPeriod(GBP_SONIA_AFTER, DATE_AFTER_END, GBP, 1d);
     assertEquals(test.periodRatePointSensitivity(GBP_SONIA_AFTER, DATE_AFTER_END), expected);
   }
+  
+  public void test_periodRatePointSensitivity_onholidaybeforepublication() {
+    LocalDate lastFixingDate = LocalDate.of(2017, 6, 30);
+    LocalDate gbdBeforeValDate = LocalDate.of(2017, 7, 3);
+    LocalDate gbdAfterValDate = LocalDate.of(2017, 7, 5);
+    double fixingValue = 0.0010;
+    InterpolatedNodalCurve curve =
+        InterpolatedNodalCurve.of(METADATA, DoubleArray.of(-1.0d, 10.0d), DoubleArray.of(0.01, 0.02), INTERPOLATOR);
+    ZeroRateDiscountFactors df = ZeroRateDiscountFactors.of(USD, LocalDate.of(2017, 7, 4), curve);
+    LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder()
+        .put(lastFixingDate, fixingValue)
+        .build();
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(USD_FED_FUND, df, series);
+    OvernightIndexObservation obs = OvernightIndexObservation.of(USD_FED_FUND, gbdBeforeValDate, REF_DATA);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.ofPeriod(obs, gbdAfterValDate, USD, 1d);
+    assertEquals(test.periodRatePointSensitivity(obs, gbdAfterValDate), expected);
+  }
 
   public void test_periodRatePointSensitivity_badDates() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(GBP_SONIA_BEFORE, DATE_VAL));
     assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(GBP_SONIA_AFTER_END, DATE_AFTER));
   }
 
@@ -229,7 +245,7 @@ public class DiscountOvernightIndexRatesTest {
     OvernightRateSensitivity point = OvernightRateSensitivity.ofPeriod(GBP_SONIA_AFTER, DATE_AFTER_END, GBP, 1d);
     assertEquals(test.parameterSensitivity(point).size(), 1);
   }
-
+  
   //-------------------------------------------------------------------------
   public void test_createParameterSensitivity() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
