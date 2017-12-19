@@ -14,6 +14,9 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -42,6 +45,18 @@ public class EtdFutureTradeTest {
 
   public void test_serialization() {
     assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    EtdFutureTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.ETD_FUTURE)
+        .currencies(SECURITY.getCurrency())
+        .description(SECURITY.getSecurityId().getStandardId().getValue() + " x 3000, Jun17")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

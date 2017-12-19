@@ -59,6 +59,18 @@ public class GenericSecurityTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_summarize() {
+    GenericSecurityTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.SECURITY)
+        .currencies(SECURITY.getCurrency())
+        .description("1 x 100")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
   static GenericSecurityTrade sut() {
     return GenericSecurityTrade.builder()
         .info(TRADE_INFO)

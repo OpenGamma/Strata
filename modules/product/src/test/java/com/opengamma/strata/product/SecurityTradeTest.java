@@ -47,6 +47,17 @@ public class SecurityTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_summarize() {
+    SecurityTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.SECURITY)
+        .description("Id x 100")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_resolve() {
     GenericSecurity security = GenericSecurityTest.sut();
     Trade test = sut().resolveSecurity(ImmutableReferenceData.of(SECURITY_ID, security));

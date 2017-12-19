@@ -23,10 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityQuantity;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade representing an ETD option.
@@ -90,6 +93,15 @@ public final class EtdOptionTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // O-ECAG-OGBS-201706-P1.50 x 200, Jun17 P1.50
+    String option = security.summaryDescription();
+    String description =
+        getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity()) + ", " + option;
+    return SummarizerUtils.summary(this, ProductType.ETD_OPTION, description, getCurrency());
+  }
+
   /**
    * Gets the security identifier.
    * <p>

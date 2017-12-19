@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade representing the purchase or sale of a security,
@@ -89,6 +90,13 @@ public final class GenericSecurityTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // AAPL x 200
+    String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
+    return SummarizerUtils.summary(this, ProductType.SECURITY, description, getCurrency());
+  }
+
   /**
    * Gets the security identifier.
    * <p>

@@ -96,6 +96,19 @@ public class GenericSecurityPositionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_summarize() {
+    GenericSecurityPosition trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(POSITION_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.POSITION)
+        .productType(ProductType.SECURITY)
+        .currencies(SECURITY.getCurrency())
+        .description("1 x 100")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

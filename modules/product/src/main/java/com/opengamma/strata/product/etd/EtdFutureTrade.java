@@ -23,10 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityQuantity;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade representing an ETD future.
@@ -90,6 +93,15 @@ public final class EtdFutureTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // F-ECAG-FGBS-201706 x 200, Jun17
+    String future = security.summaryDescription();
+    String description =
+        getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity()) + ", " + future;
+    return SummarizerUtils.summary(this, ProductType.ETD_FUTURE, description, getCurrency());
+  }
+
   /**
    * Gets the security identifier.
    * <p>

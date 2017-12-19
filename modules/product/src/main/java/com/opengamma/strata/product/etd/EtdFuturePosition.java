@@ -24,7 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PositionInfo;
+import com.opengamma.strata.product.ProductType;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A position in an ETD future, where the security is embedded ready for mark-to-market pricing.
@@ -141,6 +144,15 @@ public final class EtdFuturePosition
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // F-ECAG-FGBS-201706 x 200, Jun17
+    String future = security.summaryDescription();
+    String description =
+        getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity()) + ", " + future;
+    return SummarizerUtils.summary(this, ProductType.ETD_FUTURE, description, getCurrency());
+  }
+
   /**
    * Gets the net quantity of the security.
    * <p>
