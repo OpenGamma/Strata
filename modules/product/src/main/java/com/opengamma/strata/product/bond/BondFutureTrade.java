@@ -24,9 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecuritizedProductTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade representing a futures contract based on a fixed coupon bond.
@@ -80,6 +83,13 @@ public final class BondFutureTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // ID x 200
+    String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
+    return SummarizerUtils.summary(this, ProductType.BOND_FUTURE, description, getCurrency());
+  }
+
   @Override
   public ResolvedBondFutureTrade resolve(ReferenceData refData) {
     ResolvedBondFuture resolved = getProduct().resolve(refData);

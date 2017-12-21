@@ -17,8 +17,12 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 
@@ -54,6 +58,22 @@ public class BulletPaymentTradeTest {
     BulletPaymentTrade test = BulletPaymentTrade.of(TRADE_INFO, PRODUCT1);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT1);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    BulletPaymentTrade trade = BulletPaymentTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT1)
+        .build();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.BULLET_PAYMENT)
+        .currencies(Currency.GBP)
+        .description("Pay GBP 1k : 30Jun15")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

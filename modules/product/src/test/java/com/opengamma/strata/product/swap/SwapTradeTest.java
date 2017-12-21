@@ -14,6 +14,10 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -40,6 +44,20 @@ public class SwapTradeTest {
         .build();
     assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), SWAP1);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    SwapTrade trade = SwapTrade.of(TRADE_INFO, SWAP1);
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.SWAP)
+        .currencies(Currency.GBP, Currency.EUR, Currency.USD)
+        .description(
+            "7M Pay [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] / Rec [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] : 15Jan12-15Aug12")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

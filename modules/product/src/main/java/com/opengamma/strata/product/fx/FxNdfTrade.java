@@ -23,9 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in a Non-Deliverable Forward (NDF).
@@ -74,6 +78,19 @@ public final class FxNdfTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // Pay USD 1mm @ USD/CNY 6.62 NDF : 21Jan18
+    StringBuilder buf = new StringBuilder(64);
+    CurrencyAmount notional = product.getSettlementCurrencyNotional();
+    CurrencyAmount counter = notional.convertedTo(product.getNonDeliverableCurrency(), product.getAgreedFxRate());
+    buf.append(SummarizerUtils.fx(notional, counter));
+    buf.append(" NDF : ");
+    buf.append(SummarizerUtils.date(product.getPaymentDate()));
+    return SummarizerUtils.summary(
+        this, ProductType.FX_NDF, buf.toString(), product.getSettlementCurrency(), product.getNonDeliverableCurrency());
+  }
+
   @Override
   public ResolvedFxNdfTrade resolve(ReferenceData refData) {
     return ResolvedFxNdfTrade.of(info, product.resolve(refData));

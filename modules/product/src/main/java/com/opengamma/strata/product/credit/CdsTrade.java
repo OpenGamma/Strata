@@ -24,8 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in a single-name credit default swap (CDS).
@@ -67,6 +71,25 @@ public final class CdsTrade
   private final AdjustablePayment upfrontFee;
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // 2Y Buy USD 1mm ENTITY / 1.5% : 21Jan18-21Jan20
+    PeriodicSchedule paymentSchedule = product.getPaymentSchedule();
+    StringBuilder buf = new StringBuilder(96);
+    buf.append(SummarizerUtils.datePeriod(paymentSchedule.getStartDate(), paymentSchedule.getEndDate()));
+    buf.append(' ');
+    buf.append(product.getBuySell());
+    buf.append(' ');
+    buf.append(SummarizerUtils.amount(product.getCurrency(), product.getNotional()));
+    buf.append(' ');
+    buf.append(product.getLegalEntityId().getValue());
+    buf.append(" / ");
+    buf.append(SummarizerUtils.percent(product.getFixedRate()));
+    buf.append(" : ");
+    buf.append(SummarizerUtils.dateRange(paymentSchedule.getStartDate(), paymentSchedule.getEndDate()));
+    return SummarizerUtils.summary(this, ProductType.CDS, buf.toString(), product.getCurrency());
+  }
+
   @Override
   public ResolvedCdsTrade resolve(ReferenceData refData) {
     return ResolvedCdsTrade.builder()

@@ -24,9 +24,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in a vanilla FX option.
@@ -67,6 +72,24 @@ public final class FxVanillaOptionTrade
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.info = TradeInfo.empty();
+  }
+
+  @Override
+  public PortfolioItemSummary summarize() {
+    // Long Pay USD 1mm @ GBP/USD 1.32 Premium USD 100k : 21Jan18
+    StringBuilder buf = new StringBuilder(96);
+    CurrencyAmount base = product.getUnderlying().getBaseCurrencyAmount();
+    CurrencyAmount counter = product.getUnderlying().getCounterCurrencyAmount();
+    buf.append(product.getLongShort());
+    buf.append(' ');
+    buf.append(SummarizerUtils.fx(base, counter));
+    buf.append(" Premium ");
+    buf.append(SummarizerUtils.amount(premium.getValue().mapAmount(v -> Math.abs(v))));
+    buf.append(" : ");
+    buf.append(SummarizerUtils.date(product.getExpiryDate()));
+    CurrencyPair currencyPair = product.getCurrencyPair();
+    return SummarizerUtils.summary(
+        this, ProductType.FX_VANILLA_OPTION, buf.toString(), currencyPair.getBase(), currencyPair.getCounter());
   }
 
   @Override

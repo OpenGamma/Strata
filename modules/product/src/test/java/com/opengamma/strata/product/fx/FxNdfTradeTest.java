@@ -14,6 +14,10 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -37,6 +41,18 @@ public class FxNdfTradeTest {
     FxNdfTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    FxNdfTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.FX_NDF)
+        .currencies(Currency.GBP, Currency.USD)
+        .description("Rec GBP 100mm @ GBP/USD 1.5 NDF : 19Mar15")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

@@ -23,9 +23,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A bullet payment trade.
@@ -70,6 +73,18 @@ public final class BulletPaymentTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // Pay USD 2mm : 21Jan18
+    StringBuilder buf = new StringBuilder(64);
+    buf.append(product.getPayReceive());
+    buf.append(' ');
+    buf.append(SummarizerUtils.amount(product.getValue()));
+    buf.append(" : ");
+    buf.append(SummarizerUtils.date(product.getDate().getUnadjusted()));
+    return SummarizerUtils.summary(this, ProductType.BULLET_PAYMENT, buf.toString(), product.getCurrency());
+  }
+
   @Override
   public ResolvedBulletPaymentTrade resolve(ReferenceData refData) {
     return ResolvedBulletPaymentTrade.of(info, product.resolve(refData));

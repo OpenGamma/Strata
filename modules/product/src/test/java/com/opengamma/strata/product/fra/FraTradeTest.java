@@ -14,6 +14,10 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -25,7 +29,7 @@ public class FraTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Fra PRODUCT = FraTest.sut();
   private static final Fra PRODUCT2 = FraTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 3, 15));
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -47,6 +51,19 @@ public class FraTradeTest {
     FraTrade test = FraTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
     assertEquals(test.resolve(REF_DATA).getProduct(), PRODUCT.resolve(REF_DATA));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    FraTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.FRA)
+        .currencies(Currency.GBP)
+        .description("3x6 GBP 1mm Rec GBP-LIBOR / Pay 2.5% : 15Jun15-15Sep15")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

@@ -20,9 +20,13 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -81,6 +85,19 @@ public class CapitalIndexedBondTradeTest {
               (PRICE + PRODUCT1.resolve(REF_DATA).accruedInterest(SETTLEMENT_DATE) / PRODUCT1.getNotional()),
               SETTLEMENT_DATE))
       .build();
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    CapitalIndexedBondTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.BOND)
+        .currencies(Currency.USD)
+        .description("Bond x 10")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {

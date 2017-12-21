@@ -23,9 +23,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in an FX swap.
@@ -75,6 +80,23 @@ public final class FxSwapTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    // Pay USD 1mm @ GBP/USD 1.32 : Rec USD 1mm @ GBP/USD 1.35 : 21Jan18-21Apr18
+    StringBuilder buf = new StringBuilder(96);
+    CurrencyAmount base1 = product.getNearLeg().getBaseCurrencyAmount();
+    CurrencyAmount counter1 = product.getNearLeg().getCounterCurrencyAmount();
+    CurrencyAmount base2 = product.getFarLeg().getBaseCurrencyAmount();
+    CurrencyAmount counter2 = product.getFarLeg().getCounterCurrencyAmount();
+    buf.append(SummarizerUtils.fx(base1, counter1));
+    buf.append(" / ");
+    buf.append(SummarizerUtils.fx(base2, counter2));
+    buf.append(" : ");
+    buf.append(SummarizerUtils.dateRange(product.getNearLeg().getPaymentDate(), product.getFarLeg().getPaymentDate()));
+    CurrencyPair currencyPair = product.getNearLeg().getCurrencyPair();
+    return SummarizerUtils.summary(this, ProductType.FX_SWAP, buf.toString(), currencyPair.getBase(), currencyPair.getCounter());
+  }
+
   @Override
   public ResolvedFxSwapTrade resolve(ReferenceData refData) {
     return ResolvedFxSwapTrade.of(info, product.resolve(refData));

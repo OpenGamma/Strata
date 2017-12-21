@@ -15,6 +15,10 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -43,6 +47,19 @@ public class IborFutureTradeTest {
 
   public void test_builder_badPrice() {
     assertThrowsIllegalArg(() -> sut().toBuilder().price(2.1).build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    IborFutureTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.IBOR_FUTURE)
+        .currencies(Currency.USD)
+        .description("IborFuture x 35")
+        .build();
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

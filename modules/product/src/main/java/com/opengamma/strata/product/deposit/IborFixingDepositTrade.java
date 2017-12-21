@@ -23,9 +23,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
  * A trade in an Ibor fixing deposit.
@@ -75,6 +78,12 @@ public final class IborFixingDepositTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PortfolioItemSummary summarize() {
+    String description = "Ibor calibration trade";
+    return SummarizerUtils.summary(this, ProductType.CALIBRATION, description, product.getCurrency());
+  }
+
   @Override
   public ResolvedIborFixingDepositTrade resolve(ReferenceData refData) {
     return ResolvedIborFixingDepositTrade.builder()

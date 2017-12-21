@@ -18,7 +18,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.PortfolioItemType;
+import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -35,6 +39,7 @@ public class CmsTradeTest {
 
   private static final Cms PRODUCT_CAP = Cms.of(CmsTest.sutCap().getCmsLeg());
   private static final Cms PRODUCT_CAP2 = CmsTest.sutCap();
+  private static final Cms PRODUCT_FLOOR = CmsTest.sutFloor();
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -52,6 +57,50 @@ public class CmsTradeTest {
     assertFalse(test.getPremium().isPresent());
     assertEquals(test.getProduct(), PRODUCT_CAP2);
     assertEquals(test.getInfo(), TRADE_INFO);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_summarize() {
+    CmsTrade trade = sut();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.CMS)
+        .currencies(Currency.EUR)
+        .description("2Y EUR 1mm Rec EUR-EURIBOR-1100-10Y Cap 1.25% / Pay Premium : 21Oct15-21Oct17")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  public void test_summarize_floor() {
+    CmsTrade trade = CmsTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT_FLOOR)
+        .premium(PREMIUM)
+        .build();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.CMS)
+        .currencies(Currency.EUR)
+        .description("2Y EUR 1mm Rec EUR-EURIBOR-1100-10Y Floor 1.25% / Pay Premium : 21Oct15-21Oct17")
+        .build();
+    assertEquals(trade.summarize(), expected);
+  }
+
+  public void test_summarize_singleLeg() {
+    CmsTrade trade = CmsTrade.builder()
+        .product(Cms.of(CmsLegTest.sutCap()))
+        .build();
+    PortfolioItemSummary expected = PortfolioItemSummary.builder()
+        .id(TRADE_INFO.getId().orElse(null))
+        .portfolioItemType(PortfolioItemType.TRADE)
+        .productType(ProductType.CMS)
+        .currencies(Currency.EUR)
+        .description("2Y EUR 1mm Rec EUR-EURIBOR-1100-10Y Cap 1.25% : 21Oct15-21Oct17")
+        .build();
+
+    assertEquals(trade.summarize(), expected);
   }
 
   //-------------------------------------------------------------------------

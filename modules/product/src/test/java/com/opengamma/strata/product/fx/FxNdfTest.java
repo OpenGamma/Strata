@@ -119,7 +119,7 @@ public class FxNdfTest {
         .build();
   }
 
-  FxNdf sut2() {
+  static FxNdf sut2() {
     return FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CurrencyAmount.of(USD, -NOTIONAL))
