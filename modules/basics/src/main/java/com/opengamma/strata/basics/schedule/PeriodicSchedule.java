@@ -841,10 +841,10 @@ public final class PeriodicSchedule
     // or  
     // StandardDayConvention is used and the day is not a valid roll date
 
-    if (refData != null && 
-        rollConvention != null && 
+    if (refData != null &&
+        rollConvention != null &&
         BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
-        return calculatedUnadjustedDateFromAdjusted(startDate, rollConvention, businessDayAdjustment, refData);
+      return calculatedUnadjustedDateFromAdjusted(startDate, rollConvention, businessDayAdjustment, refData);
     }
     return startDate;
   }
@@ -866,9 +866,9 @@ public final class PeriodicSchedule
       RollConvention rollConvention,
       BusinessDayAdjustment businessDayAdjustment,
       ReferenceData refData) {
-  
+
     int rollDom = rollConvention.getDayOfMonth();
-  
+
     if (rollDom > 0 && baseDate.getDayOfMonth() != rollDom) {
       int lengthOfMonth = baseDate.lengthOfMonth();
       int actualDom = Math.min(rollDom, lengthOfMonth);
@@ -882,29 +882,29 @@ public final class PeriodicSchedule
       }
     } else if (rollDom == 0) {
       //0 roll day implies that the roll date is calculated relative to the month or week
-    
+
       //Find the valid (unadjusted) roll date for the given month or week
       LocalDate rollImpliedDate = rollConvention.adjust(baseDate);
-    
+
       if (!rollImpliedDate.equals(baseDate)) {
-      
+
         //If roll date is relative to the month the assumption is that the adjusted date is not in a different month to
         //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically 
         //not close to the end of the month and hence any reasonable adjustment will not move into the next month.
         //adjust() method for "day of week" roll conventions will roll forward from the passed date; hence this logic
         //will not work for "day of week" conventions if the passed baseDate has been adjusted to be after the original 
         //unadjusted date (i.e. has been rolled forward).
-      
+
         //Calculate the expected adjusted roll date, based on the valid unadjusted roll date
         LocalDate adjDate = businessDayAdjustment.adjust(rollImpliedDate, refData);
-      
+
         //If the adjusted roll date equals the original base date then that the base date is in fact an adjusted date
         //and hence return the unadjusted date for building the schedule.
         if (adjDate.equals(baseDate)) {
           return rollImpliedDate;
         }
       }
-    
+
     }
     return baseDate;
   }

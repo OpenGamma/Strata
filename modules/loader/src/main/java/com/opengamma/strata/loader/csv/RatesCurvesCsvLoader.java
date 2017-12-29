@@ -357,7 +357,7 @@ public final class RatesCurvesCsvLoader {
    * @param group  the curve group
    */
   public static void writeCurveSettings(Appendable underlying, CurveGroup group) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = CsvOutput.standard(underlying);
     // header
     csv.writeLine(HEADERS_SETTINGS);
     // rows
@@ -419,7 +419,7 @@ public final class RatesCurvesCsvLoader {
    * @param group  the curve group
    */
   public static void writeCurveNodes(Appendable underlying, LocalDate valuationDate, CurveGroup group) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = CsvOutput.standard(underlying);
     // header
     csv.writeLine(HEADERS_NODES);
     // rows

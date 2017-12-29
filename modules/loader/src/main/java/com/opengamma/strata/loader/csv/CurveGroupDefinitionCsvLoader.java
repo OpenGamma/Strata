@@ -231,7 +231,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groups  the curve groups
    */
   public static void writeCurveGroupDefinition(Appendable underlying, CurveGroupDefinition... groups) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = CsvOutput.standard(underlying);
     csv.writeLine(HEADERS);
     for (CurveGroupDefinition group : groups) {
       writeCurveGroupDefinition(csv, group);
@@ -275,7 +275,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groups  the curve groups
    */
   public static void writeCurveGroup(Appendable underlying, CurveGroup... groups) {
-    CsvOutput csv = new CsvOutput(underlying);
+    CsvOutput csv = CsvOutput.standard(underlying);
     csv.writeLine(HEADERS);
     for (CurveGroup group : groups) {
       writeCurveGroup(csv, group);
