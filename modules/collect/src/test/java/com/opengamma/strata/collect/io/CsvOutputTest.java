@@ -24,55 +24,75 @@ public class CsvOutputTest {
 
 
   //-------------------------------------------------------------------------
-  public void test_writeLines_alwaysQuote() {
+  public void test_standard_writeLines_alwaysQuote() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n").writeLines(rows, true);
+    CsvOutput.standard(buf, "\n").writeLines(rows, true);
     assertEquals(buf.toString(), "\"a\",\"x\"\n\"b\",\"y\"\n");
   }
 
-  public void test_writeLines_selectiveQuote_commaAndQuote() {
+  public void test_standard_writeLines_selectiveQuote_commaAndQuote() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "1,000"), Arrays.asList("b\"c", "y"));
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n", LINE_ITEM_SEP_COMMA).writeLines(rows, false);
+    CsvOutput.standard(buf, "\n", LINE_ITEM_SEP_COMMA).writeLines(rows, false);
     assertEquals(buf.toString(), "a,\"1,000\"\n\"b\"\"c\",y\n");
   }
 
-  public void test_writeLines_selectiveQuote_trimmable() {
+  public void test_standard_writeLines_selectiveQuote_trimmable() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", " x"), Arrays.asList("b ", "y"));
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n", LINE_ITEM_SEP_COMMA).writeLines(rows, false);
+    CsvOutput.standard(buf, "\n", LINE_ITEM_SEP_COMMA).writeLines(rows, false);
     assertEquals(buf.toString(), "a,\" x\"\n\"b \",y\n");
   }
 
-  public void test_writeLines_systemNewLine() {
+  public void test_standard_writeLines_systemNewLine() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf).writeLines(rows, false);
+    CsvOutput.standard(buf).writeLines(rows, false);
     assertEquals(buf.toString(), "a,x" + LINE_SEP + "b,y" + LINE_SEP);
   }
 
-  public void test_writeLine_selectiveQuote() {
+  public void test_standard_writeLine_selectiveQuote() {
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n", LINE_ITEM_SEP_COMMA).writeLine(Arrays.asList("a", "1,000"));
+    CsvOutput.standard(buf, "\n", LINE_ITEM_SEP_COMMA).writeLine(Arrays.asList("a", "1,000"));
     assertEquals(buf.toString(), "a,\"1,000\"\n");
   }
 
-  public void test_writeLines_tab_separated() {
+  public void test_standard_writeLines_tab_separated() {
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n", LINE_ITEM_SEP_TAB).writeLine(Arrays.asList("a", "1,000"));
+    CsvOutput.standard(buf, "\n", LINE_ITEM_SEP_TAB).writeLine(Arrays.asList("a", "1,000"));
     assertEquals(buf.toString(), "a\t\"1,000\"\n");
   }
 
-  public void test_expressionPrefix() {
+  public void test_standard_expressionPrefix() {
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n").writeLine(Arrays.asList("=cmd", "+cmd", "-cmd", "@cmd"));
+    CsvOutput.standard(buf, "\n").writeLine(Arrays.asList("=cmd", "+cmd", "-cmd", "@cmd", ""));
+    assertEquals(buf.toString(), "\"=cmd\",+cmd,-cmd,\"@cmd\",\n");
+  }
+
+  public void test_standard_expressionPrefixNumbers() {
+    StringBuilder buf = new StringBuilder();
+    CsvOutput.standard(buf, "\n").writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
+    assertEquals(buf.toString(), "+8,-7,+8-7,-7+8,NaN,-Infinity\n");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_safe_writeLines_systemNewLine() {
+    List<List<String>> rows = Arrays.asList(Arrays.asList("a", "=x"), Arrays.asList("b", "y"));
+    StringBuilder buf = new StringBuilder();
+    CsvOutput.safe(buf).writeLines(rows, false);
+    assertEquals(buf.toString(), "a,=\"=x\"" + LINE_SEP + "b,y" + LINE_SEP);
+  }
+
+  public void test_safe_expressionPrefix() {
+    StringBuilder buf = new StringBuilder();
+    CsvOutput.safe(buf, "\n").writeLine(Arrays.asList("=cmd", "+cmd", "-cmd", "@cmd"));
     assertEquals(buf.toString(), "=\"=cmd\",=\"+cmd\",=\"-cmd\",=\"@cmd\"\n");
   }
 
-  public void test_expressionPrefixNumbers() {
+  public void test_safe_expressionPrefixNumbers() {
     StringBuilder buf = new StringBuilder();
-    new CsvOutput(buf, "\n").writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
+    CsvOutput.safe(buf, "\n", LINE_ITEM_SEP_COMMA).writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
     assertEquals(buf.toString(), "+8,-7,=\"+8-7\",=\"-7+8\",NaN,=\"-Infinity\"\n");
   }
 
