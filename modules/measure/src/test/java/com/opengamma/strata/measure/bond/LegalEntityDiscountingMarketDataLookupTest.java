@@ -33,10 +33,11 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.IssuerCurveId;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoCurveId;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
@@ -65,12 +66,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   private static final LegalEntityGroup GROUP_ISSUER_M = LegalEntityGroup.of("M");
   private static final LegalEntityGroup GROUP_ISSUER_N = LegalEntityGroup.of("N");
 
-  private static final CurveId CURVE_ID_USD1 = CurveId.of("Group", "USD1");
-  private static final CurveId CURVE_ID_USD2 = CurveId.of("Group", "USD2");
-  private static final CurveId CURVE_ID_USD3 = CurveId.of("Group", "USD3");
-  private static final CurveId CURVE_ID_USD4 = CurveId.of("Group", "USD4");
-  private static final CurveId CURVE_ID_GBP1 = CurveId.of("Group", "GBP1");
-  private static final CurveId CURVE_ID_GBP2 = CurveId.of("Group", "GBP2");
+  private static final RepoCurveId CURVE_ID_USD1 = RepoCurveId.of("Group", "USD1");
+  private static final RepoCurveId CURVE_ID_USD2 = RepoCurveId.of("Group", "USD2");
+  private static final IssuerCurveId CURVE_ID_USD3 = IssuerCurveId.of("Group", "USD3");
+  private static final IssuerCurveId CURVE_ID_USD4 = IssuerCurveId.of("Group", "USD4");
+  private static final RepoCurveId CURVE_ID_GBP1 = RepoCurveId.of("Group", "GBP1");
+  private static final IssuerCurveId CURVE_ID_GBP2 = IssuerCurveId.of("Group", "GBP2");
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
@@ -83,7 +84,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         ISSUER_B, GROUP_REPO_Y,
         ISSUER_C, GROUP_REPO_Y,
         ISSUER_D, GROUP_REPO_Y);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1,
         Pair.of(GROUP_REPO_Y, USD), CURVE_ID_USD2,
         Pair.of(GROUP_REPO_Y, GBP), CURVE_ID_GBP1);
@@ -92,7 +93,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         ISSUER_A, GROUP_ISSUER_M,
         ISSUER_B, GROUP_ISSUER_N,
         ISSUER_C, GROUP_ISSUER_M);
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3,
         Pair.of(GROUP_ISSUER_N, USD), CURVE_ID_USD4,
         Pair.of(GROUP_ISSUER_N, GBP), CURVE_ID_GBP2);
@@ -130,7 +131,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         ISSUER_B, GROUP_REPO_Y,
         ISSUER_C, GROUP_REPO_Y,
         ISSUER_D, GROUP_REPO_Y);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1,
         Pair.of(GROUP_REPO_Y, USD), CURVE_ID_USD2,
         Pair.of(GROUP_REPO_Y, GBP), CURVE_ID_GBP1);
@@ -159,12 +160,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   public void test_of_map_invalid() {
     ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
         SEC_A1.getStandardId(), GROUP_REPO_X);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1);
 
     ImmutableMap<StandardId, LegalEntityGroup> issuerGroups = ImmutableMap.of(
         ISSUER_A, GROUP_ISSUER_M);
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3);
 
     assertThrowsIllegalArg(() -> LegalEntityDiscountingMarketDataLookup.of(
@@ -177,12 +178,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   public void test_marketDataView() {
     ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
         SEC_A1.getStandardId(), GROUP_REPO_X);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1);
 
     ImmutableMap<StandardId, LegalEntityGroup> issuerGroups = ImmutableMap.of(
         ISSUER_A, GROUP_ISSUER_M);
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3);
 
     LegalEntityDiscountingMarketDataLookup test =
@@ -203,12 +204,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   public void test_bondDiscountingProvider() {
     ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
         SEC_A1.getStandardId(), GROUP_REPO_X, ISSUER_B, GROUP_REPO_X);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1);
 
     ImmutableMap<StandardId, LegalEntityGroup> issuerGroups = ImmutableMap.of(
         ISSUER_A, GROUP_ISSUER_M);
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3);
 
     LegalEntityDiscountingMarketDataLookup test =
@@ -242,14 +243,14 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   public void coverage() {
     ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
         SEC_A1.getStandardId(), GROUP_REPO_X, ISSUER_A, GROUP_REPO_Y, ISSUER_B, GROUP_REPO_Y);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1,
         Pair.of(GROUP_REPO_Y, USD), CURVE_ID_USD2,
         Pair.of(GROUP_REPO_Y, GBP), CURVE_ID_GBP1);
 
     ImmutableMap<StandardId, LegalEntityGroup> issuerGroups = ImmutableMap.of(
         ISSUER_A, GROUP_ISSUER_M, ISSUER_B, GROUP_ISSUER_N);
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3,
         Pair.of(GROUP_ISSUER_N, USD), CURVE_ID_USD4,
         Pair.of(GROUP_ISSUER_N, GBP), CURVE_ID_GBP2);
@@ -259,9 +260,9 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     coverImmutableBean((ImmutableBean) test);
 
     ImmutableMap<StandardId, RepoGroup> repoGroups2 = ImmutableMap.of();
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves2 = ImmutableMap.of();
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves2 = ImmutableMap.of();
     ImmutableMap<StandardId, LegalEntityGroup> issuerGroups2 = ImmutableMap.of();
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves2 = ImmutableMap.of();
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves2 = ImmutableMap.of();
 
     LegalEntityDiscountingMarketDataLookup test2 =
         LegalEntityDiscountingMarketDataLookup.of(repoGroups2, repoCurves2, issuerGroups2, issuerCurves2, OBS_SOURCE);
@@ -281,14 +282,14 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   public void test_serialization() {
     ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
         SEC_A1.getStandardId(), GROUP_REPO_X, ISSUER_A, GROUP_REPO_Y, ISSUER_B, GROUP_REPO_Y);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
+    ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves = ImmutableMap.of(
         Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1,
         Pair.of(GROUP_REPO_Y, USD), CURVE_ID_USD2,
         Pair.of(GROUP_REPO_Y, GBP), CURVE_ID_GBP1);
 
     ImmutableMap<StandardId, LegalEntityGroup> issuerGroups = ImmutableMap.of(
         ISSUER_A, GROUP_ISSUER_M, ISSUER_B, GROUP_ISSUER_N);
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3,
         Pair.of(GROUP_ISSUER_N, USD), CURVE_ID_USD4,
         Pair.of(GROUP_ISSUER_N, GBP), CURVE_ID_GBP2);
