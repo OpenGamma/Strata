@@ -23,7 +23,6 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
-import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.curve.CurveDefinition;
@@ -144,24 +143,6 @@ public final class SyntheticCurveCalibrator {
       CurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
-    
-    return marketData(group, inputProvider, true, refData);
-  }
-
-  /**
-   * Constructs the synthetic market data from an existing rates provider and the configuration of the new curves.
-   * 
-   * @param group  the curve group definition for the synthetic curves and instruments
-   * @param inputProvider  the input rates provider
-   * @param returnTimeSeries  flag indicating if the time series present in the input RatesProvider should be returned
-   * @param refData  the reference data, used to resolve the trades
-   * @return the market data
-   */
-  public ImmutableMarketData marketData(
-      CurveGroupDefinition group,
-      RatesProvider inputProvider,
-      boolean returnTimeSeries,
-      ReferenceData refData) {
 
     // Retrieve the set of required indices and the list of required currencies
     Set<Index> indicesRequired = new HashSet<Index>();
@@ -169,6 +150,11 @@ public final class SyntheticCurveCalibrator {
     for (CurveGroupEntry entry : group.getEntries()) {
       indicesRequired.addAll(entry.getIndices());
       ccyRequired.addAll(entry.getDiscountCurrencies());
+    }
+    // Retrieve the required time series if present in the original provider
+    Map<IndexQuoteId, LocalDateDoubleTimeSeries> ts = new HashMap<>();
+    for (Index idx : indicesRequired) {
+      ts.put(IndexQuoteId.of(idx), inputProvider.timeSeries(idx));
     }
 
     LocalDate valuationDate = inputProvider.getValuationDate();
@@ -202,16 +188,9 @@ public final class SyntheticCurveCalibrator {
       FxRateId fxId = FxRateId.of(ccyPair);
       mapIdSy.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));
     }
-    ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(valuationDate);
-    if (returnTimeSeries) {
-      // Retrieve the required time series if present in the original provider
-      Map<IndexQuoteId, LocalDateDoubleTimeSeries> ts = new HashMap<>();
-      for (Index idx : indicesRequired) {
-        ts.put(IndexQuoteId.of(idx), inputProvider.timeSeries(idx));
-      }
-      builder.addTimeSeriesMap(ts);
-    }
-    return builder.addValueMap(mapIdSy).build();
+    return ImmutableMarketData.builder(valuationDate)
+        .addValueMap(mapIdSy)
+        .addTimeSeriesMap(ts).build();
   }
 
   //-------------------------------------------------------------------------

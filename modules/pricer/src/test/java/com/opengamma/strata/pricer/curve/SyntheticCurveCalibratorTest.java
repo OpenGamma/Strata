@@ -175,18 +175,10 @@ public class SyntheticCurveCalibratorTest {
     }
   }
 
-  // Check synthetic calibration in case no time-series is requested
-  public void calibrate_ts_notrequested() {
-    MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, false, REF_DATA);
-    assertTrue(mad.getTimeSeriesIds().isEmpty());
-  }
-
   // Check synthetic calibration in the case of existing time-series with fixing on the valuation date
   public void calibrate_ts_vd() {
     SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
-    MarketData mad2 = calibratorDefault.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, true, REF_DATA);
-    assertEquals(mad.getTimeSeriesIds().isEmpty(), mad2.getTimeSeriesIds().isEmpty());
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     for (CurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
