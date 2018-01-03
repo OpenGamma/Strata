@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -153,7 +154,7 @@ public final class SyntheticCurveCalibrator {
     }
     // Retrieve the required time series if present in the original provider
     Map<IndexQuoteId, LocalDateDoubleTimeSeries> ts = new HashMap<>();
-    for (Index idx : indicesRequired) {
+    for (Index idx : Sets.intersection(inputProvider.getTimeSeriesIndices(), indicesRequired)) {
       ts.put(IndexQuoteId.of(idx), inputProvider.timeSeries(idx));
     }
 

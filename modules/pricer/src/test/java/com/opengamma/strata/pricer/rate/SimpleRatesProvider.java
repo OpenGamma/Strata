@@ -124,6 +124,11 @@ public final class SimpleRatesProvider
     return ImmutableSet.of();
   }
 
+  @Override
+  public ImmutableSet<Index> getTimeSeriesIndices() {
+    return ImmutableSet.of();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public <T> T data(MarketDataId<T> key) {

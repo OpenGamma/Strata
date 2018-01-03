@@ -166,6 +166,10 @@ public class RatesMarketDataLookupTest {
     assertEquals(ratesProvider.findData(CURVE_ID_DSC.getCurveName()), Optional.of(dscCurve));
     assertEquals(ratesProvider.findData(CURVE_ID_FWD.getCurveName()), Optional.of(fwdCurve));
     assertEquals(ratesProvider.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(ratesProvider.getIborIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertEquals(ratesProvider.getOvernightIndices(), ImmutableSet.of(USD_FED_FUND));
+    assertEquals(ratesProvider.getPriceIndices(), ImmutableSet.of(US_CPI_U));
+    assertEquals(ratesProvider.getTimeSeriesIndices(), ImmutableSet.of());
     // check discount factors
     SimpleDiscountFactors df = (SimpleDiscountFactors) ratesProvider.discountFactors(USD);
     assertEquals(df.getCurve().getName(), dscCurve.getName());

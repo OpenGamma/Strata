@@ -82,6 +82,11 @@ public class MockRatesProvider
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public ImmutableSet<Index> getTimeSeriesIndices() {
+    throw new UnsupportedOperationException();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public <T> T data(MarketDataId<T> key) {
