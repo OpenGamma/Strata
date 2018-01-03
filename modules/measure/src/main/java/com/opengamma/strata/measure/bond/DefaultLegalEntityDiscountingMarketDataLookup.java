@@ -33,10 +33,13 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.NamedMarketDataId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.IssuerCurveId;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoCurveId;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.SecurityId;
@@ -67,7 +70,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
    * The curve data, predicting the future, associated with each repo group and currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves;
+  private final ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves;
   /**
    * The groups used to find an issuer curve.
    * <p>
@@ -81,7 +84,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
    * The curve data, predicting the future, associated with each legal entity group and currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves;
+  private final ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves;
   /**
    * The source of market data for quotes and other observable market data.
    */
@@ -103,11 +106,11 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
    * @param obsSource  the source of market data for quotes and other observable market data
    * @return the rates lookup containing the specified curves
    */
-  public static DefaultLegalEntityDiscountingMarketDataLookup of(
+  public static <T extends NamedMarketDataId<Curve>> DefaultLegalEntityDiscountingMarketDataLookup of(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds,
+      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds,
       Map<StandardId, LegalEntityGroup> issuerCurveGroups,
-      Map<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurveIds,
+      Map<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurveIds,
       ObservableSource obsSource) {
 
     return new DefaultLegalEntityDiscountingMarketDataLookup(
@@ -130,7 +133,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
    */
   public static DefaultLegalEntityDiscountingMarketDataLookup of(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds,
+      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds,
       ObservableSource obsSource) {
 
     return new DefaultLegalEntityDiscountingMarketDataLookup(
@@ -167,7 +170,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
       throw new IllegalArgumentException(Messages.format(
           "Legal entity discounting lookup has no repo curve defined for '{}' and '{}'", securityId, issuerId));
     }
-    CurveId repoCurveId = repoCurves.get(Pair.of(repoKey, currency));
+    RepoCurveId repoCurveId = repoCurves.get(Pair.of(repoKey, currency));
     if (repoCurveId == null) {
       throw new IllegalArgumentException(Messages.format(
           "Legal entity discounting lookup has no repo curve defined for '{}' and '{}'", securityId, issuerId));
@@ -178,7 +181,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
       throw new IllegalArgumentException(Messages.format(
           "Legal entity discounting lookup has no issuer curve defined for '{}'", issuerId));
     }
-    CurveId issuerCurveId = issuerCurves.get(Pair.of(issuerKey, currency));
+    IssuerCurveId issuerCurveId = issuerCurves.get(Pair.of(issuerKey, currency));
     if (issuerCurveId == null) {
       throw new IllegalArgumentException(Messages.format(
           "Legal entity discounting lookup has no issuer curve defined for '{}'", issuerId));
@@ -199,7 +202,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
       throw new IllegalArgumentException(Messages.format(
           "Legal entity discounting lookup has no repo curve defined for '{}'", issuerId));
     }
-    CurveId repoCurveId = repoCurves.get(Pair.of(repoKey, currency));
+    RepoCurveId repoCurveId = repoCurves.get(Pair.of(repoKey, currency));
     if (repoCurveId == null) {
       throw new IllegalArgumentException(Messages.format(
           "Legal entity discounting lookup has no repo curve defined for '{}'", issuerId));
@@ -257,9 +260,9 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
 
   private DefaultLegalEntityDiscountingMarketDataLookup(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, CurveId> repoCurves,
+      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurves,
       Map<StandardId, LegalEntityGroup> issuerCurveGroups,
-      Map<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves,
+      Map<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurves,
       ObservableSource observableSource) {
     JodaBeanUtils.notNull(repoCurveGroups, "repoCurveGroups");
     JodaBeanUtils.notNull(repoCurves, "repoCurves");
@@ -297,7 +300,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
    * The curve data, predicting the future, associated with each repo group and currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Pair<RepoGroup, Currency>, CurveId> getRepoCurves() {
+  public ImmutableMap<Pair<RepoGroup, Currency>, RepoCurveId> getRepoCurves() {
     return repoCurves;
   }
 
@@ -319,7 +322,7 @@ final class DefaultLegalEntityDiscountingMarketDataLookup
    * The curve data, predicting the future, associated with each legal entity group and currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> getIssuerCurves() {
+  public ImmutableMap<Pair<LegalEntityGroup, Currency>, IssuerCurveId> getIssuerCurves() {
     return issuerCurves;
   }
 
