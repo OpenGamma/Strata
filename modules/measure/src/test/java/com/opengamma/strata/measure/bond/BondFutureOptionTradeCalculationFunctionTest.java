@@ -42,9 +42,10 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.IssuerCurveId;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoCurveId;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
@@ -126,8 +127,8 @@ public class BondFutureOptionTradeCalculationFunctionTest {
   private static final LegalEntityGroup ISSUER_GROUP = LegalEntityGroup.of("Issuer");
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final QuoteId QUOTE_ID = QuoteId.of(PRODUCT.getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
-  private static final CurveId REPO_CURVE_ID = CurveId.of("Default", "Repo");
-  private static final CurveId ISSUER_CURVE_ID = CurveId.of("Default", "Issuer");
+  private static final RepoCurveId REPO_CURVE_ID = RepoCurveId.of("Default", "Repo");
+  private static final IssuerCurveId ISSUER_CURVE_ID = IssuerCurveId.of("Default", "Issuer");
   private static final BondFutureVolatilitiesId VOLS_ID = BondFutureVolatilitiesId.of("Vols");
   public static final LegalEntityDiscountingMarketDataLookup LED_LOOKUP = LegalEntityDiscountingMarketDataLookup.of(
       ImmutableMap.of(ISSUER_ID, REPO_GROUP),
