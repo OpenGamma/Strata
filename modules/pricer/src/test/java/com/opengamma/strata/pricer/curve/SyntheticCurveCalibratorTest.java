@@ -17,6 +17,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -158,6 +159,10 @@ public class SyntheticCurveCalibratorTest {
         }
       }
     }
+    assertEquals(madTsEmpty.getTimeSeriesIds(), ImmutableSet.of());
+    assertEquals(
+        madTsLarge.getTimeSeriesIds(),
+        ImmutableSet.of(IndexQuoteId.of(EUR_EURIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_6M)));
   }
 
   // Check synthetic calibration in case no time-series is present
@@ -173,6 +178,7 @@ public class SyntheticCurveCalibratorTest {
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);
       }
     }
+    assertEquals(mad.getTimeSeriesIds(), ImmutableSet.of());
   }
 
   // Check synthetic calibration in the case of existing time-series with fixing on the valuation date

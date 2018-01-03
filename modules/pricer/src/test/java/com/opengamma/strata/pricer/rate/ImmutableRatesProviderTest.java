@@ -26,6 +26,7 @@ import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -118,6 +119,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.fxIndexRates(GBP_USD_WM).getIndex(), GBP_USD_WM);
     assertEquals(test.fxIndexRates(GBP_USD_WM).getFixings(), ts);
+    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(GBP_USD_WM));
   }
 
   //-------------------------------------------------------------------------
@@ -144,6 +146,8 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.iborIndexRates(USD_LIBOR_3M).getIndex(), USD_LIBOR_3M);
     assertEquals(test.iborIndexRates(USD_LIBOR_3M).getFixings(), ts);
+    assertEquals(test.getIborIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(USD_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------
@@ -155,6 +159,8 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.overnightIndexRates(USD_FED_FUND).getIndex(), USD_FED_FUND);
     assertEquals(test.overnightIndexRates(USD_FED_FUND).getFixings(), ts);
+    assertEquals(test.getOvernightIndices(), ImmutableSet.of(USD_FED_FUND));
+    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(USD_FED_FUND));
   }
 
   //-------------------------------------------------------------------------
@@ -166,6 +172,8 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.priceIndexValues(GB_RPI).getIndex(), GB_RPI);
     assertEquals(test.priceIndexValues(GB_RPI).getFixings(), ts);
+    assertEquals(test.getPriceIndices(), ImmutableSet.of(GB_RPI));
+    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(GB_RPI));
   }
 
   public void test_priceIndexValues_notKnown() {

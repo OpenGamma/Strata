@@ -178,6 +178,11 @@ public final class ImmutableRatesProvider
         .collect(toImmutableSet());
   }
 
+  @Override
+  public ImmutableSet<Index> getTimeSeriesIndices() {
+    return timeSeries.keySet();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public <T> Optional<T> findData(MarketDataName<T> name) {

@@ -141,6 +141,15 @@ final class DefaultLookupRatesProvider
         .collect(toImmutableSet());
   }
 
+  @Override
+  public ImmutableSet<Index> getTimeSeriesIndices() {
+    return marketData.getTimeSeriesIds().stream()
+        .filter(IndexQuoteId.class::isInstance)
+        .map(IndexQuoteId.class::cast)
+        .map(id -> id.getIndex())
+        .collect(toImmutableSet());
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public <T> T data(MarketDataId<T> key) {
@@ -182,8 +191,9 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
     FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
-    return ForwardFxIndexRates.of(index, fxForwardRates, timeSeries(index));
+    return ForwardFxIndexRates.of(index, fxForwardRates, fixings);
   }
 
   //-------------------------------------------------------------------------
