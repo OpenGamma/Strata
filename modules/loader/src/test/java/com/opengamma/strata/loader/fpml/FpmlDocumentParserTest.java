@@ -54,6 +54,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.joda.beans.Bean;
 import org.testng.annotations.DataProvider;
@@ -161,6 +162,32 @@ public class FpmlDocumentParserTest {
     assertEquals(bp.getPayReceive(), PAY);
     assertEquals(bp.getDate(), AdjustableDate.of(date(2001, 7, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
     assertEquals(bp.getValue(), CurrencyAmount.of(USD, 15000));
+  }
+
+  public void bulletPayment_twoTradesTwoParties() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/bullet-payment-weird.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    FpmlPartySelector selector = FpmlPartySelector.matchingRegex(Pattern.compile("Party1[ab]"));
+    List<Trade> trades = FpmlDocumentParser.of(selector).parseTrades(resource);
+    assertEquals(trades.size(), 2);
+    Trade trade0 = trades.get(0);
+    assertEquals(trade0.getClass(), BulletPaymentTrade.class);
+    BulletPaymentTrade bpTrade0 = (BulletPaymentTrade) trade0;
+    assertEquals(bpTrade0.getInfo().getTradeDate(), Optional.of(date(2001, 4, 29)));
+    assertEquals(bpTrade0.getInfo().getId().get().getValue(), "123");
+    BulletPayment bp0 = bpTrade0.getProduct();
+    assertEquals(bp0.getPayReceive(), PAY);
+    assertEquals(bp0.getDate(), AdjustableDate.of(date(2001, 7, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
+    assertEquals(bp0.getValue(), CurrencyAmount.of(USD, 15000));
+    Trade trade1 = trades.get(1);
+    assertEquals(trade1.getClass(), BulletPaymentTrade.class);
+    BulletPaymentTrade bpTrade1 = (BulletPaymentTrade) trade1;
+    assertEquals(bpTrade1.getInfo().getTradeDate(), Optional.of(date(2001, 4, 29)));
+    assertEquals(bpTrade1.getInfo().getId().get().getValue(), "124");
+    BulletPayment bp1 = bpTrade1.getProduct();
+    assertEquals(bp1.getPayReceive(), RECEIVE);
+    assertEquals(bp1.getDate(), AdjustableDate.of(date(2001, 8, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
+    assertEquals(bp1.getValue(), CurrencyAmount.of(USD, 15000));
   }
 
   //-------------------------------------------------------------------------
@@ -397,8 +424,8 @@ public class FpmlDocumentParserTest {
     assertEquals(fra.getIndex(), CHF_LIBOR_6M);
     assertEquals(fra.getIndexInterpolated(), Optional.empty());
     assertEquals(fra.getDiscounting(), FraDiscountingMethod.ISDA);
-    // check same when using a specific selector instead of FpmlPartySelector.auto()
-    List<Trade> trades2 = FpmlDocumentParser.of(allParties -> Optional.empty()).parseTrades(resource);
+    // check same when using a specific selector instead of FpmlPartySelector.any()
+    List<Trade> trades2 = FpmlDocumentParser.of(allParties -> ImmutableList.of()).parseTrades(resource);
     assertEquals(trades2, trades);
   }
 
@@ -1488,7 +1515,7 @@ public class FpmlDocumentParserTest {
   public void badSelector() {
     String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex08-fra.xml";
     ByteSource resource = ResourceLocator.of(location).getByteSource();
-    FpmlDocumentParser parser = FpmlDocumentParser.of(allParties -> Optional.of("rubbish"));
+    FpmlDocumentParser parser = FpmlDocumentParser.of(allParties -> ImmutableList.of("rubbish"));
     assertThrows(
         () -> parser.parseTrades(resource),
         FpmlParseException.class,
@@ -1516,7 +1543,7 @@ public class FpmlDocumentParserTest {
     assertEquals(test.getFpmlRoot(), rootEl);
     assertEquals(test.getParties(), ImmutableListMultimap.of());
     assertEquals(test.getReferences(), ImmutableMap.of());
-    assertEquals(test.getOurPartyHrefId(), "");
+    assertEquals(test.getOurPartyHrefIds(), ImmutableList.of());
     assertThrows(() -> test.lookupReference(tradeEl), FpmlParseException.class, ".*reference not found.*");
     assertThrows(() -> test.validateNotPresent(tradeEl, "tradeHeader"), FpmlParseException.class, ".*tradeHeader.*");
   }

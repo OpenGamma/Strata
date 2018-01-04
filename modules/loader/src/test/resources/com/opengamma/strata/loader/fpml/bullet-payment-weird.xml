@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-6" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-6.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1a" />
+        <tradeId tradeIdScheme="http://www.partyA.com/trade-id">123</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2a" />
+        <tradeId tradeIdScheme="http://www.partyB.com/trade-id">223</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2001-04-29</tradeDate>
+    </tradeHeader>
+    <bulletPayment>
+      <payment>
+        <payerPartyReference href="party1a" />
+        <receiverPartyReference href="party2a" />
+        <paymentAmount>
+          <currency>USD</currency>
+          <amount>15000.00</amount>
+        </paymentAmount>
+        <paymentDate>
+          <unadjustedDate>2001-07-27</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters id="businessCenters0">
+              <businessCenter>GBLO</businessCenter>
+              <businessCenter>USNY</businessCenter>
+            </businessCenters>
+          </dateAdjustments>
+        </paymentDate>
+      </payment>
+    </bulletPayment>
+  </trade>
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1b" />
+        <tradeId tradeIdScheme="http://www.partyA.com/trade-id">124</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2b" />
+        <tradeId tradeIdScheme="http://www.partyB.com/trade-id">224</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2001-04-29</tradeDate>
+    </tradeHeader>
+    <bulletPayment>
+      <payment>
+        <payerPartyReference href="party2b" />
+        <receiverPartyReference href="party1b" />
+        <paymentAmount>
+          <currency>USD</currency>
+          <amount>15000.00</amount>
+        </paymentAmount>
+        <paymentDate>
+          <unadjustedDate>2001-08-27</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters id="businessCenters0">
+              <businessCenter>GBLO</businessCenter>
+              <businessCenter>USNY</businessCenter>
+            </businessCenters>
+          </dateAdjustments>
+        </paymentDate>
+      </payment>
+    </bulletPayment>
+  </trade>
+  <party id="party1a">
+    <partyId>Party1a</partyId>
+  </party>
+  <party id="party2a">
+    <partyId>Party2a</partyId>
+  </party>
+  <party id="party1b">
+    <partyId>Party1b</partyId>
+  </party>
+  <party id="party2b">
+    <partyId>Party2b</partyId>
+  </party>
+</dataDocument>
+
