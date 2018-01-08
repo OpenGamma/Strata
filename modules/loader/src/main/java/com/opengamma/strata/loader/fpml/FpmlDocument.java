@@ -149,14 +149,18 @@ public final class FpmlDocument {
    * This must be defined as a constant so that == works when comparing it.
    * FpmlPartySelector is an interface and can only define public constants, thus it is declared here.
    */
-  static final FpmlPartySelector ANY_SELECTOR = allParties -> Optional.empty();
+  static final FpmlPartySelector ANY_SELECTOR = allParties -> ImmutableList.of();
   /**
    * Constant defining the "standard" trade info parser.
    */
   static final FpmlTradeInfoParserPlugin TRADE_INFO_STANDARD = (doc, tradeDate, allTradeIds) -> {
     TradeInfoBuilder builder = TradeInfo.builder();
     builder.tradeDate(tradeDate);
-    builder.id(allTradeIds.get(doc.getOurPartyHrefId()).stream().findFirst().orElse(null));
+    allTradeIds.entries().stream()
+        .filter(e -> doc.getOurPartyHrefIds().contains(e.getKey()))
+        .map(e -> e.getValue())
+        .findFirst()
+        .ifPresent(id -> builder.id(id));
     return builder;
   };
 
@@ -175,7 +179,7 @@ public final class FpmlDocument {
   /**
    * The party reference id.
    */
-  private final String ourPartyHrefId;
+  private final ImmutableList<String> ourPartyHrefIds;
   /**
    * The trade info builder.
    */
@@ -209,7 +213,7 @@ public final class FpmlDocument {
     this.fpmlRoot = fpmlRootEl;
     this.references = ImmutableMap.copyOf(references);
     this.parties = parseParties(fpmlRootEl);
-    this.ourPartyHrefId = findOurParty(ourPartySelector);
+    this.ourPartyHrefIds = findOurParty(ourPartySelector);
     this.tradeInfoParser = tradeInfoParser;
     this.refData = refData;
   }
@@ -235,22 +239,23 @@ public final class FpmlDocument {
   }
 
   // locate our party href/id reference
-  private String findOurParty(FpmlPartySelector ourPartySelector) {
+  private ImmutableList<String> findOurParty(FpmlPartySelector ourPartySelector) {
     // check for "any" selector to avoid logging message in normal case
     if (ourPartySelector == FpmlPartySelector.any()) {
-      return "";
+      return ImmutableList.of();
     }
-    Optional<String> selected = ourPartySelector.selectParty(parties);
-    if (selected.isPresent()) {
-      String selectedId = selected.get();
-      if (!parties.keySet().contains(selectedId)) {
-        throw new FpmlParseException(Messages.format(
-            "Selector returned an ID '{}' that is not present in the document: {}", selectedId, parties));
+    List<String> selected = ourPartySelector.selectParties(parties);
+    if (!selected.isEmpty()) {
+      for (String id : selected) {
+        if (!parties.keySet().contains(id)) {
+          throw new FpmlParseException(Messages.format(
+              "Selector returned an ID '{}' that is not present in the document: {}", id, parties));
+        }
       }
-      return selectedId;
+      return ImmutableList.copyOf(selected);
     }
     log.warn("Failed to resolve \"our\" counterparty from FpML document, using leg defaults instead: " + parties);
-    return "";
+    return ImmutableList.of();
   }
 
   //-------------------------------------------------------------------------
@@ -289,9 +294,37 @@ public final class FpmlDocument {
    * This is used to identify the direction of the trade.
    * 
    * @return our party, empty if not known
+   * @deprecated Use {@link #getOurPartyHrefIds()}
    */
+  @Deprecated
   public String getOurPartyHrefId() {
-    return ourPartyHrefId;
+    return ourPartyHrefIds.isEmpty() ? "" : ourPartyHrefIds.get(0);
+  }
+
+  /**
+   * Gets the party href/id references representing "our" party.
+   * <p>
+   * In a typical trade there are two parties, where one pays and the other receives.
+   * In FpML these parties are represented by the party structure, which lists each party
+   * and assigns them identifiers. These identifiers are then used throughout the rest
+   * of the FpML document to specify who pays/receives each item.
+   * By contrast, the Strata trade model is directional. Each item in the Strata trade
+   * specifies whether it is pay or receive with respect to the company running the library.
+   * <p>
+   * To convert between these two models, the {@link FpmlPartySelector} is used to find
+   * "our" party identifiers, in other words those party identifiers that belong to the
+   * company running the library. Note that the matching occurs against the content of
+   * {@code <partyId>} but the result of this method is the content of the attribute {@code <party id="">}.
+   * <p>
+   * Most FpML documents have one party identifier for each party, however it is
+   * possible for a document to contain multiple identifiers for the same party.
+   * The list allows all these parties to be stored.
+   * The list will be empty if "our" party could not be identified.
+   * 
+   * @return our party, empty if not known
+   */
+  public List<String> getOurPartyHrefIds() {
+    return ourPartyHrefIds;
   }
 
   /**
@@ -363,15 +396,15 @@ public final class FpmlDocument {
   public BuySell parseBuyerSeller(XmlElement baseEl, TradeInfoBuilder tradeInfoBuilder) {
     String buyerPartyReference = baseEl.getChild("buyerPartyReference").getAttribute(FpmlDocument.HREF);
     String sellerPartyReference = baseEl.getChild("sellerPartyReference").getAttribute(FpmlDocument.HREF);
-    if (ourPartyHrefId.isEmpty() || buyerPartyReference.equals(ourPartyHrefId)) {
+    if (ourPartyHrefIds.isEmpty() || ourPartyHrefIds.contains(buyerPartyReference)) {
       tradeInfoBuilder.counterparty(StandardId.of(FPML_PARTY_SCHEME, parties.get(sellerPartyReference).get(0)));
       return BuySell.BUY;
-    } else if (sellerPartyReference.equals(ourPartyHrefId)) {
+    } else if (ourPartyHrefIds.contains(sellerPartyReference)) {
       tradeInfoBuilder.counterparty(StandardId.of(FPML_PARTY_SCHEME, parties.get(buyerPartyReference).get(0)));
       return BuySell.SELL;
     } else {
       throw new FpmlParseException(Messages.format(
-          "Neither buyerPartyReference nor sellerPartyReference contain our party ID: {}", ourPartyHrefId));
+          "Neither buyerPartyReference nor sellerPartyReference contain our party ID: {}", ourPartyHrefIds));
     }
   }
 
@@ -390,7 +423,7 @@ public final class FpmlDocument {
     String receiverPartyReference = baseEl.getChild("receiverPartyReference").getAttribute(HREF);
     Object currentCounterparty = tradeInfoBuilder.build().getCounterparty().orElse(null);
     // determine direction and setup counterparty
-    if ((ourPartyHrefId.isEmpty() && currentCounterparty == null) || payerPartyReference.equals(ourPartyHrefId)) {
+    if ((ourPartyHrefIds.isEmpty() && currentCounterparty == null) || ourPartyHrefIds.contains(payerPartyReference)) {
       StandardId proposedCounterparty = StandardId.of(FPML_PARTY_SCHEME, parties.get(receiverPartyReference).get(0));
       if (currentCounterparty == null) {
         tradeInfoBuilder.counterparty(proposedCounterparty);
@@ -400,7 +433,7 @@ public final class FpmlDocument {
       }
       return PayReceive.PAY;
 
-    } else if (ourPartyHrefId.isEmpty() || receiverPartyReference.equals(ourPartyHrefId)) {
+    } else if (ourPartyHrefIds.isEmpty() || ourPartyHrefIds.contains(receiverPartyReference)) {
       StandardId proposedCounterparty = StandardId.of(FPML_PARTY_SCHEME, parties.get(payerPartyReference).get(0));
       if (currentCounterparty == null) {
         tradeInfoBuilder.counterparty(proposedCounterparty);
@@ -412,7 +445,7 @@ public final class FpmlDocument {
 
     } else {
       throw new FpmlParseException(Messages.format(
-          "Neither payerPartyReference nor receiverPartyReference contain our party ID: {}", ourPartyHrefId));
+          "Neither payerPartyReference nor receiverPartyReference contain our party ID: {}", ourPartyHrefIds));
     }
   }
 

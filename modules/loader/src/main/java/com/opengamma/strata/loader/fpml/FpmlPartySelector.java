@@ -5,7 +5,9 @@
  */
 package com.opengamma.strata.loader.fpml;
 
-import java.util.Optional;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ListMultimap;
@@ -48,8 +50,9 @@ public interface FpmlPartySelector {
   public static FpmlPartySelector matching(String partyId) {
     return allParties -> allParties.entries().stream()
         .filter(e -> e.getValue().equals(partyId))
-        .findFirst()
-        .map(e -> e.getKey());
+        .map(e -> e.getKey())
+        .distinct()
+        .collect(toImmutableList());
   }
 
   /**
@@ -64,17 +67,19 @@ public interface FpmlPartySelector {
   public static FpmlPartySelector matchingRegex(Pattern partyIdRegex) {
     return allParties -> allParties.entries().stream()
         .filter(e -> partyIdRegex.matcher(e.getValue()).matches())
-        .findFirst()
-        .map(e -> e.getKey());
+        .map(e -> e.getKey())
+        .distinct()
+        .collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Selects "our" party from the specified set.
+   * Given a map of all parties in the FpML document, extract those that
+   * represent "our" side of the trade.
    * 
    * @param allParties  the multimap of party href id to associated partyId
-   * @return the party href id to use, empty if unable to find "our" party
+   * @return the party href ids to use, empty if unable to find "our" party
    */
-  public abstract Optional<String> selectParty(ListMultimap<String, String> allParties);
+  public abstract List<String> selectParties(ListMultimap<String, String> allParties);
 
 }
