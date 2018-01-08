@@ -80,8 +80,8 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
       .build();
   // rates providers
   private static final LocalDate VALUATION_BEFORE_START = LocalDate.of(2007, 10, 9);
-  private static final LocalDate VALUATION_ON_FIX = LocalDate.of(2008, 4, 29);
-  private static final LocalDate VALUATION_AFTER_FIX = LocalDate.of(2008, 5, 20);
+  private static final LocalDate VALUATION_ON_FIX = LocalDate.of(2008, 5, 29);
+  private static final LocalDate VALUATION_AFTER_FIX = LocalDate.of(2008, 6, 20);
   private static final LocalDate VALUATION_AFTER_PAY = LocalDate.of(2008, 8, 9);
   private static final double Z_SPREAD = 0.005;
   private static final int PERIOD_PER_YEAR = 4;

@@ -228,10 +228,12 @@ public final class SimplePriceIndexValues
   @Override
   public double value(PriceIndexObservation observation) {
     YearMonth fixingMonth = observation.getFixingMonth();
-    // returns the historic month price index if present in the time series
-    OptionalDouble fixing = fixings.get(fixingMonth.atEndOfMonth());
-    if (fixing.isPresent()) {
-      return fixing.getAsDouble();
+    // If fixing in the past, check time series and returns the historic month price index if present
+    if (fixingMonth.isBefore(YearMonth.from(valuationDate))) {
+      OptionalDouble fixing = fixings.get(fixingMonth.atEndOfMonth());
+      if (fixing.isPresent()) {
+        return fixing.getAsDouble();
+      }
     }
     // otherwise, return the estimate from the curve.
     double nbMonth = numberOfMonths(fixingMonth);
@@ -242,9 +244,11 @@ public final class SimplePriceIndexValues
   @Override
   public PointSensitivityBuilder valuePointSensitivity(PriceIndexObservation observation) {
     YearMonth fixingMonth = observation.getFixingMonth();
-    // no sensitivity if historic month price index present in the time series
-    if (fixings.get(fixingMonth.atEndOfMonth()).isPresent()) {
-      return PointSensitivityBuilder.none();
+    // If fixing in the past, check time series and returns the historic month price index if present
+    if (fixingMonth.isBefore(YearMonth.from(valuationDate))) {
+      if (fixings.get(fixingMonth.atEndOfMonth()).isPresent()) {
+        return PointSensitivityBuilder.none();
+      }
     }
     return InflationRateSensitivity.of(observation, 1d);
   }
@@ -257,9 +261,11 @@ public final class SimplePriceIndexValues
   }
 
   private UnitParameterSensitivities unitParameterSensitivity(YearMonth month) {
-    // no sensitivity if historic month price index present in the time series
-    if (fixings.get(month.atEndOfMonth()).isPresent()) {
-      return UnitParameterSensitivities.empty();
+    // If fixing in the past, check time series and returns the historic month price index if present
+    if (month.isBefore(YearMonth.from(valuationDate))) {
+      if (fixings.get(month.atEndOfMonth()).isPresent()) {
+        return UnitParameterSensitivities.empty();
+      }
     }
     double nbMonth = numberOfMonths(month);
     return UnitParameterSensitivities.of(curve.yValueParameterSensitivity(nbMonth));
