@@ -34,6 +34,7 @@ import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveInputsId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -86,8 +87,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         .map(defn -> defn.getName())
         .map(curveName -> CurveInputsId.of(groupDefn.getName(), curveName, id.getObservableSource()))
         .collect(toImmutableList());
-
-    return MarketDataRequirements.builder().addValues(curveInputsIds).build();
+    List<ObservableId> timeSeriesIds = groupDefn.getEntries().stream()
+        .flatMap(entry -> entry.getIndices().stream())
+        .distinct()
+        .map(index -> IndexQuoteId.of(index))
+        .collect(toImmutableList());
+    return MarketDataRequirements.builder()
+        .addValues(curveInputsIds)
+        .addTimeSeries(timeSeriesIds)
+        .build();
   }
 
   @Override
