@@ -51,7 +51,7 @@ public class EtdFutureSecurityTest {
   //-------------------------------------------------------------------------
   public void test_summaryDescription() {
     assertEquals(sut().summaryDescription(), "Jun17");
-    assertEquals(sut2().summaryDescription(), "Sep17W2");
+    assertEquals(sut2().summaryDescription(), "W2Sep17");
   }
 
   //-------------------------------------------------------------------------
