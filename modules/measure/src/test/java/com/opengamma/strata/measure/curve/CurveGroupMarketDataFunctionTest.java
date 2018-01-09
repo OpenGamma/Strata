@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.data.FxRateId;
@@ -57,6 +58,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -184,7 +186,7 @@ public class CurveGroupMarketDataFunctionTest {
   }
 
   /**
-   * Tests that par rates are required for curves.
+   * Tests that par rates and ibor index are required for curves.
    */
   public void requirements() {
     FraCurveNode node1x4 = CurveTestUtils.fraNode(1, "foo");
@@ -202,9 +204,10 @@ public class CurveGroupMarketDataFunctionTest {
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
 
+    RateIndex ibor = IborIndices.USD_LIBOR_3M;
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
-        .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
+        .addCurve(curveDefn, Currency.USD, ibor)
         .build();
 
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
@@ -216,6 +219,7 @@ public class CurveGroupMarketDataFunctionTest {
     MarketDataRequirements requirements = function.requirements(curveGroupId, marketDataConfig);
 
     assertThat(requirements.getNonObservables()).contains(CurveInputsId.of(groupName, curveName, obsSource));
+    assertThat(requirements.getTimeSeries().contains(IndexQuoteId.of(ibor)));
   }
 
   public void metadata() {

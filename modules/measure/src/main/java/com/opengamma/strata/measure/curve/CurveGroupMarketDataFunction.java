@@ -8,12 +8,14 @@ package com.opengamma.strata.measure.curve;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -30,10 +32,12 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveInputsId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -87,7 +91,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         .map(curveName -> CurveInputsId.of(groupDefn.getName(), curveName, id.getObservableSource()))
         .collect(toImmutableList());
 
-    return MarketDataRequirements.builder().addValues(curveInputsIds).build();
+    // request time series for each index referenced in the curve group
+    List<IndexQuoteId> indices = new ArrayList<>();
+    for (CurveGroupEntry entry : groupDefn.getEntries()) {
+      for (Index index : entry.getIndices()) {
+        indices.add(IndexQuoteId.of(index));
+      }
+    }
+    
+    return MarketDataRequirements.builder().addValues(curveInputsIds).addTimeSeries(indices).build();
   }
 
   @Override
