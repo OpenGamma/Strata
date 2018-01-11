@@ -19,6 +19,9 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -216,6 +219,17 @@ public class FloatingRateNameTest {
   public void test_nzd() {
     assertEquals(FloatingRateName.of("NZD-BKBM").getCurrency(), Currency.NZD);
     assertEquals(FloatingRateName.of("NZD-NZIONA").getCurrency(), Currency.NZD);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_types() {
+    // ensure no stupid copy and paste errors
+    Field[] fields = FloatingRateNames.class.getFields();
+    for (Field field : fields) {
+      if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
+        assertEquals(field.getType(), FloatingRateName.class);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

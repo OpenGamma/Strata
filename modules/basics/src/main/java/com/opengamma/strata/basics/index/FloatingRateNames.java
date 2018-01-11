@@ -120,31 +120,31 @@ public final class FloatingRateNames {
   /**
    * Constant for AUD-AONIA Overnight index.
    */
-  public static final OvernightIndex AUD_AONIA = OvernightIndex.of("AUD-AONIA");
+  public static final FloatingRateName AUD_AONIA = FloatingRateName.of("AUD-AONIA");
   /**
    * Constant for BRL-CDI Overnight index.
    */
-  public static final OvernightIndex BRL_CDI = OvernightIndex.of("BRL-CDI");
+  public static final FloatingRateName BRL_CDI = FloatingRateName.of("BRL-CDI");
   /**
    * Constant for CAD-CORRA Overnight index.
    */
-  public static final OvernightIndex CAD_CORRA = OvernightIndex.of("CAD-CORRA");
+  public static final FloatingRateName CAD_CORRA = FloatingRateName.of("CAD-CORRA");
   /**
    * Constant for DKK-TNR Overnight index.
    */
-  public static final OvernightIndex DKK_TNR = OvernightIndex.of("DKK-TNR");
+  public static final FloatingRateName DKK_TNR = FloatingRateName.of("DKK-TNR");
   /**
    * Constant for NOK-NOWA Overnight index.
    */
-  public static final OvernightIndex NOK_NOWA = OvernightIndex.of("NOK-NOWA");
+  public static final FloatingRateName NOK_NOWA = FloatingRateName.of("NOK-NOWA");
   /**
    * Constant for PLN-POLONIA Overnight index.
    */
-  public static final OvernightIndex PLN_POLONIA = OvernightIndex.of("PLN-POLONIA");
+  public static final FloatingRateName PLN_POLONIA = FloatingRateName.of("PLN-POLONIA");
   /**
    * Constant for SEK-SIOR Overnight index.
    */
-  public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
+  public static final FloatingRateName SEK_SIOR = FloatingRateName.of("SEK-SIOR");
 
   /**
    * Constant for USD-FED-FUND Overnight index using averaging.
