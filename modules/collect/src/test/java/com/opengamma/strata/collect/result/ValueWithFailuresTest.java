@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.collect.result;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -47,6 +49,37 @@ public class ValueWithFailuresTest {
     assertEquals(test.hasFailures(), true);
     assertEquals(test.getValue(), "success");
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_map() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("1", "2"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<List<Integer>> test =
+        base.map(list -> list.stream().map(s -> Integer.valueOf(s)).collect(toImmutableList()));
+    assertEquals(test.getValue(), ImmutableList.of(Integer.valueOf(1), Integer.valueOf(2)));
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1));
+  }
+
+  public void test_flatMap() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("1", "a", "2"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<List<Integer>> test = base.flatMap(this::flatMapFunction);
+    assertEquals(test.getValue(), ImmutableList.of(Integer.valueOf(1), Integer.valueOf(2)));
+    assertEquals(test.getFailures().size(), 2);
+    assertEquals(test.getFailures().get(0), FAILURE1);
+    assertEquals(test.getFailures().get(1).getReason(), FailureReason.INVALID);
+  }
+
+  private ValueWithFailures<List<Integer>> flatMapFunction(List<String> input) {
+    List<Integer> integers = new ArrayList<>();
+    List<FailureItem> failures = new ArrayList<>();
+    for (String str : input) {
+      try {
+        integers.add(Integer.valueOf(str));
+      } catch (NumberFormatException ex) {
+        failures.add(FailureItem.of(FailureReason.INVALID, ex));
+      }
+    }
+    return ValueWithFailures.of(integers, failures);
   }
 
   public void test_combinedWith() {
