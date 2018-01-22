@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.value;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -183,8 +184,13 @@ public final class ValueSchedule
     // expand ValueStep to array of adjustments matching the periods
     // the steps are not sorted, so use fixed size array to absorb incoming data
     ValueAdjustment[] expandedSteps = new ValueAdjustment[size];
+    List<ValueStep> invalidSteps = new ArrayList<>();
     for (ValueStep step : resolvedSteps) {
       int index = step.findIndex(periods);
+      if (index < 0) {
+        invalidSteps.add(step);
+        continue;
+      }
       if (expandedSteps[index] != null && !expandedSteps[index].equals(step.getValue())) {
         throw new IllegalArgumentException(Messages.format(
             "Invalid ValueSchedule, two steps resolved to the same schedule period starting on {}, schedule defined as {}",
@@ -200,6 +206,15 @@ public final class ValueSchedule
       }
       result[i] = value;
     }
+    // ensure that invalid steps cause no changes
+    for (ValueStep step : invalidSteps) {
+      double baseValue = result[step.findPreviousIndex(periods)];
+      double adjusted = step.getValue().adjust(baseValue);
+      if (adjusted != baseValue) {
+        throw new IllegalArgumentException("ValueStep date does not match a period boundary: " + step.getDate().get());
+      }
+    }
+    // return result
     return DoubleArray.ofUnsafe(result);
   }
 

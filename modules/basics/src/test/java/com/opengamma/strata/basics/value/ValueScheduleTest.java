@@ -171,6 +171,16 @@ public class ValueScheduleTest {
     assertEquals(test2.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
   }
 
+  public void test_resolveValues_dateBased_ignoreExcess() {
+    ValueStep step1 = ValueStep.of(date(2014, 2, 1), ValueAdjustment.ofReplace(300d));
+    ValueStep step2 = ValueStep.of(date(2014, 2, 15), ValueAdjustment.ofReplace(300d));  // no change to value
+    ValueStep step3 = ValueStep.of(date(2014, 3, 1), ValueAdjustment.ofReplace(400d));
+    ValueStep step4 = ValueStep.of(date(2014, 3, 15), ValueAdjustment.ofDeltaAmount(0d));  // no change to value
+    ValueStep step5 = ValueStep.of(date(2014, 4, 1), ValueAdjustment.ofMultiplier(1d));
+    ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2, step3, step4, step5));
+    assertEquals(test.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
+  }
+
   public void test_resolveValues_indexBased() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(2, ValueAdjustment.ofReplace(400d));
@@ -214,10 +224,22 @@ public class ValueScheduleTest {
     assertThrowsIllegalArg(() -> test.resolveValues(SCHEDULE));
   }
 
-  public void test_resolveValues_dateBased_dateInvalid() {
+  public void test_resolveValues_dateBased_invalidChangeValue() {
     ValueStep step = ValueStep.of(date(2014, 4, 1), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
-    assertThrowsIllegalArg(() -> test.resolveValues(SCHEDULE));
+    assertThrowsIllegalArg(() -> test.resolveValues(SCHEDULE), "ValueStep date does not match a period boundary.*");
+  }
+
+  public void test_resolveValues_dateBased_invalidDateBefore() {
+    ValueStep step = ValueStep.of(date(2013, 12, 31), ValueAdjustment.ofReplace(300d));
+    ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
+    assertThrowsIllegalArg(() -> test.resolveValues(SCHEDULE), "ValueStep date is before the start of the schedule.*");
+  }
+
+  public void test_resolveValues_dateBased_invalidDateAfter() {
+    ValueStep step = ValueStep.of(date(2014, 4, 3), ValueAdjustment.ofReplace(300d));
+    ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
+    assertThrowsIllegalArg(() -> test.resolveValues(SCHEDULE), "ValueStep date is after the end of the schedule.*");
   }
 
   //-------------------------------------------------------------------------
