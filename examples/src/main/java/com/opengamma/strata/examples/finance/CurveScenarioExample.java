@@ -43,12 +43,12 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveParallelShifts;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.AttributeType;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
@@ -112,9 +112,9 @@ public class CurveScenarioExample {
         marketDataBuilder.ratesLookup(valuationDate));
 
     // mappings that select which market data to apply perturbations to
-    // this applies the perturbations above to all curves
+    // this applies the perturbations above to all rates curves
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
-        MarketDataFilter.ofIdType(CurveId.class),
+        MarketDataFilter.ofIdType(RatesCurveId.class),
         // no shift for the base scenario, 1bp absolute shift to calibrated curves (zeros)
         CurveParallelShifts.absolute(0, ONE_BP));
 

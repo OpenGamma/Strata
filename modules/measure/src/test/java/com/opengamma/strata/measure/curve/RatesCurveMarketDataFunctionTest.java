@@ -28,14 +28,14 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.RatesCurveId;
 
 /**
- * Test {@link CurveMarketDataFunction}.
+ * Test {@link RatesCurveMarketDataFunction}.
  */
 @Test
-public class CurveMarketDataFunctionTest {
+public class RatesCurveMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
@@ -47,8 +47,8 @@ public class CurveMarketDataFunctionTest {
   //-------------------------------------------------------------------------
   public void test_singleCurve() {
     Curve curve = ConstantCurve.of(CURVE_NAME1, (double) 1);
-    CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1, OBS_SOURCE);
-    CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2, OBS_SOURCE);
+    RatesCurveId curveId1 = RatesCurveId.of(GROUP_NAME, CURVE_NAME1, OBS_SOURCE);
+    RatesCurveId curveId2 = RatesCurveId.of(GROUP_NAME, CURVE_NAME2, OBS_SOURCE);
     CurveGroupId groupId = CurveGroupId.of(GROUP_NAME, OBS_SOURCE);
     CurveGroup curveGroup = CurveGroup.of(
         GROUP_NAME,
@@ -56,7 +56,7 @@ public class CurveMarketDataFunctionTest {
         ImmutableMap.of());
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
-    CurveMarketDataFunction test = new CurveMarketDataFunction();
+    RatesCurveMarketDataFunction test = new RatesCurveMarketDataFunction();
     MarketDataRequirements reqs = test.requirements(curveId1, MarketDataConfig.empty());
     assertEquals(reqs.getNonObservables(), ImmutableSet.of(groupId));
     MarketDataBox<Curve> result = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
@@ -67,8 +67,8 @@ public class CurveMarketDataFunctionTest {
   public void test_multipleCurves() {
     Curve curve1 = ConstantCurve.of(CURVE_NAME1, (double) 1);
     Curve curve2 = ConstantCurve.of(CURVE_NAME2, (double) 2);
-    CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1);
-    CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2);
+    RatesCurveId curveId1 = RatesCurveId.of(GROUP_NAME, CURVE_NAME1);
+    RatesCurveId curveId2 = RatesCurveId.of(GROUP_NAME, CURVE_NAME2);
     CurveGroupId groupId = CurveGroupId.of(GROUP_NAME);
     CurveGroup curveGroup = CurveGroup.of(
         GROUP_NAME,
@@ -76,7 +76,7 @@ public class CurveMarketDataFunctionTest {
         ImmutableMap.of());
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
-    CurveMarketDataFunction test = new CurveMarketDataFunction();
+    RatesCurveMarketDataFunction test = new RatesCurveMarketDataFunction();
     MarketDataBox<Curve> result1 = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertEquals(result1, MarketDataBox.ofSingleValue(curve1));
     MarketDataBox<Curve> result2 = test.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);

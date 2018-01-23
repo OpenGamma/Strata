@@ -19,9 +19,9 @@ import com.opengamma.strata.measure.bond.FixedCouponBondTradeCalculationFunction
 import com.opengamma.strata.measure.capfloor.IborCapFloorTradeCalculationFunction;
 import com.opengamma.strata.measure.credit.CdsIndexTradeCalculationFunction;
 import com.opengamma.strata.measure.credit.CdsTradeCalculationFunction;
-import com.opengamma.strata.measure.curve.CurveGroupMarketDataFunction;
-import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
-import com.opengamma.strata.measure.curve.CurveMarketDataFunction;
+import com.opengamma.strata.measure.curve.RatesCurveGroupMarketDataFunction;
+import com.opengamma.strata.measure.curve.RatesCurveInputsMarketDataFunction;
+import com.opengamma.strata.measure.curve.RatesCurveMarketDataFunction;
 import com.opengamma.strata.measure.deposit.TermDepositTradeCalculationFunction;
 import com.opengamma.strata.measure.dsf.DsfTradeCalculationFunction;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
@@ -155,9 +155,9 @@ public final class StandardComponents {
    */
   public static List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
-        new CurveMarketDataFunction(),
-        new CurveGroupMarketDataFunction(),
-        new CurveInputsMarketDataFunction(),
+        new RatesCurveMarketDataFunction(),
+        new RatesCurveGroupMarketDataFunction(),
+        new RatesCurveInputsMarketDataFunction(),
         new FxRateMarketDataFunction(),
         new FxOptionVolatilitiesMarketDataFunction());
   }

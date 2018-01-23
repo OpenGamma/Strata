@@ -33,7 +33,7 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
-import com.opengamma.strata.market.curve.CurveInputsId;
+import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
@@ -44,7 +44,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * <p>
  * This function calibrates curves, turning a {@link CurveGroupDefinition} into a {@link CurveGroup}.
  */
-public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGroup, CurveGroupId> {
+public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<CurveGroup, CurveGroupId> {
 
   /**
    * The default analytics object that performs the curve calibration.
@@ -59,7 +59,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * for calibration. The {@link MarketDataConfig} may contain a {@link RootFinderConfig}
    * to define the tolerances.
    */
-  public CurveGroupMarketDataFunction() {
+  public RatesCurveGroupMarketDataFunction() {
     this(CalibrationMeasures.PAR_SPREAD);
   }
 
@@ -71,7 +71,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    *
    * @param calibrationMeasures  the calibration measures to be used in the calibrator
    */
-  public CurveGroupMarketDataFunction(CalibrationMeasures calibrationMeasures) {
+  public RatesCurveGroupMarketDataFunction(CalibrationMeasures calibrationMeasures) {
     this.calibrationMeasures = ArgChecker.notNull(calibrationMeasures, "calibrationMeasures");
   }
 
@@ -82,10 +82,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
     // request input data for any curves that need market data
     // no input data is requested if the curve definition contains all the market data needed to build the curve
-    List<CurveInputsId> curveInputsIds = groupDefn.getCurveDefinitions().stream()
+    List<RatesCurveInputsId> curveInputsIds = groupDefn.getCurveDefinitions().stream()
         .filter(defn -> requiresMarketData(defn))
         .map(defn -> defn.getName())
-        .map(curveName -> CurveInputsId.of(groupDefn.getName(), curveName, id.getObservableSource()))
+        .map(curveName -> RatesCurveInputsId.of(groupDefn.getName(), curveName, id.getObservableSource()))
         .collect(toImmutableList());
     List<ObservableId> timeSeriesIds = groupDefn.getEntries().stream()
         .flatMap(entry -> entry.getIndices().stream())
@@ -322,7 +322,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
     // only try to get inputs from the market data if the curve needs market data
     if (requiresMarketData(curveDefn)) {
-      CurveInputsId curveInputsId = CurveInputsId.of(groupName, curveDefn.getName(), obsSource);
+      RatesCurveInputsId curveInputsId = RatesCurveInputsId.of(groupName, curveDefn.getName(), obsSource);
       return marketData.getValue(curveInputsId);
     } else {
       return MarketDataBox.ofSingleValue(CurveInputs.builder().build());

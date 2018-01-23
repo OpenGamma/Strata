@@ -34,7 +34,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
-import com.opengamma.strata.market.curve.CurveInputsId;
+import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
@@ -45,10 +45,10 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 
 /**
- * Test {@link CurveInputsMarketDataFunction}.
+ * Test {@link RatesCurveInputsMarketDataFunction}.
  */
 @Test
-public class CurveInputsMarketDataFunctionTest {
+public class RatesCurveInputsMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
@@ -78,8 +78,8 @@ public class CurveInputsMarketDataFunctionTest {
         .add(groupDefn.getName(), groupDefn)
         .build();
 
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curve.getName(), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId = RatesCurveInputsId.of(groupDefn.getName(), curve.getName(), ObservableSource.NONE);
     MarketDataRequirements requirements = marketDataFunction.requirements(curveInputsId, marketDataConfig);
 
     assertThat(requirements.getObservables())
@@ -92,9 +92,9 @@ public class CurveInputsMarketDataFunctionTest {
    * Test that an exception is thrown if there is no curve group configuration corresponding to the ID
    */
   public void requirementsMissingGroupConfig() {
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId =
-        CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId =
+        RatesCurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
     assertThrowsIllegalArg(() -> marketDataFunction.requirements(curveInputsId, MarketDataConfig.empty()));
   }
 
@@ -102,9 +102,9 @@ public class CurveInputsMarketDataFunctionTest {
    * Test that requirements are empty if the curve group config exists but not the curve
    */
   public void requirementsMissingCurveDefinition() {
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId =
-        CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId =
+        RatesCurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
     MarketDataRequirements requirements = marketDataFunction.requirements(curveInputsId, marketDataConfig);
@@ -149,8 +149,8 @@ public class CurveInputsMarketDataFunctionTest {
         .addValue(idC, 3d)
         .build();
 
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curveDefn.getName(), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId = RatesCurveInputsId.of(groupDefn.getName(), curveDefn.getName(), ObservableSource.NONE);
     MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketDataConfig, marketData, REF_DATA);
 
     CurveInputs curveInputs = result.getSingleValue();
@@ -169,9 +169,9 @@ public class CurveInputsMarketDataFunctionTest {
    * Test that a failure is returned if there is no config for the curve group.
    */
   public void buildMissingGroupConfig() {
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId =
-        CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId =
+        RatesCurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
     ScenarioMarketData emptyData = ScenarioMarketData.empty();
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, MarketDataConfig.empty(), emptyData, REF_DATA),
@@ -183,9 +183,9 @@ public class CurveInputsMarketDataFunctionTest {
    * Test that a failure is returned if there is config for the curve group but it doesn't contain the named curve.
    */
   public void buildMissingCurveDefinition() {
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId =
-        CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId =
+        RatesCurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
     ScenarioMarketData emptyData = ScenarioMarketData.empty();
@@ -223,8 +223,8 @@ public class CurveInputsMarketDataFunctionTest {
 
     ScenarioMarketData emptyData = ScenarioMarketData.of(1, date(2016, 6, 30), ImmutableMap.of(), ImmutableMap.of());
 
-    CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
-    CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curve.getName(), ObservableSource.NONE);
+    RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
+    RatesCurveInputsId curveInputsId = RatesCurveInputsId.of(groupDefn.getName(), curve.getName(), ObservableSource.NONE);
 
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),

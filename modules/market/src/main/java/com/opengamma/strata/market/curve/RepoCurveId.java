@@ -22,8 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.opengamma.strata.data.MarketDataName;
-import com.opengamma.strata.data.NamedMarketDataId;
 import com.opengamma.strata.data.ObservableSource;
 
 /**
@@ -33,22 +31,22 @@ import com.opengamma.strata.data.ObservableSource;
  */
 @BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class RepoCurveId
-    implements NamedMarketDataId<Curve>, ImmutableBean, Serializable {
+    implements CurveId, ImmutableBean, Serializable {
 
   /**
    * The curve group name.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveGroupName curveGroupName;
   /**
    * The curve name.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveName curveName;
   /**
    * The source of observable market data.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ObservableSource observableSource;
 
   //-------------------------------------------------------------------------
@@ -60,10 +58,7 @@ public final class RepoCurveId
    * @return the identifier
    */
   public static RepoCurveId of(String groupName, String curveName) {
-    return new RepoCurveId(
-        CurveGroupName.of(groupName),
-        CurveName.of(curveName),
-        ObservableSource.NONE);
+    return new RepoCurveId(CurveGroupName.of(groupName), CurveName.of(curveName), ObservableSource.NONE);
   }
 
   /**
@@ -78,7 +73,7 @@ public final class RepoCurveId
   }
 
   /**
-   * Obtains an instance used to obtain a repo curve by name, 
+   * Obtains an instance used to obtain a repo curve by name,
    * specifying the source of observable market data.
    *
    * @param groupName  the curve group name
@@ -86,25 +81,11 @@ public final class RepoCurveId
    * @param obsSource  the source of observable market data
    * @return the identifier
    */
-  public static RepoCurveId of(
-      CurveGroupName groupName,
-      CurveName curveName,
-      ObservableSource obsSource) {
-
+  public static RepoCurveId of(CurveGroupName groupName, CurveName curveName, ObservableSource obsSource) {
     return new RepoCurveId(groupName, curveName, obsSource);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Class<Curve> getMarketDataType() {
-    return Curve.class;
-  }
-
-  @Override
-  public MarketDataName<Curve> getMarketDataName() {
-    return curveName;
-  }
-
   @Override
   public String toString() {
     return new StringBuilder(32)
@@ -161,6 +142,7 @@ public final class RepoCurveId
    * Gets the curve group name.
    * @return the value of the property, not null
    */
+  @Override
   public CurveGroupName getCurveGroupName() {
     return curveGroupName;
   }
@@ -170,6 +152,7 @@ public final class RepoCurveId
    * Gets the curve name.
    * @return the value of the property, not null
    */
+  @Override
   public CurveName getCurveName() {
     return curveName;
   }
@@ -179,6 +162,7 @@ public final class RepoCurveId
    * Gets the source of observable market data.
    * @return the value of the property, not null
    */
+  @Override
   public ObservableSource getObservableSource() {
     return observableSource;
   }

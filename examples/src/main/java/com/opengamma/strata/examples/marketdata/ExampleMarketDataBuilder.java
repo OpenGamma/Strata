@@ -37,7 +37,7 @@ import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 
@@ -249,10 +249,10 @@ public abstract class ExampleMarketDataBuilder {
       for (CurveGroup group : ratesCurves) {
         // add entry for higher level discount curve name
         group.getDiscountCurves().forEach(
-            (ccy, curve) -> builder.addValue(CurveId.of(group.getName(), curve.getName()), curve));
+            (ccy, curve) -> builder.addValue(RatesCurveId.of(group.getName(), curve.getName()), curve));
         // add entry for higher level forward curve name
         group.getForwardCurves().forEach(
-            (idx, curve) -> builder.addValue(CurveId.of(group.getName(), curve.getName()), curve));
+            (idx, curve) -> builder.addValue(RatesCurveId.of(group.getName(), curve.getName()), curve));
       }
 
     } catch (Exception e) {

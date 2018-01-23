@@ -31,17 +31,17 @@ import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
-import com.opengamma.strata.market.curve.CurveInputsId;
+import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Market data function that builds the input data used when calibrating a curve.
  */
-public final class CurveInputsMarketDataFunction implements MarketDataFunction<CurveInputs, CurveInputsId> {
+public final class RatesCurveInputsMarketDataFunction implements MarketDataFunction<CurveInputs, RatesCurveInputsId> {
 
   @Override
-  public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(RatesCurveInputsId id, MarketDataConfig marketDataConfig) {
     CurveGroupDefinition groupConfig = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
     Optional<CurveDefinition> optionalDefinition = groupConfig.findCurveDefinition(id.getCurveName());
     if (!optionalDefinition.isPresent()) {
@@ -53,7 +53,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
   @Override
   public MarketDataBox<CurveInputs> build(
-      CurveInputsId id,
+      RatesCurveInputsId id,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData marketData,
       ReferenceData refData) {
@@ -196,8 +196,8 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   }
 
   @Override
-  public Class<CurveInputsId> getMarketDataIdType() {
-    return CurveInputsId.class;
+  public Class<RatesCurveInputsId> getMarketDataIdType() {
+    return RatesCurveInputsId.class;
   }
 
   /**

@@ -40,8 +40,8 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -98,8 +98,8 @@ public class DsfTradeCalculationFunctionTest {
   public static final ResolvedDsfTrade RTRADE = TRADE.resolve(REF_DATA);
   private static final Currency CURRENCY = SWAP.getPayLeg().get().getCurrency();
   public static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
-  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
-  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
+  private static final RatesCurveId DISCOUNT_CURVE_ID = RatesCurveId.of("Default", "Discount");
+  private static final RatesCurveId FORWARD_CURVE_ID = RatesCurveId.of("Default", "Forward");
   public static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
