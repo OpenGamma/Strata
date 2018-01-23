@@ -62,10 +62,23 @@ public final class RollConventions {
    */
   public static final RollConvention IMM = RollConvention.of(StandardRollConventions.IMM.getName());
   /**
+   * The 'IMMCAD' roll convention which adjusts the date two days before the third Wednesday.
+   * <p>
+   * The input date will be adjusted ensure it is two GBLO business days before the third Wednesday of the month.
+   * The date is further adjusted earlier by a combination of the CATO and CAMO calendars.
+   * Standard reference data is used to resolve the holiday calendars.
+   * (Note that all current GBLO, CATO and CAMO holiday dates will not impact the result.)
+   * The year and month of the result date will be the same as the input date.
+   * <p>
+   * This convention is intended for use with periods that are a multiple of months.
+   */
+  public static final RollConvention IMMCAD = RollConvention.of(StandardRollConventions.IMMCAD.getName());
+  /**
    * The 'IMMAUD' roll convention which adjusts the date to the Thursday before the second Friday.
    * <p>
    * The input date will be adjusted ensure it is the Thursday before the second Friday of the month.
-   * This is intended to be used with a business day adjuster of 'Preceding' in Sydney.
+   * Standard reference data is used to resolve the AUSY holiday calendar to subtract the day.
+   * (Note that all current AUSY holiday dates will not impact the result.)
    * The year and month of the result date will be the same as the input date.
    * <p>
    * This convention is intended for use with periods that are a multiple of months.
@@ -91,6 +104,14 @@ public final class RollConventions {
    * This convention is intended for use with periods that are a multiple of months.
    */
   public static final RollConvention SFE = RollConvention.of(StandardRollConventions.SFE.getName());
+  /**
+   * The 'TBILL' roll convention which adjusts the date to next Monday.
+   * <p>
+   * The input date will be adjusted ensure it is the next Monday.
+   * The USNY holiday calendar is used in case the Monday is a holiday.
+   * Standard reference data is used to resolve the holiday calendar.
+   */
+  public static final RollConvention TBILL = RollConvention.of(StandardRollConventions.TBILL.getName());
 
   /**
    * The 'Day1' roll convention which adjusts the date to day-of-month 1.

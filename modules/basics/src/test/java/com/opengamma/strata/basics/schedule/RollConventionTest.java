@@ -15,9 +15,11 @@ import static com.opengamma.strata.basics.schedule.RollConventions.DAY_THU;
 import static com.opengamma.strata.basics.schedule.RollConventions.EOM;
 import static com.opengamma.strata.basics.schedule.RollConventions.IMM;
 import static com.opengamma.strata.basics.schedule.RollConventions.IMMAUD;
+import static com.opengamma.strata.basics.schedule.RollConventions.IMMCAD;
 import static com.opengamma.strata.basics.schedule.RollConventions.IMMNZD;
 import static com.opengamma.strata.basics.schedule.RollConventions.NONE;
 import static com.opengamma.strata.basics.schedule.RollConventions.SFE;
+import static com.opengamma.strata.basics.schedule.RollConventions.TBILL;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -102,6 +104,13 @@ public class RollConventionTest {
         {IMM, date(2014, AUGUST, 31), date(2014, AUGUST, 20)},
         {IMM, date(2014, SEPTEMBER, 1), date(2014, SEPTEMBER, 17)},
 
+        {IMMCAD, date(2014, AUGUST, 1), date(2014, AUGUST, 18)},
+        {IMMCAD, date(2014, AUGUST, 6), date(2014, AUGUST, 18)},
+        {IMMCAD, date(2014, AUGUST, 7), date(2014, AUGUST, 18)},
+        {IMMCAD, date(2014, AUGUST, 8), date(2014, AUGUST, 18)},
+        {IMMCAD, date(2014, AUGUST, 31), date(2014, AUGUST, 18)},
+        {IMMCAD, date(2014, SEPTEMBER, 1), date(2014, SEPTEMBER, 15)},
+
         {IMMAUD, date(2014, AUGUST, 1), date(2014, AUGUST, 7)},
         {IMMAUD, date(2014, AUGUST, 6), date(2014, AUGUST, 7)},
         {IMMAUD, date(2014, AUGUST, 7), date(2014, AUGUST, 7)},
@@ -129,6 +138,15 @@ public class RollConventionTest {
         {SFE, date(2014, SEPTEMBER, 1), date(2014, SEPTEMBER, 12)},
         {SFE, date(2014, OCTOBER, 1), date(2014, OCTOBER, 10)},
         {SFE, date(2014, NOVEMBER, 1), date(2014, NOVEMBER, 14)},
+
+        {TBILL, date(2014, AUGUST, 1), date(2014, AUGUST, 4)},
+        {TBILL, date(2014, AUGUST, 2), date(2014, AUGUST, 4)},
+        {TBILL, date(2014, AUGUST, 3), date(2014, AUGUST, 4)},
+        {TBILL, date(2014, AUGUST, 4), date(2014, AUGUST, 4)},
+        {TBILL, date(2014, AUGUST, 5), date(2014, AUGUST, 11)},
+        {TBILL, date(2014, AUGUST, 7), date(2014, AUGUST, 11)},
+        {TBILL, date(2018, AUGUST, 31), date(2018, SEPTEMBER, 4)},  // Tuesday due to holiday
+        {TBILL, date(2018, SEPTEMBER, 1), date(2018, SEPTEMBER, 4)},  // Tuesday due to holiday
     };
   }
 
