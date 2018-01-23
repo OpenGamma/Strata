@@ -156,6 +156,15 @@ final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar BRBD = generateBrazil();
   /**
+   * The holiday calendar for Montreal, Canada, with code 'CAMO'.
+   * <p>
+   * This constant provides the calendar for Montreal holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar CAMO = generateMontreal();
+  /**
    * The holiday calendar for Toronto, Canada, with code 'CATO'.
    * <p>
    * This constant provides the calendar for Toronto holidays.
@@ -762,6 +771,36 @@ final class GlobalHolidayCalendars {
         holidays.add(date1.plusDays(1));
       }
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // generate CAMO
+  // data sources
+  // https://www.cnt.gouv.qc.ca/en/leaves-and-absences/statutory-holidays/index.html
+  // https://www.canada.ca/en/revenue-agency/services/tax/public-holidays.html
+  // http://www.statutoryholidayscanada.com/
+  static ImmutableHolidayCalendar generateMontreal() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(bumpToMon(date(year, 1, 1)));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // patriots
+      holidays.add(date(year, 5, 25).with(TemporalAdjusters.previous(MONDAY)));
+      // fete nationale quebec
+      holidays.add(bumpToMon(date(year, 6, 24)));
+      // canada
+      holidays.add(bumpToMon(date(year, 7, 1)));
+      // labour
+      holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
+      // thanksgiving
+      holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
+      // christmas
+      holidays.add(christmasBumpedSatSun(year));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("CAMO"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------

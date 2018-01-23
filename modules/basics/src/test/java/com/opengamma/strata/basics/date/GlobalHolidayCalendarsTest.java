@@ -730,6 +730,32 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar CAMO = GlobalHolidayCalendars.generateMontreal();
+
+  @DataProvider(name = "camo")
+  Object[][] data_camo() {
+    // https://www.bankofcanada.ca/about/contact-information/bank-of-canada-holiday-schedule/
+    // also indicate day after new year and boxing day, but no other sources for this
+    return new Object[][] {
+        {2017, mds(2017, md(1, 2), md(4, 14),
+            md(5, 22), md(6, 26), md(7, 3), md(9, 4), md(10, 9), md(12, 25))},
+        {2018, mds(2018, md(1, 1), md(3, 30),
+            md(5, 21), md(6, 25), md(7, 2), md(9, 3), md(10, 8), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "camo")
+  public void test_camo(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    int len = date.lengthOfYear();
+    for (int i = 0; i < len; i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(CAMO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static final HolidayCalendar CATO = GlobalHolidayCalendars.generateToronto();
 
   @DataProvider(name = "cato")

@@ -137,6 +137,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId BRBD = HolidayCalendarId.of("BRBD");
   /**
+   * An identifier for the holiday calendar of Montreal, Canada, with code 'CAMO'.
+   * <p>
+   * This constant references the calendar for Montreal bank holidays.
+   */
+  public static final HolidayCalendarId CAMO = HolidayCalendarId.of("CAMO");
+  /**
    * An identifier for the holiday calendar of Toronto, Canada, with code 'CATO'.
    * <p>
    * This constant references the calendar for Toronto bank holidays.
