@@ -143,8 +143,36 @@ public final class ValueStep
           return i;
         }
       }
-      throw new IllegalArgumentException("ValueStep date does not match a period boundary: " + date);
+      return -1;
     }
+  }
+
+  /**
+   * Finds the index of the previous value step in the schedule.
+   * <p>
+   * This will only be called on a date-based step.
+   * 
+   * @param periods  the list of schedule periods, at least size 1, only date-based
+   * @return the index of the schedule period
+   */
+  int findPreviousIndex(List<SchedulePeriod> periods) {
+    SchedulePeriod firstPeriod = periods.get(0);
+    if (date.isBefore(firstPeriod.getUnadjustedStartDate())) {
+      throw new IllegalArgumentException(
+          "ValueStep date is before the start of the schedule: " + date + " < " + firstPeriod.getUnadjustedStartDate());
+    }
+    for (int i = 1; i < periods.size(); i++) {
+      SchedulePeriod period = periods.get(i);
+      if (period.getUnadjustedStartDate().isAfter(date)) {
+        return i - 1;
+      }
+    }
+    SchedulePeriod lastPeriod = periods.get(periods.size() - 1);
+    if (date.isAfter(lastPeriod.getUnadjustedEndDate())) {
+      throw new IllegalArgumentException(
+          "ValueStep date is after the end of the schedule: " + date + " > " + lastPeriod.getUnadjustedEndDate());
+    }
+    return periods.size() - 1;
   }
 
   //-------------------------------------------------------------------------
