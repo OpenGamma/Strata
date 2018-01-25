@@ -9,6 +9,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -51,12 +56,28 @@ enum StandardRollConventions implements RollConvention {
     }
   },
 
-  // day before 2nd Friday
-  IMMAUD("IMMAUD") {
+  // 2nd London banking day before 3rd Wednesday, adjusted by Montreal & Toronto holiday
+  IMMCAD("IMMCAD") {
+    private final HolidayCalendar gblo = holidayCalendar(HolidayCalendarIds.GBLO);
+    private final HolidayCalendar canada =
+        holidayCalendar(HolidayCalendarIds.CATO).combinedWith(holidayCalendar(HolidayCalendarIds.CAMO));
+
     @Override
     public LocalDate adjust(LocalDate date) {
       ArgChecker.notNull(date, "date");
-      return date.with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.FRIDAY)).minusDays(1);
+      LocalDate wed3 = date.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY));
+      return canada.previousOrSame(gblo.shift(wed3, -2));
+    }
+  },
+
+  // 1 Sydney business day before 2nd Friday
+  IMMAUD("IMMAUD") {
+    private final HolidayCalendar ausy = holidayCalendar(HolidayCalendarIds.AUSY);
+
+    @Override
+    public LocalDate adjust(LocalDate date) {
+      ArgChecker.notNull(date, "date");
+      return ausy.previous(date.with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.FRIDAY)));
     }
   },
 
@@ -76,6 +97,17 @@ enum StandardRollConventions implements RollConvention {
       ArgChecker.notNull(date, "date");
       return date.with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.FRIDAY));
     }
+  },
+
+  // Each Monday, or Tuesday if USNY holiday
+  TBILL("TBILL") {
+    private final HolidayCalendar usny = holidayCalendar(HolidayCalendarIds.USNY);
+
+    @Override
+    public LocalDate adjust(LocalDate date) {
+      ArgChecker.notNull(date, "date");
+      return usny.nextOrSame(date.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+    }
   };
 
   // name
@@ -94,6 +126,15 @@ enum StandardRollConventions implements RollConvention {
   @Override
   public String toString() {
     return name;
+  }
+
+  // safely find a holiday calendar
+  private static HolidayCalendar holidayCalendar(HolidayCalendarId id) {
+    try {
+      return id.resolve(ReferenceData.standard());
+    } catch (RuntimeException ex) {
+      return HolidayCalendars.SAT_SUN;
+    }
   }
 
 }
