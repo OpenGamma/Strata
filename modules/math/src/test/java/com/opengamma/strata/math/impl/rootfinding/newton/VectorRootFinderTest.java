@@ -185,16 +185,16 @@ public abstract class VectorRootFinderTest {
 
   // Note: at the root (1,1) the Jacobian is singular which leads to very slow convergence and is why
   // we switch to using SVD rather than the default LU
-  protected void assertFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
+  protected void assertFunction2D(final BaseNewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleArray x0 = DoubleArray.of(-0.0, 0.0);
-    final DoubleArray x1 = rootFinder.getRoot(FUNCTION2D, JACOBIAN2D, x0);
+    final DoubleArray x1 = rootFinder.findRoot(FUNCTION2D, JACOBIAN2D, x0);
     assertEquals(1.0, x1.get(0), eps);
     assertEquals(1.0, x1.get(1), eps);
   }
 
-  protected void assertFunction3D(final NewtonVectorRootFinder rootFinder, final double eps) {
+  protected void assertFunction3D(final BaseNewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleArray x0 = DoubleArray.of(0.8, 0.2, -0.7);
-    final DoubleArray x1 = rootFinder.getRoot(FUNCTION3D, JACOBIAN3D, x0);
+    final DoubleArray x1 = rootFinder.findRoot(FUNCTION3D, JACOBIAN3D, x0);
     assertEquals(1.0, x1.get(0), eps);
     assertEquals(0.0, x1.get(1), eps);
     assertEquals(-1.0, x1.get(2), eps);

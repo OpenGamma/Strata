@@ -14,12 +14,12 @@ import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
  */
 @Test
 public class NewtonDefaultVectorRootFinderTest extends VectorRootFinderTest {
-  private static final NewtonVectorRootFinder DEFAULT = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
-  private static final NewtonVectorRootFinder SV = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
-  private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_2D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
-  private static final NewtonVectorRootFinder SV_JACOBIAN_2D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
-  private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
-  private static final NewtonVectorRootFinder SV_JACOBIAN_3D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
+  private static final BaseNewtonVectorRootFinder DEFAULT = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
+  private static final BaseNewtonVectorRootFinder SV = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
+  private static final BaseNewtonVectorRootFinder DEFAULT_JACOBIAN_2D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
+  private static final BaseNewtonVectorRootFinder SV_JACOBIAN_2D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
+  private static final BaseNewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
+  private static final BaseNewtonVectorRootFinder SV_JACOBIAN_3D = new NewtonDefaultVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingular1() {
