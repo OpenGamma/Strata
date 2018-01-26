@@ -5,6 +5,13 @@
  */
 package com.opengamma.strata.collect;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.tuple.Pair;
+
 /**
  * Contains utility methods for managing messages.
  */
@@ -17,6 +24,7 @@ public final class Messages {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Formats a templated message inserting a single argument.
    * <p>
@@ -32,9 +40,9 @@ public final class Messages {
    * <p>
    * This method is null tolerant to ensure that use in exception construction will
    * not throw another exception, which might hide the intended exception.
-   * 
-   * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
-   * @param arg  the message argument, null treated as string "null"
+   *
+   * @param messageTemplate the message template with "{}" placeholders, null returns empty string
+   * @param arg the message argument, null treated as string "null"
    * @return the formatted message
    */
   public static String format(String messageTemplate, Object arg) {
@@ -108,6 +116,76 @@ public final class Messages {
       builder.append(']');
     }
     return builder.toString();
+  }
+
+  /**
+   * Formats a templated message inserting named arguments.
+   * <p>
+   * This method combines a template message with a list of specific arguments.
+   * It can be useful to delay string concatenation, which is sometimes a performance issue.
+   * The approach is similar to SLF4J MessageFormat, Guava Preconditions and String format().
+   * <p>
+   * The message template contains zero to many "{name}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * Empty "{}" placeholders do not get replaced, and will be present in the output in the same form.
+   * If there are too few arguments, then an {@link IllegalArgumentException} will be thrown.
+   * If there are too many arguments, then the excess arguments are ignored.
+   * No attempt is made to format the arguments.
+   * <p>
+   * This method is null tolerant to ensure that use in exception construction will
+   * not throw another exception, which might hide the intended exception.
+   *
+   * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
+   * @param args  the message arguments, null treated as empty array
+   * @return the formatted message
+   * @throws IllegalArgumentException if you have provided less arguments than placeholders
+   */
+  public static Pair<String, Map<String, String>> formatWithAttributes(String messageTemplate, Object... args) {
+    if (messageTemplate == null) {
+      return formatWithAttributes("", args);
+    }
+    if (args == null) {
+      return formatWithAttributes(messageTemplate, new Object[0]);
+    }
+    // try to make builder big enough for the message and the args
+
+    StringBuilder outputStringBuilder = new StringBuilder(messageTemplate.length() + args.length * 20);
+    ImmutableMap.Builder<String, String> attributesMap = ImmutableMap.builder();
+
+    String pattern = "\\{(\\w+)\\}";
+    Pattern regexPattern = Pattern.compile(pattern);
+    Matcher matcher = regexPattern.matcher(messageTemplate);
+    int groupIndex = 0;
+    int lastAddedStringEndIndex = 0;
+    int matchesCount = 0;
+    while (matcher.find()) {
+      matchesCount++;
+    }
+    if (matchesCount > args.length) {
+      throw new IllegalArgumentException(
+          Messages.format("You have included {} placeholders, however only provided {} arguments.", matchesCount, args.length));
+    }
+    matcher.reset(); //Since we have already called .find(), and that state needs to be reset
+    while (matcher.find()) {
+      String attributeName = matcher.group(1); //Extract the attribute name
+      int startIndex = matcher.start();
+      int endIndex = matcher.end();
+
+      String replacement = args[groupIndex].toString();
+      attributesMap.put(attributeName, replacement);
+      String unmodifiedText = messageTemplate.substring(lastAddedStringEndIndex, startIndex);
+      outputStringBuilder
+          .append(unmodifiedText)
+          .append(replacement);
+      lastAddedStringEndIndex = endIndex;
+      groupIndex++;
+    }
+
+    if(lastAddedStringEndIndex < messageTemplate.length()) {
+      outputStringBuilder.append(messageTemplate.substring(lastAddedStringEndIndex, messageTemplate.length()));
+    }
+
+    return Pair.of(outputStringBuilder.toString(), attributesMap.build());
   }
 
 }
