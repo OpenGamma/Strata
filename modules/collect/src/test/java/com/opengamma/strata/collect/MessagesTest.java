@@ -169,7 +169,6 @@ public class MessagesTest {
     Messages.formatWithAttributes(template, args);
   }
 
-
   //-------------------------------------------------------------------------
   public void test_validUtilityClass() {
     assertUtilityClass(Messages.class);

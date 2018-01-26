@@ -18,6 +18,8 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 public final class Messages {
 
+  private static final Pattern REGEX_PATTERN = Pattern.compile("\\{(\\w*)\\}"); //This will match both {}, and {anything}
+
   /**
    * Restricted constructor.
    */
@@ -120,7 +122,7 @@ public final class Messages {
   }
 
   /**
-   * Formats a templated message inserting named arguments.
+   * Formats a templated message inserting named arguments. Typical template would look like "Hello, {attributeName}".
    * <p>
    * This method combines a template message with a list of specific arguments.
    * It can be useful to delay string concatenation, which is sometimes a performance issue.
@@ -146,52 +148,34 @@ public final class Messages {
       return formatWithAttributes("", args);
     }
     if (args == null) {
-      return formatWithAttributes(messageTemplate, new Object[0]);
+      return formatWithAttributes(messageTemplate);
     }
 
-    // try to make builder big enough for the message and the args
-    StringBuilder outputStringBuilder = new StringBuilder(messageTemplate.length() + args.length * 20);
-    Map<String, String> attributesMap = new HashMap<>();
-
-    String pattern = "\\{(\\w*)\\}"; //This will match both {}, and {anything}
-    Pattern regexPattern = Pattern.compile(pattern);
-    Matcher matcher = regexPattern.matcher(messageTemplate);
+    Map<String, String> attributes = new HashMap<>();
+    Matcher matcher = REGEX_PATTERN.matcher(messageTemplate);
     int groupIndex = 0;
-    int lastAddedStringEndIndex = 0;
+
+    StringBuffer outputMessageBuffer = new StringBuffer();
     int matchesCount = 0;
     while (matcher.find()) {
       matchesCount++;
-    }
-    if (matchesCount > args.length) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "You have included {} placeholders, however only provided {} arguments.",
-              matchesCount,
-              args.length));
-    }
-    matcher.reset(); //Since we have already called .find(), and that state needs to be reset
-    while (matcher.find()) {
-      String attributeName = matcher.group(1); //Extract the attribute name
-      int startIndex = matcher.start();
-      int endIndex = matcher.end();
 
-      String replacement = args[groupIndex].toString();
-      if (!attributeName.isEmpty()) {
-        attributesMap.put(attributeName, replacement);
+      if (matchesCount > args.length) {
+        throw new IllegalArgumentException(
+            Messages.format("You have included {} placeholders, however only provided {} arguments.", matchesCount, args.length));
       }
-      String unmodifiedText = messageTemplate.substring(lastAddedStringEndIndex, startIndex);
-      outputStringBuilder
-          .append(unmodifiedText)
-          .append(replacement);
-      lastAddedStringEndIndex = endIndex;
+
+      String attributeName = matcher.group(1); //Extract the attribute name
+      String replacement = args[groupIndex].toString();
+      matcher.appendReplacement(outputMessageBuffer, replacement);
+      if (!attributeName.isEmpty()) {
+        attributes.put(attributeName, replacement);
+      }
       groupIndex++;
     }
+    matcher.appendTail(outputMessageBuffer);
 
-    if (lastAddedStringEndIndex < messageTemplate.length()) {
-      outputStringBuilder.append(messageTemplate.substring(lastAddedStringEndIndex, messageTemplate.length()));
-    }
-
-    return Pair.of(outputStringBuilder.toString(), ImmutableMap.copyOf(attributesMap));
+    return Pair.of(outputMessageBuffer.toString(), ImmutableMap.copyOf(attributes));
   }
 
 }
