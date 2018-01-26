@@ -146,11 +146,14 @@ public class MessagesTest {
         {null, null, Pair.of("", ImmutableMap.of())},
         {null, new Object[]{}, Pair.of("", ImmutableMap.of())},
         {"", new Object[]{"testValueMissingKey"}, Pair.of("", ImmutableMap.of())},
-        {"{}", new Object[]{"testValue"}, Pair.of("{}", ImmutableMap.of())},
+        {"{}", new Object[]{"testValue"}, Pair.of("testValue", ImmutableMap.of())},
         {"{a}", new Object[]{"testValue"}, Pair.of("testValue", ImmutableMap.of("a", "testValue"))},
         {"{a} bcd", new Object[]{"testValue"}, Pair.of("testValue bcd", ImmutableMap.of("a", "testValue"))},
         {"Test {abc} test2 {def} test3", new Object[]{"abcValue", 123456}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
-        {"Test {abc} test2 {def} test3", new Object[]{"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))}
+        {"Test {abc} test2 {} test3", new Object[]{"abcValue", 123456}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue"))},
+        {"Test {abc} test2 {} test3 {} test4", new Object[]{"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3 789 test4", ImmutableMap.of("abc", "abcValue"))},
+        {"Test {abc} test2 {def} test3", new Object[]{"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
+        {"Test {abc} test2 {abc} test3", new Object[]{"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "123456"))}
     };
     }
 
@@ -163,9 +166,9 @@ public class MessagesTest {
   public void test_formatMessageWithAttributes_lessArguments() {
     String template = "Test {abc} test2 {def} test3";
     Object[] args = new Object[]{"abcValue"};
-    //Pair<String, Map<String, String>> expectedResult = Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"));
     Messages.formatWithAttributes(template, args);
   }
+
 
   //-------------------------------------------------------------------------
   public void test_validUtilityClass() {

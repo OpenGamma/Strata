@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,12 +148,12 @@ public final class Messages {
     if (args == null) {
       return formatWithAttributes(messageTemplate, new Object[0]);
     }
+
     // try to make builder big enough for the message and the args
-
     StringBuilder outputStringBuilder = new StringBuilder(messageTemplate.length() + args.length * 20);
-    ImmutableMap.Builder<String, String> attributesMap = ImmutableMap.builder();
+    Map<String, String> attributesMap = new HashMap<>();
 
-    String pattern = "\\{(\\w+)\\}";
+    String pattern = "\\{(\\w*)\\}"; //This will match both {}, and {anything}
     Pattern regexPattern = Pattern.compile(pattern);
     Matcher matcher = regexPattern.matcher(messageTemplate);
     int groupIndex = 0;
@@ -163,7 +164,10 @@ public final class Messages {
     }
     if (matchesCount > args.length) {
       throw new IllegalArgumentException(
-          Messages.format("You have included {} placeholders, however only provided {} arguments.", matchesCount, args.length));
+          Messages.format(
+              "You have included {} placeholders, however only provided {} arguments.",
+              matchesCount,
+              args.length));
     }
     matcher.reset(); //Since we have already called .find(), and that state needs to be reset
     while (matcher.find()) {
@@ -172,7 +176,9 @@ public final class Messages {
       int endIndex = matcher.end();
 
       String replacement = args[groupIndex].toString();
-      attributesMap.put(attributeName, replacement);
+      if (!attributeName.isEmpty()) {
+        attributesMap.put(attributeName, replacement);
+      }
       String unmodifiedText = messageTemplate.substring(lastAddedStringEndIndex, startIndex);
       outputStringBuilder
           .append(unmodifiedText)
@@ -185,7 +191,7 @@ public final class Messages {
       outputStringBuilder.append(messageTemplate.substring(lastAddedStringEndIndex, messageTemplate.length()));
     }
 
-    return Pair.of(outputStringBuilder.toString(), attributesMap.build());
+    return Pair.of(outputStringBuilder.toString(), ImmutableMap.copyOf(attributesMap));
   }
 
 }
