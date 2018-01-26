@@ -130,8 +130,7 @@ public final class Messages {
    * <p>
    * The message template contains zero to many "{name}" placeholders.
    * Each placeholder is replaced by the next available argument.
-   * Empty "{}" placeholders do not get replaced, and will be present in the output in the same form.
-   * If there are too few arguments, then an {@link IllegalArgumentException} will be thrown.
+   * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are ignored.
    * No attempt is made to format the arguments.
    * <p>
@@ -141,7 +140,6 @@ public final class Messages {
    * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
    * @param args  the message arguments, null treated as empty array
    * @return the formatted message
-   * @throws IllegalArgumentException if you have provided less arguments than placeholders
    */
   public static Pair<String, Map<String, String>> formatWithAttributes(String messageTemplate, Object... args) {
     if (messageTemplate == null) {
@@ -160,9 +158,9 @@ public final class Messages {
     while (matcher.find()) {
       matchesCount++;
 
+      //If the number of placeholders is greater than the number of arguments, then not all placeholders are replaced.
       if (matchesCount > args.length) {
-        throw new IllegalArgumentException(
-            Messages.format("You have included {} placeholders, however only provided {} arguments.", matchesCount, args.length));
+        continue;
       }
 
       String attributeName = matcher.group(1); //Extract the attribute name
