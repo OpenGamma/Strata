@@ -181,7 +181,7 @@ public final class Messages {
       groupIndex++;
     }
 
-    if(lastAddedStringEndIndex < messageTemplate.length()) {
+    if (lastAddedStringEndIndex < messageTemplate.length()) {
       outputStringBuilder.append(messageTemplate.substring(lastAddedStringEndIndex, messageTemplate.length()));
     }
 
