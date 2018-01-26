@@ -151,25 +151,22 @@ public final class Messages {
     //Do not use an ImmutableMap, as we avoid throwing exceptions in case of duplicate keys.
     Map<String, String> attributes = new HashMap<>();
     Matcher matcher = REGEX_PATTERN.matcher(messageTemplate);
-    int groupIndex = 0;
+    int argIndex = 0;
 
     StringBuffer outputMessageBuffer = new StringBuffer();
-    int matchesCount = 0;
     while (matcher.find()) {
-      matchesCount++;
-
       //If the number of placeholders is greater than the number of arguments, then not all placeholders are replaced.
-      if (matchesCount > args.length) {
+      if (argIndex >= args.length) {
         continue;
       }
 
       String attributeName = matcher.group(1); //Extract the attribute name
-      String replacement = args[groupIndex].toString();
+      String replacement = args[argIndex].toString();
       matcher.appendReplacement(outputMessageBuffer, replacement);
       if (!attributeName.isEmpty()) {
         attributes.put(attributeName, replacement);
       }
-      groupIndex++;
+      argIndex++;
     }
     matcher.appendTail(outputMessageBuffer);
 
