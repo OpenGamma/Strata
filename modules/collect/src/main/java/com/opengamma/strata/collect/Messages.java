@@ -149,6 +149,7 @@ public final class Messages {
       return formatWithAttributes(messageTemplate);
     }
 
+    //Do not use an ImmutableMap, as we avoid throwing exceptions in case of duplicate keys.
     Map<String, String> attributes = new HashMap<>();
     Matcher matcher = REGEX_PATTERN.matcher(messageTemplate);
     int groupIndex = 0;
