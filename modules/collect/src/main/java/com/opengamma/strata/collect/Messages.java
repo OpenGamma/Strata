@@ -121,7 +121,12 @@ public final class Messages {
   }
 
   /**
-   * Formats a templated message inserting named arguments. Typical template would look like "Hello, {attributeName}".
+   * Formats a templated message inserting named arguments.
+   * <p>
+   * Typical template would look like "Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)".
+   * This will return a {@link Pair} with a String and a Map.
+   * The String will be the message, will look like: "Foo=abc, Bar=123"
+   * The Map will look like: {"foo": "123"}
    * <p>
    * This method combines a template message with a list of specific arguments.
    * It can be useful to delay string concatenation, which is sometimes a performance issue.
@@ -161,7 +166,7 @@ public final class Messages {
       }
 
       String attributeName = matcher.group(1); //Extract the attribute name
-      String replacement = args[argIndex].toString();
+      String replacement = args[argIndex].toString().replace("$", "\\$");
       matcher.appendReplacement(outputMessageBuffer, replacement);
       if (!attributeName.isEmpty()) {
         attributes.put(attributeName, replacement);

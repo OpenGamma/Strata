@@ -155,6 +155,7 @@ public class MessagesTest {
         {"Test {abc} test2 {def} test3", new Object[] {"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
         {"Test {abc} test2 {abc} test3", new Object[] {"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "123456"))},
         {"Test {abc} test2 {def} test3", new Object[] {"abcValue"}, Pair.of("Test abcValue test2 {def} test3", ImmutableMap.of("abc", "abcValue"))},
+        {"{a} bcd", new Object[] {"$testValue"}, Pair.of("$testValue bcd", ImmutableMap.of("a", "\\$testValue"))}, //The $ must be escaped
         {"Test {abc} test2 {def} test3 {ghi} test4", new Object[] {"abcValue"}, Pair.of("Test abcValue test2 {def} test3 {ghi} test4", ImmutableMap.of("abc", "abcValue"))}
     };
     }
