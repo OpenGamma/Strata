@@ -125,7 +125,7 @@ public final class Messages {
    * <p>
    * Typical template would look like:
    * <pre>
-   * "Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)".
+   * Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)
    * </pre>
    * This will return a {@link Pair} with a String and a Map.
    * The String will be the message, will look like: "Foo=abc, Bar=123"
