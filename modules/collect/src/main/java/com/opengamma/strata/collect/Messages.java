@@ -5,10 +5,20 @@
  */
 package com.opengamma.strata.collect;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.tuple.Pair;
+
 /**
  * Contains utility methods for managing messages.
  */
 public final class Messages {
+
+  private static final Pattern REGEX_PATTERN = Pattern.compile("\\{(\\w*)\\}"); //This will match both {}, and {anything}
 
   /**
    * Restricted constructor.
@@ -32,7 +42,7 @@ public final class Messages {
    * <p>
    * This method is null tolerant to ensure that use in exception construction will
    * not throw another exception, which might hide the intended exception.
-   * 
+   *
    * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
    * @param arg  the message argument, null treated as string "null"
    * @return the formatted message
@@ -108,6 +118,67 @@ public final class Messages {
       builder.append(']');
     }
     return builder.toString();
+  }
+
+  /**
+   * Formats a templated message inserting named arguments.
+   * <p>
+   * Typical template would look like:
+   * <pre>
+   * Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)
+   * </pre>
+   * This will return a {@link Pair} with a String and a Map.
+   * The String will be the message, will look like: "Foo=abc, Bar=123"
+   * The Map will look like: {"foo": "123"}
+   * <p>
+   * This method combines a template message with a list of specific arguments.
+   * It can be useful to delay string concatenation, which is sometimes a performance issue.
+   * The approach is similar to SLF4J MessageFormat, Guava Preconditions and String format().
+   * <p>
+   * The message template contains zero to many "{name}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are ignored.
+   * No attempt is made to format the arguments.
+   * <p>
+   * This method is null tolerant to ensure that use in exception construction will
+   * not throw another exception, which might hide the intended exception.
+   *
+   * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
+   * @param args  the message arguments, null treated as empty array
+   * @return the formatted message
+   */
+  public static Pair<String, Map<String, String>> formatWithAttributes(String messageTemplate, Object... args) {
+    if (messageTemplate == null) {
+      return formatWithAttributes("", args);
+    }
+    if (args == null) {
+      return formatWithAttributes(messageTemplate);
+    }
+
+    //Do not use an ImmutableMap, as we avoid throwing exceptions in case of duplicate keys.
+    Map<String, String> attributes = new HashMap<>();
+    Matcher matcher = REGEX_PATTERN.matcher(messageTemplate);
+    int argIndex = 0;
+
+    StringBuffer outputMessageBuffer = new StringBuffer();
+    while (matcher.find()) {
+      //If the number of placeholders is greater than the number of arguments, then not all placeholders are replaced.
+      if (argIndex >= args.length) {
+        continue;
+      }
+
+      String attributeName = matcher.group(1); //Extract the attribute name
+      String replacement = args[argIndex].toString().replace("$", "\\$");
+      matcher.appendReplacement(outputMessageBuffer, replacement);
+      if (!attributeName.isEmpty()) {
+        attributes.put(attributeName, replacement);
+      }
+      argIndex++;
+    }
+    matcher.appendTail(outputMessageBuffer);
+
+    return Pair.of(outputMessageBuffer.toString(), ImmutableMap.copyOf(attributes));
   }
 
 }

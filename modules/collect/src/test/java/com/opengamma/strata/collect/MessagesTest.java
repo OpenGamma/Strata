@@ -8,10 +8,15 @@ package com.opengamma.strata.collect;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Map;
 import java.util.Objects;
 
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * Test Messages.
@@ -132,6 +137,32 @@ public class MessagesTest {
   @Test(dataProvider = "formatMessage")
   public void test_formatMessage_prefixSuffix(String template, Object[] args, String expMain, String expExcess) {
     assertEquals(Messages.format("::" + Objects.toString(template, "") + "@@", args), "::" + expMain + "@@" + expExcess);
+  }
+
+  @DataProvider(name = "formatMessageWithAttributes")
+  Object[][] data_formatMessageWithAttributes() {
+    return new Object[][]{
+        // null template
+        {null, null, Pair.of("", ImmutableMap.of())},
+        {null, new Object[] {}, Pair.of("", ImmutableMap.of())},
+        {"", new Object[] {"testValueMissingKey"}, Pair.of("", ImmutableMap.of())},
+        {"{}", new Object[] {"testValue"}, Pair.of("testValue", ImmutableMap.of())},
+        {"{a}", new Object[] {"testValue"}, Pair.of("testValue", ImmutableMap.of("a", "testValue"))},
+        {"{a} bcd", new Object[] {"testValue"}, Pair.of("testValue bcd", ImmutableMap.of("a", "testValue"))},
+        {"Test {abc} test2 {def} test3", new Object[] {"abcValue", 123456}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
+        {"Test {abc} test2 {} test3", new Object[] {"abcValue", 123456}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue"))},
+        {"Test {abc} test2 {} test3 {} test4", new Object[] {"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3 789 test4", ImmutableMap.of("abc", "abcValue"))},
+        {"Test {abc} test2 {def} test3", new Object[] {"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
+        {"Test {abc} test2 {abc} test3", new Object[] {"abcValue", 123456, 789}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "123456"))},
+        {"Test {abc} test2 {def} test3", new Object[] {"abcValue"}, Pair.of("Test abcValue test2 {def} test3", ImmutableMap.of("abc", "abcValue"))},
+        {"{a} bcd", new Object[] {"$testValue"}, Pair.of("$testValue bcd", ImmutableMap.of("a", "\\$testValue"))}, //The $ must be escaped
+        {"Test {abc} test2 {def} test3 {ghi} test4", new Object[] {"abcValue"}, Pair.of("Test abcValue test2 {def} test3 {ghi} test4", ImmutableMap.of("abc", "abcValue"))}
+    };
+    }
+
+  @Test(dataProvider = "formatMessageWithAttributes")
+  public void test_formatMessageWithAttributes(String template, Object[] args, Pair<String, Map<String, String>> expectedOutput) {
+    assertEquals(Messages.formatWithAttributes(template, args), expectedOutput);
   }
 
   //-------------------------------------------------------------------------
