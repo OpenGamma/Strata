@@ -123,7 +123,10 @@ public final class Messages {
   /**
    * Formats a templated message inserting named arguments.
    * <p>
-   * Typical template would look like "Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)".
+   * Typical template would look like:
+   * <pre>
+   * "Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)".
+   * </pre>
    * This will return a {@link Pair} with a String and a Map.
    * The String will be the message, will look like: "Foo=abc, Bar=123"
    * The Map will look like: {"foo": "123"}
