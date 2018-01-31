@@ -53,6 +53,18 @@ public final class ExchangeIds {
   
   /** Singapore Exchange Ltd. */
   public static final ExchangeId XSES = ExchangeId.of("XSES");
+  
+  /** Australian Securities Exchange. */
+  public static final ExchangeId XASX = ExchangeId.of("XASX");
+  
+  /** ASX - Trade24 (formerly Sydney Futures Exchange). */
+  public static final ExchangeId XSFE = ExchangeId.of("XSFE");
+  
+  /** New Zealand Futures & Options. */
+  public static final ExchangeId NZFX = ExchangeId.of("NZFX");
+  
+  /** Warsaw Stock Exchange. */
+  public static final ExchangeId XWAR = ExchangeId.of("XWAR");
 
   //-------------------------------------------------------------------------
   /**
