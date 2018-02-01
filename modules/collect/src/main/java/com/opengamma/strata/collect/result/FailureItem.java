@@ -273,7 +273,7 @@ public final class FailureItem
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of attributes associated with this failure.
+   * Gets the attributes associated with this failure.
    * @return the value of the property, not null
    */
   public ImmutableMap<String, String> getAttributes() {
