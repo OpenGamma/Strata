@@ -9,6 +9,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Test {@link FailureItem}.
  */
@@ -79,6 +81,7 @@ public class FailureItemTest {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("message", innerEx);
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "my {foo} {bar} failure", "big", "bad");
+    assertEquals(test.getAttributes(), ImmutableMap.of("foo", "big", "bar", "bad"));
     assertEquals(test.getReason(), FailureReason.INVALID);
     assertEquals(test.getMessage(), "my big bad failure");
     assertEquals(test.getCauseType().isPresent(), true);

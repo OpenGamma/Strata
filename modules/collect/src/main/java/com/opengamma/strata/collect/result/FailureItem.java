@@ -65,6 +65,7 @@ public final class FailureItem
   private final String message;
   /**
    * The attributes associated with this failure.
+   * Attributes can contain additional information about the failure. For example, a line number in a file or the ID of a trade.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<String, String> attributes;
@@ -86,7 +87,8 @@ public final class FailureItem
    * Obtains a failure from a reason and message.
    * <p>
    * The message is produced using a template that contains zero to many "{}" or "{abc}" placeholders.
-   * Each placeholder is replaced by the next available argument. If the placeholder is name, it will be added to the attributes map.
+   * Each placeholder is replaced by the next available argument.
+   * If the placeholder has a name, its value is added to the attributes map with the name as a key.
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
@@ -129,11 +131,11 @@ public final class FailureItem
    * 
    * @param reason  the reason
    * @param message  the failure message, not empty
-   * @param attributes the attributes associated to this failure
+   * @param attributes the attributes associated with this failure
    * @param skipFrames  the number of caller frames to skip, not including this one
    * @return the failure
    */
-  static FailureItem of(FailureReason reason, String message, Map<String, String> attributes, int skipFrames) {
+  public static FailureItem of(FailureReason reason, String message, Map<String, String> attributes, int skipFrames) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notEmpty(message, "message");
     String stackTrace = localGetStackTraceAsString(message, skipFrames);
