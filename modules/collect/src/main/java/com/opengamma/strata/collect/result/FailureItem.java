@@ -224,7 +224,7 @@ public final class FailureItem
     if (firstLine.endsWith(": " + message)) {
       return reason + ": " + message + ": " + firstLine.substring(0, firstLine.length() - message.length() - 2);
     }
-    if(!attributes.isEmpty()) {
+    if (!attributes.isEmpty()) {
       return reason + ": " + message + ": " + firstLine + " : " + attributes;
     }
     return reason + ": " + message + ": " + firstLine;
