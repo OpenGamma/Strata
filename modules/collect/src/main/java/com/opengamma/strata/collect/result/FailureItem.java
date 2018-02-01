@@ -276,6 +276,7 @@ public final class FailureItem
   //-----------------------------------------------------------------------
   /**
    * Gets the attributes associated with this failure.
+   * Attributes can contain additional information about the failure. For example, a line number in a file or the ID of a trade.
    * @return the value of the property, not null
    */
   public ImmutableMap<String, String> getAttributes() {
