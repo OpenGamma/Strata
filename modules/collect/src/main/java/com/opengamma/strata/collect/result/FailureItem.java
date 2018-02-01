@@ -104,7 +104,7 @@ public final class FailureItem
    */
   public static FailureItem of(FailureReason reason, String message, Object... messageArgs) {
     Pair<String, Map<String, String>> msg = Messages.formatWithAttributes(message, messageArgs);
-    return of(reason, msg.getFirst(), msg.getSecond(), 1);
+    return of(reason, msg.getFirst(), msg.getSecond());
   }
 
   /**
@@ -132,13 +132,12 @@ public final class FailureItem
    * @param reason  the reason
    * @param message  the failure message, not empty
    * @param attributes the attributes associated with this failure
-   * @param skipFrames  the number of caller frames to skip, not including this one
    * @return the failure
    */
-  public static FailureItem of(FailureReason reason, String message, Map<String, String> attributes, int skipFrames) {
+  public static FailureItem of(FailureReason reason, String message, Map<String, String> attributes) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notEmpty(message, "message");
-    String stackTrace = localGetStackTraceAsString(message, skipFrames);
+    String stackTrace = localGetStackTraceAsString(message, 1);
     return new FailureItem(reason, message, attributes, stackTrace, null);
   }
 
