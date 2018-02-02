@@ -124,23 +124,6 @@ public final class FailureItem
     return new FailureItem(reason, message, ImmutableMap.of(), stackTrace, null);
   }
 
-  /**
-   * Obtains a failure from a reason and message.
-   * <p>
-   * The failure will still have a stack trace, but the cause type will not be present.
-   * 
-   * @param reason  the reason
-   * @param message  the failure message, not empty
-   * @param attributes the attributes associated with this failure
-   * @return the failure
-   */
-  public static FailureItem of(FailureReason reason, String message, Map<String, String> attributes) {
-    ArgChecker.notNull(reason, "reason");
-    ArgChecker.notEmpty(message, "message");
-    String stackTrace = localGetStackTraceAsString(message, 1);
-    return new FailureItem(reason, message, attributes, stackTrace, null);
-  }
-
   private static String localGetStackTraceAsString(String message, int skipFrames) {
     StringBuilder builder = new StringBuilder();
     StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
