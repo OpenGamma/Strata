@@ -9,6 +9,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Test {@link FailureItem}.
  */
@@ -75,4 +77,16 @@ public class FailureItemTest {
     assertEquals(test.toString(), "INVALID: my big bad failure: java.lang.IllegalArgumentException: message");
   }
 
+  public void test_of_reasonMessageExceptionNestedExceptionWithAttributes() {
+    IllegalArgumentException innerEx = new IllegalArgumentException("inner");
+    IllegalArgumentException ex = new IllegalArgumentException("message", innerEx);
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "my {foo} {bar} failure", "big", "bad");
+    assertEquals(test.getAttributes(), ImmutableMap.of("foo", "big", "bar", "bad"));
+    assertEquals(test.getReason(), FailureReason.INVALID);
+    assertEquals(test.getMessage(), "my big bad failure");
+    assertEquals(test.getCauseType().isPresent(), true);
+    assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
+    assertEquals(test.getStackTrace().contains(".test_of_reasonMessageExceptionNestedExceptionWithAttributes("), true);
+    assertEquals(test.toString(), "INVALID: my big bad failure: java.lang.IllegalArgumentException: message : {bar=bad, foo=big}");
+  }
 }
