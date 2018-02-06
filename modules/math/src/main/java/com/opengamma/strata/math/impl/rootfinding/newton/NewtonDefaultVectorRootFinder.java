@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
+import com.opengamma.strata.math.rootfind.Decomposition;
 
 /**
  * A root finder that attempts find the multi-dimensional root of a series of N equations with N variables (a square problem).

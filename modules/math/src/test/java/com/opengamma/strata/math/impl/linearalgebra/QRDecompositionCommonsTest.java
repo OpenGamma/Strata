@@ -13,6 +13,8 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.math.rootfind.Decomposition;
+import com.opengamma.strata.math.rootfind.DecompositionResult;
 
 /**
  * Test.

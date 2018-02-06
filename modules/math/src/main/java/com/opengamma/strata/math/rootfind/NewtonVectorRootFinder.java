@@ -22,6 +22,8 @@ public interface NewtonVectorRootFinder {
 
   /**
    * Obtains an instance of the Broyden root finder.
+   * <p>
+   * This uses SV decomposition and standard tolerances.
    * 
    * @return the root finder
    */
@@ -31,6 +33,8 @@ public interface NewtonVectorRootFinder {
 
   /**
    * Obtains an instance of the Broyden root finder specifying the tolerances.
+   * <p>
+   * This uses SV decomposition.
    * 
    * @param absoluteTol  the absolute tolerance
    * @param relativeTol  the relative tolerance
@@ -39,6 +43,24 @@ public interface NewtonVectorRootFinder {
    */
   public static NewtonVectorRootFinder broyden(double absoluteTol, double relativeTol, int maxSteps) {
     return new BroydenVectorRootFinder(absoluteTol, relativeTol, maxSteps, new SVDecompositionCommons());
+  }
+
+  /**
+   * Obtains an instance of the Broyden root finder specifying the tolerances.
+   * 
+   * @param absoluteTol  the absolute tolerance
+   * @param relativeTol  the relative tolerance
+   * @param maxSteps  the maximum steps
+   * @param decomposition  the decomposition function
+   * @return the root finder
+   */
+  public static NewtonVectorRootFinder broyden(
+      double absoluteTol,
+      double relativeTol,
+      int maxSteps,
+      Decomposition<?> decomposition) {
+
+    return new BroydenVectorRootFinder(absoluteTol, relativeTol, maxSteps, decomposition);
   }
 
   //-------------------------------------------------------------------------

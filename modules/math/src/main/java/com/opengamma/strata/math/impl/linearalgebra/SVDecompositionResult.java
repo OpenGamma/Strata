@@ -6,6 +6,7 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.rootfind.DecompositionResult;
 
 /**
  * Contains the results of SV matrix decomposition.
