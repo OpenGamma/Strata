@@ -123,13 +123,13 @@ public final class Messages {
   /**
    * Formats a templated message inserting named arguments.
    * <p>
-   * Typical template would look like:
+   * A typical template would look like:
    * <pre>
    * Messages.formatWithAttributes("Foo={foo}, Bar={}", "abc", 123)
    * </pre>
    * This will return a {@link Pair} with a String and a Map.
-   * The String will be the message, will look like: "Foo=abc, Bar=123"
-   * The Map will look like: {"foo": "123"}
+   * The String will be the formatted message: {@code "Foo=abc, Bar=123"}.
+   * The Map will look like: <code>{"foo": "123"}</code>.
    * <p>
    * This method combines a template message with a list of specific arguments.
    * It can be useful to delay string concatenation, which is sometimes a performance issue.
@@ -156,19 +156,19 @@ public final class Messages {
       return formatWithAttributes(messageTemplate);
     }
 
-    //Do not use an ImmutableMap, as we avoid throwing exceptions in case of duplicate keys.
+    // do not use an ImmutableMap, as we avoid throwing exceptions in case of duplicate keys.
     Map<String, String> attributes = new HashMap<>();
     Matcher matcher = REGEX_PATTERN.matcher(messageTemplate);
     int argIndex = 0;
 
     StringBuffer outputMessageBuffer = new StringBuffer();
     while (matcher.find()) {
-      //If the number of placeholders is greater than the number of arguments, then not all placeholders are replaced.
+      // if the number of placeholders is greater than the number of arguments, then not all placeholders are replaced.
       if (argIndex >= args.length) {
         continue;
       }
 
-      String attributeName = matcher.group(1); //Extract the attribute name
+      String attributeName = matcher.group(1); // extract the attribute name
       String replacement = args[argIndex].toString().replace("$", "\\$");
       matcher.appendReplacement(outputMessageBuffer, replacement);
       if (!attributeName.isEmpty()) {
