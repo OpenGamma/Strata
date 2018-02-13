@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.joda.convert.FromString;
@@ -55,7 +56,7 @@ public class Money
   public static Money of(CurrencyAmount currencyAmount) {
     Currency currency = currencyAmount.getCurrency();
     BigDecimal roundedAmount = BigDecimal.valueOf(currencyAmount.getAmount())
-        .setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_UP);
+        .setScale(currency.getMinorUnitDigits(), RoundingMode.HALF_UP);
     return new Money(currency, roundedAmount);
   }
 
@@ -68,7 +69,7 @@ public class Money
    */
   public static Money of(Currency currency, double amount) {
     BigDecimal roundedAmount = BigDecimal.valueOf(amount)
-        .setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_UP);
+        .setScale(currency.getMinorUnitDigits(), RoundingMode.HALF_UP);
     return new Money(currency, roundedAmount);
   }
 
@@ -80,7 +81,7 @@ public class Money
    * @return the currency amount
    */
   public static Money of(Currency currency, BigDecimal amount) {
-    BigDecimal roundedAmount = amount.setScale(currency.getMinorUnitDigits(), BigDecimal.ROUND_HALF_UP);
+    BigDecimal roundedAmount = amount.setScale(currency.getMinorUnitDigits(), RoundingMode.HALF_UP);
     return new Money(currency, roundedAmount);
   }
 

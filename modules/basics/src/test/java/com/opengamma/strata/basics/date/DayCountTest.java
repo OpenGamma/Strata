@@ -118,7 +118,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   // use flag to make it clearer when an adjustment is happening
-  private static Double SIMPLE_30_360 = new Double(Double.NaN);
+  private static Double SIMPLE_30_360 = Double.NaN;
 
   private static int SIMPLE_30_360Days = 0;
 
