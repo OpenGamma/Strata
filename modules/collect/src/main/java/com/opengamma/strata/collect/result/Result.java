@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -76,6 +77,13 @@ public final class Result<T>
    */
   @PropertyDefinition(get = "field")
   private final Failure failure;
+
+  /**
+   * The message of the failure.
+   * This is only present if the result is a failure.
+   */
+  @PropertyDefinition(get = "optional")
+  private final String failureMessage;
 
   //-------------------------------------------------------------------------
   /**
@@ -545,6 +553,7 @@ public final class Result<T>
   private Result(T value) {
     this.value = value;
     this.failure = null;
+    this.failureMessage = null;
   }
 
   /**
@@ -555,6 +564,7 @@ public final class Result<T>
   private Result(Failure failure) {
     this.value = null;
     this.failure = failure;
+    this.failureMessage = failure.getMessage();
   }
 
   @ImmutableValidator
@@ -823,9 +833,11 @@ public final class Result<T>
 
   private Result(
       T value,
-      Failure failure) {
+      Failure failure,
+      String failureMessage) {
     this.value = value;
     this.failure = failure;
+    this.failureMessage = failureMessage;
     validate();
   }
 
@@ -833,6 +845,15 @@ public final class Result<T>
   @Override
   public Result.Meta<T> metaBean() {
     return Result.Meta.INSTANCE;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the failureMessage.
+   * @return the optional value of the property, not null
+   */
+  public Optional<String> getFailureMessage() {
+    return Optional.ofNullable(failureMessage);
   }
 
   //-----------------------------------------------------------------------
@@ -844,7 +865,8 @@ public final class Result<T>
     if (obj != null && obj.getClass() == this.getClass()) {
       Result<?> other = (Result<?>) obj;
       return JodaBeanUtils.equal(value, other.value) &&
-          JodaBeanUtils.equal(failure, other.failure);
+          JodaBeanUtils.equal(failure, other.failure) &&
+          JodaBeanUtils.equal(failureMessage, other.failureMessage);
     }
     return false;
   }
@@ -854,15 +876,17 @@ public final class Result<T>
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(value);
     hash = hash * 31 + JodaBeanUtils.hashCode(failure);
+    hash = hash * 31 + JodaBeanUtils.hashCode(failureMessage);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Result{");
     buf.append("value").append('=').append(value).append(',').append(' ');
-    buf.append("failure").append('=').append(JodaBeanUtils.toString(failure));
+    buf.append("failure").append('=').append(failure).append(',').append(' ');
+    buf.append("failureMessage").append('=').append(JodaBeanUtils.toString(failureMessage));
     buf.append('}');
     return buf.toString();
   }
@@ -891,12 +915,18 @@ public final class Result<T>
     private final MetaProperty<Failure> failure = DirectMetaProperty.ofImmutable(
         this, "failure", Result.class, Failure.class);
     /**
+     * The meta-property for the {@code failureMessage} property.
+     */
+    private final MetaProperty<String> failureMessage = DirectMetaProperty.ofImmutable(
+        this, "failureMessage", Result.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "value",
-        "failure");
+        "failure",
+        "failureMessage");
 
     /**
      * Restricted constructor.
@@ -911,6 +941,8 @@ public final class Result<T>
           return value;
         case -1086574198:  // failure
           return failure;
+        case -1704954083:  // failureMessage
+          return failureMessage;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -948,6 +980,14 @@ public final class Result<T>
       return failure;
     }
 
+    /**
+     * The meta-property for the {@code failureMessage} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> failureMessage() {
+      return failureMessage;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -956,6 +996,8 @@ public final class Result<T>
           return ((Result<?>) bean).value;
         case -1086574198:  // failure
           return ((Result<?>) bean).failure;
+        case -1704954083:  // failureMessage
+          return ((Result<?>) bean).failureMessage;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -980,6 +1022,7 @@ public final class Result<T>
 
     private T value;
     private Failure failure;
+    private String failureMessage;
 
     /**
      * Restricted constructor.
@@ -995,6 +1038,8 @@ public final class Result<T>
           return value;
         case -1086574198:  // failure
           return failure;
+        case -1704954083:  // failureMessage
+          return failureMessage;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1010,6 +1055,9 @@ public final class Result<T>
         case -1086574198:  // failure
           this.failure = (Failure) newValue;
           break;
+        case -1704954083:  // failureMessage
+          this.failureMessage = (String) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1020,16 +1068,18 @@ public final class Result<T>
     public Result<T> build() {
       return new Result<>(
           value,
-          failure);
+          failure,
+          failureMessage);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Result.Builder{");
       buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
-      buf.append("failure").append('=').append(JodaBeanUtils.toString(failure));
+      buf.append("failure").append('=').append(JodaBeanUtils.toString(failure)).append(',').append(' ');
+      buf.append("failureMessage").append('=').append(JodaBeanUtils.toString(failureMessage));
       buf.append('}');
       return buf.toString();
     }
