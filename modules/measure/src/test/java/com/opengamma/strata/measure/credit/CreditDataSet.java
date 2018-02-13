@@ -32,6 +32,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
+import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.CurveId;
@@ -43,7 +45,6 @@ import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.node.CdsIsdaCreditCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.ResolvedTradeParameterMetadata;
-import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.credit.ConstantRecoveryRates;
 import com.opengamma.strata.pricer.credit.FastCreditCurveCalibrator;
 import com.opengamma.strata.pricer.credit.ImmutableCreditRatesProvider;
@@ -142,10 +143,10 @@ public class CreditDataSet {
 //  private static final RecoveryRates RECOVERY_CURVE_INDEX = ConstantRecoveryRates.of(INDEX_ID, VALUATION_DATE, RECOVERY_RATE);
 //  private static final IsdaCompliantZeroRateDiscountFactors YIELD_CURVE;
   private static final NodalCurve CDS_CREDIT_CURVE;
-  private static final NodalCurve INCDEX_CREDIT_CURVE;
+  private static final NodalCurve INDEX_CREDIT_CURVE;
   private static final ConstantCurve CDS_RECOVERY_RATE;
   private static final ConstantCurve INDEX_RECOVERY_RATE;
-  private static final NodalCurve DISCOUNT_CUVE;
+  private static final NodalCurve DISCOUNT_CURVE;
   private static final CurveName CREDIT_CURVE_NAME = CurveName.of("credit");
   private static final CdsConvention CDS_CONV = ImmutableCdsConvention.builder()
       .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, SAT_SUN))
@@ -163,9 +164,10 @@ public class CreditDataSet {
     double t = 20.0;
     IsdaCreditDiscountFactors yieldCurve = IsdaCreditDiscountFactors.of(
         USD, VALUATION_DATE, CurveName.of("discount"), DoubleArray.of(t), DoubleArray.of(flatRate), ACT_365F);
-    DISCOUNT_CUVE = yieldCurve.getCurve();
+    DISCOUNT_CURVE = yieldCurve.getCurve();
     RecoveryRates recoveryRate = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, RECOVERY_RATE);
-    ImmutableMarketDataBuilder dataBuilder = ImmutableMarketData.builder(VALUATION_DATE);
+    // create the curve nodes and input market quotes
+    ImmutableMarketDataBuilder marketQuoteBuilder = ImmutableMarketData.builder(VALUATION_DATE);
     Builder<CdsIsdaCreditCurveNode> nodesBuilder = ImmutableList.builder();
     Builder<ResolvedTradeParameterMetadata> cdsMetadataBuilder = ImmutableList.builder();
     Builder<ResolvedTradeParameterMetadata> cdsIndexMetadataBuilder = ImmutableList.builder();
@@ -186,7 +188,7 @@ public class CreditDataSet {
           .info(TradeInfo.of(VALUATION_DATE))
           .build()
           .resolve(REF_DATA);
-      dataBuilder.addValue(quoteId, PAR_SPREADS[i] * ONE_BP);
+      marketQuoteBuilder.addValue(quoteId, PAR_SPREADS[i] * ONE_BP);
       nodesBuilder.add(node);
       cdsMetadataBuilder.add(ResolvedTradeParameterMetadata.of(
           MARKET_CDS[i],
@@ -195,7 +197,7 @@ public class CreditDataSet {
           MARKET_CDS_INDEX[i],
           MARKET_CDS_INDEX[i].getProduct().getProtectionEndDate().toString()));
     }
-    ImmutableMarketData marketData = dataBuilder.build();
+    ImmutableMarketData marketQuotes = marketQuoteBuilder.build();
     ImmutableList<CdsIsdaCreditCurveNode> nodes = nodesBuilder.build();
     CDS_METADATA = cdsMetadataBuilder.build();
     CDS_INDEX_METADATA = cdsIndexMetadataBuilder.build();
@@ -206,22 +208,27 @@ public class CreditDataSet {
         .build();
     IsdaCreditCurveDefinition definition = IsdaCreditCurveDefinition.of(
         CREDIT_CURVE_NAME, USD, VALUATION_DATE, ACT_365F, nodes, true, true);
-    LegalEntitySurvivalProbabilities calibrated = BUILDER.calibrate(definition, marketData, rates, REF_DATA);
+    // calibrate
+    LegalEntitySurvivalProbabilities calibrated = BUILDER.calibrate(definition, marketQuotes, rates, REF_DATA);
     NodalCurve underlyingCurve = ((IsdaCreditDiscountFactors) calibrated.getSurvivalProbabilities()).getCurve();
     CDS_CREDIT_CURVE = underlyingCurve;
-    INCDEX_CREDIT_CURVE = underlyingCurve.withMetadata(
+    INDEX_CREDIT_CURVE = underlyingCurve.withMetadata(
         underlyingCurve.getMetadata()
             .withInfo(CurveInfoType.CDS_INDEX_FACTOR, INDEX_FACTOR)
             .withParameterMetadata(CDS_INDEX_METADATA)); // replace parameter metadata
     CDS_RECOVERY_RATE = ConstantCurve.of(Curves.recoveryRates("CDS recovery rate", ACT_365F), RECOVERY_RATE);
     INDEX_RECOVERY_RATE = ConstantCurve.of(Curves.recoveryRates("Index recovery rate", ACT_365F), RECOVERY_RATE);
   }
-  static final ScenarioMarketData MARKET_DATA = new TestMarketDataMap(
+  // the market data for credit pricing
+  static final ScenarioMarketData MARKET_DATA = ImmutableScenarioMarketData.of(
+      1,
       VALUATION_DATE,
       ImmutableMap.of(
-          CDS_CREDIT_CURVE_ID, CDS_CREDIT_CURVE, INDEX_CREDIT_CURVE_ID, INCDEX_CREDIT_CURVE,
-          USD_DSC_CURVE_ID, DISCOUNT_CUVE,
-          CDS_RECOVERY_CURVE_ID, CDS_RECOVERY_RATE, INDEX_RECOVERY_CURVE_ID, INDEX_RECOVERY_RATE),
+          CDS_CREDIT_CURVE_ID, MarketDataBox.ofSingleValue(CDS_CREDIT_CURVE),
+          INDEX_CREDIT_CURVE_ID, MarketDataBox.ofSingleValue(INDEX_CREDIT_CURVE),
+          USD_DSC_CURVE_ID, MarketDataBox.ofSingleValue(DISCOUNT_CURVE),
+          CDS_RECOVERY_CURVE_ID, MarketDataBox.ofSingleValue(CDS_RECOVERY_RATE),
+          INDEX_RECOVERY_CURVE_ID, MarketDataBox.ofSingleValue(INDEX_RECOVERY_RATE)),
       ImmutableMap.of());
 
 }
