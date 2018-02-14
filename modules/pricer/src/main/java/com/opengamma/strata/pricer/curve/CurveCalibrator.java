@@ -5,9 +5,6 @@
  */
 package com.opengamma.strata.pricer.curve;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,12 +26,16 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.observable.IndexQuoteId;
+import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 /**
  * Curve calibrator.
@@ -125,7 +126,9 @@ public final class CurveCalibrator {
       int stepMaximum,
       CalibrationMeasures measures) {
 
-    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, CalibrationMeasures.PRESENT_VALUE);
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum,
+        DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME), measures, CalibrationMeasures.PRESENT_VALUE
+    );
   }
 
   /**
@@ -146,7 +149,32 @@ public final class CurveCalibrator {
       CalibrationMeasures measures,
       CalibrationMeasures pvMeasures) {
 
-    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, pvMeasures);
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum,
+        DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME), measures, pvMeasures
+    );
+  }
+
+  /**
+   * Obtains an instance specifying tolerances, measures and decomposition to use.
+   *
+   * @param toleranceAbs  the absolute tolerance
+   * @param toleranceRel  the relative tolerance
+   * @param stepMaximum  the maximum steps
+   * @param decomposition  the decomposition
+   * @param measures  the calibration measures, used to compute the function for which the root is found
+   * @param pvMeasures  the present value measures, used to compute the present value sensitivity to market quotes
+   *   stored in the metadata
+   * @return the curve calibrator
+   */
+  public static CurveCalibrator of(
+      double toleranceAbs,
+      double toleranceRel,
+      int stepMaximum,
+      Decomposition<?> decomposition,
+      CalibrationMeasures measures,
+      CalibrationMeasures pvMeasures) {
+
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, decomposition, measures, pvMeasures);
   }
 
   //-------------------------------------------------------------------------
@@ -155,6 +183,7 @@ public final class CurveCalibrator {
       double toleranceAbs,
       double toleranceRel,
       int stepMaximum,
+      Decomposition<?> decomposition,
       CalibrationMeasures measures,
       CalibrationMeasures pvMeasures) {
 
@@ -162,7 +191,7 @@ public final class CurveCalibrator {
         toleranceAbs,
         toleranceRel,
         stepMaximum,
-        DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+        decomposition);
     this.measures = measures;
     this.pvMeasures = pvMeasures;
   }
