@@ -188,7 +188,10 @@ public final class XmlFile {
   // creates the XML input factory, recreated each time to avoid JDK-8028111
   // this also provides some protection against hackers attacking XML
   private static XMLInputFactory xmlInputFactory() {
-    XMLInputFactory factory = XMLInputFactory.newFactory();
+    // see https://bugs.openjdk.java.net/browse/JDK-8183519 where JDK deprecated the wrong method
+    // to avoid a warning on 9 this code uses newInstance() even though newFactory() is more correct
+    // there is no difference in behavior between the two methods
+    XMLInputFactory factory = XMLInputFactory.newInstance();
     factory.setProperty(XMLInputFactory.IS_COALESCING, true);
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
     factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);

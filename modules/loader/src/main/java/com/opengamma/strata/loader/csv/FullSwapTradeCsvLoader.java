@@ -670,7 +670,7 @@ final class FullSwapTradeCsvLoader {
       String calField) {
 
     Optional<Integer> daysOpt = findValue(row, leg, daysField)
-        .map(s -> new Integer(s));
+        .map(s -> Integer.valueOf(s));
     HolidayCalendarId cal = findValue(row, leg, daysCalField)
         .map(s -> HolidayCalendarId.of(s))
         .orElse(HolidayCalendarIds.NO_HOLIDAYS);

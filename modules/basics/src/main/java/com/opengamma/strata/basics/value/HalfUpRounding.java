@@ -158,10 +158,10 @@ public final class HalfUpRounding
     if (fraction > 1) {
       return value
           .multiply(fractionDecimal)
-          .setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP)
+          .setScale(decimalPlaces, RoundingMode.HALF_UP)
           .divide(fractionDecimal);
     }
-    return value.setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP);
+    return value.setScale(decimalPlaces, RoundingMode.HALF_UP);
   }
 
   //-----------------------------------------------------------------------

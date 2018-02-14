@@ -11,7 +11,6 @@ import static org.testng.Assert.assertEquals;
 import java.util.Map;
 import java.util.Objects;
 
-import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

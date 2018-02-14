@@ -57,7 +57,7 @@ public abstract class ReportFormatter<R extends Report> {
   @SuppressWarnings("resource")
   public void writeCsv(R report, OutputStream out) {
     OutputStreamWriter outputWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-    CsvOutput csvOut = new CsvOutput(outputWriter);
+    CsvOutput csvOut = CsvOutput.safe(outputWriter);
     csvOut.writeLine(report.getColumnHeaders());
     IntStream.range(0, report.getRowCount())
         .mapToObj(rowIdx -> formatRow(report, rowIdx, ReportOutputFormat.CSV))

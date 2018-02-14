@@ -34,11 +34,11 @@ public class MoneyTest {
   @Test
   public void testOfCurrencyAndAmount() throws Exception {
     assertEquals(MONEY_100_AUD.getCurrency(), CCY_AUD);
-    assertEquals(MONEY_100_AUD.getAmount(), new BigDecimal(AMT_100_12).setScale(2, BigDecimal.ROUND_HALF_UP));
+    assertEquals(MONEY_100_AUD.getAmount(), new BigDecimal(AMT_100_12).setScale(2, RoundingMode.HALF_UP));
     assertEquals(MONEY_100_13_AUD.getCurrency(), CCY_AUD);
-    assertEquals(MONEY_100_13_AUD.getAmount(), BigDecimal.valueOf(AMT_100_12).setScale(2, BigDecimal.ROUND_HALF_UP)); //Testing the rounding from 3 to 2 decimals
+    assertEquals(MONEY_100_13_AUD.getAmount(), BigDecimal.valueOf(AMT_100_12).setScale(2, RoundingMode.HALF_UP)); //Testing the rounding from 3 to 2 decimals
     assertEquals(MONEY_100_12_BHD.getCurrency(), CCY_BHD);
-    assertEquals(MONEY_100_12_BHD.getAmount(), BigDecimal.valueOf(AMT_100_12).setScale(3, BigDecimal.ROUND_HALF_UP));
+    assertEquals(MONEY_100_12_BHD.getAmount(), BigDecimal.valueOf(AMT_100_12).setScale(3, RoundingMode.HALF_UP));
     assertEquals(MONEY_100_125_BHD.getCurrency(), CCY_BHD);
     assertEquals(MONEY_100_125_BHD.getAmount(), BigDecimal.valueOf(100.125)); //Testing the rounding from 4 to 3 decimals
 
