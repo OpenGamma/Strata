@@ -60,6 +60,7 @@ public class FloatingRateNameTest {
 
         {"GBP-SONIA", "GBP-SONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"GBP-WMBA-SONIA-COMPOUND", "GBP-SONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"GBP-SONIA-COMPOUND", "GBP-SONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"CHF-SARON", "CHF-SARON", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"CHF-SARON-OIS-COMPOUND", "CHF-SARON", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"CHF-TOIS", "CHF-TOIS", FloatingRateType.OVERNIGHT_COMPOUNDED},
