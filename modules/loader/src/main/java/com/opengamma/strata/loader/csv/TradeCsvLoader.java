@@ -336,7 +336,7 @@ public final class TradeCsvLoader {
       } else {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
-            "Trade type not allowed {}, only these types are supported: {}",
+            "Trade type not allowed {tradeType}, only these types are supported: {}",
             trade.getClass().getName(),
             tradeTypes.stream().map(t -> t.getSimpleName()).collect(joining(", "))));
       }
@@ -376,14 +376,17 @@ public final class TradeCsvLoader {
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CharSource charSource, Class<T> tradeType) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.headers().contains(TYPE_FIELD)) {
-        return ValueWithFailures.of(ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{}' header: {}", TYPE_FIELD, charSource));
+        return ValueWithFailures.of(
+            ImmutableList.of(),
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TYPE_FIELD, charSource));
       }
       return parseFile(csv, tradeType);
 
     } catch (RuntimeException ex) {
-      return ValueWithFailures.of(ImmutableList.of(),
-          FailureItem.of(FailureReason.PARSING, ex, "CSV file could not be parsed: {}: {}", ex.getMessage(), charSource));
+      return ValueWithFailures.of(
+          ImmutableList.of(),
+          FailureItem.of(
+              FailureReason.PARSING, ex, "CSV file could not be parsed: {exceptionMessage}: {}", ex.getMessage(), charSource));
     }
   }
 
@@ -425,7 +428,7 @@ public final class TradeCsvLoader {
           case "VARIABLE":
             failures.add(FailureItem.of(
                 FailureReason.PARSING,
-                "CSV file contained a 'Variable' type at line {} that was not preceeded by a 'Swap'",
+                "CSV file contained a 'Variable' type at line {lineNumber} that was not preceeded by a 'Swap'",
                 row.lineNumber()));
             break;
           case "FX":
@@ -435,12 +438,19 @@ public final class TradeCsvLoader {
             break;
           default:
             failures.add(FailureItem.of(
-                FailureReason.PARSING, "CSV file trade type '{}' is not known at line {}", typeRaw, row.lineNumber()));
+                FailureReason.PARSING,
+                "CSV file trade type '{tradeType}' is not known at line {lineNumber}",
+                typeRaw,
+                row.lineNumber()));
             break;
         }
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
-            FailureReason.PARSING, ex, "CSV file trade could not be parsed at line {}: " + ex.getMessage(), row.lineNumber()));
+            FailureReason.PARSING,
+            ex,
+            "CSV file trade could not be parsed at line {lineNumber}: {exceptionMessage}",
+            row.lineNumber(),
+            ex.getMessage()));
       }
     }
     return ValueWithFailures.of(trades, failures);

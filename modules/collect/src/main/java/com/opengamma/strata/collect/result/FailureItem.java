@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.result;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -43,6 +44,10 @@ import com.opengamma.strata.collect.tuple.Pair;
 public final class FailureItem
     implements ImmutableBean, Serializable {
 
+  /**
+   * Attribute used to store the exception message.
+   */
+  public static final String EXCEPTION_MESSAGE_ATTRIBUTE = "exceptionMessage";
   /**
    * Header used when generating stack trace internally.
    */
@@ -189,7 +194,12 @@ public final class FailureItem
     ArgChecker.notNull(cause, "cause");
     Pair<String, Map<String, String>> msg = Messages.formatWithAttributes(message, messageArgs);
     String stackTrace = Throwables.getStackTraceAsString(cause);
-    return new FailureItem(reason, msg.getFirst(), msg.getSecond(), stackTrace, cause.getClass());
+    FailureItem base = new FailureItem(reason, msg.getFirst(), msg.getSecond(), stackTrace, cause.getClass());
+    String causeMessage = cause.getMessage();
+    if (!base.getAttributes().containsKey(EXCEPTION_MESSAGE_ATTRIBUTE) && !Strings.isNullOrEmpty(causeMessage)) {
+      return base.withAttribute(EXCEPTION_MESSAGE_ATTRIBUTE, causeMessage);
+    }
+    return base;
   }
 
   //-------------------------------------------------------------------------
@@ -211,6 +221,21 @@ public final class FailureItem
   }
 
   /**
+   * Returns an instance with the specified attribute added.
+   * <p>
+   * If the attribute map of this instance has the specified key, the value is replaced.
+   * 
+   * @param key  the key to add
+   * @param value  the value to add
+   * @return the new failure item
+   */
+  public FailureItem withAttribute(String key, String value) {
+    Map<String, String> attributes = new HashMap<>(this.attributes);
+    attributes.put(key, value);
+    return new FailureItem(reason, message, attributes, stackTrace, causeType);
+  }
+
+  /**
    * Returns a string summary of the failure, as a single line excluding the stack trace.
    * 
    * @return the summary string
@@ -224,9 +249,6 @@ public final class FailureItem
     String firstLine = endLine < 0 ? stackTrace : stackTrace.substring(0, endLine);
     if (firstLine.endsWith(": " + message)) {
       return reason + ": " + message + ": " + firstLine.substring(0, firstLine.length() - message.length() - 2);
-    }
-    if (!attributes.isEmpty()) {
-      return reason + ": " + message + ": " + firstLine + " : " + attributes;
     }
     return reason + ": " + message + ": " + firstLine;
   }
