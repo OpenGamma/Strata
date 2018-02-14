@@ -849,7 +849,8 @@ public final class Result<T>
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the failureMessage.
+   * Gets the message of the failure.
+   * This is only present if the result is a failure.
    * @return the optional value of the property, not null
    */
   public Optional<String> getFailureMessage() {
