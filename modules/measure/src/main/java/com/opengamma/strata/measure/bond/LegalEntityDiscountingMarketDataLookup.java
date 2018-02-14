@@ -19,10 +19,9 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.IssuerCurveId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.LegalEntityCurveGroup;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
-import com.opengamma.strata.market.curve.RepoCurveId;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.SecurityId;
@@ -55,9 +54,9 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
    */
   public static LegalEntityDiscountingMarketDataLookup of(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds,
+      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds,
       Map<StandardId, LegalEntityGroup> issuerCurveGroups,
-      Map<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurveIds) {
+      Map<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurveIds) {
 
     return LegalEntityDiscountingMarketDataLookup.of(
         repoCurveGroups, repoCurveIds, issuerCurveGroups, issuerCurveIds, ObservableSource.NONE);
@@ -79,9 +78,9 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
    */
   public static LegalEntityDiscountingMarketDataLookup of(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds,
+      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds,
       Map<StandardId, LegalEntityGroup> issuerCurveGroups,
-      Map<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurveIds,
+      Map<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurveIds,
       ObservableSource obsSource) {
 
     return DefaultLegalEntityDiscountingMarketDataLookup.of(
@@ -104,11 +103,11 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
       Map<StandardId, LegalEntityGroup> issuerCurveGroups) {
 
     CurveGroupName groupName = curveGroup.getName();
-    Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds = MapStream.of(curveGroup.getRepoCurves())
-        .mapValues(c -> RepoCurveId.of(groupName, c.getName()))
+    Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds = MapStream.of(curveGroup.getRepoCurves())
+        .mapValues(c -> CurveId.of(groupName, c.getName()))
         .toMap();
-    Map<Pair<LegalEntityGroup, Currency>, IssuerCurveId> issuerCurveIds = MapStream.of(curveGroup.getIssuerCurves())
-        .mapValues(c -> IssuerCurveId.of(groupName, c.getName()))
+    Map<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurveIds = MapStream.of(curveGroup.getIssuerCurves())
+        .mapValues(c -> CurveId.of(groupName, c.getName()))
         .toMap();
     return LegalEntityDiscountingMarketDataLookup.of(
         repoCurveGroups, repoCurveIds, issuerCurveGroups, issuerCurveIds, ObservableSource.NONE);
@@ -130,7 +129,7 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
    */
   public static LegalEntityDiscountingMarketDataLookup of(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds) {
+      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds) {
 
     return LegalEntityDiscountingMarketDataLookup.of(repoCurveGroups, repoCurveIds, ObservableSource.NONE);
   }
@@ -151,7 +150,7 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
    */
   public static LegalEntityDiscountingMarketDataLookup of(
       Map<StandardId, RepoGroup> repoCurveGroups,
-      Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds,
+      Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds,
       ObservableSource obsSource) {
 
     return DefaultLegalEntityDiscountingMarketDataLookup.of(repoCurveGroups, repoCurveIds, obsSource);
@@ -173,8 +172,8 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
       Map<StandardId, RepoGroup> repoCurveGroups) {
 
     CurveGroupName groupName = curveGroup.getName();
-    Map<Pair<RepoGroup, Currency>, RepoCurveId> repoCurveIds = MapStream.of(curveGroup.getRepoCurves())
-        .mapValues(c -> RepoCurveId.of(groupName, c.getName()))
+    Map<Pair<RepoGroup, Currency>, CurveId> repoCurveIds = MapStream.of(curveGroup.getRepoCurves())
+        .mapValues(c -> CurveId.of(groupName, c.getName()))
         .toMap();
     return LegalEntityDiscountingMarketDataLookup.of(repoCurveGroups, repoCurveIds, ObservableSource.NONE);
   }
