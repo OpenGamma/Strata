@@ -5,15 +5,21 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
- *  Uses Broyden's Jacobian update formula.
+ * A root finder using Broyden's Jacobian update formula.
  */
-public class BroydenVectorRootFinder extends NewtonVectorRootFinder {
+public class BroydenVectorRootFinder extends BaseNewtonVectorRootFinder {
 
+  /**
+   * The default tolerance.
+   */
   private static final double DEF_TOL = 1e-7;
+  /**
+   * The default maximum number of steps.
+   */
   private static final int MAX_STEPS = 100;
 
   /**
@@ -21,6 +27,15 @@ public class BroydenVectorRootFinder extends NewtonVectorRootFinder {
    */
   public BroydenVectorRootFinder() {
     this(DEF_TOL, DEF_TOL, MAX_STEPS);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param decomp  the decomposition
+   */
+  public BroydenVectorRootFinder(Decomposition<?> decomp) {
+    this(DEF_TOL, DEF_TOL, MAX_STEPS, decomp);
   }
 
   /**

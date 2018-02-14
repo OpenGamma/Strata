@@ -7,11 +7,12 @@ package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * OpenGamma implementation of the Cholesky decomposition and its differentiation.
  */
-public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecompositionResult> {
+public class CholeskyDecompositionOpenGamma implements Decomposition<CholeskyDecompositionResult> {
 
   /**
    * The input matrix symmetry is checked. If the relative difference abs(Aij-Aji) > max(abs(Aij), abs(Aji)) * e_sym, the matrix is considered non-symmetric.

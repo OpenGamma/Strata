@@ -18,13 +18,13 @@ import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldSecondOrderDifferentiator;
 import com.opengamma.strata.math.impl.function.ParameterizedFunction;
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
-import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionResult;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 
 /**
  * Non linear least square calculator.

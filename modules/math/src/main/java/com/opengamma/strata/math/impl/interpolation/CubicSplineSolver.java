@@ -11,9 +11,9 @@ import java.util.Arrays;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionResult;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * Abstract class of solving cubic spline problem

@@ -11,6 +11,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * This class is a wrapper for the
@@ -18,7 +19,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * of LU decomposition.
  */
 // CSOFF: AbbreviationAsWordInName
-public class LUDecompositionCommons extends Decomposition<LUDecompositionResult> {
+public class LUDecompositionCommons implements Decomposition<LUDecompositionResult> {
 
   @Override
   public LUDecompositionResult apply(DoubleMatrix x) {

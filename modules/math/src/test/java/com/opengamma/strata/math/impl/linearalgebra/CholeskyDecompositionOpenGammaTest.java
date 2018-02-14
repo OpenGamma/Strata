@@ -14,6 +14,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * Tests the Cholesky decomposition OpenGamma implementation.

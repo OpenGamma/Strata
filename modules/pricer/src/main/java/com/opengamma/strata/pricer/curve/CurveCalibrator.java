@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -29,10 +30,9 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.observable.IndexQuoteId;
-import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
-import com.opengamma.strata.math.impl.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.strata.math.rootfind.NewtonVectorRootFinder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
@@ -67,7 +67,7 @@ public final class CurveCalibrator {
   /**
    * The root finder used for curve calibration.
    */
-  private final BroydenVectorRootFinder rootFinder;
+  private final NewtonVectorRootFinder rootFinder;
   /**
    * The calibration measures.
    * This is used to compute the function for which the root is found.
@@ -95,7 +95,8 @@ public final class CurveCalibrator {
   /**
    * Obtains an instance specifying tolerances to use.
    * <p>
-   * The standard {@link CalibrationMeasures#PAR_SPREAD} measures are used.
+   * This uses a Broyden root finder.
+   * The standard {@link CalibrationMeasures#PAR_SPREAD} and {@link CalibrationMeasures#PRESENT_VALUE} measures are used.
    *
    * @param toleranceAbs  the absolute tolerance
    * @param toleranceRel  the relative tolerance
@@ -112,6 +113,9 @@ public final class CurveCalibrator {
 
   /**
    * Obtains an instance specifying tolerances and measures to use.
+   * <p>
+   * This uses a Broyden root finder.
+   * The standard {@link CalibrationMeasures#PRESENT_VALUE} measures are used.
    *
    * @param toleranceAbs  the absolute tolerance
    * @param toleranceRel  the relative tolerance
@@ -125,11 +129,13 @@ public final class CurveCalibrator {
       int stepMaximum,
       CalibrationMeasures measures) {
 
-    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, CalibrationMeasures.PRESENT_VALUE);
+    return of(toleranceAbs, toleranceRel, stepMaximum, measures, CalibrationMeasures.PRESENT_VALUE);
   }
 
   /**
    * Obtains an instance specifying tolerances and measures to use.
+   * <p>
+   * This uses a Broyden root finder.
    *
    * @param toleranceAbs  the absolute tolerance
    * @param toleranceRel  the relative tolerance
@@ -146,25 +152,37 @@ public final class CurveCalibrator {
       CalibrationMeasures measures,
       CalibrationMeasures pvMeasures) {
 
-    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, pvMeasures);
+    NewtonVectorRootFinder rootFinder = NewtonVectorRootFinder.broyden(toleranceAbs, toleranceRel, stepMaximum);
+    return new CurveCalibrator(rootFinder, measures, pvMeasures);
+  }
+
+  /**
+   * Obtains an instance specifying the measures to use.
+   *
+   * @param rootFinder  the root finder to use
+   * @param measures  the calibration measures, used to compute the function for which the root is found
+   * @param pvMeasures  the present value measures, used to compute the present value sensitivity to market quotes 
+   *   stored in the metadata
+   * @return the curve calibrator
+   */
+  public static CurveCalibrator of(
+      NewtonVectorRootFinder rootFinder,
+      CalibrationMeasures measures,
+      CalibrationMeasures pvMeasures) {
+
+    return new CurveCalibrator(rootFinder, measures, pvMeasures);
   }
 
   //-------------------------------------------------------------------------
   // restricted constructor
   private CurveCalibrator(
-      double toleranceAbs,
-      double toleranceRel,
-      int stepMaximum,
+      NewtonVectorRootFinder rootFinder,
       CalibrationMeasures measures,
       CalibrationMeasures pvMeasures) {
 
-    this.rootFinder = new BroydenVectorRootFinder(
-        toleranceAbs,
-        toleranceRel,
-        stepMaximum,
-        DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-    this.measures = measures;
-    this.pvMeasures = pvMeasures;
+    this.rootFinder = ArgChecker.notNull(rootFinder, "rootFinder");
+    this.measures = ArgChecker.notNull(measures, "measures");
+    this.pvMeasures = ArgChecker.notNull(pvMeasures, "pvMeasures");
   }
 
   //-------------------------------------------------------------------------
@@ -293,7 +311,7 @@ public final class CurveCalibrator {
 
     // calibrate
     DoubleArray initGuessMatrix = DoubleArray.copyOf(initialGuesses);
-    return rootFinder.getRoot(valueCalculator, derivativeCalculator, initGuessMatrix);
+    return rootFinder.findRoot(valueCalculator, derivativeCalculator, initGuessMatrix);
   }
 
   //-------------------------------------------------------------------------

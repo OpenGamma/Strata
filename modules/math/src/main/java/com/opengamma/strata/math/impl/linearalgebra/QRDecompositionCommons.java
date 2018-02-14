@@ -11,13 +11,14 @@ import org.apache.commons.math3.linear.RealMatrix;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/linear/QRDecompositionImpl.html">Commons Math library implementation</a> 
  * of QR decomposition.
  */
 // CSOFF: AbbreviationAsWordInName
-public class QRDecompositionCommons extends Decomposition<QRDecompositionResult> {
+public class QRDecompositionCommons implements Decomposition<QRDecompositionResult> {
 
   @Override
   public QRDecompositionResult apply(DoubleMatrix x) {

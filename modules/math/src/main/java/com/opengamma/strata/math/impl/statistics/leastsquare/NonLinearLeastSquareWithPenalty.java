@@ -12,12 +12,12 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
-import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 
 /**
  * Modification to NonLinearLeastSquare to use a penalty function add to the normal chi^2 term of the form $a^TPa$ where

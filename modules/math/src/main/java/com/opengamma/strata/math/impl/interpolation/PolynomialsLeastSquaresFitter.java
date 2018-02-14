@@ -14,13 +14,13 @@ import java.util.function.Function;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
-import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionResult;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDeviationCalculator;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 
 /**
  * Derive coefficients of n-degree polynomial that minimizes least squares error of fit by

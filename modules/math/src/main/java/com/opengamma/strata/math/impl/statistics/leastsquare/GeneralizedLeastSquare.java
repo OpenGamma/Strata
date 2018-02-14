@@ -17,11 +17,11 @@ import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.linearalgebra.Decomposition;
-import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 
 /**
  * Generalized least square method.
