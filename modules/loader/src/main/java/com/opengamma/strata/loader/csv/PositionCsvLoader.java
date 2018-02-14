@@ -299,14 +299,17 @@ public final class PositionCsvLoader {
   private <T extends Position> ValueWithFailures<List<T>> parseFile(CharSource charSource, Class<T> positionType) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.headers().contains(TYPE_FIELD)) {
-        return ValueWithFailures.of(ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{}' header: {}", TYPE_FIELD, charSource));
+        return ValueWithFailures.of(
+            ImmutableList.of(),
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TYPE_FIELD, charSource));
       }
       return parseFile(csv, positionType);
 
     } catch (RuntimeException ex) {
-      return ValueWithFailures.of(ImmutableList.of(),
-          FailureItem.of(FailureReason.PARSING, ex, "CSV file could not be parsed: {}: {}", ex.getMessage(), charSource));
+      return ValueWithFailures.of(
+          ImmutableList.of(),
+          FailureItem.of(
+              FailureReason.PARSING, ex, "CSV file could not be parsed: {exceptionMessage}: {}", ex.getMessage(), charSource));
     }
   }
 
@@ -347,7 +350,10 @@ public final class PositionCsvLoader {
               break;
             default:
               failures.add(FailureItem.of(
-                  FailureReason.PARSING, "CSV file position type '{}' is not known at line {}", typeRawOpt.get(), line));
+                  FailureReason.PARSING,
+                  "CSV file position type '{positionType}' is not known at line {lineNumber}",
+                  typeRawOpt.get(),
+                  line));
               break;
           }
         } else {
@@ -363,7 +369,11 @@ public final class PositionCsvLoader {
         }
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
-            FailureReason.PARSING, ex, "CSV file position could not be parsed at line {}: {}", line, ex.getMessage()));
+            FailureReason.PARSING,
+            ex,
+            "CSV file position could not be parsed at line {lineNumber}: {exceptionMessage}",
+            line,
+            ex.getMessage()));
       }
       line++;
     }
