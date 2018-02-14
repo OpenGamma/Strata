@@ -150,10 +150,10 @@ public final class FailureItem
     StringBuilder builder = new StringBuilder();
     StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
     // simulate full stack trace, pretending this class is a Throwable subclass
-    builder.append(FAILURE_EXCEPTION).append(message).append(System.lineSeparator());
+    builder.append(FAILURE_EXCEPTION).append(message).append("\n");
     // drop the first few frames because they are part of the immediate calling code
     for (int i = skipFrames + 3; i < stackTrace.length; i++) {
-      builder.append("\tat ").append(stackTrace[i]).append(System.lineSeparator());
+      builder.append("\tat ").append(stackTrace[i]).append("\n");
     }
     return builder.toString();
   }
@@ -193,7 +193,7 @@ public final class FailureItem
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notNull(cause, "cause");
     Pair<String, Map<String, String>> msg = Messages.formatWithAttributes(message, messageArgs);
-    String stackTrace = Throwables.getStackTraceAsString(cause);
+    String stackTrace = Throwables.getStackTraceAsString(cause).replace(System.lineSeparator(), "\n");
     FailureItem base = new FailureItem(reason, msg.getFirst(), msg.getSecond(), stackTrace, cause.getClass());
     String causeMessage = cause.getMessage();
     if (!base.getAttributes().containsKey(EXCEPTION_MESSAGE_ATTRIBUTE) && !Strings.isNullOrEmpty(causeMessage)) {
@@ -245,7 +245,7 @@ public final class FailureItem
     if (stackTrace.startsWith(FAILURE_EXCEPTION)) {
       return reason + ": " + message;
     }
-    int endLine = stackTrace.indexOf(System.lineSeparator());
+    int endLine = stackTrace.indexOf("\n");
     String firstLine = endLine < 0 ? stackTrace : stackTrace.substring(0, endLine);
     if (firstLine.endsWith(": " + message)) {
       return reason + ": " + message + ": " + firstLine.substring(0, firstLine.length() - message.length() - 2);
