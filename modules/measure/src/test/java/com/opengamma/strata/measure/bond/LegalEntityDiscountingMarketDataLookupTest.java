@@ -124,37 +124,6 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
   }
 
-  public void test_of_repoMap() {
-    ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
-        ISSUER_A, GROUP_REPO_X,
-        ISSUER_B, GROUP_REPO_Y,
-        ISSUER_C, GROUP_REPO_Y,
-        ISSUER_D, GROUP_REPO_Y);
-    ImmutableMap<Pair<RepoGroup, Currency>, CurveId> repoCurves = ImmutableMap.of(
-        Pair.of(GROUP_REPO_X, USD), CURVE_ID_USD1,
-        Pair.of(GROUP_REPO_Y, USD), CURVE_ID_USD2,
-        Pair.of(GROUP_REPO_Y, GBP), CURVE_ID_GBP1);
-    LegalEntityDiscountingMarketDataLookup test =
-        LegalEntityDiscountingMarketDataLookup.of(repoGroups, repoCurves);
-    assertEquals(test.queryType(), LegalEntityDiscountingMarketDataLookup.class);
-
-    assertEquals(
-        test.requirements(ISSUER_A, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(ISSUER_B, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(ISSUER_B, GBP),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1).outputCurrencies(GBP).build());
-    assertThrowsIllegalArg(() -> test.requirements(SEC_A2, ISSUER_A, USD));
-    assertThrowsIllegalArg(() -> test.requirements(StandardId.of("XXX", "XXX"), GBP));
-    assertThrowsIllegalArg(() -> test.requirements(ISSUER_A, GBP));
-    assertEquals(
-        test.discountingProvider(MOCK_MARKET_DATA),
-        DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
-  }
-
   //-------------------------------------------------------------------------
   public void test_of_map_invalid() {
     ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
