@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * Performs Newton-Raphson style multi-dimensional root finding.

@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
-import com.opengamma.strata.math.rootfind.Decomposition;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * Test.

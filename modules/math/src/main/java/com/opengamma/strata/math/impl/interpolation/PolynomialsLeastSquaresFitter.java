@@ -19,8 +19,8 @@ import com.opengamma.strata.math.impl.linearalgebra.QRDecompositionResult;
 import com.opengamma.strata.math.impl.regression.LeastSquaresRegressionResult;
 import com.opengamma.strata.math.impl.statistics.descriptive.MeanCalculator;
 import com.opengamma.strata.math.impl.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.strata.math.rootfind.Decomposition;
-import com.opengamma.strata.math.rootfind.DecompositionResult;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 
 /**
  * Derive coefficients of n-degree polynomial that minimizes least squares error of fit by

@@ -6,7 +6,7 @@
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
-import com.opengamma.strata.math.rootfind.Decomposition;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * A root finder using Broyden's Jacobian update formula.

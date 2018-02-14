@@ -23,8 +23,8 @@ import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionResult;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory;
-import com.opengamma.strata.math.rootfind.Decomposition;
-import com.opengamma.strata.math.rootfind.DecompositionResult;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 
 /**
  * Non linear least square calculator.

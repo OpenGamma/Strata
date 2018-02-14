@@ -37,7 +37,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
-import com.opengamma.strata.math.rootfind.DecompositionResult;
+import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 import com.opengamma.strata.pricer.fx.DiscountingFxSingleProductPricer;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;

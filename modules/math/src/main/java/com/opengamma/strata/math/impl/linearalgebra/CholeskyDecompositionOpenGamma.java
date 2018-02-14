@@ -7,7 +7,7 @@ package com.opengamma.strata.math.impl.linearalgebra;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.rootfind.Decomposition;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * OpenGamma implementation of the Cholesky decomposition and its differentiation.

@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.linearalgebra;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.strata.math.rootfind.Decomposition;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * Factory class for different types of decompositions.

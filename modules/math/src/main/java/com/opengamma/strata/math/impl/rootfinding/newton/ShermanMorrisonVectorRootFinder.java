@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.rootfinding.newton;
 import com.opengamma.strata.math.impl.linearalgebra.LUDecompositionCommons;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
-import com.opengamma.strata.math.rootfind.Decomposition;
+import com.opengamma.strata.math.linearalgebra.Decomposition;
 
 /**
  * A root finder that uses the Sherman-Morrison formula to invert Broyden's Jacobian update formula,
