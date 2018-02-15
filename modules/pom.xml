@@ -615,7 +615,7 @@
               <dependency>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>extra-enforcer-rules</artifactId>
-                <version>1.0-alpha-5</version>
+                <version>1.0-beta-7</version>
               </dependency>
             </dependencies>
           </plugin>
@@ -706,14 +706,15 @@
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <assertj.version>3.8.0</assertj.version>
-    <guava.version>23.5-jre</guava.version>
+    <assertj.version>3.9.0</assertj.version>
+    <guava.version>24.0-jre</guava.version>
     <jcommander.version>1.72</jcommander.version>
-    <joda-convert.version>1.9.2</joda-convert.version>
-    <joda-beans.version>2.0.2</joda-beans.version>
-    <mockito.version>2.10.0</mockito.version>
+    <joda-convert.version>2.0</joda-convert.version>
+    <joda-beans.version>2.1</joda-beans.version>
+    <mockito.version>2.15.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <testng.version>6.11</testng.version>
+    <testng.version>6.14.2</testng.version>
+    <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <checkstyle.config.location>checkstyle/checkstyle-oss.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
