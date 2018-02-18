@@ -88,16 +88,16 @@ public final class ExchangeIds {
   public static final ExchangeId XMGE = ExchangeId.of("XMGE");
   
   /** The Montreal Exchange. */
-  public static final ExchangeId XMOD	= ExchangeId.of("XMOD");
+  public static final ExchangeId XMOD = ExchangeId.of("XMOD");
   
-  /**	Tokyo Financial Exchange. */
-  public static final ExchangeId XTFF	= ExchangeId.of("XTFF");
+  /**  Tokyo Financial Exchange. */
+  public static final ExchangeId XTFF = ExchangeId.of("XTFF");
   
-  /**	Tokyo Commodity Exchange. */
-  public static final ExchangeId XTKT	= ExchangeId.of("XTKT");
+  /**  Tokyo Commodity Exchange. */
+  public static final ExchangeId XTKT = ExchangeId.of("XTKT");
   
-  /**	Tokyo Stock Exchange. */
-  public static final ExchangeId XTKS	= ExchangeId.of("XTKS");
+  /**  Tokyo Stock Exchange. */
+  public static final ExchangeId XTKS = ExchangeId.of("XTKS");
   
   //-------------------------------------------------------------------------
   /**
