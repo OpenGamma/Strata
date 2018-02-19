@@ -148,7 +148,7 @@ public class ResultTest {
     assertEquals(item.getReason(), ERROR);
     assertEquals(item.getMessage(), "failure");
     assertEquals(item.getCauseType().get(), ex.getClass());
-    assertEquals(item.getStackTrace(), Throwables.getStackTraceAsString(ex));
+    assertEquals(item.getStackTrace(), Throwables.getStackTraceAsString(ex).replace(System.lineSeparator(), "\n"));
   }
 
   public void failure_map_flatMap_ifSuccess() {
