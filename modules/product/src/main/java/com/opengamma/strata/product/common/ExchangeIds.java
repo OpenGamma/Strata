@@ -42,6 +42,9 @@ public final class ExchangeIds {
   /** ICE Futures Europe - Oil and Refined Products Division. */
   public static final ExchangeId IFEN = ExchangeId.of("IFEN");
   
+  /** ICE Futures U.S. */
+  public static final ExchangeId IFUS = ExchangeId.of("IFUS");
+
   /** Osaka Exchange. */
   public static final ExchangeId XOSE = ExchangeId.of("XOSE");
   
@@ -65,7 +68,37 @@ public final class ExchangeIds {
   
   /** Warsaw Stock Exchange. */
   public static final ExchangeId XWAR = ExchangeId.of("XWAR");
-
+  
+  /** Johannesburg Stock Exchange. */
+  public static final ExchangeId XJSE = ExchangeId.of("XJSE");
+  
+  /** JSE - Equity Derivatives Market. */
+  public static final ExchangeId XSAF = ExchangeId.of("XSAF");
+  
+  /** Mercado Español de Futuros Financiero (MEFF). */
+  public static final ExchangeId XMRV = ExchangeId.of("XMRV");
+  
+  /** Bursa Malaysia. */
+  public static final ExchangeId XKLS = ExchangeId.of("XKLS");
+  
+  /** London Metal Exchange. */
+  public static final ExchangeId XLME = ExchangeId.of("XLME");
+  
+  /** Minneapolis Grain Exchange. */
+  public static final ExchangeId XMGE = ExchangeId.of("XMGE");
+  
+  /** The Montreal Exchange. */
+  public static final ExchangeId XMOD = ExchangeId.of("XMOD");
+  
+  /**  Tokyo Financial Exchange. */
+  public static final ExchangeId XTFF = ExchangeId.of("XTFF");
+  
+  /**  Tokyo Commodity Exchange. */
+  public static final ExchangeId XTKT = ExchangeId.of("XTKT");
+  
+  /**  Tokyo Stock Exchange. */
+  public static final ExchangeId XTKS = ExchangeId.of("XTKS");
+  
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
