@@ -94,7 +94,7 @@ public final class CurveGroupEntry
    * 
    * @param <T>  the type of index
    * @param indexType  the type of index required
-   * @return the set of indices as instances of {@code FloatingRateIndex}
+   * @return the subset of indices
    */
   public <T extends Index> ImmutableSet<T> getIndices(Class<T> indexType) {
     return indices.stream()
