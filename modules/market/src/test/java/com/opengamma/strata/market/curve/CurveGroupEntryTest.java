@@ -17,6 +17,9 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 
 /**
  * Test {@link CurveGroupEntry}.
@@ -36,6 +39,9 @@ public class CurveGroupEntryTest {
     assertEquals(test.getCurveName(), CURVE_NAME1);
     assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(GBP));
     assertEquals(test.getIndices(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_SONIA));
+    assertEquals(test.getIndices(IborIndex.class), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M));
+    assertEquals(test.getIndices(OvernightIndex.class), ImmutableSet.of(GBP_SONIA));
+    assertEquals(test.getIndices(PriceIndex.class), ImmutableSet.of());
   }
 
   //-------------------------------------------------------------------------
