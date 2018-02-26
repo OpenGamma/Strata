@@ -48,6 +48,10 @@ public class SummarizerUtilsTest {
     assertEquals(SummarizerUtils.datePeriod(LocalDate.of(2017, 10, 12), LocalDate.of(2019, 12, 12)), "2Y2M");
   }
 
+  public void test_under1MonthPeriod() {
+    assertEquals(SummarizerUtils.datePeriod(LocalDate.of(2014, 8, 6), LocalDate.of(2014, 8, 24)), "18D");
+  }
+
   //-------------------------------------------------------------------------
   public void test_amount() {
     assertEquals(SummarizerUtils.amount(amount(GBP, 12.34)), "GBP 12.34");
