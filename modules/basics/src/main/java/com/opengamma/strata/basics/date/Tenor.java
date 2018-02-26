@@ -354,8 +354,8 @@ public final class Tenor
    */
   private Tenor(Period period, String name) {
     ArgChecker.notNull(period, "period");
-    ArgChecker.isFalse(period.isZero(), "Period must not be zero");
-    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
+    ArgChecker.isFalse(period.isZero(), "Tenor period must not be zero");
+    ArgChecker.isFalse(period.isNegative(), "Tenor period must not be negative");
     this.period = period;
     this.name = name;
   }
