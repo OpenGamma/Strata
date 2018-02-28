@@ -30,7 +30,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
   private static final double EPS = 1.e-7;
   private static final double TOL = 1.e-11;
 
-  public void test_basics() {
+  public void basicsTest() {
     assertEquals(
         DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE.getName(),
         DiscountFactorQuadraticLeftZeroRateCurveExtrapolator.NAME);

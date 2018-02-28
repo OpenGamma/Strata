@@ -68,7 +68,7 @@ public final class CurveExtrapolators {
   /**
    * Discount factor linear right extrapolator for zeor rates.
    * <p>
-   * This left extrapolator is designed for extrapolating a discount factor for zero rate inputs. 
+   * This right extrapolator is designed for extrapolating a discount factor for zero rate inputs. 
    * Use {@code LINEAR} if the input data is discount factor values.
    * <p>
    * The gradient of the extrapolation is determined so that the first derivative value of 
