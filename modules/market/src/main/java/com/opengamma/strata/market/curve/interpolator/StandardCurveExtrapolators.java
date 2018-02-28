@@ -22,6 +22,12 @@ final class StandardCurveExtrapolators {
   public static final CurveExtrapolator LOG_LINEAR = LogLinearCurveExtrapolator.INSTANCE;
   // Quadratic left extrapolator.
   public static final CurveExtrapolator QUADRATIC_LEFT = QuadraticLeftCurveExtrapolator.INSTANCE;
+  // Discount factor quadratic left zero rate extrapolator.
+  public static final CurveExtrapolator DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE =
+      DiscountFactorQuadraticLeftZeroRateCurveExtrapolator.INSTANCE;
+  // Discount factor linear right zero rate extrapolator.
+  public static final CurveExtrapolator DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE =
+      DiscountFactorLinearRightZeroRateCurveExtrapolator.INSTANCE;
   // Product linear extrapolator.
   public static final CurveExtrapolator PRODUCT_LINEAR = ProductLinearCurveExtrapolator.INSTANCE;
   // Exponential extrapolator.
