@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * factor, where the point (0,1) is inserted and
  * the first derivative value is assumed to be continuous at the first x-value.
  */
-public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolator
+class DiscountFactorQuadraticLeftZeroRateCurveExtrapolator
     implements CurveExtrapolator, Serializable {
 
   /**
@@ -32,8 +32,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolator
   /**
    * The extrapolator instance.
    */
-  public static final CurveExtrapolator INSTANCE =
-      new DiscountFactorQuadraticLeftZeroRateCurveExtrapolator();
+  public static final CurveExtrapolator INSTANCE = new DiscountFactorQuadraticLeftZeroRateCurveExtrapolator();
   /**
    * The epsilon value.
    */
@@ -57,8 +56,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolator
   }
 
   @Override
-  public BoundCurveExtrapolator bind(DoubleArray xValues, DoubleArray yValues,
-      BoundCurveInterpolator interpolator) {
+  public BoundCurveExtrapolator bind(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
     return new Bound(xValues, yValues, interpolator);
   }
 

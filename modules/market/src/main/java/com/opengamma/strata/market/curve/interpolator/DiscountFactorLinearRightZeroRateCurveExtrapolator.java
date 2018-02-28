@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * The gradient of the linear function is determined so that the first derivative of the discount 
  * factor is continuous at the last node.
  */
-public class DiscountFactorLinearRightZeroRateCurveExtrapolator
+class DiscountFactorLinearRightZeroRateCurveExtrapolator
     implements CurveExtrapolator, Serializable {
 
   /**
@@ -30,8 +30,7 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolator
   /**
    * The extrapolator instance.
    */
-  public static final CurveExtrapolator INSTANCE =
-      new DiscountFactorLinearRightZeroRateCurveExtrapolator();
+  public static final CurveExtrapolator INSTANCE = new DiscountFactorLinearRightZeroRateCurveExtrapolator();
   /**
    * The epsilon value.
    */
@@ -55,8 +54,7 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolator
   }
 
   @Override
-  public BoundCurveExtrapolator bind(DoubleArray xValues, DoubleArray yValues,
-      BoundCurveInterpolator interpolator) {
+  public BoundCurveExtrapolator bind(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
     return new Bound(xValues, yValues, interpolator);
   }
 

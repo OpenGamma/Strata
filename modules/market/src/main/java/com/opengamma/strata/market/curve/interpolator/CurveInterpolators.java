@@ -107,7 +107,8 @@ public final class CurveInterpolators {
   /**
    * Product natural spline interpolator with monotonicity filter.
    * <p>
-   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline with monotonicity filter.
+   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural
+   * cubic spline with monotonicity filter.
    */
   public static final CurveInterpolator PRODUCT_NATURAL_SPLINE_MONOTONE_CUBIC =
       CurveInterpolator.of(

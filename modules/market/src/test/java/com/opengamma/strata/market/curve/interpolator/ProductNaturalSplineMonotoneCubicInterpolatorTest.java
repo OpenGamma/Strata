@@ -55,8 +55,7 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
         return x >= xValues.get(0) && x <= xValues.get(nData - 1);
       }
     };
-    DoubleArray keys =
-        DoubleArray.of(xValues.get(0), 0.7, 1.2, 7.8, 10.0, 17.52, 25.0, xValues.get(nData - 1));
+    DoubleArray keys = DoubleArray.of(xValues.get(0), 0.7, 1.2, 7.8, 10.0, 17.52, 25.0, xValues.get(nData - 1));
     int nKeys = keys.size();
     BoundCurveInterpolator bound = INTERP.bind(xValues, yValues);
     PiecewisePolynomialResultsWithSensitivity ppRes =
@@ -73,11 +72,9 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
       assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
       // parameter sensitivity
       int index = i;
-      Function<DoubleArray, Double> funcSensi =
-          x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
+      Function<DoubleArray, Double> funcSensi = x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(),
-          sensExp.toArray(), EPS));
+      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS));
     }
   }
 
@@ -92,8 +89,7 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
         return x >= xValues.get(0) && x <= xValues.get(nData - 1);
       }
     };
-    DoubleArray keys = DoubleArray.of(xValues.get(0), -27.7, -21.2, -17.8, -10.0, -1.52, -0.35,
-        xValues.get(nData - 1));
+    DoubleArray keys = DoubleArray.of(xValues.get(0), -27.7, -21.2, -17.8, -10.0, -1.52, -0.35, xValues.get(nData - 1));
     int nKeys = keys.size();
     BoundCurveInterpolator bound = INTERP.bind(xValues, yValues);
     PiecewisePolynomialResultsWithSensitivity ppRes =
@@ -110,11 +106,9 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
       assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
       // parameter sensitivity
       int index = i;
-      Function<DoubleArray, Double> funcSensi =
-          x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
+      Function<DoubleArray, Double> funcSensi = x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(),
-          sensExp.toArray(), EPS));
+      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS));
     }
   }
 

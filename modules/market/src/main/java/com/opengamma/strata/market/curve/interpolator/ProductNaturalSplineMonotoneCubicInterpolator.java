@@ -29,7 +29,7 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
  * the condition that all of the x data to be the same sign, such that the origin is not within data range.
  * The x key value must not be close to zero.
  */
-public class ProductNaturalSplineMonotoneCubicInterpolator
+class ProductNaturalSplineMonotoneCubicInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
@@ -39,8 +39,7 @@ public class ProductNaturalSplineMonotoneCubicInterpolator
   /**
    * The interpolator instance.
    */
-  public static final CurveInterpolator INSTANCE =
-      new ProductNaturalSplineMonotoneCubicInterpolator();
+  public static final CurveInterpolator INSTANCE = new ProductNaturalSplineMonotoneCubicInterpolator();
 
   /**
    * The serialization version id.
@@ -93,7 +92,6 @@ public class ProductNaturalSplineMonotoneCubicInterpolator
     private final double[] yValues;
     private final PiecewisePolynomialResult poly;
     private final Supplier<PiecewisePolynomialResultsWithSensitivity> polySens;
-    private double[] logYValues;
 
     Bound(DoubleArray xValues, DoubleArray yValues) {
       super(xValues, yValues);
@@ -109,8 +107,7 @@ public class ProductNaturalSplineMonotoneCubicInterpolator
               getProduct(this.xValues, this.yValues)));
     }
 
-    Bound(Bound base, BoundCurveExtrapolator extrapolatorLeft,
-        BoundCurveExtrapolator extrapolatorRight) {
+    Bound(Bound base, BoundCurveExtrapolator extrapolatorLeft, BoundCurveExtrapolator extrapolatorRight) {
       super(base, extrapolatorLeft, extrapolatorRight);
       this.xValues = base.xValues;
       this.yValues = base.yValues;
@@ -151,10 +148,7 @@ public class ProductNaturalSplineMonotoneCubicInterpolator
     }
 
     @Override
-    public BoundCurveInterpolator bind(
-        BoundCurveExtrapolator extrapolatorLeft,
-        BoundCurveExtrapolator extrapolatorRight) {
-
+    public BoundCurveInterpolator bind(BoundCurveExtrapolator extrapolatorLeft, BoundCurveExtrapolator extrapolatorRight) {
       return new Bound(this, extrapolatorLeft, extrapolatorRight);
     }
   }
