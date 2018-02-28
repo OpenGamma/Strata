@@ -105,6 +105,15 @@ public final class CurveInterpolators {
   public static final CurveInterpolator PRODUCT_NATURAL_SPLINE =
       CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_NATURAL_SPLINE.getName());
   /**
+   * Product natural spline interpolator with monotonicity filter.
+   * <p>
+   * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural
+   * cubic spline with monotonicity filter.
+   */
+  public static final CurveInterpolator PRODUCT_NATURAL_SPLINE_MONOTONE_CUBIC =
+      CurveInterpolator.of(
+          StandardCurveInterpolators.PRODUCT_NATURAL_SPLINE_MONOTONE_CUBIC.getName());
+  /**
    * Product linear interpolator.
    * <p>
    * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by linear functions. 

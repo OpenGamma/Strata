@@ -52,6 +52,32 @@ public final class CurveExtrapolators {
   public static final CurveExtrapolator QUADRATIC_LEFT =
       CurveExtrapolator.of(StandardCurveExtrapolators.QUADRATIC_LEFT.getName());
   /**
+   * Discount factor quadratic left extrapolator for zero rates.
+   * <p>
+   * This left extrapolator is designed for extrapolating a discount factor for zero rate inputs 
+   * where the trivial point (0d,1d) is NOT involved in the data.
+   * Use {@code QUADRATIC_LEFT} if the input data is discount factor values.
+   * <p>
+   * The extrapolation is completed by applying a quadratic extrapolant on the discount
+   * factor (not log of the discount factor), where the point (0d,1d) is inserted and
+   * the first derivative value is assumed to be continuous at the first key.
+   */
+  public static final CurveExtrapolator DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE =
+      CurveExtrapolator.of(
+          StandardCurveExtrapolators.DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE.getName());
+  /**
+   * Discount factor linear right extrapolator for zeor rates.
+   * <p>
+   * This right extrapolator is designed for extrapolating a discount factor for zero rate inputs. 
+   * Use {@code LINEAR} if the input data is discount factor values.
+   * <p>
+   * The gradient of the extrapolation is determined so that the first derivative value of 
+   * the discount factor is continuous at the last key.
+   */
+  public static final CurveExtrapolator DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE =
+      CurveExtrapolator.of(
+          StandardCurveExtrapolators.DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.getName());
+  /**
    * Product linear extrapolator.
    * <p>
    * Given a data set {@code (xValues[i], yValues[i])}, extrapolate {@code (x[i], x[i] * y[i])}
