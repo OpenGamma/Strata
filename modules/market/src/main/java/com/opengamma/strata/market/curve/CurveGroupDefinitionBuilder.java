@@ -275,6 +275,8 @@ public final class CurveGroupDefinitionBuilder {
     return this;
   }
 
+  //-------------------------------------------------------------------------
+  // merges the definition and entry
   private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, CurveDefinition curveDefinition) {
     curveDefinitions.put(curveDefinition.getName(), curveDefinition);
     return mergeEntry(newEntry);

@@ -6,10 +6,12 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_364;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -79,6 +81,9 @@ public class CurveGroupDefinitionTest {
       .interpolator(CurveInterpolators.LINEAR)
       .extrapolatorLeft(CurveExtrapolators.FLAT)
       .extrapolatorRight(CurveExtrapolators.FLAT)
+      .build();
+  private static final InterpolatedNodalCurveDefinition CURVE_DEFN1B = CURVE_DEFN1.toBuilder()
+      .dayCount(ACT_364)
       .build();
   private static final InterpolatedNodalCurveDefinition CURVE_DEFN2 = CURVE_DEFN1.toBuilder()
       .name(CURVE_NAME2)
@@ -345,6 +350,57 @@ public class CurveGroupDefinitionTest {
     assertTrue(seasonDef.getSeasonalityDefinition().getSeasonalityMonthOnMonth()
         .equalWithTolerance(DoubleArray.filled(12, 1d), 1.0E-10));
     assertEquals(seasonDef.getSeasonalityDefinition().getAdjustmentType(), ShiftType.SCALED);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_combinedWith_sameCurveNames() {
+    CurveGroupDefinition base1 = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addForwardCurve(CURVE_DEFN_I, GB_RPI)
+        .build();
+    CurveGroupDefinition base2 = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("TestX"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_6M)
+        .build();
+    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_LIBOR_6M)
+        .addForwardCurve(CURVE_DEFN_I, GB_RPI)
+        .build();
+    assertEquals(base1.combinedWith(base2), expected);
+  }
+
+  public void test_combinedWith_differentCurveNames() {
+    CurveGroupDefinition base1 = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addForwardCurve(CURVE_DEFN_I, GB_RPI)
+        .build();
+    CurveGroupDefinition base2 = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("TestX"))
+        .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_6M)
+        .build();
+    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addForwardCurve(CURVE_DEFN_I, GB_RPI)
+        .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_6M)
+        .build();
+    assertEquals(base1.combinedWith(base2), expected);
+  }
+
+  public void test_combinedWith_sameCurveNamesClash() {
+    CurveGroupDefinition base1 = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addForwardCurve(CURVE_DEFN_I, GB_RPI)
+        .build();
+    CurveGroupDefinition base2 = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("TestX"))
+        .addCurve(CURVE_DEFN1B, GBP, GBP_LIBOR_6M)
+        .build();
+    assertThrowsIllegalArg(() -> base1.combinedWith(base2));
   }
 
   //-------------------------------------------------------------------------
