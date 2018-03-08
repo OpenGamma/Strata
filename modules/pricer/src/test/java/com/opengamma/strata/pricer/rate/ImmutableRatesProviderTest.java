@@ -33,6 +33,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -180,6 +182,28 @@ public class ImmutableRatesProviderTest {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
     assertThrowsIllegalArg(() -> test.priceIndexValues(GB_RPI));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getCurves() {
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD)
+        .build();
+    assertEquals(test.getCurves().size(), 2);
+    assertEquals(test.getCurves().get(DISCOUNT_CURVE_GBP.getName()), DISCOUNT_CURVE_GBP);
+    assertEquals(test.getCurves().get(DISCOUNT_CURVE_USD.getName()), DISCOUNT_CURVE_USD);
+  }
+
+  public void test_getCurves_withGroup() {
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD)
+        .build();
+    CurveGroupName group = CurveGroupName.of("GRP");
+    assertEquals(test.getCurves(group).size(), 2);
+    assertEquals(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_GBP.getName())), DISCOUNT_CURVE_GBP);
+    assertEquals(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_USD.getName())), DISCOUNT_CURVE_USD);
   }
 
   //-------------------------------------------------------------------------
