@@ -90,6 +90,17 @@ public class MarketDataTest {
     assertEquals(test.getTimeSeries(ID5), TIME_SERIES);
   }
 
+  public void test_of_badType() {
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, 123d);
+    assertThrows(() -> MarketData.of(VAL_DATE, dataMap), ClassCastException.class);
+  }
+
+  public void test_of_null() {
+    Map<MarketDataId<?>, Object> dataMap = new HashMap<>();
+    dataMap.put(ID1, null);
+    assertThrowsIllegalArg(() -> MarketData.of(VAL_DATE, dataMap));
+  }
+
   public void empty() {
     MarketData test = MarketData.empty(VAL_DATE);
 
@@ -103,24 +114,19 @@ public class MarketDataTest {
     ImmutableMarketData test = ImmutableMarketData.builder(VAL_DATE.plusDays(1))
         .valuationDate(VAL_DATE)
         .addValue(ID1, "123")
+        .addValueUnsafe(ID2, "124")
         .addValueMap(ImmutableMap.of(ID3, "201"))
         .addTimeSeries(ID4, TIME_SERIES)
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getValues().get(ID1), "123");
-    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID3));
+    assertEquals(test.getValues().get(ID2), "124");
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2, ID3));
     assertEquals(test.getTimeSeries().get(ID4), TIME_SERIES);
   }
 
-  public void test_of_badType() {
-    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, 123d);
-    assertThrows(() -> MarketData.of(VAL_DATE, dataMap), ClassCastException.class);
-  }
-
-  public void test_of_null() {
-    Map<MarketDataId<?>, Object> dataMap = new HashMap<>();
-    dataMap.put(ID1, null);
-    assertThrowsIllegalArg(() -> MarketData.of(VAL_DATE, dataMap));
+  public void test_builder_badType() {
+    assertThrows(() -> ImmutableMarketData.builder(VAL_DATE).addValueUnsafe(ID1, 123d), ClassCastException.class);
   }
 
   //-------------------------------------------------------------------------

@@ -109,6 +109,22 @@ public class ImmutableMarketDataBuilder {
   }
 
   /**
+   * Adds a value to the builder when the types are not known at compile time.
+   *
+   * @param id  the identifier
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> ImmutableMarketDataBuilder addValueUnsafe(MarketDataId<?> id, Object value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    ImmutableMarketData.checkType(id, value);
+    values.put(id, value);
+    return this;
+  }
+
+  /**
    * Adds multiple values to the builder.
    *
    * @param values  the values
@@ -116,10 +132,7 @@ public class ImmutableMarketDataBuilder {
    */
   public ImmutableMarketDataBuilder addValueMap(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
-    values.entrySet().forEach(e -> {
-      ImmutableMarketData.checkType(e.getKey(), e.getValue());
-      this.values.put(e.getKey(), e.getValue());
-    });
+    values.entrySet().forEach(e -> addValueUnsafe(e.getKey(), e.getValue()));
     return this;
   }
 

@@ -13,8 +13,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -400,6 +402,59 @@ public final class CurveGroupDefinition
   public CurveGroupDefinition withName(CurveGroupName name) {
     return new CurveGroupDefinition(
         name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  /**
+   * Combines this definition with another one.
+   * <p>
+   * This combines the curve definitions, curve entries and seasonality with those from the other definition.
+   * An exception is thrown if unable to merge, such as if the curve definitions clash.
+   * The group name will be taken from this definition only.
+   * The seasonality will be taken from this definition only if there is a clash.
+   * The boolean flags will be combined using logical OR.
+   *
+   * @param other  the other definition
+   * @return the combined curve group definition
+   * @throws IllegalArgumentException if unable to merge
+   */
+  public CurveGroupDefinition combinedWith(CurveGroupDefinition other) {
+    // merge definitions
+    Map<CurveName, CurveDefinition> combinedDefinitions = new LinkedHashMap<>(this.curveDefinitionsByName);
+    for (CurveDefinition otherDefn : other.curveDefinitions) {
+      CurveDefinition thisDefn = this.curveDefinitionsByName.get(otherDefn.getName());
+      if (thisDefn == null) {
+        combinedDefinitions.put(otherDefn.getName(), otherDefn);
+      } else if (!thisDefn.equals(otherDefn)) {
+        throw new IllegalArgumentException("Curve definitions clash: " + thisDefn.getName());
+      }
+    }
+    // merge entries
+    Map<CurveName, CurveGroupEntry> combinedEntries = new LinkedHashMap<>(this.entriesByName);
+    for (CurveGroupEntry otherEntry : other.entries) {
+      CurveGroupEntry thisEntry = this.entriesByName.get(otherEntry.getCurveName());
+      if (thisEntry == null) {
+        combinedEntries.put(otherEntry.getCurveName(), otherEntry);
+      } else {
+        combinedEntries.put(otherEntry.getCurveName(), thisEntry.merge(otherEntry));
+      }
+    }
+    // merge definitions
+    Map<CurveName, SeasonalityDefinition> combinedSeasonality = new LinkedHashMap<>(this.seasonalityDefinitions);
+    for (Entry<CurveName, SeasonalityDefinition> otherEntry : other.seasonalityDefinitions.entrySet()) {
+      SeasonalityDefinition thisDefn = this.seasonalityDefinitions.get(otherEntry.getKey());
+      if (thisDefn == null) {
+        combinedSeasonality.put(otherEntry.getKey(), otherEntry.getValue());
+      } else {
+        throw new IllegalArgumentException("Curve definitions clash: " + otherEntry.getKey());
+      }
+    }
+    return new CurveGroupDefinition(
+        name,
+        combinedEntries.values(),
+        combinedDefinitions.values(),
+        combinedSeasonality,
+        this.computeJacobian | other.computeJacobian,
+        this.computePvSensitivityToMarketQuote | other.computePvSensitivityToMarketQuote);
   }
 
   /**
