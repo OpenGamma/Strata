@@ -83,6 +83,8 @@ public class RatesMarketDataLookupTest {
     assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
     assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
     assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
+    assertEquals(test.getFxRateLookup(), FxRateLookup.ofRates());
 
     assertEquals(
         test.requirements(USD),

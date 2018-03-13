@@ -65,13 +65,13 @@ final class DefaultRatesMarketDataLookup
   /**
    * The source of market data for quotes and other observable market data.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ObservableSource observableSource;
   /**
    * The lookup used to obtain {@code FxRateProvider}.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final FxRateLookup fxLookup;
+  @PropertyDefinition(validate = "notNull", alias = "fxLookup", overrideGet = true)
+  private final FxRateLookup fxRateLookup;
 
   //-------------------------------------------------------------------------
   /**
@@ -170,7 +170,7 @@ final class DefaultRatesMarketDataLookup
 
   @Override
   public FxRateProvider fxRateProvider(MarketData marketData) {
-    return fxLookup.fxRateProvider(marketData);
+    return fxRateLookup.fxRateProvider(marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -194,11 +194,12 @@ final class DefaultRatesMarketDataLookup
               "discountCurves",
               "forwardCurves",
               "observableSource",
-              "fxLookup"},
+              "fxRateLookup"},
           ImmutableMap.of(),
           ImmutableMap.of(),
           null,
-          null);
+          null)
+          .withAlias("fxLookup", "fxRateLookup");
 
   /**
    * The meta-bean for {@code DefaultRatesMarketDataLookup}.
@@ -221,15 +222,15 @@ final class DefaultRatesMarketDataLookup
       Map<Currency, CurveId> discountCurves,
       Map<? extends Index, CurveId> forwardCurves,
       ObservableSource observableSource,
-      FxRateLookup fxLookup) {
+      FxRateLookup fxRateLookup) {
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
     JodaBeanUtils.notNull(observableSource, "observableSource");
-    JodaBeanUtils.notNull(fxLookup, "fxLookup");
+    JodaBeanUtils.notNull(fxRateLookup, "fxRateLookup");
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
     this.forwardCurves = ImmutableMap.copyOf(forwardCurves);
     this.observableSource = observableSource;
-    this.fxLookup = fxLookup;
+    this.fxRateLookup = fxRateLookup;
   }
 
   @Override
@@ -260,6 +261,7 @@ final class DefaultRatesMarketDataLookup
    * Gets the source of market data for quotes and other observable market data.
    * @return the value of the property, not null
    */
+  @Override
   public ObservableSource getObservableSource() {
     return observableSource;
   }
@@ -269,8 +271,9 @@ final class DefaultRatesMarketDataLookup
    * Gets the lookup used to obtain {@code FxRateProvider}.
    * @return the value of the property, not null
    */
-  public FxRateLookup getFxLookup() {
-    return fxLookup;
+  @Override
+  public FxRateLookup getFxRateLookup() {
+    return fxRateLookup;
   }
 
   //-----------------------------------------------------------------------
@@ -284,7 +287,7 @@ final class DefaultRatesMarketDataLookup
       return JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
           JodaBeanUtils.equal(forwardCurves, other.forwardCurves) &&
           JodaBeanUtils.equal(observableSource, other.observableSource) &&
-          JodaBeanUtils.equal(fxLookup, other.fxLookup);
+          JodaBeanUtils.equal(fxRateLookup, other.fxRateLookup);
     }
     return false;
   }
@@ -295,7 +298,7 @@ final class DefaultRatesMarketDataLookup
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(forwardCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fxLookup);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxRateLookup);
     return hash;
   }
 
@@ -306,7 +309,7 @@ final class DefaultRatesMarketDataLookup
     buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
     buf.append("forwardCurves").append('=').append(forwardCurves).append(',').append(' ');
     buf.append("observableSource").append('=').append(observableSource).append(',').append(' ');
-    buf.append("fxLookup").append('=').append(JodaBeanUtils.toString(fxLookup));
+    buf.append("fxRateLookup").append('=').append(JodaBeanUtils.toString(fxRateLookup));
     buf.append('}');
     return buf.toString();
   }
