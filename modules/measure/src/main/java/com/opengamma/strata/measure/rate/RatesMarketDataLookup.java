@@ -335,4 +335,23 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    */
   public abstract FxRateProvider fxRateProvider(MarketData marketData);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the observable source.
+   * 
+   * @return the observable source
+   */
+  public default ObservableSource getObservableSource() {
+    return ObservableSource.NONE;
+  }
+
+  /**
+   * Gets the underlying FX lookup.
+   * 
+   * @return the underlying FX lookup
+   */
+  public default FxRateLookup getFxRateLookup() {
+    return this::fxRateProvider;
+  }
+
 }
