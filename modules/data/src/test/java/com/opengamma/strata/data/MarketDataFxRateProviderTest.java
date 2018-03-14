@@ -36,6 +36,7 @@ public class MarketDataFxRateProviderTest {
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final double EUR_USD = 1.10;
   private static final double GBP_USD = 1.50;
+  private static final double EUR_GBP = 0.75;
   private static final double EUR_CHF = 1.05;
   private static final double GBP_CHF = 1.41;
   private static final Currency BEF = Currency.of("BEF");
@@ -104,6 +105,17 @@ public class MarketDataFxRateProviderTest {
     FxRateProvider fx = MarketDataFxRateProvider.of(marketData);
     assertEquals(fx.fxRate(GBP, BEF), GBP_USD * EUR_BEF / EUR_USD, 1.0E-10);
     assertEquals(fx.fxRate(BEF, GBP), EUR_USD / EUR_BEF / GBP_USD, 1.0E-10);
+  }
+
+  public void cross_inferred() {
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(EUR, USD), FxRate.of(EUR, USD, EUR_USD),
+            FxRateId.of(EUR, GBP), FxRate.of(EUR, GBP, EUR_GBP),
+            FxRateId.of(EUR, BEF), FxRate.of(EUR, BEF, EUR_BEF));
+    MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
+    FxRateProvider fx = MarketDataFxRateProvider.of(marketData);
+    assertEquals(fx.fxRate(GBP, USD), (1 / EUR_GBP) * EUR_USD, 1.0E-10);
+    assertEquals(fx.fxRate(BEF, USD), (1 / EUR_BEF) * EUR_USD, 1.0E-10);
   }
 
   //-------------------------------------------------------------------------

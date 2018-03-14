@@ -7,7 +7,9 @@ package com.opengamma.strata.data;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -17,6 +19,7 @@ import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
@@ -35,6 +38,7 @@ import com.opengamma.strata.collect.Messages;
  * <li>Find the triangulation currency of AAA (TTA), try to return rate from AAA/TTA and TTA/BBB
  * <li>Find the triangulation currency of BBB (TTB), try to return rate from AAA/TTB and TTB/BBB
  * <li>Find the triangulation currency of AAA (TTA) and BBB (TTB), try to return rate from AAA/TTA, TTA/TTB and TTB/BBB
+ * <li>Search the market data to see if there is a shared currency between the two, favouring USD, then EUR over alternatives
  * </ol>
  * The triangulation currency can also be specified, which is useful if all
  * FX rates are supplied relative to a currency other than USD.
@@ -139,6 +143,35 @@ public final class MarketDataFxRateProvider
     Optional<FxRate> rateCounter2 = marketData.findValue(FxRateId.of(triangularCounterCcy, counterCurrency, fxRatesSource));
     if (rateCounter1.isPresent() && rateCounter2.isPresent()) {
       return rateCounter1.get().crossRate(rateCounter2.get()).fxRate(baseCurrency, counterCurrency);
+    }
+    // Infer the triangulation from the data available
+    Set<Currency> baseOthers = new HashSet<>();
+    Set<Currency> counterOthers = new HashSet<>();
+    for (MarketDataId<?> id : marketData.getIds()) {
+      if (id instanceof FxRateId) {
+        FxRateId fxId = (FxRateId) id;
+        if (fxId.getPair().contains(baseCurrency)) {
+          baseOthers.add(fxId.getPair().other(baseCurrency));
+        }
+        if (fxId.getPair().contains(counterCurrency)) {
+          counterOthers.add(fxId.getPair().other(counterCurrency));
+        }
+      }
+    }
+    Set<Currency> intersection = Sets.intersection(baseOthers, counterOthers);
+    if (intersection.contains(Currency.USD)) {
+      FxRate rate1 = marketData.getValue(FxRateId.of(baseCurrency, Currency.USD, fxRatesSource));
+      FxRate rate2 = marketData.getValue(FxRateId.of(Currency.USD, counterCurrency, fxRatesSource));
+      return rate1.crossRate(rate2).fxRate(baseCurrency, counterCurrency);
+    } else if (intersection.contains(Currency.EUR)) {
+      FxRate rate1 = marketData.getValue(FxRateId.of(baseCurrency, Currency.EUR, fxRatesSource));
+      FxRate rate2 = marketData.getValue(FxRateId.of(Currency.EUR, counterCurrency, fxRatesSource));
+      return rate1.crossRate(rate2).fxRate(baseCurrency, counterCurrency);
+    } else if (intersection.size() == 1) {
+      Currency cross = intersection.iterator().next();
+      FxRate rate1 = marketData.getValue(FxRateId.of(baseCurrency, cross, fxRatesSource));
+      FxRate rate2 = marketData.getValue(FxRateId.of(cross, counterCurrency, fxRatesSource));
+      return rate1.crossRate(rate2).fxRate(baseCurrency, counterCurrency);
     }
     // Double triangulation
     if (rateBase1.isPresent() && rateCounter2.isPresent()) {
