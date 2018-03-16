@@ -21,6 +21,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.TypedMetaBean;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableConstructor;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
@@ -57,6 +58,10 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Class<? extends CalculationParameter>, CalculationParameter> parameters;
+  /**
+   * The aliases.
+   */
+  private final ImmutableMap<Class<? extends CalculationParameter>, Class<? extends CalculationParameter>> aliases;
 
   //-------------------------------------------------------------------------
   /**
@@ -108,6 +113,27 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
       return EMPTY;
     }
     return new CalculationParameters(map);
+  }
+
+  @ImmutableConstructor
+  private CalculationParameters(Map<Class<? extends CalculationParameter>, CalculationParameter> parameters) {
+    JodaBeanUtils.notNull(parameters, "parameters");
+    this.parameters = ImmutableMap.copyOf(parameters);
+    // find parameters that are super-interfaces of the specified objects
+    ImmutableMap.Builder<Class<? extends CalculationParameter>, Class<? extends CalculationParameter>> aliases =
+        ImmutableMap.builder();
+    for (Class<? extends CalculationParameter> type : parameters.keySet()) {
+      Class<?>[] interfaces = type.getInterfaces();
+      for (Class<?> iface : interfaces) {
+        if (iface != CalculationParameter.class &&
+            CalculationParameter.class.isAssignableFrom(iface) &&
+            !parameters.containsKey(iface)) {
+
+          aliases.put(iface.asSubclass(CalculationParameter.class), type);
+        }
+      }
+    }
+    this.aliases = aliases.build();
   }
 
   //-------------------------------------------------------------------------
@@ -192,7 +218,8 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    */
   @SuppressWarnings("unchecked")
   public <T extends CalculationParameter> Optional<T> findParameter(Class<T> type) {
-    return Optional.ofNullable((T) parameters.get(type));
+    Class<? extends CalculationParameter> lookupType = aliases.getOrDefault(type, type);
+    return Optional.ofNullable((T) parameters.get(lookupType));
   }
 
   /**
@@ -205,8 +232,8 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    */
   @SuppressWarnings("unchecked")
   public <T extends CalculationParameter> T getParameter(Class<T> type) {
-    T calculationParameter = (T) parameters.get(type);
-
+    Class<? extends CalculationParameter> lookupType = aliases.getOrDefault(type, type);
+    T calculationParameter = (T) parameters.get(lookupType);
     if (calculationParameter == null) {
       throw new IllegalArgumentException("No parameter found for query type " + type.getName());
     }
@@ -241,12 +268,6 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  private CalculationParameters(
-      Map<Class<? extends CalculationParameter>, CalculationParameter> parameters) {
-    JodaBeanUtils.notNull(parameters, "parameters");
-    this.parameters = ImmutableMap.copyOf(parameters);
-  }
 
   @Override
   public TypedMetaBean<CalculationParameters> metaBean() {

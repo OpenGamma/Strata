@@ -208,8 +208,12 @@ public final class CalculationTask implements ImmutableBean {
     // calculate the results
     Map<Measure, Result<?>> results = calculate(marketData, refData);
 
+    // get a suitable FX provider
+    ScenarioFxRateProvider fxProvider = parameters.findParameter(FxRateLookup.class)
+        .map(lookup -> LookupScenarioFxRateProvider.of(marketData, lookup))
+        .orElse(ScenarioFxRateProvider.of(marketData));
+
     // convert the results, using a normal loop for better stack traces
-    ScenarioFxRateProvider fxProvider = ScenarioFxRateProvider.of(marketData);
     ImmutableList.Builder<CalculationResult> resultBuilder = ImmutableList.builder();
     for (CalculationTaskCell cell : cells) {
       resultBuilder.add(cell.createResult(this, target, results, fxProvider, refData));

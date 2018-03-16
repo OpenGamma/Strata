@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.rate;
+package com.opengamma.strata.calc.runner;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;

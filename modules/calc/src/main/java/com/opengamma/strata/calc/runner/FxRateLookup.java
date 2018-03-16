@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.rate;
+package com.opengamma.strata.calc.runner;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -16,11 +16,12 @@ import com.opengamma.strata.data.ObservableSource;
 /**
  * The lookup that provides access to FX rates in market data.
  * <p>
- * The FX rates lookup provides access to FX rates.
+ * An instance of {@link MarketData} can contain many different FX rates.
+ * This lookup allows a specific set of rates to be obtained.
  * <p>
  * Implementations of this interface must be immutable.
  */
-public interface FxRateLookup {
+public interface FxRateLookup extends CalculationParameter {
 
   /**
    * Obtains the standard instance.
@@ -104,6 +105,11 @@ public interface FxRateLookup {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  default Class<? extends CalculationParameter> queryType() {
+    return FxRateLookup.class;
+  }
+
   /**
    * Obtains an FX rate provider based on the specified market data.
    * <p>
