@@ -137,6 +137,11 @@ public final class CapitalIndexedBondTrade
         .build();
   }
 
+  @Override
+  public CapitalIndexedBondTrade withQuantity(double quantity) {
+    return new CapitalIndexedBondTrade(info, product, quantity, price);
+  }
+
   // calculates the settlement date from the trade date if necessary
   private TradeInfo calculateSettlementDate(ReferenceData refData) {
     if (info.getSettlementDate().isPresent()) {

@@ -72,6 +72,20 @@ public class IborFutureOptionTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withQuantity() {
+    IborFutureOptionTrade base = sut();
+    double quantity = 65243;
+    IborFutureOptionTrade computed = base.withQuantity(quantity);
+    IborFutureOptionTrade expected = IborFutureOptionTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(quantity)
+        .price(PRICE)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

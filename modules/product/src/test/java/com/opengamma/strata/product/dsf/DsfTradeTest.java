@@ -76,6 +76,20 @@ public class DsfTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withQuantity() {
+    DsfTrade base = sut();
+    double quantity = 6423d;
+    DsfTrade computed = base.withQuantity(quantity);
+    DsfTrade expected = DsfTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(quantity)
+        .price(PRICE)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

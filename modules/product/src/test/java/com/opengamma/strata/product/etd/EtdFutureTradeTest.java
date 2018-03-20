@@ -38,6 +38,20 @@ public class EtdFutureTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withQuantity() {
+    EtdFutureTrade base = sut();
+    double quantity = 6425d;
+    EtdFutureTrade computed = base.withQuantity(quantity);
+    EtdFutureTrade expected = EtdFutureTrade.builder()
+        .info(TRADE_INFO)
+        .security(SECURITY)
+        .quantity(quantity)
+        .price(20)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

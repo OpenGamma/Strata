@@ -140,6 +140,20 @@ public class CapitalIndexedBondTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withQuantity() {
+    CapitalIndexedBondTrade base = sut();
+    double quantity = 3456d;
+    CapitalIndexedBondTrade computed = base.withQuantity(quantity);
+    CapitalIndexedBondTrade expected = CapitalIndexedBondTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(quantity)
+        .price(PRICE)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

@@ -26,8 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.SecurityQuantity;
-import com.opengamma.strata.product.Trade;
+import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.SummarizerUtils;
 
@@ -38,7 +37,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class EtdOptionTrade
-    implements Trade, SecurityQuantity, ImmutableBean, Serializable {
+    implements SecurityQuantityTrade, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -65,7 +64,7 @@ public final class EtdOptionTrade
    * <p>
    * This is the price agreed when the trade occurred.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final double price;
 
   //-------------------------------------------------------------------------
@@ -102,16 +101,14 @@ public final class EtdOptionTrade
     return SummarizerUtils.summary(this, ProductType.ETD_OPTION, description, getCurrency());
   }
 
-  /**
-   * Gets the security identifier.
-   * <p>
-   * This identifier uniquely identifies the security within the system.
-   * 
-   * @return the security identifier
-   */
   @Override
   public SecurityId getSecurityId() {
     return security.getSecurityId();
+  }
+
+  @Override
+  public EtdOptionTrade withQuantity(double quantity) {
+    return new EtdOptionTrade(info, security, quantity, price);
   }
 
   /**
@@ -209,6 +206,7 @@ public final class EtdOptionTrade
    * This is the price agreed when the trade occurred.
    * @return the value of the property
    */
+  @Override
   public double getPrice() {
     return price;
   }
