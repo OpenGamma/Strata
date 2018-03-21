@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.Currency;
  * Implementations of this interface must be immutable beans.
  */
 public interface SecuritizedProductTrade
-    extends ProductTrade, SecurityQuantity {
+    extends ProductTrade, SecurityQuantityTrade {
 
   /**
    * Gets the product of the security that was traded.
@@ -45,13 +45,22 @@ public interface SecuritizedProductTrade
   public abstract double getQuantity();
 
   /**
-   * Gets the price that was traded.
-   * <p>
-   * This is the unit price agreed when the trade occurred.
+   * Returns an instance with the specified quantity.
    * 
-   * @return the price
+   * @param quantity  the new quantity
+   * @return the instance with the specified quantity
    */
-  public abstract double getPrice();
+  @Override
+  public abstract SecuritizedProductTrade withQuantity(double quantity);
+
+  /**
+   * Returns an instance with the specified price.
+   * 
+   * @param price  the new price
+   * @return the instance with the specified price
+   */
+  @Override
+  public abstract SecuritizedProductTrade withPrice(double price);
 
   //-------------------------------------------------------------------------
   /**
