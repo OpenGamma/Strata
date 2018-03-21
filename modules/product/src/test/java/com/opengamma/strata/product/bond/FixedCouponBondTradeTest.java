@@ -89,6 +89,33 @@ public class FixedCouponBondTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withQuantity() {
+    FixedCouponBondTrade base = sut();
+    double quantity = 75343d;
+    FixedCouponBondTrade computed = base.withQuantity(quantity);
+    FixedCouponBondTrade expected = FixedCouponBondTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(quantity)
+        .price(PRICE)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  public void test_withPrice() {
+    FixedCouponBondTrade base = sut();
+    double price = 135d;
+    FixedCouponBondTrade computed = base.withPrice(price);
+    FixedCouponBondTrade expected = FixedCouponBondTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(QUANTITY)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

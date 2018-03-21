@@ -35,7 +35,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityTrade
-    implements Trade, SecurityQuantity, ImmutableBean, Serializable {
+    implements SecurityQuantityTrade, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -62,7 +62,7 @@ public final class GenericSecurityTrade
    * <p>
    * This is the price agreed when the trade occurred.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final double price;
 
   //-------------------------------------------------------------------------
@@ -97,16 +97,19 @@ public final class GenericSecurityTrade
     return SummarizerUtils.summary(this, ProductType.SECURITY, description, getCurrency());
   }
 
-  /**
-   * Gets the security identifier.
-   * <p>
-   * This identifier uniquely identifies the security within the system.
-   * 
-   * @return the security identifier
-   */
   @Override
   public SecurityId getSecurityId() {
     return security.getSecurityId();
+  }
+
+  @Override
+  public GenericSecurityTrade withQuantity(double quantity) {
+    return new GenericSecurityTrade(info, security, quantity, price);
+  }
+
+  @Override
+  public GenericSecurityTrade withPrice(double price) {
+    return new GenericSecurityTrade(info, security, quantity, price);
   }
 
   /**
@@ -211,6 +214,7 @@ public final class GenericSecurityTrade
    * This is the price agreed when the trade occurred.
    * @return the value of the property
    */
+  @Override
   public double getPrice() {
     return price;
   }

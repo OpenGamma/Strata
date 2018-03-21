@@ -47,6 +47,33 @@ public class SecurityTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withQuantity() {
+    SecurityTrade base = sut();
+    double quantity = 65;
+    SecurityTrade computed = base.withQuantity(quantity);
+    SecurityTrade expected = SecurityTrade.builder()
+        .info(TRADE_INFO)
+        .securityId(SECURITY_ID)
+        .quantity(quantity)
+        .price(PRICE)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  public void test_withPrice() {
+    SecurityTrade base = sut();
+    double price = 150d;
+    SecurityTrade computed = base.withPrice(price);
+    SecurityTrade expected = SecurityTrade.builder()
+        .info(TRADE_INFO)
+        .securityId(SECURITY_ID)
+        .quantity(QUANTITY)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_summarize() {
     SecurityTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
