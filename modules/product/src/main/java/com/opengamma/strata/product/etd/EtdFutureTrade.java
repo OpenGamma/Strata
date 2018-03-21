@@ -111,6 +111,11 @@ public final class EtdFutureTrade
     return new EtdFutureTrade(info, security, quantity, price);
   }
 
+  @Override
+  public EtdFutureTrade withPrice(double price) {
+    return new EtdFutureTrade(info, security, quantity, price);
+  }
+
   /**
    * Gets the currency of the trade.
    * <p>

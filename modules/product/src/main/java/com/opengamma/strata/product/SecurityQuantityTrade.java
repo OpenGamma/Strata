@@ -32,4 +32,12 @@ public interface SecurityQuantityTrade
    */
   public abstract SecurityQuantityTrade withQuantity(double quantity);
 
+  /**
+   * Returns an instance with the specified price.
+   * 
+   * @param price  the new price
+   * @return the instance with the specified price
+   */
+  public abstract SecurityQuantityTrade withPrice(double price);
+
 }

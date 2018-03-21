@@ -89,6 +89,19 @@ public class BondFutureTradeTest {
     assertEquals(computed, expected);
   }
 
+  public void test_withPrice() {
+    BondFutureTrade base = sut();
+    double price = 1.5d;
+    BondFutureTrade computed = base.withPrice(price);
+    BondFutureTrade expected = BondFutureTrade.builder()
+        .info(TRADE_INFO)
+        .product(FUTURE)
+        .quantity(QUANTITY)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());

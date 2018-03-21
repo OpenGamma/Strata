@@ -102,6 +102,19 @@ public class FixedCouponBondTradeTest {
     assertEquals(computed, expected);
   }
 
+  public void test_withPrice() {
+    FixedCouponBondTrade base = sut();
+    double price = 135d;
+    FixedCouponBondTrade computed = base.withPrice(price);
+    FixedCouponBondTrade expected = FixedCouponBondTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(QUANTITY)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());

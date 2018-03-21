@@ -111,6 +111,11 @@ public final class EtdOptionTrade
     return new EtdOptionTrade(info, security, quantity, price);
   }
 
+  @Override
+  public EtdOptionTrade withPrice(double price) {
+    return new EtdOptionTrade(info, security, quantity, price);
+  }
+
   /**
    * Gets the currency of the trade.
    * <p>

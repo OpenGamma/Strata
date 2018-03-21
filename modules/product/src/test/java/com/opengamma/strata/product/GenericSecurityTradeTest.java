@@ -62,6 +62,19 @@ public class GenericSecurityTradeTest {
     assertEquals(computed, expected);
   }
 
+  public void test_withPrice() {
+    GenericSecurityTrade base = sut();
+    double price = 180d;
+    GenericSecurityTrade computed = base.withPrice(price);
+    GenericSecurityTrade expected = GenericSecurityTrade.builder()
+        .info(TRADE_INFO)
+        .security(SECURITY)
+        .quantity(QUANTITY)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());

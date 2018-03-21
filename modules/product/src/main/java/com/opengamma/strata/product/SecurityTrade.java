@@ -106,6 +106,11 @@ public final class SecurityTrade
     return new SecurityTrade(info, securityId, quantity, price);
   }
 
+  @Override
+  public SecurityTrade withPrice(double price) {
+    return new SecurityTrade(info, securityId, quantity, price);
+  }
+
   /**
    * Resolves the security identifier using the specified reference data.
    * <p>

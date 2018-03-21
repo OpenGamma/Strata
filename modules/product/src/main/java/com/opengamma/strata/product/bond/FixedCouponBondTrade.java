@@ -104,6 +104,11 @@ public final class FixedCouponBondTrade
     return new FixedCouponBondTrade(info, product, quantity, price);
   }
 
+  @Override
+  public FixedCouponBondTrade withPrice(double price) {
+    return new FixedCouponBondTrade(info, product, quantity, price);
+  }
+
   // calculates the settlement date from the trade date if necessary
   private TradeInfo calculateSettlementDate(ReferenceData refData) {
     if (info.getSettlementDate().isPresent()) {

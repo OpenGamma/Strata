@@ -107,6 +107,11 @@ public final class GenericSecurityTrade
     return new GenericSecurityTrade(info, security, quantity, price);
   }
 
+  @Override
+  public GenericSecurityTrade withPrice(double price) {
+    return new GenericSecurityTrade(info, security, quantity, price);
+  }
+
   /**
    * Gets the currency of the trade.
    * <p>

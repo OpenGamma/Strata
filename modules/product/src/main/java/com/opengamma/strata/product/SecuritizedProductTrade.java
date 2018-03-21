@@ -44,6 +44,24 @@ public interface SecuritizedProductTrade
   @Override
   public abstract double getQuantity();
 
+  /**
+   * Returns an instance with the specified quantity.
+   * 
+   * @param quantity  the new quantity
+   * @return the instance with the specified quantity
+   */
+  @Override
+  public abstract SecuritizedProductTrade withQuantity(double quantity);
+
+  /**
+   * Returns an instance with the specified price.
+   * 
+   * @param price  the new price
+   * @return the instance with the specified price
+   */
+  @Override
+  public abstract SecuritizedProductTrade withPrice(double price);
+
   //-------------------------------------------------------------------------
   /**
    * Gets the security identifier.

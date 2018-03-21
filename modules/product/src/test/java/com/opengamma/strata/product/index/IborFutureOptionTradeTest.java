@@ -85,6 +85,19 @@ public class IborFutureOptionTradeTest {
     assertEquals(computed, expected);
   }
 
+  public void test_withPrice() {
+    IborFutureOptionTrade base = sut();
+    double price = 0.95;
+    IborFutureOptionTrade computed = base.withPrice(price);
+    IborFutureOptionTrade expected = IborFutureOptionTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(QUANTITY)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());

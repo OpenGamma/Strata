@@ -51,6 +51,19 @@ public class EtdFutureTradeTest {
     assertEquals(computed, expected);
   }
 
+  public void test_withPrice() {
+    EtdFutureTrade base = sut();
+    double price = 25d;
+    EtdFutureTrade computed = base.withPrice(price);
+    EtdFutureTrade expected = EtdFutureTrade.builder()
+        .info(TRADE_INFO)
+        .security(SECURITY)
+        .quantity(3000)
+        .price(price)
+        .build();
+    assertEquals(computed, expected);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
