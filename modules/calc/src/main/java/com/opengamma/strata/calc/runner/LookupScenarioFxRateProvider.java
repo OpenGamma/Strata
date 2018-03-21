@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.runner;
 import java.io.Serializable;
 
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
@@ -36,8 +37,8 @@ class LookupScenarioFxRateProvider
   }
 
   private LookupScenarioFxRateProvider(ScenarioMarketData marketData, FxRateLookup lookup) {
-    this.marketData = marketData;
-    this.lookup = lookup;
+    this.marketData = ArgChecker.notNull(marketData, "marketData");
+    this.lookup = ArgChecker.notNull(lookup, "lookup");
   }
 
   @Override

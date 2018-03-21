@@ -78,6 +78,9 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * <p>
    * The list will be converted to a {@code Map} using {@link CalculationParameter#queryType()}.
    * Each parameter must refer to a different query type.
+   * <p>
+   * If a parameter implements an interface that also extends {@link CalculationParameter},
+   * that type will also be able to be searched for (unless it has been directly registered).
    * 
    * @param parameters  the parameters
    * @return the calculation parameters
@@ -95,6 +98,9 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * <p>
    * The list will be converted to a {@code Map} using {@link CalculationParameter#queryType()}.
    * Each parameter must refer to a different query type.
+   * <p>
+   * If a parameter implements an interface that also extends {@link CalculationParameter},
+   * that type will also be able to be searched for (unless it has been directly registered).
    * 
    * @param parameters  the parameters
    * @return the calculation parameters
@@ -115,25 +121,26 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
     return new CalculationParameters(map);
   }
 
+  // the input map is treated as being ordered
   @ImmutableConstructor
   private CalculationParameters(Map<Class<? extends CalculationParameter>, CalculationParameter> parameters) {
     JodaBeanUtils.notNull(parameters, "parameters");
     this.parameters = ImmutableMap.copyOf(parameters);
     // find parameters that are super-interfaces of the specified objects
-    ImmutableMap.Builder<Class<? extends CalculationParameter>, Class<? extends CalculationParameter>> aliases =
-        ImmutableMap.builder();
+    Map<Class<? extends CalculationParameter>, Class<? extends CalculationParameter>> aliases = new HashMap<>();
     for (Class<? extends CalculationParameter> type : parameters.keySet()) {
       Class<?>[] interfaces = type.getInterfaces();
       for (Class<?> iface : interfaces) {
         if (iface != CalculationParameter.class &&
             CalculationParameter.class.isAssignableFrom(iface) &&
             !parameters.containsKey(iface)) {
-
-          aliases.put(iface.asSubclass(CalculationParameter.class), type);
+          // first registration wins with aliases
+          Class<? extends CalculationParameter> aliasType = iface.asSubclass(CalculationParameter.class);
+          aliases.putIfAbsent(aliasType, type);
         }
       }
     }
-    this.aliases = aliases.build();
+    this.aliases = ImmutableMap.copyOf(aliases);
   }
 
   //-------------------------------------------------------------------------
