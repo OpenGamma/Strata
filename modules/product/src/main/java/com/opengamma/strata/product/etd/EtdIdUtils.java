@@ -5,8 +5,13 @@
  */
 package com.opengamma.strata.product.etd;
 
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
+import static java.time.temporal.ChronoField.YEAR;
+
 import java.text.NumberFormat;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Locale;
 
 import com.opengamma.strata.collect.ArgChecker;
@@ -40,6 +45,13 @@ public final class EtdIdUtils {
    * Prefix for option.
    */
   private static final String OPT_PREFIX = "O" + SEPARATOR;
+  /**
+   * The year-month format.
+   */
+  private static final DateTimeFormatter YM_FORMAT = new DateTimeFormatterBuilder()
+      .appendValue(YEAR, 4)
+      .appendValue(MONTH_OF_YEAR, 2)
+      .toFormatter(Locale.ROOT);
 
   //-------------------------------------------------------------------------
   /**
@@ -79,7 +91,7 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @return the identifier
    */
   public static SecurityId futureId(
@@ -94,18 +106,20 @@ public final class EtdIdUtils {
     ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
     ArgChecker.notNull(variant, "variant");
 
-    String id = FUT_PREFIX +
-        exchangeId + SEPARATOR +
-        contractCode + SEPARATOR +
-        expiryMonth.getYear() +
-        ((char) ((expiryMonth.getMonthValue() / 10) + '0')) +
-        ((char) ((expiryMonth.getMonthValue() % 10) + '0')) +
-        variant.getCode();
+    String id = new StringBuilder(40)
+        .append(FUT_PREFIX)
+        .append(exchangeId)
+        .append(SEPARATOR)
+        .append(contractCode)
+        .append(SEPARATOR)
+        .append(expiryMonth.format(YM_FORMAT))
+        .append(variant.getCode())
+        .toString();
     return SecurityId.of(ETD_SCHEME, id);
   }
 
   /**
-   * Creates an identifier for an ETD future instrument.
+   * Creates an identifier for an ETD option instrument.
    * <p>
    * A typical monthly ETD with version zero will have the format:
    * {@code 'OG-ETD~O-ECAG-OGBS-201706-P1.50'}.
@@ -116,7 +130,7 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero by default
    * @param putCall  the Put/Call flag
    * @param strikePrice  the strike price
@@ -131,10 +145,40 @@ public final class EtdIdUtils {
       PutCall putCall,
       double strikePrice) {
 
+    return optionId(exchangeId, contractCode, expiryMonth, variant, version, putCall, strikePrice, null);
+  }
+
+  /**
+   * Creates an identifier for an ETD option instrument.
+   * <p>
+   * This takes into account the expiry of the underlying instrument. If the underlying expiry
+   * is the same as the expiry of the option, the identifier is the same as the normal one.
+   * Otherwise, the underlying expiry is added after the option expiry. For example:
+   * {@code 'OG-ETD~O-ECAG-OGBS-201706-P1.50-U201709'}.
+   *
+   * @param exchangeId  the MIC code of the exchange where the instruments are traded
+   * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
+   * @param expiryMonth  the month of expiry
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
+   * @param version  the non-negative version, zero by default
+   * @param putCall  the Put/Call flag
+   * @param strikePrice  the strike price
+   * @param underlyingExpiryMonth  the expiry of the underlying instrument, such as a future, may be null
+   * @return the identifier
+   */
+  public static SecurityId optionId(
+      ExchangeId exchangeId,
+      EtdContractCode contractCode,
+      YearMonth expiryMonth,
+      EtdVariant variant,
+      int version,
+      PutCall putCall,
+      double strikePrice,
+      YearMonth underlyingExpiryMonth) {
+
     ArgChecker.notNull(exchangeId, "exchangeId");
     ArgChecker.notNull(contractCode, "contractCode");
     ArgChecker.notNull(expiryMonth, "expiryMonth");
-    ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
     ArgChecker.notNull(variant, "variant");
     ArgChecker.notNull(putCall, "putCall");
 
@@ -146,16 +190,25 @@ public final class EtdIdUtils {
     f.setMaximumFractionDigits(8);
     String strikeStr = f.format(strikePrice).replace('-', 'M');
 
-    String id = OPT_PREFIX +
-        exchangeId + SEPARATOR +
-        contractCode + SEPARATOR +
-        expiryMonth.getYear() +
-        ((char) ((expiryMonth.getMonthValue() / 10) + '0')) +
-        ((char) ((expiryMonth.getMonthValue() % 10) + '0')) +
-        variant.getCode() + SEPARATOR +
-        versionCode +
-        putCallStr +
-        strikeStr;
+    String underlying = "";
+    if (underlyingExpiryMonth != null && !underlyingExpiryMonth.equals(expiryMonth)) {
+      underlying = SEPARATOR + "U" + underlyingExpiryMonth.format(YM_FORMAT);
+    }
+
+    String id = new StringBuilder(40)
+        .append(OPT_PREFIX)
+        .append(exchangeId)
+        .append(SEPARATOR)
+        .append(contractCode)
+        .append(SEPARATOR)
+        .append(expiryMonth.format(YM_FORMAT))
+        .append(variant.getCode())
+        .append(SEPARATOR)
+        .append(versionCode)
+        .append(putCallStr)
+        .append(strikeStr)
+        .append(underlying)
+        .toString();
     return SecurityId.of(ETD_SCHEME, id);
   }
 

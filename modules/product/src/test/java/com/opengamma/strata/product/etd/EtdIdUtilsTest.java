@@ -84,6 +84,37 @@ public class EtdIdUtilsTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_optionIdUnderlying_monthly() {
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.ECAG, FGBS, YearMonth.of(2017, 6), MONTHLY, 0, PutCall.PUT, 12.34, YearMonth.of(2017, 9));
+    assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-201706-P12.34-U201709"));
+  }
+
+  public void test_optionIdUnderlying_monthlySameMonth() {
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.ECAG, FGBS, YearMonth.of(2017, 6), MONTHLY, 0, PutCall.PUT, 12.34, YearMonth.of(2017, 6));
+    assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-201706-P12.34"));
+  }
+
+  public void test_optionIdUnderlying_weekly() {
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.ECAG, FGBS, YearMonth.of(2017, 6), EtdVariant.ofWeekly(3), 0, PutCall.CALL, -1.45, YearMonth.of(2017, 9));
+    assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-201706W3-CM1.45-U201709"));
+  }
+
+  public void test_optionIdUnderlying_daily9_version() {
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.ECAG, FGBS, YearMonth.of(2017, 6), EtdVariant.ofDaily(9), 3, PutCall.PUT, 12.34, YearMonth.of(2017, 9));
+    assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-20170609-V3-P12.34-U201709"));
+  }
+
+  public void test_optionIdUnderlying_daily21_version() {
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.ECAG, FGBS, YearMonth.of(2017, 6), EtdVariant.ofDaily(21), 11, PutCall.PUT, 12.34, YearMonth.of(2017, 9));
+    assertEquals(test.getStandardId(), StandardId.of("OG-ETD", "O-ECAG-FGBS-20170621-V11-P12.34-U201709"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_coverage() {
     coverPrivateConstructor(EtdIdUtils.class);
   }
