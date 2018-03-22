@@ -118,7 +118,7 @@ public final class EtdOptionSecurity
    *
    * @param spec  the option contract specification
    * @param expiry  the expiry year-month of the option
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero if versioning does not apply
    * @param putCall  whether the option is a put or call
    * @param strikePrice  the strike price of the option
@@ -145,7 +145,7 @@ public final class EtdOptionSecurity
    *
    * @param spec  the option contract specification
    * @param expiry  the expiry year-month of the option
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero if versioning does not apply
    * @param putCall  whether the option is a put or call
    * @param strikePrice  the strike price of the option

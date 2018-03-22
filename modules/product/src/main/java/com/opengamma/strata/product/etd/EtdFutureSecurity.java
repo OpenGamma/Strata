@@ -84,7 +84,7 @@ public final class EtdFutureSecurity
    *
    * @param spec  the future contract specification
    * @param expiry  the expiry year-month of the future
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @return a future security based on this contract specification
    * @throws IllegalStateException if the product type of the contract specification is not {@code FUTURE}
    */

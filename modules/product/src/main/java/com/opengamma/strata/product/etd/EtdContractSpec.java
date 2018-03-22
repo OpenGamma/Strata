@@ -140,7 +140,7 @@ public final class EtdContractSpec
    * The {@link #getType() type} must be {@link EtdType#FUTURE} otherwise an exception will be thrown.
    *
    * @param expiryMonth  the expiry month of the future
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @return a future security based on this contract specification
    * @throws IllegalStateException if the product type of the contract specification is not {@code FUTURE}
    */
@@ -155,7 +155,7 @@ public final class EtdContractSpec
    * The {@link #getType() type} must be {@link EtdType#OPTION} otherwise an exception will be thrown.
    *
    * @param expiryMonth  the expiry month of the option
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero by default
    * @param putCall  whether the option is a put or call
    * @param strikePrice  the strike price of the option
@@ -179,7 +179,7 @@ public final class EtdContractSpec
    * The {@link #getType() type} must be {@link EtdType#OPTION} otherwise an exception will be thrown.
    *
    * @param expiryMonth  the expiry month of the option
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero by default
    * @param putCall  whether the option is a put or call
    * @param strikePrice  the strike price of the option

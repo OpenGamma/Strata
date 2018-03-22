@@ -91,7 +91,7 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @return the identifier
    */
   public static SecurityId futureId(
@@ -119,7 +119,7 @@ public final class EtdIdUtils {
   }
 
   /**
-   * Creates an identifier for an ETD future instrument.
+   * Creates an identifier for an ETD option instrument.
    * <p>
    * A typical monthly ETD with version zero will have the format:
    * {@code 'OG-ETD~O-ECAG-OGBS-201706-P1.50'}.
@@ -130,7 +130,7 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero by default
    * @param putCall  the Put/Call flag
    * @param strikePrice  the strike price
@@ -149,7 +149,7 @@ public final class EtdIdUtils {
   }
 
   /**
-   * Creates an identifier for an ETD future instrument.
+   * Creates an identifier for an ETD option instrument.
    * <p>
    * This takes into account the expiry of the underlying instrument. If the underlying expiry
    * is the same as the expiry of the option, the identifier is the same as the normal one.
@@ -159,7 +159,7 @@ public final class EtdIdUtils {
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex.
+   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @param version  the non-negative version, zero by default
    * @param putCall  the Put/Call flag
    * @param strikePrice  the strike price
