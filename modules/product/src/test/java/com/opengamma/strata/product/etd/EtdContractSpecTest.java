@@ -67,12 +67,36 @@ public class EtdContractSpecTest {
     assertThat(security.getVariant()).isEqualTo(EtdVariant.MONTHLY);
     assertThat(security.getPutCall()).isEqualTo(PutCall.CALL);
     assertThat(security.getStrikePrice()).isEqualTo(123.45);
+    assertThat(security.getUnderlyingExpiryMonth()).isEmpty();
     assertThat(security.getInfo().getPriceInfo()).isEqualTo(OPTION_CONTRACT.getPriceInfo());
   }
 
   public void createOptionFromFutureContractSpec() {
     assertThatThrownBy(
         () -> FUTURE_CONTRACT.createOption(YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot create an EtdOptionSecurity from a contract specification of type 'Future'");
+  }
+
+  //-------------------------------------------------------------------------
+  public void createOptionWithUnderlyingAutoId() {
+    EtdOptionSecurity security = OPTION_CONTRACT.createOption(
+        YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45, YearMonth.of(2015, 9));
+
+    assertThat(security.getSecurityId()).isEqualTo(SecurityId.of(EtdIdUtils.ETD_SCHEME, "O-IFEN-BAR-201506-C123.45-U201509"));
+    assertThat(security.getExpiry()).isEqualTo(YearMonth.of(2015, 6));
+    assertThat(security.getContractSpecId()).isEqualTo(OPTION_CONTRACT.getId());
+    assertThat(security.getVariant()).isEqualTo(EtdVariant.MONTHLY);
+    assertThat(security.getPutCall()).isEqualTo(PutCall.CALL);
+    assertThat(security.getStrikePrice()).isEqualTo(123.45);
+    assertThat(security.getUnderlyingExpiryMonth()).hasValue(YearMonth.of(2015, 9));
+    assertThat(security.getInfo().getPriceInfo()).isEqualTo(OPTION_CONTRACT.getPriceInfo());
+  }
+
+  public void createOptionWithUnderlyingFromFutureContractSpec() {
+    assertThatThrownBy(
+        () -> FUTURE_CONTRACT.createOption(
+            YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45, YearMonth.of(2015, 9)))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Cannot create an EtdOptionSecurity from a contract specification of type 'Future'");
   }

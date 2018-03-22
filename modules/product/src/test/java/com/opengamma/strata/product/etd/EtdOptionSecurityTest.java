@@ -75,6 +75,7 @@ public class EtdOptionSecurityTest {
         .version(4)
         .putCall(PutCall.CALL)
         .strikePrice(3)
+        .underlyingExpiryMonth(YearMonth.of(2017, 12))
         .build();
   }
 
