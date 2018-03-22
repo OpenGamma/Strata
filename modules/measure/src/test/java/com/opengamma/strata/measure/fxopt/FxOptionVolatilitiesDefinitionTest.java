@@ -59,6 +59,7 @@ public class FxOptionVolatilitiesDefinitionTest {
   private static final ImmutableList<ValueType> QUOTE_TYPE = ImmutableList.of(
       STRANGLE, RISK_REVERSAL, BLACK_VOLATILITY, BLACK_VOLATILITY, STRANGLE, RISK_REVERSAL);
   private static final ImmutableList<FxOptionVolatilitiesNode> NODES;
+  @SuppressWarnings("unused")
   private static final ImmutableList<QuoteId> QUOTE_IDS;
   static {
     ImmutableList.Builder<FxOptionVolatilitiesNode> builder = ImmutableList.builder();

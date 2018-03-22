@@ -17,6 +17,7 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.calc.runner.FxRateLookup;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
@@ -43,7 +44,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * Implementations of this interface must be immutable.
  */
-public interface RatesMarketDataLookup extends CalculationParameter {
+public interface RatesMarketDataLookup extends FxRateLookup, CalculationParameter {
 
   /**
    * Obtains an instance based on a map of discount and forward curve identifiers.
@@ -333,6 +334,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @param marketData  the complete set of market data for one scenario
    * @return the FX rate provider
    */
+  @Override
   public abstract FxRateProvider fxRateProvider(MarketData marketData);
 
   //-------------------------------------------------------------------------
@@ -351,7 +353,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @return the underlying FX lookup
    */
   public default FxRateLookup getFxRateLookup() {
-    return this::fxRateProvider;
+    return this;
   }
 
 }
