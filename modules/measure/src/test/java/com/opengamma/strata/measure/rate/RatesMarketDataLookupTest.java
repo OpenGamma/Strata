@@ -37,6 +37,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.calc.runner.FxRateLookup;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;

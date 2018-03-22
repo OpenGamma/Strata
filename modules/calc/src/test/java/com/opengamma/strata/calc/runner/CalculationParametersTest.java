@@ -51,10 +51,24 @@ public class CalculationParametersTest {
     assertEquals(test.getParameters().size(), 0);
   }
 
-  public void getParameter() {
+  public void getParameter1() {
     CalculationParameters test = CalculationParameters.of(ImmutableList.of(PARAM));
     assertEquals(test.getParameter(TestParameter.class), PARAM);
     assertThrowsIllegalArg(() -> test.getParameter(TestParameter2.class));
+    assertThrowsIllegalArg(() -> test.getParameter(TestInterfaceParameter.class));
+    assertEquals(test.findParameter(TestParameter.class), Optional.of(PARAM));
+    assertEquals(test.findParameter(TestParameter2.class), Optional.empty());
+    assertEquals(test.findParameter(TestInterfaceParameter.class), Optional.empty());
+  }
+
+  public void getParameter2() {
+    CalculationParameters test = CalculationParameters.of(ImmutableList.of(PARAM2));
+    assertEquals(test.getParameter(TestParameter2.class), PARAM2);
+    assertEquals(test.getParameter(TestInterfaceParameter.class), PARAM2);
+    assertThrowsIllegalArg(() -> test.getParameter(TestParameter.class));
+    assertEquals(test.findParameter(TestParameter2.class), Optional.of(PARAM2));
+    assertEquals(test.findParameter(TestInterfaceParameter.class), Optional.of(PARAM2));
+    assertEquals(test.findParameter(TestParameter.class), Optional.empty());
   }
 
   //-------------------------------------------------------------------------

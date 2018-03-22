@@ -21,6 +21,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.TypedMetaBean;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableConstructor;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
@@ -57,6 +58,10 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Class<? extends CalculationParameter>, CalculationParameter> parameters;
+  /**
+   * The aliases.
+   */
+  private final ImmutableMap<Class<? extends CalculationParameter>, Class<? extends CalculationParameter>> aliases;
 
   //-------------------------------------------------------------------------
   /**
@@ -73,6 +78,9 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * <p>
    * The list will be converted to a {@code Map} using {@link CalculationParameter#queryType()}.
    * Each parameter must refer to a different query type.
+   * <p>
+   * If a parameter implements an interface that also extends {@link CalculationParameter},
+   * that type will also be able to be searched for (unless it has been directly registered).
    * 
    * @param parameters  the parameters
    * @return the calculation parameters
@@ -90,6 +98,9 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * <p>
    * The list will be converted to a {@code Map} using {@link CalculationParameter#queryType()}.
    * Each parameter must refer to a different query type.
+   * <p>
+   * If a parameter implements an interface that also extends {@link CalculationParameter},
+   * that type will also be able to be searched for (unless it has been directly registered).
    * 
    * @param parameters  the parameters
    * @return the calculation parameters
@@ -108,6 +119,28 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
       return EMPTY;
     }
     return new CalculationParameters(map);
+  }
+
+  // the input map is treated as being ordered
+  @ImmutableConstructor
+  private CalculationParameters(Map<Class<? extends CalculationParameter>, CalculationParameter> parameters) {
+    JodaBeanUtils.notNull(parameters, "parameters");
+    this.parameters = ImmutableMap.copyOf(parameters);
+    // find parameters that are super-interfaces of the specified objects
+    Map<Class<? extends CalculationParameter>, Class<? extends CalculationParameter>> aliases = new HashMap<>();
+    for (Class<? extends CalculationParameter> type : parameters.keySet()) {
+      Class<?>[] interfaces = type.getInterfaces();
+      for (Class<?> iface : interfaces) {
+        if (iface != CalculationParameter.class &&
+            CalculationParameter.class.isAssignableFrom(iface) &&
+            !parameters.containsKey(iface)) {
+          // first registration wins with aliases
+          Class<? extends CalculationParameter> aliasType = iface.asSubclass(CalculationParameter.class);
+          aliases.putIfAbsent(aliasType, type);
+        }
+      }
+    }
+    this.aliases = ImmutableMap.copyOf(aliases);
   }
 
   //-------------------------------------------------------------------------
@@ -192,7 +225,8 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    */
   @SuppressWarnings("unchecked")
   public <T extends CalculationParameter> Optional<T> findParameter(Class<T> type) {
-    return Optional.ofNullable((T) parameters.get(type));
+    Class<? extends CalculationParameter> lookupType = aliases.getOrDefault(type, type);
+    return Optional.ofNullable((T) parameters.get(lookupType));
   }
 
   /**
@@ -205,8 +239,8 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    */
   @SuppressWarnings("unchecked")
   public <T extends CalculationParameter> T getParameter(Class<T> type) {
-    T calculationParameter = (T) parameters.get(type);
-
+    Class<? extends CalculationParameter> lookupType = aliases.getOrDefault(type, type);
+    T calculationParameter = (T) parameters.get(lookupType);
     if (calculationParameter == null) {
       throw new IllegalArgumentException("No parameter found for query type " + type.getName());
     }
@@ -241,12 +275,6 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  private CalculationParameters(
-      Map<Class<? extends CalculationParameter>, CalculationParameter> parameters) {
-    JodaBeanUtils.notNull(parameters, "parameters");
-    this.parameters = ImmutableMap.copyOf(parameters);
-  }
 
   @Override
   public TypedMetaBean<CalculationParameters> metaBean() {

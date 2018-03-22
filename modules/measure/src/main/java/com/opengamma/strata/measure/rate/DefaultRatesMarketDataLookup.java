@@ -19,6 +19,7 @@ import org.joda.beans.TypedMetaBean;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
+import org.joda.convert.RenameHandler;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -29,6 +30,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.calc.runner.FxRateLookup;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
@@ -51,6 +53,20 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 @BeanDefinition(style = "light")
 final class DefaultRatesMarketDataLookup
     implements RatesMarketDataLookup, ImmutableBean, Serializable {
+
+  static {
+    // these classes have been moved
+    try {
+      RenameHandler.INSTANCE.renamedType(
+          "com.opengamma.strata.measure.rate.DefaultFxRateLookup",
+          Class.forName("com.opengamma.strata.calc.runner.DefaultFxRateLookup"));
+      RenameHandler.INSTANCE.renamedType(
+          "com.opengamma.strata.measure.rate.MatrixFxRateLookup",
+          Class.forName("com.opengamma.strata.calc.runner.MatrixFxRateLookup"));
+    } catch (ReflectiveOperationException ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
 
   /**
    * The discount curves in the group, keyed by currency.
