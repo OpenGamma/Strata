@@ -100,6 +100,10 @@ public final class CsvLoaderUtils {
    */
   public static final int DEFAULT_OPTION_VERSION_NUMBER = 0;
   /**
+   * The column name for the underlying expiry month/year.
+   */
+  public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
+  /**
    * Lookup settlement by code.
    */
   public static final ImmutableMap<String, EtdSettlementType> SETTLEMENT_BY_CODE =
