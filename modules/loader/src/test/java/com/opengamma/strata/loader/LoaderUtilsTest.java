@@ -11,10 +11,12 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
@@ -117,6 +119,18 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseTime("11:30:20"), LocalTime.of(11, 30, 20));
     assertEquals(LoaderUtils.parseTime("11:30:20.123"), LocalTime.of(11, 30, 20, 123_000_000));
     assertThrowsIllegalArg(() -> LoaderUtils.parseTime("Rubbish"));
+  }
+
+  public void test_parsePeriod() {
+    assertEquals(LoaderUtils.parsePeriod("P2D"), Period.ofDays(2));
+    assertEquals(LoaderUtils.parsePeriod("2D"), Period.ofDays(2));
+    assertThrowsIllegalArg(() -> LoaderUtils.parsePeriod("2"));
+  }
+
+  public void test_parseTenor() {
+    assertEquals(LoaderUtils.parseTenor("P2D"), Tenor.ofDays(2));
+    assertEquals(LoaderUtils.parseTenor("2D"), Tenor.ofDays(2));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseTenor("2"));
   }
 
   public void test_parseBuySell() {
