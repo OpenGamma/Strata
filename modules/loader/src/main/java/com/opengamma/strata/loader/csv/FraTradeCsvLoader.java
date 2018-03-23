@@ -29,7 +29,6 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -63,7 +62,7 @@ final class FraTradeCsvLoader {
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<FraConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> FraConvention.of(s));
-    Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> Tenor.parse(s).getPeriod());
+    Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> LoaderUtils.parsePeriod(s));
     Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<IborIndex> indexOpt = row.findValue(INDEX_FIELD).map(s -> IborIndex.of(s));
