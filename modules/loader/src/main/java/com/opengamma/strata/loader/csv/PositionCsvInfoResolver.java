@@ -10,6 +10,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.DEFAULT_OPTION_VERS
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXCHANGE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.UNDERLYING_EXPIRY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.VERSION_FIELD;
 
 import java.time.YearMonth;
@@ -191,7 +192,11 @@ public interface PositionCsvInfoResolver {
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
     PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
     double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
-    EtdOptionSecurity security = contract.createOption(variant.getFirst(), variant.getSecond(), version, putCall, strikePrice);
+    YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
+        .map(str -> LoaderUtils.parseYearMonth(str))
+        .orElse(null);
+    EtdOptionSecurity security = contract.createOption(
+        variant.getFirst(), variant.getSecond(), version, putCall, strikePrice, underlyingExpiry);
     DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
     EtdOptionPosition position = EtdOptionPosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
     return completePosition(row, position, contract);
@@ -235,8 +240,11 @@ public interface PositionCsvInfoResolver {
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
     PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
     double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
-    SecurityId securityId =
-        EtdIdUtils.optionId(exchangeId, contractCode, variant.getFirst(), variant.getSecond(), version, putCall, strikePrice);
+    YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
+        .map(str -> LoaderUtils.parseYearMonth(str))
+        .orElse(null);
+    SecurityId securityId = EtdIdUtils.optionId(
+        exchangeId, contractCode, variant.getFirst(), variant.getSecond(), version, putCall, strikePrice, underlyingExpiry);
     DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
     SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
     return completePosition(row, position);

@@ -176,7 +176,8 @@ public class PositionCsvLoaderTest {
         .info(PositionInfo.builder()
             .id(StandardId.of("OG", "123431"))
             .build())
-        .security(EtdOptionSecurity.of(contract, YearMonth.of(2017, 6), EtdVariant.ofMonthly(), 0, PutCall.PUT, 3d))
+        .security(EtdOptionSecurity.of(
+            contract, YearMonth.of(2017, 6), EtdVariant.ofMonthly(), 0, PutCall.PUT, 3d, YearMonth.of(2017, 9)))
         .longQuantity(15d)
         .shortQuantity(2d)
         .build();
@@ -265,7 +266,7 @@ public class PositionCsvLoaderTest {
             .id(StandardId.of("OG", "123431"))
             .build())
         .securityId(EtdIdUtils.optionId(
-            ExchangeIds.ECAG, OGBL, YearMonth.of(2017, 6), EtdVariant.ofMonthly(), 0, PutCall.PUT, 3d))
+            ExchangeIds.ECAG, OGBL, YearMonth.of(2017, 6), EtdVariant.ofMonthly(), 0, PutCall.PUT, 3d, YearMonth.of(2017, 9)))
         .longQuantity(15d)
         .shortQuantity(2d)
         .build();
