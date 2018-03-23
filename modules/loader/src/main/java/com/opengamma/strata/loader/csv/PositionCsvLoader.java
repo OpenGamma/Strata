@@ -119,6 +119,7 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <li>'Put Call' - mandatory,  'Put', 'P', 'Call' or 'C'
  * <li>'Exercise Price' - mandatory,  the strike price, such as 1.23
  * <li>'Version' - optional, the version of the contract, not widely used, defaults to zero
+ * <li>'Underlying Expiry' - optional, the expiry year-month of the underlying instrument if applicable, in the format 'yyyy-MM'
  * </ul>
  * <p>
  * The exchange and contract code are combined to form an {@link EtdContractSpecId} which is
