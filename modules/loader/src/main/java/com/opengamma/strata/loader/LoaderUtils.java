@@ -13,6 +13,7 @@ import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -24,6 +25,7 @@ import java.util.Locale;
 
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
@@ -296,6 +298,44 @@ public final class LoaderUtils {
     } catch (DateTimeParseException ex) {
       throw new IllegalArgumentException(
           "Unknown time format, must be formatted as 'HH', 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.SSS' but was: " + str);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a period from the input string.
+   * <p>
+   * It accepts the same formats as {@link Period}, but the "P" at the start is optional.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static Period parsePeriod(String str) {
+    try {
+      String prefixed = str.startsWith("P") ? str : "P" + str;
+      return Period.parse(prefixed);
+
+    } catch (DateTimeParseException ex) {
+      throw new IllegalArgumentException("Unknown period format: " + str);
+    }
+  }
+
+  /**
+   * Parses a tenor from the input string.
+   * <p>
+   * A tenor cannot be zero or negative.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static Tenor parseTenor(String str) {
+    try {
+      return Tenor.parse(str);
+
+    } catch (DateTimeParseException ex) {
+      throw new IllegalArgumentException("Unknown tenor format: " + str);
     }
   }
 
