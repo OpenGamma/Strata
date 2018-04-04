@@ -98,7 +98,7 @@ public final class Unchecked {
    *
    * @param <T> the type of the result
    * @param block  the code block to wrap
-   * @return the wrapper for unchecked exceptions
+   * @return the result of invoking the block
    * @throws UncheckedIOException if an IO exception occurs
    * @throws RuntimeException if an exception occurs
    */

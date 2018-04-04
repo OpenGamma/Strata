@@ -5,13 +5,17 @@
  */
 package com.opengamma.strata.collect;
 
+import static java.util.stream.Collectors.collectingAndThen;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -719,4 +723,49 @@ public final class Guavate {
     }
     return map1;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts a list of futures to a single future, combining the values into a list.
+   * <p>
+   * The {@link CompletableFuture#allOf(CompletableFuture...)} method is useful
+   * but it returns {@code Void}. This method combines the futures but also
+   * returns the resulting value as a list.
+   * Effectively, this converts {@code List<CompletableFuture<T>>} to {@code CompletableFuture<List<T>>}.
+   * <p>
+   * If any input future completes exceptionally, the result will also complete exceptionally.
+   *
+   * @param <T> the type of the values in the list
+   * @param futures the futures to convert, may be empty
+   * @return a future that combines the input futures as a list
+   */
+  public static <T> CompletableFuture<List<T>> combineFuturesAsList(List<? extends CompletableFuture<? extends T>> futures) {
+    int size = futures.size();
+    CompletableFuture<? extends T>[] futuresArray = futures.toArray(new CompletableFuture[size]);
+    return CompletableFuture.allOf(futuresArray)
+        .thenApply(unused -> {
+          ImmutableList.Builder<T> builder = ImmutableList.builderWithExpectedSize(size);
+          for (int i = 0; i < size; i++) {
+            builder.add(futuresArray[i].join());
+          }
+          return builder.build();
+        });
+  }
+
+  /**
+   * Collector used at the end of a stream to convert a list of futures to a single future,
+   * combining the values into a list.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing a stream of futures to be combined into a single future.
+   * This converts {@code List<CompletableFuture<T>>} to {@code CompletableFuture<List<T>>}.
+   *
+   * @param <S> the type of the input futures
+   * @param <T> the type of the values
+   * @return a collector that combines the input futures as a list
+   */
+  public static <T, S extends CompletableFuture<? extends T>> Collector<S, ?, CompletableFuture<List<T>>> toCombinedFuture() {
+    return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsList);
+  }
+
 }
