@@ -7,6 +7,7 @@ package com.opengamma.strata.collect;
 
 import static java.util.stream.Collectors.collectingAndThen;
 
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,6 +17,9 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -766,6 +770,59 @@ public final class Guavate {
    */
   public static <T, S extends CompletableFuture<? extends T>> Collector<S, ?, CompletableFuture<List<T>>> toCombinedFuture() {
     return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsList);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Polls on a regular frequency until a result is found.
+   * <p>
+   * Polling is performed via the specified supplier, which must return null until the result is available.
+   * If the supplier throws an exception, polling will stop and the future will complete exceptionally.
+   * <p>
+   * If the future is cancelled, the polling will also be cancelled.
+   * It is advisable to consider using a timeout when querying the future.
+   * <p>
+   * In most cases, there needs to be an initial request, which might return an identifier to query.
+   * This pattern may be useful for that case:
+   * <pre>
+   *  return CompletableFuture.supplyAsync(initPollingReturningId(), executorService)
+   *      .thenCompose(id -> poll(executorService, delay, freq, performPolling(id)));
+   *  });
+   * </pre>
+   *
+   * @param <T> the result type
+   * @param executorService  the executor service to use for polling
+   * @param initialDelay  the initial delay before starting to poll
+   * @param frequency  the frequency to poll at
+   * @param pollingTask  the task used to poll, returning null when not yet complete
+   * @return the future representing the asynchronous operation
+   */
+  public static <T> CompletableFuture<T> poll(
+      ScheduledExecutorService executorService,
+      Duration initialDelay,
+      Duration frequency,
+      Supplier<T> pollingTask) {
+
+    CompletableFuture<T> result = new CompletableFuture<>();
+    Runnable decoratedPollingTask = () -> pollTask(pollingTask, result);
+    ScheduledFuture<?> scheduledTask = executorService.scheduleAtFixedRate(
+        decoratedPollingTask, initialDelay.toMillis(), frequency.toMillis(), TimeUnit.MILLISECONDS);
+    return result.whenComplete((r, ex) -> scheduledTask.cancel(true));
+  }
+
+  // the task the executor calls
+  private static <T> void pollTask(
+      Supplier<T> pollingTask,
+      CompletableFuture<T> resultFuture) {
+
+    try {
+      T result = pollingTask.get();
+      if (result != null) {
+        resultFuture.complete(result);
+      }
+    } catch (RuntimeException ex) {
+      resultFuture.completeExceptionally(ex);
+    }
   }
 
 }

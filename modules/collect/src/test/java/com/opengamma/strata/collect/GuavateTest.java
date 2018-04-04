@@ -7,11 +7,13 @@ package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -20,6 +22,10 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -402,6 +408,48 @@ public class GuavateTest {
     assertEquals(combined.size(), 2);
     assertEquals(combined.get(0), "A");
     assertEquals(combined.get(1), "B");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_poll() {
+    AtomicInteger counter = new AtomicInteger();
+    Supplier<String> pollingFn = () -> {
+      switch (counter.incrementAndGet()) {
+        case 1:
+          return null;
+        case 2:
+          return "Yes";
+        default:
+          throw new AssertionError("Test failed");
+      }
+    };
+
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+    CompletableFuture<String> future = Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
+    assertEquals(future.join(), "Yes");
+  }
+
+  public void test_poll_exception() {
+    AtomicInteger counter = new AtomicInteger();
+    Supplier<String> pollingFn = () -> {
+      switch (counter.incrementAndGet()) {
+        case 1:
+          return null;
+        case 2:
+          throw new IllegalStateException("Expected");
+        default:
+          throw new AssertionError("Test failed");
+      }
+    };
+
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    try {
+      CompletableFuture<String> future = Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
+      assertThrows(() -> future.join(), CompletionException.class, "java.lang.IllegalStateException: Expected");
+    } finally {
+      executor.shutdown();
+    }
   }
 
   //-------------------------------------------------------------------------
