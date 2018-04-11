@@ -42,6 +42,7 @@ public class SwaptionTradeTest {
     assertEquals(test.getPremium(), PREMIUM);
     assertEquals(test.getProduct(), SWAPTION);
     assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {

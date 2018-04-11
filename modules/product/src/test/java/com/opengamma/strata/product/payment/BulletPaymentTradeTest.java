@@ -52,6 +52,7 @@ public class BulletPaymentTradeTest {
     BulletPaymentTrade test = BulletPaymentTrade.of(TRADE_INFO, PRODUCT1);
     assertEquals(test.getProduct(), PRODUCT1);
     assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {

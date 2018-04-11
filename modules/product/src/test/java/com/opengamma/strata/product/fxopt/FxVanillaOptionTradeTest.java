@@ -43,6 +43,7 @@ public class FxVanillaOptionTradeTest {
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getPremium(), PREMIUM);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------

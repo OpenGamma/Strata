@@ -145,6 +145,17 @@ public final class EtdFuturePosition
 
   //-------------------------------------------------------------------------
   @Override
+  public EtdFuturePosition withInfo(PositionInfo info) {
+    return new EtdFuturePosition(info, security, longQuantity, shortQuantity);
+  }
+
+  @Override
+  public EtdFuturePosition withQuantity(double quantity) {
+    return EtdFuturePosition.ofNet(info, security, quantity);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // F-ECAG-FGBS-201706 x 200, Jun17
     String future = security.summaryDescription();

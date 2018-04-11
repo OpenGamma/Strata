@@ -74,6 +74,13 @@ public final class FxSingleBarrierOptionTrade
     builder.info = TradeInfo.empty();
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public FxSingleBarrierOptionTrade withInfo(TradeInfo info) {
+    return new FxSingleBarrierOptionTrade(info, product, premium);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
     // Long Barrier Pay USD 1mm Premium USD 100k @ GBP/USD 1.32 : 21Jan18

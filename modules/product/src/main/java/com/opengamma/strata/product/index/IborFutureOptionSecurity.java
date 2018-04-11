@@ -157,6 +157,12 @@ public final class IborFutureOptionSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public IborFutureOptionSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public IborFutureOption createProduct(ReferenceData refData) {
     Security security = refData.getValue(underlyingFutureId);
     if (!(security instanceof IborFutureSecurity)) {

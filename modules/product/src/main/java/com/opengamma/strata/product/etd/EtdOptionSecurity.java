@@ -192,6 +192,11 @@ public final class EtdOptionSecurity
   }
 
   @Override
+  public EtdOptionSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  @Override
   public EtdOptionSecurity createProduct(ReferenceData refData) {
     return this;
   }

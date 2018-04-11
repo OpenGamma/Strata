@@ -77,6 +77,12 @@ public final class IborCapFloorTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public IborCapFloorTrade withInfo(TradeInfo info) {
+    return new IborCapFloorTrade(info, product, premium);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // 5Y USD 2mm Rec USD-LIBOR-6M Cap 1% / Pay Premium : 21Jan17-21Jan22
     StringBuilder buf = new StringBuilder(96);

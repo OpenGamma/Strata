@@ -40,4 +40,14 @@ public interface ResolvableTrade<T extends ResolvedTrade>
   @Override
   public abstract T resolve(ReferenceData refData);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance with the specified info.
+   * 
+   * @param info  the new info
+   * @return the instance with the specified info
+   */
+  @Override
+  public abstract ResolvableTrade<T> withInfo(TradeInfo info);
+
 }

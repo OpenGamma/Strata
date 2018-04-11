@@ -120,6 +120,12 @@ public final class DsfSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public DsfSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public Dsf createProduct(ReferenceData refData) {
     LocalDate deliveryDate = underlyingSwap.getStartDate().getUnadjusted();
     return new Dsf(getSecurityId(), notional, lastTradeDate, deliveryDate, underlyingSwap);

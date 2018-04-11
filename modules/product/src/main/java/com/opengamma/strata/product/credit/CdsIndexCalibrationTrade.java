@@ -68,6 +68,11 @@ public final class CdsIndexCalibrationTrade
   }
 
   @Override
+  public CdsIndexCalibrationTrade withInfo(TradeInfo info) {
+    return new CdsIndexCalibrationTrade(underlyingTrade.withInfo(info), quote);
+  }
+
+  @Override
   public PortfolioItemSummary summarize() {
     String description = "CDS Index calibration trade";
     Currency currency = underlyingTrade.getProduct().getCurrency();

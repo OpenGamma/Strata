@@ -68,6 +68,15 @@ public interface Security {
 
   //-------------------------------------------------------------------------
   /**
+   * Returns an instance with the specified info.
+   * 
+   * @param info  the new info
+   * @return the instance with the specified info
+   */
+  public abstract Security withInfo(SecurityInfo info);
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates the product associated with this security.
    * <p>
    * The product of a security is distinct from the security.

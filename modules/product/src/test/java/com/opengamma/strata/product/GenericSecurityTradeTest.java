@@ -36,6 +36,9 @@ public class GenericSecurityTradeTest {
     assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getCurrency(), SECURITY.getCurrency());
     assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
   }
 
   public void test_builder() {
@@ -46,33 +49,6 @@ public class GenericSecurityTradeTest {
     assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getCurrency(), SECURITY.getCurrency());
     assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_withQuantity() {
-    GenericSecurityTrade base = sut();
-    double quantity = 423;
-    GenericSecurityTrade computed = base.withQuantity(quantity);
-    GenericSecurityTrade expected = GenericSecurityTrade.builder()
-        .info(TRADE_INFO)
-        .security(SECURITY)
-        .quantity(quantity)
-        .price(PRICE)
-        .build();
-    assertEquals(computed, expected);
-  }
-
-  public void test_withPrice() {
-    GenericSecurityTrade base = sut();
-    double price = 180d;
-    GenericSecurityTrade computed = base.withPrice(price);
-    GenericSecurityTrade expected = GenericSecurityTrade.builder()
-        .info(TRADE_INFO)
-        .security(SECURITY)
-        .quantity(QUANTITY)
-        .price(price)
-        .build();
-    assertEquals(computed, expected);
   }
 
   //-------------------------------------------------------------------------

@@ -66,4 +66,21 @@ public interface Position
   @Override
   public abstract double getQuantity();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance with the specified info.
+   * 
+   * @param info  the new info
+   * @return the instance with the specified info
+   */
+  public abstract Position withInfo(PositionInfo info);
+
+  /**
+   * Returns an instance with the specified quantity.
+   * 
+   * @param quantity  the new quantity
+   * @return the instance with the specified quantity
+   */
+  public abstract Position withQuantity(double quantity);
+
 }

@@ -77,6 +77,12 @@ public final class CmsTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public CmsTrade withInfo(TradeInfo info) {
+    return new CmsTrade(info, product, premium);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // 5Y USD 2mm Rec USD-LIBOR-1100-1Y Cap 1% / Pay Premium : 21Jan17-21Jan22
     StringBuilder buf = new StringBuilder(96);
