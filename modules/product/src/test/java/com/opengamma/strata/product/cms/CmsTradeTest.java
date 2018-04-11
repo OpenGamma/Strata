@@ -47,6 +47,7 @@ public class CmsTradeTest {
     assertEquals(test.getPremium().get(), PREMIUM);
     assertEquals(test.getProduct(), PRODUCT_CAP);
     assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   public void test_builder_noPrem() {

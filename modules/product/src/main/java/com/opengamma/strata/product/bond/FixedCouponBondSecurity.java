@@ -150,6 +150,11 @@ public final class FixedCouponBondSecurity
     return ImmutableSet.of();
   }
 
+  @Override
+  public FixedCouponBondSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public FixedCouponBond createProduct(ReferenceData refData) {

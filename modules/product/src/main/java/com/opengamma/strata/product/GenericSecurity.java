@@ -78,6 +78,12 @@ public final class GenericSecurity
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public GenericSecurity withInfo(SecurityInfo info) {
+    return new GenericSecurity(info);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the associated product, which simply returns {@code this}.
    * <p>

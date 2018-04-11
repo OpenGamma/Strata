@@ -113,6 +113,12 @@ public final class IborFutureSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public IborFutureSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public IborFuture createProduct(ReferenceData refData) {
     return IborFuture.builder()
         .securityId(getSecurityId())

@@ -36,6 +36,9 @@ public class SecurityTradeTest {
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
   }
 
   public void test_builder() {
@@ -44,33 +47,6 @@ public class SecurityTradeTest {
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_withQuantity() {
-    SecurityTrade base = sut();
-    double quantity = 65;
-    SecurityTrade computed = base.withQuantity(quantity);
-    SecurityTrade expected = SecurityTrade.builder()
-        .info(TRADE_INFO)
-        .securityId(SECURITY_ID)
-        .quantity(quantity)
-        .price(PRICE)
-        .build();
-    assertEquals(computed, expected);
-  }
-
-  public void test_withPrice() {
-    SecurityTrade base = sut();
-    double price = 150d;
-    SecurityTrade computed = base.withPrice(price);
-    SecurityTrade expected = SecurityTrade.builder()
-        .info(TRADE_INFO)
-        .securityId(SECURITY_ID)
-        .quantity(QUANTITY)
-        .price(price)
-        .build();
-    assertEquals(computed, expected);
   }
 
   //-------------------------------------------------------------------------

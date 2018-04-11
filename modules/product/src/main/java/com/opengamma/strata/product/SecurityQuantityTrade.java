@@ -24,6 +24,16 @@ public interface SecurityQuantityTrade
    */
   public abstract double getPrice();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance with the specified info.
+   * 
+   * @param info  the new info
+   * @return the instance with the specified info
+   */
+  @Override
+  public abstract SecurityQuantityTrade withInfo(TradeInfo info);
+
   /**
    * Returns an instance with the specified quantity.
    * 

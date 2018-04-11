@@ -7,6 +7,7 @@ package com.opengamma.strata.product.bond;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.product.Security;
+import com.opengamma.strata.product.SecurityInfo;
 
 /**
  * An instrument representing a security associated with a legal entity. 
@@ -23,5 +24,9 @@ public interface LegalEntitySecurity extends Security {
    * @return the legal entity identifier
    */
   public abstract StandardId getLegalEntityId();
+
+  //-------------------------------------------------------------------------
+  @Override
+  public abstract LegalEntitySecurity withInfo(SecurityInfo info);
 
 }

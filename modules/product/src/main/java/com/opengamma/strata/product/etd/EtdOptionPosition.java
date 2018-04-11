@@ -145,6 +145,17 @@ public final class EtdOptionPosition
 
   //-------------------------------------------------------------------------
   @Override
+  public EtdOptionPosition withInfo(PositionInfo info) {
+    return new EtdOptionPosition(info, security, longQuantity, shortQuantity);
+  }
+
+  @Override
+  public EtdOptionPosition withQuantity(double quantity) {
+    return EtdOptionPosition.ofNet(info, security, quantity);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // O-ECAG-OGBS-201706-P1.50 x 200, Jun17 P1.50
     String option = security.summaryDescription();

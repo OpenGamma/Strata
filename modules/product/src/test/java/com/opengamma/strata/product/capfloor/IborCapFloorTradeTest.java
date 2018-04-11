@@ -88,6 +88,7 @@ public class IborCapFloorTradeTest {
     assertEquals(test.getPremium().get(), PREMIUM);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   public void test_builder_min() {

@@ -37,6 +37,9 @@ public class SecurityPositionTest {
     assertEquals(test.getLongQuantity(), QUANTITY);
     assertEquals(test.getShortQuantity(), 0d);
     assertEquals(test.getQuantity(), QUANTITY);
+    assertEquals(test.withInfo(POSITION_INFO).getInfo(), POSITION_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withQuantity(-129).getQuantity(), -129d, 0d);
   }
 
   public void test_ofNet_withInfo_positive() {

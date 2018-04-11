@@ -78,6 +78,12 @@ public final class TermDepositTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public TermDepositTrade withInfo(TradeInfo info) {
+    return new TermDepositTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // 6M USD 2mm Deposit 0.8% :  21Jan18-21Jul18
     StringBuilder buf = new StringBuilder(64);

@@ -34,6 +34,9 @@ public class EtdFuturePositionTest {
     assertEquals(test.getShortQuantity(), 0d, 0d);
     assertEquals(test.getSecurity(), SECURITY);
     assertEquals(test.getQuantity(), 1000d, 0d);
+    assertEquals(test.withInfo(POSITION_INFO).getInfo(), POSITION_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withQuantity(-129).getQuantity(), -129d, 0d);
   }
 
   public void test_ofNet_short() {

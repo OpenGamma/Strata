@@ -99,6 +99,12 @@ public final class SwaptionTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public SwaptionTrade withInfo(TradeInfo info) {
+    return new SwaptionTrade(info, product, premium);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // Long 5Y USD 2mm Rec USD-LIBOR-6M / Pay 1% : 21Jan18
     String swapDesc = product.getUnderlying().summaryDescription();

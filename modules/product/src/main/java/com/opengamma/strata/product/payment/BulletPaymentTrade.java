@@ -74,6 +74,12 @@ public final class BulletPaymentTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public BulletPaymentTrade withInfo(TradeInfo info) {
+    return new BulletPaymentTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // Pay USD 2mm : 21Jan18
     StringBuilder buf = new StringBuilder(64);

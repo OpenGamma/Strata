@@ -35,33 +35,9 @@ public class EtdOptionTradeTest {
     assertEquals(test.getPrice(), 20d, 0d);
     assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
     assertEquals(test.getCurrency(), SECURITY.getCurrency());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_withQuantity() {
-    EtdOptionTrade base = sut();
-    double quantity = 5413d;
-    EtdOptionTrade computed = base.withQuantity(quantity);
-    EtdOptionTrade expected = EtdOptionTrade.builder()
-        .info(TRADE_INFO)
-        .security(SECURITY)
-        .quantity(quantity)
-        .price(20)
-        .build();
-    assertEquals(computed, expected);
-  }
-
-  public void test_withPrice() {
-    EtdOptionTrade base = sut();
-    double price = 45d;
-    EtdOptionTrade computed = base.withPrice(price);
-    EtdOptionTrade expected = EtdOptionTrade.builder()
-        .info(TRADE_INFO)
-        .security(SECURITY)
-        .quantity(3000)
-        .price(price)
-        .build();
-    assertEquals(computed, expected);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
   }
 
   //-------------------------------------------------------------------------

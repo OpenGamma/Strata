@@ -44,6 +44,9 @@ public class BondFutureOptionTradeTest {
     assertEquals(test.getProduct(), OPTION_PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
   }
 
   //-------------------------------------------------------------------------

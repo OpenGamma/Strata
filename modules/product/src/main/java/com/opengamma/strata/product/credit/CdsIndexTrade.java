@@ -71,6 +71,12 @@ public final class CdsIndexTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public CdsIndexTrade withInfo(TradeInfo info) {
+    return new CdsIndexTrade(info, product, upfrontFee);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // 2Y Buy USD 1mm INDEX / 1.5% : 21Jan18-21Jan20
     PeriodicSchedule paymentSchedule = product.getPaymentSchedule();

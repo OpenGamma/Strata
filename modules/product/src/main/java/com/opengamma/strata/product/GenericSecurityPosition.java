@@ -183,6 +183,18 @@ public final class GenericSecurityPosition
     return longQuantity - shortQuantity;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public GenericSecurityPosition withInfo(PositionInfo info) {
+    return new GenericSecurityPosition(info, security, longQuantity, shortQuantity);
+  }
+
+  @Override
+  public GenericSecurityPosition withQuantity(double quantity) {
+    return GenericSecurityPosition.ofNet(info, security, quantity);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
     // AAPL x 200

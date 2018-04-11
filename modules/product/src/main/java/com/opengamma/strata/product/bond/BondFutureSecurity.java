@@ -166,6 +166,12 @@ public final class BondFutureSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public BondFutureSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public BondFuture createProduct(ReferenceData refData) {
     List<FixedCouponBond> bonds = deliveryBasketIds.stream()
         .map(id -> resolveBond(id, refData))

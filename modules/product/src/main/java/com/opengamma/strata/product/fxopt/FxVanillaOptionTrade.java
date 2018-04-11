@@ -74,6 +74,13 @@ public final class FxVanillaOptionTrade
     builder.info = TradeInfo.empty();
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public FxVanillaOptionTrade withInfo(TradeInfo info) {
+    return new FxVanillaOptionTrade(info, product, premium);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
     // Long Pay USD 1mm @ GBP/USD 1.32 Premium USD 100k : 21Jan18

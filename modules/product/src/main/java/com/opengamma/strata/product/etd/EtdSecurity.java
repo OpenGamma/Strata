@@ -12,6 +12,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecurityInfo;
 
 /**
  * An instrument representing an exchange traded derivative (ETD).
@@ -69,5 +70,9 @@ public interface EtdSecurity
    * @return the variant
    */
   public abstract EtdVariant getVariant();
+
+  //-------------------------------------------------------------------------
+  @Override
+  public abstract EtdSecurity withInfo(SecurityInfo info);
 
 }

@@ -44,4 +44,13 @@ public interface Trade
    */
   public abstract TradeInfo getInfo();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance with the specified info.
+   * 
+   * @param info  the new info
+   * @return the instance with the specified info
+   */
+  public abstract Trade withInfo(TradeInfo info);
+
 }

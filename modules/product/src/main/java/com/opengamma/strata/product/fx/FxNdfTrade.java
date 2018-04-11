@@ -79,6 +79,12 @@ public final class FxNdfTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public FxNdfTrade withInfo(TradeInfo info) {
+    return new FxNdfTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // Pay USD 1mm @ USD/CNY 6.62 NDF : 21Jan18
     StringBuilder buf = new StringBuilder(64);

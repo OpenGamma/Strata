@@ -101,6 +101,12 @@ public final class SecurityTrade
     return SummarizerUtils.summary(this, ProductType.SECURITY, description);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityTrade withInfo(TradeInfo info) {
+    return new SecurityTrade(info, securityId, quantity, price);
+  }
+
   @Override
   public SecurityTrade withQuantity(double quantity) {
     return new SecurityTrade(info, securityId, quantity, price);

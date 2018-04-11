@@ -45,6 +45,11 @@ public final class DummyFraTrade
   }
 
   @Override
+  public Trade withInfo(TradeInfo info) {
+    return this;
+  }
+
+  @Override
   public ResolvedProduct getProduct() {
     throw new UnsupportedOperationException();
   }

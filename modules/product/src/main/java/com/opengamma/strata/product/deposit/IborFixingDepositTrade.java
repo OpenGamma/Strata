@@ -79,6 +79,12 @@ public final class IborFixingDepositTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public IborFixingDepositTrade withInfo(TradeInfo info) {
+    return new IborFixingDepositTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     String description = "Ibor calibration trade";
     return SummarizerUtils.summary(this, ProductType.CALIBRATION, description, product.getCurrency());

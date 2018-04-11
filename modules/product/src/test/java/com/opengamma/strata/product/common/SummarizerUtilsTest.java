@@ -113,6 +113,11 @@ public class SummarizerUtilsTest {
       public TradeInfo getInfo() {
         return TradeInfo.builder().id(id).build();
       }
+
+      @Override
+      public Trade withInfo(TradeInfo info) {
+        return this;
+      }
     };
     String description = "desc";
     PortfolioItemSummary expected = PortfolioItemSummary.of(

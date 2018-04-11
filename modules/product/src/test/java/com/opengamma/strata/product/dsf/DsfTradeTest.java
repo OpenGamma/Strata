@@ -48,6 +48,9 @@ public class DsfTradeTest {
     assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
   }
 
   //-------------------------------------------------------------------------

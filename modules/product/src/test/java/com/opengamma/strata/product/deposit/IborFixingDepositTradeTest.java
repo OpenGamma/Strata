@@ -47,6 +47,7 @@ public class IborFixingDepositTradeTest {
     IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
     assertEquals(test.getProduct(), DEPOSIT);
     assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {

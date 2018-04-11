@@ -106,6 +106,12 @@ public final class EtdOptionTrade
     return security.getSecurityId();
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public EtdOptionTrade withInfo(TradeInfo info) {
+    return new EtdOptionTrade(info, security, quantity, price);
+  }
+
   @Override
   public EtdOptionTrade withQuantity(double quantity) {
     return new EtdOptionTrade(info, security, quantity, price);
