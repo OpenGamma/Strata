@@ -30,14 +30,21 @@ public abstract class AggregatingCalculationListener<T>
 
   /**
    * Returns the aggregate result of the calculations, blocking until it is available.
+   * <p>
+   * If the thread is interrupted while this method is blocked, then a runtime exception
+   * is thrown, but with the interrupt flag set.
+   * For additional control, use {@link #getFuture()}.
    *
    * @return the aggregate result of the calculations, blocking until it is available
    */
   public T result() {
     try {
       return future.get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Exception getting result", e);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(ex);
+    } catch (ExecutionException ex) {
+      throw new RuntimeException("Exception getting result", ex);
     }
   }
 
