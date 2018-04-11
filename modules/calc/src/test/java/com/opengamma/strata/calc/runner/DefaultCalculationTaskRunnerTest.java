@@ -11,11 +11,17 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.testng.annotations.Test;
 
@@ -30,9 +36,8 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.TestingMeasures;
-import com.opengamma.strata.calc.marketdata.TestId;
-import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -41,7 +46,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 /**
  * Test {@link CalculationTaskRunner} and {@link DefaultCalculationTaskRunner}.
  */
-@Test
+@Test(singleThreaded = true)
 public class DefaultCalculationTaskRunnerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -132,52 +137,6 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   //-------------------------------------------------------------------------
-  public static final class TestFunction implements CalculationFunction<TestTarget> {
-
-    @Override
-    public Class<TestTarget> targetType() {
-      return TestTarget.class;
-    }
-
-    @Override
-    public Set<Measure> supportedMeasures() {
-      return MEASURES;
-    }
-
-    @Override
-    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
-      return USD;
-    }
-
-    @Override
-    public FunctionRequirements requirements(
-        TestTarget target,
-        Set<Measure> measures,
-        CalculationParameters parameters,
-        ReferenceData refData) {
-
-      return FunctionRequirements.builder()
-          .valueRequirements(
-              ImmutableSet.of(
-                  TestId.of("1"),
-                  TestObservableId.of("2")))
-          .timeSeriesRequirements(TestObservableId.of("3"))
-          .build();
-    }
-
-    @Override
-    public Map<Measure, Result<?>> calculate(
-        TestTarget target,
-        Set<Measure> measures,
-        CalculationParameters parameters,
-        ScenarioMarketData marketData,
-        ReferenceData refData) {
-
-      ScenarioArray<String> array = ScenarioArray.of("bar");
-      return ImmutableMap.of(TestingMeasures.PRESENT_VALUE, Result.success(array));
-    }
-  }
-
   /**
    * Tests that running an empty list of tasks completes and returns a set of results with zero rows.
    */
@@ -258,4 +217,137 @@ public class DefaultCalculationTaskRunnerTest {
       // Do nothing
     }
   }
+
+  //-------------------------------------------------------------------------
+  @Test(timeOut = 5000)
+  public void interruptHangingCalculate() throws InterruptedException {
+    HangingFunction fn = new HangingFunction();
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    Column column = Column.of(TestingMeasures.PRESENT_VALUE);
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
+
+    // using the direct executor means there is no need to close/shutdown the runner
+    CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
+    MarketData marketData = MarketData.empty(VAL_DATE);
+
+    AtomicBoolean shouldNeverThrow = new AtomicBoolean();
+    AtomicBoolean interrupted = new AtomicBoolean();
+    AtomicReference<Results> results = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    Thread thread = new Thread(() -> {
+      try {
+        Results result = test.calculate(tasks, marketData, REF_DATA);  // when interrupted, should get a normal result
+        interrupted.set(Thread.currentThread().isInterrupted());
+        results.set(result);
+      } catch (RuntimeException ex) {
+        shouldNeverThrow.set(true);
+      }
+      latch.countDown();
+    });
+    // run the thread, wait until properly started, then interrupt, wait until properly handled
+    thread.start();
+    while (!fn.started) {}
+    thread.interrupt();
+    latch.await();
+    // asserts
+    assertEquals(interrupted.get(), true);
+    assertEquals(shouldNeverThrow.get(), false);
+    Result<?> result00 = results.get().get(0, 0);
+    assertEquals(result00.isFailure(), true);
+    assertEquals(result00.getFailure().getReason(), FailureReason.CALCULATION_FAILED);
+    assertEquals(result00.getFailure().getMessage().contains("Runtime interrupted"), true);
+  }
+
+  @Test(timeOut = 5000)
+  public void interruptHangingResultsListener() throws InterruptedException {
+    HangingFunction fn = new HangingFunction();
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    Column column = Column.of(TestingMeasures.PRESENT_VALUE);
+    CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      CalculationTaskRunner test = CalculationTaskRunner.of(executor);
+      MarketData marketData = MarketData.empty(VAL_DATE);
+
+      AtomicBoolean shouldNeverComplete = new AtomicBoolean();
+      AtomicBoolean interrupted = new AtomicBoolean();
+      AtomicReference<RuntimeException> thrown = new AtomicReference<>();
+      ResultsListener listener = new ResultsListener();
+      test.calculateAsync(tasks, marketData, REF_DATA, listener);
+      CountDownLatch latch = new CountDownLatch(1);
+      Thread thread = new Thread(() -> {
+        try {
+          listener.result();  // test the interrupt behavior of this method
+          shouldNeverComplete.set(true);
+        } catch (RuntimeException ex) {
+          interrupted.set(Thread.currentThread().isInterrupted());
+          thrown.set(ex);
+        }
+        latch.countDown();
+      });
+      // run the thread, wait until properly started, then interrupt, wait until properly handled
+      thread.start();
+      while (!fn.started) {}
+      thread.interrupt();
+      latch.await();
+      // asserts
+      assertEquals(interrupted.get(), true);
+      assertEquals(shouldNeverComplete.get(), false);
+      assertEquals(thrown.get() instanceof RuntimeException, true);
+      assertEquals(thrown.get().getCause() instanceof InterruptedException, true);
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public static final class HangingFunction implements CalculationFunction<TestTarget> {
+
+    volatile boolean started;
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
+
+    @Override
+    public Set<Measure> supportedMeasures() {
+      return MEASURES;
+    }
+
+    @Override
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
+      return USD;
+    }
+
+    @Override
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        ReferenceData refData) {
+
+      return FunctionRequirements.empty();
+    }
+
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        TestTarget target,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        ScenarioMarketData marketData,
+        ReferenceData refData) {
+
+      while (true) {
+        if (Thread.currentThread().isInterrupted()) {
+          throw new RuntimeException("Runtime interrupted");
+        }
+        started = true;
+      }
+    }
+  }
+
 }

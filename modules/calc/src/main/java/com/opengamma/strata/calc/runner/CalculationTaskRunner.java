@@ -85,6 +85,10 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * <p>
    * This returns a grid of results based on the specified tasks and market data.
    * The grid will contain a row for each target and a column for each measure.
+   * <p>
+   * If the thread is interrupted while this method is blocked, calculations will stop
+   * and a result returned indicating the failed tasks, with the interrupted flag set.
+   * For additional control, use {@link #calculateAsync(CalculationTasks, MarketData, ReferenceData, CalculationListener)}.
    * 
    * @param tasks  the calculation tasks to invoke
    * @param marketData  the market data to be used in the calculations
@@ -122,6 +126,11 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * This returns a grid of results based on the specified tasks and market data.
    * The grid will contain a row for each target and a column for each measure.
    * Each cell will contain multiple results, one for each scenario.
+   * <p>
+   * If the thread is interrupted while this method is blocked, calculations will stop
+   * and a result returned indicating the failed tasks, with the interrupted flag set.
+   * For additional control, use
+   * {@link #calculateMultiScenarioAsync(CalculationTasks, ScenarioMarketData, ReferenceData, CalculationListener)}.
    * 
    * @param tasks  the calculation tasks to invoke
    * @param marketData  the market data to be used in the calculations
@@ -134,7 +143,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
       ReferenceData refData);
 
   /**
-   * Performs calculations asynchronously for a multiple scenarios, each with a different set of market data,
+   * Performs calculations asynchronously for multiple scenarios, each with a different set of market data,
    * invoking a listener as each calculation completes.
    * <p>
    * This method requires the listener to assemble the results, but it can be much more memory efficient when
