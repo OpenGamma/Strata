@@ -89,6 +89,22 @@ public final class CapitalIndexedBondTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public CapitalIndexedBondTrade withInfo(TradeInfo info) {
+    return new CapitalIndexedBondTrade(info, product, quantity, price);
+  }
+
+  @Override
+  public CapitalIndexedBondTrade withQuantity(double quantity) {
+    return new CapitalIndexedBondTrade(info, product, quantity, price);
+  }
+
+  @Override
+  public CapitalIndexedBondTrade withPrice(double price) {
+    return new CapitalIndexedBondTrade(info, product, quantity, price);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // ID x 200
     String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
@@ -135,16 +151,6 @@ public final class CapitalIndexedBondTrade
         .price(price)
         .settlement(settlement)
         .build();
-  }
-
-  @Override
-  public CapitalIndexedBondTrade withQuantity(double quantity) {
-    return new CapitalIndexedBondTrade(info, product, quantity, price);
-  }
-
-  @Override
-  public CapitalIndexedBondTrade withPrice(double price) {
-    return new CapitalIndexedBondTrade(info, product, quantity, price);
   }
 
   // calculates the settlement date from the trade date if necessary

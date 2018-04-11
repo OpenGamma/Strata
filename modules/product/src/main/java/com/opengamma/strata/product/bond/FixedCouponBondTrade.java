@@ -86,6 +86,22 @@ public final class FixedCouponBondTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public FixedCouponBondTrade withInfo(TradeInfo info) {
+    return new FixedCouponBondTrade(info, product, quantity, price);
+  }
+
+  @Override
+  public FixedCouponBondTrade withQuantity(double quantity) {
+    return new FixedCouponBondTrade(info, product, quantity, price);
+  }
+
+  @Override
+  public FixedCouponBondTrade withPrice(double price) {
+    return new FixedCouponBondTrade(info, product, quantity, price);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // ID x 200
     String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
@@ -97,16 +113,6 @@ public final class FixedCouponBondTrade
     ResolvedFixedCouponBond resolved = getProduct().resolve(refData);
     TradeInfo completedInfo = calculateSettlementDate(refData);
     return new ResolvedFixedCouponBondTrade(completedInfo, resolved, quantity, price);
-  }
-
-  @Override
-  public FixedCouponBondTrade withQuantity(double quantity) {
-    return new FixedCouponBondTrade(info, product, quantity, price);
-  }
-
-  @Override
-  public FixedCouponBondTrade withPrice(double price) {
-    return new FixedCouponBondTrade(info, product, quantity, price);
   }
 
   // calculates the settlement date from the trade date if necessary

@@ -76,6 +76,12 @@ public final class SwapTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public SwapTrade withInfo(TradeInfo info) {
+    return new SwapTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     return PortfolioItemSummary.of(
         getId().orElse(null),

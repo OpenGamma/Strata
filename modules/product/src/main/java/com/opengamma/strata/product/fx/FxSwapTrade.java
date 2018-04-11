@@ -81,6 +81,12 @@ public final class FxSwapTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public FxSwapTrade withInfo(TradeInfo info) {
+    return new FxSwapTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // Pay USD 1mm @ GBP/USD 1.32 : Rec USD 1mm @ GBP/USD 1.35 : 21Jan18-21Apr18
     StringBuilder buf = new StringBuilder(96);

@@ -45,6 +45,11 @@ public class TradeTest {
     public TradeInfo getInfo() {
       return TradeInfo.empty();
     }
+
+    @Override
+    public Trade withInfo(TradeInfo info) {
+      return this;
+    }
   }
 
 }

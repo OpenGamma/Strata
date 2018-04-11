@@ -163,6 +163,11 @@ public final class CapitalIndexedBondSecurity
     return ImmutableSet.of();
   }
 
+  @Override
+  public CapitalIndexedBondSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public CapitalIndexedBond createProduct(ReferenceData refData) {

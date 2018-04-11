@@ -80,6 +80,12 @@ public final class FraTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public FraTrade withInfo(TradeInfo info) {
+    return new FraTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // 3x6 USD 1mm Rec GBP-LIBOR / Pay 2.5% : 21Jan18-21Apr18
     StringBuilder buf = new StringBuilder(64);

@@ -39,6 +39,9 @@ public class GenericSecurityPositionTest {
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
     assertEquals(test.getCurrency(), SECURITY.getCurrency());
+    assertEquals(test.withInfo(POSITION_INFO).getInfo(), POSITION_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withQuantity(-129).getQuantity(), -129d, 0d);
   }
 
   public void test_ofNet_withInfo_positive() {

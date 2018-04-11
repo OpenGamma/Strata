@@ -114,6 +114,11 @@ public final class EtdFutureSecurity
   }
 
   @Override
+  public EtdFutureSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  @Override
   public EtdFutureSecurity createProduct(ReferenceData refData) {
     return this;
   }

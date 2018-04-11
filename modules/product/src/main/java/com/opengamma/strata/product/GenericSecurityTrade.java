@@ -102,6 +102,12 @@ public final class GenericSecurityTrade
     return security.getSecurityId();
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public GenericSecurityTrade withInfo(TradeInfo info) {
+    return new GenericSecurityTrade(info, security, quantity, price);
+  }
+
   @Override
   public GenericSecurityTrade withQuantity(double quantity) {
     return new GenericSecurityTrade(info, security, quantity, price);

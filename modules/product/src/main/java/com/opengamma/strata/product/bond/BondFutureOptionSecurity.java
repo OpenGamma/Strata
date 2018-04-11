@@ -140,6 +140,12 @@ public final class BondFutureOptionSecurity
 
   //-------------------------------------------------------------------------
   @Override
+  public BondFutureOptionSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public BondFutureOption createProduct(ReferenceData refData) {
     Security security = refData.getValue(underlyingFutureId);
     if (!(security instanceof BondFutureSecurity)) {

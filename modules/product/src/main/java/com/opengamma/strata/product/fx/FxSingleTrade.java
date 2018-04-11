@@ -81,6 +81,12 @@ public final class FxSingleTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public FxSingleTrade withInfo(TradeInfo info) {
+    return new FxSingleTrade(info, product);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // Pay USD 1mm @ GBP/USD 1.32 : 21Jan18
     StringBuilder buf = new StringBuilder(64);

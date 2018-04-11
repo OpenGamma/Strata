@@ -72,6 +72,12 @@ public final class CdsTrade
 
   //-------------------------------------------------------------------------
   @Override
+  public CdsTrade withInfo(TradeInfo info) {
+    return new CdsTrade(info, product, upfrontFee);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public PortfolioItemSummary summarize() {
     // 2Y Buy USD 1mm ENTITY / 1.5% : 21Jan18-21Jan20
     PeriodicSchedule paymentSchedule = product.getPaymentSchedule();

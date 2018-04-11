@@ -43,6 +43,9 @@ public class IborFutureTradeTest {
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getQuantity(), QUANTITY);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(0.9129).getQuantity(), 0.9129d, 1e-10);
+    assertEquals(test.withPrice(0.9129).getPrice(), 0.9129d, 1e-10);
   }
 
   public void test_builder_badPrice() {

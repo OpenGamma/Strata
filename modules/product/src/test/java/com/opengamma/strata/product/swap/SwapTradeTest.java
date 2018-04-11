@@ -36,6 +36,7 @@ public class SwapTradeTest {
     SwapTrade test = SwapTrade.of(TRADE_INFO, SWAP1);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), SWAP1);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {

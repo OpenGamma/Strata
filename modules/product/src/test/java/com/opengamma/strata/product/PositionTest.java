@@ -59,6 +59,16 @@ public class PositionTest {
       public PositionInfo getInfo() {
         return PositionInfo.empty();
       }
+
+      @Override
+      public Position withInfo(PositionInfo info) {
+        return this;
+      }
+
+      @Override
+      public Position withQuantity(double quantity) {
+        return this;
+      }
     };
   }
 

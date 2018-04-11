@@ -106,6 +106,12 @@ public final class EtdFutureTrade
     return security.getSecurityId();
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public EtdFutureTrade withInfo(TradeInfo info) {
+    return new EtdFutureTrade(info, security, quantity, price);
+  }
+
   @Override
   public EtdFutureTrade withQuantity(double quantity) {
     return new EtdFutureTrade(info, security, quantity, price);
