@@ -45,9 +45,6 @@ public class CombinedCurveTest {
 
   private static final String BASE_NAME = "BaseCurve";
   private static final String SPREAD_NAME = "SpreadCurve";
-//  private static final CurveName BASE_CURVE_NAME = CurveName.of(BASE_NAME);
-//  private static final CurveName SPREAD_CURVE_NAME = CurveName.of(SPREAD_NAME);
-
   private static final DoubleArray XVALUES_BASE = DoubleArray.of(1.0, 3.0, 5.0);
   private static final DoubleArray YVALUES_BASE = DoubleArray.of(0.05, 0.1, 0.01);
   private static final DoubleArray XVALUES_SPREAD = DoubleArray.of(0.5, 1.5, 5.0, 7.0);
