@@ -21,6 +21,9 @@ public final class ExchangeIds {
   /** Chicago Board of Trade (CBOT). */
   public static final ExchangeId XCBT = ExchangeId.of("XCBT");
 
+  /** Chicago Board Options Exchange. */
+  public static final ExchangeId XCBO = ExchangeId.of("XCBO");
+
   /** New York Mercantile Exchange (NYMEX). */
   public static final ExchangeId XNYM = ExchangeId.of("XNYM");
 
