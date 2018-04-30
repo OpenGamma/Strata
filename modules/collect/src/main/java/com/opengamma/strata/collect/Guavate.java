@@ -778,7 +778,7 @@ public final class Guavate {
    * Converts a map of futures to a single future.
    * <p>
    * This is similar to {@link #combineFuturesAsList(List)} but for maps.
-   * Effectively, this converts {@code Map<K, CompletableFuture<T>>} to {@code CompletableFuture<Map<K, T>>}.
+   * Effectively, this converts {@code Map<K, CompletableFuture<V>>} to {@code CompletableFuture<Map<K, V>>}.
    * <p>
    * If any input future completes exceptionally, the result will also complete exceptionally.
    *
@@ -812,12 +812,12 @@ public final class Guavate {
   }
 
   /**
-   * Collector used at the end of a stream to convert a list of futures to a single future,
-   * combining the values into a list.
+   * Collector used at the end of a stream to convert a map of futures to a single future,
+   * combining the values into a map.
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing a stream of futures to be combined into a single future.
-   * This converts {@code Map<K, CompletableFuture<T>>} to {@code CompletableFuture<Map<K, T>>}.
+   * This converts {@code Map<K, CompletableFuture<V>>} to {@code CompletableFuture<Map<K, V>>}.
    *
    * @param <K> the type of the keys in the map
    * @param <V> the type of the values in the map
