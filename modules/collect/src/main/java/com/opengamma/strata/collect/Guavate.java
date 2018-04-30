@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -770,6 +771,63 @@ public final class Guavate {
    */
   public static <T, S extends CompletableFuture<? extends T>> Collector<S, ?, CompletableFuture<List<T>>> toCombinedFuture() {
     return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsList);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts a map of futures to a single future.
+   * <p>
+   * This is similar to {@link #combineFuturesAsList(List)} but for maps.
+   * Effectively, this converts {@code Map<K, CompletableFuture<T>>} to {@code CompletableFuture<Map<K, T>>}.
+   * <p>
+   * If any input future completes exceptionally, the result will also complete exceptionally.
+   *
+   * @param <K> the type of the keys in the map
+   * @param <V> the type of the values in the map
+   * @param <F> the type of the futures
+   * @param futures the futures to convert, may be empty
+   * @return a future that combines the input futures as a map
+   */
+  @SuppressWarnings("unchecked")
+  public static <K, V, F extends CompletableFuture<? extends V>> CompletableFuture<Map<K, V>>
+      combineFuturesAsMap(Map<K, F> futures) {
+
+    int size = futures.size();
+    K[] keyArray = (K[]) new Object[size];
+    CompletableFuture<? extends V>[] futuresArray = new CompletableFuture[size];
+    int index = 0;
+    for (Entry<K, F> entry : futures.entrySet()) {
+      keyArray[index] = entry.getKey();
+      futuresArray[index] = entry.getValue();
+      index++;
+    }
+    return CompletableFuture.allOf(futuresArray)
+        .thenApply(unused -> {
+          ImmutableMap.Builder<K, V> builder = ImmutableMap.builderWithExpectedSize(size);
+          for (int i = 0; i < size; i++) {
+            builder.put(keyArray[i], futuresArray[i].join());
+          }
+          return builder.build();
+        });
+  }
+
+  /**
+   * Collector used at the end of a stream to convert a list of futures to a single future,
+   * combining the values into a list.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing a stream of futures to be combined into a single future.
+   * This converts {@code Map<K, CompletableFuture<T>>} to {@code CompletableFuture<Map<K, T>>}.
+   *
+   * @param <K> the type of the keys in the map
+   * @param <V> the type of the values in the map
+   * @param <F> the type of the input futures
+   * @return a collector that combines the input futures as a map
+   */
+  public static <K, V, F extends CompletableFuture<? extends V>> Collector<Map.Entry<K, F>, ?, CompletableFuture<Map<K, V>>>
+      toCombinedFutureMap() {
+
+    return collectingAndThen(entriesToImmutableMap(), Guavate::combineFuturesAsMap);
   }
 
   //-------------------------------------------------------------------------
