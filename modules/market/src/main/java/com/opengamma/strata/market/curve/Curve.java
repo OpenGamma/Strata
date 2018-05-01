@@ -11,6 +11,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -145,6 +146,35 @@ public interface Curve extends ParameterizedData {
         .mapToObj(i -> getParameterMetadata(i))
         .collect(toImmutableList());
     return CurrencyParameterSensitivity.of(getName(), paramMeta, currency, sensitivities);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a list of underlying curves. 
+   * <p>
+   * In most cases, the number of underlying curves is 1. Thus a list of this curve is returned.
+   * 
+   * @return the underlying curves
+   */
+  public default ImmutableList<Curve> split() {
+    return ImmutableList.of(this);
+  }
+
+  /**
+   * Replaces an underlying curve by a new curve.
+   * <p>
+   * {@code curveIndex} must be coherent to the index of the list in {@code split()}.
+   * If {@code curveIndex} is outside the range, {@code this} instance is returned.
+   * 
+   * @param curveIndex  the curve index
+   * @param curve  the new split curve
+   * @return the new curve
+   */
+  public default Curve withUnderlyingCurve(int curveIndex, Curve curve) {
+    if (curveIndex == 0) {
+      return curve;
+    }
+    return this;
   }
 
 }

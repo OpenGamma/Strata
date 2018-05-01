@@ -334,6 +334,27 @@ public class CombinedCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_underlyingCurves() {
+    CurveMetadata metadata = DefaultCurveMetadata.builder()
+        .curveName("newCurve")
+        .xValueType(YEAR_FRACTION)
+        .yValueType(ZERO_RATE)
+        .dayCount(ACT_365F)
+        .parameterMetadata(PARAM_METADATA_SPREAD)
+        .build();
+    InterpolatedNodalCurve newCurve = InterpolatedNodalCurve.of(
+        metadata, XVALUES_SPREAD, YVALUES_SPREAD, NATURAL_CUBIC_SPLINE, LINEAR, LINEAR);
+    assertEquals(
+        COMBINED_CURVE.withUnderlyingCurve(0, newCurve),
+        CombinedCurve.of(newCurve, SPREAD_CURVE, COMBINED_CURVE.getMetadata()));
+    assertEquals(
+        COMBINED_CURVE.withUnderlyingCurve(1, newCurve),
+        CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
+    assertEquals(COMBINED_CURVE.withUnderlyingCurve(2, newCurve), COMBINED_CURVE);
+    assertEquals(COMBINED_CURVE.split(), ImmutableList.of(BASE_CURVE, SPREAD_CURVE));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(COMBINED_CURVE);
     CombinedCurve test = CombinedCurve.of(
