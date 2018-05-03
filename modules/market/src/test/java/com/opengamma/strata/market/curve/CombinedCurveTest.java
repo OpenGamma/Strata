@@ -351,8 +351,8 @@ public class CombinedCurveTest {
     assertEquals(
         COMBINED_CURVE.withUnderlyingCurve(1, newCurve),
         CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
-    assertEquals(COMBINED_CURVE.withUnderlyingCurve(2, newCurve), COMBINED_CURVE);
     assertEquals(COMBINED_CURVE.split(), ImmutableList.of(BASE_CURVE, SPREAD_CURVE));
+    assertThrowsIllegalArg(() -> COMBINED_CURVE.withUnderlyingCurve(2, newCurve));
   }
 
   //-------------------------------------------------------------------------
