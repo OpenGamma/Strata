@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -113,6 +114,26 @@ public class AddFixedCurveTest {
       assertTrue(dComputed.compareKey(dExpected) == 0);
       assertTrue(dComputed.getSensitivity().equalWithTolerance(dExpected.getSensitivity(), TOLERANCE_Y));
     }
+  }
+
+  public void underlyingCurve() {
+    assertEquals(ADD_FIXED_CURVE.split(), ImmutableList.of(FIXED_CURVE, SPREAD_CURVE));
+    CurveMetadata metadata = DefaultCurveMetadata.builder()
+        .curveName(CurveName.of("newCurve"))
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(ACT_365F)
+        .parameterMetadata(PARAM_METADATA_SPREAD)
+        .build();
+    InterpolatedNodalCurve newCurve = InterpolatedNodalCurve.of(
+        metadata, XVALUES_SPREAD, YVALUES_SPREAD, INTERPOLATOR);
+    assertEquals(
+        ADD_FIXED_CURVE.withUnderlyingCurve(0, newCurve),
+        AddFixedCurve.of(newCurve, SPREAD_CURVE));
+    assertEquals(
+        ADD_FIXED_CURVE.withUnderlyingCurve(1, newCurve),
+        AddFixedCurve.of(FIXED_CURVE, newCurve));
+    assertThrowsIllegalArg(() -> ADD_FIXED_CURVE.withUnderlyingCurve(2, newCurve));
   }
 
   //-------------------------------------------------------------------------
