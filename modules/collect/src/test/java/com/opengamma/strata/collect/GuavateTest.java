@@ -411,6 +411,80 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_combineFuturesAsMap() {
+    CompletableFuture<String> future1 = new CompletableFuture<>();
+    future1.complete("A");
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+      try {
+        latch.await();
+      } catch (InterruptedException ex) {
+        // ignore
+      }
+      return "B";
+    });
+    Map<String, CompletableFuture<String>> input = ImmutableMap.of("a", future1, "b", future2);
+
+    CompletableFuture<Map<String, String>> test = Guavate.combineFuturesAsMap(input);
+
+    assertEquals(test.isDone(), false);
+    latch.countDown();
+    Map<String, String> combined = test.join();
+    assertEquals(test.isDone(), true);
+    assertEquals(combined.size(), 2);
+    assertEquals(combined.get("a"), "A");
+    assertEquals(combined.get("b"), "B");
+  }
+
+  public void test_combineFuturesAsMap_exception() {
+    CompletableFuture<String> future1 = new CompletableFuture<>();
+    future1.complete("A");
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+      try {
+        latch.await();
+      } catch (InterruptedException ex) {
+        // ignore
+      }
+      throw new IllegalStateException("Oops");
+    });
+    Map<String, CompletableFuture<String>> input = ImmutableMap.of("a", future1, "b", future2);
+
+    CompletableFuture<Map<String, String>> test = Guavate.combineFuturesAsMap(input);
+
+    assertEquals(test.isDone(), false);
+    latch.countDown();
+    assertThrows(CompletionException.class, () -> test.join());
+    assertEquals(test.isDone(), true);
+    assertEquals(test.isCompletedExceptionally(), true);
+  }
+
+  public void test_toCombinedFutureMap() {
+    CompletableFuture<String> future1 = new CompletableFuture<>();
+    future1.complete("A");
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+      try {
+        latch.await();
+      } catch (InterruptedException ex) {
+        // ignore
+      }
+      return "B";
+    });
+    Map<String, CompletableFuture<String>> input = ImmutableMap.of("a", future1, "b", future2);
+
+    CompletableFuture<Map<String, String>> test = input.entrySet().stream().collect(Guavate.toCombinedFutureMap());
+
+    assertEquals(test.isDone(), false);
+    latch.countDown();
+    Map<String, String> combined = test.join();
+    assertEquals(test.isDone(), true);
+    assertEquals(combined.size(), 2);
+    assertEquals(combined.get("a"), "A");
+    assertEquals(combined.get("b"), "B");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_poll() {
     AtomicInteger counter = new AtomicInteger();
     Supplier<String> pollingFn = () -> {
