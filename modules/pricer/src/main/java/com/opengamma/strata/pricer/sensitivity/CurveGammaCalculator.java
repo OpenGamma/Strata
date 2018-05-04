@@ -13,18 +13,17 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.RateIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.ParallelShiftedCurve;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivity;
@@ -124,10 +123,24 @@ public final class CurveGammaCalculator {
       Currency currency = entry.getKey();
       Curve curve = entry.getValue();
       if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
-        NodalCurve nodalCurve = getNodalCurve(curve);
         CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-            nodalCurve, currency, c -> immProv.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
+            curve, currency, c -> immProv.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
         result = result.combinedWith(gammaSingle);
+      } else if (curve.split().size() > 1) {
+        ImmutableList<Curve> curves = curve.split();
+        int nCurves = curves.size();
+        for (int i = 0; i < nCurves; ++i) {
+          int currentIndex = i;
+          Curve underlyingCurve = curves.get(currentIndex);
+          if (baseDelta.findSensitivity(underlyingCurve.getName(), currency).isPresent()) {
+            CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+                underlyingCurve,
+                currency,
+                c -> immProv.toBuilder().discountCurve(currency, curve.withUnderlyingCurve(currentIndex, c)).build(),
+                sensitivitiesFn);
+            result = result.combinedWith(gammaSingle);
+          }
+        }
       }
     }
     // forward curve
@@ -137,10 +150,24 @@ public final class CurveGammaCalculator {
         Currency currency = getCurrency(index);
         Curve curve = entry.getValue();
         if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
-          NodalCurve nodalCurve = getNodalCurve(curve);
           CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-              nodalCurve, currency, c -> immProv.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
+              curve, currency, c -> immProv.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
           result = result.combinedWith(gammaSingle);
+        } else if (curve.split().size() > 1) {
+          ImmutableList<Curve> curves = curve.split();
+          int nCurves = curves.size();
+          for (int i = 0; i < nCurves; ++i) {
+            int currentIndex = i;
+            Curve underlyingCurve = curves.get(currentIndex);
+            if (baseDelta.findSensitivity(underlyingCurve.getName(), currency).isPresent()) {
+              CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+                  underlyingCurve,
+                  currency,
+                  c -> immProv.toBuilder().indexCurve(index, curve.withUnderlyingCurve(currentIndex, c)).build(),
+                  sensitivitiesFn);
+              result = result.combinedWith(gammaSingle);
+            }
+          }
         }
       }
     }
@@ -175,10 +202,24 @@ public final class CurveGammaCalculator {
         Currency currency = entry.getKey();
         Curve curve = entry.getValue();
         if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
-          NodalCurve nodalCurve = getNodalCurve(curve);
           CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-              baseDeltaSingle, nodalCurve, c -> immProv.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
+              baseDeltaSingle, curve, c -> immProv.toBuilder().discountCurve(currency, c).build(), sensitivitiesFn);
           resultInner = resultInner.combinedWith(gammaSingle);
+        } else if (curve.split().size() > 1) {
+          ImmutableList<Curve> curves = curve.split();
+          int nCurves = curves.size();
+          for (int i = 0; i < nCurves; ++i) {
+            int currentIndex = i;
+            Curve underlyingCurve = curves.get(currentIndex);
+            if (baseDelta.findSensitivity(underlyingCurve.getName(), currency).isPresent()) {
+              CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+                  baseDeltaSingle,
+                  underlyingCurve,
+                  c -> immProv.toBuilder().discountCurve(currency, curve.withUnderlyingCurve(currentIndex, c)).build(),
+                  sensitivitiesFn);
+              resultInner = resultInner.combinedWith(gammaSingle);
+            }
+          }
         }
       }
       // forward curve
@@ -188,10 +229,24 @@ public final class CurveGammaCalculator {
           Currency currency = getCurrency(index);
           Curve curve = entry.getValue();
           if (baseDelta.findSensitivity(curve.getName(), currency).isPresent()) {
-            NodalCurve nodalCurve = getNodalCurve(curve);
             CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
-                baseDeltaSingle, nodalCurve, c -> immProv.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
+                baseDeltaSingle, curve, c -> immProv.toBuilder().indexCurve(index, c).build(), sensitivitiesFn);
             resultInner = resultInner.combinedWith(gammaSingle);
+          } else if (curve.split().size() > 1) {
+            ImmutableList<Curve> curves = curve.split();
+            int nCurves = curves.size();
+            for (int i = 0; i < nCurves; ++i) {
+              int currentIndex = i;
+              Curve underlyingCurve = curves.get(currentIndex);
+              if (baseDelta.findSensitivity(underlyingCurve.getName(), currency).isPresent()) {
+                CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+                    baseDeltaSingle,
+                    underlyingCurve,
+                    c -> immProv.toBuilder().indexCurve(index, curve.withUnderlyingCurve(currentIndex, c)).build(),
+                    sensitivitiesFn);
+                resultInner = resultInner.combinedWith(gammaSingle);
+              }
+            }
           }
         }
       }
@@ -201,11 +256,6 @@ public final class CurveGammaCalculator {
   }
 
   //-------------------------------------------------------------------------
-  private NodalCurve getNodalCurve(Curve curve) {
-    ArgChecker.isTrue(curve instanceof NodalCurve, "underlying curve must be NodalCurve");
-    return (NodalCurve) curve;
-  }
-
   private Currency getCurrency(Index index) {
     if (index instanceof RateIndex) {
       return ((RateIndex) index).getCurrency();
@@ -215,9 +265,9 @@ public final class CurveGammaCalculator {
     throw new IllegalArgumentException("unsupported index");
   }
 
-  // compute the second order sensitivity to nodalCurve
+  // compute the second order sensitivity to Curve
   CrossGammaParameterSensitivity computeGammaForCurve(
-      NodalCurve nodalCurve,
+      Curve curve,
       Currency sensitivityCurrency,
       Function<Curve, ImmutableRatesProvider> ratesProviderFn,
       Function<ImmutableRatesProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
@@ -225,43 +275,45 @@ public final class CurveGammaCalculator {
     Function<DoubleArray, DoubleArray> function = new Function<DoubleArray, DoubleArray>() {
       @Override
       public DoubleArray apply(DoubleArray t) {
-        NodalCurve newCurve = nodalCurve.withYValues(t);
+        Curve newCurve = replaceParameters(curve, t);
         ImmutableRatesProvider newRates = ratesProviderFn.apply(newCurve);
         CurrencyParameterSensitivities sensiMulti = sensitivitiesFn.apply(newRates);
         return sensiMulti.getSensitivity(newCurve.getName(), sensitivityCurrency).getSensitivity();
       }
     };
-    DoubleMatrix sensi = fd.differentiate(function).apply(nodalCurve.getYValues());
-    List<ParameterMetadata> metadata = IntStream.range(0, nodalCurve.getParameterCount())
-        .mapToObj(i -> nodalCurve.getParameterMetadata(i))
+    int nParams = curve.getParameterCount();
+    DoubleMatrix sensi = fd.differentiate(function).apply(DoubleArray.of(nParams, n -> curve.getParameter(n)));
+    List<ParameterMetadata> metadata = IntStream.range(0, nParams)
+        .mapToObj(i -> curve.getParameterMetadata(i))
         .collect(toImmutableList());
-    return CrossGammaParameterSensitivity.of(nodalCurve.getName(), metadata, sensitivityCurrency, sensi);
+    return CrossGammaParameterSensitivity.of(curve.getName(), metadata, sensitivityCurrency, sensi);
   }
 
-  // computes the sensitivity of baseDeltaSingle to nodalCurve
+  // computes the sensitivity of baseDeltaSingle to Curve
   CrossGammaParameterSensitivity computeGammaForCurve(
       CurrencyParameterSensitivity baseDeltaSingle,
-      NodalCurve nodalCurve,
+      Curve curve,
       Function<Curve, ImmutableRatesProvider> ratesProviderFn,
       Function<ImmutableRatesProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
 
     Function<DoubleArray, DoubleArray> function = new Function<DoubleArray, DoubleArray>() {
       @Override
       public DoubleArray apply(DoubleArray t) {
-        NodalCurve newCurve = nodalCurve.withYValues(t);
+        Curve newCurve = replaceParameters(curve, t);
         ImmutableRatesProvider newRates = ratesProviderFn.apply(newCurve);
         CurrencyParameterSensitivities sensiMulti = sensitivitiesFn.apply(newRates);
         return sensiMulti.getSensitivity(baseDeltaSingle.getMarketDataName(), baseDeltaSingle.getCurrency()).getSensitivity();
       }
     };
-    DoubleMatrix sensi = fd.differentiate(function).apply(nodalCurve.getYValues());
-    List<ParameterMetadata> metadata = IntStream.range(0, nodalCurve.getParameterCount())
-        .mapToObj(i -> nodalCurve.getParameterMetadata(i))
+    int nParams = curve.getParameterCount();
+    DoubleMatrix sensi = fd.differentiate(function).apply(DoubleArray.of(nParams, n -> curve.getParameter(n)));
+    List<ParameterMetadata> metadata = IntStream.range(0, nParams)
+        .mapToObj(i -> curve.getParameterMetadata(i))
         .collect(toImmutableList());
     return CrossGammaParameterSensitivity.of(
         baseDeltaSingle.getMarketDataName(),
         baseDeltaSingle.getParameterMetadata(),
-        nodalCurve.getName(),
+        curve.getName(),
         metadata,
         baseDeltaSingle.getCurrency(),
         sensi);
@@ -313,6 +365,11 @@ public final class CurveGammaCalculator {
     Function<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
     DoubleArray gamma = gammaFn.apply(DoubleArray.filled(1)).column(0);
     return curve.createParameterSensitivity(curveCurrency, gamma);
+  }
+
+  //-------------------------------------------------------------------------
+  private Curve replaceParameters(Curve curve, DoubleArray newParameters) {
+    return curve.withPerturbation((i, v, m) -> newParameters.get(i));
   }
 
   //-------------------------------------------------------------------------
