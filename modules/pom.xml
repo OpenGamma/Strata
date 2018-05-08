@@ -681,7 +681,7 @@
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.9.0</assertj.version>
-    <guava.version>24.0-jre</guava.version>
+    <guava.version>25.0-jre</guava.version>
     <jcommander.version>1.72</jcommander.version>
     <joda-convert.version>2.0.1</joda-convert.version>
     <joda-beans.version>2.2</joda-beans.version>
