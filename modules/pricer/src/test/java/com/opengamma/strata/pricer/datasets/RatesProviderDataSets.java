@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.CombinedCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -195,6 +196,16 @@ public class RatesProviderDataSets {
       .overnightIndexCurve(USD_FED_FUND, USD_DSC)
       .iborIndexCurve(USD_LIBOR_3M, USD_L3)
       .iborIndexCurve(USD_LIBOR_6M, USD_L6)
+      .priceIndexCurve(US_CPI_U, US_CPI_U_CURVE)
+      .timeSeries(US_CPI_U, PRICE_INDEX_TS)
+      .build();
+
+  public static final ImmutableRatesProvider MULTI_CPI_USD_COMBINED = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
+      .fxRateProvider(FX_MATRIX_USD)
+      .discountCurve(USD, CombinedCurve.of(USD_L3, USD_DSC))
+      .overnightIndexCurve(USD_FED_FUND, CombinedCurve.of(USD_L3, USD_DSC))
+      .iborIndexCurve(USD_LIBOR_3M, USD_L3)
+      .iborIndexCurve(USD_LIBOR_6M, CombinedCurve.of(USD_L3, USD_L6))
       .priceIndexCurve(US_CPI_U, US_CPI_U_CURVE)
       .timeSeries(US_CPI_U, PRICE_INDEX_TS)
       .build();
