@@ -16,6 +16,7 @@ import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.SGD;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.currency.Currency.ZAR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
@@ -26,6 +27,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.ZAJO;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -242,6 +244,19 @@ public class OvernightIndexTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "SGD-SONAR");
+  }
+
+  public void test_zarSabor() {
+    OvernightIndex test = OvernightIndex.of("ZAR-SABOR");
+    assertEquals(test.getName(), "ZAR-SABOR");
+    assertEquals(test.getCurrency(), ZAR);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), ZAJO);
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "ZAR-SABOR");
   }
 
   //-------------------------------------------------------------------------

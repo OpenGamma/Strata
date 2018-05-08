@@ -108,6 +108,12 @@ public final class OvernightIndices {
    * The "STIBOR T/N" index.
    */
   public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
+  /**
+   * The SABOR index for ZAR.
+   * <p>
+   * The "South African Benchmark Overnight Rate" index.
+   */
+  public static final OvernightIndex ZAR_SABOR = OvernightIndex.of("ZAR-SABOR");
 
   //-------------------------------------------------------------------------
   /**
