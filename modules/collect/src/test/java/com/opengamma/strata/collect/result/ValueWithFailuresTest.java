@@ -82,11 +82,20 @@ public class ValueWithFailuresTest {
     return ValueWithFailures.of(integers, failures);
   }
 
+  // -------------------------------------------------------------------------
   public void test_combinedWith() {
     ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
     ValueWithFailures<List<String>> other = ValueWithFailures.of(ImmutableList.of("b", "c"), ImmutableList.of(FAILURE2));
     ValueWithFailures<List<String>> test = base.combinedWith(other, Guavate::concatToList);
     assertEquals(test.getValue(), ImmutableList.of("a", "b", "c"));
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  public void test_combinedWith_differentTypes() {
+    ValueWithFailures<Boolean> base = ValueWithFailures.of(Boolean.TRUE, ImmutableList.of(FAILURE1));
+    ValueWithFailures<Integer> other = ValueWithFailures.of(Integer.valueOf(1), ImmutableList.of(FAILURE2));
+    ValueWithFailures<String> test = base.combinedWith(other, (a, b) -> a.toString() + b.toString());
+    assertEquals(test.getValue(), "true1");
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
