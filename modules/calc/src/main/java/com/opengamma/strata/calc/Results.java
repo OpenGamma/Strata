@@ -159,12 +159,14 @@ public final class Results implements ImmutableBean {
   private String invalidRowIndexMessage(int rowIndex) {
     return Messages.format(
         "Row index must be greater than or equal to zero and less than the row count ({}), but it was {}",
+        rowCount,
         rowIndex);
   }
 
   private String invalidColumnIndexMessage(int columnIndex) {
     return Messages.format(
         "Column index must be greater than or equal to zero and less than the column count ({}), but it was {}",
+        columnCount,
         columnIndex);
   }
 
