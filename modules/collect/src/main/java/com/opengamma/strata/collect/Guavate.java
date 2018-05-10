@@ -9,8 +9,8 @@ import static java.util.stream.Collectors.collectingAndThen;
 
 import java.time.Duration;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -386,7 +386,7 @@ public final class Guavate {
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
-   * an {@link ImmutableMap}.
+   * an {@link ImmutableMap}, retaining insertion order.
    * <p>
    * This returns a map by extracting a key from each element.
    * The input stream must resolve to unique keys.
@@ -410,7 +410,7 @@ public final class Guavate {
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
-   * an {@link ImmutableMap}.
+   * an {@link ImmutableMap}, retaining insertion order.
    * <p>
    * This returns a map by converting each stream element to a key and value.
    * The input stream must resolve to unique keys.
@@ -441,7 +441,7 @@ public final class Guavate {
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
-   * an {@link ImmutableMap}.
+   * an {@link ImmutableMap}, retaining insertion order.
    * <p>
    * This returns a map by converting each stream element to a key and value.
    * If the same key is generated more than once the merge function is applied to the
@@ -461,7 +461,7 @@ public final class Guavate {
       BiFunction<? super V, ? super V, ? extends V> mergeFn) {
 
     return Collector.of(
-        HashMap<K, V>::new,
+        LinkedHashMap<K, V>::new,
         (map, val) -> map.merge(keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
         (m1, m2) -> mergeMaps(m1, m2, mergeFn),
         map -> ImmutableMap.copyOf(map),
