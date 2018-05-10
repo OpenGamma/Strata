@@ -12,6 +12,7 @@ import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -217,11 +218,15 @@ public class GuavateTest {
   }
 
   public void test_toImmutableMap_mergeFn() {
-    List<String> list = Arrays.asList("a", "b", "b", "b", "c", "a");
+    List<String> list = Arrays.asList("b", "a", "b", "b", "c", "a");
     Map<String, Integer> result = list.stream()
         .collect(Guavate.toImmutableMap(s -> s, s -> 1, (s1, s2) -> s1 + s2));
     Map<String, Integer> expected = ImmutableMap.of("a", 2, "b", 3, "c", 1);
     assertEquals(result, expected);
+    Iterator<String> iterator = result.keySet().iterator();
+    assertEquals(iterator.next(), "b");
+    assertEquals(iterator.next(), "a");
+    assertEquals(iterator.next(), "c");
   }
 
   public void test_toImmutableMap_keyValue() {
