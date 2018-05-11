@@ -118,7 +118,7 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>7.4</version>
+            <version>${checkstyle.version}</version>
           </dependency>
           <dependency>
             <groupId>com.opengamma</groupId>
@@ -688,6 +688,7 @@
     <mockito.version>2.15.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <testng.version>6.14.2</testng.version>
+    <checkstyle.version>8.0</checkstyle.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <checkstyle.config.location>checkstyle/checkstyle-oss.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
