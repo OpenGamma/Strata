@@ -97,6 +97,7 @@ public class MoneyTest {
   @Test
   public void testParse() throws Exception {
     assertEquals(Money.parse("RON 200.23"), MONEY_200_RON);
+    assertEquals(Money.parse("RON 200.2345"), MONEY_200_RON);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,

@@ -6,6 +6,8 @@
 package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -399,6 +401,29 @@ public final class Currency
    */
   public Currency getTriangulationCurrency() {
     return Currency.of(triangulationCurrency);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Rounds the specified amount according to the minor units.
+   * <p>
+   * For example, 'USD' has 2 minor digits, so 63.347 will be rounded to 63.35.
+   * 
+   * @return the rounded amount
+   */
+  public double roundMinorUnits(double amount) {
+    return roundMinorUnits(BigDecimal.valueOf(amount)).doubleValue();
+  }
+
+  /**
+   * Rounds the specified amount according to the minor units.
+   * <p>
+   * For example, 'USD' has 2 minor digits, so 63.347 will be rounded to 63.35.
+   * 
+   * @return the rounded amount
+   */
+  public BigDecimal roundMinorUnits(BigDecimal amount) {
+    return amount.setScale(minorUnitDigits, RoundingMode.HALF_UP);
   }
 
   //-------------------------------------------------------------------------

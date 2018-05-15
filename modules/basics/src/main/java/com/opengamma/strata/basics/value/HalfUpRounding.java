@@ -40,7 +40,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * For example, the value 0.1 cannot be exactly represented in a {@code double}.
  */
 @BeanDefinition(builderScope = "private")
-public final class HalfUpRounding
+final class HalfUpRounding
     implements Rounding, ImmutableBean, Serializable {
 
   /**
@@ -243,7 +243,7 @@ public final class HalfUpRounding
   /**
    * The meta-bean for {@code HalfUpRounding}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
