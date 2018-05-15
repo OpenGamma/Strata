@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
@@ -171,6 +172,15 @@ public final class FxSwap
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the currency pair in conventional order.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return getNearLeg().getCurrencyPair().toConventional();
+  }
+
   @Override
   public ResolvedFxSwap resolve(ReferenceData refData) {
     return ResolvedFxSwap.of(nearLeg.resolve(refData), farLeg.resolve(refData));

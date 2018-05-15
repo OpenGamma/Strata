@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.PortfolioItemSummary;
-import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
@@ -45,7 +44,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class FxSwapTrade
-    implements ProductTrade, ResolvableTrade<ResolvedFxSwapTrade>, ImmutableBean, Serializable {
+    implements FxTrade, ResolvableTrade<ResolvedFxSwapTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -80,6 +79,11 @@ public final class FxSwapTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public CurrencyPair getCurrencyPair() {
+    return product.getCurrencyPair();
+  }
+
   @Override
   public FxSwapTrade withInfo(TradeInfo info) {
     return new FxSwapTrade(info, product);

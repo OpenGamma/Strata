@@ -99,6 +99,15 @@ public final class FxNdf
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the currency pair in conventional order.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return index.getCurrencyPair().toConventional();
+  }
+
+  /**
    * Gets the settlement currency.
    * 
    * @return the currency that is to be settled

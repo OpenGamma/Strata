@@ -68,6 +68,7 @@ public class FxSingleBarrierOptionTradeTest {
   public void test_builder() {
     FxSingleBarrierOptionTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
+    assertEquals(test.getCurrencyPair(), PRODUCT.getCurrencyPair());
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getPremium(), PREMIUM);
     assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);

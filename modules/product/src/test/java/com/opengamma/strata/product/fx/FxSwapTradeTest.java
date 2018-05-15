@@ -35,6 +35,7 @@ public class FxSwapTradeTest {
   public void test_of() {
     FxSwapTrade test = FxSwapTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
+    assertEquals(test.getCurrencyPair(), PRODUCT.getCurrencyPair());
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }

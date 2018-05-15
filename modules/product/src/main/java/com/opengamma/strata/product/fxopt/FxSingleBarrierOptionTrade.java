@@ -27,11 +27,11 @@ import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.PortfolioItemSummary;
-import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.SummarizerUtils;
+import com.opengamma.strata.product.fx.FxTrade;
 
 /**
  * A trade in an FX single barrier option.
@@ -43,7 +43,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class FxSingleBarrierOptionTrade
-    implements ProductTrade, ResolvableTrade<ResolvedFxSingleBarrierOptionTrade>, ImmutableBean, Serializable {
+    implements FxTrade, ResolvableTrade<ResolvedFxSingleBarrierOptionTrade>, ImmutableBean, Serializable {
 
   /**
   * The additional trade information, defaulted to an empty instance.
@@ -75,6 +75,11 @@ public final class FxSingleBarrierOptionTrade
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public CurrencyPair getCurrencyPair() {
+    return product.getCurrencyPair();
+  }
+
   @Override
   public FxSingleBarrierOptionTrade withInfo(TradeInfo info) {
     return new FxSingleBarrierOptionTrade(info, product, premium);
