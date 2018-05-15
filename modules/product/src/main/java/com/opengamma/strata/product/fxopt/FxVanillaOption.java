@@ -31,8 +31,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.fx.FxProduct;
 import com.opengamma.strata.product.fx.FxSingle;
 
 /**
@@ -46,7 +46,7 @@ import com.opengamma.strata.product.fx.FxSingle;
  */
 @BeanDefinition
 public final class FxVanillaOption
-    implements Product, Resolvable<ResolvedFxVanillaOption>, ImmutableBean, Serializable {
+    implements FxProduct, Resolvable<ResolvedFxVanillaOption>, ImmutableBean, Serializable {
 
   /**
    * Whether the option is long or short.
@@ -99,6 +99,7 @@ public final class FxVanillaOption
    * 
    * @return the currency pair
    */
+  @Override
   public CurrencyPair getCurrencyPair() {
     return underlying.getCurrencyPair();
   }

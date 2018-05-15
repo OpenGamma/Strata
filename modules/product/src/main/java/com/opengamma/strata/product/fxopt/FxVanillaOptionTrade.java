@@ -76,11 +76,6 @@ public final class FxVanillaOptionTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyPair getCurrencyPair() {
-    return product.getCurrencyPair();
-  }
-
-  @Override
   public FxVanillaOptionTrade withInfo(TradeInfo info) {
     return new FxVanillaOptionTrade(info, product, premium);
   }

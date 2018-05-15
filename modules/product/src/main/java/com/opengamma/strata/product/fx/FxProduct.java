@@ -6,22 +6,15 @@
 package com.opengamma.strata.product.fx;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.product.ProductTrade;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.Product;
 
 /**
- * A foreign exchange trade, such as an FX forward, FX spot or FX option.
+ * A foreign exchange product, such as an FX forward, FX spot or FX option.
  * <p>
- * FX trades operate on two different currencies.
+ * FX products operate on two different currencies.
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  */
-public interface FxTrade extends ProductTrade {
-
-  @Override
-  public abstract FxTrade withInfo(TradeInfo info);
-
-  @Override
-  public abstract FxProduct getProduct();
+public interface FxProduct extends Product {
 
   /**
    * Gets the currency pair that the FX trade is based on, in conventional order.
@@ -31,8 +24,6 @@ public interface FxTrade extends ProductTrade {
    * 
    * @return the currency pair
    */
-  public default CurrencyPair getCurrencyPair() {
-    return getProduct().getCurrencyPair();
-  }
+  public abstract CurrencyPair getCurrencyPair();
 
 }

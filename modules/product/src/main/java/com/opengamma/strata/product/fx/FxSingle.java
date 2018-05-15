@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.Product;
 
 /**
  * A single foreign exchange, such as an FX forward or FX spot.
@@ -49,7 +48,7 @@ import com.opengamma.strata.product.Product;
  */
 @BeanDefinition(builderScope = "private")
 public final class FxSingle
-    implements Product, Resolvable<ResolvedFxSingle>, ImmutableBean, Serializable {
+    implements FxProduct, Resolvable<ResolvedFxSingle>, ImmutableBean, Serializable {
 
   /**
    * The amount in the base currency, positive if receiving, negative if paying.
@@ -243,6 +242,7 @@ public final class FxSingle
    * 
    * @return the currency pair
    */
+  @Override
   public CurrencyPair getCurrencyPair() {
     return CurrencyPair.of(baseCurrencyAmount.getCurrency(), counterCurrencyAmount.getCurrency());
   }

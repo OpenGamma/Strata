@@ -76,11 +76,6 @@ public final class FxSingleBarrierOptionTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyPair getCurrencyPair() {
-    return product.getCurrencyPair();
-  }
-
-  @Override
   public FxSingleBarrierOptionTrade withInfo(TradeInfo info) {
     return new FxSingleBarrierOptionTrade(info, product, premium);
   }

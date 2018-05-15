@@ -80,11 +80,6 @@ public final class FxSwapTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyPair getCurrencyPair() {
-    return product.getCurrencyPair();
-  }
-
-  @Override
   public FxSwapTrade withInfo(TradeInfo info) {
     return new FxSwapTrade(info, product);
   }
