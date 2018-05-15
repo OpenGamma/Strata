@@ -16,11 +16,19 @@ import java.math.BigDecimal;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
+
 /**
  * Test {@link HalfUpRounding}.
  */
 @Test
 public class HalfUpRoundingTest {
+
+  public void test_of_Currency() {
+    Rounding test = Rounding.of(Currency.USD);
+    assertEquals(test.round(63.455d), 63.46d, 0d);
+    assertEquals(test.round(63.454d), 63.45d, 0d);
+  }
 
   public void test_ofDecimalPlaces() {
     HalfUpRounding test = HalfUpRounding.ofDecimalPlaces(4);
