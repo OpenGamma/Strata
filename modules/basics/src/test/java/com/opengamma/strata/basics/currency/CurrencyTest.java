@@ -12,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 import org.testng.annotations.DataProvider;
@@ -147,6 +148,23 @@ public class CurrencyTest {
     assertEquals(Currency.of("CHF").getTriangulationCurrency(), Currency.USD);
     assertEquals(Currency.of("AUD").getTriangulationCurrency(), Currency.USD);
     assertEquals(Currency.of("CAD").getTriangulationCurrency(), Currency.USD);
+  }
+
+  //-----------------------------------------------------------------------
+  public void test_roundMinorUnits_double() {
+    assertEquals(Currency.USD.roundMinorUnits(63.347d), 63.35d, 0d);
+    assertEquals(Currency.USD.roundMinorUnits(63.34500001d), 63.35d, 0d);
+    assertEquals(Currency.USD.roundMinorUnits(63.34499999d), 63.34d, 0d);
+    assertEquals(Currency.JPY.roundMinorUnits(63.347d), 63d, 0d);
+    assertEquals(Currency.JPY.roundMinorUnits(63.5347d), 64d, 0d);
+  }
+
+  public void test_roundMinorUnits_BigDecimal() {
+    assertEquals(Currency.USD.roundMinorUnits(new BigDecimal(63.347d)), new BigDecimal("63.35"));
+    assertEquals(Currency.USD.roundMinorUnits(new BigDecimal(63.34500001d)), new BigDecimal("63.35"));
+    assertEquals(Currency.USD.roundMinorUnits(new BigDecimal(63.34499999d)), new BigDecimal("63.34"));
+    assertEquals(Currency.JPY.roundMinorUnits(new BigDecimal(63.347d)), new BigDecimal("63"));
+    assertEquals(Currency.JPY.roundMinorUnits(new BigDecimal(63.5347d)), new BigDecimal("64"));
   }
 
   //-----------------------------------------------------------------------

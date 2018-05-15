@@ -8,6 +8,8 @@ package com.opengamma.strata.basics.value;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.opengamma.strata.basics.currency.Currency;
+
 /**
  * A convention defining how to round a number.
  * <p>
@@ -32,6 +34,19 @@ public interface Rounding {
    */
   public static Rounding none() {
     return NoRounding.INSTANCE;
+  }
+
+  /**
+   * Obtains an instance that rounds to the number of minor units in the currency.
+   * <p>
+   * This returns a convention that rounds for the specified currency.
+   * Rounding follows the normal {@link RoundingMode#HALF_UP} convention.
+   * 
+   * @param currency  the currency
+   * @return the rounding convention
+   */
+  public static Rounding of(Currency currency) {
+    return HalfUpRounding.ofDecimalPlaces(currency.getMinorUnitDigits());
   }
 
   /**
