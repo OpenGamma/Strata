@@ -14,8 +14,8 @@ USD/JPY-WM,USD,JPY,USNY,2,USNY+JPTO
 # All references refer to both the descriptive and the code name, so both are included
 # Our name replaces all punctuation with dashes
 # https://www.isda.org/a/V8FDE/Annex-A-Definitions-Dated-November-19-2017-FINAL.pdf
-USD/CLP-DOLAR-OBS-CLP10,USD,CLP,CLSA,2,CLSA
+USD/CLP-DOLAR-OBS-CLP10,USD,CLP,CLSA,1,CLSA
 USD/CNY-SAEC-CNY01,USD,CNY,CNBE,2,CNBE
-USD/COP-TRM-COP02,USD,CLP,CLSA,2,CLSA
+USD/COP-TRM-COP02,USD,CLP,CLSA,0,CLSA
 USD/INR-RBIB-INR01,USD,INR,INMU,2,INMU
 USD/KRW-KFTC18-KRW02,USD,KRW,KRSE,2,KRSE
