@@ -125,6 +125,8 @@ CAD-CDOR-3M,CAD,true,Act/365F,CATO,0,CATO,CATO,3M,ModifiedFollowing,10:15,Americ
 CAD-CDOR-6M,CAD,true,Act/365F,CATO,0,CATO,CATO,6M,ModifiedFollowing,10:15,America/Toronto,Act/365F
 CAD-CDOR-12M,CAD,true,Act/365F,CATO,0,CATO,CATO,12M,ModifiedFollowing,10:15,America/Toronto,Act/365F
 ,,,,,,,,,,,
+CNY-REPO-1W,CNY,true,Act/365F,CNBE,0,CNBE,CNBE,1W,Following,11:30,Asia/Shanghai,Act/365F
+,,,,,,,,,,,
 CZK-PRIBOR-1W,CZK,true,Act/360,CZPR,2,CZPR,CZPR,1W,Following,11:00,Europe/Prague,ACT/360
 CZK-PRIBOR-2W,CZK,true,Act/360,CZPR,2,CZPR,CZPR,2W,Following,11:00,Europe/Prague,ACT/360
 CZK-PRIBOR-1M,CZK,true,Act/360,CZPR,2,CZPR,CZPR,1M,ModifiedFollowing,11:00,Europe/Prague,ACT/360

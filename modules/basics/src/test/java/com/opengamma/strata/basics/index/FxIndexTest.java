@@ -121,6 +121,11 @@ public class FxIndexTest {
     assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 17));
   }
 
+  public void test_cny() {
+    FxIndex test = FxIndex.of("USD/CNY-SAEC-CNY01");
+    assertEquals(test.getName(), "USD/CNY-SAEC-CNY01");
+  }
+
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableFxIndex a = ImmutableFxIndex.builder()
