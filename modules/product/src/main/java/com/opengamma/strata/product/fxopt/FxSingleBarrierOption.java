@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.fx.FxProduct;
 import com.opengamma.strata.product.option.Barrier;
 
 /**
@@ -49,7 +49,7 @@ import com.opengamma.strata.product.option.Barrier;
  */
 @BeanDefinition
 public final class FxSingleBarrierOption
-    implements Product, Resolvable<ResolvedFxSingleBarrierOption>, ImmutableBean, Serializable {
+    implements FxProduct, Resolvable<ResolvedFxSingleBarrierOption>, ImmutableBean, Serializable {
 
   /**
    * The underlying FX vanilla option.
@@ -118,6 +118,7 @@ public final class FxSingleBarrierOption
    * 
    * @return the currency pair
    */
+  @Override
   public CurrencyPair getCurrencyPair() {
     return underlyingOption.getCurrencyPair();
   }
