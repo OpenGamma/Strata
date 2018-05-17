@@ -30,11 +30,11 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.product.Product;
 
 /**
  * An FX swap.
@@ -49,7 +49,7 @@ import com.opengamma.strata.product.Product;
  */
 @BeanDefinition(builderScope = "private")
 public final class FxSwap
-    implements Product, Resolvable<ResolvedFxSwap>, ImmutableBean, Serializable {
+    implements FxProduct, Resolvable<ResolvedFxSwap>, ImmutableBean, Serializable {
 
   /**
    * The foreign exchange transaction at the earlier date.
@@ -171,6 +171,16 @@ public final class FxSwap
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the currency pair in conventional order.
+   * 
+   * @return the currency pair
+   */
+  @Override
+  public CurrencyPair getCurrencyPair() {
+    return getNearLeg().getCurrencyPair().toConventional();
+  }
+
   @Override
   public ResolvedFxSwap resolve(ReferenceData refData) {
     return ResolvedFxSwap.of(nearLeg.resolve(refData), farLeg.resolve(refData));
