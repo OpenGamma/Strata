@@ -240,7 +240,7 @@ public final class CurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the rates provider resulting from the calibration
    */
-  ImmutableRatesProvider calibrate(
+  public ImmutableRatesProvider calibrate(
       List<CurveGroupDefinition> allGroupsDefn,
       ImmutableRatesProvider knownData,
       MarketData marketData,
