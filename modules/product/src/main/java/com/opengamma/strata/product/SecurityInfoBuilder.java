@@ -42,6 +42,13 @@ public final class SecurityInfoBuilder {
   SecurityInfoBuilder() {
   }
 
+  // creates a populated instance
+  SecurityInfoBuilder(SecurityId id, SecurityPriceInfo priceInfo, Map<SecurityAttributeType<?>, Object> attributes) {
+    this.id = id;
+    this.priceInfo = priceInfo;
+    this.attributes.putAll(attributes);
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Sets the security identifier.

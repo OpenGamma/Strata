@@ -75,6 +75,19 @@ public class SecurityInfoTest {
     assertEquals(test.findAttribute(SecurityAttributeType.NAME), Optional.of("A"));
   }
 
+  public void test_toBuilder() {
+    SecurityInfo test = SecurityInfo.builder()
+        .addAttribute(SecurityAttributeType.NAME, "name")
+        .id(ID)
+        .priceInfo(PRICE_INFO)
+        .build()
+        .toBuilder()
+        .id(ID2)
+        .build();
+    assertEquals(test.getId(), ID2);
+    assertEquals(test.getAttribute(SecurityAttributeType.NAME), "name");
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO);
