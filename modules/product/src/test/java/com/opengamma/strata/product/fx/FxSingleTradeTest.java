@@ -35,7 +35,7 @@ public class FxSingleTradeTest {
   public void test_of() {
     FxSingleTrade test = FxSingleTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getCurrencyPair(), PRODUCT.getCurrencyPair());
+    assertEquals(test.getProduct().getCurrencyPair(), PRODUCT.getCurrencyPair());
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
   }
