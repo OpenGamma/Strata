@@ -16,6 +16,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -290,6 +291,19 @@ public final class CurrencyPair
    */
   public CurrencyPair toConventional() {
     return isConventional() ? this : inverse();
+  }
+
+  /**
+   * Returns the set of currencies contains in the pair.
+   *
+   * @return the set of currencies, with iteration in conventional order
+   */
+  public ImmutableSet<Currency> toSet() {
+    if (isConventional()) {
+      return ImmutableSet.of(base, counter);
+    } else {
+      return ImmutableSet.of(counter, base);
+    }
   }
 
   /**
