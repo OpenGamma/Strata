@@ -80,8 +80,14 @@ EUR-EURIBOR-2W,EUR,true,Act/360,EUTA,2,EUTA,EUTA,2W,Following,11:00,Europe/Bruss
 EUR-EURIBOR-1M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,1M,LastBusinessDay,11:00,Europe/Brussels,30U/360
 EUR-EURIBOR-2M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,2M,LastBusinessDay,11:00,Europe/Brussels,30U/360
 EUR-EURIBOR-3M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,3M,LastBusinessDay,11:00,Europe/Brussels,30U/360
+EUR-EURIBOR-4M,EUR,false,Act/360,EUTA,2,EUTA,EUTA,4M,LastBusinessDay,11:00,Europe/Brussels,30U/360
+EUR-EURIBOR-5M,EUR,false,Act/360,EUTA,2,EUTA,EUTA,5M,LastBusinessDay,11:00,Europe/Brussels,30U/360
 EUR-EURIBOR-6M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,6M,LastBusinessDay,11:00,Europe/Brussels,30U/360
+EUR-EURIBOR-7M,EUR,false,Act/360,EUTA,2,EUTA,EUTA,7M,LastBusinessDay,11:00,Europe/Brussels,30U/360
+EUR-EURIBOR-8M,EUR,false,Act/360,EUTA,2,EUTA,EUTA,8M,LastBusinessDay,11:00,Europe/Brussels,30U/360
 EUR-EURIBOR-9M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,9M,LastBusinessDay,11:00,Europe/Brussels,30U/360
+EUR-EURIBOR-10M,EUR,false,Act/360,EUTA,2,EUTA,EUTA,10M,LastBusinessDay,11:00,Europe/Brussels,30U/360
+EUR-EURIBOR-11M,EUR,false,Act/360,EUTA,2,EUTA,EUTA,11M,LastBusinessDay,11:00,Europe/Brussels,30U/360
 EUR-EURIBOR-12M,EUR,true,Act/360,EUTA,2,EUTA,EUTA,12M,LastBusinessDay,11:00,Europe/Brussels,30U/360
 ,,,,,,,,,,,
 JPY-TIBOR-JAPAN-1W,JPY,true,Act/365F,JPTO,2,JPTO,JPTO,1W,Following,11:50,Asia/Tokyo,Act/365F
@@ -206,9 +212,11 @@ NZD-BKBM-5M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,5M,ModifiedFollowing,10:45,Pacifi
 NZD-BKBM-6M,NZD,true,Act/365F,NZBD,0,NZBD,NZBD,6M,ModifiedFollowing,10:45,Pacific/Auckland,Act/365F
 ,,,,,,,,,,,
 PLN-WIBOR-1W,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,1W,Following,11:00,Europe/Warsaw,Act/Act ISDA
+PLN-WIBOR-2W,PLN,false,Act/365F,PLWA,2,PLWA,PLWA,2W,Following,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-1M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,1M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-3M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,3M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-6M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,6M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
+PLN-WIBOR-9M,PLN,false,Act/365F,PLWA,2,PLWA,PLWA,9M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-12M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,12M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 ,,,,,,,,,,,
 SEK-STIBOR-1W,SEK,true,Act/360,SEST,2,SEST,SEST,1W,Following,11:00,Europe/Stockholm,30U/360
