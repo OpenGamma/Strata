@@ -26,6 +26,8 @@ import java.util.Set;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Test {@link CurrencyPair}.
  */
@@ -46,6 +48,7 @@ public class CurrencyPairTest {
     assertEquals(test.getBase(), GBP);
     assertEquals(test.getCounter(), USD);
     assertEquals(test.isIdentity(), false);
+    assertEquals(test.toSet(), ImmutableSet.of(GBP, USD));
     assertEquals(test.toString(), "GBP/USD");
   }
 
@@ -54,6 +57,7 @@ public class CurrencyPairTest {
     assertEquals(test.getBase(), USD);
     assertEquals(test.getCounter(), GBP);
     assertEquals(test.isIdentity(), false);
+    assertEquals(test.toSet(), ImmutableSet.of(GBP, USD));
     assertEquals(test.toString(), "USD/GBP");
   }
 
