@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.product.fx;
 
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.TradeInfo;
 
@@ -22,17 +21,5 @@ public interface FxTrade extends ProductTrade {
 
   @Override
   public abstract FxProduct getProduct();
-
-  /**
-   * Gets the currency pair that the FX trade is based on, in conventional order.
-   * <p>
-   * This represents the main currency pair of the FX. If the trade settles in a
-   * third currency, that is not recorded here.
-   * 
-   * @return the currency pair
-   */
-  public default CurrencyPair getCurrencyPair() {
-    return getProduct().getCurrencyPair();
-  }
 
 }

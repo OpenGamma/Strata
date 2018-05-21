@@ -41,7 +41,7 @@ public class FxVanillaOptionTradeTest {
   public void test_builder() {
     FxVanillaOptionTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getCurrencyPair(), PRODUCT.getCurrencyPair());
+    assertEquals(test.getProduct().getCurrencyPair(), PRODUCT.getCurrencyPair());
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getPremium(), PREMIUM);
     assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
