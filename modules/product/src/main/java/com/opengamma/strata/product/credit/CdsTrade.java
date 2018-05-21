@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.PortfolioItemSummary;
+import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
@@ -43,7 +44,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class CdsTrade
-    implements ResolvableTrade<ResolvedCdsTrade>, ImmutableBean, Serializable {
+    implements ProductTrade, ResolvableTrade<ResolvedCdsTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -57,7 +58,7 @@ public final class CdsTrade
    * <p>
    * The product captures the contracted financial details of the trade.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Cds product;
   /**
    * The upfront fee of the product.
@@ -166,6 +167,7 @@ public final class CdsTrade
    * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null
    */
+  @Override
   public Cds getProduct() {
     return product;
   }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.swaption;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -21,8 +22,8 @@ import java.time.ZoneId;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -73,8 +74,11 @@ public class SwaptionTest {
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP);
-    assertEquals(test.getCurrency(), Currency.USD);
+    assertEquals(test.getCurrency(), USD);
     assertEquals(test.getIndex(), IborIndices.USD_LIBOR_3M);
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(USD));
   }
 
   public void test_builder_expiryAfterStart() {

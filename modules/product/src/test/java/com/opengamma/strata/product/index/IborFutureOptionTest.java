@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.index;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -21,6 +22,7 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
@@ -57,6 +59,9 @@ public class IborFutureOptionTest {
     assertEquals(test.getUnderlyingFuture(), FUTURE);
     assertEquals(test.getCurrency(), FUTURE.getCurrency());
     assertEquals(test.getIndex(), FUTURE.getIndex());
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(USD));
   }
 
   public void test_builder_expiryNotAfterTradeDate() {

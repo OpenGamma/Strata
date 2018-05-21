@@ -21,6 +21,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -66,6 +67,9 @@ public class IborFixingDepositTest {
     assertEquals(test.getEndDate(), END_DATE);
     assertEquals(test.getIndex(), GBP_LIBOR_6M);
     assertEquals(test.getFixedRate(), RATE);
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
   }
 
   public void test_builder_minimum() {

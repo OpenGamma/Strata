@@ -34,6 +34,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -74,6 +75,9 @@ public class FraTest {
     assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());  // defaulted
     assertEquals(test.getDayCount(), ACT_365F);  // defaulted
     assertEquals(test.getDiscounting(), ISDA);  // defaulted
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
   }
 
   public void test_builder_AUD() {

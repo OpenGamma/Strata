@@ -18,6 +18,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -48,6 +49,9 @@ public class BulletPaymentTest {
     assertEquals(test.getValue(), GBP_P1000);
     assertEquals(test.getDate(), AdjustableDate.of(DATE_2015_06_30));
     assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
   }
 
   public void test_builder_notNegative() {

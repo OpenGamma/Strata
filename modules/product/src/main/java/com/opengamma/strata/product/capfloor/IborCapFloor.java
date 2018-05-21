@@ -98,21 +98,25 @@ public final class IborCapFloor
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns the set of payment currencies referred to by the cap/floor.
-   * <p>
-   * This returns the complete set of payment currencies for the cap/floor.
-   * This will typically return one currency, but could return two.
-   * 
-   * @return the set of payment currencies referred to by this swap
-   */
+  @Override
   public ImmutableSet<Currency> allPaymentCurrencies() {
-    ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
-    builder.add(capFloorLeg.getCurrency());
-    if (payLeg != null) {
-      builder.add(payLeg.getCurrency());
+    if (payLeg == null) {
+      return ImmutableSet.of(capFloorLeg.getCurrency());
+    } else {
+      return ImmutableSet.of(capFloorLeg.getCurrency(), payLeg.getCurrency());
     }
-    return builder.build();
+  }
+
+  @Override
+  public ImmutableSet<Currency> allCurrencies() {
+    if (payLeg == null) {
+      return ImmutableSet.of(capFloorLeg.getCurrency());
+    } else {
+      ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
+      builder.add(capFloorLeg.getCurrency());
+      builder.addAll(payLeg.allCurrencies());
+      return builder.build();
+    }
   }
 
   /**

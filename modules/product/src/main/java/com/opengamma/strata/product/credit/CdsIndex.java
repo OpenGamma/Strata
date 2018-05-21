@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.StandardId;
@@ -43,6 +44,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.BuySell;
 
 /**
@@ -54,7 +56,7 @@ import com.opengamma.strata.product.common.BuySell;
  */
 @BeanDefinition
 public final class CdsIndex
-    implements Resolvable<ResolvedCdsIndex>, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedCdsIndex>, ImmutableBean, Serializable {
 
   /**
    * Whether the CDS index is buy or sell.
@@ -215,6 +217,12 @@ public final class CdsIndex
     builder.paymentOnDefault = PaymentOnDefault.ACCRUED_PREMIUM;
     builder.protectionStart = ProtectionStartOfDay.BEGINNING;
     builder.stepinDateOffset = DaysAdjustment.ofCalendarDays(1);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<Currency> allCurrencies() {
+    return ImmutableSet.of(currency);
   }
 
   @ImmutablePreBuild

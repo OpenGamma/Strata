@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.StandardId;
@@ -42,6 +43,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.BuySell;
 
 /**
@@ -54,7 +56,7 @@ import com.opengamma.strata.product.common.BuySell;
  */
 @BeanDefinition
 public final class Cds
-    implements Resolvable<ResolvedCds>, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedCds>, ImmutableBean, Serializable {
 
   /**
    * Whether the CDS is buy or sell.
@@ -213,6 +215,12 @@ public final class Cds
       builder.settlementDateOffset =
           DaysAdjustment.ofBusinessDays(3, builder.paymentSchedule.getBusinessDayAdjustment().getCalendar());
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<Currency> allCurrencies() {
+    return ImmutableSet.of(currency);
   }
 
   //-------------------------------------------------------------------------

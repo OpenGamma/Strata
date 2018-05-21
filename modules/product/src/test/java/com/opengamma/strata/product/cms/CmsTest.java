@@ -73,7 +73,9 @@ public class CmsTest {
     Cms test = sutCap();
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
+    assertEquals(test.isCrossCurrency(), false);
     assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
     assertEquals(test.allRateIndices(), ImmutableSet.of(CMS_LEG.getUnderlyingIndex()));
   }
 
@@ -81,7 +83,9 @@ public class CmsTest {
     Cms test = Cms.of(CMS_LEG);
     assertEquals(test.getCmsLeg(), CMS_LEG);
     assertFalse(test.getPayLeg().isPresent());
+    assertEquals(test.isCrossCurrency(), false);
     assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
   }
 
   public void test_resolve_twoLegs() {
