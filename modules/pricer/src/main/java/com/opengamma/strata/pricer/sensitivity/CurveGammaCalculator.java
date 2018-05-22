@@ -7,8 +7,11 @@ package com.opengamma.strata.pricer.sensitivity;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -24,7 +27,10 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.curve.ParallelShiftedCurve;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivity;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -32,6 +38,12 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.SimpleDiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.ZeroRatePeriodicDiscountFactors;
+import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -172,6 +184,197 @@ public final class CurveGammaCalculator {
       }
     }
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes intra-curve cross gamma for bond curves by applying finite difference method to curve delta.
+   * <p>
+   * This computes the intra-curve cross gamma, i.e., the second order sensitivities to individual curves. 
+   * Thus the sensitivity of a curve delta to another curve is not produced.
+   * <p>
+   * The underlying instruments must be single-currency, i.e., the curve currency must be the same as the sensitivity currency.
+   * 
+   * @param ratesProvider  the rates provider
+   * @param sensitivitiesFn  the sensitivity function
+   * @return the cross gamma
+   */
+  public CrossGammaParameterSensitivities calculateCrossGammaIntraCurve(
+      LegalEntityDiscountingProvider ratesProvider,
+      Function<ImmutableLegalEntityDiscountingProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
+
+    LocalDate valuationDate = ratesProvider.getValuationDate();
+    ImmutableLegalEntityDiscountingProvider immProv = ratesProvider.toImmutableLegalEntityDiscountingProvider();
+    CurrencyParameterSensitivities baseDelta = sensitivitiesFn.apply(immProv); // used to check target sensitivity exits
+    CrossGammaParameterSensitivities result = CrossGammaParameterSensitivities.empty();
+    // issuer curve
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : immProv.getIssuerCurves().entrySet()) {
+      Pair<LegalEntityGroup, Currency> legCcy = entry.getKey();
+      Currency currency = legCcy.getSecond();
+      DiscountFactors discountFactors = entry.getValue();
+      CurveName curveName = getCurveName(discountFactors);
+      if (baseDelta.findSensitivity(curveName, currency).isPresent()) {
+        CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+            curveName,
+            discountFactors,
+            currency,
+            dsc -> replaceIssuerCurve(immProv, legCcy, dsc),
+            sensitivitiesFn);
+        result = result.combinedWith(gammaSingle);
+      } else {
+        Curve curve = getCurve(discountFactors);
+        if (curve.split().size() > 1) {
+          ImmutableList<Curve> curves = curve.split();
+          int nCurves = curves.size();
+          for (int i = 0; i < nCurves; ++i) {
+            int currentIndex = i;
+            Curve underlyingCurve = curves.get(currentIndex);
+            CurveName underlyingCurveName = underlyingCurve.getName();
+            if (baseDelta.findSensitivity(underlyingCurveName, currency).isPresent()) {
+              CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+                  underlyingCurveName,
+                  underlyingCurve,
+                  currency,
+                  c -> replaceIssuerCurve(
+                      immProv, legCcy, DiscountFactors.of(currency, valuationDate, curve.withUnderlyingCurve(currentIndex, c))),
+                  sensitivitiesFn);
+              result = result.combinedWith(gammaSingle);
+            }
+          }
+        }
+      }
+    }
+    // repo curve
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : immProv.getRepoCurves().entrySet()) {
+      Pair<RepoGroup, Currency> rgCcy = entry.getKey();
+      Currency currency = rgCcy.getSecond();
+      DiscountFactors discountFactors = entry.getValue();
+      CurveName curveName = getCurveName(discountFactors);
+      if (baseDelta.findSensitivity(curveName, currency).isPresent()) {
+          CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+            curveName,
+            discountFactors,
+            currency,
+            dsc -> replaceRepoCurve(immProv, rgCcy, dsc),
+            sensitivitiesFn);
+          result = result.combinedWith(gammaSingle);
+      } else {
+        Curve curve = getCurve(discountFactors);
+        if (curve.split().size() > 1) {
+          ImmutableList<Curve> curves = curve.split();
+          int nCurves = curves.size();
+          for (int i = 0; i < nCurves; ++i) {
+            int currentIndex = i;
+            Curve underlyingCurve = curves.get(currentIndex);
+            CurveName underlyingCurveName = underlyingCurve.getName();
+            if (baseDelta.findSensitivity(underlyingCurveName, rgCcy.getSecond()).isPresent()) {
+              CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+                  underlyingCurveName,
+                  underlyingCurve,
+                  currency,
+                  c -> replaceRepoCurve(
+                      immProv, rgCcy, DiscountFactors.of(currency, valuationDate, curve.withUnderlyingCurve(currentIndex, c))),
+                  sensitivitiesFn);
+              result = result.combinedWith(gammaSingle);
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  private CurveName getCurveName(DiscountFactors discountFactors) {
+    return getCurve(discountFactors).getName();
+  }
+
+  private Curve getCurve(DiscountFactors discountFactors) {
+    if (discountFactors instanceof SimpleDiscountFactors) {
+      return ((SimpleDiscountFactors) discountFactors).getCurve();
+    }
+    if (discountFactors instanceof ZeroRateDiscountFactors) {
+      return ((ZeroRateDiscountFactors) discountFactors).getCurve();
+    }
+    if (discountFactors instanceof ZeroRatePeriodicDiscountFactors) {
+      return ((ZeroRatePeriodicDiscountFactors) discountFactors).getCurve();
+    }
+    throw new IllegalArgumentException("Unsupported DiscountFactors type");
+  }
+
+  private CrossGammaParameterSensitivity computeGammaForCurve(
+      CurveName curveName,
+      DiscountFactors discountFactors,
+      Currency sensitivityCurrency,
+      Function<DiscountFactors, ImmutableLegalEntityDiscountingProvider> ratesProviderFn,
+      Function<ImmutableLegalEntityDiscountingProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
+
+    Function<DoubleArray, DoubleArray> function = new Function<DoubleArray, DoubleArray>() {
+      @Override
+      public DoubleArray apply(DoubleArray t) {
+        DiscountFactors newDiscountFactors = discountFactors.withPerturbation((i, v, m) -> t.get(i));
+        ImmutableLegalEntityDiscountingProvider newRates = ratesProviderFn.apply(newDiscountFactors);
+        CurrencyParameterSensitivities sensiMulti = sensitivitiesFn.apply(newRates);
+        return sensiMulti.getSensitivity(curveName, sensitivityCurrency).getSensitivity();
+      }
+    };
+    int nParams = discountFactors.getParameterCount();
+    DoubleMatrix sensi = fd.differentiate(function).apply(DoubleArray.of(nParams, n -> discountFactors.getParameter(n)));
+    List<ParameterMetadata> metadata = IntStream.range(0, nParams)
+        .mapToObj(i -> discountFactors.getParameterMetadata(i))
+        .collect(toImmutableList());
+    return CrossGammaParameterSensitivity.of(curveName, metadata, sensitivityCurrency, sensi);
+  }
+
+  private CrossGammaParameterSensitivity computeGammaForCurve(
+      CurveName curveName,
+      Curve curve,
+      Currency sensitivityCurrency,
+      Function<Curve, ImmutableLegalEntityDiscountingProvider> ratesProviderFn,
+      Function<ImmutableLegalEntityDiscountingProvider, CurrencyParameterSensitivities> sensitivitiesFn) {
+
+    Function<DoubleArray, DoubleArray> function = new Function<DoubleArray, DoubleArray>() {
+      @Override
+      public DoubleArray apply(DoubleArray t) {
+        Curve newCurve = curve.withPerturbation((i, v, m) -> t.get(i));
+        ImmutableLegalEntityDiscountingProvider newRates = ratesProviderFn.apply(newCurve);
+        CurrencyParameterSensitivities sensiMulti = sensitivitiesFn.apply(newRates);
+        return sensiMulti.getSensitivity(curveName, sensitivityCurrency).getSensitivity();
+      }
+    };
+    int nParams = curve.getParameterCount();
+    DoubleMatrix sensi = fd.differentiate(function).apply(DoubleArray.of(nParams, n -> curve.getParameter(n)));
+    List<ParameterMetadata> metadata = IntStream.range(0, nParams)
+        .mapToObj(i -> curve.getParameterMetadata(i))
+        .collect(toImmutableList());
+    return CrossGammaParameterSensitivity.of(curveName, metadata, sensitivityCurrency, sensi);
+  }
+
+  private ImmutableLegalEntityDiscountingProvider replaceIssuerCurve(
+      ImmutableLegalEntityDiscountingProvider ratesProvider,
+      Pair<LegalEntityGroup, Currency> legCcy,
+      DiscountFactors discountFactors) {
+
+    Map<Pair<LegalEntityGroup, Currency>, DiscountFactors> curves = new HashMap<>();
+    curves.putAll(ratesProvider.getIssuerCurves());
+    curves.replace(legCcy, discountFactors);
+
+    return ratesProvider.toBuilder()
+        .issuerCurves(curves)
+        .build();
+  }
+
+  private ImmutableLegalEntityDiscountingProvider replaceRepoCurve(
+      ImmutableLegalEntityDiscountingProvider ratesProvider,
+      Pair<RepoGroup, Currency> rgCcy,
+      DiscountFactors discountFactors) {
+
+    Map<Pair<RepoGroup, Currency>, DiscountFactors> curves = new HashMap<>();
+    curves.putAll(ratesProvider.getRepoCurves());
+    curves.replace(rgCcy, discountFactors);
+
+    return ratesProvider.toBuilder()
+        .repoCurves(curves)
+        .build();
   }
 
   //-------------------------------------------------------------------------
