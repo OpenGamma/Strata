@@ -363,7 +363,7 @@ public class CurveGammaCalculatorCrossGammaTest {
   }
 
   //-------------------------------------------------------------------------
-  public void sensitivity_intra_multi_bond_curve() {  // TODO
+  public void sensitivity_intra_multi_bond_curve() {
     CrossGammaParameterSensitivities sensiComputed =
         CENTRAL.calculateCrossGammaIntraCurve(RatesProviderDataSets.MULTI_BOND, this::sensiFnBond);
     DoubleArray timesUsRepo = RatesProviderDataSets.TIMES_1;
@@ -396,7 +396,7 @@ public class CurveGammaCalculatorCrossGammaTest {
     }
   }
 
-  public void sensitivity_multi_combined_bond_curve() { // TODO
+  public void sensitivity_multi_combined_bond_curve() {
     CrossGammaParameterSensitivities sensiComputed =
         CENTRAL.calculateCrossGammaIntraCurve(RatesProviderDataSets.MULTI_BOND_COMBINED, this::sensiCombinedFnBond);
     DoubleArray timesUsL3 = RatesProviderDataSets.TIMES_2;
@@ -436,107 +436,6 @@ public class CurveGammaCalculatorCrossGammaTest {
         assertEquals(s4.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS * 20d);
       }
     }
-  }
-
-  //-------------------------------------------------------------------------
-  private CurrencyParameterSensitivities sensiFnBond(ImmutableLegalEntityDiscountingProvider provider) {
-    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
-    double sum = sum(provider);
-    // repo
-    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapRepoCurves = provider.getRepoCurves();
-    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapRepoCurves.entrySet()) {
-      DiscountFactors discountFactors = entry.getValue();
-      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(discountFactors);
-      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(curve.getName(), discountFactors.getCurrency(),
-          DoubleArray.of(discountFactors.getParameterCount(), i -> 2d * curve.getXValues().get(i) * sum)));
-    }
-    // issuer
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIssuerCurves = provider.getIssuerCurves();
-    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIssuerCurves.entrySet()) {
-      DiscountFactors discountFactors = entry.getValue();
-      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(discountFactors);
-      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(curve.getName(), discountFactors.getCurrency(),
-          DoubleArray.of(discountFactors.getParameterCount(), i -> 2d * curve.getXValues().get(i) * sum)));
-    }
-    return sensi;
-  }
-
-  private Curve getCurve(DiscountFactors discountFactors) {
-    return ((ZeroRateDiscountFactors) discountFactors).getCurve();
-  }
-
-  private double sum(ImmutableLegalEntityDiscountingProvider provider) {
-    double result = 0d;
-    // repo
-    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapIndex = provider.getRepoCurves();
-    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
-      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(entry.getValue());
-      result += sumSingle(curve);
-    }
-    // issuer
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapCurrency = provider.getIssuerCurves();
-    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
-      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(entry.getValue());
-      result += sumSingle(curve);
-    }
-    return result;
-  }
-
-  private double sumSingle(InterpolatedNodalCurve interpolatedNodalCurve) {
-    double result = 0.0;
-    int nbNodePoints = interpolatedNodalCurve.getParameterCount();
-    for (int i = 0; i < nbNodePoints; i++) {
-      result += interpolatedNodalCurve.getXValues().get(i) * interpolatedNodalCurve.getYValues().get(i);
-    }
-    return result;
-  }
-
-  // modified sensitivity function - CombinedCurve involved
-  private CurrencyParameterSensitivities sensiCombinedFnBond(ImmutableLegalEntityDiscountingProvider provider) {
-    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
-    double sum = sumCombine(provider);
-    // repo
-    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapCurrency = provider.getRepoCurves();
-    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
-      CombinedCurve curveComb = (CombinedCurve) getCurve(entry.getValue());
-      InterpolatedNodalCurve baseCurveInt = checkInterpolated(curveComb.getBaseCurve());
-      InterpolatedNodalCurve spreadCurveInt = checkInterpolated(curveComb.getSpreadCurve());
-      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(baseCurveInt.getName(), USD,
-          DoubleArray.of(baseCurveInt.getParameterCount(), i -> 2d * sum * baseCurveInt.getXValues().get(i))));
-      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(spreadCurveInt.getName(), USD,
-          DoubleArray.of(spreadCurveInt.getParameterCount(), i -> 2d * sum * spreadCurveInt.getXValues().get(i))));
-    }
-    // issuer
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIndex = provider.getIssuerCurves();
-    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
-      CombinedCurve curveComb = (CombinedCurve) getCurve(entry.getValue());
-      InterpolatedNodalCurve baseCurveInt = checkInterpolated(curveComb.getBaseCurve());
-      InterpolatedNodalCurve spreadCurveInt = checkInterpolated(curveComb.getSpreadCurve());
-      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(baseCurveInt.getName(), USD,
-          DoubleArray.of(baseCurveInt.getParameterCount(), i -> 2d * sum * baseCurveInt.getXValues().get(i))));
-      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(spreadCurveInt.getName(), USD,
-          DoubleArray.of(spreadCurveInt.getParameterCount(), i -> 2d * sum * spreadCurveInt.getXValues().get(i))));
-    }
-    return sensi;
-  }
-
-  private double sumCombine(ImmutableLegalEntityDiscountingProvider provider) {
-    double result = 0d;
-    // repo
-    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapCurrency = provider.getRepoCurves();
-    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
-      CombinedCurve curve = (CombinedCurve) getCurve(entry.getValue());
-      result += sumSingle((InterpolatedNodalCurve) curve.split().get(0));
-      result += sumSingle((InterpolatedNodalCurve) curve.split().get(1));
-    }
-    // issuer
-    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIndex = provider.getIssuerCurves();
-    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
-      CombinedCurve curve = (CombinedCurve) getCurve(entry.getValue());
-      result += sumSingle((InterpolatedNodalCurve) curve.split().get(0));
-      result += sumSingle((InterpolatedNodalCurve) curve.split().get(1));
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -739,6 +638,107 @@ public class CurveGammaCalculatorCrossGammaTest {
       result = result.combinedWith(curve.createParameterSensitivity(valueInit.getCurrency(), sensitivity));
     }
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  private CurrencyParameterSensitivities sensiFnBond(ImmutableLegalEntityDiscountingProvider provider) {
+    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
+    double sum = sum(provider);
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapRepoCurves = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapRepoCurves.entrySet()) {
+      DiscountFactors discountFactors = entry.getValue();
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(discountFactors);
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(curve.getName(), discountFactors.getCurrency(),
+          DoubleArray.of(discountFactors.getParameterCount(), i -> 2d * curve.getXValues().get(i) * sum)));
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIssuerCurves = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIssuerCurves.entrySet()) {
+      DiscountFactors discountFactors = entry.getValue();
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(discountFactors);
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(curve.getName(), discountFactors.getCurrency(),
+          DoubleArray.of(discountFactors.getParameterCount(), i -> 2d * curve.getXValues().get(i) * sum)));
+    }
+    return sensi;
+  }
+
+  // modified sensitivity function - CombinedCurve involved
+  private CurrencyParameterSensitivities sensiCombinedFnBond(ImmutableLegalEntityDiscountingProvider provider) {
+    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
+    double sum = sumCombine(provider);
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapCurrency = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
+      CombinedCurve curveComb = (CombinedCurve) getCurve(entry.getValue());
+      InterpolatedNodalCurve baseCurveInt = checkInterpolated(curveComb.getBaseCurve());
+      InterpolatedNodalCurve spreadCurveInt = checkInterpolated(curveComb.getSpreadCurve());
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(baseCurveInt.getName(), USD,
+          DoubleArray.of(baseCurveInt.getParameterCount(), i -> 2d * sum * baseCurveInt.getXValues().get(i))));
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(spreadCurveInt.getName(), USD,
+          DoubleArray.of(spreadCurveInt.getParameterCount(), i -> 2d * sum * spreadCurveInt.getXValues().get(i))));
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIndex = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
+      CombinedCurve curveComb = (CombinedCurve) getCurve(entry.getValue());
+      InterpolatedNodalCurve baseCurveInt = checkInterpolated(curveComb.getBaseCurve());
+      InterpolatedNodalCurve spreadCurveInt = checkInterpolated(curveComb.getSpreadCurve());
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(baseCurveInt.getName(), USD,
+          DoubleArray.of(baseCurveInt.getParameterCount(), i -> 2d * sum * baseCurveInt.getXValues().get(i))));
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(spreadCurveInt.getName(), USD,
+          DoubleArray.of(spreadCurveInt.getParameterCount(), i -> 2d * sum * spreadCurveInt.getXValues().get(i))));
+    }
+    return sensi;
+  }
+
+  private double sumCombine(ImmutableLegalEntityDiscountingProvider provider) {
+    double result = 0d;
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapCurrency = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
+      CombinedCurve curve = (CombinedCurve) getCurve(entry.getValue());
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(0));
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(1));
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIndex = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
+      CombinedCurve curve = (CombinedCurve) getCurve(entry.getValue());
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(0));
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(1));
+    }
+    return result;
+  }
+
+  private double sum(ImmutableLegalEntityDiscountingProvider provider) {
+    double result = 0d;
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapIndex = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(entry.getValue());
+      result += sumSingle(curve);
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapCurrency = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(entry.getValue());
+      result += sumSingle(curve);
+    }
+    return result;
+  }
+
+  private double sumSingle(InterpolatedNodalCurve interpolatedNodalCurve) {
+    double result = 0.0;
+    int nbNodePoints = interpolatedNodalCurve.getParameterCount();
+    for (int i = 0; i < nbNodePoints; i++) {
+      result += interpolatedNodalCurve.getXValues().get(i) * interpolatedNodalCurve.getYValues().get(i);
+    }
+    return result;
+  }
+
+  private Curve getCurve(DiscountFactors discountFactors) {
+    return ((ZeroRateDiscountFactors) discountFactors).getCurve();
   }
 
 }
