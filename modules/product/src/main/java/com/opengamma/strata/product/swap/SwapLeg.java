@@ -12,8 +12,6 @@ import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.index.FloatingRateIndex;
-import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.product.common.PayReceive;
 
@@ -112,19 +110,7 @@ public interface SwapLeg extends Resolvable<ResolvedSwapLeg> {
    * 
    * @param builder  the builder to populate
    */
-  public default void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
-    // imperfect implementation for compatibility
-    builder.add(getCurrency());
-    for (Index index : allIndices()) {
-      if (index instanceof FloatingRateIndex) {
-        builder.add(((FloatingRateIndex) index).getCurrency());
-      } else if (index instanceof FxIndex) {
-        FxIndex fxIndex = (FxIndex) index;
-        builder.add(fxIndex.getCurrencyPair().getBase());
-        builder.add(fxIndex.getCurrencyPair().getCounter());
-      }
-    }
-  }
+  public abstract void collectCurrencies(ImmutableSet.Builder<Currency> builder);
 
   //-------------------------------------------------------------------------
   /**

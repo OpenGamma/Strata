@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -54,6 +55,9 @@ public class FxSingleTest {
     assertEquals(test.getPaymentDateAdjustment(), Optional.empty());
     assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
     assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
   }
 
   public void test_of_switchOrder() {

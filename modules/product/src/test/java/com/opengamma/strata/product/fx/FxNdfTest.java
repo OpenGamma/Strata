@@ -19,6 +19,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -49,6 +50,9 @@ public class FxNdfTest {
     assertEquals(test.getSettlementCurrencyNotional(), CURRENCY_NOTIONAL);
     assertEquals(test.getPaymentDate(), PAYMENT_DATE);
     assertEquals(test.getSettlementCurrency(), GBP);
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
   }
 
   public void test_builder_inverse() {

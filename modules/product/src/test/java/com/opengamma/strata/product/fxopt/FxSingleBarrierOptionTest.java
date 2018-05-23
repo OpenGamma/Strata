@@ -23,6 +23,7 @@ import java.time.ZoneId;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -62,6 +63,9 @@ public class FxSingleBarrierOptionTest {
     assertEquals(test.getRebate().get(), REBATE);
     assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
     assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR, USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR, USD));
   }
 
   public void test_builder() {

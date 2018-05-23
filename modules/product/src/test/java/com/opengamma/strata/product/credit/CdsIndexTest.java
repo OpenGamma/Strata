@@ -31,6 +31,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -92,6 +93,9 @@ public class CdsIndexTest {
     assertEquals(test.getProtectionStart(), ProtectionStartOfDay.NONE);
     assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
     assertEquals(test.getStepinDateOffset(), STEPIN_DAY_ADJ);
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(JPY));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(JPY));
   }
 
   public void test_of() {

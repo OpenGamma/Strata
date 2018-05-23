@@ -116,19 +116,25 @@ public final class Cms
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns the set of currencies referred to by the CMS.
-   * <p>
-   * This returns the complete set of payment currencies for the CMS.
-   * This will typically return one currency, but could return two.
-   * 
-   * @return the set of payment currencies referred to by this swap
-   */
+  @Override
   public ImmutableSet<Currency> allPaymentCurrencies() {
     if (payLeg == null) {
       return ImmutableSet.of(cmsLeg.getCurrency());
+    } else {
+      return ImmutableSet.of(cmsLeg.getCurrency(), payLeg.getCurrency());
     }
-    return ImmutableSet.of(cmsLeg.getCurrency(), payLeg.getCurrency());
+  }
+
+  @Override
+  public ImmutableSet<Currency> allCurrencies() {
+    if (payLeg == null) {
+      return ImmutableSet.of(cmsLeg.getCurrency());
+    } else {
+      ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
+      builder.add(cmsLeg.getCurrency());
+      builder.addAll(payLeg.allCurrencies());
+      return builder.build();
+    }
   }
 
   /**

@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
@@ -137,6 +138,11 @@ public final class Swaption
         .distinct()
         .reduce(ensureOnlyOne())
         .get();
+  }
+
+  @Override
+  public ImmutableSet<Currency> allCurrencies() {
+    return ImmutableSet.of(getCurrency());
   }
 
   /**

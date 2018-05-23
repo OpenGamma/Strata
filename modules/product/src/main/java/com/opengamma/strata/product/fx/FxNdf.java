@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
@@ -97,14 +98,14 @@ public final class FxNdf
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the currency pair in conventional order.
-   * 
-   * @return the currency pair
-   */
   @Override
   public CurrencyPair getCurrencyPair() {
     return index.getCurrencyPair().toConventional();
+  }
+
+  @Override
+  public ImmutableSet<Currency> allPaymentCurrencies() {
+    return ImmutableSet.of(getSettlementCurrency());
   }
 
   /**

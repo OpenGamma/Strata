@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -100,6 +101,15 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
       LocalDate endDate,
       Currency currency) {
     return new MockSwapLeg(type, payReceive, AdjustableDate.of(startDate), AdjustableDate.of(endDate), currency);
+  }
+
+  @Override
+  public void collectCurrencies(ImmutableSet.Builder<Currency> builder) {
+    if (this == MOCK_USD1) {
+      builder.add(GBP, EUR, USD);
+    } else {
+      builder.add(GBP);
+    }
   }
 
   @Override

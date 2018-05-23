@@ -21,6 +21,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -49,6 +50,9 @@ public class FxSwapTest {
     FxSwap test = sut();
     assertEquals(test.getNearLeg(), NEAR_LEG);
     assertEquals(test.getFarLeg(), FAR_LEG);
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
   }
 
   public void test_of_wrongOrder() {

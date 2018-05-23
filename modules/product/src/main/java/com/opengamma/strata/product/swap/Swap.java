@@ -178,24 +178,6 @@ public final class Swap
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if this trade is cross-currency.
-   * <p>
-   * A cross currency swap is defined as one with legs in two different currencies.
-   * 
-   * @return true if cross currency
-   */
-  public boolean isCrossCurrency() {
-    // optimized for performance
-    Currency firstCurrency = legs.get(0).getCurrency();
-    for (int i = 1; i < legs.size(); i++) {
-      if (!legs.get(i).getCurrency().equals(firstCurrency)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * Returns the set of payment currencies referred to by the swap.
    * <p>
    * This returns the complete set of payment currencies for the swap.
@@ -207,6 +189,7 @@ public final class Swap
    * 
    * @return the set of payment currencies referred to by this swap
    */
+  @Override
   public ImmutableSet<Currency> allPaymentCurrencies() {
     return legs.stream().map(leg -> leg.getCurrency()).collect(toImmutableSet());
   }
@@ -218,6 +201,7 @@ public final class Swap
    * 
    * @return the set of currencies referred to by this swap
    */
+  @Override
   public ImmutableSet<Currency> allCurrencies() {
     ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
     legs.stream().forEach(leg -> leg.collectCurrencies(builder));

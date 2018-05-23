@@ -25,6 +25,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -72,6 +73,9 @@ public class DsfTest {
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getUnderlyingSwap(), SWAP);
+    assertEquals(test.isCrossCurrency(), false);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(USD));
   }
 
   public void test_builder_deliveryAfterStart() {

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.fx;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.Product;
 
@@ -15,6 +17,16 @@ import com.opengamma.strata.product.Product;
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  */
 public interface FxProduct extends Product {
+
+  @Override
+  default boolean isCrossCurrency() {
+    return true;
+  }
+
+  @Override
+  public default ImmutableSet<Currency> allCurrencies() {
+    return getCurrencyPair().toSet();
+  }
 
   /**
    * Gets the currency pair that the FX trade is based on, in conventional order.

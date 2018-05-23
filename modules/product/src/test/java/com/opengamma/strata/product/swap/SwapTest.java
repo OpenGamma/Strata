@@ -76,6 +76,9 @@ public class SwapTest {
         .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
         .build();
     assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, EUR, USD));
   }
 
   public void test_builder_varargs() {

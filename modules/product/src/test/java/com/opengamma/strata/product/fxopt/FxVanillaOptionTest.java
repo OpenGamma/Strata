@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.common.LongShort;
@@ -53,6 +54,9 @@ public class FxVanillaOptionTest {
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getUnderlying(), FX);
     assertEquals(test.getCurrencyPair(), FX.getCurrencyPair());
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR, USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR, USD));
   }
 
   public void test_builder_earlyPaymentDate() {

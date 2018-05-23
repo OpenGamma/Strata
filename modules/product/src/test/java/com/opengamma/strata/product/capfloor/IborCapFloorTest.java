@@ -92,7 +92,9 @@ public class IborCapFloorTest {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().isPresent(), false);
+    assertEquals(test.isCrossCurrency(), false);
     assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR));
     assertEquals(test.allIndices(), ImmutableSet.of(EUR_EURIBOR_3M));
   }
 
@@ -100,7 +102,9 @@ public class IborCapFloorTest {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG);
+    assertEquals(test.isCrossCurrency(), false);
     assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR));
     assertEquals(test.allIndices(), ImmutableSet.of(EUR_EURIBOR_3M));
   }
 
@@ -108,7 +112,9 @@ public class IborCapFloorTest {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG_XCCY);
     assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
     assertEquals(test.getPayLeg().get(), PAY_LEG_XCCY);
+    assertEquals(test.isCrossCurrency(), true);
     assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, EUR));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, EUR));
     assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M, EUR_EURIBOR_3M));
   }
 
