@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -22,17 +23,25 @@ import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 
 import java.time.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CombinedCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -209,6 +218,83 @@ public class RatesProviderDataSets {
       .priceIndexCurve(US_CPI_U, US_CPI_U_CURVE)
       .timeSeries(US_CPI_U, PRICE_INDEX_TS)
       .build();
+
+  //-------------------------------------------------------------------------
+  //     =====     Bond     =====     
+  public static final CurveName US_REPO_CURVE_NAME = CurveName.of("US-REPO-CURVE");
+  public static final CurveName US_ISSUER_CURVE_1_NAME = CurveName.of("US-ISSUER-CURVE-1");
+  public static final CurveName US_ISSUER_CURVE_2_NAME = CurveName.of("US-ISSUER-CURVE-2");
+  private static final CurveMetadata US_REPO_METADATA = Curves.zeroRates(US_REPO_CURVE_NAME, ACT_365F);
+  private static final CurveMetadata US_ISSUER_CURVE_1_METADATA = Curves.zeroRates(US_ISSUER_CURVE_1_NAME, ACT_365F);
+  private static final CurveMetadata US_ISSUER_CURVE_2_METADATA = Curves.zeroRates(US_ISSUER_CURVE_2_NAME, ACT_365F);
+  private static final CurveMetadata USD_L3_METADATA_BASE = Curves.zeroRates(USD_L3_NAME, ACT_365F);
+  private static final Curve USD_L3_BASE =
+      InterpolatedNodalCurve.of(USD_L3_METADATA_BASE, TIMES_2, RATES_2_1, INTERPOLATOR);
+  private static final Curve US_REPO_CURVE =
+      InterpolatedNodalCurve.of(US_REPO_METADATA, TIMES_1, RATES_1_1, INTERPOLATOR);
+  private static final Curve US_ISSUER_CURVE_1 =
+      InterpolatedNodalCurve.of(US_ISSUER_CURVE_1_METADATA, TIMES_3, RATES_3_1, INTERPOLATOR);
+  private static final Curve US_ISSUER_CURVE_2 =
+      InterpolatedNodalCurve.of(US_ISSUER_CURVE_2_METADATA, TIMES_2, RATES_2_1, INTERPOLATOR);
+  private static final RepoGroup US_REPO_GROUP = RepoGroup.of("US-REPO-GROUP");
+  private static final LegalEntityGroup US_ISSUER_1_GROUP = LegalEntityGroup.of("US-ISSUER-1-GROUP");
+  private static final LegalEntityGroup US_ISSUER_2_GROUP = LegalEntityGroup.of("US-ISSUER-2-GROUP");
+
+  public static final StandardId US_ISSUER_1_ID = StandardId.of("OG", "US-ISSUER-1");
+  public static final StandardId US_ISSUER_2_ID = StandardId.of("OG", "US-ISSUER-2");
+  public static final StandardId US_ISSUER_3_ID = StandardId.of("OG", "US-ISSUER-3");
+
+  public static final ImmutableLegalEntityDiscountingProvider MULTI_BOND = multiBond(VAL_DATE_2014_01_22);
+
+  public static final ImmutableLegalEntityDiscountingProvider multiBond(LocalDate valDate) {
+
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> repoCurves = ImmutableMap.of(
+        Pair.of(US_REPO_GROUP, USD), DiscountFactors.of(USD, valDate, US_REPO_CURVE));
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> issuerCurves = ImmutableMap.of(
+        Pair.of(US_ISSUER_1_GROUP, USD), DiscountFactors.of(USD, valDate, US_ISSUER_CURVE_1),
+        Pair.of(US_ISSUER_2_GROUP, USD), DiscountFactors.of(USD, valDate, US_ISSUER_CURVE_2));
+
+    ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
+        US_ISSUER_1_ID, US_REPO_GROUP, US_ISSUER_2_ID, US_REPO_GROUP, US_ISSUER_3_ID, US_REPO_GROUP);
+    ImmutableMap<StandardId, LegalEntityGroup> legalEntityGroups = ImmutableMap.of(
+        US_ISSUER_1_ID, US_ISSUER_1_GROUP, US_ISSUER_2_ID, US_ISSUER_2_GROUP, US_ISSUER_3_ID, US_ISSUER_2_GROUP);
+
+    return ImmutableLegalEntityDiscountingProvider.builder()
+        .valuationDate(valDate)
+        .repoCurves(repoCurves)
+        .repoCurveGroups(repoGroups)
+        .issuerCurves(issuerCurves)
+        .issuerCurveGroups(legalEntityGroups)
+        .build();
+  }
+
+  public static final ImmutableLegalEntityDiscountingProvider MULTI_BOND_COMBINED = multiBondCombined(VAL_DATE_2014_01_22);
+
+  public static final ImmutableLegalEntityDiscountingProvider multiBondCombined(LocalDate valDate) {
+
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> repoCurves = ImmutableMap.of(
+        Pair.of(US_REPO_GROUP, USD), DiscountFactors.of(USD, valDate, CombinedCurve.of(USD_L3_BASE, US_REPO_CURVE)));
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> issuerCurves = ImmutableMap.of(
+        Pair.of(US_ISSUER_1_GROUP, USD), DiscountFactors.of(USD, valDate, CombinedCurve.of(USD_L3_BASE, US_ISSUER_CURVE_1)),
+        Pair.of(US_ISSUER_2_GROUP, USD), DiscountFactors.of(USD, valDate, CombinedCurve.of(USD_L3_BASE, US_ISSUER_CURVE_2)));
+
+    ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
+        US_ISSUER_1_ID, US_REPO_GROUP,
+        US_ISSUER_2_ID, US_REPO_GROUP,
+        US_ISSUER_3_ID, US_REPO_GROUP);
+    ImmutableMap<StandardId, LegalEntityGroup> legalEntityGroups = ImmutableMap.of(
+        US_ISSUER_1_ID, US_ISSUER_1_GROUP,
+        US_ISSUER_2_ID, US_ISSUER_2_GROUP,
+        US_ISSUER_3_ID, US_ISSUER_2_GROUP);
+
+    return ImmutableLegalEntityDiscountingProvider.builder()
+        .valuationDate(valDate)
+        .repoCurves(repoCurves)
+        .repoCurveGroups(repoGroups)
+        .issuerCurves(issuerCurves)
+        .issuerCurveGroups(legalEntityGroups)
+        .build();
+  }
 
   //-------------------------------------------------------------------------
   //     =====     GBP     =====     
