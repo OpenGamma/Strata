@@ -30,15 +30,21 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CombinedCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivity;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -357,6 +363,82 @@ public class CurveGammaCalculatorCrossGammaTest {
   }
 
   //-------------------------------------------------------------------------
+  public void sensitivity_intra_multi_bond_curve() {
+    CrossGammaParameterSensitivities sensiComputed =
+        CENTRAL.calculateCrossGammaIntraCurve(RatesProviderDataSets.MULTI_BOND, this::sensiFnBond);
+    DoubleArray timesUsRepo = RatesProviderDataSets.TIMES_1;
+    DoubleArray timesUsIssuer1 = RatesProviderDataSets.TIMES_3;
+    DoubleArray timesUsIssuer2 = RatesProviderDataSets.TIMES_2;
+    assertEquals(sensiComputed.size(), 3);
+    DoubleMatrix s1 = sensiComputed.getSensitivity(RatesProviderDataSets.US_REPO_CURVE_NAME, USD).getSensitivity();
+    assertEquals(s1.columnCount(), timesUsRepo.size());
+    for (int i = 0; i < timesUsRepo.size(); i++) {
+      for (int j = 0; j < timesUsRepo.size(); j++) {
+        double expected = 2d * timesUsRepo.get(i) * timesUsRepo.get(j);
+        assertEquals(s1.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS * 10d);
+      }
+    }
+    DoubleMatrix s2 = sensiComputed.getSensitivity(RatesProviderDataSets.US_ISSUER_CURVE_1_NAME, USD).getSensitivity();
+    assertEquals(s2.columnCount(), timesUsIssuer1.size());
+    for (int i = 0; i < timesUsIssuer1.size(); i++) {
+      for (int j = 0; j < timesUsIssuer1.size(); j++) {
+        double expected = 2d * timesUsIssuer1.get(i) * timesUsIssuer1.get(j);
+        assertEquals(s2.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS);
+      }
+    }
+    DoubleMatrix s3 = sensiComputed.getSensitivity(RatesProviderDataSets.US_ISSUER_CURVE_2_NAME, USD).getSensitivity();
+    assertEquals(s3.columnCount(), timesUsIssuer2.size());
+    for (int i = 0; i < timesUsIssuer2.size(); i++) {
+      for (int j = 0; j < timesUsIssuer2.size(); j++) {
+        double expected = 2d * timesUsIssuer2.get(i) * timesUsIssuer2.get(j);
+        assertEquals(s3.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS);
+      }
+    }
+  }
+
+  public void sensitivity_multi_combined_bond_curve() {
+    CrossGammaParameterSensitivities sensiComputed =
+        CENTRAL.calculateCrossGammaIntraCurve(RatesProviderDataSets.MULTI_BOND_COMBINED, this::sensiCombinedFnBond);
+    DoubleArray timesUsL3 = RatesProviderDataSets.TIMES_2;
+    DoubleArray timesUsRepo = RatesProviderDataSets.TIMES_1;
+    DoubleArray timesUsIssuer1 = RatesProviderDataSets.TIMES_3;
+    DoubleArray timesUsIssuer2 = RatesProviderDataSets.TIMES_2;
+    assertEquals(sensiComputed.size(), 4);
+    DoubleMatrix s1 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L3_NAME, USD).getSensitivity();
+    assertEquals(s1.columnCount(), timesUsL3.size());
+    for (int i = 0; i < timesUsL3.size(); i++) {
+      for (int j = 0; j < timesUsL3.size(); j++) {
+        double expected = 2d * timesUsL3.get(i) * timesUsL3.get(j) * 3d * 3d;
+        assertEquals(s1.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS * 10d);
+      }
+    }
+    DoubleMatrix s2 = sensiComputed.getSensitivity(RatesProviderDataSets.US_REPO_CURVE_NAME, USD).getSensitivity();
+    assertEquals(s2.columnCount(), timesUsRepo.size());
+    for (int i = 0; i < timesUsRepo.size(); i++) {
+      for (int j = 0; j < timesUsRepo.size(); j++) {
+        double expected = 2d * timesUsRepo.get(i) * timesUsRepo.get(j);
+        assertEquals(s2.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS * 10d);
+      }
+    }
+    DoubleMatrix s3 = sensiComputed.getSensitivity(RatesProviderDataSets.US_ISSUER_CURVE_1_NAME, USD).getSensitivity();
+    assertEquals(s3.columnCount(), timesUsIssuer1.size());
+    for (int i = 0; i < timesUsIssuer1.size(); i++) {
+      for (int j = 0; j < timesUsIssuer1.size(); j++) {
+        double expected = 2d * timesUsIssuer1.get(i) * timesUsIssuer1.get(j);
+        assertEquals(s3.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS * 10d);
+      }
+    }
+    DoubleMatrix s4 = sensiComputed.getSensitivity(RatesProviderDataSets.US_ISSUER_CURVE_2_NAME, USD).getSensitivity();
+    assertEquals(s4.columnCount(), timesUsIssuer2.size());
+    for (int i = 0; i < timesUsIssuer2.size(); i++) {
+      for (int j = 0; j < timesUsIssuer2.size(); j++) {
+        double expected = 2d * timesUsIssuer2.get(i) * timesUsIssuer2.get(j);
+        assertEquals(s4.get(i, j), expected, Math.max(Math.abs(expected), 1d) * EPS * 20d);
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private CurrencyParameterSensitivities sensiFn(ImmutableRatesProvider provider) {
     CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
     // Currency
@@ -556,6 +638,107 @@ public class CurveGammaCalculatorCrossGammaTest {
       result = result.combinedWith(curve.createParameterSensitivity(valueInit.getCurrency(), sensitivity));
     }
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  private CurrencyParameterSensitivities sensiFnBond(ImmutableLegalEntityDiscountingProvider provider) {
+    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
+    double sum = sum(provider);
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapRepoCurves = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapRepoCurves.entrySet()) {
+      DiscountFactors discountFactors = entry.getValue();
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(discountFactors);
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(curve.getName(), discountFactors.getCurrency(),
+          DoubleArray.of(discountFactors.getParameterCount(), i -> 2d * curve.getXValues().get(i) * sum)));
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIssuerCurves = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIssuerCurves.entrySet()) {
+      DiscountFactors discountFactors = entry.getValue();
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(discountFactors);
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(curve.getName(), discountFactors.getCurrency(),
+          DoubleArray.of(discountFactors.getParameterCount(), i -> 2d * curve.getXValues().get(i) * sum)));
+    }
+    return sensi;
+  }
+
+  // modified sensitivity function - CombinedCurve involved
+  private CurrencyParameterSensitivities sensiCombinedFnBond(ImmutableLegalEntityDiscountingProvider provider) {
+    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.empty();
+    double sum = sumCombine(provider);
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapCurrency = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
+      CombinedCurve curveComb = (CombinedCurve) getCurve(entry.getValue());
+      InterpolatedNodalCurve baseCurveInt = checkInterpolated(curveComb.getBaseCurve());
+      InterpolatedNodalCurve spreadCurveInt = checkInterpolated(curveComb.getSpreadCurve());
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(baseCurveInt.getName(), USD,
+          DoubleArray.of(baseCurveInt.getParameterCount(), i -> 2d * sum * baseCurveInt.getXValues().get(i))));
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(spreadCurveInt.getName(), USD,
+          DoubleArray.of(spreadCurveInt.getParameterCount(), i -> 2d * sum * spreadCurveInt.getXValues().get(i))));
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIndex = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
+      CombinedCurve curveComb = (CombinedCurve) getCurve(entry.getValue());
+      InterpolatedNodalCurve baseCurveInt = checkInterpolated(curveComb.getBaseCurve());
+      InterpolatedNodalCurve spreadCurveInt = checkInterpolated(curveComb.getSpreadCurve());
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(baseCurveInt.getName(), USD,
+          DoubleArray.of(baseCurveInt.getParameterCount(), i -> 2d * sum * baseCurveInt.getXValues().get(i))));
+      sensi = sensi.combinedWith(CurrencyParameterSensitivity.of(spreadCurveInt.getName(), USD,
+          DoubleArray.of(spreadCurveInt.getParameterCount(), i -> 2d * sum * spreadCurveInt.getXValues().get(i))));
+    }
+    return sensi;
+  }
+
+  private double sumCombine(ImmutableLegalEntityDiscountingProvider provider) {
+    double result = 0d;
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapCurrency = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
+      CombinedCurve curve = (CombinedCurve) getCurve(entry.getValue());
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(0));
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(1));
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapIndex = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
+      CombinedCurve curve = (CombinedCurve) getCurve(entry.getValue());
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(0));
+      result += sumSingle((InterpolatedNodalCurve) curve.split().get(1));
+    }
+    return result;
+  }
+
+  private double sum(ImmutableLegalEntityDiscountingProvider provider) {
+    double result = 0d;
+    // repo curves
+    ImmutableMap<Pair<RepoGroup, Currency>, DiscountFactors> mapIndex = provider.getRepoCurves();
+    for (Entry<Pair<RepoGroup, Currency>, DiscountFactors> entry : mapIndex.entrySet()) {
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(entry.getValue());
+      result += sumSingle(curve);
+    }
+    // issuer curves
+    ImmutableMap<Pair<LegalEntityGroup, Currency>, DiscountFactors> mapCurrency = provider.getIssuerCurves();
+    for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : mapCurrency.entrySet()) {
+      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) getCurve(entry.getValue());
+      result += sumSingle(curve);
+    }
+    return result;
+  }
+
+  private double sumSingle(InterpolatedNodalCurve interpolatedNodalCurve) {
+    double result = 0.0;
+    int nbNodePoints = interpolatedNodalCurve.getParameterCount();
+    for (int i = 0; i < nbNodePoints; i++) {
+      result += interpolatedNodalCurve.getXValues().get(i) * interpolatedNodalCurve.getYValues().get(i);
+    }
+    return result;
+  }
+
+  private Curve getCurve(DiscountFactors discountFactors) {
+    return ((ZeroRateDiscountFactors) discountFactors).getCurve();
   }
 
 }
