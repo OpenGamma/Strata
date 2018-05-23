@@ -81,6 +81,25 @@ public final class ImmutableOvernightIborSwapConvention
    * Obtains a convention based on the specified name and leg conventions.
    * <p>
    * The two leg conventions must be in the same currency.
+   * The spot date offset is set to be the effective date offset of the Ibor index.
+   * 
+   * @param name  the unique name of the convention 
+   * @param overnightLeg  the market convention for the overnight leg
+   * @param iborLeg  the market convention for the ibor leg
+   * @return the convention
+   */
+  public static ImmutableOvernightIborSwapConvention of(
+      String name,
+      OvernightRateSwapLegConvention overnightLeg,
+      IborRateSwapLegConvention iborLeg) {
+
+    return new ImmutableOvernightIborSwapConvention(name, overnightLeg, iborLeg, iborLeg.getIndex().getEffectiveDateOffset());
+  }
+
+  /**
+   * Obtains a convention based on the specified name and leg conventions.
+   * <p>
+   * The two leg conventions must be in the same currency.
    * 
    * @param name  the unique name of the convention 
    * @param overnightLeg  the market convention for the overnight leg

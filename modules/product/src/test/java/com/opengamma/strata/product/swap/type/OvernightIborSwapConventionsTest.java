@@ -50,6 +50,7 @@ public class OvernightIborSwapConventionsTest {
   @Test(dataProvider = "spotLag")
   public void test_spot_lag(ImmutableOvernightIborSwapConvention convention, int lag) {
     assertEquals(convention.getSpotDateOffset().getDays(), lag);
+    assertEquals(convention.getSpotDateOffset(), convention.getIborLeg().getIndex().getEffectiveDateOffset());
   }
 
   //-------------------------------------------------------------------------
