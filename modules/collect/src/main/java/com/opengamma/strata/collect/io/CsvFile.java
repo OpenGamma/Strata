@@ -51,6 +51,10 @@ public final class CsvFile {
    */
   private final ImmutableList<String> headers;
   /**
+   * The header map, transformed for case-insensitive searching.
+   */
+  private final ImmutableMap<String, Integer> searchHeaders;
+  /**
    * The data rows in the CSV file.
    */
   private final ImmutableList<CsvRow> rows;
@@ -184,7 +188,7 @@ public final class CsvFile {
     for (int i = 0; i < rows.size(); i++) {
       csvRows.add(new CsvRow(copiedHeaders, searchHeaders, i + firstLine, ImmutableList.copyOf(rows.get(i))));
     }
-    return new CsvFile(copiedHeaders, csvRows.build());
+    return new CsvFile(copiedHeaders, searchHeaders, csvRows.build());
   }
 
   //------------------------------------------------------------------------
@@ -203,7 +207,7 @@ public final class CsvFile {
         rows.add(new CsvRow(headers, searchHeaders, i + 1, fields));
       }
     }
-    return new CsvFile(headers, rows.build());
+    return new CsvFile(headers, searchHeaders, rows.build());
   }
 
   // parse a single line
@@ -275,10 +279,12 @@ public final class CsvFile {
    * Restricted constructor.
    * 
    * @param headers  the header row
+   * @param searchHeaders  the headers transformed for searching
    * @param rows  the data rows
    */
-  private CsvFile(ImmutableList<String> headers, ImmutableList<CsvRow> rows) {
+  private CsvFile(ImmutableList<String> headers, ImmutableMap<String, Integer> searchHeaders, ImmutableList<CsvRow> rows) {
     this.headers = headers;
+    this.searchHeaders = searchHeaders;
     this.rows = rows;
   }
 
@@ -320,6 +326,17 @@ public final class CsvFile {
    */
   public CsvRow row(int index) {
     return rows.get(index);
+  }
+
+  /**
+   * Checks if the file contains a header.
+   * <p>
+   * Matching is case insensitive.
+   * 
+   * @return the header row
+   */
+  public boolean containsHeader(String header) {
+    return searchHeaders.containsKey(header.toLowerCase(Locale.ENGLISH));
   }
 
   //-------------------------------------------------------------------------

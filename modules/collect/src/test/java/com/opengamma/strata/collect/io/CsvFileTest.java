@@ -90,6 +90,7 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(""), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 0);
+    assertEquals(csvFile.containsHeader("Foo"), false);
   }
 
   public void test_of_empty_with_header() {
@@ -100,6 +101,7 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 4);
+    assertEquals(csvFile.containsHeader("Foo"), false);
     assertEquals(csvFile.row(0).lineNumber(), 1);
     assertEquals(csvFile.row(1).lineNumber(), 2);
     assertEquals(csvFile.row(2).lineNumber(), 3);
@@ -126,6 +128,7 @@ public class CsvFileTest {
   public void test_of_simple_no_header_tabs() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1T), false, '\t');
     assertEquals(csvFile.headers().size(), 0);
+    assertEquals(csvFile.containsHeader("Foo"), false);
     assertEquals(csvFile.rowCount(), 3);
     assertEquals(csvFile.row(0).lineNumber(), 1);
     assertEquals(csvFile.row(1).lineNumber(), 2);
@@ -147,6 +150,8 @@ public class CsvFileTest {
 
   public void test_of_simple_with_header() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), true);
+    assertEquals(csvFile.containsHeader("Foo"), false);
+    assertEquals(csvFile.containsHeader("h1"), true);
     ImmutableList<String> headers = csvFile.headers();
     assertEquals(headers.size(), 2);
     assertEquals(headers.get(0), "h1");
@@ -221,6 +226,8 @@ public class CsvFileTest {
   public void test_of_duplicate_headers() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV5), true);
     assertEquals(csvFile.headers(), ImmutableList.of("a", "b", "c", "b", "c"));
+    assertEquals(csvFile.containsHeader("Foo"), false);
+    assertEquals(csvFile.containsHeader("a"), true);
     assertEquals(csvFile.row(0).getField("a"), "aa");
     assertEquals(csvFile.row(0).getField("b"), "b1");
     assertEquals(csvFile.row(0).getField("c"), "c1");
