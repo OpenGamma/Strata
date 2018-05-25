@@ -244,8 +244,8 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
           .creditCurves(ImmutableMap.of(Pair.of(legalEntityId, currency), creditCurve))
           .build();
       Function<ResolvedCdsTrade, DoubleArray> sensiFunc = quoteConvention.equals(CdsQuoteConvention.PAR_SPREAD) ?
-          getParSpreadSensitivityFunction(ratesProviderNew, refData) :
-          getPointsUpfrontSensitivityFunction(ratesProviderNew, refData);
+          getParSpreadSensitivityFunction(ratesProviderNew, name, currency, refData) :
+          getPointsUpfrontSensitivityFunction(ratesProviderNew, name, currency, refData);
       DoubleMatrix sensi = DoubleMatrix.ofArrayObjects(nNodes, nNodes, i -> sensiFunc.apply(trades.get(i)));
       sensi = (DoubleMatrix) MATRIX_ALGEBRA.multiply(DoubleMatrix.ofUnsafe(diag), sensi);
       JacobianCalibrationMatrix jacobian = JacobianCalibrationMatrix.of(
@@ -271,13 +271,15 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
 
   private Function<ResolvedCdsTrade, DoubleArray> getPointsUpfrontSensitivityFunction(
       CreditRatesProvider ratesProvider,
+      CurveName curveName,
+      Currency currency,
       ReferenceData refData) {
 
     Function<ResolvedCdsTrade, DoubleArray> func = new Function<ResolvedCdsTrade, DoubleArray>() {
       @Override
       public DoubleArray apply(ResolvedCdsTrade trade) {
         PointSensitivities point = tradePricer.priceSensitivity(trade, ratesProvider, refData);
-        return ratesProvider.parameterSensitivity(point).getSensitivities().get(0).getSensitivity();
+        return ratesProvider.parameterSensitivity(point).getSensitivity(curveName, currency).getSensitivity();
       }
     };
     return func;
@@ -285,13 +287,15 @@ public abstract class IsdaCompliantCreditCurveCalibrator {
 
   private Function<ResolvedCdsTrade, DoubleArray> getParSpreadSensitivityFunction(
       CreditRatesProvider ratesProvider,
+      CurveName curveName,
+      Currency currency,
       ReferenceData refData) {
 
     Function<ResolvedCdsTrade, DoubleArray> func = new Function<ResolvedCdsTrade, DoubleArray>() {
       @Override
       public DoubleArray apply(ResolvedCdsTrade trade) {
         PointSensitivities point = tradePricer.parSpreadSensitivity(trade, ratesProvider, refData);
-        return ratesProvider.parameterSensitivity(point).getSensitivities().get(0).getSensitivity();
+        return ratesProvider.parameterSensitivity(point).getSensitivity(curveName, currency).getSensitivity();
       }
     };
     return func;
