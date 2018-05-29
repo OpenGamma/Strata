@@ -91,6 +91,7 @@ public class CsvFileTest {
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 0);
     assertEquals(csvFile.containsHeader("Foo"), false);
+    assertEquals(csvFile.containsHeader(Pattern.compile("Foo")), false);
   }
 
   public void test_of_empty_with_header() {
@@ -102,6 +103,7 @@ public class CsvFileTest {
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.rowCount(), 4);
     assertEquals(csvFile.containsHeader("Foo"), false);
+    assertEquals(csvFile.containsHeader(Pattern.compile("Foo")), false);
     assertEquals(csvFile.row(0).lineNumber(), 1);
     assertEquals(csvFile.row(1).lineNumber(), 2);
     assertEquals(csvFile.row(2).lineNumber(), 3);
@@ -129,6 +131,7 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1T), false, '\t');
     assertEquals(csvFile.headers().size(), 0);
     assertEquals(csvFile.containsHeader("Foo"), false);
+    assertEquals(csvFile.containsHeader(Pattern.compile("Foo")), false);
     assertEquals(csvFile.rowCount(), 3);
     assertEquals(csvFile.row(0).lineNumber(), 1);
     assertEquals(csvFile.row(1).lineNumber(), 2);
@@ -152,6 +155,8 @@ public class CsvFileTest {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), true);
     assertEquals(csvFile.containsHeader("Foo"), false);
     assertEquals(csvFile.containsHeader("h1"), true);
+    assertEquals(csvFile.containsHeader(Pattern.compile("Foo")), false);
+    assertEquals(csvFile.containsHeader(Pattern.compile("h[0-9]")), true);
     ImmutableList<String> headers = csvFile.headers();
     assertEquals(headers.size(), 2);
     assertEquals(headers.get(0), "h1");

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -329,14 +330,32 @@ public final class CsvFile {
   }
 
   /**
-   * Checks if the file contains a header.
+   * Checks if the header is known.
    * <p>
    * Matching is case insensitive.
    * 
-   * @return the header row
+   * @param header  the column header to match
+   * @return true if the header is known
    */
   public boolean containsHeader(String header) {
     return searchHeaders.containsKey(header.toLowerCase(Locale.ENGLISH));
+  }
+
+  /**
+   * Checks if the header pattern is known.
+   * <p>
+   * Matching is case insensitive.
+   * 
+   * @param headerPattern  the header pattern to match
+   * @return true if the header is known
+   */
+  public boolean containsHeader(Pattern headerPattern) {
+    for (int i = 0; i < headers.size(); i++) {
+      if (headerPattern.matcher(headers.get(i)).matches()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   //-------------------------------------------------------------------------

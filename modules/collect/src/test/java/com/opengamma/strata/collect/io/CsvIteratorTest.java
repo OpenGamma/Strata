@@ -58,6 +58,15 @@ public class CsvIteratorTest {
       "h1,h2\n" +
       "r1,r2\n";
 
+  private final String CSV5GROUPED = "" +
+      "id,value\n" +
+      "1,a\n" +
+      "1,b\n" +
+      "1,c\n" +
+      "2,mm\n" +
+      "3,yyy\n" +
+      "3,zzz";
+
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
     assertThrows(
@@ -302,6 +311,28 @@ public class CsvIteratorTest {
     }
   }
 
+  //-------------------------------------------------------------------------
+  public void nextBatch_predicate() {
+    try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV5GROUPED), true)) {
+      ImmutableList<String> headers = csvFile.headers();
+      assertEquals(headers.size(), 2);
+      assertEquals(headers.get(0), "id");
+      assertEquals(headers.get(1), "value");
+      int batches = 0;
+      int total = 0;
+      while (csvFile.hasNext()) {
+        CsvRow first = csvFile.peek();
+        String id = first.getValue("id");
+        List<CsvRow> batch = csvFile.nextBatch(row -> row.getValue("id").equals(id));
+        assertEquals(batch.stream().map(row -> row.getValue("id")).distinct().count(), 1);
+        batches++;
+        total += batch.size();
+      }
+      assertEquals(batches, 3);
+      assertEquals(total, 6);
+    }
+  }
+    
   //-------------------------------------------------------------------------
   public void test_asStream_empty_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(""), false)) {

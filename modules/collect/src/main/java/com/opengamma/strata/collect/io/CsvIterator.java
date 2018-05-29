@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -355,6 +356,38 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
       if (hasNext()) {
         rows.add(next());
       }
+    }
+    return rows;
+  }
+
+  /**
+   * Returns the next batch of rows from the CSV file using a predicate to determine the rows.
+   * <p>
+   * This is useful for CSV files where information is grouped with an identifier or key.
+   * For example, a variable notional trade file might have one row for the trade followed by
+   * multiple rows for the variable aspects, all grouped by a common trade identifier.
+   * In general, callers should peek or read the first row and use information within it to
+   * create the selector:
+   * <pre>
+   *  while (it.hasNext()) {
+   *    CsvRow first = it.peek();
+   *    String id = first.getValue("ID");
+   *    List&lt;CsvRow&gt; batch = it.nextBatch(row -&gt; row.getValue("ID").equals(id));
+   *    // process batch
+   *  }
+   * <pre>
+   * This will return a batch of rows where the selector returns true for the row.
+   * An empty list is returned if the selector returns false for the first row.
+   * 
+   * @param selector  selects whether a row is part of the batch or part of the next batch
+   * @return the next batch of rows, as determined by the selector
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public List<CsvRow> nextBatch(Predicate<CsvRow> selector) {
+    List<CsvRow> rows = new ArrayList<>();
+    while (hasNext() && selector.test(peek())) {
+      rows.add(next());
     }
     return rows;
   }
