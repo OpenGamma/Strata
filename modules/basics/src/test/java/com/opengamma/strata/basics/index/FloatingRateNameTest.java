@@ -93,6 +93,25 @@ public class FloatingRateNameTest {
         {"USA-CPI-U", "US-CPI-U", FloatingRateType.PRICE},
         {"FR-EXT-CPI", "FR-EXT-CPI", FloatingRateType.PRICE},
         {"FRC-EXT-CPI", "FR-EXT-CPI", FloatingRateType.PRICE},
+
+        {"AUD-BBR-BBSW", "AUD-BBSW", FloatingRateType.IBOR},
+        {"CAD-BA-CDOR", "CAD-CDOR", FloatingRateType.IBOR},
+        {"CNY-CNREPOFIX=CFXS-Reuters", "CNY-REPO", FloatingRateType.IBOR},
+        {"CZK-PRIBOR-PRBO", "CZK-PRIBOR", FloatingRateType.IBOR},
+        {"DKK-CIBOR-DKNA13", "DKK-CIBOR", FloatingRateType.IBOR},
+        {"HKD-HIBOR-ISDC", "HKD-HIBOR", FloatingRateType.IBOR},
+        {"HKD-HIBOR-HIBOR=", "HKD-HIBOR", FloatingRateType.IBOR},
+        {"HUF-BUBOR-Reuters", "HUF-BUBOR", FloatingRateType.IBOR},
+        {"KRW-CD-KSDA-Bloomberg", "KRW-CD", FloatingRateType.IBOR},
+        {"MXN-TIIE-Banxico", "MZN-TIIE", FloatingRateType.IBOR},
+        {"NOK-NIBOR-OIBOR", "NOK-NIBOR", FloatingRateType.IBOR},
+        {"NZD-BBR-FRA", "NZD-BBR", FloatingRateType.IBOR},
+        {"PLN-WIBOR-WIBO", "PLN-WIBOR", FloatingRateType.IBOR},
+        {"SEK-STIBOR-Bloomberg", "SEK-STIBOR", FloatingRateType.IBOR},
+        {"SGD-SOR-VWAP", "SGD-SOR", FloatingRateType.IBOR},
+        {"ZAR-JIBAR-SAFEX", "ZAR-JIBAR", FloatingRateType.IBOR},
+
+        {"INR-MIBOR-OIS-COMPOUND", "INR-OMIBOR", FloatingRateType.OVERNIGHT_COMPOUNDED},
     };
   }
 
