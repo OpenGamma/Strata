@@ -35,7 +35,6 @@ import com.opengamma.strata.market.curve.CombinedCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivity;
@@ -568,17 +567,6 @@ public class CurveGammaCalculatorCrossGammaTest {
         InterpolatedNodalCurve curveInt = checkInterpolated(entry.getValue());
         result += sumSingle(curveInt);
       }
-    }
-    return result;
-  }
-
-  private double sumSingle(NodalCurve curveInt) {
-    double result = 0.0;
-    DoubleArray x = curveInt.getXValues();
-    DoubleArray y = curveInt.getYValues();
-    int nbNodePoint = x.size();
-    for (int i = 0; i < nbNodePoint; i++) {
-      result += x.get(i) * y.get(i);
     }
     return result;
   }
