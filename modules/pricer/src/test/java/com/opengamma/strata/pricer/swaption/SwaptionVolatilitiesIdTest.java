@@ -24,6 +24,7 @@ public class SwaptionVolatilitiesIdTest {
     assertEquals(test.getName(), SwaptionVolatilitiesName.of("Foo"));
     assertEquals(test.getMarketDataType(), SwaptionVolatilities.class);
     assertEquals(test.getMarketDataName(), SwaptionVolatilitiesName.of("Foo"));
+    assertEquals(test.toString(), "SwaptionVolatilitiesId:Foo");
   }
 
   public void test_of_object() {
@@ -31,6 +32,7 @@ public class SwaptionVolatilitiesIdTest {
     assertEquals(test.getName(), SwaptionVolatilitiesName.of("Foo"));
     assertEquals(test.getMarketDataType(), SwaptionVolatilities.class);
     assertEquals(test.getMarketDataName(), SwaptionVolatilitiesName.of("Foo"));
+    assertEquals(test.toString(), "SwaptionVolatilitiesId:Foo");
   }
 
   //-------------------------------------------------------------------------

@@ -35,6 +35,7 @@ public class IndexQuoteIdTest {
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getStandardId(), StandardId.of("OG-Index", GBP_SONIA.getName()));
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toString(), "IndexQuoteId:GBP-SONIA/MarketValue");
   }
 
   public void test_of_2args() {
@@ -44,6 +45,7 @@ public class IndexQuoteIdTest {
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getStandardId(), StandardId.of("OG-Index", GBP_SONIA.getName()));
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toString(), "IndexQuoteId:GBP-SONIA/Field");
   }
 
   public void test_of_3args() {
@@ -53,6 +55,7 @@ public class IndexQuoteIdTest {
     assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getStandardId(), StandardId.of("OG-Index", GBP_SONIA.getName()));
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toString(), "IndexQuoteId:GBP-SONIA/Field/Vendor");
   }
 
   //-------------------------------------------------------------------------

@@ -34,6 +34,7 @@ public class QuoteIdTest {
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toString(), "QuoteId:OG-Ticker~1/MarketValue");
   }
 
   public void test_of_2args() {
@@ -42,6 +43,7 @@ public class QuoteIdTest {
     assertEquals(test.getFieldName(), FIELD2);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toString(), "QuoteId:OG-Ticker~1/Field2");
   }
 
   public void test_of_3args() {
@@ -50,6 +52,7 @@ public class QuoteIdTest {
     assertEquals(test.getFieldName(), FIELD2);
     assertEquals(test.getObservableSource(), OBS_SOURCE2);
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toString(), "QuoteId:OG-Ticker~1/Field2/Vendor2");
   }
 
   //-------------------------------------------------------------------------

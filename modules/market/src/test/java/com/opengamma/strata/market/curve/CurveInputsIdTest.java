@@ -33,6 +33,7 @@ public class CurveInputsIdTest {
     assertEquals(test.getCurveName(), NAME1);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), CurveInputs.class);
+    assertEquals(test.toString(), "CurveInputsId:Group1/Name1");
   }
 
   //-------------------------------------------------------------------------
