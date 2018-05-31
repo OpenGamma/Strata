@@ -5,6 +5,10 @@
  */
 package com.opengamma.strata.basics.index;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -20,5 +24,30 @@ import com.opengamma.strata.collect.named.Named;
  */
 public interface Index
     extends Named {
+
+  /**
+   * Obtains an instance from the specified unique name.
+   * 
+   * @param uniqueName  the unique name
+   * @return the index
+   * @throws IllegalArgumentException if the name is not known
+   */
+  @FromString
+  public static Index of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return Indices.ENUM_LOOKUP.lookup(uniqueName);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this index.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
 
 }
