@@ -258,7 +258,6 @@ public class RatesMarketDataLookupTest {
     DefaultRatesMarketDataLookup test =
         DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(test);
-    System.out.println(xml);
     assertEquals(xml.contains("<entry key=\"USD-LIBOR-3M\">"), true);
     assertEquals(xml.contains("<fixingDateOffset>"), false);
     assertEquals(xml.contains("<effectiveDateOffset>"), false);

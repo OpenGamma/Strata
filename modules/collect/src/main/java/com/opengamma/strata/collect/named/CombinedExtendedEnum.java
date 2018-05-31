@@ -127,9 +127,7 @@ public final class CombinedExtendedEnum<T extends Named> {
    * Creates an instance.
    * 
    * @param type  the enum type
-   * @param lookups  the lookup functions to find instances
-   * @param alternateNames  the map of alternate name to standard name
-   * @param externalNames  the map of external name groups
+   * @param children  the child extended enums to delegate to
    */
   private CombinedExtendedEnum(
       Class<T> type,
