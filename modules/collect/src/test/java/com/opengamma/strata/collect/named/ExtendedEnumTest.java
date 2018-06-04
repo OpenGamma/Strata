@@ -47,6 +47,7 @@ public class ExtendedEnumTest {
             .put("Another2", SampleNamedInstanceLookup2.ANOTHER2)
             .build());
     assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard", "ALTERNATE", "Standard"));
+    assertEquals(test.getType(), SampleNamed.class);
     assertEquals(test.find("Standard"), Optional.of(SampleNameds.STANDARD));
     assertEquals(test.find("STANDARD"), Optional.of(SampleNameds.STANDARD));
     assertEquals(test.find("Rubbish"), Optional.empty());

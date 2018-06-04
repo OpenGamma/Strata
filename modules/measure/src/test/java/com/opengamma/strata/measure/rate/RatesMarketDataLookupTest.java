@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -249,6 +250,17 @@ public class RatesMarketDataLookupTest {
     MarketData md = MarketData.of(date(2016, 6, 30), valuesMap);
     assertSerialization(test.marketDataView(md));
     assertSerialization(test.ratesProvider(md));
+  }
+
+  public void test_jodaSerialization() {
+    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    DefaultRatesMarketDataLookup test =
+        DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
+    String xml = JodaBeanSer.PRETTY.xmlWriter().write(test);
+    assertEquals(xml.contains("<entry key=\"USD-LIBOR-3M\">"), true);
+    assertEquals(xml.contains("<fixingDateOffset>"), false);
+    assertEquals(xml.contains("<effectiveDateOffset>"), false);
   }
 
 }

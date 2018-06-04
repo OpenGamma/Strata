@@ -307,6 +307,15 @@ public final class ExtendedEnum<T extends Named> {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the enum type.
+   * 
+   * @return the enum type
+   */
+  public Class<T> getType() {
+    return type;
+  }
+
+  /**
    * Finds an instance by name.
    * <p>
    * This finds the instance matching the specified name.

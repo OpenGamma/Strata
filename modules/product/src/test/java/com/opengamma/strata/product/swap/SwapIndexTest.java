@@ -17,11 +17,17 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.FxIndices;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
@@ -97,6 +103,35 @@ public class SwapIndexTest {
       }
       assertEquals(index.calculateFixingDateTime(date(2015, 6, 30)), date(2015, 6, 30).atTime(time).atZone(zone));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "indexName")
+  static Object[][] data_name() {
+    return new Object[][] {
+        {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
+        {OvernightIndices.GBP_SONIA, "GBP-SONIA"},
+        {PriceIndices.GB_HICP, "GB-HICP"},
+        {FxIndices.EUR_CHF_ECB, "EUR/CHF-ECB"},
+
+        {SwapIndices.EUR_EURIBOR_1100_12Y, "EUR-EURIBOR-1100-12Y"},
+        {SwapIndices.GBP_LIBOR_1100_2Y, "GBP-LIBOR-1100-2Y"},
+    };
+  }
+
+  @Test(dataProvider = "indexName")
+  public void test_name(Index convention, String name) {
+    assertEquals(convention.getName(), name);
+  }
+
+  @Test(dataProvider = "indexName")
+  public void test_toString(Index convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "indexName")
+  public void test_of_lookup(Index convention, String name) {
+    assertEquals(Index.of(name), convention);
   }
 
   //-------------------------------------------------------------------------
