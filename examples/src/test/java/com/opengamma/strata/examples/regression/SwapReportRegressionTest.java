@@ -85,7 +85,7 @@ public class SwapReportRegressionTest {
     MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     // using the direct executor means there is no need to close/shutdown the runner
-    CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
+    CalculationTasks tasks = CalculationTasks.of(rules, trades, columns, REF_DATA);
     MarketDataRequirements reqs = tasks.requirements(REF_DATA);
     MarketData calibratedMarketData = marketDataFactory().create(reqs, MarketDataConfig.empty(), marketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());

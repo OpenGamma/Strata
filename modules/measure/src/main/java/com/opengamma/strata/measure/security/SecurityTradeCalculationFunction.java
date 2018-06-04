@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Measure;
@@ -74,6 +75,11 @@ public class SecurityTradeCalculationFunction
   public Currency naturalCurrency(SecurityTrade trade, ReferenceData refData) {
     Security security = refData.getValue(trade.getSecurityId());
     return security.getCurrency();
+  }
+
+  @Override
+  public CalculationTarget resolveTarget(SecurityTrade trade, ReferenceData refData) {
+    return trade.resolveSecurity(refData);
   }
 
   //-------------------------------------------------------------------------

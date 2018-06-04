@@ -43,12 +43,14 @@ public class CalculationTasksTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    CalculationFunctions functions = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, new TestFunction()));
+    TestFunction fn = new TestFunction();
+    CalculationFunctions functions = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, fn));
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET2);
     List<Column> columns = ImmutableList.of(Column.of(TestingMeasures.PRESENT_VALUE), Column.of(TestingMeasures.PAR_RATE));
     CalculationRules calculationRules = CalculationRules.of(functions, USD);
 
-    CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
+    CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns, REF_DATA);
+    assertThat(fn.resolved).isTrue();
     assertThat(test.getTargets()).hasSize(2);
     assertThat(test.getTargets()).containsExactly(TARGET1, TARGET2);
     assertThat(test.getColumns()).hasSize(2);
@@ -83,7 +85,7 @@ public class CalculationTasksTest {
     List<TestTarget> targets = ImmutableList.of(TARGET1);
     List<Column> columns = ImmutableList.of(Column.of(TestingMeasures.PRESENT_VALUE));
 
-    CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
+    CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns, REF_DATA);
 
     MarketDataRequirements requirements = test.requirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
@@ -110,7 +112,7 @@ public class CalculationTasksTest {
         Column.of(TestingMeasures.PRESENT_VALUE),
         Column.of(TestingMeasures.PRESENT_VALUE));
     CalculationRules rules = CalculationRules.of(CALC_FUNCTIONS, USD);
-    CalculationTasks task = CalculationTasks.of(rules, targets, columns);
+    CalculationTasks task = CalculationTasks.of(rules, targets, columns, REF_DATA);
     assertThat(task.toString()).isEqualTo("CalculationTasks[grid=2x3]");
   }
 
