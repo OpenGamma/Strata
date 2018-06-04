@@ -38,6 +38,7 @@ public class FxRateIdTest {
     assertEquals(inverse.getPair(), PAIR);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), FxRate.class);
+    assertEquals(test.toString(), "FxRateId:GBP/USD");
   }
 
   public void test_of_currencies() {

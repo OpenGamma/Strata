@@ -20,19 +20,21 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 @Test
 public class FxMatrixIdTest {
 
-  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Test");
+  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
 
   //-------------------------------------------------------------------------
   public void test_standard() {
     FxMatrixId test = FxMatrixId.standard();
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), FxMatrix.class);
+    assertEquals(test.toString(), "FxMatrixId");
   }
 
   public void test_of() {
     FxMatrixId test = FxMatrixId.of(OBS_SOURCE);
     assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getMarketDataType(), FxMatrix.class);
+    assertEquals(test.toString(), "FxMatrixId:Vendor");
   }
 
   //-------------------------------------------------------------------------

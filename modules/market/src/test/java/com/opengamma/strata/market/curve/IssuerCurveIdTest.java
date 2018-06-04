@@ -30,6 +30,7 @@ public class IssuerCurveIdTest {
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Curve.class);
     assertEquals(test.getMarketDataName(), CurveName.of("Name"));
+    assertEquals(test.toString(), "IssuerCurveId:Group/Name");
   }
 
   public void test_of_Types() {
@@ -39,6 +40,7 @@ public class IssuerCurveIdTest {
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Curve.class);
     assertEquals(test.getMarketDataName(), CurveName.of("Name"));
+    assertEquals(test.toString(), "IssuerCurveId:Group/Name");
   }
 
   public void test_of_TypesSource() {
@@ -49,6 +51,7 @@ public class IssuerCurveIdTest {
     assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getMarketDataType(), Curve.class);
     assertEquals(test.getMarketDataName(), CurveName.of("Name"));
+    assertEquals(test.toString(), "IssuerCurveId:Group/Name/Vendor");
   }
 
   //-------------------------------------------------------------------------
