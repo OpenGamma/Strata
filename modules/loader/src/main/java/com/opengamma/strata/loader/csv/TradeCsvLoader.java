@@ -68,6 +68,7 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <li>The 'Trade Zone' column is optional, and is the time-zone that the trade occurred,
  *   such as 'Europe/London'
  * </ul>
+ * <li>The 'Settlement Date' column is optional, and is the date that the trade settles, such as '2017-08-01'
  * 
  * <h4>Fra</h4>
  * <p>
@@ -207,6 +208,7 @@ public final class TradeCsvLoader {
   private static final String CPTY_FIELD = "Counterparty";
   private static final String TRADE_TIME_FIELD = "Trade Time";
   private static final String TRADE_ZONE_FIELD = "Trade Zone";
+  private static final String SETTLEMENT_DATE_FIELD = "Settlement Date";
 
   /**
    * The resolver, providing additional information.
@@ -466,6 +468,7 @@ public final class TradeCsvLoader {
     row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));
+    row.findValue(SETTLEMENT_DATE_FIELD).ifPresent(dateStr -> infoBuilder.settlementDate(LoaderUtils.parseDate(dateStr)));
     resolver.parseTradeInfo(row, infoBuilder);
     return infoBuilder.build();
   }
