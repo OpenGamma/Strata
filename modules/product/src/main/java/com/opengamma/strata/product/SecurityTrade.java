@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
@@ -124,6 +125,7 @@ public final class SecurityTrade
    * 
    * @param refData  the reference data used to 
    * @return an equivalent trade with the security resolved
+   * @throws ReferenceDataNotFoundException if the security cannot be found in reference data
    */
   public Trade resolveSecurity(ReferenceData refData) {
     Security security = refData.getValue(securityId);

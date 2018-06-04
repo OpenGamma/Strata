@@ -100,6 +100,17 @@ public interface CalculationFunction<T extends CalculationTarget> {
   public abstract Currency naturalCurrency(T target, ReferenceData refData);
 
   /**
+   * Resolves the target, potentially returning a different target.
+   * 
+   * @param target  the target to be resolved
+   * @param refData  the reference data to use for resolving
+   * @return the resolved target
+   */
+  public default CalculationTarget resolveTarget(T target, ReferenceData refData) {
+    return target;
+  }
+
+  /**
    * Determines the market data required by this function to perform its calculations.
    * <p>
    * Any market data needed by the {@code calculate} method should be specified.

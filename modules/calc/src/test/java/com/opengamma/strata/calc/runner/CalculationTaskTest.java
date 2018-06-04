@@ -479,6 +479,8 @@ public class CalculationTaskTest {
    */
   public static final class TestFunction implements CalculationFunction<TestTarget> {
 
+    public boolean resolved;
+
     @Override
     public Class<TestTarget> targetType() {
       return TestTarget.class;
@@ -492,6 +494,12 @@ public class CalculationTaskTest {
     @Override
     public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
+    }
+
+    @Override
+    public CalculationTarget resolveTarget(TestTarget target, ReferenceData refData) {
+      resolved = true;
+      return target;
     }
 
     @Override

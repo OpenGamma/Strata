@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -31,6 +32,7 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityTrade;
@@ -47,6 +49,7 @@ public class SecurityTradeCalculationFunctionTest {
   private static final double TICK_SIZE = 0.01;
   private static final int TICK_VALUE = 10;
   private static final int QUANTITY = 20;
+  private static final double PRICE = 99.550;
   private static final SecurityId SEC_ID = SecurityId.of("OG-Future", "Foo-Womble-Mar14");
   public static final SecurityTrade TRADE = SecurityTrade.builder()
       .info(TradeInfo.builder()
@@ -54,7 +57,7 @@ public class SecurityTradeCalculationFunctionTest {
           .build())
       .securityId(SEC_ID)
       .quantity(QUANTITY)
-      .price(99.550)
+      .price(PRICE)
       .build();
   private static final GenericSecurity FUTURE = GenericSecurity.of(
       SecurityInfo.of(SEC_ID, TICK_SIZE, CurrencyAmount.of(EUR, TICK_VALUE)));
@@ -63,6 +66,16 @@ public class SecurityTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2013, 12, 8);
 
   //-------------------------------------------------------------------------
+  public void test_resolveTarget() {
+    SecurityTradeCalculationFunction function = new SecurityTradeCalculationFunction();
+    CalculationTarget target = function.resolveTarget(TRADE, REF_DATA);
+    assertThat(target).isInstanceOf(GenericSecurityTrade.class);
+    GenericSecurityTrade trade = (GenericSecurityTrade) target;
+    assertThat(trade.getSecurity()).isEqualTo(FUTURE);
+    assertThat(trade.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(trade.getPrice()).isEqualTo(PRICE);
+  }
+
   public void test_requirementsAndCurrency() {
     SecurityTradeCalculationFunction function = new SecurityTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
