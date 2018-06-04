@@ -14,9 +14,13 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ImmutableReferenceData;
+import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductType;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -60,6 +64,14 @@ public class EtdOptionTradeTest {
         .description(SECURITY.getSecurityId().getStandardId().getValue() + " x 3000, Jun17 P2")
         .build();
     assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    GenericSecurity security = GenericSecurity.of(SECURITY.getInfo());
+    Trade test = sut().resolveSecurity(ImmutableReferenceData.of(SECURITY.getSecurityId(), security));
+    GenericSecurityTrade expected = GenericSecurityTrade.of(TRADE_INFO, security, 3000, 20);
+    assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------

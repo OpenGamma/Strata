@@ -9,7 +9,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.SecurityQuantity;
 
 /**
  * A position in an ETD, where the security is embedded ready for mark-to-market pricing.
@@ -24,7 +23,7 @@ import com.opengamma.strata.product.SecurityQuantity;
  * The net quantity is available via {@link #getQuantity()}.
  */
 public interface EtdPosition
-    extends Position, SecurityQuantity {
+    extends Position {
 
   /**
    * Gets the currency of the position.
