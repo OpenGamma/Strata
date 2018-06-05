@@ -375,7 +375,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    *    List&lt;CsvRow&gt; batch = it.nextBatch(row -&gt; row.getValue("ID").equals(id));
    *    // process batch
    *  }
-   * <pre>
+   * </pre>
    * This will return a batch of rows where the selector returns true for the row.
    * An empty list is returned if the selector returns false for the first row.
    * 
