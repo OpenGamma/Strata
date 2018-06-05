@@ -409,6 +409,7 @@ public final class Currency
    * <p>
    * For example, 'USD' has 2 minor digits, so 63.347 will be rounded to 63.35.
    * 
+   * @param amount  the amount to round
    * @return the rounded amount
    */
   public double roundMinorUnits(double amount) {
@@ -420,6 +421,7 @@ public final class Currency
    * <p>
    * For example, 'USD' has 2 minor digits, so 63.347 will be rounded to 63.35.
    * 
+   * @param amount  the amount to round
    * @return the rounded amount
    */
   public BigDecimal roundMinorUnits(BigDecimal amount) {
