@@ -29,14 +29,13 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.SecurityAttributeType;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
@@ -49,9 +48,9 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  */
 public class GenericSecurityPricingExample {
 
-  private static final SecurityAttributeType<String> EXCHANGE_TYPE = SecurityAttributeType.of("exchange");
-  private static final SecurityAttributeType<String> PRODUCT_FAMILY_TYPE = SecurityAttributeType.of("productFamily");
-  private static final SecurityAttributeType<LocalDate> EXPIRY_TYPE = SecurityAttributeType.of("expiryDate");
+  private static final AttributeType<String> EXCHANGE_TYPE = AttributeType.of("exchange");
+  private static final AttributeType<String> PRODUCT_FAMILY_TYPE = AttributeType.of("productFamily");
+  private static final AttributeType<LocalDate> EXPIRY_TYPE = AttributeType.of("expiryDate");
   private static final SecurityId FGBL_MAR14_ID = SecurityId.of("OG-Future", "Eurex-FGBL-Mar14");
   private static final SecurityId OGBL_MAR14_C150_ID = SecurityId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150");
   private static final SecurityId ED_MAR14_ID = SecurityId.of("OG-Future", "CME-ED-Mar14");
@@ -123,7 +122,7 @@ public class GenericSecurityPricingExample {
   // create a futures trade where the security is looked up in reference data
   private static Trade createFutureTrade1() {
     TradeInfo tradeInfo = TradeInfo.builder()
-        .addAttribute(TradeAttributeType.DESCRIPTION, "20 x Euro-Bund Mar14")
+        .addAttribute(AttributeType.DESCRIPTION, "20 x Euro-Bund Mar14")
         .counterparty(StandardId.of("mn", "Dealer G"))
         .settlementDate(LocalDate.of(2013, 12, 15))
         .build();
@@ -133,7 +132,7 @@ public class GenericSecurityPricingExample {
   // create a futures trade that embeds details of the security
   private static Trade createFutureTrade2() {
     TradeInfo tradeInfo = TradeInfo.builder()
-        .addAttribute(TradeAttributeType.DESCRIPTION, "8 x EuroDollar Mar14")
+        .addAttribute(AttributeType.DESCRIPTION, "8 x EuroDollar Mar14")
         .counterparty(StandardId.of("mn", "Dealer G"))
         .settlementDate(LocalDate.of(2013, 12, 18))
         .build();
@@ -143,7 +142,7 @@ public class GenericSecurityPricingExample {
   // create an options trade where the security is looked up in reference data
   private static Trade createOptionTrade1() {
     TradeInfo tradeInfo = TradeInfo.builder()
-        .addAttribute(TradeAttributeType.DESCRIPTION, "20 x Call on Euro-Bund Mar14")
+        .addAttribute(AttributeType.DESCRIPTION, "20 x Call on Euro-Bund Mar14")
         .counterparty(StandardId.of("mn", "Dealer G"))
         .settlementDate(LocalDate.of(2013, 1, 15))
         .build();
@@ -153,7 +152,7 @@ public class GenericSecurityPricingExample {
   // create an options trade that embeds details of the security
   private static Trade createOptionTrade2() {
     TradeInfo tradeInfo = TradeInfo.builder()
-        .addAttribute(TradeAttributeType.DESCRIPTION, "15 x Call on Euro-Bund Mar14")
+        .addAttribute(AttributeType.DESCRIPTION, "15 x Call on Euro-Bund Mar14")
         .counterparty(StandardId.of("mn", "Dealer G"))
         .settlementDate(LocalDate.of(2013, 1, 15))
         .build();

@@ -7,6 +7,7 @@ package com.opengamma.strata.product.etd;
 
 import java.io.Serializable;
 import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -25,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.product.SecurityAttributeType;
+import com.opengamma.strata.product.AttributeType;
+import com.opengamma.strata.product.Attributes;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.PutCall;
@@ -40,7 +41,7 @@ import com.opengamma.strata.product.common.PutCall;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class EtdContractSpec
-    implements ImmutableBean, Serializable {
+    implements Attributes, ImmutableBean, Serializable {
 
   /**
    * The ID of this contract specification.
@@ -78,11 +79,11 @@ public final class EtdContractSpec
   /**
    * The attributes.
    * <p>
-   * Security attributes, provide the ability to associate arbitrary information
+   * Attributes provide the ability to associate arbitrary information
    * with a security contract specification in a key-value map.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<SecurityAttributeType<?>, Object> attributes;
+  private final ImmutableMap<AttributeType<?>, Object> attributes;
 
   //-------------------------------------------------------------------------
   /**
@@ -98,24 +99,6 @@ public final class EtdContractSpec
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the attribute associated with the specified type.
-   * <p>
-   * This method obtains the specified attribute.
-   * This allows an attribute about a security to be obtained if available.
-   * <p>
-   * If the attribute is not found, an exception is thrown.
-   *
-   * @param <T>  the type of the result
-   * @param type  the type to find
-   * @return the attribute value
-   * @throws IllegalArgumentException if the attribute is not found
-   */
-  public <T> T getAttribute(SecurityAttributeType<T> type) {
-    return findAttribute(type)
-        .orElseThrow(() -> new IllegalArgumentException(Messages.format("Attribute not found for type '{}'", type)));
-  }
-
-  /**
    * Finds the attribute associated with the specified type.
    * <p>
    * This method obtains the specified attribute.
@@ -127,9 +110,18 @@ public final class EtdContractSpec
    * @param type  the type to find
    * @return the attribute value
    */
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> Optional<T> findAttribute(SecurityAttributeType<T> type) {
+  public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable((T) attributes.get(type));
+  }
+
+  @Override
+  public <T> EtdContractSpec withAttribute(AttributeType<T> type, T value) {
+    // ImmutableMap.Builder would not provide Map.put semantics
+    Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
+    updatedAttributes.put(type, value);
+    return new EtdContractSpec(id, this.type, exchangeId, contractCode, description, priceInfo, updatedAttributes);
   }
 
   //-------------------------------------------------------------------------
@@ -233,7 +225,7 @@ public final class EtdContractSpec
       EtdContractCode contractCode,
       String description,
       SecurityPriceInfo priceInfo,
-      Map<SecurityAttributeType<?>, Object> attributes) {
+      Map<AttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(id, "id");
     JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(exchangeId, "exchangeId");
@@ -316,11 +308,11 @@ public final class EtdContractSpec
   /**
    * Gets the attributes.
    * <p>
-   * Security attributes, provide the ability to associate arbitrary information
+   * Attributes provide the ability to associate arbitrary information
    * with a security contract specification in a key-value map.
    * @return the value of the property, not null
    */
-  public ImmutableMap<SecurityAttributeType<?>, Object> getAttributes() {
+  public ImmutableMap<AttributeType<?>, Object> getAttributes() {
     return attributes;
   }
 
@@ -415,7 +407,7 @@ public final class EtdContractSpec
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<SecurityAttributeType<?>, Object>> attributes = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<AttributeType<?>, Object>> attributes = DirectMetaProperty.ofImmutable(
         this, "attributes", EtdContractSpec.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -525,7 +517,7 @@ public final class EtdContractSpec
      * The meta-property for the {@code attributes} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<SecurityAttributeType<?>, Object>> attributes() {
+    public MetaProperty<ImmutableMap<AttributeType<?>, Object>> attributes() {
       return attributes;
     }
 
@@ -574,7 +566,7 @@ public final class EtdContractSpec
     private EtdContractCode contractCode;
     private String description;
     private SecurityPriceInfo priceInfo;
-    private Map<SecurityAttributeType<?>, Object> attributes = ImmutableMap.of();
+    private Map<AttributeType<?>, Object> attributes = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -628,7 +620,7 @@ public final class EtdContractSpec
           this.priceInfo = (SecurityPriceInfo) newValue;
           break;
         case 405645655:  // attributes
-          this.attributes = (Map<SecurityAttributeType<?>, Object>) newValue;
+          this.attributes = (Map<AttributeType<?>, Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

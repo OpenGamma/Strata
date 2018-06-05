@@ -18,7 +18,7 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.product.SecurityAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.common.ExchangeIds;
@@ -35,9 +35,11 @@ public class EtdContractSpecTest {
 
   //-------------------------------------------------------------------------
   public void test_attributes() {
-    assertEquals(sut2().getAttribute(SecurityAttributeType.NAME), "NAME");
-    assertEquals(sut2().findAttribute(SecurityAttributeType.NAME).get(), "NAME");
-    assertThrows(IllegalArgumentException.class, () -> sut2().getAttribute(SecurityAttributeType.of("Foo")));
+    assertEquals(sut2().getAttribute(AttributeType.NAME), "NAME");
+    assertEquals(sut2().findAttribute(AttributeType.NAME).get(), "NAME");
+    assertThrows(IllegalArgumentException.class, () -> sut2().getAttribute(AttributeType.of("Foo")));
+    EtdContractSpec updated = sut2().withAttribute(AttributeType.NAME, "FOO");
+    assertEquals(updated.getAttribute(AttributeType.NAME), "FOO");
   }
 
   //-------------------------------------------------------------------------
@@ -130,7 +132,7 @@ public class EtdContractSpecTest {
         .contractCode(EtdContractCode.of("BAR"))
         .description("A test option template")
         .priceInfo(SecurityPriceInfo.of(Currency.EUR, 10))
-        .addAttribute(SecurityAttributeType.NAME, "NAME")
+        .addAttribute(AttributeType.NAME, "NAME")
         .build();
   }
 

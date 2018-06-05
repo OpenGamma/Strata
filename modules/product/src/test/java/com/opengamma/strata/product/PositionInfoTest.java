@@ -33,19 +33,19 @@ public class PositionInfoTest {
         .build();
     assertEquals(test.getId(), Optional.of(ID));
     assertEquals(test.getAttributes(), ImmutableMap.of());
-    assertThrowsIllegalArg(() -> test.getAttribute(PositionAttributeType.DESCRIPTION));
-    assertEquals(test.findAttribute(PositionAttributeType.DESCRIPTION), Optional.empty());
+    assertThrowsIllegalArg(() -> test.getAttribute(AttributeType.DESCRIPTION));
+    assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
   }
 
   public void test_builder_withAttribute() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
         .build()
-        .withAttribute(PositionAttributeType.DESCRIPTION, "A");
+        .withAttribute(AttributeType.DESCRIPTION, "A");
     assertEquals(test.getId(), Optional.of(ID));
-    assertEquals(test.getAttributes(), ImmutableMap.of(PositionAttributeType.DESCRIPTION, "A"));
-    assertEquals(test.getAttribute(PositionAttributeType.DESCRIPTION), "A");
-    assertEquals(test.findAttribute(PositionAttributeType.DESCRIPTION), Optional.of("A"));
+    assertEquals(test.getAttributes(), ImmutableMap.of(AttributeType.DESCRIPTION, "A"));
+    assertEquals(test.getAttribute(AttributeType.DESCRIPTION), "A");
+    assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.of("A"));
   }
 
   public void test_toBuilder() {
@@ -63,7 +63,7 @@ public class PositionInfoTest {
   public void coverage() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
-        .addAttribute(PositionAttributeType.DESCRIPTION, "A")
+        .addAttribute(AttributeType.DESCRIPTION, "A")
         .build();
     coverImmutableBean(test);
     PositionInfo test2 = PositionInfo.builder()
@@ -75,7 +75,7 @@ public class PositionInfoTest {
   public void test_serialization() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
-        .addAttribute(PositionAttributeType.DESCRIPTION, "A")
+        .addAttribute(AttributeType.DESCRIPTION, "A")
         .build();
     assertSerialization(test);
   }

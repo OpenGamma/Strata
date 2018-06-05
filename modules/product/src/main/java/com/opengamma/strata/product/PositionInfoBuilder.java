@@ -30,7 +30,7 @@ public final class PositionInfoBuilder {
    * Position attributes, provide the ability to associate arbitrary information
    * with a position in a key-value map.
    */
-  private final Map<PositionAttributeType<?>, Object> attributes = new HashMap<>();
+  private final Map<AttributeType<?>, Object> attributes = new HashMap<>();
 
   // creates an empty instance
   PositionInfoBuilder() {
@@ -39,7 +39,7 @@ public final class PositionInfoBuilder {
   // creates a populated instance
   PositionInfoBuilder(
       StandardId id,
-      Map<PositionAttributeType<?>, Object> attributes) {
+      Map<AttributeType<?>, Object> attributes) {
 
     this.id = id;
     this.attributes.putAll(attributes);
@@ -70,7 +70,7 @@ public final class PositionInfoBuilder {
    * @return this, for chaining
    */
   @SuppressWarnings("unchecked")
-  public <T> PositionInfoBuilder addAttribute(PositionAttributeType<T> type, T value) {
+  public <T> PositionInfoBuilder addAttribute(AttributeType<T> type, T value) {
     ArgChecker.notNull(type, "type");
     ArgChecker.notNull(value, "value");
     // ImmutableMap.Builder would not provide Map.put semantics

@@ -39,7 +39,7 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
@@ -172,7 +172,7 @@ public class SwapPricingWithCalibrationExample {
   private static Trade createVanillaFixedVsLibor3mSwap() {
     TradeInfo tradeInfo = TradeInfo.builder()
         .id(StandardId.of("example", "1"))
-        .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m")
+        .addAttribute(AttributeType.DESCRIPTION, "Fixed vs Libor 3m")
         .counterparty(StandardId.of("example", "A"))
         .settlementDate(LocalDate.of(2014, 9, 12))
         .build();
