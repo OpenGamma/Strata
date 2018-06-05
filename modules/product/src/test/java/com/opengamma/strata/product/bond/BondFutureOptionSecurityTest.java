@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.TestHelper;
 import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -74,6 +76,21 @@ public class BondFutureOptionSecurityTest {
         .price(123.50)
         .build();
     assertEquals(test.createTrade(tradeInfo, 100, 123.50, refData), expectedTrade);
+
+    PositionInfo positionInfo = PositionInfo.empty();
+    BondFutureOptionPosition expectedPosition1 = BondFutureOptionPosition.builder()
+        .info(positionInfo)
+        .product(product)
+        .longQuantity(100)
+        .build();
+    TestHelper.assertEqualsBean(test.createPosition(positionInfo, 100, refData), expectedPosition1);
+    BondFutureOptionPosition expectedPosition2 = BondFutureOptionPosition.builder()
+        .info(positionInfo)
+        .product(product)
+        .longQuantity(100)
+        .shortQuantity(50)
+        .build();
+    assertEquals(test.createPosition(positionInfo, 100, 50, refData), expectedPosition2);
   }
 
   public void test_createProduct_wrongType() {

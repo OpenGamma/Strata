@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -106,6 +107,24 @@ public class FixedCouponBondSecurityTest {
         .price(123.50)
         .build();
     assertEquals(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty()), expectedTrade);
+  }
+
+  public void test_createPosition() {
+    FixedCouponBondSecurity test = sut();
+    PositionInfo positionInfo = PositionInfo.empty();
+    FixedCouponBondPosition expectedPosition1 = FixedCouponBondPosition.builder()
+        .info(positionInfo)
+        .product(PRODUCT)
+        .longQuantity(100)
+        .build();
+    assertEquals(test.createPosition(positionInfo, 100, ReferenceData.empty()), expectedPosition1);
+    FixedCouponBondPosition expectedPosition2 = FixedCouponBondPosition.builder()
+        .info(positionInfo)
+        .product(PRODUCT)
+        .longQuantity(100)
+        .shortQuantity(50)
+        .build();
+    assertEquals(test.createPosition(positionInfo, 100, 50, ReferenceData.empty()), expectedPosition2);
   }
 
   //-------------------------------------------------------------------------

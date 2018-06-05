@@ -39,6 +39,12 @@ public class GenericSecurityTest {
     assertEquals(
         test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
         GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
+    assertEquals(
+        test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty()),
+        GenericSecurityPosition.ofNet(PositionInfo.empty(), GenericSecurity.of(INFO), 1));
+    assertEquals(
+        test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty()),
+        GenericSecurityPosition.ofLongShort(PositionInfo.empty(), GenericSecurity.of(INFO), 1, 2));
   }
 
   //-------------------------------------------------------------------------

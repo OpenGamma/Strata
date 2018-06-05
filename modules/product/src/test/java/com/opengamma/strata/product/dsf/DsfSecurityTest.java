@@ -37,6 +37,8 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.TestHelper;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -176,6 +178,21 @@ public class DsfSecurityTest {
         .price(123.50)
         .build();
     assertEquals(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty()), expectedTrade);
+
+    PositionInfo positionInfo = PositionInfo.empty();
+    DsfPosition expectedPosition1 = DsfPosition.builder()
+        .info(positionInfo)
+        .product(PRODUCT)
+        .longQuantity(100)
+        .build();
+    TestHelper.assertEqualsBean(test.createPosition(positionInfo, 100, ReferenceData.empty()), expectedPosition1);
+    DsfPosition expectedPosition2 = DsfPosition.builder()
+        .info(positionInfo)
+        .product(PRODUCT)
+        .longQuantity(100)
+        .shortQuantity(50)
+        .build();
+    assertEquals(test.createPosition(positionInfo, 100, 50, ReferenceData.empty()), expectedPosition2);
   }
 
   //-------------------------------------------------------------------------

@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -41,6 +42,12 @@ public class EtdOptionSecurityTest {
     assertEquals(
         test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
         EtdOptionTrade.of(TradeInfo.empty(), test, 1, 2));
+    assertEquals(
+        test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty()),
+        EtdOptionPosition.ofNet(PositionInfo.empty(), test, 1));
+    assertEquals(
+        test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty()),
+        EtdOptionPosition.ofLongShort(PositionInfo.empty(), test, 1, 2));
   }
 
   //-------------------------------------------------------------------------
