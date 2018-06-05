@@ -640,7 +640,7 @@
                     <dependency>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>${project.artifactId}</artifactId>
-                      <version>1.3.0</version>
+                      <version>1.7.0</version>
                     </dependency>
                   </oldVersion>
                 </configuration>
@@ -688,6 +688,7 @@
     <mockito.version>2.15.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <testng.version>6.14.2</testng.version>
+    <japicmp-maven-plugin.version>0.12.0</japicmp-maven-plugin.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <checkstyle.version>8.8</checkstyle.version>
     <build-config.version>2.2.0</build-config.version>
