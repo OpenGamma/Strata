@@ -55,7 +55,7 @@ import com.opengamma.strata.market.param.PointShiftsBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -257,7 +257,7 @@ public class HistoricalScenarioExample {
         .product(Swap.of(payLeg, receiveLeg))
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "Libor 3m vs Libor 6m")
+            .addAttribute(AttributeType.DESCRIPTION, "Libor 3m vs Libor 6m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2015, 9, 11))
             .build())

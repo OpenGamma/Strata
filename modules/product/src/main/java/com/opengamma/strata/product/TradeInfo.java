@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class TradeInfo
-    implements ImmutableBean, Serializable {
+    implements Attributes, ImmutableBean, Serializable {
 
   /**
    * An empty instance of {@code TradeInfo}.
@@ -88,11 +88,10 @@ public final class TradeInfo
   /**
    * The trade attributes.
    * <p>
-   * Trade attributes, provide the ability to associate arbitrary information
-   * with a trade in a key-value map.
+   * Trade attributes provide the ability to associate arbitrary information in a key-value map.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<TradeAttributeType<?>, Object> attributes;
+  private final ImmutableMap<AttributeType<?>, Object> attributes;
 
   //-------------------------------------------------------------------------
   /**
@@ -137,7 +136,8 @@ public final class TradeInfo
    * @return the attribute value
    * @throws IllegalArgumentException if the attribute is not found
    */
-  public <T> T getAttribute(TradeAttributeType<T> type) {
+  @Override
+  public <T> T getAttribute(AttributeType<T> type) {
     return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
         Messages.format("Attribute not found for type '{}'", type)));
   }
@@ -154,8 +154,9 @@ public final class TradeInfo
    * @param type  the type to find
    * @return the attribute value
    */
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> Optional<T> findAttribute(TradeAttributeType<T> type) {
+  public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable((T) attributes.get(type));
   }
 
@@ -170,10 +171,11 @@ public final class TradeInfo
    * @param value  the value
    * @return a new instance based on this one with the attribute added
    */
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> TradeInfo withAttribute(TradeAttributeType<T> type, T value) {
+  public <T> TradeInfo withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
-    Map<TradeAttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
+    Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
     updatedAttributes.put(type, value);
     return new TradeInfo(id, counterparty, tradeDate, tradeTime, zone, settlementDate, updatedAttributes);
   }
@@ -222,7 +224,7 @@ public final class TradeInfo
       LocalTime tradeTime,
       ZoneId zone,
       LocalDate settlementDate,
-      Map<TradeAttributeType<?>, Object> attributes) {
+      Map<AttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");
     this.id = id;
     this.counterparty = counterparty;
@@ -305,11 +307,10 @@ public final class TradeInfo
   /**
    * Gets the trade attributes.
    * <p>
-   * Trade attributes, provide the ability to associate arbitrary information
-   * with a trade in a key-value map.
+   * Trade attributes provide the ability to associate arbitrary information in a key-value map.
    * @return the value of the property, not null
    */
-  public ImmutableMap<TradeAttributeType<?>, Object> getAttributes() {
+  public ImmutableMap<AttributeType<?>, Object> getAttributes() {
     return attributes;
   }
 
@@ -404,7 +405,7 @@ public final class TradeInfo
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<TradeAttributeType<?>, Object>> attributes = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<AttributeType<?>, Object>> attributes = DirectMetaProperty.ofImmutable(
         this, "attributes", TradeInfo.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -514,7 +515,7 @@ public final class TradeInfo
      * The meta-property for the {@code attributes} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<TradeAttributeType<?>, Object>> attributes() {
+    public MetaProperty<ImmutableMap<AttributeType<?>, Object>> attributes() {
       return attributes;
     }
 
@@ -563,7 +564,7 @@ public final class TradeInfo
     private LocalTime tradeTime;
     private ZoneId zone;
     private LocalDate settlementDate;
-    private Map<TradeAttributeType<?>, Object> attributes = ImmutableMap.of();
+    private Map<AttributeType<?>, Object> attributes = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -617,7 +618,7 @@ public final class TradeInfo
           this.settlementDate = (LocalDate) newValue;
           break;
         case 405645655:  // attributes
-          this.attributes = (Map<TradeAttributeType<?>, Object>) newValue;
+          this.attributes = (Map<AttributeType<?>, Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

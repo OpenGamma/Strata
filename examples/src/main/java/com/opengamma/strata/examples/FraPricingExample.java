@@ -25,7 +25,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.Fra;
@@ -107,7 +107,7 @@ public class FraPricingExample {
         .product(fra)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "0x3 FRA")
+            .addAttribute(AttributeType.DESCRIPTION, "0x3 FRA")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())

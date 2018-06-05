@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.joda.beans.JodaBeanUtils;
 
-import com.opengamma.strata.product.SecurityAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.common.ExchangeId;
 
@@ -43,7 +43,7 @@ public final class EtdContractSpecBuilder {
    * Security attributes, provide the ability to associate arbitrary information
    * with a security template in a key-value map.
    */
-  private final Map<SecurityAttributeType<?>, Object> attributes = new HashMap<>();
+  private final Map<AttributeType<?>, Object> attributes = new HashMap<>();
 
   /**
    * Creates an empty builder.
@@ -146,7 +146,7 @@ public final class EtdContractSpecBuilder {
    * @param <T> the type of the attribute
    * @return this builder
    */
-  public <T> EtdContractSpecBuilder addAttribute(SecurityAttributeType<T> attributeType, T attributeValue) {
+  public <T> EtdContractSpecBuilder addAttribute(AttributeType<T> attributeType, T attributeValue) {
     JodaBeanUtils.notNull(attributeType, "attributeType");
     JodaBeanUtils.notNull(attributeValue, "attributeValue");
     attributes.put(attributeType, attributeValue);

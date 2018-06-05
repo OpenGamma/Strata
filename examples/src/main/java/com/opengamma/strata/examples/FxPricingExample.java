@@ -29,7 +29,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -106,7 +106,7 @@ public class FxPricingExample {
         .product(fx)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 fwd")
+            .addAttribute(AttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 fwd")
             .counterparty(StandardId.of("example", "BigBankA"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -120,7 +120,7 @@ public class FxPricingExample {
         .product(fx)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "USD 15,000/GBP @ 1.62 fwd")
+            .addAttribute(AttributeType.DESCRIPTION, "USD 15,000/GBP @ 1.62 fwd")
             .counterparty(StandardId.of("example", "BigBankB"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -135,7 +135,7 @@ public class FxPricingExample {
         .product(swap)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 swap")
+            .addAttribute(AttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 swap")
             .counterparty(StandardId.of("example", "BigBankA"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -153,7 +153,7 @@ public class FxPricingExample {
         .product(bp)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "4"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "Bullet payment GBP 20,000")
+            .addAttribute(AttributeType.DESCRIPTION, "Bullet payment GBP 20,000")
             .counterparty(StandardId.of("example", "BigBankC"))
             .settlementDate(LocalDate.of(2014, 9, 16))
             .build())

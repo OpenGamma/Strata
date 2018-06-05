@@ -10,28 +10,33 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link SecurityAttributeType}.
+ * Test {@link AttributeType}.
  */
 @Test
-public class SecurityAttributeTypeTest {
+public class AttributeTypeTest {
 
   //-------------------------------------------------------------------------
-  public void test_constants() {
-    SecurityAttributeType<String> test = SecurityAttributeType.NAME;
+  public void test_constant_description() {
+    AttributeType<String> test = AttributeType.DESCRIPTION;
+    assertEquals(test.toString(), "description");
+  }
+
+  public void test_constant_name() {
+    AttributeType<String> test = AttributeType.NAME;
     assertEquals(test.toString(), "name");
   }
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SecurityAttributeType<String> test = SecurityAttributeType.of("test");
+    AttributeType<String> test = AttributeType.of("test");
     assertEquals(test.toString(), "test");
   }
 
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
-    SecurityAttributeType<String> a = SecurityAttributeType.of("test");
-    SecurityAttributeType<String> a2 = SecurityAttributeType.of("test");
-    SecurityAttributeType<String> b = SecurityAttributeType.of("test2");
+    AttributeType<String> a = AttributeType.of("test");
+    AttributeType<String> a2 = AttributeType.of("test");
+    AttributeType<String> b = AttributeType.of("test2");
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);

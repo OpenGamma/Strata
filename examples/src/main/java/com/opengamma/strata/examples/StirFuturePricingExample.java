@@ -25,7 +25,7 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
@@ -98,7 +98,7 @@ public class StirFuturePricingExample {
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "Mar15 IMM Ibor Future")
+            .addAttribute(AttributeType.DESCRIPTION, "Mar15 IMM Ibor Future")
             .counterparty(StandardId.of("example", "A"))
             .tradeDate(LocalDate.of(2014, 9, 12))
             .settlementDate(LocalDate.of(2014, 9, 14))
@@ -116,7 +116,7 @@ public class StirFuturePricingExample {
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "Jun15 IMM Ibor Future")
+            .addAttribute(AttributeType.DESCRIPTION, "Jun15 IMM Ibor Future")
             .counterparty(StandardId.of("example", "A"))
             .tradeDate(LocalDate.of(2014, 9, 12))
             .settlementDate(LocalDate.of(2014, 9, 14))

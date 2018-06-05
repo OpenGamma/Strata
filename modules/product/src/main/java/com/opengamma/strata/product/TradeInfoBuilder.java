@@ -55,7 +55,7 @@ public final class TradeInfoBuilder {
    * Trade attributes, provide the ability to associate arbitrary information
    * with a trade in a key-value map.
    */
-  private final Map<TradeAttributeType<?>, Object> attributes = new HashMap<>();
+  private final Map<AttributeType<?>, Object> attributes = new HashMap<>();
 
   // creates an empty instance
   TradeInfoBuilder() {
@@ -69,7 +69,7 @@ public final class TradeInfoBuilder {
       LocalTime tradeTime,
       ZoneId zone,
       LocalDate settlementDate,
-      Map<TradeAttributeType<?>, Object> attributes) {
+      Map<AttributeType<?>, Object> attributes) {
 
     this.id = id;
     this.counterparty = counterparty;
@@ -162,7 +162,7 @@ public final class TradeInfoBuilder {
    * @return this, for chaining
    */
   @SuppressWarnings("unchecked")
-  public <T> TradeInfoBuilder addAttribute(TradeAttributeType<T> type, T value) {
+  public <T> TradeInfoBuilder addAttribute(AttributeType<T> type, T value) {
     ArgChecker.notNull(type, "type");
     ArgChecker.notNull(value, "value");
     // ImmutableMap.Builder would not provide Map.put semantics

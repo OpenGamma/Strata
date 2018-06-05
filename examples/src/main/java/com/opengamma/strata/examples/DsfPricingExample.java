@@ -25,7 +25,7 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.dsf.Dsf;
@@ -108,7 +108,7 @@ public class DsfPricingExample {
     return DsfTrade.builder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "CME-5Y-DSF Mar15")
+            .addAttribute(AttributeType.DESCRIPTION, "CME-5Y-DSF Mar15")
             .counterparty(StandardId.of("mn", "Dealer G"))
             .tradeDate(LocalDate.of(2015, 3, 18))
             .settlementDate(LocalDate.of(2015, 3, 18))
@@ -135,7 +135,7 @@ public class DsfPricingExample {
     return DsfTrade.builder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "CME-5Y-DSF Jun15")
+            .addAttribute(AttributeType.DESCRIPTION, "CME-5Y-DSF Jun15")
             .counterparty(StandardId.of("mn", "Dealer G"))
             .tradeDate(LocalDate.of(2015, 6, 17))
             .settlementDate(LocalDate.of(2015, 6, 17))

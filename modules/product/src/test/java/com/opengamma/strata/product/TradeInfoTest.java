@@ -42,24 +42,24 @@ public class TradeInfoTest {
     assertEquals(test.getZone(), Optional.empty());
     assertEquals(test.getSettlementDate(), Optional.empty());
     assertEquals(test.getAttributes(), ImmutableMap.of());
-    assertThrowsIllegalArg(() -> test.getAttribute(TradeAttributeType.DESCRIPTION));
-    assertEquals(test.findAttribute(TradeAttributeType.DESCRIPTION), Optional.empty());
+    assertThrowsIllegalArg(() -> test.getAttribute(AttributeType.DESCRIPTION));
+    assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
   }
 
   public void test_builder_withAttribute() {
     TradeInfo test = TradeInfo.builder()
         .counterparty(COUNTERPARTY)
         .build()
-        .withAttribute(TradeAttributeType.DESCRIPTION, "A");
+        .withAttribute(AttributeType.DESCRIPTION, "A");
     assertEquals(test.getId(), Optional.empty());
     assertEquals(test.getCounterparty(), Optional.of(COUNTERPARTY));
     assertEquals(test.getTradeDate(), Optional.empty());
     assertEquals(test.getTradeTime(), Optional.empty());
     assertEquals(test.getZone(), Optional.empty());
     assertEquals(test.getSettlementDate(), Optional.empty());
-    assertEquals(test.getAttributes(), ImmutableMap.of(TradeAttributeType.DESCRIPTION, "A"));
-    assertEquals(test.getAttribute(TradeAttributeType.DESCRIPTION), "A");
-    assertEquals(test.findAttribute(TradeAttributeType.DESCRIPTION), Optional.of("A"));
+    assertEquals(test.getAttributes(), ImmutableMap.of(AttributeType.DESCRIPTION, "A"));
+    assertEquals(test.getAttribute(AttributeType.DESCRIPTION), "A");
+    assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.of("A"));
   }
 
   public void test_toBuilder() {
@@ -76,7 +76,7 @@ public class TradeInfoTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     TradeInfo test = TradeInfo.builder()
-        .addAttribute(TradeAttributeType.DESCRIPTION, "A")
+        .addAttribute(AttributeType.DESCRIPTION, "A")
         .counterparty(COUNTERPARTY)
         .tradeDate(date(2014, 6, 20))
         .tradeTime(LocalTime.MIDNIGHT)

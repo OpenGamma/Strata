@@ -29,7 +29,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.TradeAttributeType;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -113,7 +113,7 @@ public class TermDepositPricingExample {
         .product(td)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "Deposit 10M at 3%")
+            .addAttribute(AttributeType.DESCRIPTION, "Deposit 10M at 3%")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 12, 16))
             .build())
@@ -137,7 +137,7 @@ public class TermDepositPricingExample {
         .product(td)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .addAttribute(TradeAttributeType.DESCRIPTION, "Deposit 5M at 3.8%")
+            .addAttribute(AttributeType.DESCRIPTION, "Deposit 5M at 3.8%")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2015, 12, 16))
             .build())
