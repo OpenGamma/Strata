@@ -13,6 +13,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.TradedPrice;
 
 /**
  * Test {@link ResolvedBondFutureOptionTrade}.
@@ -25,7 +26,8 @@ public class ResolvedBondFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_getters() {
     ResolvedBondFutureOptionTrade test = sut();
-    assertEquals(test.getTradeDate(), test.getInfo().getTradeDate().get());
+    BondFutureOptionTrade base = BondFutureOptionTradeTest.sut();
+    assertEquals(test.getTradedPrice().get(), TradedPrice.of(base.getInfo().getTradeDate().get(), base.getPrice()));
   }
 
   //-------------------------------------------------------------------------

@@ -51,6 +51,7 @@ import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
@@ -190,7 +191,7 @@ public class BondFuturesJpyEnd2EndTest {
       .product(FUTURE_PRODUCT_JUN)
       .info(TRADE_INFO)
       .quantity(QUANTITY)
-      .price(123)
+      .tradedPrice(TradedPrice.of(TRADE_INFO.getTradeDate().get(), 123))
       .build();
   private static final double REF_PRICE_JUN = 151.73;
   // Futures in March 2016

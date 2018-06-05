@@ -21,6 +21,7 @@ import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 
 /**
  * Test {@link BondFutureTrade}.
@@ -73,7 +74,7 @@ public class BondFutureTradeTest {
         .info(TRADE_INFO)
         .product(FUTURE.resolve(REF_DATA))
         .quantity(QUANTITY)
-        .price(PRICE)
+        .tradedPrice(TradedPrice.of(TRADE_INFO.getTradeDate().get(), PRICE))
         .build();
     assertEquals(sut().resolve(REF_DATA), expected);
   }
