@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
@@ -83,14 +82,7 @@ public interface RatesProvider
    *
    * @return the set of indices with time-series
    */
-  public default Set<Index> getTimeSeriesIndices() {
-    // imperfect implementation for compatibility
-    return ImmutableSet.<Index>builder()
-        .addAll(getIborIndices())
-        .addAll(getOvernightIndices())
-        .addAll(getPriceIndices())
-        .build();
-  }
+  public abstract Set<Index> getTimeSeriesIndices();
 
   //-------------------------------------------------------------------------
   /**
