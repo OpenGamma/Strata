@@ -58,7 +58,7 @@ public interface SecuritizedProductTrade
   }
 
   /**
-   * Gets the currency of the trade.
+   * Gets the currency of the position.
    * <p>
    * This is typically the same as the currency of the product.
    * 

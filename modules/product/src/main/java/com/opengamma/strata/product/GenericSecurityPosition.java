@@ -42,7 +42,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityPosition
-    implements Position, ImmutableBean, Serializable {
+    implements SecuritizedProductPosition, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.
@@ -143,40 +143,21 @@ public final class GenericSecurityPosition
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the security identifier.
-   * <p>
-   * This identifier uniquely identifies the security within the system.
-   *
-   * @return the security identifier
-   */
   @Override
   public SecurityId getSecurityId() {
     return security.getSecurityId();
   }
 
-  /**
-   * Gets the currency of the trade.
-   * <p>
-   * This is the currency of the security.
-   *
-   * @return the trading currency
-   */
+  @Override
+  public GenericSecurity getProduct() {
+    return security;
+  }
+
+  @Override
   public Currency getCurrency() {
     return security.getCurrency();
   }
 
-  /**
-   * Gets the net quantity of the security.
-   * <p>
-   * This returns the <i>net</i> quantity of the underlying security.
-   * The result is positive if the net position is <i>long</i> and negative
-   * if the net position is <i>short</i>.
-   * <p>
-   * This is calculated by subtracting the short quantity from the long quantity.
-   *
-   * @return the net quantity of the underlying security
-   */
   @Override
   @DerivedProperty
   public double getQuantity() {
@@ -197,7 +178,7 @@ public final class GenericSecurityPosition
   //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
-    // AAPL x 200
+    // ID x 200
     String description = getSecurityId().getStandardId().getValue() + " x " + SummarizerUtils.value(getQuantity());
     return SummarizerUtils.summary(this, ProductType.SECURITY, description, getCurrency());
   }
