@@ -250,13 +250,13 @@ public final class CurveGammaCalculator {
       Curve curve = getCurve(entry.getValue());
       CurveName curveName = curve.getName();
       if (baseDelta.findSensitivity(curveName, currency).isPresent()) {
-          CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
+        CrossGammaParameterSensitivity gammaSingle = computeGammaForCurve(
             curveName,
             curve,
             currency,
             c -> replaceRepoCurve(immProv, rgCcy, DiscountFactors.of(currency, valuationDate, c)),
             sensitivitiesFn);
-          result = result.combinedWith(gammaSingle);
+        result = result.combinedWith(gammaSingle);
       } else {
         ImmutableList<Curve> curves = curve.split();
         int nCurves = curves.size();
