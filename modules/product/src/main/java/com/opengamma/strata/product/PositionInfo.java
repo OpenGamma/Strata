@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.Messages;
 
@@ -36,7 +37,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class PositionInfo
-    implements Attributes, ImmutableBean, Serializable {
+    implements PortfolioItemInfo, ImmutableBean, Serializable {
 
   /**
    * An empty instance of {@code PositionInfo}.
@@ -53,7 +54,7 @@ public final class PositionInfo
    * Certain uses of the identifier, such as storage in a database, require that the
    * identifier does not change over time, and this should be considered best practice.
    */
-  @PropertyDefinition(get = "optional")
+  @PropertyDefinition(get = "optional", overrideGet = true)
   private final StandardId id;
   /**
    * The position attributes.
@@ -93,54 +94,23 @@ public final class PositionInfo
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the attribute associated with the specified type.
-   * <p>
-   * This method obtains the specified attribute.
-   * This allows an attribute about a position to be obtained if available.
-   * <p>
-   * If the attribute is not found, an exception is thrown.
-   * 
-   * @param <T>  the type of the result
-   * @param type  the type to find
-   * @return the attribute value
-   * @throws IllegalArgumentException if the attribute is not found
-   */
+  @Override
+  public ImmutableSet<AttributeType<?>> getAttributeTypes() {
+    return attributes.keySet();
+  }
+
   @Override
   public <T> T getAttribute(AttributeType<T> type) {
     return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
         Messages.format("Attribute not found for type '{}'", type)));
   }
 
-  /**
-   * Finds the attribute associated with the specified type.
-   * <p>
-   * This method obtains the specified attribute.
-   * This allows an attribute about a position to be obtained if available.
-   * <p>
-   * If the attribute is not found, optional empty is returned.
-   * 
-   * @param <T>  the type of the result
-   * @param type  the type to find
-   * @return the attribute value
-   */
   @Override
   @SuppressWarnings("unchecked")
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable((T) attributes.get(type));
   }
 
-  /**
-   * Returns a copy of this instance with attribute added.
-   * <p>
-   * This returns a new instance with the specified attribute added.
-   * The attribute is added using {@code Map.put(type, value)} semantics.
-   * 
-   * @param <T> the type of the value
-   * @param type  the type providing meaning to the value
-   * @param value  the value
-   * @return a new instance based on this one with the attribute added
-   */
   @Override
   @SuppressWarnings("unchecked")
   public <T> PositionInfo withAttribute(AttributeType<T> type, T value) {
@@ -207,6 +177,7 @@ public final class PositionInfo
    * identifier does not change over time, and this should be considered best practice.
    * @return the optional value of the property, not null
    */
+  @Override
   public Optional<StandardId> getId() {
     return Optional.ofNullable(id);
   }

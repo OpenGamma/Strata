@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 
 /**
@@ -41,6 +42,7 @@ public class TradeInfoTest {
     assertEquals(test.getTradeTime(), Optional.empty());
     assertEquals(test.getZone(), Optional.empty());
     assertEquals(test.getSettlementDate(), Optional.empty());
+    assertEquals(test.getAttributeTypes(), ImmutableSet.of());
     assertEquals(test.getAttributes(), ImmutableMap.of());
     assertThrowsIllegalArg(() -> test.getAttribute(AttributeType.DESCRIPTION));
     assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
@@ -57,6 +59,7 @@ public class TradeInfoTest {
     assertEquals(test.getTradeTime(), Optional.empty());
     assertEquals(test.getZone(), Optional.empty());
     assertEquals(test.getSettlementDate(), Optional.empty());
+    assertEquals(test.getAttributeTypes(), ImmutableSet.of(AttributeType.DESCRIPTION));
     assertEquals(test.getAttributes(), ImmutableMap.of(AttributeType.DESCRIPTION, "A"));
     assertEquals(test.getAttribute(AttributeType.DESCRIPTION), "A");
     assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.of("A"));

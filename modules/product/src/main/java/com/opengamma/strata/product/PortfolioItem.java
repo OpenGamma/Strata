@@ -7,6 +7,7 @@ package com.opengamma.strata.product;
 
 import java.util.Optional;
 
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.StandardId;
 
 /**
@@ -17,7 +18,14 @@ import com.opengamma.strata.basics.StandardId;
  * <p>
  * Implementations of this interface must be immutable beans.
  */
-public interface PortfolioItem {
+public interface PortfolioItem extends CalculationTarget {
+
+  /**
+   * Gets the additional information about the portfolio item.
+   * 
+   * @return the additional information
+   */
+  public abstract PortfolioItemInfo getInfo();
 
   /**
    * Gets the primary identifier for the portfolio item, optional.
@@ -31,7 +39,9 @@ public interface PortfolioItem {
    * 
    * @return the identifier, optional
    */
-  public abstract Optional<StandardId> getId();
+  public default Optional<StandardId> getId() {
+    return getInfo().getId();
+  }
 
   /**
    * Summarizes the portfolio item.

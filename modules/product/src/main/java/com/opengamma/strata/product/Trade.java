@@ -5,10 +5,6 @@
  */
 package com.opengamma.strata.product;
 
-import java.util.Optional;
-
-import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.product.common.SummarizerUtils;
 
 /**
@@ -23,12 +19,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  * Implementations of this interface must be immutable beans.
  */
 public interface Trade
-    extends PortfolioItem, CalculationTarget {
-
-  @Override
-  public default Optional<StandardId> getId() {
-    return getInfo().getId();
-  }
+    extends PortfolioItem {
 
   @Override
   public default PortfolioItemSummary summarize() {
@@ -42,6 +33,7 @@ public interface Trade
    * 
    * @return the trade information
    */
+  @Override
   public abstract TradeInfo getInfo();
 
   //-------------------------------------------------------------------------
