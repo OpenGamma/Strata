@@ -32,7 +32,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
-import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -202,7 +201,7 @@ public final class EtdOptionSecurity
   }
 
   @Override
-  public Trade createTrade(TradeInfo tradeInfo, double quantity, double tradePrice, ReferenceData refData) {
+  public EtdOptionTrade createTrade(TradeInfo tradeInfo, double quantity, double tradePrice, ReferenceData refData) {
     return EtdOptionTrade.builder()
         .info(tradeInfo)
         .quantity(quantity)

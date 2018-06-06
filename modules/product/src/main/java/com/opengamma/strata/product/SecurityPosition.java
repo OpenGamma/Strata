@@ -41,7 +41,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(constructorScope = "package")
 public final class SecurityPosition
-    implements Position, SecurityQuantity, ImmutableBean, Serializable {
+    implements Position, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.

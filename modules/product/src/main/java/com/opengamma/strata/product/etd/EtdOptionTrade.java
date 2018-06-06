@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
+import com.opengamma.strata.product.ResolvableSecurityTrade;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.SummarizerUtils;
 
@@ -37,7 +37,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class EtdOptionTrade
-    implements SecurityQuantityTrade, ImmutableBean, Serializable {
+    implements ResolvableSecurityTrade, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
