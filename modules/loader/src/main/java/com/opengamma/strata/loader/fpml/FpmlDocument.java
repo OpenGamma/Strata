@@ -289,19 +289,6 @@ public final class FpmlDocument {
   }
 
   /**
-   * Gets our party href/id reference.
-   * <p>
-   * This is used to identify the direction of the trade.
-   * 
-   * @return our party, empty if not known
-   * @deprecated Use {@link #getOurPartyHrefIds()}
-   */
-  @Deprecated
-  public String getOurPartyHrefId() {
-    return ourPartyHrefIds.isEmpty() ? "" : ourPartyHrefIds.get(0);
-  }
-
-  /**
    * Gets the party href/id references representing "our" party.
    * <p>
    * In a typical trade there are two parties, where one pays and the other receives.

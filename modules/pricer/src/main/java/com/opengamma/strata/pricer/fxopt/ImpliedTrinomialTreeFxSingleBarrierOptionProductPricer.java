@@ -209,55 +209,6 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * @param ratesProvider  the rates provider
    * @param volatilities  the Black volatility provider
    * @return the present value of the product
-   * @deprecated Use presentValueSensitivityRates
-   */
-  @Deprecated
-  public CurrencyParameterSensitivities presentValueRatesSensitivity(
-      ResolvedFxSingleBarrierOption option,
-      RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
-
-    return presentValueSensitivityRates(option, ratesProvider, volatilities);
-  }
-
-  /**
-   * Calculates the present value sensitivity of the FX barrier option product.
-   * <p>
-   * The present value sensitivity of the product is the sensitivity of {@link #presentValue} to
-   * the underlying curve parameters.
-   * <p>
-   * The sensitivity is computed by bump and re-price.
-   * 
-   * @param option  the option product
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the Black volatility provider
-   * @param baseTreeData  the trinomial tree data
-   * @return the present value of the product
-   * @deprecated Use presentValueSensitivityRates
-   */
-  @Deprecated
-  public CurrencyParameterSensitivities presentValueRatesSensitivity(
-      ResolvedFxSingleBarrierOption option,
-      RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities,
-      RecombiningTrinomialTreeData baseTreeData) {
-
-    return presentValueSensitivityRates(option, ratesProvider, volatilities, baseTreeData);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the present value sensitivity of the FX barrier option product.
-   * <p>
-   * The present value sensitivity of the product is the sensitivity of {@link #presentValue} to
-   * the underlying curve parameters.
-   * <p>
-   * The sensitivity is computed by bump and re-price.
-   * 
-   * @param option  the option product
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the Black volatility provider
-   * @return the present value of the product
    */
   public CurrencyParameterSensitivities presentValueSensitivityRates(
       ResolvedFxSingleBarrierOption option,

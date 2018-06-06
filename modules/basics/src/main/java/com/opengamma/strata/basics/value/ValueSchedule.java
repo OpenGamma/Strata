@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.schedule.RollConvention;
-import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.Messages;
@@ -141,20 +140,6 @@ public final class ValueSchedule
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Resolves the value and adjustments against a specific schedule.
-   * <p>
-   * This converts a schedule into a list of values, one for each schedule period.
-   * 
-   * @param periods  the list of schedule periods
-   * @return the values, one for each schedule period
-   * @deprecated Use {@link #resolveValues(Schedule)}
-   */
-  @Deprecated
-  public List<Double> resolveValues(List<SchedulePeriod> periods) {
-    return resolveValues(periods, RollConventions.NONE).toList();
-  }
-
   /**
    * Resolves the value and adjustments against a specific schedule.
    * <p>

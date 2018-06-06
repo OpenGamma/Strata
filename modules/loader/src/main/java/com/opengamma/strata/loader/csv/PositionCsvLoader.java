@@ -94,7 +94,7 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <p>
  * The exchange and contract code are combined to form an {@link EtdContractSpecId} which is
  * resolved in {@link ReferenceData} to find additional details about the ETD.
- * This process can be changed by providing an alternative {@link CsvInfoResolver}.
+ * This process can be changed by providing an alternative {@link PositionCsvInfoResolver}.
  * <p>
  * The quantity will normally be set from the 'Quantity' column.
  * If that column is not found, the 'Long Quantity' and 'Short Quantity' columns will be used instead.
@@ -124,7 +124,7 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <p>
  * The exchange and contract code are combined to form an {@link EtdContractSpecId} which is
  * resolved in {@link ReferenceData} to find additional details about the ETD.
- * This process can be changed by providing an alternative {@link CsvInfoResolver}.
+ * This process can be changed by providing an alternative {@link PositionCsvInfoResolver}.
  * <p>
  * The quantity will normally be set from the 'Quantity' column.
  * If that column is not found, the 'Long Quantity' and 'Short Quantity' columns will be used instead.

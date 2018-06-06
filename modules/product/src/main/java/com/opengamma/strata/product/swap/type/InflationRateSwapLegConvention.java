@@ -113,27 +113,6 @@ public final class InflationRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a convention based on the specified index, defaulting the PriceIndexCalculationMethod to MONTHLY.
-   * <p>
-   * The standard market convention for an Inflation rate leg is based on the index.
-   * Use the {@linkplain #builder() builder} for unusual conventions.
-   *
-   * @param index  the index, the market convention values are extracted from the index
-   * @param lag  the lag between the price index and the accrual date, typically a number of months
-   * @param businessDayAdjustment  the business day
-   * @return the convention
-   * @deprecated Use of() method which takes {@link PriceIndexCalculationMethod} parameter
-   */
-  @Deprecated
-  public static InflationRateSwapLegConvention of(
-      PriceIndex index,
-      Period lag,
-      BusinessDayAdjustment businessDayAdjustment) {
-
-    return of(index, lag, PriceIndexCalculationMethod.MONTHLY, businessDayAdjustment);
-  }
-
-  /**
    * Obtains a convention based on the specified index.
    * <p>
    * The standard market convention for an Inflation rate leg is based on the index.

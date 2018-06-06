@@ -18,36 +18,6 @@ import com.opengamma.strata.math.impl.FunctionUtils;
 public class BasisFunctionGenerator {
 
   /**
-   * Generates a set of b-splines with knots a fixed distance apart.
-   * @param xa minimum value of the function domain
-   * @param xb maximum value of the function domain
-   * @param nKnots number of internal knots (minimum of degree + 1)
-   * @param degree The order of the polynomial splines
-   * @return a List of functions
-   * @deprecated Use generateSet(BasisFunctionKnots knots)
-   */
-  @Deprecated
-  public List<Function<Double, Double>> generateSet(final double xa, final double xb, final int nKnots, final int degree) {
-    // args are checked in the constructor below
-    BasisFunctionKnots k = BasisFunctionKnots.fromUniform(xa, xb, nKnots, degree);
-    return generateSet(k);
-  }
-
-  /**
-   * Generates a set of b-splines a given polynomial degree on the specified knots.
-   * @param internalKnots the internal knots. The start of the range is the first knot and the end is the last.
-   * @param degree the polynomial degree of the basis functions (this will determine how many external knots are required)
-   * @return a List of functions
-   * @deprecated Use generateSet(BasisFunctionKnots knots)
-   */
-  @Deprecated
-  public List<Function<Double, Double>> generateSet(final double[] internalKnots, final int degree) {
-    // args are checked in the constructor below
-    BasisFunctionKnots k = BasisFunctionKnots.fromInternalKnots(internalKnots, degree);
-    return generateSet(k);
-  }
-
-  /**
    * Generate a set of b-splines with a given polynomial degree on the specified knots.
    * @param knots holder for the knots and degree
    * @return a List of functions
@@ -87,29 +57,6 @@ public class BasisFunctionGenerator {
       functions.add(generateMultiDim(oneDSets, indices));
     }
     return functions;
-  }
-
-  /**
-   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree.
-   * @param xa minimum value of the function domain in each dimension
-   * @param xb maximum value of the function domain in each dimension
-   * @param nKnots number of internal knots (minimum of degree + 1) in each dimension
-   * @param degree The order of the polynomial splines in each dimension
-   * @return a List of functions
-   * @deprecated use generateSet(BasisFunctionKnots[] knots)
-   */
-  @Deprecated
-  public List<Function<double[], Double>> generateSet(final double[] xa, final double[] xb, final int[] nKnots, final int[] degree) {
-
-    final int dim = xa.length;
-    ArgChecker.isTrue(dim == xb.length, "xb wrong dimension");
-    ArgChecker.isTrue(dim == nKnots.length, "nKnots wrong dimension");
-    ArgChecker.isTrue(dim == degree.length, "degree wrong dimension");
-    BasisFunctionKnots[] knots = new BasisFunctionKnots[dim];
-    for (int i = 0; i < dim; i++) {
-      knots[i] = BasisFunctionKnots.fromUniform(xa[i], xb[i], nKnots[i], degree[i]);
-    }
-    return generateSet(knots);
   }
 
   /**

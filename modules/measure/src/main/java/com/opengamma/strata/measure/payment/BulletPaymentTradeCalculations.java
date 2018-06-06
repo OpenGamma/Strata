@@ -7,7 +7,6 @@ package com.opengamma.strata.measure.payment;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -15,7 +14,6 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.payment.DiscountingBulletPaymentTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
@@ -43,19 +41,6 @@ public class BulletPaymentTradeCalculations {
    * Pricer for {@link ResolvedBulletPaymentTrade}.
    */
   private final BulletPaymentMeasureCalculations calc;
-
-  /**
-   * Creates an instance.
-   * <p>
-   * In most cases, applications should use the {@link #DEFAULT} instance.
-   * 
-   * @param paymentPricer  the pricer for {@link Payment}
-   * @deprecated use constructor taking {@link DiscountingBulletPaymentTradePricer}
-   */
-  @Deprecated
-  public BulletPaymentTradeCalculations(DiscountingPaymentPricer paymentPricer) {
-    this(new DiscountingBulletPaymentTradePricer(paymentPricer));
-  }
 
   /**
    * Creates an instance.
