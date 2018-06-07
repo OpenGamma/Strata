@@ -14,11 +14,12 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import org.joda.beans.Bean;
+import org.joda.beans.MetaBean;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.data.FxRateId.Meta;
 
 /**
  * Test {@link FxRateId}.
@@ -78,14 +79,14 @@ public class FxRateIdTest {
   }
 
   public void coverage_builder() {
-    Meta meta = FxRateId.meta();
-    FxRateId test1 = meta.builder()
-        .set(meta.pair(), CurrencyPair.parse("EUR/GBP"))
-        .set(meta.observableSource(), OBS_SOURCE)
+    MetaBean meta = MetaBean.of(FxRateId.class);
+    Bean test1 = meta.builder()
+        .set("pair", CurrencyPair.parse("EUR/GBP"))
+        .set("observableSource", OBS_SOURCE)
         .build();
-    FxRateId test2 = meta.builder()
-        .set(meta.pair().name(), CurrencyPair.parse("EUR/GBP"))
-        .set(meta.observableSource(), OBS_SOURCE)
+    Bean test2 = meta.builder()
+        .set("pair", CurrencyPair.parse("EUR/GBP"))
+        .set("observableSource", OBS_SOURCE)
         .build();
     coverBeanEquals(test1, test2);
   }
