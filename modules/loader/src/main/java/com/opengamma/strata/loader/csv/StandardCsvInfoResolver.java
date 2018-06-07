@@ -11,8 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * Standard CSV information resolver.
  */
-@SuppressWarnings("deprecation")
-final class StandardCsvInfoResolver implements CsvInfoResolver, TradeCsvInfoResolver, PositionCsvInfoResolver {
+final class StandardCsvInfoResolver implements TradeCsvInfoResolver, PositionCsvInfoResolver {
 
   /**
    * The reference data.

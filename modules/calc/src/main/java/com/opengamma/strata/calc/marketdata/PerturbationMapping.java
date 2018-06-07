@@ -64,25 +64,6 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     return new PerturbationMapping<T>(perturbation.getMarketDataType(), filter, perturbation);
   }
 
-  /**
-   * Returns a mapping containing a single perturbation.
-   *
-   * @param <T>  the type of the market data handled by the mapping
-   * @param marketDataType the type of market data handled by the mapping
-   * @param filter  the filter used to choose the market data
-   * @param perturbation  the perturbation applied to any market data matching the filter
-   * @return a mapping containing a single perturbation
-   * @deprecated Use the two-argument version, now that {@link ScenarioPerturbation} knows its type
-   */
-  @Deprecated
-  public static <T> PerturbationMapping<T> of(
-      Class<T> marketDataType,
-      MarketDataFilter<? extends T, ?> filter,
-      ScenarioPerturbation<T> perturbation) {
-
-    return new PerturbationMapping<>(marketDataType, filter, perturbation);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Returns true if the filter matches the market data ID and value.

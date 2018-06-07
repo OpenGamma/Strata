@@ -91,29 +91,6 @@ public class BlackFxVanillaOptionTradePricer {
    * @param ratesProvider  the rates provider
    * @param volatilities  the Black volatility provider
    * @return the present value curve sensitivity of the trade
-   * @deprecated Use presentValueSensitivityRatesStickyStrike
-   */
-  @Deprecated
-  public PointSensitivities presentValueSensitivityRates(
-      ResolvedFxVanillaOptionTrade trade,
-      RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
-
-    return presentValueSensitivityRatesStickyStrike(trade, ratesProvider, volatilities);
-  }
-
-  /**
-   * Calculates the present value sensitivity of the FX vanilla option trade.
-   * <p>
-   * The present value sensitivity of the trade is the sensitivity of the present value to
-   * the underlying curves.
-   * <p>
-   * The volatility is fixed in this sensitivity computation.
-   * 
-   * @param trade  the option trade
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the Black volatility provider
-   * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivityRatesStickyStrike(
       ResolvedFxVanillaOptionTrade trade,

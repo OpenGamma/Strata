@@ -149,7 +149,6 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
    */
   // TODO not tested
 
-  @SuppressWarnings("deprecation")
   @Override
   public DoubleMatrix inverseJacobian(DoubleArray fittingParameters) {
     ArgChecker.notNull(fittingParameters, "fitting parameters");

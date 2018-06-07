@@ -157,42 +157,6 @@ public final class CsvOutput {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates an instance, using the system default line separator and using a comma separator.
-   * 
-   * @param underlying  the destination to write to
-   * @deprecated Use one of the static factory methods
-   */
-  @Deprecated
-  public CsvOutput(Appendable underlying) {
-    this(underlying, NEW_LINE, ",");
-  }
-
-  /**
-   * Creates an instance, allowing the new line character to be controlled and using a comma separator.
-   * 
-   * @param underlying  the destination to write to
-   * @param newLine  the new line string
-   * @deprecated Use one of the static factory methods
-   */
-  @Deprecated
-  public CsvOutput(Appendable underlying, String newLine) {
-    this(underlying, newLine, ",");
-  }
-
-  /**
-   * Creates an instance, allowing the new line character to be controlled, specifying the separator.
-   * 
-   * @param underlying  the destination to write to
-   * @param newLine  the new line string
-   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
-   * @deprecated Use one of the static factory methods
-   */
-  @Deprecated
-  public CsvOutput(Appendable underlying, String newLine, String separator) {
-    this(underlying, newLine, separator, true);
-  }
-
   // creates an instance
   private CsvOutput(Appendable underlying, String newLine, String separator, boolean safeExpressions) {
     this.underlying = ArgChecker.notNull(underlying, "underlying");

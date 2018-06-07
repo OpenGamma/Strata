@@ -88,20 +88,6 @@ public final class CurveGroupDefinitionCsvLoader {
    *
    * @param groupsResource  the curve groups CSV resource
    * @return the list of definitions
-   * @deprecated Use better named {@link #loadCurveGroupDefinitions(ResourceLocator)}
-   */
-  @Deprecated
-  public static List<CurveGroupDefinition> loadCurveGroups(ResourceLocator groupsResource) {
-    return loadCurveGroupDefinitions(groupsResource);
-  }
-
-  /**
-   * Loads the curve groups definition CSV file.
-   * <p>
-   * The list of {@link NodalCurveDefinition} will be empty in the resulting definition.
-   *
-   * @param groupsResource  the curve groups CSV resource
-   * @return the list of definitions
    */
   public static List<CurveGroupDefinition> loadCurveGroupDefinitions(ResourceLocator groupsResource) {
     return parseCurveGroupDefinitions(groupsResource.getCharSource());

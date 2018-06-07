@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.time.temporal.ChronoUnit.MONTHS;
@@ -103,17 +102,10 @@ public class SimplePriceIndexValuesTest {
   private static final double TOLERANCE_DELTA = 1.0E-6;
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("deprecation")
-  public void test_NO_SEASONALITY() {
-    assertEquals(SimplePriceIndexValues.NO_SEASONALITY, DoubleArray.filled(12, 1d));
-  }
-
-  @SuppressWarnings("deprecation")
   public void test_of_noSeasonality() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     assertEquals(test.getIndex(), US_CPI_U);
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE_NOFIX);
     assertEquals(test.getParameterCount(), CURVE_NOFIX.getParameterCount());
     assertEquals(test.getParameter(0), CURVE_NOFIX.getParameter(0));
@@ -125,34 +117,6 @@ public class SimplePriceIndexValuesTest {
     // check PriceIndexValues
     PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     assertEquals(test, test2);
-  }
-
-  @SuppressWarnings("deprecation")
-  public void test_of_seasonality() {
-    SimplePriceIndexValues test =
-        SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS, SEASONALITY_MULTIPLICATIVE);
-    assertEquals(test.getIndex(), US_CPI_U);
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getSeasonality(), SEASONALITY_MULTIPLICATIVE);
-    YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
-    double nbMonth = YearMonth.from(VAL_DATE).until(lastMonth, MONTHS);
-    InflationNodalCurve seasonalCurve = InflationNodalCurve.of(
-        CURVE_NOFIX, VAL_DATE, lastMonth, nbMonth, SeasonalityDefinition.of(SEASONALITY_MULTIPLICATIVE, ShiftType.SCALED));
-    assertEquals(test.getCurve(), seasonalCurve);
-  }
-
-  @SuppressWarnings("deprecation")
-  public void test_of_wrongSeasonalityLength() {
-    assertThrowsIllegalArg(() -> SimplePriceIndexValues.of(
-        US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS, DoubleArray.EMPTY));
-  }
-
-  @SuppressWarnings("deprecation")
-  public void test_of_startDateBeforeFixing() {
-    DoubleArray monthWrong = DoubleArray.of(-10.0, 21.0, 57.0, 117.0);
-    InterpolatedNodalCurve interpolated = CURVE_NOFIX.toBuilder().xValues(monthWrong).build();
-    assertThrowsIllegalArg(() -> SimplePriceIndexValues.of(
-        US_CPI_U, VAL_DATE, interpolated, USCPI_TS, SEASONALITY_MULTIPLICATIVE));
   }
 
   //-------------------------------------------------------------------------

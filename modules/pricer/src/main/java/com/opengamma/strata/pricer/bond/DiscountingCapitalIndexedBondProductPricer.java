@@ -1135,39 +1135,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
    * @return the z-spread of the bond product
-   * @deprecated Use {@link #zSpreadFromCurvesAndPv} which has the correct name
-   */
-  @Deprecated
-  // CSOFF: AbbreviationAsWordInName
-  public double zSpreadFromCurvesAndPV(
-      ResolvedCapitalIndexedBond bond,
-      RatesProvider ratesProvider,
-      LegalEntityDiscountingProvider discountingProvider,
-      ReferenceData refData,
-      CurrencyAmount presentValue,
-      CompoundedRateType compoundedRateType,
-      int periodsPerYear) {
-    // CSON: AbbreviationAsWordInName
-
-    return zSpreadFromCurvesAndPv(
-        bond, ratesProvider, discountingProvider, refData, presentValue, compoundedRateType, periodsPerYear);
-  }
-
-  /**
-   * Calculates the z-spread of the bond from curves and present value.
-   * <p>
-   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve associated to the bond (Issuer Entity)
-   * to match the present value.
-   * 
-   * @param bond  the product
-   * @param ratesProvider  the rates provider, used to determine price index values
-   * @param discountingProvider  the discount factors provider
-   * @param refData  the reference data used to calculate the settlement date
-   * @param presentValue  the present value
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
-   * @return the z-spread of the bond product
    */
   public double zSpreadFromCurvesAndPv(
       ResolvedCapitalIndexedBond bond,

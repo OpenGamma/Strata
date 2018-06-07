@@ -22,13 +22,13 @@ import com.opengamma.strata.math.impl.cern.MersenneTwister64;
 import com.opengamma.strata.math.impl.cern.RandomEngine;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionAggregation;
 import com.opengamma.strata.math.impl.interpolation.BasisFunctionGenerator;
+import com.opengamma.strata.math.impl.interpolation.BasisFunctionKnots;
 import com.opengamma.strata.math.impl.interpolation.PSplineFitter;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 
 /**
  * Test.
  */
-@SuppressWarnings("deprecation")
 @Test
 public class GeneralizedLeastSquareTest {
   private static boolean PRINT = false;
@@ -124,9 +124,11 @@ public class GeneralizedLeastSquareTest {
     }
 
     final BasisFunctionGenerator generator = new BasisFunctionGenerator();
-    BASIS_FUNCTIONS = generator.generateSet(0.0, 2.0, 20, 3);
-    BASIS_FUNCTIONS_2D = generator.generateSet(new double[] {0.0, 0.0 }, new double[] {10.0, 10.0 }, new int[] {10, 10 }, new int[] {3, 3 });
-
+    BASIS_FUNCTIONS = generator.generateSet(BasisFunctionKnots.fromUniform(0.0, 2.0, 20, 3));
+    BasisFunctionKnots[] knots = new BasisFunctionKnots[2];
+    knots[0] = BasisFunctionKnots.fromUniform(0, 10, 10, 3);
+    knots[1] = BasisFunctionKnots.fromUniform(0, 10, 10, 3);
+    BASIS_FUNCTIONS_2D = generator.generateSet(knots);
   }
 
   public void testPerfectFit() {
@@ -247,8 +249,8 @@ public class GeneralizedLeastSquareTest {
 
   public void testPSplineFit2() {
     final BasisFunctionGenerator generator = new BasisFunctionGenerator();
-    List<Function<Double, Double>> basisFuncs = generator.generateSet(0, 12, 100, 3);
-    List<Function<Double, Double>> basisFuncsLog = generator.generateSet(-5, 3, 100, 3);
+    List<Function<Double, Double>> basisFuncs = generator.generateSet(BasisFunctionKnots.fromUniform(0, 12, 100, 3));
+    List<Function<Double, Double>> basisFuncsLog = generator.generateSet(BasisFunctionKnots.fromUniform(-5, 3, 100, 3));
 
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 

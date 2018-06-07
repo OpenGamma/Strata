@@ -86,25 +86,6 @@ public final class ConstantNodalCurve
     return new ConstantNodalCurve(metadata, xValue, yValue);
   }
 
-  /**
-   * Creates a constant nodal curve with metadata.
-   * <p>
-   * The curve is defined by a single x and y value.
-   * 
-   * @param metadata  the curve metadata
-   * @param xValue  the x-value
-   * @param yValue  the y-value
-   * @return the curve
-   * @deprecated Use {@link #of(CurveMetadata, double, double)}
-   */
-  @Deprecated
-  public static ConstantNodalCurve of(CurveMetadata metadata, DoubleArray xValue, DoubleArray yValue) {
-    if (xValue.size() != 1 || yValue.size() != 1) {
-      throw new IllegalArgumentException("Length of x-values and y-values must be 1");
-    }
-    return new ConstantNodalCurve(metadata, xValue.get(0), yValue.get(0));
-  }
-
   //-------------------------------------------------------------------------
   // restricted constructor
   @ImmutableConstructor

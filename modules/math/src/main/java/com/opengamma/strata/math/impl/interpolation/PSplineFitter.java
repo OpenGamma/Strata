@@ -14,7 +14,6 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.GeneralizedLeastSqu
 /**
  * P-Spline fitter.
  */
-@SuppressWarnings("deprecation")
 public class PSplineFitter {
 
   private final BasisFunctionGenerator _generator = new BasisFunctionGenerator();
@@ -35,7 +34,7 @@ public class PSplineFitter {
    * @return The results of the fit
    */
   public GeneralizedLeastSquareResults<Double> solve(List<Double> x, List<Double> y, List<Double> sigma, double xa, double xb, int nKnots, int degree, double lambda, int differenceOrder) {
-    List<Function<Double, Double>> bSplines = _generator.generateSet(xa, xb, nKnots, degree);
+    List<Function<Double, Double>> bSplines = _generator.generateSet(BasisFunctionKnots.fromUniform(xa, xb, nKnots, degree));
     return _gls.solve(x, y, sigma, bSplines, lambda, differenceOrder);
   }
 
@@ -59,7 +58,11 @@ public class PSplineFitter {
    */
   public GeneralizedLeastSquareResults<double[]> solve(List<double[]> x, List<Double> y, List<Double> sigma, double[] xa, double[] xb, int[] nKnots, int[] degree, double[] lambda,
       int[] differenceOrder) {
-    List<Function<double[], Double>> bSplines = _generator.generateSet(xa, xb, nKnots, degree);
+    BasisFunctionKnots[] knots = new BasisFunctionKnots[xa.length];
+    for (int i = 0; i < xa.length; i++) {
+      knots[i] = BasisFunctionKnots.fromUniform(xa[i], xb[i], nKnots[i], degree[i]);
+    }
+    List<Function<double[], Double>> bSplines = _generator.generateSet(knots);
 
     final int dim = xa.length;
     int[] sizes = new int[dim];
