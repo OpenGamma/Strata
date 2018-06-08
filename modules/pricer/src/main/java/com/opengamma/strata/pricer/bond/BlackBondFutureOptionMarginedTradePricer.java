@@ -282,7 +282,10 @@ public final class BlackBondFutureOptionMarginedTradePricer {
    */
   private double referencePrice(ResolvedBondFutureOptionTrade trade, LocalDate valuationDate, double lastSettlementPrice) {
     ArgChecker.notNull(valuationDate, "valuationDate");
-    return (trade.getTradeDate().equals(valuationDate) ? trade.getPrice() : lastSettlementPrice);
+    return trade.getTradedPrice()
+        .filter(tp -> tp.getTradeDate().equals(valuationDate))
+        .map(tp -> tp.getPrice())
+        .orElse(lastSettlementPrice);
   }
 
 }

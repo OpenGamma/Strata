@@ -138,7 +138,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     LocalDate valuationDate2 = LocalDate.of(2014, 3, 31); // equal to trade date
     CurrencyAmount computed2 =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, valuationDate2, currentPrice, lastClosingPrice);
-    double expected = NOTIONAL * QUANTITY * (currentPrice - OPTION_TRADE.getPrice());
+    double expected = NOTIONAL * QUANTITY * (currentPrice - OPTION_TRADE.getTradedPrice().get().getPrice());
     assertEquals(computed2.getCurrency(), Currency.EUR);
     assertEquals(computed2.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
   }
