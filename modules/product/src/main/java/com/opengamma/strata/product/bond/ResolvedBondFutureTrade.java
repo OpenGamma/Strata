@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradedPrice;
@@ -49,12 +50,12 @@ public final class ResolvedBondFutureTrade
     implements ResolvedTrade, ImmutableBean, Serializable {
 
   /**
-   * The additional trade information, defaulted to an empty instance.
+   * The additional information, defaulted to an empty instance.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * This allows additional information to be attached.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final TradeInfo info;
+  private final PortfolioItemInfo info;
   /**
    * The future that was traded.
    * <p>
@@ -122,7 +123,7 @@ public final class ResolvedBondFutureTrade
    * @param tradedPrice  the value of the property
    */
   ResolvedBondFutureTrade(
-      TradeInfo info,
+      PortfolioItemInfo info,
       ResolvedBondFuture product,
       double quantity,
       TradedPrice tradedPrice) {
@@ -141,13 +142,13 @@ public final class ResolvedBondFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional trade information, defaulted to an empty instance.
+   * Gets the additional information, defaulted to an empty instance.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * This allows additional information to be attached.
    * @return the value of the property, not null
    */
   @Override
-  public TradeInfo getInfo() {
+  public PortfolioItemInfo getInfo() {
     return info;
   }
 
@@ -249,8 +250,8 @@ public final class ResolvedBondFutureTrade
     /**
      * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
-        this, "info", ResolvedBondFutureTrade.class, TradeInfo.class);
+    private final MetaProperty<PortfolioItemInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", ResolvedBondFutureTrade.class, PortfolioItemInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -317,7 +318,7 @@ public final class ResolvedBondFutureTrade
      * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> info() {
+    public MetaProperty<PortfolioItemInfo> info() {
       return info;
     }
 
@@ -378,7 +379,7 @@ public final class ResolvedBondFutureTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedBondFutureTrade> {
 
-    private TradeInfo info;
+    private PortfolioItemInfo info;
     private ResolvedBondFuture product;
     private double quantity;
     private TradedPrice tradedPrice;
@@ -422,7 +423,7 @@ public final class ResolvedBondFutureTrade
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3237038:  // info
-          this.info = (TradeInfo) newValue;
+          this.info = (PortfolioItemInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (ResolvedBondFuture) newValue;
@@ -456,13 +457,13 @@ public final class ResolvedBondFutureTrade
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the additional trade information, defaulted to an empty instance.
+     * Sets the additional information, defaulted to an empty instance.
      * <p>
-     * This allows additional information to be attached to the trade.
+     * This allows additional information to be attached.
      * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder info(TradeInfo info) {
+    public Builder info(PortfolioItemInfo info) {
       JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
