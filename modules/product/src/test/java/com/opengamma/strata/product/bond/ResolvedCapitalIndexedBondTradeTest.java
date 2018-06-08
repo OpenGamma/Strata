@@ -25,7 +25,7 @@ public class ResolvedCapitalIndexedBondTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedCapitalIndexedBondTrade test = sut();
-    assertEquals(test.getSettlementDate(), test.getInfo().getSettlementDate().get());
+    assertEquals(test.getSettlement().isPresent(), true);
   }
 
   //-------------------------------------------------------------------------

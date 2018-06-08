@@ -109,8 +109,7 @@ public class CapitalIndexedBondTradeTest {
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
-        .price(PRICE)
-        .settlement(SETTLEMENT)
+        .settlement(ResolvedCapitalIndexedBondSettlement.of(SETTLEMENT_DATE, PRICE, SETTLEMENT))
         .build();
     assertEquals(test, expected);
   }
@@ -121,8 +120,7 @@ public class CapitalIndexedBondTradeTest {
         .info(TRADE_INFO)
         .product(PRODUCT1.resolve(REF_DATA))
         .quantity(QUANTITY)
-        .price(PRICE)
-        .settlement(SETTLEMENT1)
+        .settlement(ResolvedCapitalIndexedBondSettlement.of(SETTLEMENT_DATE, PRICE, SETTLEMENT1))
         .build();
     assertEquals(test, expected);
   }
