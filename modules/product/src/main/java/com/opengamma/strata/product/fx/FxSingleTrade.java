@@ -51,7 +51,7 @@ public final class FxSingleTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The product that was agreed when the trade occurred.
@@ -132,6 +132,7 @@ public final class FxSingleTrade
   private FxSingleTrade(
       TradeInfo info,
       FxSingle product) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
     this.product = product;
@@ -147,7 +148,7 @@ public final class FxSingleTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -377,10 +378,11 @@ public final class FxSingleTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

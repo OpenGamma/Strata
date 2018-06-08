@@ -51,7 +51,7 @@ public final class FraTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The FRA product that was agreed when the trade occurred.
@@ -148,6 +148,7 @@ public final class FraTrade
   private FraTrade(
       TradeInfo info,
       Fra product) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     this.info = info;
     this.product = product;
@@ -163,7 +164,7 @@ public final class FraTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -393,10 +394,11 @@ public final class FraTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
