@@ -12,6 +12,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -21,6 +22,7 @@ import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 
 /**
  * Test {@link IborFutureOptionTrade}.
@@ -71,7 +73,7 @@ public class IborFutureOptionTradeTest {
     assertEquals(resolved.getInfo(), TRADE_INFO);
     assertEquals(resolved.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(resolved.getQuantity(), QUANTITY);
-    assertEquals(resolved.getPrice(), PRICE);
+    assertEquals(resolved.getTradedPrice(), Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
   }
 
   //-------------------------------------------------------------------------

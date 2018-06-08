@@ -75,6 +75,9 @@ public final class ResolvedBondFutureTrade
    * The price that was traded, together with the trade date, optional.
    * <p>
    * This is the price agreed when the trade occurred, in decimal form.
+   * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
+   * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+   * for an amount computed from the bond future price, a conversion factor and the accrued interest.
    * <p>
    * This is optional to allow the class to be used to price both trades and positions.
    * When the instance represents a trade, the traded price should be present.
@@ -181,6 +184,9 @@ public final class ResolvedBondFutureTrade
    * Gets the price that was traded, together with the trade date, optional.
    * <p>
    * This is the price agreed when the trade occurred, in decimal form.
+   * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
+   * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+   * for an amount computed from the bond future price, a conversion factor and the accrued interest.
    * <p>
    * This is optional to allow the class to be used to price both trades and positions.
    * When the instance represents a trade, the traded price should be present.
@@ -499,6 +505,9 @@ public final class ResolvedBondFutureTrade
      * Sets the price that was traded, together with the trade date, optional.
      * <p>
      * This is the price agreed when the trade occurred, in decimal form.
+     * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
+     * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+     * for an amount computed from the bond future price, a conversion factor and the accrued interest.
      * <p>
      * This is optional to allow the class to be used to price both trades and positions.
      * When the instance represents a trade, the traded price should be present.

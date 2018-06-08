@@ -37,7 +37,7 @@ import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.ResolvedIborFuture;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
@@ -55,8 +55,8 @@ public class IborFuturesJpyEnd2EndTest {
   private static final double ONE_BASIS_POINT = 1e-4;
   private static final double HUNDRED = 100d;
   private static final double TOL = 1e-10;
-  private static final LocalDate VALUATION = LocalDate.of(2016, 2, 10);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(LocalDate.of(2016, 2, 10)).build();
+  private static final LocalDate TRADE_DATE = LocalDate.of(2016, 2, 10);
+  private static final LocalDate VALUATION = TRADE_DATE;
   private static final double NOTIONAL = 100_000_000D;
   private static final long QUANTITY = 1L;
   private static final Rounding ROUNDING = Rounding.ofFractionalDecimalPlaces(2, 2);
@@ -98,11 +98,11 @@ public class IborFuturesJpyEnd2EndTest {
       .build().
       resolve(REF_DATA);
   private static final double REF_PRICE_MAR = 99.9d;
+  private static final double REF_PRICE_MAR_DECIMAL = REF_PRICE_MAR * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR = ResolvedIborFutureTrade.builder()
-      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_MAR)
-      .price(REF_PRICE_MAR * ONE_PERCENT)
       .quantity(QUANTITY)
+      .tradedPrice(TradedPrice.of(TRADE_DATE, REF_PRICE_MAR_DECIMAL))
       .build();
   // futures in June 2016
   private static final LocalDate REFERENCE_JUN = RollConventions.IMM.adjust(LocalDate.of(2016, 6, 1));
@@ -118,11 +118,11 @@ public class IborFuturesJpyEnd2EndTest {
       .build().
       resolve(REF_DATA);
   private static final double REF_PRICE_JUN = 100d;
+  private static final double REF_PRICE_JUN_DECIMAL = REF_PRICE_JUN * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN = ResolvedIborFutureTrade.builder()
-      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_JUN)
-      .price(REF_PRICE_JUN * ONE_PERCENT)
       .quantity(QUANTITY)
+      .tradedPrice(TradedPrice.of(TRADE_DATE, REF_PRICE_JUN_DECIMAL))
       .build();
   // futures in September 2016
   private static final LocalDate REFERENCE_SEP = RollConventions.IMM.adjust(LocalDate.of(2016, 9, 1));
@@ -138,11 +138,11 @@ public class IborFuturesJpyEnd2EndTest {
       .build().
       resolve(REF_DATA);
   private static final double REF_PRICE_SEP = 100.075d;
+  private static final double REF_PRICE_SEP_DECIMAL = REF_PRICE_SEP * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_SEP = ResolvedIborFutureTrade.builder()
-      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_SEP)
-      .price(REF_PRICE_SEP * ONE_PERCENT)
       .quantity(QUANTITY)
+      .tradedPrice(TradedPrice.of(TRADE_DATE, REF_PRICE_SEP_DECIMAL))
       .build();
   // futures in June 2017
   private static final LocalDate REFERENCE_JUN_MID = RollConventions.IMM.adjust(LocalDate.of(2017, 6, 1));
@@ -159,11 +159,11 @@ public class IborFuturesJpyEnd2EndTest {
       .build().
       resolve(REF_DATA);
   private static final double REF_PRICE_JUN_MID = 100.165d;
+  private static final double REF_PRICE_JUN_MID_DECIMAL = REF_PRICE_JUN_MID * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN_MID = ResolvedIborFutureTrade.builder()
-      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_JUN_MID)
-      .price(REF_PRICE_JUN_MID * ONE_PERCENT)
       .quantity(QUANTITY)
+      .tradedPrice(TradedPrice.of(TRADE_DATE, REF_PRICE_JUN_MID_DECIMAL))
       .build();
   // futures in March 2020
   private static final LocalDate REFERENCE_MAR_LONG = RollConventions.IMM.adjust(LocalDate.of(2020, 3, 1));
@@ -180,11 +180,11 @@ public class IborFuturesJpyEnd2EndTest {
       .build().
       resolve(REF_DATA);
   private static final double REF_PRICE_MAR_LONG = 99.815d;
+  private static final double REF_PRICE_MAR_LONG_DECIMAL = REF_PRICE_MAR_LONG * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR_LONG = ResolvedIborFutureTrade.builder()
-      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_MAR_LONG)
-      .price(REF_PRICE_MAR_LONG * ONE_PERCENT)
       .quantity(QUANTITY)
+      .tradedPrice(TradedPrice.of(TRADE_DATE, REF_PRICE_MAR_LONG_DECIMAL))
       .build();
   // pricers
   private static final DiscountingIborFutureProductPricer PRODUCT_PRICER = DiscountingIborFutureProductPricer.DEFAULT;
@@ -265,24 +265,19 @@ public class IborFuturesJpyEnd2EndTest {
 
   public void presentValue() {
     // March 2016
-    CurrencyAmount pvMar = TRADE_PRICER.presentValue(FUTURE_TRADE_MAR, RATES_PROVIDER,
-        FUTURE_TRADE_MAR.getPrice());
+    CurrencyAmount pvMar = TRADE_PRICER.presentValue(FUTURE_TRADE_MAR, RATES_PROVIDER, REF_PRICE_MAR_DECIMAL);
     assertEquals(pvMar.getAmount(), -9738.418878056109, TOL * NOTIONAL);
     // June 2016
-    CurrencyAmount pvJun = TRADE_PRICER.presentValue(FUTURE_TRADE_JUN, RATES_PROVIDER,
-        FUTURE_TRADE_JUN.getPrice());
+    CurrencyAmount pvJun = TRADE_PRICER.presentValue(FUTURE_TRADE_JUN, RATES_PROVIDER, REF_PRICE_JUN_DECIMAL);
     assertEquals(pvJun.getAmount(), -3812.1182441189885, TOL * NOTIONAL);
     // September 2016
-    CurrencyAmount pvSep = TRADE_PRICER.presentValue(FUTURE_TRADE_SEP, RATES_PROVIDER,
-        FUTURE_TRADE_SEP.getPrice());
+    CurrencyAmount pvSep = TRADE_PRICER.presentValue(FUTURE_TRADE_SEP, RATES_PROVIDER, REF_PRICE_SEP_DECIMAL);
     assertEquals(pvSep.getAmount(), -5689.603123847395, TOL * NOTIONAL);
     // June 2017
-    CurrencyAmount pvJunMid =
-        TRADE_PRICER.presentValue(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, FUTURE_TRADE_JUN_MID.getPrice());
+    CurrencyAmount pvJunMid = TRADE_PRICER.presentValue(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, REF_PRICE_JUN_MID_DECIMAL);
     assertEquals(pvJunMid.getAmount(), 4022.2380772829056, TOL * NOTIONAL);
     // March 2020
-    CurrencyAmount pvMarLong =
-        TRADE_PRICER.presentValue(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, FUTURE_TRADE_MAR_LONG.getPrice());
+    CurrencyAmount pvMarLong = TRADE_PRICER.presentValue(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, REF_PRICE_MAR_LONG_DECIMAL);
     assertEquals(pvMarLong.getAmount(), 35818.328803278506, TOL * NOTIONAL);
   }
 
@@ -333,21 +328,19 @@ public class IborFuturesJpyEnd2EndTest {
 
   public void parSpread() {
     // March 2016
-    double psMar = TRADE_PRICER.parSpread(FUTURE_TRADE_MAR, RATES_PROVIDER, FUTURE_TRADE_MAR.getPrice()) * HUNDRED;
+    double psMar = TRADE_PRICER.parSpread(FUTURE_TRADE_MAR, RATES_PROVIDER, REF_PRICE_MAR_DECIMAL) * HUNDRED;
     assertEquals(psMar, -0.038953675512221064, TOL * HUNDRED);
     // June 2016
-    double psJun = TRADE_PRICER.parSpread(FUTURE_TRADE_JUN, RATES_PROVIDER, FUTURE_TRADE_JUN.getPrice()) * HUNDRED;
+    double psJun = TRADE_PRICER.parSpread(FUTURE_TRADE_JUN, RATES_PROVIDER, REF_PRICE_JUN_DECIMAL) * HUNDRED;
     assertEquals(psJun, -0.01524847297647014, TOL * HUNDRED);
     // September 2016
-    double psSep = TRADE_PRICER.parSpread(FUTURE_TRADE_SEP, RATES_PROVIDER, FUTURE_TRADE_SEP.getPrice()) * HUNDRED;
+    double psSep = TRADE_PRICER.parSpread(FUTURE_TRADE_SEP, RATES_PROVIDER, REF_PRICE_SEP_DECIMAL) * HUNDRED;
     assertEquals(psSep, -0.022758412495393898, TOL * HUNDRED);
     // June 2017
-    double psJunMid =
-        TRADE_PRICER.parSpread(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, FUTURE_TRADE_JUN_MID.getPrice()) * HUNDRED;
+    double psJunMid = TRADE_PRICER.parSpread(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, REF_PRICE_JUN_MID_DECIMAL) * HUNDRED;
     assertEquals(psJunMid, 0.01608895230913454, TOL * HUNDRED);
     // March 2020
-    double psMarLong =
-        TRADE_PRICER.parSpread(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, FUTURE_TRADE_MAR_LONG.getPrice()) * HUNDRED;
+    double psMarLong = TRADE_PRICER.parSpread(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, REF_PRICE_MAR_LONG_DECIMAL) * HUNDRED;
     assertEquals(psMarLong, 0.14327331521311049, TOL * HUNDRED);
   }
 

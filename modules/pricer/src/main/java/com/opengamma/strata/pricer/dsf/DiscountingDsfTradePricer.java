@@ -95,10 +95,10 @@ public class DiscountingDsfTradePricer {
    */
   private double referencePrice(ResolvedDsfTrade trade, LocalDate valuationDate, double lastSettlementPrice) {
     ArgChecker.notNull(valuationDate, "valuationDate");
-    if (trade.getInfo().getTradeDate().isPresent()) {
-      return (trade.getInfo().getTradeDate().get().equals(valuationDate) ? trade.getPrice() : lastSettlementPrice);
-    }
-    return lastSettlementPrice;
+    return trade.getTradedPrice()
+        .filter(tp -> tp.getTradeDate().equals(valuationDate))
+        .map(tp -> tp.getPrice())
+        .orElse(lastSettlementPrice);
   }
 
   //-------------------------------------------------------------------------

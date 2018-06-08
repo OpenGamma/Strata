@@ -8,6 +8,7 @@ package com.opengamma.strata.product.dsf;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -23,9 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 
 /**
  * A trade in a Deliverable Swap Future, resolved for pricing.
@@ -52,12 +54,12 @@ public final class ResolvedDsfTrade
     implements ResolvedTrade, ImmutableBean, Serializable {
 
   /**
-   * The additional trade information, defaulted to an empty instance.
+   * The additional information, defaulted to an empty instance.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * This allows additional information to be attached.
    */
-  @PropertyDefinition(overrideGet = true)
-  private final TradeInfo info;
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final PortfolioItemInfo info;
   /**
    * The future that was traded.
    * <p>
@@ -74,16 +76,19 @@ public final class ResolvedDsfTrade
   @PropertyDefinition
   private final double quantity;
   /**
-   * The price that was traded, in decimal form.
+   * The price that was traded, together with the trade date, optional.
    * <p>
-   * This is the price agreed when the trade occurred.
-   * <p>
+   * This is the price agreed when the trade occurred, in decimal form.
    * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
    * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
    * Thus the market price of 100.182 is represented in Strata by 1.00182.
+   * <p>
+   * This is optional to allow the class to be used to price both trades and positions.
+   * When the instance represents a trade, the traded price should be present.
+   * When the instance represents a position, the traded price should be empty.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double price;
+  @PropertyDefinition(get = "optional")
+  private final TradedPrice tradedPrice;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -119,22 +124,22 @@ public final class ResolvedDsfTrade
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param product  the value of the property, not null
    * @param quantity  the value of the property
-   * @param price  the value of the property
+   * @param tradedPrice  the value of the property
    */
   ResolvedDsfTrade(
-      TradeInfo info,
+      PortfolioItemInfo info,
       ResolvedDsf product,
       double quantity,
-      double price) {
+      TradedPrice tradedPrice) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
-    ArgChecker.notNegative(price, "price");
     this.info = info;
     this.product = product;
     this.quantity = quantity;
-    this.price = price;
+    this.tradedPrice = tradedPrice;
   }
 
   @Override
@@ -144,13 +149,13 @@ public final class ResolvedDsfTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional trade information, defaulted to an empty instance.
+   * Gets the additional information, defaulted to an empty instance.
    * <p>
-   * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * This allows additional information to be attached.
+   * @return the value of the property, not null
    */
   @Override
-  public TradeInfo getInfo() {
+  public PortfolioItemInfo getInfo() {
     return info;
   }
 
@@ -180,17 +185,20 @@ public final class ResolvedDsfTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded, in decimal form.
+   * Gets the price that was traded, together with the trade date, optional.
    * <p>
-   * This is the price agreed when the trade occurred.
-   * <p>
+   * This is the price agreed when the trade occurred, in decimal form.
    * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
    * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
    * Thus the market price of 100.182 is represented in Strata by 1.00182.
-   * @return the value of the property
+   * <p>
+   * This is optional to allow the class to be used to price both trades and positions.
+   * When the instance represents a trade, the traded price should be present.
+   * When the instance represents a position, the traded price should be empty.
+   * @return the optional value of the property, not null
    */
-  public double getPrice() {
-    return price;
+  public Optional<TradedPrice> getTradedPrice() {
+    return Optional.ofNullable(tradedPrice);
   }
 
   //-----------------------------------------------------------------------
@@ -212,7 +220,7 @@ public final class ResolvedDsfTrade
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(quantity, other.quantity) &&
-          JodaBeanUtils.equal(price, other.price);
+          JodaBeanUtils.equal(tradedPrice, other.tradedPrice);
     }
     return false;
   }
@@ -223,7 +231,7 @@ public final class ResolvedDsfTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(price);
+    hash = hash * 31 + JodaBeanUtils.hashCode(tradedPrice);
     return hash;
   }
 
@@ -234,7 +242,7 @@ public final class ResolvedDsfTrade
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
+    buf.append("tradedPrice").append('=').append(JodaBeanUtils.toString(tradedPrice));
     buf.append('}');
     return buf.toString();
   }
@@ -252,8 +260,8 @@ public final class ResolvedDsfTrade
     /**
      * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
-        this, "info", ResolvedDsfTrade.class, TradeInfo.class);
+    private final MetaProperty<PortfolioItemInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", ResolvedDsfTrade.class, PortfolioItemInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -265,10 +273,10 @@ public final class ResolvedDsfTrade
     private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedDsfTrade.class, Double.TYPE);
     /**
-     * The meta-property for the {@code price} property.
+     * The meta-property for the {@code tradedPrice} property.
      */
-    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
-        this, "price", ResolvedDsfTrade.class, Double.TYPE);
+    private final MetaProperty<TradedPrice> tradedPrice = DirectMetaProperty.ofImmutable(
+        this, "tradedPrice", ResolvedDsfTrade.class, TradedPrice.class);
     /**
      * The meta-properties.
      */
@@ -277,7 +285,7 @@ public final class ResolvedDsfTrade
         "info",
         "product",
         "quantity",
-        "price");
+        "tradedPrice");
 
     /**
      * Restricted constructor.
@@ -294,8 +302,8 @@ public final class ResolvedDsfTrade
           return product;
         case -1285004149:  // quantity
           return quantity;
-        case 106934601:  // price
-          return price;
+        case -1873824343:  // tradedPrice
+          return tradedPrice;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -320,7 +328,7 @@ public final class ResolvedDsfTrade
      * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> info() {
+    public MetaProperty<PortfolioItemInfo> info() {
       return info;
     }
 
@@ -341,11 +349,11 @@ public final class ResolvedDsfTrade
     }
 
     /**
-     * The meta-property for the {@code price} property.
+     * The meta-property for the {@code tradedPrice} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> price() {
-      return price;
+    public MetaProperty<TradedPrice> tradedPrice() {
+      return tradedPrice;
     }
 
     //-----------------------------------------------------------------------
@@ -358,8 +366,8 @@ public final class ResolvedDsfTrade
           return ((ResolvedDsfTrade) bean).getProduct();
         case -1285004149:  // quantity
           return ((ResolvedDsfTrade) bean).getQuantity();
-        case 106934601:  // price
-          return ((ResolvedDsfTrade) bean).getPrice();
+        case -1873824343:  // tradedPrice
+          return ((ResolvedDsfTrade) bean).tradedPrice;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -381,10 +389,10 @@ public final class ResolvedDsfTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedDsfTrade> {
 
-    private TradeInfo info;
+    private PortfolioItemInfo info;
     private ResolvedDsf product;
     private double quantity;
-    private double price;
+    private TradedPrice tradedPrice;
 
     /**
      * Restricted constructor.
@@ -401,7 +409,7 @@ public final class ResolvedDsfTrade
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.quantity = beanToCopy.getQuantity();
-      this.price = beanToCopy.getPrice();
+      this.tradedPrice = beanToCopy.tradedPrice;
     }
 
     //-----------------------------------------------------------------------
@@ -414,8 +422,8 @@ public final class ResolvedDsfTrade
           return product;
         case -1285004149:  // quantity
           return quantity;
-        case 106934601:  // price
-          return price;
+        case -1873824343:  // tradedPrice
+          return tradedPrice;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -425,7 +433,7 @@ public final class ResolvedDsfTrade
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3237038:  // info
-          this.info = (TradeInfo) newValue;
+          this.info = (PortfolioItemInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (ResolvedDsf) newValue;
@@ -433,8 +441,8 @@ public final class ResolvedDsfTrade
         case -1285004149:  // quantity
           this.quantity = (Double) newValue;
           break;
-        case 106934601:  // price
-          this.price = (Double) newValue;
+        case -1873824343:  // tradedPrice
+          this.tradedPrice = (TradedPrice) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -454,18 +462,19 @@ public final class ResolvedDsfTrade
           info,
           product,
           quantity,
-          price);
+          tradedPrice);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the additional trade information, defaulted to an empty instance.
+     * Sets the additional information, defaulted to an empty instance.
      * <p>
-     * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * This allows additional information to be attached.
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder info(TradeInfo info) {
+    public Builder info(PortfolioItemInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
@@ -497,19 +506,21 @@ public final class ResolvedDsfTrade
     }
 
     /**
-     * Sets the price that was traded, in decimal form.
+     * Sets the price that was traded, together with the trade date, optional.
      * <p>
-     * This is the price agreed when the trade occurred.
-     * <p>
+     * This is the price agreed when the trade occurred, in decimal form.
      * Strata uses <i>decimal prices</i> for DSFs in the trade model, pricers and market data.
      * The decimal price is based on the decimal multiplier equivalent to the implied percentage.
      * Thus the market price of 100.182 is represented in Strata by 1.00182.
-     * @param price  the new value
+     * <p>
+     * This is optional to allow the class to be used to price both trades and positions.
+     * When the instance represents a trade, the traded price should be present.
+     * When the instance represents a position, the traded price should be empty.
+     * @param tradedPrice  the new value
      * @return this, for chaining, not null
      */
-    public Builder price(double price) {
-      ArgChecker.notNegative(price, "price");
-      this.price = price;
+    public Builder tradedPrice(TradedPrice tradedPrice) {
+      this.tradedPrice = tradedPrice;
       return this;
     }
 
@@ -521,7 +532,7 @@ public final class ResolvedDsfTrade
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
+      buf.append("tradedPrice").append('=').append(JodaBeanUtils.toString(tradedPrice));
       buf.append('}');
       return buf.toString();
     }

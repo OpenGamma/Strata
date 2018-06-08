@@ -45,7 +45,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 import com.opengamma.strata.product.dsf.Dsf;
 import com.opengamma.strata.product.dsf.ResolvedDsf;
 import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
@@ -144,14 +144,12 @@ public class DiscountingDsfTradePricerTest {
       .underlyingSwap(SWAP)
       .build()
       .resolve(REF_DATA);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
   private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final long QUANTITY = 1234L;
   private static final ResolvedDsfTrade FUTURE_TRADE = ResolvedDsfTrade.builder()
-      .info(TRADE_INFO)
       .product(FUTURE)
       .quantity(QUANTITY)
-      .price(TRADE_PRICE)
+      .tradedPrice(TradedPrice.of(VAL_DATE, TRADE_PRICE))
       .build();
   private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0;
   // calculators

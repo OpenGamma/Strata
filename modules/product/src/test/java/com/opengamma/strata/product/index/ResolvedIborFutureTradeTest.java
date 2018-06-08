@@ -6,17 +6,18 @@
 package com.opengamma.strata.product.index;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 
 /**
  * Test {@link ResolvedIborFutureTrade}.
@@ -40,12 +41,7 @@ public class ResolvedIborFutureTradeTest {
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.getTradeDate(), TRADE_DATE);
-  }
-
-  public void test_builder_badPrice() {
-    assertThrowsIllegalArg(() -> sut().toBuilder().price(2.1).build());
+    assertEquals(test.getTradedPrice(), Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
   }
 
   //-------------------------------------------------------------------------
@@ -64,7 +60,7 @@ public class ResolvedIborFutureTradeTest {
         .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
-        .price(PRICE)
+        .tradedPrice(TradedPrice.of(TRADE_DATE, PRICE))
         .build();
   }
 
@@ -73,7 +69,7 @@ public class ResolvedIborFutureTradeTest {
         .info(TRADE_INFO2)
         .product(PRODUCT2)
         .quantity(QUANTITY2)
-        .price(PRICE2)
+        .tradedPrice(TradedPrice.of(TRADE_DATE, PRICE2))
         .build();
   }
 
