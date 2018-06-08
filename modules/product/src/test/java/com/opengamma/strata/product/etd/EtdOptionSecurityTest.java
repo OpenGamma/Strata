@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PutCall;
 
 /**
@@ -37,6 +38,9 @@ public class EtdOptionSecurityTest {
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(test.createProduct(REF_DATA), test);
+    assertEquals(
+        test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
+        EtdOptionTrade.of(TradeInfo.empty(), test, 1, 2));
   }
 
   //-------------------------------------------------------------------------
