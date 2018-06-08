@@ -93,6 +93,8 @@ public final class GenericSecurityPosition
    * Obtains an instance from position information, security and net quantity.
    * <p>
    * The net quantity is the long quantity minus the short quantity, which may be negative.
+   * If the quantity is positive it is treated as a long quantity.
+   * Otherwise it is treated as a short quantity.
    *
    * @param positionInfo  the position information
    * @param security  the underlying security
@@ -109,6 +111,8 @@ public final class GenericSecurityPosition
    * Obtains an instance from the security, long quantity and short quantity.
    * <p>
    * The long quantity and short quantity must be zero or positive, not negative.
+   * In many cases, only a long quantity or short quantity will be present with the other set to zero.
+   * However it is also possible for both to be non-zero, allowing long and short positions to be treated separately.
    *
    * @param security  the underlying security
    * @param longQuantity  the long quantity of the underlying security
@@ -121,6 +125,10 @@ public final class GenericSecurityPosition
 
   /**
    * Obtains an instance from position information, security, long quantity and short quantity.
+   * <p>
+   * The long quantity and short quantity must be zero or positive, not negative.
+   * In many cases, only a long quantity or short quantity will be present with the other set to zero.
+   * However it is also possible for both to be non-zero, allowing long and short positions to be treated separately.
    *
    * @param positionInfo  the position information
    * @param security  the underlying security
