@@ -12,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.PortfolioItemSummary;
@@ -25,6 +26,7 @@ import com.opengamma.strata.product.ProductType;
 @Test
 public class BondFutureOptionPositionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.minimal();
   private static final PositionInfo POSITION_INFO = PositionInfo.builder()
       .id(StandardId.of("A", "B"))
       .build();
@@ -71,6 +73,16 @@ public class BondFutureOptionPositionTest {
         .longQuantity(quantity)
         .build();
     assertEquals(computed, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    ResolvedBondFutureOptionTrade expected = ResolvedBondFutureOptionTrade.builder()
+        .info(POSITION_INFO)
+        .product(PRODUCT.resolve(REF_DATA))
+        .quantity(QUANTITY)
+        .build();
+    assertEquals(sut().resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------
