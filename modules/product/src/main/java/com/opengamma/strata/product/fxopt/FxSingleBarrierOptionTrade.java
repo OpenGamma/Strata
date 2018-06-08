@@ -50,7 +50,7 @@ public final class FxSingleBarrierOptionTrade
   * <p>
   * This allows additional information to be attached to the trade.
   */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
   * The FX option product that was agreed when the trade occurred.
@@ -138,6 +138,7 @@ public final class FxSingleBarrierOptionTrade
       TradeInfo info,
       FxSingleBarrierOption product,
       AdjustablePayment premium) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
     this.info = info;
@@ -155,7 +156,7 @@ public final class FxSingleBarrierOptionTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -426,10 +427,11 @@ public final class FxSingleBarrierOptionTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

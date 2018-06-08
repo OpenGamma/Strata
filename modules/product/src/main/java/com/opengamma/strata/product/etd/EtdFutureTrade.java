@@ -44,7 +44,7 @@ public final class EtdFutureTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The security that was traded.
@@ -164,6 +164,7 @@ public final class EtdFutureTrade
       EtdFutureSecurity security,
       double quantity,
       double price) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(security, "security");
     this.info = info;
     this.security = security;
@@ -181,7 +182,7 @@ public final class EtdFutureTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -491,10 +492,11 @@ public final class EtdFutureTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

@@ -42,7 +42,7 @@ public final class GenericSecurityTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The security that was traded.
@@ -163,7 +163,7 @@ public final class GenericSecurityTrade
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param security  the value of the property, not null
    * @param quantity  the value of the property
    * @param price  the value of the property
@@ -173,6 +173,7 @@ public final class GenericSecurityTrade
       GenericSecurity security,
       double quantity,
       double price) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(security, "security");
     this.info = info;
     this.security = security;
@@ -190,7 +191,7 @@ public final class GenericSecurityTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -500,10 +501,11 @@ public final class GenericSecurityTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
