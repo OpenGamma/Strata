@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -130,6 +131,21 @@ public final class EtdFutureSecurity
         .price(tradePrice)
         .security(this)
         .build();
+  }
+
+  @Override
+  public EtdFuturePosition createPosition(PositionInfo positionInfo, double quantity, ReferenceData refData) {
+    return EtdFuturePosition.ofNet(positionInfo, this, quantity);
+  }
+
+  @Override
+  public EtdFuturePosition createPosition(
+      PositionInfo positionInfo,
+      double longQuantity,
+      double shortQuantity,
+      ReferenceData refData) {
+
+    return EtdFuturePosition.ofLongShort(positionInfo, this, longQuantity, shortQuantity);
   }
 
   /**

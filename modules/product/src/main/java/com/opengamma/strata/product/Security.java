@@ -107,4 +107,38 @@ public interface Security {
       double tradePrice,
       ReferenceData refData);
 
+  /**
+   * Creates a position based on this security from a net quantity.
+   * <p>
+   * This creates a position of a suitable type for this security.
+   * 
+   * @param positionInfo  the position information
+   * @param quantity  the number of contracts in the position
+   * @param refData  the reference data used to find underlying securities
+   * @return the position
+   */
+  public abstract Position createPosition(
+      PositionInfo positionInfo,
+      double quantity,
+      ReferenceData refData);
+
+  /**
+   * Creates a position based on this security from a long and short quantity.
+   * <p>
+   * This creates a position of a suitable type for this security.
+   * <p>
+   * The long quantity and short quantity must be zero or positive, not negative.
+   * 
+   * @param positionInfo  the position information
+   * @param longQuantity  the long quantity in the position
+   * @param shortQuantity  the short quantity in the position
+   * @param refData  the reference data used to find underlying securities
+   * @return the position
+   */
+  public abstract Position createPosition(
+      PositionInfo positionInfo,
+      double longQuantity,
+      double shortQuantity,
+      ReferenceData refData);
+
 }

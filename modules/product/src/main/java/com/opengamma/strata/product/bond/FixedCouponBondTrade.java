@@ -51,7 +51,7 @@ public final class FixedCouponBondTrade
    * This allows additional information to be attached to the trade.
    * Either the trade or settlement date is required when calling {@link FixedCouponBondTrade#resolve(ReferenceData)}.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The bond that was traded.
@@ -156,7 +156,7 @@ public final class FixedCouponBondTrade
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param product  the value of the property, not null
    * @param quantity  the value of the property
    * @param price  the value of the property
@@ -166,6 +166,7 @@ public final class FixedCouponBondTrade
       FixedCouponBond product,
       double quantity,
       double price) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     ArgChecker.notNegative(price, "price");
     this.info = info;
@@ -185,7 +186,7 @@ public final class FixedCouponBondTrade
    * <p>
    * This allows additional information to be attached to the trade.
    * Either the trade or settlement date is required when calling {@link FixedCouponBondTrade#resolve(ReferenceData)}.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -501,10 +502,11 @@ public final class FixedCouponBondTrade
      * <p>
      * This allows additional information to be attached to the trade.
      * Either the trade or settlement date is required when calling {@link FixedCouponBondTrade#resolve(ReferenceData)}.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
