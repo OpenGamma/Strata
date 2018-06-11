@@ -371,7 +371,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
 
   public void test_presentValue_position() {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValue(POSITION, PROVIDER);
-    CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER, SETTLE_BEFORE);
+    CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER, VAL_DATE);
     assertEquals(computedTrade.getAmount(), computedProduct.multipliedBy(QUANTITY).getAmount(), NOTIONAL * QUANTITY * TOL);
   }
 

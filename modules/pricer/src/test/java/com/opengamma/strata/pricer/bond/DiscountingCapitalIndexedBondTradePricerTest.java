@@ -531,7 +531,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   public void test_presentValue_position() {
     CurrencyAmount computed = PRICER.presentValue(POSITION, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected1 = PRODUCT_PRICER.presentValue(
-        RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_BEFORE).getAmount() * QUANTITY;
+        RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION).getAmount() * QUANTITY;
     assertEquals(computed.getAmount(), expected1, NOTIONAL * QUANTITY * TOL);
   }
 
@@ -660,7 +660,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_currentCash_position() {
     CurrencyAmount computed = PRICER.currentCash(POSITION, RATES_PROVIDER_ON_PAY);
-    CurrencyAmount expected = PRODUCT_PRICER.currentCash(RPRODUCT, RATES_PROVIDER_ON_PAY, SETTLEMENT_BEFORE);
+    CurrencyAmount expected = PRODUCT_PRICER.currentCash(RPRODUCT, RATES_PROVIDER_ON_PAY, PAYMENT);
     assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * QUANTITY * TOL);
   }
 

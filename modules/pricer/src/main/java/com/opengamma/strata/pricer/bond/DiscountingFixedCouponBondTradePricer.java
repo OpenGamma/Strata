@@ -41,8 +41,6 @@ public class DiscountingFixedCouponBondTradePricer {
   public static final DiscountingFixedCouponBondTradePricer DEFAULT = new DiscountingFixedCouponBondTradePricer(
       DiscountingFixedCouponBondProductPricer.DEFAULT,
       DiscountingPaymentPricer.DEFAULT);
-  // date in the far past for positions that have settled (first bond was 1517)
-  private static final LocalDate SETTLED_DATE = LocalDate.of(1500, 1, 1);
 
   /**
    * Pricer for {@link ResolvedFixedCouponBond}.
@@ -81,7 +79,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
-    LocalDate settlementDate = settlementDate(trade);
+    LocalDate settlementDate = settlementDate(trade, provider.getValuationDate());
     CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), provider, settlementDate);
     return presentValueFromProductPresentValue(trade, provider, pvProduct);
   }
@@ -111,7 +109,7 @@ public class DiscountingFixedCouponBondTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    LocalDate settlementDate = settlementDate(trade);
+    LocalDate settlementDate = settlementDate(trade, provider.getValuationDate());
     CurrencyAmount pvProduct = productPricer.presentValueWithZSpread(
         trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
     return presentValueFromProductPresentValue(trade, provider, pvProduct);
@@ -150,7 +148,7 @@ public class DiscountingFixedCouponBondTradePricer {
 
     ResolvedFixedCouponBond product = trade.getProduct();
     LocalDate standardSettlementDate = standardSettlementDate(product, provider, refData);
-    LocalDate tradeSettlementDate = settlementDate(trade);
+    LocalDate tradeSettlementDate = settlementDate(trade, provider.getValuationDate());
     StandardId legalEntityId = product.getLegalEntityId();
     Currency currency = product.getCurrency();
     double df = provider.repoCurveDiscountFactors(
@@ -203,7 +201,7 @@ public class DiscountingFixedCouponBondTradePricer {
 
     ResolvedFixedCouponBond product = trade.getProduct();
     LocalDate standardSettlementDate = standardSettlementDate(product, provider, refData);
-    LocalDate tradeSettlementDate = settlementDate(trade);
+    LocalDate tradeSettlementDate = settlementDate(trade, provider.getValuationDate());
     StandardId legalEntityId = product.getLegalEntityId();
     Currency currency = product.getCurrency();
     double df = provider.repoCurveDiscountFactors(
@@ -264,7 +262,7 @@ public class DiscountingFixedCouponBondTradePricer {
       ResolvedFixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider) {
 
-    LocalDate settlementDate = settlementDate(trade);
+    LocalDate settlementDate = settlementDate(trade, provider.getValuationDate());
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivity(
         trade.getProduct(), provider, settlementDate);
     return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct).build();
@@ -295,7 +293,7 @@ public class DiscountingFixedCouponBondTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    LocalDate settlementDate = settlementDate(trade);
+    LocalDate settlementDate = settlementDate(trade, provider.getValuationDate());
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivityWithZSpread(
         trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
     return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct).build();
@@ -434,10 +432,10 @@ public class DiscountingFixedCouponBondTradePricer {
 
   //-------------------------------------------------------------------------
   // calculate the settlement date
-  private LocalDate settlementDate(ResolvedFixedCouponBondTrade trade) {
+  private LocalDate settlementDate(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
     return trade.getSettlement()
         .map(settle -> settle.getSettlementDate())
-        .orElse(SETTLED_DATE);
+        .orElse(valuationDate);
   }
 
 }
