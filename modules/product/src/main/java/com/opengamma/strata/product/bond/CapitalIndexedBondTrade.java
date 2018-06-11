@@ -120,9 +120,9 @@ public final class CapitalIndexedBondTrade
     if (settlementDate.isBefore(resolvedProduct.getStartDate())) {
       throw new IllegalArgumentException("Settlement date must not be before bond starts");
     }
-    BondPaymentPeriod amount;
+    BondPaymentPeriod settlePeriod;
     if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-      amount = KnownAmountBondPaymentPeriod.of(
+      settlePeriod = KnownAmountBondPaymentPeriod.of(
           Payment.of(product.getCurrency(),
               -product.getNotional() * quantity * (price + accruedInterest), settlementDate),
           SchedulePeriod.of(
@@ -132,7 +132,7 @@ public final class CapitalIndexedBondTrade
               settlementDate));
     } else {
       RateComputation rateComputation = product.getRateCalculation().createRateComputation(settlementDate);
-      amount = CapitalIndexedBondPaymentPeriod.builder()
+      settlePeriod = CapitalIndexedBondPaymentPeriod.builder()
           .startDate(resolvedProduct.getStartDate())
           .unadjustedStartDate(product.getAccrualSchedule().getStartDate())
           .endDate(settlementDate)
@@ -147,7 +147,7 @@ public final class CapitalIndexedBondTrade
         .info(info)
         .product(resolvedProduct)
         .quantity(quantity)
-        .settlement(ResolvedCapitalIndexedBondSettlement.of(settlementDate, price, amount))
+        .settlement(ResolvedCapitalIndexedBondSettlement.of(settlementDate, price, settlePeriod))
         .build();
   }
 
