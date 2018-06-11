@@ -31,7 +31,7 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 import com.opengamma.strata.product.index.ResolvedIborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
 
@@ -69,20 +69,14 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE_TD = ResolvedIborFutureOptionTrade.builder()
-      .info(TradeInfo.builder()
-          .tradeDate(VAL_DATE)
-          .build())
       .product(OPTION)
       .quantity(OPTION_QUANTITY)
-      .price(TRADE_PRICE)
+      .tradedPrice(TradedPrice.of(VAL_DATE, TRADE_PRICE))
       .build();
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE = ResolvedIborFutureOptionTrade.builder()
-      .info(TradeInfo.builder()
-          .tradeDate(TRADE_DATE)
-          .build())
       .product(OPTION)
       .quantity(OPTION_QUANTITY)
-      .price(TRADE_PRICE)
+      .tradedPrice(TradedPrice.of(TRADE_DATE, TRADE_PRICE))
       .build();
 
   private static final double RATE = 0.015;

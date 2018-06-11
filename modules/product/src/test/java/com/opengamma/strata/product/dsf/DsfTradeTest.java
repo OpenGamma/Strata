@@ -20,6 +20,7 @@ import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradedPrice;
 
 /**
  * Test {@link DsfTrade}.
@@ -30,8 +31,9 @@ public class DsfTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   static final Dsf PRODUCT = DsfTest.sut();
   static final Dsf PRODUCT2 = DsfTest.sut2();
+  private static final LocalDate TRADE_DATE = LocalDate.of(2014, 6, 12);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
-      .tradeDate(LocalDate.of(2014, 6, 12))
+      .tradeDate(TRADE_DATE)
       .settlementDate(LocalDate.of(2014, 6, 14))
       .build();
   private static final double QUANTITY = 100L;
@@ -73,7 +75,7 @@ public class DsfTradeTest {
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
-        .price(PRICE)
+        .tradedPrice(TradedPrice.of(TRADE_DATE, PRICE))
         .build();
     assertEquals(test.resolve(REF_DATA), expected);
   }
