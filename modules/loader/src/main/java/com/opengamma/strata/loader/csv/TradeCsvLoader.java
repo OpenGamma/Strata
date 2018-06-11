@@ -187,6 +187,7 @@ public final class TradeCsvLoader {
   static final String TRADE_DATE_FIELD = "Trade Date";
   static final String CONVENTION_FIELD = "Convention";
   static final String BUY_SELL_FIELD = "Buy Sell";
+  static final String DIRECTION_FIELD = "Direction";
   static final String CURRENCY_FIELD = "Currency";
   static final String NOTIONAL_FIELD = "Notional";
   static final String INDEX_FIELD = "Index";
@@ -199,6 +200,7 @@ public final class TradeCsvLoader {
   static final String DATE_ADJ_CNV_FIELD = "Date Convention";
   static final String DATE_ADJ_CAL_FIELD = "Date Calendar";
   static final String DAY_COUNT_FIELD = "Day Count";
+  static final String FX_RATE_FIELD = "FX Rate";
 
   // CSV column headers
   private static final String TYPE_FIELD = "Strata Trade Type";
