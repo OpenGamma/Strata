@@ -154,9 +154,12 @@ public class FloatingRateNameTest {
 
   //-------------------------------------------------------------------------
   public void test_defaultIborIndex() {
-    assertEquals(FloatingRateName.defaultIborIndex(Currency.GBP), FloatingRateName.of("GBP-LIBOR"));
-    assertEquals(FloatingRateName.defaultIborIndex(Currency.EUR), FloatingRateName.of("EUR-EURIBOR"));
-    assertEquals(FloatingRateName.defaultIborIndex(Currency.USD), FloatingRateName.of("USD-LIBOR"));
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.GBP), FloatingRateNames.GBP_LIBOR);
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.EUR), FloatingRateNames.EUR_EURIBOR);
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.USD), FloatingRateNames.USD_LIBOR);
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.AUD), FloatingRateNames.AUD_BBSW);
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.CAD), FloatingRateNames.CAD_CDOR);
+    assertEquals(FloatingRateName.defaultIborIndex(Currency.NZD), FloatingRateNames.NZD_BKBM);
   }
 
   public void test_defaultOvernightIndex() {
