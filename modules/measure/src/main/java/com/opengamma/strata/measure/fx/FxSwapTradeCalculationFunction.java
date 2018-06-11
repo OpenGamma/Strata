@@ -25,7 +25,6 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
-import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 
@@ -95,9 +94,7 @@ public class FxSwapTradeCalculationFunction
 
   @Override
   public Currency naturalCurrency(FxSwapTrade trade, ReferenceData refData) {
-    Currency base = trade.getProduct().getNearLeg().getBaseCurrencyAmount().getCurrency();
-    Currency counter = trade.getProduct().getNearLeg().getCounterCurrencyAmount().getCurrency();
-    CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
+    CurrencyPair marketConventionPair = trade.getProduct().getCurrencyPair().toConventional();
     return marketConventionPair.getBase();
   }
 
@@ -110,10 +107,7 @@ public class FxSwapTradeCalculationFunction
       ReferenceData refData) {
 
     // extract data from product
-    FxSwap fx = trade.getProduct();
-    Currency baseCurrency = fx.getNearLeg().getBaseCurrencyAmount().getCurrency();
-    Currency counterCurrency = fx.getNearLeg().getCounterCurrencyAmount().getCurrency();
-    ImmutableSet<Currency> currencies = ImmutableSet.of(baseCurrency, counterCurrency);
+    ImmutableSet<Currency> currencies = trade.getProduct().getCurrencyPair().toSet();
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);

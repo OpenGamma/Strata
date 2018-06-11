@@ -11,9 +11,14 @@
     </attributes>
    </info>
    <product>
-    <baseCurrencyAmount>GBP 10000</baseCurrencyAmount>
-    <counterCurrencyAmount>USD -16200</counterCurrencyAmount>
-    <paymentDate>2014-09-14</paymentDate>
+    <baseCurrencyPayment>
+      <value>GBP 10000</value>
+      <date>2014-09-14</date>
+    </baseCurrencyPayment>
+    <counterCurrencyPayment>
+      <value>USD -16200</value>
+      <date>2014-09-14</date>
+    </counterCurrencyPayment>
    </product>
   </item>
   <item type="FxSingleTrade">
@@ -26,9 +31,14 @@
     </attributes>
    </info>
    <product>
-    <baseCurrencyAmount>GBP -9259.2593</baseCurrencyAmount>
-    <counterCurrencyAmount>USD 15000</counterCurrencyAmount>
-    <paymentDate>2014-09-14</paymentDate>
+    <baseCurrencyPayment>
+      <value>GBP -9259.2593</value>
+      <date>2014-09-14</date>
+    </baseCurrencyPayment>
+    <counterCurrencyPayment>
+      <value>USD 15000</value>
+      <date>2014-09-14</date>
+    </counterCurrencyPayment>
    </product>
   </item>
   <item type="com.opengamma.strata.product.fx.FxSwapTrade">
@@ -42,14 +52,24 @@
    </info>
    <product>
     <nearLeg>
-     <baseCurrencyAmount>GBP 10000</baseCurrencyAmount>
-     <counterCurrencyAmount>USD -16200</counterCurrencyAmount>
-     <paymentDate>2014-06-14</paymentDate>
+      <baseCurrencyPayment>
+        <value>GBP 10000</value>
+        <date>2014-06-14</date>
+      </baseCurrencyPayment>
+      <counterCurrencyPayment>
+        <value>USD -16200</value>
+        <date>2014-06-14</date>
+      </counterCurrencyPayment>
     </nearLeg>
     <farLeg>
-     <baseCurrencyAmount>GBP -10000</baseCurrencyAmount>
-     <counterCurrencyAmount>USD 16500</counterCurrencyAmount>
-     <paymentDate>2014-09-14</paymentDate>
+      <baseCurrencyPayment>
+        <value>GBP -10000</value>
+        <date>2014-09-14</date>
+      </baseCurrencyPayment>
+      <counterCurrencyPayment>
+        <value>USD 16500</value>
+        <date>2014-09-14</date>
+      </counterCurrencyPayment>
     </farLeg>
    </product>
   </item>

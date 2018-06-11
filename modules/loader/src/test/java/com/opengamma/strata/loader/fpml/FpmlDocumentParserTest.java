@@ -72,6 +72,7 @@ import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -221,9 +222,8 @@ public class FpmlDocumentParserTest {
     FxSingleTrade fxTrade = (FxSingleTrade) trade;
     assertEquals(fxTrade.getInfo().getTradeDate(), Optional.of(date(2001, 10, 23)));
     FxSingle fx = fxTrade.getProduct();
-    assertEquals(fx.getBaseCurrencyAmount(), CurrencyAmount.of(GBP, 10000000));
-    assertEquals(fx.getCounterCurrencyAmount(), CurrencyAmount.of(USD, -14800000));
-    assertEquals(fx.getPaymentDate(), date(2001, 10, 25));
+    assertEquals(fx.getBaseCurrencyPayment(), Payment.of(GBP, 10000000, date(2001, 10, 25)));
+    assertEquals(fx.getCounterCurrencyPayment(), Payment.of(USD, -14800000, date(2001, 10, 25)));
   }
 
   //-------------------------------------------------------------------------
@@ -237,9 +237,22 @@ public class FpmlDocumentParserTest {
     FxSingleTrade fxTrade = (FxSingleTrade) trade;
     assertEquals(fxTrade.getInfo().getTradeDate(), Optional.of(date(2001, 11, 19)));
     FxSingle fx = fxTrade.getProduct();
-    assertEquals(fx.getBaseCurrencyAmount(), CurrencyAmount.of(EUR, 10000000));
-    assertEquals(fx.getCounterCurrencyAmount(), CurrencyAmount.of(USD, -9175000));
-    assertEquals(fx.getPaymentDate(), date(2001, 12, 21));
+    assertEquals(fx.getBaseCurrencyPayment(), Payment.of(EUR, 10000000, date(2001, 12, 21)));
+    assertEquals(fx.getCounterCurrencyPayment(), Payment.of(USD, -9175000, date(2001, 12, 21)));
+  }
+
+  public void fxForward_splitDate() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/fx-ex03-fx-fwd-split-date.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), FxSingleTrade.class);
+    FxSingleTrade fxTrade = (FxSingleTrade) trade;
+    assertEquals(fxTrade.getInfo().getTradeDate(), Optional.of(date(2001, 11, 19)));
+    FxSingle fx = fxTrade.getProduct();
+    assertEquals(fx.getBaseCurrencyPayment(), Payment.of(EUR, 10000000, date(2001, 12, 21)));
+    assertEquals(fx.getCounterCurrencyPayment(), Payment.of(USD, -9175000, date(2001, 12, 22)));
   }
 
   //-------------------------------------------------------------------------
@@ -276,15 +289,14 @@ public class FpmlDocumentParserTest {
     assertEquals(fxTrade.getInfo().getTradeDate(), Optional.of(date(2002, 1, 23)));
     FxSwap fx = fxTrade.getProduct();
     FxSingle nearLeg = fx.getNearLeg();
-    assertEquals(nearLeg.getBaseCurrencyAmount(), CurrencyAmount.of(GBP, 10000000));
-    assertEquals(nearLeg.getCounterCurrencyAmount(), CurrencyAmount.of(USD, -14800000));
-    assertEquals(nearLeg.getPaymentDate(), date(2002, 1, 25));
+    assertEquals(nearLeg.getBaseCurrencyPayment(), Payment.of(GBP, 10000000, date(2002, 1, 25)));
+    assertEquals(nearLeg.getCounterCurrencyPayment(), Payment.of(USD, -14800000, date(2002, 1, 25)));
     FxSingle farLeg = fx.getFarLeg();
-    assertEquals(farLeg.getBaseCurrencyAmount(), CurrencyAmount.of(GBP, -10000000));
-    assertEquals(farLeg.getCounterCurrencyAmount(), CurrencyAmount.of(USD, 15000000));
-    assertEquals(farLeg.getPaymentDate(), date(2002, 2, 25));
+    assertEquals(farLeg.getBaseCurrencyPayment(), Payment.of(GBP, -10000000, date(2002, 2, 25)));
+    assertEquals(farLeg.getCounterCurrencyPayment(), Payment.of(USD, 15000000, date(2002, 2, 25)));
   }
 
+  //-------------------------------------------------------------------------
   public void swaption() {
     String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex10-euro-swaption-relative.xml";
     ByteSource resource = ResourceLocator.of(location).getByteSource();

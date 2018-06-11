@@ -25,7 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+import org.joda.beans.ser.SerDeserializers;
 
+import com.google.common.collect.Ordering;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
@@ -34,6 +36,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -50,33 +53,37 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class FxSingle
     implements FxProduct, Resolvable<ResolvedFxSingle>, ImmutableBean, Serializable {
 
+  static {
+    SerDeserializers.INSTANCE.register(FxSingle.class, FxSingleDeserializer.INSTANCE);
+    SerDeserializers.LENIENT.register(FxSingle.class, FxSingleDeserializer.INSTANCE);
+  }
+
   /**
-   * The amount in the base currency, positive if receiving, negative if paying.
+   * The payment in the base currency, positive if receiving, negative if paying.
    * <p>
    * The amount is signed.
    * A positive amount indicates the payment is to be received.
    * A negative amount indicates the payment is to be paid.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final CurrencyAmount baseCurrencyAmount;
-  /**
-   * The amount in the counter currency, positive if receiving, negative if paying.
    * <p>
-   * The amount is signed.
-   * A positive amount indicates the payment is to be received.
-   * A negative amount indicates the payment is to be paid.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final CurrencyAmount counterCurrencyAmount;
-  /**
-   * The date that the FX settles.
-   * <p>
-   * On this date, the pay and receive amounts will be exchanged.
-   * This date is typically a valid business day, however the {@code businessDayAdjustment}
+   * The payment date is usually the same as {@code counterCurrencyPayment}.
+   * It is typically a valid business day, however the {@code businessDayAdjustment}
    * property may be used to adjust it.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate paymentDate;
+  private final Payment baseCurrencyPayment;
+  /**
+   * The payment in the counter currency, positive if receiving, negative if paying.
+   * <p>
+   * The amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
+   * <p>
+   * The payment date is usually the same as {@code baseCurrencyPayment}.
+   * It is typically a valid business day, however the {@code businessDayAdjustment}
+   * property may be used to adjust it.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Payment counterCurrencyPayment;
   /**
    * The payment date adjustment, optional.
    * <p>
@@ -86,6 +93,48 @@ public final class FxSingle
   private final BusinessDayAdjustment paymentDateAdjustment;
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates an {@code FxSingle} from two payments.
+   * <p>
+   * The payments must be of the correct type, one pay and one receive.
+   * The currencies of the payments must differ.
+   * The payment dates may differ.
+   * <p>
+   * This factory identifies the currency pair of the exchange and assigns the payments
+   * to match the base or counter currency of the standardized currency pair.
+   * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
+   * <p>
+   * No payment date adjustments apply.
+   * 
+   * @param payment1  the payment in the first currency
+   * @param payment2  the payment in the second currency
+   * @return the FX
+   */
+  public static FxSingle of(Payment payment1, Payment payment2) {
+    return create(payment1, payment2, null);
+  }
+
+  /**
+   * Creates an {@code FxSingle} from two payments, specifying a date adjustment.
+   * <p>
+   * The payments must be of the correct type, one pay and one receive.
+   * The currencies of the payments must differ.
+   * The payment dates may differ.
+   * <p>
+   * This factory identifies the currency pair of the exchange and assigns the payments
+   * to match the base or counter currency of the standardized currency pair.
+   * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
+   * 
+   * @param payment1  the payment in the first currency
+   * @param payment2  the payment in the second currency
+   * @param paymentDateAdjustment  the adjustment to apply to the payment date
+   * @return the FX
+   */
+  public static FxSingle of(Payment payment1, Payment payment2, BusinessDayAdjustment paymentDateAdjustment) {
+    ArgChecker.notNull(paymentDateAdjustment, "paymentDateAdjustment");
+    return create(payment1, payment2, paymentDateAdjustment);
+  }
+
   /**
    * Creates an {@code FxSingle} from two amounts and the value date.
    * <p>
@@ -187,6 +236,9 @@ public final class FxSingle
       LocalDate paymentDate,
       BusinessDayAdjustment paymentDateAdjustment) {
 
+    ArgChecker.notNull(amount, "amount");
+    ArgChecker.notNull(fxRate, "fxRate");
+    ArgChecker.notNull(paymentDate, "paymentDate");
     CurrencyPair pair = fxRate.getPair();
     ArgChecker.isTrue(pair.contains(amount.getCurrency()));
     Currency currency2 = pair.getBase().equals(amount.getCurrency()) ? pair.getCounter() : pair.getBase();
@@ -201,22 +253,36 @@ public final class FxSingle
       LocalDate paymentDate,
       BusinessDayAdjustment paymentDateAdjustment) {
 
-    CurrencyPair pair = CurrencyPair.of(amount2.getCurrency(), amount1.getCurrency());
+    ArgChecker.notNull(amount1, "amount1");
+    ArgChecker.notNull(amount2, "amount2");
+    ArgChecker.notNull(paymentDate, "paymentDate");
+    return create(Payment.of(amount1, paymentDate), Payment.of(amount2, paymentDate), paymentDateAdjustment);
+  }
+
+  // internal method where adjustment may be null
+  private static FxSingle create(
+      Payment payment1,
+      Payment payment2,
+      BusinessDayAdjustment paymentDateAdjustment) {
+
+    ArgChecker.notNull(payment1, "payment1");
+    ArgChecker.notNull(payment2, "payment2");
+    CurrencyPair pair = CurrencyPair.of(payment1.getCurrency(), payment2.getCurrency());
     if (pair.isConventional()) {
-      return new FxSingle(amount2, amount1, paymentDate, paymentDateAdjustment);
+      return new FxSingle(payment1, payment2, paymentDateAdjustment);
     } else {
-      return new FxSingle(amount1, amount2, paymentDate, paymentDateAdjustment);
+      return new FxSingle(payment2, payment1, paymentDateAdjustment);
     }
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    if (baseCurrencyAmount.getCurrency().equals(counterCurrencyAmount.getCurrency())) {
+    if (baseCurrencyPayment.getCurrency().equals(counterCurrencyPayment.getCurrency())) {
       throw new IllegalArgumentException("Amounts must have different currencies");
     }
-    if ((baseCurrencyAmount.getAmount() != 0d || counterCurrencyAmount.getAmount() != 0d) &&
-        Math.signum(baseCurrencyAmount.getAmount()) != -Math.signum(counterCurrencyAmount.getAmount())) {
+    if ((baseCurrencyPayment.getAmount() != 0d || counterCurrencyPayment.getAmount() != 0d) &&
+        Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
       throw new IllegalArgumentException("Amounts must have different signs");
     }
   }
@@ -225,12 +291,12 @@ public final class FxSingle
   private static void preBuild(Builder builder) {
     // swap order to be base/counter if reverse is conventional
     // this handles deserialization where the base/counter rules differ from those applicable at serialization
-    CurrencyAmount base = builder.baseCurrencyAmount;
-    CurrencyAmount counter = builder.counterCurrencyAmount;
+    Payment base = builder.baseCurrencyPayment;
+    Payment counter = builder.counterCurrencyPayment;
     CurrencyPair pair = CurrencyPair.of(counter.getCurrency(), base.getCurrency());
     if (pair.isConventional()) {
-      builder.baseCurrencyAmount = counter;
-      builder.counterCurrencyAmount = base;
+      builder.baseCurrencyPayment = counter;
+      builder.counterCurrencyPayment = base;
     }
   }
 
@@ -244,7 +310,47 @@ public final class FxSingle
    */
   @Override
   public CurrencyPair getCurrencyPair() {
-    return CurrencyPair.of(baseCurrencyAmount.getCurrency(), counterCurrencyAmount.getCurrency());
+    return CurrencyPair.of(baseCurrencyPayment.getCurrency(), counterCurrencyPayment.getCurrency());
+  }
+
+  /**
+   * Gets the amount in the base currency, positive if receiving, negative if paying.
+   * <p>
+   * The amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
+   * 
+   * @return the amount
+   */
+  public CurrencyAmount getBaseCurrencyAmount() {
+    return baseCurrencyPayment.getValue();
+  }
+
+  /**
+   * Gets the amount in the counter currency, positive if receiving, negative if paying.
+   * <p>
+   * The amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
+   * 
+   * @return the amount
+   */
+  public CurrencyAmount getCounterCurrencyAmount() {
+    return counterCurrencyPayment.getValue();
+  }
+
+  /**
+   * Gets the currency amount in which the amount is paid.
+   * <p>
+   * This returns the currency amount whose amount is negative or zero.
+   * 
+   * @return the pay currency amount
+   */
+  public CurrencyAmount getPayCurrencyAmount() {
+    if (baseCurrencyPayment.getAmount() <= 0d) {
+      return baseCurrencyPayment.getValue();
+    }
+    return counterCurrencyPayment.getValue();
   }
 
   /**
@@ -256,19 +362,32 @@ public final class FxSingle
    * @return the receive currency amount
    */
   public CurrencyAmount getReceiveCurrencyAmount() {
-    if (baseCurrencyAmount.getAmount() > 0d) {
-      return baseCurrencyAmount;
+    if (baseCurrencyPayment.getAmount() > 0d) {
+      return baseCurrencyPayment.getValue();
     }
-    return counterCurrencyAmount;
+    return counterCurrencyPayment.getValue();
+  }
+
+  /**
+   * Gets the last payment date.
+   * <p>
+   * The payment date is normally the same for the base and counter currencies.
+   * If it differs, this method returns the latest of the two dates.
+   * 
+   * @return the latest payment date
+   */
+  public LocalDate getPaymentDate() {
+    return Ordering.natural().max(baseCurrencyPayment.getDate(), counterCurrencyPayment.getDate());
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedFxSingle resolve(ReferenceData refData) {
-    LocalDate date = paymentDateAdjustment != null ? paymentDateAdjustment.adjust(paymentDate, refData) : paymentDate;
-    return ResolvedFxSingle.of(
-        Payment.of(baseCurrencyAmount, date),
-        Payment.of(counterCurrencyAmount, date));
+    if (paymentDateAdjustment == null) {
+      return ResolvedFxSingle.of(baseCurrencyPayment, counterCurrencyPayment);
+    }
+    DateAdjuster adjuster = paymentDateAdjustment.resolve(refData);
+    return ResolvedFxSingle.of(baseCurrencyPayment.adjustDate(adjuster), counterCurrencyPayment.adjustDate(adjuster));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -290,16 +409,13 @@ public final class FxSingle
   private static final long serialVersionUID = 1L;
 
   private FxSingle(
-      CurrencyAmount baseCurrencyAmount,
-      CurrencyAmount counterCurrencyAmount,
-      LocalDate paymentDate,
+      Payment baseCurrencyPayment,
+      Payment counterCurrencyPayment,
       BusinessDayAdjustment paymentDateAdjustment) {
-    JodaBeanUtils.notNull(baseCurrencyAmount, "baseCurrencyAmount");
-    JodaBeanUtils.notNull(counterCurrencyAmount, "counterCurrencyAmount");
-    JodaBeanUtils.notNull(paymentDate, "paymentDate");
-    this.baseCurrencyAmount = baseCurrencyAmount;
-    this.counterCurrencyAmount = counterCurrencyAmount;
-    this.paymentDate = paymentDate;
+    JodaBeanUtils.notNull(baseCurrencyPayment, "baseCurrencyPayment");
+    JodaBeanUtils.notNull(counterCurrencyPayment, "counterCurrencyPayment");
+    this.baseCurrencyPayment = baseCurrencyPayment;
+    this.counterCurrencyPayment = counterCurrencyPayment;
     this.paymentDateAdjustment = paymentDateAdjustment;
     validate();
   }
@@ -311,41 +427,36 @@ public final class FxSingle
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount in the base currency, positive if receiving, negative if paying.
+   * Gets the payment in the base currency, positive if receiving, negative if paying.
    * <p>
    * The amount is signed.
    * A positive amount indicates the payment is to be received.
    * A negative amount indicates the payment is to be paid.
-   * @return the value of the property, not null
-   */
-  public CurrencyAmount getBaseCurrencyAmount() {
-    return baseCurrencyAmount;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the amount in the counter currency, positive if receiving, negative if paying.
    * <p>
-   * The amount is signed.
-   * A positive amount indicates the payment is to be received.
-   * A negative amount indicates the payment is to be paid.
-   * @return the value of the property, not null
-   */
-  public CurrencyAmount getCounterCurrencyAmount() {
-    return counterCurrencyAmount;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date that the FX settles.
-   * <p>
-   * On this date, the pay and receive amounts will be exchanged.
-   * This date is typically a valid business day, however the {@code businessDayAdjustment}
+   * The payment date is usually the same as {@code counterCurrencyPayment}.
+   * It is typically a valid business day, however the {@code businessDayAdjustment}
    * property may be used to adjust it.
    * @return the value of the property, not null
    */
-  public LocalDate getPaymentDate() {
-    return paymentDate;
+  public Payment getBaseCurrencyPayment() {
+    return baseCurrencyPayment;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payment in the counter currency, positive if receiving, negative if paying.
+   * <p>
+   * The amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
+   * <p>
+   * The payment date is usually the same as {@code baseCurrencyPayment}.
+   * It is typically a valid business day, however the {@code businessDayAdjustment}
+   * property may be used to adjust it.
+   * @return the value of the property, not null
+   */
+  public Payment getCounterCurrencyPayment() {
+    return counterCurrencyPayment;
   }
 
   //-----------------------------------------------------------------------
@@ -367,9 +478,8 @@ public final class FxSingle
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxSingle other = (FxSingle) obj;
-      return JodaBeanUtils.equal(baseCurrencyAmount, other.baseCurrencyAmount) &&
-          JodaBeanUtils.equal(counterCurrencyAmount, other.counterCurrencyAmount) &&
-          JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
+      return JodaBeanUtils.equal(baseCurrencyPayment, other.baseCurrencyPayment) &&
+          JodaBeanUtils.equal(counterCurrencyPayment, other.counterCurrencyPayment) &&
           JodaBeanUtils.equal(paymentDateAdjustment, other.paymentDateAdjustment);
     }
     return false;
@@ -378,20 +488,18 @@ public final class FxSingle
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(baseCurrencyAmount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(counterCurrencyAmount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(baseCurrencyPayment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(counterCurrencyPayment);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateAdjustment);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("FxSingle{");
-    buf.append("baseCurrencyAmount").append('=').append(baseCurrencyAmount).append(',').append(' ');
-    buf.append("counterCurrencyAmount").append('=').append(counterCurrencyAmount).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("baseCurrencyPayment").append('=').append(baseCurrencyPayment).append(',').append(' ');
+    buf.append("counterCurrencyPayment").append('=').append(counterCurrencyPayment).append(',').append(' ');
     buf.append("paymentDateAdjustment").append('=').append(JodaBeanUtils.toString(paymentDateAdjustment));
     buf.append('}');
     return buf.toString();
@@ -408,20 +516,15 @@ public final class FxSingle
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code baseCurrencyAmount} property.
+     * The meta-property for the {@code baseCurrencyPayment} property.
      */
-    private final MetaProperty<CurrencyAmount> baseCurrencyAmount = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyAmount", FxSingle.class, CurrencyAmount.class);
+    private final MetaProperty<Payment> baseCurrencyPayment = DirectMetaProperty.ofImmutable(
+        this, "baseCurrencyPayment", FxSingle.class, Payment.class);
     /**
-     * The meta-property for the {@code counterCurrencyAmount} property.
+     * The meta-property for the {@code counterCurrencyPayment} property.
      */
-    private final MetaProperty<CurrencyAmount> counterCurrencyAmount = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyAmount", FxSingle.class, CurrencyAmount.class);
-    /**
-     * The meta-property for the {@code paymentDate} property.
-     */
-    private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
-        this, "paymentDate", FxSingle.class, LocalDate.class);
+    private final MetaProperty<Payment> counterCurrencyPayment = DirectMetaProperty.ofImmutable(
+        this, "counterCurrencyPayment", FxSingle.class, Payment.class);
     /**
      * The meta-property for the {@code paymentDateAdjustment} property.
      */
@@ -432,9 +535,8 @@ public final class FxSingle
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "baseCurrencyAmount",
-        "counterCurrencyAmount",
-        "paymentDate",
+        "baseCurrencyPayment",
+        "counterCurrencyPayment",
         "paymentDateAdjustment");
 
     /**
@@ -446,12 +548,10 @@ public final class FxSingle
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 714419450:  // baseCurrencyAmount
-          return baseCurrencyAmount;
-        case -446491419:  // counterCurrencyAmount
-          return counterCurrencyAmount;
-        case -1540873516:  // paymentDate
-          return paymentDate;
+        case 765258148:  // baseCurrencyPayment
+          return baseCurrencyPayment;
+        case -863240423:  // counterCurrencyPayment
+          return counterCurrencyPayment;
         case 737375073:  // paymentDateAdjustment
           return paymentDateAdjustment;
       }
@@ -475,27 +575,19 @@ public final class FxSingle
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code baseCurrencyAmount} property.
+     * The meta-property for the {@code baseCurrencyPayment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> baseCurrencyAmount() {
-      return baseCurrencyAmount;
+    public MetaProperty<Payment> baseCurrencyPayment() {
+      return baseCurrencyPayment;
     }
 
     /**
-     * The meta-property for the {@code counterCurrencyAmount} property.
+     * The meta-property for the {@code counterCurrencyPayment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> counterCurrencyAmount() {
-      return counterCurrencyAmount;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> paymentDate() {
-      return paymentDate;
+    public MetaProperty<Payment> counterCurrencyPayment() {
+      return counterCurrencyPayment;
     }
 
     /**
@@ -510,12 +602,10 @@ public final class FxSingle
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 714419450:  // baseCurrencyAmount
-          return ((FxSingle) bean).getBaseCurrencyAmount();
-        case -446491419:  // counterCurrencyAmount
-          return ((FxSingle) bean).getCounterCurrencyAmount();
-        case -1540873516:  // paymentDate
-          return ((FxSingle) bean).getPaymentDate();
+        case 765258148:  // baseCurrencyPayment
+          return ((FxSingle) bean).getBaseCurrencyPayment();
+        case -863240423:  // counterCurrencyPayment
+          return ((FxSingle) bean).getCounterCurrencyPayment();
         case 737375073:  // paymentDateAdjustment
           return ((FxSingle) bean).paymentDateAdjustment;
       }
@@ -539,9 +629,8 @@ public final class FxSingle
    */
   private static final class Builder extends DirectPrivateBeanBuilder<FxSingle> {
 
-    private CurrencyAmount baseCurrencyAmount;
-    private CurrencyAmount counterCurrencyAmount;
-    private LocalDate paymentDate;
+    private Payment baseCurrencyPayment;
+    private Payment counterCurrencyPayment;
     private BusinessDayAdjustment paymentDateAdjustment;
 
     /**
@@ -554,12 +643,10 @@ public final class FxSingle
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 714419450:  // baseCurrencyAmount
-          return baseCurrencyAmount;
-        case -446491419:  // counterCurrencyAmount
-          return counterCurrencyAmount;
-        case -1540873516:  // paymentDate
-          return paymentDate;
+        case 765258148:  // baseCurrencyPayment
+          return baseCurrencyPayment;
+        case -863240423:  // counterCurrencyPayment
+          return counterCurrencyPayment;
         case 737375073:  // paymentDateAdjustment
           return paymentDateAdjustment;
         default:
@@ -570,14 +657,11 @@ public final class FxSingle
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 714419450:  // baseCurrencyAmount
-          this.baseCurrencyAmount = (CurrencyAmount) newValue;
+        case 765258148:  // baseCurrencyPayment
+          this.baseCurrencyPayment = (Payment) newValue;
           break;
-        case -446491419:  // counterCurrencyAmount
-          this.counterCurrencyAmount = (CurrencyAmount) newValue;
-          break;
-        case -1540873516:  // paymentDate
-          this.paymentDate = (LocalDate) newValue;
+        case -863240423:  // counterCurrencyPayment
+          this.counterCurrencyPayment = (Payment) newValue;
           break;
         case 737375073:  // paymentDateAdjustment
           this.paymentDateAdjustment = (BusinessDayAdjustment) newValue;
@@ -592,20 +676,18 @@ public final class FxSingle
     public FxSingle build() {
       preBuild(this);
       return new FxSingle(
-          baseCurrencyAmount,
-          counterCurrencyAmount,
-          paymentDate,
+          baseCurrencyPayment,
+          counterCurrencyPayment,
           paymentDateAdjustment);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("FxSingle.Builder{");
-      buf.append("baseCurrencyAmount").append('=').append(JodaBeanUtils.toString(baseCurrencyAmount)).append(',').append(' ');
-      buf.append("counterCurrencyAmount").append('=').append(JodaBeanUtils.toString(counterCurrencyAmount)).append(',').append(' ');
-      buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
+      buf.append("baseCurrencyPayment").append('=').append(JodaBeanUtils.toString(baseCurrencyPayment)).append(',').append(' ');
+      buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment)).append(',').append(' ');
       buf.append("paymentDateAdjustment").append('=').append(JodaBeanUtils.toString(paymentDateAdjustment));
       buf.append('}');
       return buf.toString();

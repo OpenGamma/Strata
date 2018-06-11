@@ -25,7 +25,6 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
-import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
 
@@ -96,9 +95,7 @@ public class FxSingleTradeCalculationFunction
 
   @Override
   public Currency naturalCurrency(FxSingleTrade trade, ReferenceData refData) {
-    Currency base = trade.getProduct().getBaseCurrencyAmount().getCurrency();
-    Currency counter = trade.getProduct().getCounterCurrencyAmount().getCurrency();
-    CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
+    CurrencyPair marketConventionPair = trade.getProduct().getCurrencyPair().toConventional();
     return marketConventionPair.getBase();
   }
 
@@ -111,10 +108,7 @@ public class FxSingleTradeCalculationFunction
       ReferenceData refData) {
 
     // extract data from product
-    FxSingle fx = trade.getProduct();
-    Currency baseCurrency = fx.getBaseCurrencyAmount().getCurrency();
-    Currency counterCurrency = fx.getCounterCurrencyAmount().getCurrency();
-    ImmutableSet<Currency> currencies = ImmutableSet.of(baseCurrency, counterCurrency);
+    ImmutableSet<Currency> currencies = trade.getProduct().getCurrencyPair().toSet();
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
