@@ -76,9 +76,9 @@ public enum PayReceive implements NamedEnum {
   /**
    * Normalizes the specified notional amount using this pay/receive rule.
    * <p>
-   * This returns a negative signed amount if this is 'Receive', and a positive
-   * signed amount if this is 'Pay'. This effectively normalizes the input notional
-   * to the pay/receive sign conventions of this library.
+   * This returns a negative signed amount if this is 'Pay', and a positive
+   * signed amount if this is 'Receive'. This effectively normalizes the input
+   * notional to the pay/receive sign conventions of this library.
    * 
    * @param amount  the amount to adjust
    * @return the adjusted amount
