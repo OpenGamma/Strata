@@ -7,6 +7,7 @@ package com.opengamma.strata.product;
 
 import static org.testng.Assert.assertEquals;
 
+import org.joda.convert.RenameHandler;
 import org.testng.annotations.Test;
 
 /**
@@ -42,6 +43,12 @@ public class AttributeTypeTest {
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
     assertEquals(a.equals(""), false);
+  }
+
+  public void test_jodaConvert() throws Exception {
+    assertEquals(RenameHandler.INSTANCE.lookupType("com.opengamma.strata.product.PositionAttributeType"), AttributeType.class);
+    assertEquals(RenameHandler.INSTANCE.lookupType("com.opengamma.strata.product.SecurityAttributeType"), AttributeType.class);
+    assertEquals(RenameHandler.INSTANCE.lookupType("com.opengamma.strata.product.TradeAttributeType"), AttributeType.class);
   }
 
 }
