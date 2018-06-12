@@ -76,7 +76,7 @@ public class FixedCouponBondTradeTest {
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
-        .price(PRICE)
+        .settlement(ResolvedFixedCouponBondSettlement.of(SETTLEMENT_DATE, PRICE))
         .build();
     assertEquals(sut().resolve(REF_DATA), expected);
   }

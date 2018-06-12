@@ -23,6 +23,7 @@ import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention;
 import com.opengamma.strata.product.bond.KnownAmountBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
+import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondSettlement;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
 
 /**
@@ -41,6 +42,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    */
   public static final DiscountingCapitalIndexedBondTradePricer DEFAULT =
       new DiscountingCapitalIndexedBondTradePricer(DiscountingCapitalIndexedBondProductPricer.DEFAULT);
+
   /**
    * Pricer for {@link ResolvedCapitalIndexedBond}.
    */
@@ -76,7 +78,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LegalEntityDiscountingProvider discountingProvider) {
 
     validate(ratesProvider, discountingProvider);
-    LocalDate settlementDate = trade.getSettlementDate();
+    LocalDate settlementDate = settlementDate(trade, ratesProvider.getValuationDate());
     CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), ratesProvider,
         discountingProvider, settlementDate);
     return presentValueFromProductPresentValue(trade, ratesProvider, discountingProvider, pvProduct);
@@ -110,7 +112,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       int periodsPerYear) {
 
     validate(ratesProvider, discountingProvider);
-    LocalDate settlementDate = trade.getSettlementDate();
+    LocalDate settlementDate = settlementDate(trade, ratesProvider.getValuationDate());
     CurrencyAmount pvProduct = productPricer.presentValueWithZSpread(
         trade.getProduct(), ratesProvider,
         discountingProvider,
@@ -141,7 +143,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LegalEntityDiscountingProvider discountingProvider) {
 
     validate(ratesProvider, discountingProvider);
-    LocalDate settlementDate = trade.getSettlementDate();
+    LocalDate settlementDate = settlementDate(trade, ratesProvider.getValuationDate());
     PointSensitivityBuilder productSensi = productPricer.presentValueSensitivity(trade.getProduct(),
         ratesProvider, discountingProvider, settlementDate);
     return presentValueSensitivityFromProductPresentValueSensitivity(
@@ -173,7 +175,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       int periodsPerYear) {
 
     validate(ratesProvider, discountingProvider);
-    LocalDate settlementDate = trade.getSettlementDate();
+    LocalDate settlementDate = settlementDate(trade, ratesProvider.getValuationDate());
     PointSensitivityBuilder productSensi = productPricer.presentValueSensitivityWithZSpread(trade.getProduct(),
         ratesProvider, discountingProvider, settlementDate, zSpread, compoundedRateType, periodsPerYear);
     return presentValueSensitivityFromProductPresentValueSensitivity(
@@ -202,9 +204,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
       double cleanRealPrice) {
 
     validate(ratesProvider, discountingProvider);
+    LocalDate valuationDate = ratesProvider.getValuationDate();
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    LocalDate tradeSettlementDate = trade.getSettlementDate();
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(valuationDate, refData);
+    LocalDate tradeSettlementDate = settlementDate(trade, valuationDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     double df = discountingProvider
@@ -259,9 +262,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
       int periodsPerYear) {
 
     validate(ratesProvider, discountingProvider);
+    LocalDate valuationDate = ratesProvider.getValuationDate();
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    LocalDate tradeSettlementDate = trade.getSettlementDate();
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(valuationDate, refData);
+    LocalDate tradeSettlementDate = settlementDate(trade, valuationDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     double df = discountingProvider
@@ -322,9 +326,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
       double cleanRealPrice) {
 
     validate(ratesProvider, discountingProvider);
+    LocalDate valuationDate = ratesProvider.getValuationDate();
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    LocalDate tradeSettlementDate = trade.getSettlementDate();
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(valuationDate, refData);
+    LocalDate tradeSettlementDate = settlementDate(trade, valuationDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     RepoCurveDiscountFactors repoDiscountFactors =
@@ -382,9 +387,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
       int periodsPerYear) {
 
     validate(ratesProvider, discountingProvider);
+    LocalDate valuationDate = ratesProvider.getValuationDate();
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    LocalDate tradeSettlementDate = trade.getSettlementDate();
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(valuationDate, refData);
+    LocalDate tradeSettlementDate = settlementDate(trade, valuationDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     RepoCurveDiscountFactors repoDiscountFactors =
@@ -534,7 +540,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   }
 
   /**
-   * Calculates the current of the bond trade.
+   * Calculates the current cash of the bond trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
@@ -545,11 +551,13 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider) {
 
     LocalDate valuationDate = ratesProvider.getValuationDate();
-    LocalDate settlementDate = trade.getSettlementDate();
-    BondPaymentPeriod settle = trade.getSettlement();
+    LocalDate settlementDate = settlementDate(trade, valuationDate);
     CurrencyAmount cashProduct = productPricer.currentCash(trade.getProduct(), ratesProvider, settlementDate);
-    double cashSettle =
-        settle.getPaymentDate().isEqual(valuationDate) ? netAmount(trade, ratesProvider).getAmount() : 0d;
+    if (!trade.getSettlement().isPresent()) {
+      return cashProduct;
+    }
+    BondPaymentPeriod settlePeriod = trade.getSettlement().get().getPayment();
+    double cashSettle = settlePeriod.getPaymentDate().isEqual(valuationDate) ? netAmount(trade, ratesProvider).getAmount() : 0d;
     return cashProduct.plus(cashSettle);
   }
 
@@ -568,12 +576,16 @@ public class DiscountingCapitalIndexedBondTradePricer {
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider) {
 
-    BondPaymentPeriod settlement = trade.getSettlement();
-    if (settlement instanceof KnownAmountBondPaymentPeriod) {
-      Payment payment = ((KnownAmountBondPaymentPeriod) settlement).getPayment();
+    if (!trade.getSettlement().isPresent()) {
+      // position has no settlement, thus it has no value
+      return CurrencyAmount.zero(trade.getProduct().getCurrency());
+    }
+    BondPaymentPeriod settlePeriod = trade.getSettlement().get().getPayment();
+    if (settlePeriod instanceof KnownAmountBondPaymentPeriod) {
+      Payment payment = ((KnownAmountBondPaymentPeriod) settlePeriod).getPayment();
       return payment.getValue();
-    } else if (settlement instanceof CapitalIndexedBondPaymentPeriod) {
-      CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlement;
+    } else if (settlePeriod instanceof CapitalIndexedBondPaymentPeriod) {
+      CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlePeriod;
       double netAmount = productPricer.getPeriodPricer().forecastValue(casted, ratesProvider);
       return CurrencyAmount.of(casted.getCurrency(), netAmount);
     }
@@ -586,11 +598,16 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider) {
 
-    BondPaymentPeriod settlement = trade.getSettlement();
+    if (!trade.getSettlement().isPresent()) {
+      // position has no settlement, thus it has no value
+      return CurrencyAmount.zero(trade.getProduct().getCurrency());
+    }
+    BondPaymentPeriod settlePeriod = trade.getSettlement().get().getPayment();
     ResolvedCapitalIndexedBond product = trade.getProduct();
+    CurrencyAmount netAmount = netAmount(trade, ratesProvider);
     RepoCurveDiscountFactors discountFactors = discountingProvider.repoCurveDiscountFactors(
         product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
-    return netAmount(trade, ratesProvider).multipliedBy(discountFactors.discountFactor(settlement.getPaymentDate()));
+    return netAmount.multipliedBy(discountFactors.discountFactor(settlePeriod.getPaymentDate()));
   }
 
   private CurrencyAmount presentValueFromProductPresentValue(
@@ -619,37 +636,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
-  private PointSensitivityBuilder netAmountSensitivity(
-      ResolvedCapitalIndexedBondTrade trade,
-      RatesProvider ratesProvider) {
-
-    BondPaymentPeriod settlement = trade.getSettlement();
-    if (settlement instanceof KnownAmountBondPaymentPeriod) {
-      return PointSensitivityBuilder.none();
-    } else if (settlement instanceof CapitalIndexedBondPaymentPeriod) {
-      CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlement;
-      return productPricer.getPeriodPricer().forecastValueSensitivity(casted, ratesProvider);
-    }
-    throw new UnsupportedOperationException("unsupported settlement type");
-  }
-
-  private PointSensitivityBuilder presentValueSensitivitySettlement(
-      ResolvedCapitalIndexedBondTrade trade,
-      RatesProvider ratesProvider,
-      LegalEntityDiscountingProvider discountingProvider) {
-
-    BondPaymentPeriod settlement = trade.getSettlement();
-    ResolvedCapitalIndexedBond product = trade.getProduct();
-    RepoCurveDiscountFactors discountFactors = discountingProvider.repoCurveDiscountFactors(
-        product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
-    double df = discountFactors.discountFactor(settlement.getPaymentDate());
-    double netAmount = netAmount(trade, ratesProvider).getAmount();
-    PointSensitivityBuilder dfSensi =
-        discountFactors.zeroRatePointSensitivity(settlement.getPaymentDate()).multipliedBy(netAmount);
-    PointSensitivityBuilder naSensi = netAmountSensitivity(trade, ratesProvider).multipliedBy(df);
-    return dfSensi.combinedWith(naSensi);
-  }
-
+  // the sensitivity of the product plus settlement
   private PointSensitivityBuilder presentValueSensitivityFromProductPresentValueSensitivity(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
@@ -657,11 +644,49 @@ public class DiscountingCapitalIndexedBondTradePricer {
       PointSensitivityBuilder productPresnetValueSensitivity) {
 
     PointSensitivityBuilder sensiProduct = productPresnetValueSensitivity.multipliedBy(trade.getQuantity());
-    PointSensitivityBuilder sensiPayment =
-        presentValueSensitivitySettlement(trade, ratesProvider, discountingProvider);
+    PointSensitivityBuilder sensiPayment = presentValueSensitivitySettlement(trade, ratesProvider, discountingProvider);
     return sensiProduct.combinedWith(sensiPayment);
   }
 
+  // the sensitivity of the present value of the settlement
+  private PointSensitivityBuilder presentValueSensitivitySettlement(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider discountingProvider) {
+
+    if (!trade.getSettlement().isPresent()) {
+      // position has no settlement, thus it has no sensitivity
+      return PointSensitivityBuilder.none();
+    }
+    ResolvedCapitalIndexedBondSettlement settlement = trade.getSettlement().get();
+    BondPaymentPeriod settlePeriod = settlement.getPayment();
+    ResolvedCapitalIndexedBond product = trade.getProduct();
+    RepoCurveDiscountFactors discountFactors = discountingProvider.repoCurveDiscountFactors(
+        product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
+    double df = discountFactors.discountFactor(settlePeriod.getPaymentDate());
+    double netAmount = netAmount(trade, ratesProvider).getAmount();
+    PointSensitivityBuilder dfSensi =
+        discountFactors.zeroRatePointSensitivity(settlePeriod.getPaymentDate()).multipliedBy(netAmount);
+    PointSensitivityBuilder naSensi = netAmountSensitivity(settlement, ratesProvider).multipliedBy(df);
+    return dfSensi.combinedWith(naSensi);
+  }
+
+  // the sensitivity of the net amount of the settlement
+  private PointSensitivityBuilder netAmountSensitivity(
+      ResolvedCapitalIndexedBondSettlement settlement,
+      RatesProvider ratesProvider) {
+
+    BondPaymentPeriod settlePeriod = settlement.getPayment();
+    if (settlePeriod instanceof KnownAmountBondPaymentPeriod) {
+      return PointSensitivityBuilder.none();
+    } else if (settlePeriod instanceof CapitalIndexedBondPaymentPeriod) {
+      CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlePeriod;
+      return productPricer.getPeriodPricer().forecastValueSensitivity(casted, ratesProvider);
+    }
+    throw new UnsupportedOperationException("unsupported settlement type");
+  }
+
+  // the sensitivity of the forecast value given the clean price
   PointSensitivityBuilder forecastValueSensitivityStandardFromCleanPrice(
       ResolvedCapitalIndexedBond product,
       RatesProvider ratesProvider,
@@ -679,6 +704,13 @@ public class DiscountingCapitalIndexedBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+  // calculate the settlement date
+  private LocalDate settlementDate(ResolvedCapitalIndexedBondTrade trade, LocalDate valuationDate) {
+    return trade.getSettlement()
+        .map(settle -> settle.getSettlementDate())
+        .orElse(valuationDate);
+  }
+
   private void validate(RatesProvider ratesProvider, LegalEntityDiscountingProvider discountingProvider) {
     ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(discountingProvider.getValuationDate()),
         "the rates providers should be for the same date");

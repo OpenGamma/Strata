@@ -25,7 +25,7 @@ public class ResolvedFixedCouponBondTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFixedCouponBondTrade test = sut();
-    assertEquals(test.getSettlementDate(), test.getInfo().getSettlementDate().get());
+    assertEquals(test.getSettlement().isPresent(), true);
   }
 
   //-------------------------------------------------------------------------

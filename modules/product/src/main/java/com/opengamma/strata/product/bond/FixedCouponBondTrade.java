@@ -111,19 +111,23 @@ public final class FixedCouponBondTrade
   @Override
   public ResolvedFixedCouponBondTrade resolve(ReferenceData refData) {
     ResolvedFixedCouponBond resolved = getProduct().resolve(refData);
-    TradeInfo completedInfo = calculateSettlementDate(refData);
-    return new ResolvedFixedCouponBondTrade(completedInfo, resolved, quantity, price);
+    LocalDate settlementDate = calculateSettlementDate(refData);
+    return ResolvedFixedCouponBondTrade.builder()
+        .info(info)
+        .product(resolved)
+        .quantity(quantity)
+        .settlement(ResolvedFixedCouponBondSettlement.of(settlementDate, price))
+        .build();
   }
 
   // calculates the settlement date from the trade date if necessary
-  private TradeInfo calculateSettlementDate(ReferenceData refData) {
+  private LocalDate calculateSettlementDate(ReferenceData refData) {
     if (info.getSettlementDate().isPresent()) {
-      return info;
+      return info.getSettlementDate().get();
     }
     if (info.getTradeDate().isPresent()) {
       LocalDate tradeDate = info.getTradeDate().get();
-      LocalDate settlementDate = product.getSettlementDateOffset().adjust(tradeDate, refData);
-      return info.toBuilder().settlementDate(settlementDate).build();
+      return product.getSettlementDateOffset().adjust(tradeDate, refData);
     }
     throw new IllegalStateException("FixedCouponBondTrade.resolve() requires either trade date or settlement date");
   }

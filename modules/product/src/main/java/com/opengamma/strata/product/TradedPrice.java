@@ -17,8 +17,6 @@ import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.collect.ArgChecker;
-
 /**
  * The traded price of a security-based trade.
  * <p>
@@ -48,7 +46,7 @@ public final class TradedPrice
    * <p>
    * See the security type for more details on the meaning of the price.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition
   private final double price;
 
   //-------------------------------------------------------------------------
@@ -97,7 +95,6 @@ public final class TradedPrice
       LocalDate tradeDate,
       double price) {
     JodaBeanUtils.notNull(tradeDate, "tradeDate");
-    ArgChecker.notNegative(price, "price");
     this.tradeDate = tradeDate;
     this.price = price;
   }

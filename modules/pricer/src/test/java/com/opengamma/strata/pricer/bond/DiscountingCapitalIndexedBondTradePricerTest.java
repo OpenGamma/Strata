@@ -44,6 +44,7 @@ import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
+import com.opengamma.strata.product.bond.CapitalIndexedBondPosition;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
 import com.opengamma.strata.product.bond.KnownAmountBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
@@ -193,6 +194,17 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
+  private static final ResolvedCapitalIndexedBondTrade POSITION = CapitalIndexedBondPosition.builder()
+      .product(PRODUCT)
+      .longQuantity(QUANTITY)
+      .build()
+      .resolve(REF_DATA);
+  private static final CapitalIndexedBondPaymentPeriod SETTLE_PERIOD_LATE =
+      (CapitalIndexedBondPaymentPeriod) TRADE_LATE.getSettlement().get().getPayment();
+  private static final CapitalIndexedBondPaymentPeriod SETTLE_PERIOD_STANDARD =
+      (CapitalIndexedBondPaymentPeriod) TRADE_STANDARD.getSettlement().get().getPayment();
+  private static final KnownAmountBondPaymentPeriod SETTLE_PERIOD_ILF =
+      (KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement().get().getPayment();
 
   private static final double TOL = 1.0e-12;
   private static final double EPS = 1.0e-6;
@@ -208,22 +220,19 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   //-------------------------------------------------------------------------
   public void test_netAmount_standard() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER);
-    double expected =
-        PERIOD_PRICER.forecastValue((CapitalIndexedBondPaymentPeriod) TRADE_STANDARD.getSettlement(), RATES_PROVIDER);
+    double expected = PERIOD_PRICER.forecastValue(SETTLE_PERIOD_STANDARD, RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
   public void test_netAmount_late() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_LATE, RATES_PROVIDER);
-    double expected =
-        PERIOD_PRICER.forecastValue((CapitalIndexedBondPaymentPeriod) TRADE_LATE.getSettlement(), RATES_PROVIDER);
+    double expected = PERIOD_PRICER.forecastValue(SETTLE_PERIOD_LATE, RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
   public void test_netAmountfixed() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_ILF_STANDARD, RATES_PROVIDER);
-    double expected = PAYMENT_PRICER.forecastValueAmount(
-        ((KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
+    double expected = PAYMENT_PRICER.forecastValueAmount(SETTLE_PERIOD_ILF.getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
@@ -473,8 +482,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_STANDARD).getAmount() * QUANTITY;
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
-    double expected2 = df * PERIOD_PRICER.forecastValue(
-        (CapitalIndexedBondPaymentPeriod) TRADE_STANDARD.getSettlement(), RATES_PROVIDER);
+    double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_STANDARD, RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 
@@ -484,8 +492,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_LATE).getAmount() * QUANTITY;
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_LATE);
-    double expected2 = df * PERIOD_PRICER.forecastValue(
-        (CapitalIndexedBondPaymentPeriod) TRADE_LATE.getSettlement(), RATES_PROVIDER);
+    double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_LATE, RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 
@@ -496,8 +503,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_STANDARD, Z_SPREAD, CONTINUOUS, 0).getAmount();
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
-    double expected2 = df * PERIOD_PRICER.forecastValue(
-        (CapitalIndexedBondPaymentPeriod) TRADE_STANDARD.getSettlement(), RATES_PROVIDER);
+    double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_STANDARD, RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 
@@ -508,8 +514,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
             RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_LATE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).getAmount();
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_LATE);
-    double expected2 = df * PERIOD_PRICER.forecastValue(
-        (CapitalIndexedBondPaymentPeriod) TRADE_LATE.getSettlement(), RATES_PROVIDER);
+    double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_LATE, RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
   }
 
@@ -519,9 +524,15 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         RPRODUCT_ILF, RATES_PROVIDER, ISSUER_RATES_PROVIDER, SETTLEMENT_STANDARD).getAmount() * QUANTITY;
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
-    double expected2 = df * PAYMENT_PRICER.forecastValueAmount(
-        ((KnownAmountBondPaymentPeriod) TRADE_ILF_STANDARD.getSettlement()).getPayment(), RATES_PROVIDER);
+    double expected2 = df * PAYMENT_PRICER.forecastValueAmount(SETTLE_PERIOD_ILF.getPayment(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+  }
+
+  public void test_presentValue_position() {
+    CurrencyAmount computed = PRICER.presentValue(POSITION, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
+    double expected1 = PRODUCT_PRICER.presentValue(
+        RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION).getAmount() * QUANTITY;
+    assertEquals(computed.getAmount(), expected1, NOTIONAL * QUANTITY * TOL);
   }
 
   //-------------------------------------------------------------------------
@@ -583,6 +594,18 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
   }
 
+  public void test_presentValueSensitivity_position() {
+    PointSensitivities point = PRICER.presentValueSensitivity(POSITION, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
+    CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
+        .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
+    CurrencyParameterSensitivities fdRates =
+        FD_CAL.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(POSITION, p, ISSUER_RATES_PROVIDER));
+    CurrencyParameterSensitivities fdPrice =
+        FD_CAL.sensitivity(ISSUER_RATES_PROVIDER, p -> PRICER.presentValue(POSITION, RATES_PROVIDER, p));
+    CurrencyParameterSensitivities expected = fdRates.combinedWith(fdPrice);
+    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+  }
+
   //-------------------------------------------------------------------------
   public void test_currencyExposureFromCleanPrice() {
     MultiCurrencyAmount computed = PRICER.currencyExposureFromCleanPrice(
@@ -632,6 +655,12 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   public void test_currentCash() {
     CurrencyAmount computed = PRICER.currentCash(TRADE_SETTLED, RATES_PROVIDER_ON_PAY);
     CurrencyAmount expected = PRODUCT_PRICER.currentCash(RPRODUCT, RATES_PROVIDER_ON_PAY, SETTLEMENT_BEFORE);
+    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * QUANTITY * TOL);
+  }
+
+  public void test_currentCash_position() {
+    CurrencyAmount computed = PRICER.currentCash(POSITION, RATES_PROVIDER_ON_PAY);
+    CurrencyAmount expected = PRODUCT_PRICER.currentCash(RPRODUCT, RATES_PROVIDER_ON_PAY, PAYMENT);
     assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * QUANTITY * TOL);
   }
 
