@@ -67,9 +67,9 @@ public class EtdOptionTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_resolve() {
+  public void test_resolveTarget() {
     GenericSecurity security = GenericSecurity.of(SECURITY.getInfo());
-    Trade test = sut().resolveSecurity(ImmutableReferenceData.of(SECURITY.getSecurityId(), security));
+    Trade test = sut().resolveTarget(ImmutableReferenceData.of(SECURITY.getSecurityId(), security));
     GenericSecurityTrade expected = GenericSecurityTrade.of(TRADE_INFO, security, 3000, 20);
     assertEquals(test, expected);
   }
