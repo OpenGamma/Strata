@@ -26,8 +26,8 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  * and a column for each measure. The targets and columns that define the grid of results
  * are passed in using an instance of {@code CalculationTasks}.
  * <p>
- * The {@code CalculationTasks} instance is obtained using a
- * {@linkplain CalculationTasks#of(CalculationRules, List, List) static factory method}.
+ * The {@code CalculationTasks} instance is obtained using 
+ * {@linkplain CalculationTasks#of(CalculationRules, List, List, ReferenceData) static factory method}.
  * It consists of a list of {@code CalculationTask} instances, where each task instance
  * corresponds to a single cell in the grid of results. When the {@code CalculationTasks}
  * instance is created for a set of trades and measures some one-off initialization is performed.

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ResolvableCalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -82,6 +83,53 @@ public final class CalculationTasks implements ImmutableBean {
       List<? extends CalculationTarget> targets,
       List<Column> columns) {
 
+    return create(rules, targets, columns);
+  }
+
+  /**
+   * Obtains an instance from a set of targets, columns and rules, resolving the targets.
+   * <p>
+   * The targets will typically be trades and positions.
+   * The columns represent the measures to calculate.
+   * <p>
+   * The targets will be resolved if they implement {@link ResolvableCalculationTarget}.
+   * 
+   * @param rules  the rules defining how the calculation is performed
+   * @param targets  the targets for which values of the measures will be calculated
+   * @param columns  the columns that will be calculated
+   * @param refData  the reference data to use to resolve the targets
+   * @return the calculation tasks
+   */
+  public static CalculationTasks of(
+      CalculationRules rules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      ReferenceData refData) {
+
+    List<CalculationTarget> resolvedTargets = targets.stream()
+        .map(target -> resolveSecurity(target, refData))
+        .collect(toImmutableList());
+    return create(rules, resolvedTargets, columns);
+  }
+
+  // resolves the target if it is a security
+  private static CalculationTarget resolveSecurity(CalculationTarget target, ReferenceData refData) {
+    if (target instanceof ResolvableCalculationTarget) {
+      ResolvableCalculationTarget resolvable = (ResolvableCalculationTarget) target;
+      try {
+        return resolvable.resolveTarget(refData);
+      } catch (RuntimeException ex) {
+        return new UnresolvableTarget(resolvable, ex.getMessage());
+      }
+    }
+    return target;
+  }
+
+  private static CalculationTasks create(
+      CalculationRules rules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns) {
+
     // create columns that are a combination of the column overrides and the defaults
     // this is done once as it is the same for all targets
     List<Column> effectiveColumns =
@@ -95,7 +143,7 @@ public final class CalculationTasks implements ImmutableBean {
       CalculationTarget target = targets.get(rowIndex);
 
       // find the applicable function
-      CalculationFunction<?> fn = rules.getFunctions().getFunction(target);
+      CalculationFunction<?> fn = lookupFunction(target, rules);
 
       // create the tasks
       List<CalculationTask> targetTasks = createTargetTasks(target, rowIndex, fn, effectiveColumns);
@@ -104,6 +152,14 @@ public final class CalculationTasks implements ImmutableBean {
 
     // calculation tasks holds the original user-specified columns, not the derived ones
     return new CalculationTasks(taskBuilder.build(), columns);
+  }
+
+  // finds a suitable function, handling the unresolvable case
+  private static CalculationFunction<?> lookupFunction(CalculationTarget target, CalculationRules rules) {
+    if (target instanceof UnresolvableTarget) {
+      return UnresolvableTargetCalculationFunction.INSTANCE;
+    }
+    return rules.getFunctions().getFunction(target);
   }
 
   // creates the tasks for a single target
