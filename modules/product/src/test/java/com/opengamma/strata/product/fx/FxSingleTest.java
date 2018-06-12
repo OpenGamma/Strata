@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
@@ -47,13 +48,43 @@ public class FxSingleTest {
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(FOLLOWING, GBLO);
 
   //-------------------------------------------------------------------------
+  public void test_of_rightOrderPayments() {
+    FxSingle test = FxSingle.of(Payment.of(GBP_P1000, DATE_2015_06_30), Payment.of(USD_M1600, DATE_2015_06_29), BDA);
+    assertEquals(test.getBaseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertEquals(test.getCounterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_29));
+    assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
+    assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDateAdjustment(), Optional.of(BDA));
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getPayCurrencyAmount(), USD_M1600);
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertEquals(test.isCrossCurrency(), true);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
+    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
+  }
+
+  public void test_of_switchOrderPayments() {
+    FxSingle test = FxSingle.of(Payment.of(USD_M1600, DATE_2015_06_30), Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
+    assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getPayCurrencyAmount(), USD_M1600);
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_of_rightOrder() {
     FxSingle test = sut();
+    assertEquals(test.getBaseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertEquals(test.getCounterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30));
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
     assertEquals(test.getPaymentDateAdjustment(), Optional.empty());
     assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getPayCurrencyAmount(), USD_M1600);
     assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
     assertEquals(test.isCrossCurrency(), true);
     assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
@@ -75,6 +106,7 @@ public class FxSingleTest {
     assertEquals(test.getCounterCurrencyAmount(), CurrencyAmount.zero(USD));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
     assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getPayCurrencyAmount(), CurrencyAmount.zero(GBP));
     assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.zero(USD));
   }
 
@@ -145,9 +177,8 @@ public class FxSingleTest {
   //-------------------------------------------------------------------------
   public void test_builder_rightOrder() {
     FxSingle test = FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyAmount(), GBP_P1000)
-        .set(FxSingle.meta().counterCurrencyAmount(), USD_M1600)
-        .set(FxSingle.meta().paymentDate(), DATE_2015_06_30)
+        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
+        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30))
         .build();
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
@@ -158,9 +189,8 @@ public class FxSingleTest {
 
   public void test_builder_switchOrder() {
     FxSingle test = FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyAmount(), USD_M1600)
-        .set(FxSingle.meta().counterCurrencyAmount(), GBP_P1000)
-        .set(FxSingle.meta().paymentDate(), DATE_2015_06_30)
+        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30))
+        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
         .build();
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
@@ -171,25 +201,22 @@ public class FxSingleTest {
 
   public void test_builder_bothPositive() {
     assertThrowsIllegalArg(() -> FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyAmount(), GBP_P1000)
-        .set(FxSingle.meta().counterCurrencyAmount(), USD_P1600)
-        .set(FxSingle.meta().paymentDate(), DATE_2015_06_30)
+        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
+        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_P1600, DATE_2015_06_30))
         .build());
   }
 
   public void test_builder_bothNegative() {
     assertThrowsIllegalArg(() -> FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyAmount(), GBP_M1000)
-        .set(FxSingle.meta().counterCurrencyAmount(), USD_M1600)
-        .set(FxSingle.meta().paymentDate(), DATE_2015_06_30)
+        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
+        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30))
         .build());
   }
 
   public void test_builder_sameCurrency() {
     assertThrowsIllegalArg(() -> FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyAmount(), GBP_P1000)
-        .set(FxSingle.meta().counterCurrencyAmount(), GBP_M1000)
-        .set(FxSingle.meta().paymentDate(), DATE_2015_06_30)
+        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
+        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
         .build());
   }
 
@@ -210,6 +237,21 @@ public class FxSingleTest {
 
   public void test_serialization() {
     assertSerialization(sut());
+    String xml = JodaBeanSer.PRETTY.xmlWriter().write(sut());
+    assertEquals(JodaBeanSer.PRETTY.xmlReader().read(xml), sut());
+
+    String newXml = "<bean type='" + FxSingle.class.getName() + "'>" +
+        "<baseCurrencyPayment><value>GBP 1000</value><date>2015-06-30</date></baseCurrencyPayment>" +
+        "<counterCurrencyPayment><value>USD -1600</value><date>2015-06-30</date></counterCurrencyPayment>" +
+        "</bean>";
+    assertEquals(JodaBeanSer.PRETTY.xmlReader().read(newXml), sut());
+
+    String oldXml = "<bean type='" + FxSingle.class.getName() + "'>" +
+        "<baseCurrencyAmount>GBP 1000</baseCurrencyAmount>" +
+        "<counterCurrencyAmount>USD -1600</counterCurrencyAmount>" +
+        "<paymentDate>2015-06-30</paymentDate>" +
+        "</bean>";
+    assertEquals(JodaBeanSer.PRETTY.xmlReader().read(oldXml), sut());
   }
 
   //-------------------------------------------------------------------------

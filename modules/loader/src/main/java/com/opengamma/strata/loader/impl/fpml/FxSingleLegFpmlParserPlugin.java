@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.FxIndex;
@@ -58,16 +59,13 @@ final class FxSingleLegFpmlParserPlugin
     // 'exchangedCurrency1/paymentAmount'
     // 'exchangedCurrency2/paymentAmount'
     // 'valueDate'
+    // 'currency1ValueDate'
+    // 'currency2ValueDate'
     // 'nonDeliverableSettlement?'
     // ignored elements:
     // 'dealtCurrency?'
     // 'exchangeRate'
-    // rejected elements:
-    // 'currency1ValueDate'
-    // 'currency2ValueDate'
     XmlElement fxEl = tradeEl.getChild("fxSingleLeg");
-    document.validateNotPresent(fxEl, "currency1ValueDate");
-    document.validateNotPresent(fxEl, "currency2ValueDate");
     // amounts
     TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement curr1El = fxEl.getChild("exchangedCurrency1");
@@ -89,16 +87,22 @@ final class FxSingleLegFpmlParserPlugin
       curr2Amount = curr2Amount.negative();
     }
     // payment date
-    LocalDate valueDate = document.parseDate(fxEl.getChild("valueDate"));
+    LocalDate currency1Date = document.parseDate(
+        fxEl.findChild("currency1ValueDate").orElseGet(() -> fxEl.getChild("valueDate")));
+    LocalDate currency2Date = document.parseDate(
+        fxEl.findChild("currency2ValueDate").orElseGet(() -> fxEl.getChild("valueDate")));
     // FxSingle or NDF
     Optional<XmlElement> ndfEl = fxEl.findChild("nonDeliverableSettlement");
     if (!ndfEl.isPresent()) {
       return FxSingleTrade.builder()
           .info(tradeInfoBuilder.build())
-          .product(FxSingle.of(curr1Amount, curr2Amount, valueDate))
+          .product(FxSingle.of(Payment.of(curr1Amount, currency1Date), Payment.of(curr2Amount, currency2Date)))
           .build();
     }
-    return parseNdf(document, fxEl, ndfEl.get(), curr1Amount, curr2Amount, valueDate, tradeInfoBuilder);
+    if (!currency1Date.equals(currency2Date)) {
+      throw new FpmlParseException("FxNdf only supports a single payment date");
+    }
+    return parseNdf(document, fxEl, ndfEl.get(), curr1Amount, curr2Amount, currency1Date, tradeInfoBuilder);
   }
 
   private Trade parseNdf(
