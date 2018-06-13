@@ -29,6 +29,9 @@ import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.GenericSecurityTrade;
+import com.opengamma.strata.product.ResolvableSecurityTrade;
+import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -37,6 +40,7 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
+import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
 
@@ -410,8 +414,12 @@ public final class TradeCsvLoader {
             }
             break;
           case "SECURITY":
-            if (tradeType == SecurityTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(SecurityCsvLoader.parseTrade(row, info, resolver)));
+            if (tradeType == SecurityTrade.class || tradeType == GenericSecurityTrade.class ||
+                tradeType == ResolvableSecurityTrade.class || tradeType == Trade.class) {
+              SecurityQuantityTrade parsed = SecurityCsvLoader.parseTrade(row, info, resolver);
+              if (tradeType.isInstance(parsed)) {
+                trades.add(tradeType.cast(parsed));
+              }
             }
             break;
           case "SWAP":
@@ -438,7 +446,9 @@ public final class TradeCsvLoader {
           case "FX":
           case "FXSINGLE":
           case "FX SINGLE":
-            trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
+            if (tradeType == FxSingleTrade.class || tradeType == Trade.class) {
+              trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
+            }
             break;
           default:
             failures.add(FailureItem.of(

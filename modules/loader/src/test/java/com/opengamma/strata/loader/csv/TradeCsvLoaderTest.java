@@ -68,7 +68,11 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
+import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecurityInfo;
+import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -1162,7 +1166,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertEquals(trades.getValue().size(), 6);
-    assertEquals(trades.getFailures().size(), 9);
+    assertEquals(trades.getFailures().size(), 10);
     assertEquals(trades.getFailures().get(0).getMessage(),
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
@@ -1229,6 +1233,33 @@ public class TradeCsvLoaderTest {
         .price(17.8)
         .build();
     assertBeanEquals(expected2, filtered.get(1));
+  }
+
+  public void test_load_generiSecurity() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE);
+
+    List<GenericSecurityTrade> filtered = trades.getValue().stream()
+        .filter(GenericSecurityTrade.class::isInstance)
+        .map(GenericSecurityTrade.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 1);
+
+    GenericSecurityTrade expected1 = GenericSecurityTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123433"))
+            .tradeDate(date(2017, 6, 1))
+            .settlementDate(date(2017, 6, 3))
+            .build())
+        .security(
+            GenericSecurity.of(
+                SecurityInfo.of(
+                    SecurityId.of("OG-Security", "AAPL"),
+                    SecurityPriceInfo.of(5, CurrencyAmount.of(USD, 0.01), 10))))
+        .quantity(12)
+        .price(14.5)
+        .build();
+    assertBeanEquals(expected1, filtered.get(0));
   }
 
   //-------------------------------------------------------------------------

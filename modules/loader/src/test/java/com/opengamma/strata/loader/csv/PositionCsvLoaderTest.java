@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
 import static org.testng.Assert.assertEquals;
@@ -20,13 +21,18 @@ import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
+import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
+import com.opengamma.strata.product.ResolvableSecurityPosition;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.common.ExchangeIds;
@@ -53,6 +59,14 @@ public class PositionCsvLoaderTest {
   private static final EtdContractCode FGBL = EtdContractCode.of("FGBL");
   private static final EtdContractCode OGBL = EtdContractCode.of("OGBL");
 
+  private static final SecurityPosition SECURITY1 = SecurityPosition.builder()
+      .info(PositionInfo.builder()
+          .id(StandardId.of("OG", "123431"))
+          .build())
+      .securityId(SecurityId.of("OG-Security", "AAPL"))
+      .longQuantity(12d)
+      .shortQuantity(14.5d)
+      .build();
   private static final SecurityPosition SECURITY2 = SecurityPosition.builder()
       .info(PositionInfo.builder()
           .id(StandardId.of("OG", "123432"))
@@ -61,11 +75,23 @@ public class PositionCsvLoaderTest {
       .longQuantity(20d)
       .shortQuantity(0d)
       .build();
-  private static final SecurityPosition SECURITY1 = SecurityPosition.builder()
+  private static final SecurityPosition SECURITY3 = SecurityPosition.builder()
       .info(PositionInfo.builder()
-          .id(StandardId.of("OG", "123431"))
+          .id(StandardId.of("OG", "123433"))
           .build())
       .securityId(SecurityId.of("OG-Security", "AAPL"))
+      .longQuantity(12d)
+      .shortQuantity(14.5d)
+      .build();
+  private static final GenericSecurityPosition SECURITY3FULL = GenericSecurityPosition.builder()
+      .info(PositionInfo.builder()
+          .id(StandardId.of("OG", "123433"))
+          .build())
+      .security(
+          GenericSecurity.of(
+              SecurityInfo.of(
+                  SecurityId.of("OG-Security", "AAPL"),
+                  SecurityPriceInfo.of(5, CurrencyAmount.of(USD, 0.01), 10))))
       .longQuantity(12d)
       .shortQuantity(14.5d)
       .build();
@@ -92,6 +118,27 @@ public class PositionCsvLoaderTest {
 
     assertBeanEquals(SECURITY1, filtered.get(0));
     assertBeanEquals(SECURITY2, filtered.get(1));
+  }
+
+  public void test_load_genericSecurity() {
+    PositionCsvLoader test = PositionCsvLoader.standard();
+    ValueWithFailures<List<Position>> trades = test.load(FILE);
+
+    List<GenericSecurityPosition> filtered = trades.getValue().stream()
+        .filter(GenericSecurityPosition.class::isInstance)
+        .map(GenericSecurityPosition.class::cast)
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 1);
+
+    assertBeanEquals(SECURITY3FULL, filtered.get(0));
+  }
+
+  public void test_parseFiltering() {
+    PositionCsvLoader test = PositionCsvLoader.standard();
+    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource())).getValue().size(), 3);  // 7 errors
+    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource()), SecurityPosition.class).getValue().size(), 10);
+    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource()), ResolvableSecurityPosition.class).getValue().size(), 3);
+    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource()), GenericSecurityPosition.class).getValue().size(), 1);
   }
 
   //-------------------------------------------------------------------------
@@ -215,10 +262,11 @@ public class PositionCsvLoaderTest {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<SecurityPosition>> trades = test.parseLightweight(ImmutableList.of(FILE.getCharSource()));
     List<SecurityPosition> filtered = trades.getValue();
-    assertEquals(filtered.size(), 9);
+    assertEquals(filtered.size(), 10);
 
     assertBeanEquals(SECURITY1, filtered.get(0));
     assertBeanEquals(SECURITY2, filtered.get(1));
+    assertBeanEquals(SECURITY3, filtered.get(2));
 
     SecurityPosition expected3 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -228,7 +276,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(15d)
         .shortQuantity(2d)
         .build();
-    assertBeanEquals(expected3, filtered.get(2));
+    assertBeanEquals(expected3, filtered.get(3));
 
     SecurityPosition expected4 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -239,7 +287,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(0d)
         .shortQuantity(13d)
         .build();
-    assertBeanEquals(expected4, filtered.get(3));
+    assertBeanEquals(expected4, filtered.get(4));
 
     SecurityPosition expected5 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -249,7 +297,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(0d)
         .shortQuantity(20d)
         .build();
-    assertBeanEquals(expected5, filtered.get(4));
+    assertBeanEquals(expected5, filtered.get(5));
 
     SecurityPosition expected6 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -259,7 +307,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(30d)
         .shortQuantity(0d)
         .build();
-    assertBeanEquals(expected6, filtered.get(5));
+    assertBeanEquals(expected6, filtered.get(6));
 
     SecurityPosition expected7 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -270,7 +318,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(15d)
         .shortQuantity(2d)
         .build();
-    assertBeanEquals(expected7, filtered.get(6));
+    assertBeanEquals(expected7, filtered.get(7));
 
     SecurityPosition expected8 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -287,7 +335,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(0d)
         .shortQuantity(13d)
         .build();
-    assertBeanEquals(expected8, filtered.get(7));
+    assertBeanEquals(expected8, filtered.get(8));
 
     SecurityPosition expected9 = SecurityPosition.builder()
         .info(PositionInfo.builder()
@@ -298,7 +346,7 @@ public class PositionCsvLoaderTest {
         .longQuantity(0d)
         .shortQuantity(20d)
         .build();
-    assertBeanEquals(expected9, filtered.get(8));
+    assertBeanEquals(expected9, filtered.get(9));
   }
 
   //-------------------------------------------------------------------------
