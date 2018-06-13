@@ -22,7 +22,7 @@ public class EtdSettlementTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {EtdSettlementType.CASH, "Cash"},
         {EtdSettlementType.PHYSICAL, "Physical"},

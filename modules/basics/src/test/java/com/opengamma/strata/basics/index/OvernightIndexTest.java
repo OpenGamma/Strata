@@ -261,7 +261,7 @@ public class OvernightIndexTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {OvernightIndices.GBP_SONIA, "GBP-SONIA"},
         {OvernightIndices.CHF_TOIS, "CHF-TOIS"},

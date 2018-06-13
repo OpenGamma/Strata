@@ -22,7 +22,7 @@ public class ProtectionStartOfDayTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {ProtectionStartOfDay.NONE, "None"},
         {ProtectionStartOfDay.BEGINNING, "Beginning"},

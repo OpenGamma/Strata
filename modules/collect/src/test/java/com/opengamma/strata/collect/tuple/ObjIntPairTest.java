@@ -24,7 +24,7 @@ public class ObjIntPairTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
-  Object[][] data_factory() {
+  public static Object[][] data_factory() {
     return new Object[][] {
         {"A", 2},
         {"B", 200},

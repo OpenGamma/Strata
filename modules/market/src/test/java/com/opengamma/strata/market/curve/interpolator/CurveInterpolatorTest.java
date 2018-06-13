@@ -39,7 +39,7 @@ public class CurveInterpolatorTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {LINEAR, "Linear"},
         {LOG_LINEAR, "LogLinear"},

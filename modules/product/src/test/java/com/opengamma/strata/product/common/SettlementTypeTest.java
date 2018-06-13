@@ -24,7 +24,7 @@ public class SettlementTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {SettlementType.CASH, "Cash"},
         {SettlementType.PHYSICAL, "Physical"},

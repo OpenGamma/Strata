@@ -21,7 +21,7 @@ public class DateAdjustersTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nextLeapDay")
-  static Object[][] data_nextLeapDay() {
+  public static Object[][] data_nextLeapDay() {
     return new Object[][] {
         {2000, 1, 1, 2000},
         {2000, 2, 1, 2000},

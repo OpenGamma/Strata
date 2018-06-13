@@ -22,7 +22,7 @@ public class CdsQuoteConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {CdsQuoteConvention.PAR_SPREAD, "ParSpread"},
         {CdsQuoteConvention.POINTS_UPFRONT, "PointsUpfront"},

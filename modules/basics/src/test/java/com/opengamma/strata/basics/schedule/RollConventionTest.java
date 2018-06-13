@@ -60,7 +60,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
-  static Object[][] data_types() {
+  public static Object[][] data_types() {
     RollConvention[] conv = StandardRollConventions.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
@@ -88,7 +88,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "adjust")
-  static Object[][] data_adjust() {
+  public static Object[][] data_adjust() {
     return new Object[][] {
         {EOM, date(2014, AUGUST, 1), date(2014, AUGUST, 31)},
         {EOM, date(2014, AUGUST, 30), date(2014, AUGUST, 31)},
@@ -157,7 +157,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "matches")
-  static Object[][] data_matches() {
+  public static Object[][] data_matches() {
     return new Object[][] {
         {EOM, date(2014, AUGUST, 1), false},
         {EOM, date(2014, AUGUST, 30), false},
@@ -190,7 +190,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "next")
-  static Object[][] data_next() {
+  public static Object[][] data_next() {
     return new Object[][] {
         {EOM, date(2014, AUGUST, 1), P1M, date(2014, SEPTEMBER, 30)},
         {EOM, date(2014, AUGUST, 30), P1M, date(2014, SEPTEMBER, 30)},
@@ -268,7 +268,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
-  static Object[][] data_previous() {
+  public static Object[][] data_previous() {
     return new Object[][] {
         {EOM, date(2014, OCTOBER, 1), P1M, date(2014, SEPTEMBER, 30)},
         {EOM, date(2014, OCTOBER, 31), P1M, date(2014, SEPTEMBER, 30)},
@@ -551,7 +551,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {NONE, "None"},
         {EOM, "EOM"},
@@ -600,7 +600,7 @@ public class RollConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "lenient")
-  static Object[][] data_lenient() {
+  public static Object[][] data_lenient() {
     return new Object[][] {
         {"2", DAY_2},
         {"30", DAY_30},

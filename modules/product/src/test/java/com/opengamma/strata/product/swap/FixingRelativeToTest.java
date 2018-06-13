@@ -27,7 +27,7 @@ public class FixingRelativeToTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FixingRelativeTo.PERIOD_START, "PeriodStart"},
         {FixingRelativeTo.PERIOD_END, "PeriodEnd"},

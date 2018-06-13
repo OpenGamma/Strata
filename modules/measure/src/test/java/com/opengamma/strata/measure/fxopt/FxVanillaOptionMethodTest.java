@@ -32,7 +32,7 @@ public class FxVanillaOptionMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FxVanillaOptionMethod.BLACK, "Black"},
         {FxVanillaOptionMethod.VANNA_VOLGA, "VannaVolga"},

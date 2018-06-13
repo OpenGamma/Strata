@@ -73,7 +73,7 @@ public class CurrencyAmountTest {
   }
 
   @DataProvider(name = "parseGood")
-  Object[][] data_parseGood() {
+  public static Object[][] data_parseGood() {
     return new Object[][] {
         {"AUD 100.001", Currency.AUD, 100.001d},
         {"AUD 321.123", Currency.AUD, 321.123d},
@@ -90,7 +90,7 @@ public class CurrencyAmountTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+  public static Object[][] data_parseBad() {
     return new Object[][] {
         {"AUD"},
         {"AUD aa"},

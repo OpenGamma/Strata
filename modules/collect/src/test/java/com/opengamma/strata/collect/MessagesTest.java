@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 public class MessagesTest {
 
   @DataProvider(name = "formatMessageSingle")
-  Object[][] data_formatMessageSingle() {
+  public static Object[][] data_formatMessageSingle() {
     return new Object[][] {
         // null template
         {null, null, "", " - [null]"},
@@ -68,7 +68,7 @@ public class MessagesTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "formatMessage")
-  Object[][] data_formatMessage() {
+  public static Object[][] data_formatMessage() {
     return new Object[][] {
         // null template
         {null, null, "", ""},
@@ -139,7 +139,7 @@ public class MessagesTest {
   }
 
   @DataProvider(name = "formatMessageWithAttributes")
-  Object[][] data_formatMessageWithAttributes() {
+  public static Object[][] data_formatMessageWithAttributes() {
     return new Object[][]{
         // null template
         {null, null, Pair.of("", ImmutableMap.of())},

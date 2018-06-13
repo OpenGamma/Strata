@@ -32,7 +32,7 @@ public class ValueAdjustmentTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {ValueAdjustmentType.DELTA_AMOUNT, "DeltaAmount"},
         {ValueAdjustmentType.DELTA_MULTIPLIER, "DeltaMultiplier"},

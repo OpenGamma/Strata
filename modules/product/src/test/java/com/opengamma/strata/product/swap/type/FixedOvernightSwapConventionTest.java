@@ -132,7 +132,7 @@ public class FixedOvernightSwapConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, "USD-FIXED-1Y-FED-FUND-OIS"},
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, "USD-FIXED-TERM-FED-FUND-OIS"},

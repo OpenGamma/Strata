@@ -40,7 +40,7 @@ public class FixedIborSwapConventionsTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   @DataProvider(name = "spotLag")
-  static Object[][] data_spot_lag() {
+  public static Object[][] data_spot_lag() {
     return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, 2},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, 2},
@@ -63,7 +63,7 @@ public class FixedIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "period")
-  static Object[][] data_period() {
+  public static Object[][] data_period() {
     return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, Frequency.P6M},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, Frequency.P12M},
@@ -86,7 +86,7 @@ public class FixedIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayCount")
-  static Object[][] data_day_count() {
+  public static Object[][] data_day_count() {
     return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, DayCounts.THIRTY_U_360},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, DayCounts.ACT_360},
@@ -109,7 +109,7 @@ public class FixedIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "floatLeg")
-  static Object[][] data_float_leg() {
+  public static Object[][] data_float_leg() {
     return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, IborIndices.USD_LIBOR_3M},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, IborIndices.USD_LIBOR_3M},
@@ -141,7 +141,7 @@ public class FixedIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayConvention")
-  static Object[][] data_day_convention() {
+  public static Object[][] data_day_convention() {
     return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
@@ -164,7 +164,7 @@ public class FixedIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "stubIbor")
-  static Object[][] data_stub_ibor() {
+  public static Object[][] data_stub_ibor() {
     return new Object[][] {
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M, Tenor.TENOR_18M},
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M, Tenor.TENOR_18M},

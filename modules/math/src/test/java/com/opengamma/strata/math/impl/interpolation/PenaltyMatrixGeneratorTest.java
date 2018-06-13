@@ -217,7 +217,7 @@ public class PenaltyMatrixGeneratorTest {
   }
 
   @DataProvider
-  Object[][] data() {
+  public static Object[][] data() {
     Object[][] obj = new Object[1][4];
     double[] x = new double[] {0.0, 0.3, 0.7, 0.8, 1.2, 2.0};
     obj[0][0] = x;

@@ -22,7 +22,7 @@ public class FixedInflationSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "floatLeg")
-  static Object[][] data_float_leg() {
+  public static Object[][] data_float_leg() {
     return new Object[][] {
         {FixedInflationSwapConventions.CHF_FIXED_ZC_CH_CPI, PriceIndices.CH_CPI},
         {FixedInflationSwapConventions.EUR_FIXED_ZC_EU_AI_CPI, PriceIndices.EU_AI_CPI},

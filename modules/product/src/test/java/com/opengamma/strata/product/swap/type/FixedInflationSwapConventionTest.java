@@ -119,7 +119,7 @@ public class FixedInflationSwapConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HCIP, "GBP-FIXED-ZC-GB-HCIP"},
         {FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI, "USD-FIXED-ZC-US-CPI"},

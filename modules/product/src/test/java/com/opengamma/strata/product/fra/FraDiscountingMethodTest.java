@@ -24,7 +24,7 @@ public class FraDiscountingMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FraDiscountingMethod.NONE, "None"},
         {FraDiscountingMethod.ISDA, "ISDA"},

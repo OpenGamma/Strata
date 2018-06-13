@@ -60,7 +60,7 @@ import com.google.common.collect.ImmutableList;
 public class TenorTest {
 
   @DataProvider(name = "ofPeriod")
-  static Object[][] data_ofPeriod() {
+  public static Object[][] data_ofPeriod() {
     return new Object[][] {
         {Period.ofDays(1), Period.ofDays(1), "1D"},
         {Period.ofDays(7), Period.ofDays(7), "1W"},
@@ -85,7 +85,7 @@ public class TenorTest {
   }
 
   @DataProvider(name = "ofMonths")
-  static Object[][] data_ofMonths() {
+  public static Object[][] data_ofMonths() {
     return new Object[][] {
         {1, Period.ofMonths(1), "1M"},
         {2, Period.ofMonths(2), "2M"},
@@ -103,7 +103,7 @@ public class TenorTest {
   }
 
   @DataProvider(name = "ofYears")
-  static Object[][] data_ofYears() {
+  public static Object[][] data_ofYears() {
     return new Object[][] {
         {1, Period.ofYears(1), "1Y"},
         {2, Period.ofYears(2), "2Y"},
@@ -154,7 +154,7 @@ public class TenorTest {
   }
 
   @DataProvider(name = "parseGood")
-  static Object[][] data_parseGood() {
+  public static Object[][] data_parseGood() {
     return new Object[][] {
         {"2D", TENOR_2D},
         {"2W", TENOR_2W},
@@ -177,7 +177,7 @@ public class TenorTest {
   }
 
   @DataProvider(name = "parseBad")
-  static Object[][] data_parseBad() {
+  public static Object[][] data_parseBad() {
     return new Object[][] {
         {""},
         {"2"},
@@ -201,7 +201,7 @@ public class TenorTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "normalized")
-  static Object[][] data_normalized() {
+  public static Object[][] data_normalized() {
     return new Object[][] {
         {Period.ofDays(1), Period.ofDays(1)},
         {Period.ofDays(7), Period.ofDays(7)},
@@ -225,7 +225,7 @@ public class TenorTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "based")
-  static Object[][] data_based() {
+  public static Object[][] data_based() {
     return new Object[][] {
         {Tenor.ofDays(1), false, false},
         {Tenor.ofDays(2), false, false},

@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
 public class GlobalHolidayCalendarsTest {
 
   @DataProvider(name = "easter")
-  Object[][] data_easter() {
+  public static Object[][] data_easter() {
     return new Object[][] {
         {15, 4, 1900},
         {15, 4, 1900},
@@ -243,7 +243,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar GBLO = GlobalHolidayCalendars.generateLondon();
 
   @DataProvider(name = "gblo")
-  Object[][] data_gblo() {
+  public static Object[][] data_gblo() {
     return new Object[][] {
         // Whitsun, Last Mon Aug - http://hansard.millbanksystems.com/commons/1964/mar/04/staggered-holidays
         {1965, mds(1965, md(4, 16), md(4, 19), md(6, 7), md(8, 30), md(12, 27), md(12, 28))},
@@ -286,7 +286,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar FRPA = GlobalHolidayCalendars.generateParis();
 
   @DataProvider(name = "frpa")
-  Object[][] data_frpa() {
+  public static Object[][] data_frpa() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
         {2003, mds(2003, md(1, 1), md(4, 18), md(4, 21), md(5, 1), md(5, 2), md(5, 8), md(5, 9), md(5, 29), md(5, 30),
@@ -330,7 +330,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar DEFR = GlobalHolidayCalendars.generateFrankfurt();
 
   @DataProvider(name = "defr")
-  Object[][] data_defr() {
+  public static Object[][] data_defr() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
         {2014, mds(2014, md(1, 1), md(4, 18), md(4, 21), md(5, 1), md(5, 29), md(6, 9), md(6, 19),
@@ -359,7 +359,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar CHZU = GlobalHolidayCalendars.generateZurich();
 
   @DataProvider(name = "chzu")
-  Object[][] data_chzu() {
+  public static Object[][] data_chzu() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
         {2012, mds(2012, md(1, 1), md(1, 2), md(4, 6), md(4, 9), md(5, 1), md(5, 17), md(5, 28),
@@ -390,7 +390,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar EUTA = GlobalHolidayCalendars.generateEuropeanTarget();
 
   @DataProvider(name = "euta")
-  Object[][] data_euta() {
+  public static Object[][] data_euta() {
     return new Object[][] {
         // 1997 - 1998 (testing phase), Jan 1, christmas day
         {1997, mds(1997, md(1, 1), md(12, 25))},
@@ -425,7 +425,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar USGS = GlobalHolidayCalendars.generateUsGovtSecurities();
 
   @DataProvider(name = "usgs")
-  Object[][] data_usgs() {
+  public static Object[][] data_usgs() {
     return new Object[][] {
         // http://www.sifma.org/uploadedfiles/research/statistics/statisticsfiles/misc-us-historical-holiday-market-recommendations-sifma.pdf?n=53384
         {1996, mds(1996, md(1, 1), md(1, 15), md(2, 19), md(4, 5), md(5, 27), md(7, 4),
@@ -486,7 +486,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar USNY = GlobalHolidayCalendars.generateUsNewYork();
 
   @DataProvider(name = "usny")
-  Object[][] data_usny() {
+  public static Object[][] data_usny() {
     return new Object[][] {
         // http://www.cs.ny.gov/attendance_leave/2012_legal_holidays.cfm
         // change year for other pages
@@ -524,7 +524,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NYFD = GlobalHolidayCalendars.generateNewYorkFed();
 
   @DataProvider(name = "nyfd")
-  Object[][] data_nyfd() {
+  public static Object[][] data_nyfd() {
     return new Object[][] {
         // http://www.ny.frb.org/aboutthefed/holiday_schedule.html
         // http://web.archive.org/web/20080403230805/http://www.ny.frb.org/aboutthefed/holiday_schedule.html
@@ -581,7 +581,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NYSE = GlobalHolidayCalendars.generateNewYorkStockExchange();
 
   @DataProvider(name = "nyse")
-  Object[][] data_nyse() {
+  public static Object[][] data_nyse() {
     return new Object[][] {
         // https://www.nyse.com/markets/hours-calendars
         // http://web.archive.org/web/20110320011340/http://www.nyse.com/about/newsevents/1176373643795.html?sa_campaign=/internal_ads/homepage/08262008holidays
@@ -620,7 +620,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar JPTO = GlobalHolidayCalendars.generateTokyo();
 
   @DataProvider(name = "jpto")
-  Object[][] data_jpto() {
+  public static Object[][] data_jpto() {
     return new Object[][] {
         // https://www.boj.or.jp/en/about/outline/holi.htm/
         // http://web.archive.org/web/20110513190217/http://www.boj.or.jp/en/about/outline/holi.htm/
@@ -671,7 +671,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar AUSY = GlobalHolidayCalendars.generateSydney();
 
   @DataProvider(name = "ausy")
-  Object[][] data_ausy() {
+  public static Object[][] data_ausy() {
     return new Object[][] {
         {2012, mds(2012, md(1, 1), md(1, 2), md(1, 26), md(4, 6), md(4, 7), md(4, 8), md(4, 9),
             md(4, 25), md(6, 11), md(8, 6), md(10, 1), md(12, 25), md(12, 26))},
@@ -703,7 +703,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar BRBD = GlobalHolidayCalendars.generateBrazil();
 
   @DataProvider(name = "brbd")
-  Object[][] data_brbd() {
+  public static Object[][] data_brbd() {
     // http://www.planalto.gov.br/ccivil_03/leis/2002/L10607.htm
     // fixing data
     return new Object[][] {
@@ -733,7 +733,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar CAMO = GlobalHolidayCalendars.generateMontreal();
 
   @DataProvider(name = "camo")
-  Object[][] data_camo() {
+  public static Object[][] data_camo() {
     // https://www.bankofcanada.ca/about/contact-information/bank-of-canada-holiday-schedule/
     // also indicate day after new year and boxing day, but no other sources for this
     return new Object[][] {
@@ -759,7 +759,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar CATO = GlobalHolidayCalendars.generateToronto();
 
   @DataProvider(name = "cato")
-  Object[][] data_cato() {
+  public static Object[][] data_cato() {
     return new Object[][] {
         {2009, mds(2009, md(1, 1), md(2, 16), md(4, 10),
             md(5, 18), md(7, 1), md(8, 3), md(9, 7), md(10, 12), md(11, 11), md(12, 25), md(12, 28))},
@@ -795,7 +795,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar CZPR = GlobalHolidayCalendars.generatePrague();
 
   @DataProvider(name = "czpr")
-  Object[][] data_czpr() {
+  public static Object[][] data_czpr() {
     // official data from Czech National Bank
     // https://www.cnb.cz/en/public/media_service/schedules/media_svatky.html
     return new Object[][] {
@@ -837,7 +837,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar DKCO = GlobalHolidayCalendars.generateCopenhagen();
 
   @DataProvider(name = "dkco")
-  Object[][] data_dkco() {
+  public static Object[][] data_dkco() {
     // official data from Danish Bankers association via web archive
     return new Object[][] {
         {2013, mds(2013, md(1, 1), md(3, 28), md(3, 29), md(4, 1),
@@ -866,7 +866,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar HUBU = GlobalHolidayCalendars.generateBudapest();
 
   @DataProvider(name = "hubu")
-  Object[][] data_hubu() {
+  public static Object[][] data_hubu() {
     // http://www.mnb.hu/letoltes/bubor2.xls
     // http://holidays.kayaposoft.com/public_holidays.php?year=2013&country=hun&region=#
     return new Object[][] {
@@ -905,7 +905,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar MXMC = GlobalHolidayCalendars.generateMexicoCity();
 
   @DataProvider(name = "mxmc")
-  Object[][] data_mxmc() {
+  public static Object[][] data_mxmc() {
     // http://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF111&locale=en
     return new Object[][] {
         {2012, mds(2012, md(1, 1), md(2, 6), md(3, 19), md(4, 5), md(4, 6),
@@ -936,7 +936,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NOOS = GlobalHolidayCalendars.generateOslo();
 
   @DataProvider(name = "noos")
-  Object[][] data_noos() {
+  public static Object[][] data_noos() {
     // official data from Oslo Bors via web archive
     return new Object[][] {
         {2009, mds(2009, md(1, 1), md(4, 9), md(4, 10), md(4, 13),
@@ -973,7 +973,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NZAU = GlobalHolidayCalendars.generateAuckland();
 
   @DataProvider(name = "nzau")
-  Object[][] data_nzau() {
+  public static Object[][] data_nzau() {
     // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
     return new Object[][] {
@@ -1003,7 +1003,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NZWE = GlobalHolidayCalendars.generateWellington();
 
   @DataProvider(name = "nzwe")
-  Object[][] data_nzwe() {
+  public static Object[][] data_nzwe() {
     // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
     return new Object[][] {
@@ -1033,7 +1033,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NZBD = GlobalHolidayCalendars.generateNewZealand();
 
   @DataProvider(name = "nzbd")
-  Object[][] data_nzbd() {
+  public static Object[][] data_nzbd() {
     // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
     return new Object[][] {
@@ -1063,7 +1063,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar PLWA = GlobalHolidayCalendars.generateWarsaw();
 
   @DataProvider(name = "plwa")
-  Object[][] data_plwa() {
+  public static Object[][] data_plwa() {
     // based on government law data and stock exchange holidays
     return new Object[][] {
         {2013, mds(2013, md(1, 1), md(3, 29), md(4, 1),
@@ -1094,7 +1094,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar SEST = GlobalHolidayCalendars.generateStockholm();
 
   @DataProvider(name = "sest")
-  Object[][] data_sest() {
+  public static Object[][] data_sest() {
     // official data from published fixing dates
     return new Object[][] {
         {2014, mds(2014, md(1, 1), md(1, 6), md(4, 18), md(4, 21),
@@ -1121,7 +1121,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar ZAJO = GlobalHolidayCalendars.generateJohannesburg();
 
   @DataProvider(name = "zajo")
-  Object[][] data_zajo() {
+  public static Object[][] data_zajo() {
     // http://www.gov.za/about-sa/public-holidays
     // https://web.archive.org/web/20151230214958/http://www.gov.za/about-sa/public-holidays
     return new Object[][] {

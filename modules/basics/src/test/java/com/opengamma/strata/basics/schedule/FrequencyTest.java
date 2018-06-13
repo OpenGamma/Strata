@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 public class FrequencyTest {
 
   @DataProvider(name = "create")
-  static Object[][] data_create() {
+  public static Object[][] data_create() {
     return new Object[][] {
         {Frequency.ofDays(1), Period.ofDays(1), "P1D"},
         {Frequency.ofDays(2), Period.ofDays(2), "P2D"},
@@ -138,7 +138,7 @@ public class FrequencyTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "ofMonths")
-  static Object[][] data_ofMonths() {
+  public static Object[][] data_ofMonths() {
     return new Object[][] {
         {1, Period.ofMonths(1), "P1M"},
         {2, Period.ofMonths(2), "P2M"},
@@ -159,7 +159,7 @@ public class FrequencyTest {
   }
 
   @DataProvider(name = "ofYears")
-  static Object[][] data_ofYears() {
+  public static Object[][] data_ofYears() {
     return new Object[][] {
         {1, Period.ofYears(1), "P1Y"},
         {2, Period.ofYears(2), "P2Y"},
@@ -175,7 +175,7 @@ public class FrequencyTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "normalized")
-  static Object[][] data_normalized() {
+  public static Object[][] data_normalized() {
     return new Object[][] {
         {Period.ofDays(1), Period.ofDays(1)},
         {Period.ofDays(7), Period.ofDays(7)},
@@ -199,7 +199,7 @@ public class FrequencyTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "based")
-  static Object[][] data_based() {
+  public static Object[][] data_based() {
     return new Object[][] {
         {Frequency.ofDays(1), false, false, false},
         {Frequency.ofDays(2), false, false, false},
@@ -234,7 +234,7 @@ public class FrequencyTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "events")
-  static Object[][] data_events() {
+  public static Object[][] data_events() {
     return new Object[][] {
         {Frequency.P1D, 364},
         {Frequency.P1W, 52},
@@ -287,7 +287,7 @@ public class FrequencyTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "exactDivide")
-  static Object[][] data_exactDivide() {
+  public static Object[][] data_exactDivide() {
     return new Object[][] {
         {Frequency.P1D, Frequency.P1D, 1},
         {Frequency.P1W, Frequency.P1D, 7},
@@ -345,7 +345,7 @@ public class FrequencyTest {
   }
 
   @DataProvider(name = "parseGood")
-  static Object[][] data_parseGood() {
+  public static Object[][] data_parseGood() {
     return new Object[][] {
         {"1D", Frequency.ofDays(1)},
         {"2D", Frequency.ofDays(2)},
@@ -374,7 +374,7 @@ public class FrequencyTest {
   }
 
   @DataProvider(name = "parseBad")
-  static Object[][] data_parseBad() {
+  public static Object[][] data_parseBad() {
     return new Object[][] {
         {""},
         {"2"},

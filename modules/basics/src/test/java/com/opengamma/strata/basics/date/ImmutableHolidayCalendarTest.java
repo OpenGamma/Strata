@@ -104,7 +104,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createSatSunWeekend")
-  static Object[][] data_createSatSunWeekend() {
+  public static Object[][] data_createSatSunWeekend() {
     return new Object[][] {
         {FRI_2014_07_11, true},
         {SAT_2014_07_12, false},
@@ -144,7 +144,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createThuFriWeekend")
-  static Object[][] data_createThuFriWeekend() {
+  public static Object[][] data_createThuFriWeekend() {
     return new Object[][] {
         {FRI_2014_07_11, false},
         {SAT_2014_07_12, true},
@@ -184,7 +184,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createSunWeekend")
-  static Object[][] data_createSunWeekend() {
+  public static Object[][] data_createSunWeekend() {
     return new Object[][] {
         {FRI_2014_07_11, true},
         {SAT_2014_07_12, true},
@@ -224,7 +224,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createThuFriSatWeekend")
-  static Object[][] data_createThuFriSatWeekend() {
+  public static Object[][] data_createThuFriSatWeekend() {
     return new Object[][] {
         {FRI_2014_07_11, false},
         {SAT_2014_07_12, false},
@@ -254,7 +254,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createNoWeekends")
-  static Object[][] data_createNoWeekends() {
+  public static Object[][] data_createNoWeekends() {
     return new Object[][] {
         {FRI_2014_07_11, true},
         {SAT_2014_07_12, true},
@@ -284,7 +284,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createNoHolidays")
-  static Object[][] data_createNoHolidays() {
+  public static Object[][] data_createNoHolidays() {
     return new Object[][] {
         {FRI_2014_07_11, false},
         {SAT_2014_07_12, false},
@@ -371,7 +371,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "shift")
-  static Object[][] data_shift() {
+  public static Object[][] data_shift() {
     return new Object[][] {
         {THU_2014_07_10, 1, FRI_2014_07_11},
         {FRI_2014_07_11, 1, TUE_2014_07_15},
@@ -463,7 +463,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "next")
-  static Object[][] data_next() {
+  public static Object[][] data_next() {
     return new Object[][] {
         {THU_2014_07_10, FRI_2014_07_11, HOLCAL_MON_WED},
         {FRI_2014_07_11, TUE_2014_07_15, HOLCAL_MON_WED},
@@ -504,7 +504,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nextOrSame")
-  static Object[][] data_nextOrSame() {
+  public static Object[][] data_nextOrSame() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10, HOLCAL_MON_WED},
         {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
@@ -546,7 +546,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
-  static Object[][] data_previous() {
+  public static Object[][] data_previous() {
     return new Object[][] {
         {FRI_2014_07_11, THU_2014_07_10, HOLCAL_MON_WED},
         {SAT_2014_07_12, FRI_2014_07_11, HOLCAL_MON_WED},
@@ -587,7 +587,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previousOrSame")
-  static Object[][] data_previousOrSame() {
+  public static Object[][] data_previousOrSame() {
     return new Object[][] {
         {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
         {SAT_2014_07_12, FRI_2014_07_11, HOLCAL_MON_WED},
@@ -630,7 +630,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nextSameOrLastInMonth")
-  static Object[][] data_nextSameOrLastInMonth() {
+  public static Object[][] data_nextSameOrLastInMonth() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10, HOLCAL_MON_WED},
         {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
@@ -676,7 +676,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "lastBusinessDayOfMonth")
-  static Object[][] data_lastBusinessDayOfMonth() {
+  public static Object[][] data_lastBusinessDayOfMonth() {
     return new Object[][] {
         // June 30th is Monday holiday, June 28/29 is weekend
         {date(2014, 6, 26), date(2014, 6, 27)},
@@ -729,7 +729,7 @@ public class ImmutableHolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "daysBetween")
-  static Object[][] data_daysBetween() {
+  public static Object[][] data_daysBetween() {
     return new Object[][] {
         {FRI_2014_07_11, FRI_2014_07_11, 0},
         {FRI_2014_07_11, SAT_2014_07_12, 1},

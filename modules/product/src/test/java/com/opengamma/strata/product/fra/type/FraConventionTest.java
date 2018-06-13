@@ -307,7 +307,7 @@ public class FraConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {ImmutableFraConvention.of(GBP_LIBOR_3M), "GBP-LIBOR-3M"},
         {ImmutableFraConvention.of(USD_LIBOR_3M), "USD-LIBOR-3M"},

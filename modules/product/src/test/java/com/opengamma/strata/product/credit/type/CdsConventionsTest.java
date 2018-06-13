@@ -37,7 +37,7 @@ public class CdsConventionsTest {
   private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
 
   @DataProvider(name = "currency")
-  static Object[][] data_currency() {
+  public static Object[][] data_currency() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD, EUR},
         {CdsConventions.EUR_STANDARD, EUR},
@@ -56,7 +56,7 @@ public class CdsConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "common")
-  static Object[][] data_common() {
+  public static Object[][] data_common() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD,},
         {CdsConventions.EUR_STANDARD,},
@@ -80,7 +80,7 @@ public class CdsConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "businessDayAdjustment")
-  static Object[][] data_businessDayAdjustment() {
+  public static Object[][] data_businessDayAdjustment() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD, BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA)},
         {CdsConventions.EUR_STANDARD, BusinessDayAdjustment.of(FOLLOWING, EUTA)},
@@ -101,7 +101,7 @@ public class CdsConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "string")
-  static Object[][] data_string() {
+  public static Object[][] data_string() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD, "EUR-GB-STANDARD"},
         {CdsConventions.EUR_STANDARD, "EUR-STANDARD"},

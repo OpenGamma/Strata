@@ -98,7 +98,7 @@ public class CountryTest {
   }
 
   @DataProvider(name = "ofBad")
-  Object[][] data_ofBad() {
+  public static Object[][] data_ofBad() {
     return new Object[][] {
         {""},
         {"A"},
@@ -135,7 +135,7 @@ public class CountryTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+  public static Object[][] data_parseBad() {
     return new Object[][] {
         {""},
         {"A"},

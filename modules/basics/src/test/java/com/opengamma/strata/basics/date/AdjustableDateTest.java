@@ -69,7 +69,7 @@ public class AdjustableDateTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "adjusted")
-  static Object[][] data_adjusted() {
+  public static Object[][] data_adjusted() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10},
         {FRI_2014_07_11, FRI_2014_07_11},

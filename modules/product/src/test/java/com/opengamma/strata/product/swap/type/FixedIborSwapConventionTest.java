@@ -135,7 +135,7 @@ public class FixedIborSwapConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, "USD-FIXED-1Y-LIBOR-3M"},
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, "USD-FIXED-6M-LIBOR-3M"},

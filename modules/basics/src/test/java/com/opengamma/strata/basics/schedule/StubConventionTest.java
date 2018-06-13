@@ -50,7 +50,7 @@ public class StubConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
-  static Object[][] data_types() {
+  public static Object[][] data_types() {
     StubConvention[] conv = StubConvention.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
@@ -68,7 +68,7 @@ public class StubConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "roll")
-  static Object[][] data_roll() {
+  public static Object[][] data_roll() {
     return new Object[][] {
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
@@ -140,7 +140,7 @@ public class StubConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "implicit")
-  static Object[][] data_implicit() {
+  public static Object[][] data_implicit() {
     return new Object[][] {
         {NONE, false, false, NONE},
         {NONE, true, false, null},
@@ -229,7 +229,7 @@ public class StubConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {NONE, "None"},
         {SHORT_INITIAL, "ShortInitial"},

@@ -27,7 +27,7 @@ public class FxResetFixingRelativeToTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FxResetFixingRelativeTo.PERIOD_START, "PeriodStart"},
         {FxResetFixingRelativeTo.PERIOD_END, "PeriodEnd"},

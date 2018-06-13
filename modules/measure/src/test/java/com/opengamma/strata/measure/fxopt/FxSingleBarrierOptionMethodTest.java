@@ -32,7 +32,7 @@ public class FxSingleBarrierOptionMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FxSingleBarrierOptionMethod.BLACK, "Black"},
         {FxSingleBarrierOptionMethod.TRINOMIAL_TREE, "TrinomialTree"},

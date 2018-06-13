@@ -1432,7 +1432,7 @@ public class FpmlDocumentParserTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "parse")
-  Object[][] data_parse() {
+  public static Object[][] data_parse() {
     return new Object[][] {
         {"classpath:com/opengamma/strata/loader/fpml/cd-ex01-long-asia-corp-fixreg.xml"},
         {"classpath:com/opengamma/strata/loader/fpml/cd-ex02-2003-short-asia-corp-fixreg.xml"},

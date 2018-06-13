@@ -22,7 +22,7 @@ public class PaymentOnDefaultTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {PaymentOnDefault.NONE, "None"},
         {PaymentOnDefault.ACCRUED_PREMIUM, "AccruedPremium"},

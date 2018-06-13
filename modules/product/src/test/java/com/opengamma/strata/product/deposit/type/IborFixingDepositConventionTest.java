@@ -131,7 +131,7 @@ public class IborFixingDepositConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {ImmutableIborFixingDepositConvention.of(GBP_LIBOR_3M), "GBP-LIBOR-3M"},
         {ImmutableIborFixingDepositConvention.of(USD_LIBOR_3M), "USD-LIBOR-3M"},

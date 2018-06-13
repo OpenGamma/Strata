@@ -457,7 +457,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
   // test forecast value sensitivity for ibor, with straight, flat and exclusive compounding.
   @DataProvider(name = "compoundingRatePaymentPeriod")
-  Object[][] data_forecastValueSensitivity_ibor_compounding() {
+  public static Object[][] data_forecastValueSensitivity_ibor_compounding() {
     return new Object[][] {
         {PAYMENT_PERIOD_COMPOUNDING_STRAIGHT},
         {PAYMENT_PERIOD_COMPOUNDING_FLAT},
