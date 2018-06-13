@@ -77,7 +77,7 @@ public final class ResourceConfig {
   /**
    * The package/folder location for the configuration.
    */
-  private static final String CONFIG_PACKAGE = "com/opengamma/strata/config/";
+  private static final String CONFIG_PACKAGE = "META-INF/com/opengamma/strata/config/";
   /**
    * The default set of directories to query configuration files in.
    */
