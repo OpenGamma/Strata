@@ -61,62 +61,65 @@ class FxSingleTradeCsvLoader {
    * @return the parsed trade, as an instance of {@link FxSingleTrade}
    */
   static FxSingleTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    FxSingleTrade trade = parseRow(row, info, resolver);
+    FxSingleTrade trade = parseRow(row, info);
     return resolver.completeTrade(row, trade);
   }
 
-  /**
-   * Parses the data from a CSV row.
-   *
-   * @param row  the CSV row object
-   * @param info  the trade info object
-   * @param resolver  the resolver used to parse additional information. This is not currently used in this method.
-   * @return the parsed trade, as an instance of {@link FxSingleTrade}
-   */
-  private static FxSingleTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
+  // parses the trade
+  private static FxSingleTrade parseRow(CsvRow row, TradeInfo info) {
     if (row.findValue(BUY_SELL_FIELD).isPresent()) {
-      // convention-based
-      // ideally we'd use the trade date plus "period to start" to get the spot/payment date
-      // but we don't have all the data and it gets complicated in places like TRY, RUB and AED
-      CurrencyPair pair = CurrencyPair.parse(row.getValue(CONVENTION_FIELD));
-      BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
-      Currency currency = Currency.parse(row.getValue(CURRENCY_FIELD));
-      double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
-      double fxRate = LoaderUtils.parseDouble(row.getValue(FX_RATE_FIELD));
-      LocalDate paymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
-      CurrencyAmount amount = CurrencyAmount.of(currency, buySell.normalize(notional));
-      FxSingle fx = paymentAdj
-          .map(adj -> FxSingle.of(amount, FxRate.of(pair, fxRate), paymentDate, adj))
-          .orElse(FxSingle.of(amount, FxRate.of(pair, fxRate), paymentDate));
-      return FxSingleTrade.of(info, fx);
+      return parseConvention(row, info);
     } else {
-      // full field description
-      PayReceive direction1 = LoaderUtils.parsePayReceive(row.getValue(LEG_1_DIRECTION_FIELD));
-      Currency currency1 = Currency.of(row.getValue(LEG_1_CURRENCY_FIELD));
-      double notional1 = LoaderUtils.parseDouble(row.getValue(LEG_1_NOTIONAL_FIELD));
-      LocalDate paymentDate1 = row.findValue(LEG_1_PAYMENT_DATE_FIELD)
-          .map(str -> LoaderUtils.parseDate(str))
-          .orElseGet(() -> LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD)));
-      PayReceive direction2 = LoaderUtils.parsePayReceive(row.getValue(LEG_2_DIRECTION_FIELD));
-      Currency currency2 = Currency.of(row.getValue(LEG_2_CURRENCY_FIELD));
-      double notional2 = LoaderUtils.parseDouble(row.getValue(LEG_2_NOTIONAL_FIELD));
-      LocalDate paymentDate2 = row.findValue(LEG_2_PAYMENT_DATE_FIELD)
-          .map(str -> LoaderUtils.parseDate(str))
-          .orElseGet(() -> LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD)));
-      if (direction1.equals(direction2)) {
-        throw new IllegalArgumentException(Messages.format(
-            "Detected two legs having the same direction: {}, {}.",
-            direction1.toString(),
-            direction2.toString()));
-      }
-      Payment payment1 = Payment.of(currency1, direction1.normalize(notional1), paymentDate1);
-      Payment payment2 = Payment.of(currency2, direction2.normalize(notional2), paymentDate2);
-      FxSingle fx = paymentAdj
-          .map(adj -> FxSingle.of(payment1, payment2, adj))
-          .orElse(FxSingle.of(payment1, payment2));
-      return FxSingleTrade.of(info, fx);
+      return parseFull(row, info);
     }
+  }
+
+  // convention-based
+  // ideally we'd use the trade date plus "period to start" to get the spot/payment date
+  // but we don't have all the data and it gets complicated in places like TRY, RUB and AED
+  private static FxSingleTrade parseConvention(CsvRow row, TradeInfo info) {
+    CurrencyPair pair = CurrencyPair.parse(row.getValue(CONVENTION_FIELD));
+    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    Currency currency = Currency.parse(row.getValue(CURRENCY_FIELD));
+    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
+    double fxRate = LoaderUtils.parseDouble(row.getValue(FX_RATE_FIELD));
+    LocalDate paymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
+    Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
+
+    CurrencyAmount amount = CurrencyAmount.of(currency, buySell.normalize(notional));
+    FxSingle fx = paymentAdj
+        .map(adj -> FxSingle.of(amount, FxRate.of(pair, fxRate), paymentDate, adj))
+        .orElseGet(() -> FxSingle.of(amount, FxRate.of(pair, fxRate), paymentDate));
+    return FxSingleTrade.of(info, fx);
+  }
+
+  // parse full definition
+  private static FxSingleTrade parseFull(CsvRow row, TradeInfo info) {
+    PayReceive direction1 = LoaderUtils.parsePayReceive(row.getValue(LEG_1_DIRECTION_FIELD));
+    Currency currency1 = Currency.of(row.getValue(LEG_1_CURRENCY_FIELD));
+    double notional1 = LoaderUtils.parseDouble(row.getValue(LEG_1_NOTIONAL_FIELD));
+    LocalDate paymentDate1 = row.findValue(LEG_1_PAYMENT_DATE_FIELD)
+        .map(str -> LoaderUtils.parseDate(str))
+        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD)));
+    PayReceive direction2 = LoaderUtils.parsePayReceive(row.getValue(LEG_2_DIRECTION_FIELD));
+    Currency currency2 = Currency.of(row.getValue(LEG_2_CURRENCY_FIELD));
+    double notional2 = LoaderUtils.parseDouble(row.getValue(LEG_2_NOTIONAL_FIELD));
+    LocalDate paymentDate2 = row.findValue(LEG_2_PAYMENT_DATE_FIELD)
+        .map(str -> LoaderUtils.parseDate(str))
+        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD)));
+    Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
+    if (direction1.equals(direction2)) {
+      throw new IllegalArgumentException(Messages.format(
+          "Detected two legs having the same direction: {}, {}.",
+          direction1.toString(),
+          direction2.toString()));
+    }
+    Payment payment1 = Payment.of(currency1, direction1.normalize(notional1), paymentDate1);
+    Payment payment2 = Payment.of(currency2, direction2.normalize(notional2), paymentDate2);
+    FxSingle fx = paymentAdj
+        .map(adj -> FxSingle.of(payment1, payment2, adj))
+        .orElseGet(() -> FxSingle.of(payment1, payment2));
+    return FxSingleTrade.of(info, fx);
   }
 
   // parses the payment date adjustment, which consists of two linked optional fields
