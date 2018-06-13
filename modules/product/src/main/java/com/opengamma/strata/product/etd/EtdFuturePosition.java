@@ -197,12 +197,12 @@ public final class EtdFuturePosition
   }
 
   @Override
-  public SecuritizedProductPosition resolveTarget(ReferenceData refData) {
+  public SecuritizedProductPosition<?> resolveTarget(ReferenceData refData) {
     SecurityId securityId = getSecurityId();
     Security security = refData.getValue(securityId);
     Position position = security.createPosition(getInfo(), getLongQuantity(), getShortQuantity(), refData);
     if (position instanceof SecuritizedProductPosition) {
-      return (SecuritizedProductPosition) position;
+      return (SecuritizedProductPosition<?>) position;
     }
     throw new ClassCastException(Messages.format(
         "Reference data for security '{}' did not implement SecuritizedProductPosition: ",

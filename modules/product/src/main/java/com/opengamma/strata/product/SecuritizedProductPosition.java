@@ -6,7 +6,6 @@
 package com.opengamma.strata.product;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * A position that is directly based on a securitized product.
@@ -22,26 +21,15 @@ import com.opengamma.strata.basics.currency.Currency;
  * product representation completely models the trade.
  * <p>
  * Implementations of this interface must be immutable beans.
+ * 
+ * @param <P> the type of securitized product
  */
-public interface SecuritizedProductPosition
-    extends Position {
+public interface SecuritizedProductPosition<P extends SecuritizedProduct>
+    extends Position, SecuritizedProductPortfolioItem<P> {
 
-  /**
-   * Gets the product of the security that was traded.
-   * 
-   * @return the product
-   */
-  public abstract SecuritizedProduct getProduct();
-
-  /**
-   * Gets the currency of the position.
-   * <p>
-   * This is typically the same as the currency of the product.
-   * 
-   * @return the trading currency
-   */
-  public default Currency getCurrency() {
-    return getProduct().getCurrency();
+  @Override
+  public default SecurityId getSecurityId() {
+    return getProduct().getSecurityId();
   }
 
   //-------------------------------------------------------------------------
@@ -52,7 +40,7 @@ public interface SecuritizedProductPosition
    * @return the instance with the specified info
    */
   @Override
-  public abstract SecuritizedProductPosition withInfo(PositionInfo info);
+  public abstract SecuritizedProductPosition<P> withInfo(PositionInfo info);
 
   /**
    * Returns an instance with the specified quantity.
@@ -61,6 +49,6 @@ public interface SecuritizedProductPosition
    * @return the instance with the specified quantity
    */
   @Override
-  public abstract SecuritizedProductPosition withQuantity(double quantity);
+  public abstract SecuritizedProductPosition<P> withQuantity(double quantity);
 
 }

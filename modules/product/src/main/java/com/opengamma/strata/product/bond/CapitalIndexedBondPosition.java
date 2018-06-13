@@ -51,7 +51,8 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class CapitalIndexedBondPosition
-    implements SecuritizedProductPosition, Resolvable<ResolvedCapitalIndexedBondTrade>, ImmutableBean, Serializable {
+    implements
+    SecuritizedProductPosition<CapitalIndexedBond>, Resolvable<ResolvedCapitalIndexedBondTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.

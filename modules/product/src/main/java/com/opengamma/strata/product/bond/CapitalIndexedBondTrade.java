@@ -46,7 +46,8 @@ import com.opengamma.strata.product.rate.RateComputation;
  */
 @BeanDefinition(constructorScope = "package")
 public final class CapitalIndexedBondTrade
-    implements SecuritizedProductTrade, ResolvableTrade<ResolvedCapitalIndexedBondTrade>, ImmutableBean, Serializable {
+    implements
+    SecuritizedProductTrade<CapitalIndexedBond>, ResolvableTrade<ResolvedCapitalIndexedBondTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

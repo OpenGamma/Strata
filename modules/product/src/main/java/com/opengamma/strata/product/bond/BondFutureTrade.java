@@ -44,7 +44,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class BondFutureTrade
-    implements SecuritizedProductTrade, ResolvableTrade<ResolvedBondFutureTrade>, ImmutableBean, Serializable {
+    implements SecuritizedProductTrade<BondFuture>, ResolvableTrade<ResolvedBondFutureTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

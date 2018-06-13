@@ -59,7 +59,8 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class IborFutureOptionPosition
-    implements SecuritizedProductPosition, Resolvable<ResolvedIborFutureOptionTrade>, ImmutableBean, Serializable {
+    implements
+    SecuritizedProductPosition<IborFutureOption>, Resolvable<ResolvedIborFutureOptionTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.
