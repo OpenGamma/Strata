@@ -12,8 +12,11 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.PositionInfo;
@@ -27,6 +30,8 @@ public class EtdFuturePositionTest {
 
   private static final PositionInfo POSITION_INFO = PositionInfo.of(StandardId.of("A", "B"));
   private static final EtdFutureSecurity SECURITY = EtdFutureSecurityTest.sut();
+  private static final int LONG_QUANTITY = 3000;
+  private static final int SHORT_QUANTITY = 2000;
 
   public void test_ofNet() {
     EtdFuturePosition test = EtdFuturePosition.ofNet(SECURITY, 1000);
@@ -95,6 +100,16 @@ public class EtdFuturePositionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_resolveTarget() {
+    EtdFuturePosition position = sut();
+    GenericSecurity resolvedSecurity = GenericSecurity.of(SECURITY.getInfo());
+    ImmutableReferenceData refData = ImmutableReferenceData.of(SECURITY.getSecurityId(), resolvedSecurity);
+    GenericSecurityPosition expected =
+        GenericSecurityPosition.ofLongShort(POSITION_INFO, resolvedSecurity, LONG_QUANTITY, SHORT_QUANTITY);
+    assertEquals(position.resolveTarget(refData), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
@@ -109,8 +124,8 @@ public class EtdFuturePositionTest {
     return EtdFuturePosition.builder()
         .info(POSITION_INFO)
         .security(SECURITY)
-        .longQuantity(3000)
-        .shortQuantity(2000)
+        .longQuantity(LONG_QUANTITY)
+        .shortQuantity(SHORT_QUANTITY)
         .build();
   }
 

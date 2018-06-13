@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -12,7 +13,9 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link SecurityPosition}.
@@ -97,16 +100,6 @@ public class SecurityPositionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
-    coverImmutableBean(sut());
-    coverBeanEquals(sut(), sut2());
-  }
-
-  public void test_serialization() {
-    assertSerialization(sut());
-  }
-
-  //-------------------------------------------------------------------------
   public void test_summarize() {
     SecurityPosition trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -116,6 +109,26 @@ public class SecurityPositionTest {
         .description("Id x 100")
         .build();
     assertEquals(trade.summarize(), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolveTarget() {
+    SecurityPosition position = sut();
+    GenericSecurity resolvedSecurity = GenericSecurity.of(SecurityInfo.of(SECURITY_ID, 1, CurrencyAmount.of(USD, 0.01)));
+    ImmutableReferenceData refData = ImmutableReferenceData.of(SECURITY_ID, resolvedSecurity);
+    GenericSecurityPosition expected =
+        GenericSecurityPosition.ofLongShort(POSITION_INFO, resolvedSecurity, LONG_QUANTITY, SHORT_QUANTITY);
+    assertEquals(position.resolveTarget(refData), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
   }
 
   //-------------------------------------------------------------------------

@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ResolvableCalculationTarget;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
@@ -94,9 +95,9 @@ class ResultsRow {
    */
   Result<Product> getProduct() {
     CalculationTarget target = getTarget();
-    if (target instanceof SecurityTrade) {
-      SecurityTrade idTrade = (SecurityTrade) target;
-      target = idTrade.resolveSecurity(results.getReferenceData());
+    if (target instanceof ResolvableCalculationTarget) {
+      ResolvableCalculationTarget idTrade = (ResolvableCalculationTarget) target;
+      target = idTrade.resolveTarget(results.getReferenceData());
     }
     if (target instanceof ProductTrade) {
       return Result.success(((ProductTrade) target).getProduct());

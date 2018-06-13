@@ -150,7 +150,7 @@ public class CurveEndToEndTest {
     MarketData knownMarketData = MarketData.of(date(2011, 3, 8), parRateData);
 
     // using the direct executor means there is no need to close/shutdown the runner
-    CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns);
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns, REF_DATA);
     MarketDataRequirements reqs = tasks.requirements(REF_DATA);
     MarketData enhancedMarketData = marketDataFactory().create(reqs, marketDataConfig, knownMarketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
