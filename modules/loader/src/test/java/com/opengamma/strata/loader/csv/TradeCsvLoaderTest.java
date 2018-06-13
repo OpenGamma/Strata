@@ -5,7 +5,10 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.currency.Currency.CZK;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.INR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -41,6 +44,8 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -134,20 +139,17 @@ public class TradeCsvLoaderTest {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
-    assertEquals(loadedData.getFailures().size(), 0);
+    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
 
     List<Trade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 9);
+    assertEquals(loadedTrades.size(), 2);
 
     FxSingleTrade expectedTrade1 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId1"))
             .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.USD, -3850000),
-            CurrencyAmount.of(Currency.INR, 715405000),
-            LocalDate.parse("2017-12-08")))
+        .product(FxSingle.of(CurrencyAmount.of(USD, -3850000), FxRate.of(USD, INR, 67.40), LocalDate.parse("2016-12-08")))
         .build();
     assertEquals(loadedTrades.get(0), expectedTrade1);
 
@@ -156,84 +158,9 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-22"))
             .id(StandardId.of("OG", "tradeId2"))
             .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.USD, 7000000),
-            CurrencyAmount.of(Currency.CNY, -55679000),
-            LocalDate.parse("2017-12-28")))
+        .product(FxSingle.of(CurrencyAmount.of(EUR, 1920000), FxRate.of(EUR, CZK, 25.62), LocalDate.parse("2016-12-24")))
         .build();
     assertEquals(loadedTrades.get(1), expectedTrade2);
-
-    FxSingleTrade expectedTrade3 = FxSingleTrade.builder()
-        .info(TradeInfo.builder()
-            .tradeDate(LocalDate.parse("2017-01-05"))
-            .id(StandardId.of("OG", "tradeId3"))
-            .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.USD, 92000000),
-            CurrencyAmount.of(Currency.CNY, -137664000),
-            LocalDate.parse("2018-01-08")))
-        .build();
-    assertEquals(loadedTrades.get(2), expectedTrade3);
-
-    FxSingleTrade expectedTrade4 = FxSingleTrade.builder()
-        .info(TradeInfo.builder()
-            .tradeDate(LocalDate.parse("2017-01-10"))
-            .id(StandardId.of("OG", "tradeId4"))
-            .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.USD, 19808000),
-            CurrencyAmount.of(Currency.CNY, -86001152),
-            LocalDate.parse("2018-01-12")))
-        .build();
-    assertEquals(loadedTrades.get(3), expectedTrade4);
-
-    FxSingleTrade expectedTrade5 = FxSingleTrade.builder()
-        .info(TradeInfo.builder()
-            .tradeDate(LocalDate.parse("2017-01-11"))
-            .id(StandardId.of("OG", "tradeId5"))
-            .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.USD, -6608000),
-            CurrencyAmount.of(Currency.TWD, 95703040),
-            LocalDate.parse("2017-07-13")))
-        .build();
-    assertEquals(loadedTrades.get(4), expectedTrade5);
-
-    FxSingleTrade expectedTrade6 = FxSingleTrade.builder()
-        .info(TradeInfo.builder()
-            .tradeDate(LocalDate.parse("2017-01-25"))
-            .id(StandardId.of("OG", "tradeId6"))
-            .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.EUR, -1920000),
-            CurrencyAmount.of(Currency.CZK, 12448000),
-            LocalDate.parse("2018-01-29")))
-        .build();
-    assertEquals(loadedTrades.get(5), expectedTrade6);
-
-    FxSingleTrade expectedTrade7 = FxSingleTrade.builder()
-        .info(TradeInfo.builder()
-            .tradeDate(LocalDate.parse("2017-01-25"))
-            .id(StandardId.of("OG", "tradeId7"))
-            .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.EUR, -1920000),
-            CurrencyAmount.of(Currency.CZK, 12256000),
-            LocalDate.parse("2018-01-29")))
-        .build();
-    assertEquals(loadedTrades.get(6), expectedTrade7);
-    FxSingleTrade expectedTrade8 = FxSingleTrade.builder()
-        .info(TradeInfo.builder()
-            .tradeDate(LocalDate.parse("2017-01-25"))
-            .id(StandardId.of("OG", "tradeId8"))
-            .build())
-        .product(FxSingle.of(
-            CurrencyAmount.of(Currency.EUR, 1920000),
-            CurrencyAmount.of(Currency.CZK, -12256000),
-            LocalDate.parse("2018-01-29")))
-        .build();
-    assertEquals(loadedTrades.get(7), expectedTrade8);
-    assertEquals(loadedTrades.get(8), expectedTrade8);
   }
 
   @Test
@@ -241,7 +168,7 @@ public class TradeCsvLoaderTest {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades_legs_same_direction.csv");
     ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
-    assertEquals(loadedData.getFailures().size(), 1);
+    assertEquals(loadedData.getFailures().size(), 1, loadedData.getFailures().toString());
     FailureItem failureItem = loadedData.getFailures().get(0);
     assertEquals(failureItem.getReason().toString(), "PARSING");
     assertEquals(failureItem.getMessage(), "CSV file trade could not be parsed at line 2: Detected two legs having the same direction: Pay, Pay.");
@@ -249,11 +176,11 @@ public class TradeCsvLoaderTest {
     assertEquals(loadedTrades.size(), 0);
   }
   
-  public void test_load_fx_forwards_bda() throws Exception {
+  public void test_load_fx_forwards_fullFormat() throws Exception {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
-    assertEquals(loadedData.getFailures().size(), 0);
+    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
 
     List<Trade> loadedTrades = loadedData.getValue();
     assertEquals(loadedTrades.size(), 5);
@@ -315,9 +242,8 @@ public class TradeCsvLoaderTest {
             .id(StandardId.of("OG", "tradeId8"))
             .build())
         .product(FxSingle.of(
-            CurrencyAmount.of(Currency.EUR, 1920000),
-            CurrencyAmount.of(Currency.CZK, -12256000),
-            LocalDate.parse("2018-01-29"),
+            Payment.of(Currency.EUR, 1920000, LocalDate.parse("2018-01-29")),
+            Payment.of(Currency.CZK, -12256000, LocalDate.parse("2018-01-30")),
             BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUTA.combinedWith(CZPR))))
         .build();
     assertEquals(loadedTrades.get(4), expectedTrade5);

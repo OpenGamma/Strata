@@ -9,6 +9,7 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.INDEX_FIELD;
@@ -83,7 +84,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 final class FullSwapTradeCsvLoader {
 
   // CSV column headers
-  static final String DIRECTION_FIELD = "Direction";
   private static final String FREQUENCY_FIELD = "Frequency";
   private static final String START_DATE_CNV_FIELD = "Start Date Convention";
   private static final String START_DATE_CAL_FIELD = "Start Date Calendar";

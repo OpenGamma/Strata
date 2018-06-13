@@ -5,13 +5,14 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.loader.csv.FullSwapTradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.FX_RATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PERIOD_TO_START_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
@@ -57,7 +58,6 @@ final class SwapTradeCsvLoader {
   private static final String STUB_CONVENTION_FIELD = "Stub Convention";
   private static final String FIRST_REGULAR_START_DATE_FIELD = "First Regular Start Date";
   private static final String LAST_REGULAR_END_DATE_FIELD = "Last Regular End Date";
-  private static final String FX_RATE_FIELD = "FX Rate";
 
   /**
    * Parses from the CSV row.

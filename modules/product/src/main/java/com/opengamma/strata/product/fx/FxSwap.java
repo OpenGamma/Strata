@@ -84,10 +84,11 @@ public final class FxSwap
   }
 
   /**
-   * Creates an {@code FxSwap} using forward points.
+   * Creates an {@code FxSwap} using decimal forward points.
    * <p>
    * The FX rate at the near date is specified as {@code nearRate}.
-   * The FX rate at the far date is equal to {@code nearRate + forwardPoints}
+   * The FX rate at the far date is equal to {@code nearRate + forwardPoints}.
+   * Thus "FX forward spread" might be a better name for the concept.
    * <p>
    * The two currencies are specified by the near FX rate.
    * The amount must be specified using one of the currencies of the near FX rate.
@@ -96,7 +97,7 @@ public final class FxSwap
    * 
    * @param amount  the amount being exchanged, positive if being received in the near leg, negative if being paid
    * @param nearRate  the near FX rate
-   * @param forwardPoints  the forward points, where the far FX rate is {@code (nearRate + forwardPoints)}
+   * @param decimalForwardPoints  the decimal forward points, where the far FX rate is {@code (nearRate + forwardPoints)}
    * @param nearDate  the near value date
    * @param farDate  the far value date
    * @return the FX swap
@@ -104,25 +105,26 @@ public final class FxSwap
   public static FxSwap ofForwardPoints(
       CurrencyAmount amount,
       FxRate nearRate,
-      double forwardPoints,
+      double decimalForwardPoints,
       LocalDate nearDate,
       LocalDate farDate) {
 
     Currency currency1 = amount.getCurrency();
     ArgChecker.isTrue(
         nearRate.getPair().contains(currency1),
-        Messages.format("Amount and FX rate have a currency in common: {} and {}", amount, nearDate));
-    FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + forwardPoints);
+        Messages.format("Amount and FX rate have no currency in common: {} and {}", amount, nearRate));
+    FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + decimalForwardPoints);
     FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate);
     FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate);
     return of(nearLeg, farLeg);
   }
 
   /**
-   * Creates an {@code FxSwap} using forward points, specifying a date adjustment.
+   * Creates an {@code FxSwap} using decimal forward points, specifying a date adjustment.
    * <p>
    * The FX rate at the near date is specified as {@code nearRate}.
    * The FX rate at the far date is equal to {@code nearRate + forwardPoints}
+   * Thus "FX forward spread" might be a better name for the concept.
    * <p>
    * The two currencies are specified by the near FX rate.
    * The amount must be specified using one of the currencies of the near FX rate.
@@ -131,7 +133,7 @@ public final class FxSwap
    * 
    * @param amount  the amount being exchanged, positive if being received in the near leg, negative if being paid
    * @param nearRate  the near FX rate
-   * @param forwardPoints  the forward points, where the far FX rate is {@code (nearRate + forwardPoints)}
+   * @param decimalForwardPoints  the decimal forward points, where the far FX rate is {@code (nearRate + forwardPoints)}
    * @param nearDate  the near value date
    * @param farDate  the far value date
    * @param paymentDateAdjustment  the adjustment to apply to the payment dates
@@ -140,7 +142,7 @@ public final class FxSwap
   public static FxSwap ofForwardPoints(
       CurrencyAmount amount,
       FxRate nearRate,
-      double forwardPoints,
+      double decimalForwardPoints,
       LocalDate nearDate,
       LocalDate farDate,
       BusinessDayAdjustment paymentDateAdjustment) {
@@ -150,7 +152,7 @@ public final class FxSwap
     ArgChecker.isTrue(
         nearRate.getPair().contains(currency1),
         Messages.format("Amount and FX rate have a currency in common: {} and {}", amount, nearDate));
-    FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + forwardPoints);
+    FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + decimalForwardPoints);
     FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate, paymentDateAdjustment);
     FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate, paymentDateAdjustment);
     return of(nearLeg, farLeg);
