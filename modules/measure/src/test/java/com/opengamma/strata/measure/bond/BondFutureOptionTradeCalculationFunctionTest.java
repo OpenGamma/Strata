@@ -141,7 +141,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    BondFutureOptionTradeCalculationFunction function = new BondFutureOptionTradeCalculationFunction();
+    BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -152,7 +152,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    BondFutureOptionTradeCalculationFunction function = new BondFutureOptionTradeCalculationFunction();
+    BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LED_LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     BlackBondFutureOptionMarginedTradePricer pricer = BlackBondFutureOptionMarginedTradePricer.DEFAULT;
@@ -173,7 +173,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    BondFutureOptionTradeCalculationFunction function = new BondFutureOptionTradeCalculationFunction();
+    BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LED_LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     BlackBondFutureOptionMarginedTradePricer pricer = BlackBondFutureOptionMarginedTradePricer.DEFAULT;

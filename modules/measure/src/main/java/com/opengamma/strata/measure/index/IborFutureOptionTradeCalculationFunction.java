@@ -13,12 +13,14 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
@@ -28,12 +30,15 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
+import com.opengamma.strata.product.SecuritizedProductPortfolioItem;
 import com.opengamma.strata.product.index.IborFutureOption;
+import com.opengamma.strata.product.index.IborFutureOptionPosition;
 import com.opengamma.strata.product.index.IborFutureOptionTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
 
 /**
- * Perform calculations on a single {@code IborFutureOptionTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code IborFutureOptionTrade} or {@code IborFutureOptionPosition}
+ * for each of a set of scenarios.
  * <p>
  * This uses Normal pricing.
  * An instance of {@link RatesMarketDataLookup} and {@link IborFutureOptionMarketDataLookup} must be specified.
@@ -57,9 +62,22 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
  * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
  * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
  * represents the price of the option as 0.002.
+ * 
+ * @param <T> the trade or position type
  */
-public class IborFutureOptionTradeCalculationFunction
-    implements CalculationFunction<IborFutureOptionTrade> {
+public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<IborFutureOption> & Resolvable<ResolvedIborFutureOptionTrade>>
+    implements CalculationFunction<T> {
+
+  /**
+   * The trade instance
+   */
+  public static final IborFutureOptionTradeCalculationFunction<IborFutureOptionTrade> TRADE =
+      new IborFutureOptionTradeCalculationFunction<>(IborFutureOptionTrade.class);
+  /**
+   * The position instance
+   */
+  public static final IborFutureOptionTradeCalculationFunction<IborFutureOptionPosition> POSITION =
+      new IborFutureOptionTradeCalculationFunction<>(IborFutureOptionPosition.class);
 
   /**
    * The calculations by measure.
@@ -78,15 +96,23 @@ public class IborFutureOptionTradeCalculationFunction
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
 
   /**
-   * Creates an instance.
+   * The trade or position type.
    */
-  public IborFutureOptionTradeCalculationFunction() {
+  private final Class<T> targetType;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param targetType  the trade or position type
+   */
+  private IborFutureOptionTradeCalculationFunction(Class<T> targetType) {
+    this.targetType = ArgChecker.notNull(targetType, "targetType");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<IborFutureOptionTrade> targetType() {
-    return IborFutureOptionTrade.class;
+  public Class<T> targetType() {
+    return targetType;
   }
 
   @Override
@@ -95,25 +121,25 @@ public class IborFutureOptionTradeCalculationFunction
   }
 
   @Override
-  public Optional<String> identifier(IborFutureOptionTrade target) {
+  public Optional<String> identifier(T target) {
     return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
-  public Currency naturalCurrency(IborFutureOptionTrade trade, ReferenceData refData) {
-    return trade.getProduct().getCurrency();
+  public Currency naturalCurrency(T target, ReferenceData refData) {
+    return target.getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(
-      IborFutureOptionTrade trade,
+      T target,
       Set<Measure> measures,
       CalculationParameters parameters,
       ReferenceData refData) {
 
     // extract data from product
-    IborFutureOption option = trade.getProduct();
+    IborFutureOption option = target.getProduct();
     QuoteId optionQuoteId = QuoteId.of(option.getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
     Currency currency = option.getCurrency();
     IborIndex index = option.getIndex();
@@ -134,14 +160,14 @@ public class IborFutureOptionTradeCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      IborFutureOptionTrade trade,
+      T target,
       Set<Measure> measures,
       CalculationParameters parameters,
       ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedIborFutureOptionTrade resolved = trade.resolve(refData);
+    ResolvedIborFutureOptionTrade resolved = target.resolve(refData);
 
     // use lookup to query market data
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
@@ -160,22 +186,22 @@ public class IborFutureOptionTradeCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedIborFutureOptionTrade trade,
+      ResolvedIborFutureOptionTrade resolved,
       RatesScenarioMarketData ratesMarketData,
       IborFutureOptionScenarioMarketData optionMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
-      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for IborFutureOptionTrade: {}", measure);
+      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for IborFutureOption: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, ratesMarketData, optionMarketData));
+    return Result.of(() -> calculator.calculate(resolved, ratesMarketData, optionMarketData));
   }
 
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract Object calculate(
-        ResolvedIborFutureOptionTrade trade,
+        ResolvedIborFutureOptionTrade resolved,
         RatesScenarioMarketData ratesMarketData,
         IborFutureOptionScenarioMarketData optionMarketData);
   }

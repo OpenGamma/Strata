@@ -80,7 +80,7 @@ public class BondFutureTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    BondFutureTradeCalculationFunction function = new BondFutureTradeCalculationFunction();
+    BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -91,7 +91,7 @@ public class BondFutureTradeCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    BondFutureTradeCalculationFunction function = new BondFutureTradeCalculationFunction();
+    BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     DiscountingBondFutureTradePricer pricer = DiscountingBondFutureTradePricer.DEFAULT;
@@ -112,7 +112,7 @@ public class BondFutureTradeCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    BondFutureTradeCalculationFunction function = new BondFutureTradeCalculationFunction();
+    BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     DiscountingBondFutureTradePricer pricer = DiscountingBondFutureTradePricer.DEFAULT;

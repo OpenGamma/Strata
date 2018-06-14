@@ -106,7 +106,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    FixedCouponBondTradeCalculationFunction function = new FixedCouponBondTradeCalculationFunction();
+    FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -116,7 +116,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    FixedCouponBondTradeCalculationFunction function = new FixedCouponBondTradeCalculationFunction();
+    FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     DiscountingFixedCouponBondTradePricer pricer = DiscountingFixedCouponBondTradePricer.DEFAULT;
@@ -141,7 +141,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    FixedCouponBondTradeCalculationFunction function = new FixedCouponBondTradeCalculationFunction();
+    FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     DiscountingFixedCouponBondTradePricer pricer = DiscountingFixedCouponBondTradePricer.DEFAULT;

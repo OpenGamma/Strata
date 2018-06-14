@@ -13,11 +13,13 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FieldName;
@@ -25,14 +27,17 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
+import com.opengamma.strata.product.SecuritizedProductPortfolioItem;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.BondFutureOption;
+import com.opengamma.strata.product.bond.BondFutureOptionPosition;
 import com.opengamma.strata.product.bond.BondFutureOptionTrade;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 
 /**
- * Perform calculations on a single {@code BondFutureOptionTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code BondFutureOptionTrade} or {@code BondFutureOptionPosition}
+ * for each of a set of scenarios.
  * <p>
  * This uses Black pricing.
  * An instance of {@link RatesMarketDataLookup} and {@link BondFutureOptionMarketDataLookup} must be specified.
@@ -49,9 +54,22 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
  * <h4>Price</h4>
  * Strata uses <i>decimal prices</i> for bond futures options in the trade model, pricers and market data.
  * This is coherent with the pricing of {@link BondFuture}.
+ * 
+ * @param <T> the trade or position type
  */
-public class BondFutureOptionTradeCalculationFunction
-    implements CalculationFunction<BondFutureOptionTrade> {
+public class BondFutureOptionTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<BondFutureOption> & Resolvable<ResolvedBondFutureOptionTrade>>
+    implements CalculationFunction<T> {
+
+  /**
+   * The trade instance
+   */
+  public static final BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> TRADE =
+      new BondFutureOptionTradeCalculationFunction<>(BondFutureOptionTrade.class);
+  /**
+   * The position instance
+   */
+  public static final BondFutureOptionTradeCalculationFunction<BondFutureOptionPosition> POSITION =
+      new BondFutureOptionTradeCalculationFunction<>(BondFutureOptionPosition.class);
 
   /**
    * The calculations by measure.
@@ -69,15 +87,23 @@ public class BondFutureOptionTradeCalculationFunction
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
 
   /**
-   * Creates an instance.
+   * The trade or position type.
    */
-  public BondFutureOptionTradeCalculationFunction() {
+  private final Class<T> targetType;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param targetType  the trade or position type
+   */
+  private BondFutureOptionTradeCalculationFunction(Class<T> targetType) {
+    this.targetType = ArgChecker.notNull(targetType, "targetType");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<BondFutureOptionTrade> targetType() {
-    return BondFutureOptionTrade.class;
+  public Class<T> targetType() {
+    return targetType;
   }
 
   @Override
@@ -86,25 +112,25 @@ public class BondFutureOptionTradeCalculationFunction
   }
 
   @Override
-  public Optional<String> identifier(BondFutureOptionTrade target) {
+  public Optional<String> identifier(T target) {
     return target.getInfo().getId().map(id -> id.toString());
   }
 
   @Override
-  public Currency naturalCurrency(BondFutureOptionTrade trade, ReferenceData refData) {
-    return trade.getProduct().getCurrency();
+  public Currency naturalCurrency(T target, ReferenceData refData) {
+    return target.getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(
-      BondFutureOptionTrade trade,
+      T target,
       Set<Measure> measures,
       CalculationParameters parameters,
       ReferenceData refData) {
 
     // extract data from product
-    BondFutureOption option = trade.getProduct();
+    BondFutureOption option = target.getProduct();
     BondFuture future = option.getUnderlyingFuture();
 
     // use lookup to build requirements
@@ -125,14 +151,14 @@ public class BondFutureOptionTradeCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      BondFutureOptionTrade trade,
+      T target,
       Set<Measure> measures,
       CalculationParameters parameters,
       ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedBondFutureOptionTrade resolved = trade.resolve(refData);
+    ResolvedBondFutureOptionTrade resolved = target.resolve(refData);
 
     // use lookup to query market data
     LegalEntityDiscountingMarketDataLookup ledLookup = parameters.getParameter(LegalEntityDiscountingMarketDataLookup.class);
@@ -151,22 +177,22 @@ public class BondFutureOptionTradeCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedBondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade resolved,
       LegalEntityDiscountingScenarioMarketData ratesMarketData,
       BondFutureOptionScenarioMarketData optionMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
-      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for BondFutureOptionTrade: {}", measure);
+      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for BondFutureOption: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, ratesMarketData, optionMarketData));
+    return Result.of(() -> calculator.calculate(resolved, ratesMarketData, optionMarketData));
   }
 
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract Object calculate(
-        ResolvedBondFutureOptionTrade trade,
+        ResolvedBondFutureOptionTrade resolved,
         LegalEntityDiscountingScenarioMarketData ratesMarketData,
         BondFutureOptionScenarioMarketData optionMarketData);
   }
