@@ -168,6 +168,13 @@
             <goals>
               <goal>jar</goal>
             </goals>
+            <configuration>
+              <archive>
+                <manifestEntries>
+                  <Automatic-Module-Name>${jpms.module.name}</Automatic-Module-Name>
+                </manifestEntries>
+              </archive>
+            </configuration>
           </execution>
           <execution>
             <id>test-jar</id>
@@ -180,7 +187,6 @@
           <skipIfEmpty>true</skipIfEmpty>
           <archive>
             <manifestEntries>
-              <Automatic-Module-Name>${jpms.module.name}</Automatic-Module-Name>
               <Implementation-Build>${buildNumber}</Implementation-Build>
               <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
               <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
@@ -692,6 +698,7 @@
     <!-- Properties for maven-checkstyle-plugin -->
     <checkstyle.version>8.8</checkstyle.version>
     <build-config.version>2.2.0</build-config.version>
+    <checkstyle.excludes>module-info.java</checkstyle.excludes>
     <checkstyle.config.location>checkstyle/checkstyle-oss.xml</checkstyle.config.location>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
