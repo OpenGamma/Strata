@@ -22,7 +22,7 @@ public class AccrualStartTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {AccrualStart.NEXT_DAY, "NextDay"},
         {AccrualStart.IMM_DATE, "ImmDate"},

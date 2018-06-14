@@ -22,7 +22,7 @@ public class CompoundingMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {CompoundingMethod.NONE, "None"},
         {CompoundingMethod.STRAIGHT, "Straight"},

@@ -106,7 +106,7 @@ public class TermDepositConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {TermDepositConventions.USD_DEPOSIT_T2, "USD-Deposit-T2"},
         {TermDepositConventions.EUR_DEPOSIT_T2, "EUR-Deposit-T2"},
@@ -146,7 +146,7 @@ public class TermDepositConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "spotAndConv")
-  static Object[][] data_spotAndConv() {
+  public static Object[][] data_spotAndConv() {
     return new Object[][] {
         {TermDepositConventions.GBP_DEPOSIT_T0, 0, BusinessDayConventions.MODIFIED_FOLLOWING},
         {TermDepositConventions.GBP_SHORT_DEPOSIT_T0, 0, BusinessDayConventions.FOLLOWING},

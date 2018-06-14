@@ -22,7 +22,7 @@ public class SwapLegTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {SwapLegType.FIXED, "Fixed"},
         {SwapLegType.IBOR, "Ibor"},

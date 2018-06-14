@@ -97,7 +97,7 @@ public class FxRateTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "parseGood")
-  Object[][] data_parseGood() {
+  public static Object[][] data_parseGood() {
     return new Object[][] {
         {"USD/EUR 205.123", USD, EUR, 205.123d},
         {"USD/EUR 3.00000000", USD, EUR, 3d},
@@ -115,7 +115,7 @@ public class FxRateTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+  public static Object[][] data_parseBad() {
     return new Object[][] {
         {"AUD 1.25"},
         {"AUD/GB 1.25"},

@@ -49,7 +49,7 @@ public class FloatingRateTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FloatingRateType.IBOR, "Ibor"},
         {FloatingRateType.OVERNIGHT_AVERAGED, "OvernightAveraged"},

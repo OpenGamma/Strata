@@ -199,7 +199,7 @@ public class DoubleArrayMathTest {
 
   //-------------------------------------------------------------------------
   @AfterMethod
-  private void assertInputsUnchanged() {
+  public void assertInputsUnchanged() {
     assertThat(ARRAY_0_0).containsExactly(-1e-4, 1e-3);
     assertThat(ARRAY_1_2).containsExactly(1d, 2d);
     assertThat(ARRAY_1_2B).containsExactly(1 - 1e-4, 2 + 1e-3);

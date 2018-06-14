@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 public class CapitalIndexedBondYieldConventionTest {
 
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {CapitalIndexedBondYieldConvention.US_IL_REAL, "US-I/L-Real"},
         {CapitalIndexedBondYieldConvention.GB_IL_FLOAT, "GB-I/L-Float"},

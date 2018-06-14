@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 public class FixedCouponBondYieldConventionTest {
 
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FixedCouponBondYieldConvention.GB_BUMP_DMO, "GB-Bump-DMO"},
         {FixedCouponBondYieldConvention.US_STREET, "US-Street"},

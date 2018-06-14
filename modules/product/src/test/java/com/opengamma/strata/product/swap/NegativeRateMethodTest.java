@@ -47,7 +47,7 @@ public class NegativeRateMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {NegativeRateMethod.ALLOW_NEGATIVE, "AllowNegative"},
         {NegativeRateMethod.NOT_NEGATIVE, "NotNegative"},

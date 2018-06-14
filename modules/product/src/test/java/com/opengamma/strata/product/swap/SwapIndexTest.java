@@ -107,7 +107,7 @@ public class SwapIndexTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "indexName")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
         {OvernightIndices.GBP_SONIA, "GBP-SONIA"},

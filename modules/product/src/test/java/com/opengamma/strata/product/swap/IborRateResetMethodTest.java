@@ -22,7 +22,7 @@ public class IborRateResetMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {IborRateResetMethod.WEIGHTED, "Weighted"},
         {IborRateResetMethod.UNWEIGHTED, "Unweighted"},

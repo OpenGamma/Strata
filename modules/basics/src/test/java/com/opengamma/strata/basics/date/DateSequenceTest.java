@@ -38,7 +38,7 @@ public class DateSequenceTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "quarterlyImm")
-  static Object[][] data_quarterlyImm() {
+  public static Object[][] data_quarterlyImm() {
     return new Object[][] {
         {date(2013, 1, 1), date(2013, 3, 20), date(2013, 6, 19), date(2013, 9, 18)},
         {date(2013, 3, 20), date(2013, 6, 19), date(2013, 9, 18), date(2013, 12, 18)},
@@ -80,7 +80,7 @@ public class DateSequenceTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "monthlyImm")
-  static Object[][] data_monthlyImm() {
+  public static Object[][] data_monthlyImm() {
     return new Object[][] {
         {date(2014, 12, 17), date(2015, 1, 21), date(2015, 2, 18), date(2015, 3, 18)},
         {date(2015, 1, 21), date(2015, 2, 18), date(2015, 3, 18), date(2015, 4, 15)},

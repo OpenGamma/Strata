@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableMap;
 public class PeriodAdditionConventionTest {
 
   @DataProvider(name = "types")
-  static Object[][] data_types() {
+  public static Object[][] data_types() {
     StandardPeriodAdditionConventions[] conv = StandardPeriodAdditionConventions.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
@@ -50,7 +50,7 @@ public class PeriodAdditionConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "convention")
-  static Object[][] data_convention() {
+  public static Object[][] data_convention() {
     return new Object[][] {
         // None
         {NONE, date(2014, 7, 11), 1, date(2014, 8, 11)},  // Fri, Mon
@@ -74,7 +74,7 @@ public class PeriodAdditionConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {NONE, "None"},
         {LAST_DAY, "LastDay"},

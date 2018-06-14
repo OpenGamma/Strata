@@ -77,7 +77,7 @@ public class CurrencyPairTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "parseGood")
-  Object[][] data_parseGood() {
+  public static Object[][] data_parseGood() {
     return new Object[][] {
         {"USD/EUR", USD, EUR},
         {"EUR/USD", EUR, USD},
@@ -92,7 +92,7 @@ public class CurrencyPairTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+  public static Object[][] data_parseBad() {
     return new Object[][] {
         {"AUD"},
         {"AUD/GB"},

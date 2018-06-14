@@ -22,7 +22,7 @@ public class PriceTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {PriceType.CLEAN, "Clean"},
         {PriceType.DIRTY, "Dirty"}

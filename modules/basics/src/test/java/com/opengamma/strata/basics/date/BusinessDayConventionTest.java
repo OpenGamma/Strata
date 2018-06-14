@@ -60,7 +60,7 @@ public class BusinessDayConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "convention")
-  static Object[][] data_convention() {
+  public static Object[][] data_convention() {
     return new Object[][] {
         {NO_ADJUST, FRI_2014_07_11, FRI_2014_07_11},
         {NO_ADJUST, SAT_2014_07_12, SAT_2014_07_12},
@@ -170,7 +170,7 @@ public class BusinessDayConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {NO_ADJUST, "NoAdjust"},
         {FOLLOWING, "Following"},
@@ -218,7 +218,7 @@ public class BusinessDayConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "lenient")
-  static Object[][] data_lenient() {
+  public static Object[][] data_lenient() {
     return new Object[][] {
         {"F", FOLLOWING},
         {"M", MODIFIED_FOLLOWING},

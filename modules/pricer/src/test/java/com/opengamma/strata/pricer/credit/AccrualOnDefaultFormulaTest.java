@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 public class AccrualOnDefaultFormulaTest {
 
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {AccrualOnDefaultFormula.ORIGINAL_ISDA, "OriginalISDA"},
         {AccrualOnDefaultFormula.MARKIT_FIX, "MarkitFix"},

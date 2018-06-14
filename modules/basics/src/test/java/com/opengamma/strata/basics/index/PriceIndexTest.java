@@ -50,7 +50,7 @@ public class PriceIndexTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {PriceIndices.GB_HICP, "GB-HICP"},
         {PriceIndices.GB_RPI, "GB-RPI"},

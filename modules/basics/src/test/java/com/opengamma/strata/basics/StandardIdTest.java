@@ -46,7 +46,7 @@ public class StandardIdTest {
   }
 
   @DataProvider(name = "factoryValid")
-  Object[][] data_factoryValid() {
+  public static Object[][] data_factoryValid() {
     return new Object[][] {
         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "123"},
         {"abcdefghijklmnopqrstuvwxyz", "123"},
@@ -61,7 +61,7 @@ public class StandardIdTest {
   }
 
   @DataProvider(name = "factoryInvalid")
-  Object[][] data_factoryInvalid() {
+  public static Object[][] data_factoryInvalid() {
     return new Object[][] {
         {"", ""},
         {" ", "123"},
@@ -85,7 +85,7 @@ public class StandardIdTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "formats")
-  Object[][] data_formats() {
+  public static Object[][] data_formats() {
     return new Object[][] {
         {"Value", "A~Value"},
         {"a+b", "A~a+b"},
@@ -114,7 +114,7 @@ public class StandardIdTest {
   }
 
   @DataProvider(name = "parseInvalidFormat")
-  Object[][] data_parseInvalidFormat() {
+  public static Object[][] data_parseInvalidFormat() {
     return new Object[][] {
         {"Scheme"},
         {"Scheme~"},

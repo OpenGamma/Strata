@@ -88,7 +88,7 @@ public class IborFutureConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM, "USD-LIBOR-3M-Quarterly-IMM"},
         {IborFutureConventions.USD_LIBOR_3M_MONTHLY_IMM, "USD-LIBOR-3M-Monthly-IMM"},

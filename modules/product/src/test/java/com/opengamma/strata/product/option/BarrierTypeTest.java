@@ -28,7 +28,7 @@ public class BarrierTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {BarrierType.UP, "Up"},
         {BarrierType.DOWN, "Down"},

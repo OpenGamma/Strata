@@ -579,7 +579,7 @@ public class IborIndexTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
         {IborIndices.CHF_LIBOR_6M, "CHF-LIBOR-6M"},

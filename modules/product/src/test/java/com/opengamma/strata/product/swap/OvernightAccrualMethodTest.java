@@ -22,7 +22,7 @@ public class OvernightAccrualMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {OvernightAccrualMethod.AVERAGED, "Averaged"},
         {OvernightAccrualMethod.COMPOUNDED, "Compounded"},

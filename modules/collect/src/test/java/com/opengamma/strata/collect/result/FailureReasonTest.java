@@ -24,7 +24,7 @@ public class FailureReasonTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FailureReason.CALCULATION_FAILED, "CALCULATION_FAILED"},
         {FailureReason.CURRENCY_CONVERSION, "CURRENCY_CONVERSION"},

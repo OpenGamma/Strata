@@ -26,7 +26,7 @@ public class FxSwapConventionsTest {
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
 
   @DataProvider(name = "spotLag")
-  static Object[][] data_spot_lag() {
+  public static Object[][] data_spot_lag() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, 2},
         {FxSwapConventions.EUR_GBP, 2},
@@ -40,7 +40,7 @@ public class FxSwapConventionsTest {
   }
 
   @DataProvider(name = "currencyPair")
-  static Object[][] data_currency_pair() {
+  public static Object[][] data_currency_pair() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, CurrencyPair.of(EUR, USD)},
         {FxSwapConventions.EUR_GBP, CurrencyPair.of(EUR, GBP)},
@@ -54,7 +54,7 @@ public class FxSwapConventionsTest {
   }
 
   @DataProvider(name = "calendar")
-  static Object[][] data_calendar() {
+  public static Object[][] data_calendar() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, EUTA_USNY},
         {FxSwapConventions.EUR_GBP, GBLO_EUTA},

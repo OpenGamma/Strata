@@ -345,7 +345,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "subSeries")
-  Object[][] data_subSeries() {
+  public static Object[][] data_subSeries() {
     return new Object[][] {
         // start = end -> empty
         {DATE_2011_01_01, DATE_2011_01_01, new int[] {}},
@@ -424,7 +424,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "headSeries")
-  Object[][] data_headSeries() {
+  public static Object[][] data_headSeries() {
     return new Object[][] {
         {0, new int[] {}},
         {1, new int[] {0}},
@@ -467,7 +467,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "tailSeries")
-  Object[][] data_tailSeries() {
+  public static Object[][] data_tailSeries() {
     return new Object[][] {
         {0, new int[] {}},
         {1, new int[] {4}},

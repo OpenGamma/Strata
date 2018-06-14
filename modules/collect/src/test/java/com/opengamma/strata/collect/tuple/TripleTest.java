@@ -22,7 +22,7 @@ public class TripleTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
-  Object[][] data_factory() {
+  public static Object[][] data_factory() {
     return new Object[][] {
         {"A", "B", "C"},
         {"A", 200.2d, 6L},
@@ -51,7 +51,7 @@ public class TripleTest {
   }
 
   @DataProvider(name = "factoryNull")
-  Object[][] data_factoryNull() {
+  public static Object[][] data_factoryNull() {
     return new Object[][] {
         {null, null, null},
         {null, "B", "C"},

@@ -40,7 +40,7 @@ public class FixedOvernightSwapConventionsTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   @DataProvider(name = "spotLag")
-  static Object[][] data_spot_lag() {
+  public static Object[][] data_spot_lag() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, 2},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, 2},
@@ -60,7 +60,7 @@ public class FixedOvernightSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "period")
-  static Object[][] data_period() {
+  public static Object[][] data_period() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, Frequency.TERM},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, Frequency.P12M},
@@ -85,7 +85,7 @@ public class FixedOvernightSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayCount")
-  static Object[][] data_day_count() {
+  public static Object[][] data_day_count() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, DayCounts.ACT_360},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, DayCounts.ACT_360},
@@ -105,7 +105,7 @@ public class FixedOvernightSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "floatLeg")
-  static Object[][] data_float_leg() {
+  public static Object[][] data_float_leg() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, OvernightIndices.USD_FED_FUND},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, OvernightIndices.USD_FED_FUND},
@@ -125,7 +125,7 @@ public class FixedOvernightSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayConvention")
-  static Object[][] data_day_convention() {
+  public static Object[][] data_day_convention() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
@@ -145,7 +145,7 @@ public class FixedOvernightSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "stubOn")
-  static Object[][] data_stub_on() {
+  public static Object[][] data_stub_on() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, Tenor.TENOR_18M},
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, Tenor.TENOR_18M},

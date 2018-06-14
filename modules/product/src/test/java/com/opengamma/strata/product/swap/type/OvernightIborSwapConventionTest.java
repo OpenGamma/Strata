@@ -132,7 +132,7 @@ public class OvernightIborSwapConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, "USD-FED-FUND-AA-LIBOR-3M"},
     };

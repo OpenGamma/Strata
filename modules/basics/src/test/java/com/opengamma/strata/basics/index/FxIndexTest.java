@@ -38,7 +38,7 @@ public class FxIndexTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FxIndices.EUR_CHF_ECB, "EUR/CHF-ECB"},
         {FxIndices.EUR_GBP_ECB, "EUR/GBP-ECB"},

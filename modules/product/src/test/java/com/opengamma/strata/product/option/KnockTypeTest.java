@@ -28,7 +28,7 @@ public class KnockTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {KnockType.KNOCK_IN, "KnockIn"},
         {KnockType.KNOCK_OUT, "KnockOut"},

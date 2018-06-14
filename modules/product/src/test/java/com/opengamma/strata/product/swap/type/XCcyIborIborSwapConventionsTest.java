@@ -34,7 +34,7 @@ public class XCcyIborIborSwapConventionsTest {
   private static final HolidayCalendarId EUTA_GBLO = EUTA.combinedWith(GBLO);
 
   @DataProvider(name = "spotLag")
-  static Object[][] data_spot_lag() {
+  public static Object[][] data_spot_lag() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, 2},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, 2},
@@ -49,7 +49,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "period")
-  static Object[][] data_period() {
+  public static Object[][] data_period() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, Frequency.P3M},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, Frequency.P3M},
@@ -64,7 +64,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "spreadLegIndex")
-  static Object[][] data_spread_leg() {
+  public static Object[][] data_spread_leg() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, IborIndices.EUR_EURIBOR_3M},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, IborIndices.GBP_LIBOR_3M},
@@ -79,7 +79,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "spreadLegBda")
-  static Object[][] data_spread_leg_bda() {
+  public static Object[][] data_spread_leg_bda() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY)},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)},
@@ -94,7 +94,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "flatLegIndex")
-  static Object[][] data_flat_leg() {
+  public static Object[][] data_flat_leg() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, IborIndices.USD_LIBOR_3M},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, IborIndices.USD_LIBOR_3M},
@@ -109,7 +109,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "flatLegBda")
-  static Object[][] data_flat_leg_bda() {
+  public static Object[][] data_flat_leg_bda() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY)},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)},
@@ -124,7 +124,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayConvention")
-  static Object[][] data_day_convention() {
+  public static Object[][] data_day_convention() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
@@ -139,7 +139,7 @@ public class XCcyIborIborSwapConventionsTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "notionalExchange")
-  static Object[][] data_notional_exchange() {
+  public static Object[][] data_notional_exchange() {
     return new Object[][] {
         {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, true},
         {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, true},

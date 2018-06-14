@@ -41,7 +41,7 @@ public class FloatingRateNameTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nameType")
-  static Object[][] data_name_type() {
+  public static Object[][] data_name_type() {
     return new Object[][] {
         {"GBP-LIBOR", "GBP-LIBOR-", FloatingRateType.IBOR},
         {"GBP-LIBOR-BBA", "GBP-LIBOR-", FloatingRateType.IBOR},

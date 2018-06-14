@@ -22,7 +22,7 @@ public class FutureOptionPremiumStyleTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {FutureOptionPremiumStyle.DAILY_MARGIN, "DailyMargin"},
         {FutureOptionPremiumStyle.UPFRONT_PREMIUM, "UpfrontPremium"},

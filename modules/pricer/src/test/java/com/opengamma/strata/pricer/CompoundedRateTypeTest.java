@@ -22,7 +22,7 @@ public class CompoundedRateTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {CompoundedRateType.PERIODIC, "Periodic"},
         {CompoundedRateType.CONTINUOUS, "Continuous"},

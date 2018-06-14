@@ -294,7 +294,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "shift")
-  static Object[][] data_shift() {
+  public static Object[][] data_shift() {
     return new Object[][] {
         {THU_2014_07_10, 1, FRI_2014_07_11},
         {FRI_2014_07_11, 1, MON_2014_07_14},
@@ -378,7 +378,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "next")
-  static Object[][] data_next() {
+  public static Object[][] data_next() {
     return new Object[][] {
         {THU_2014_07_10, FRI_2014_07_11},
         {FRI_2014_07_11, MON_2014_07_14},
@@ -403,7 +403,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nextOrSame")
-  static Object[][] data_nextOrSame() {
+  public static Object[][] data_nextOrSame() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10},
         {FRI_2014_07_11, FRI_2014_07_11},
@@ -428,7 +428,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
-  static Object[][] data_previous() {
+  public static Object[][] data_previous() {
     return new Object[][] {
         {FRI_2014_07_11, THU_2014_07_10},
         {SAT_2014_07_12, FRI_2014_07_11},
@@ -453,7 +453,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previousOrSame")
-  static Object[][] data_previousOrSame() {
+  public static Object[][] data_previousOrSame() {
     return new Object[][] {
         {FRI_2014_07_11, FRI_2014_07_11},
         {SAT_2014_07_12, FRI_2014_07_11},
@@ -478,7 +478,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nextSameOrLastInMonth")
-  static Object[][] data_nextSameOrLastInMonth() {
+  public static Object[][] data_nextSameOrLastInMonth() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10},
         {FRI_2014_07_11, FRI_2014_07_11},
@@ -506,7 +506,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "lastBusinessDayOfMonth")
-  static Object[][] data_lastBusinessDayOfMonth() {
+  public static Object[][] data_lastBusinessDayOfMonth() {
     return new Object[][] {
         // June 30th is Monday holiday, June 28/29 is weekend
         {date(2014, 6, 26), date(2014, 6, 27)},
@@ -544,7 +544,7 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "daysBetween")
-  static Object[][] data_daysBetween() {
+  public static Object[][] data_daysBetween() {
     return new Object[][] {
         {FRI_2014_07_11, FRI_2014_07_11, 0},
         {FRI_2014_07_11, SAT_2014_07_12, 1},

@@ -22,7 +22,7 @@ public class EtdStyleTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {EtdExpiryType.MONTHLY, "Monthly"},
         {EtdExpiryType.WEEKLY, "Weekly"},

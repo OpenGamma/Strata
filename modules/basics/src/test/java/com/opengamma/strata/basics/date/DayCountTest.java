@@ -63,7 +63,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
-  static Object[][] data_types() {
+  public static Object[][] data_types() {
     StandardDayCounts[] conv = StandardDayCounts.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
@@ -123,7 +123,7 @@ public class DayCountTest {
   private static int SIMPLE_30_360Days = 0;
 
   @DataProvider(name = "yearFraction")
-  static Object[][] data_yearFraction() {
+  public static Object[][] data_yearFraction() {
     return new Object[][] {
         {ONE_ONE, 2011, 12, 28, 2012, 2, 28, 1d},
         {ONE_ONE, 2011, 12, 28, 2012, 2, 29, 1d},
@@ -372,7 +372,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "days")
-  static Object[][] data_days() {
+  public static Object[][] data_days() {
     return new Object[][] {
         {ONE_ONE, 2011, 12, 28, 2012, 2, 28, 1},
         {ONE_ONE, 2011, 12, 28, 2012, 2, 29, 1},
@@ -577,7 +577,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "30U360")
-  static Object[][] data_30U360() {
+  public static Object[][] data_30U360() {
     return new Object[][] {
         {2011, 12, 28, 2012, 2, 28, SIMPLE_30_360, SIMPLE_30_360},
         {2011, 12, 28, 2012, 2, 29, SIMPLE_30_360, SIMPLE_30_360},
@@ -648,7 +648,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "30E360ISDA")
-  static Object[][] data_30E360ISDA() {
+  public static Object[][] data_30E360ISDA() {
     return new Object[][] {
         {2011, 12, 28, 2012, 2, 28, SIMPLE_30_360, SIMPLE_30_360},
         {2011, 12, 28, 2012, 2, 29, calc360(2011, 12, 28, 2012, 2, 30), SIMPLE_30_360},
@@ -709,7 +709,7 @@ public class DayCountTest {
   // 4) In all cases, the rule has strange effects when interest through a period encounters
   // February 29th and the denominator suddenly changes from 365 to 366 for the rest of the year
   @DataProvider(name = "ACTACTAFB")
-  static Object[][] data_ACTACTAFB() {
+  public static Object[][] data_ACTACTAFB() {
     return new Object[][] {
         // example from the original French specification
         {1994, 2, 10, 1997, 6, 30, 140d / 365d + 3},
@@ -799,7 +799,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "ACT365L")
-  static Object[][] data_ACT365L() {
+  public static Object[][] data_ACT365L() {
     return new Object[][] {
         {2011, 12, 28, 2012, 2, 28, P12M, 2012, 2, 28, 62d / 365d},
         {2011, 12, 28, 2012, 2, 28, P12M, 2012, 2, 29, 62d / 366d},
@@ -1011,7 +1011,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {ONE_ONE, "1/1"},
         {ACT_ACT_ISDA, "Act/Act ISDA"},
@@ -1071,7 +1071,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "lenient")
-  static Object[][] data_lenient() {
+  public static Object[][] data_lenient() {
     return new Object[][] {
         {"Actual/Actual", ACT_ACT_ISDA},
         {"Act/Act", ACT_ACT_ISDA},

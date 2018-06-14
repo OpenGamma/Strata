@@ -173,7 +173,7 @@ public class CdsConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {CdsConventions.USD_STANDARD, "USD-STANDARD"},
         {CdsConventions.JPY_US_GB_STANDARD, "JPY-US-GB-STANDARD"},

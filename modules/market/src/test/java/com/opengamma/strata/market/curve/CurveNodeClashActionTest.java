@@ -22,7 +22,7 @@ public class CurveNodeClashActionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {CurveNodeClashAction.DROP_THIS, "DropThis"},
         {CurveNodeClashAction.DROP_OTHER, "DropOther"},

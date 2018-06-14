@@ -95,7 +95,7 @@ public class HalfUpRoundingTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "round")
-  Object[][] data_round() {
+  public static Object[][] data_round() {
     return new Object[][] {
         {HalfUpRounding.ofDecimalPlaces(2), 12.3449, 12.34},
         {HalfUpRounding.ofDecimalPlaces(2), 12.3450, 12.35},

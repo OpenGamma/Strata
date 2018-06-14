@@ -84,7 +84,7 @@ public class PeriodAdjustmentTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "adjust")
-  static Object[][] data_adjust() {
+  public static Object[][] data_adjust() {
     return new Object[][] {
         // not last day
         {0, date(2014, 8, 15), date(2014, 8, 15)},

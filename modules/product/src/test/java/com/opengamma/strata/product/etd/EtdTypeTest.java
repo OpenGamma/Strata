@@ -22,7 +22,7 @@ public class EtdTypeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {EtdType.FUTURE, "Future"},
         {EtdType.OPTION, "Option"},

@@ -22,7 +22,7 @@ public class PriceIndexCalculationMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  static Object[][] data_name() {
+  public static Object[][] data_name() {
     return new Object[][] {
         {PriceIndexCalculationMethod.MONTHLY, "Monthly"},
         {PriceIndexCalculationMethod.INTERPOLATED, "Interpolated"},
