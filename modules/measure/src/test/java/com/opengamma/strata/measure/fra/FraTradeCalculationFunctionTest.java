@@ -33,7 +33,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.observable.IndexQuoteId;
@@ -62,8 +62,8 @@ public class FraTradeCalculationFunctionTest {
 
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
-  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
-  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
+  private static final RatesCurveId DISCOUNT_CURVE_ID = RatesCurveId.of("Default", "Discount");
+  private static final RatesCurveId FORWARD_CURVE_ID = RatesCurveId.of("Default", "Forward");
   public static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));

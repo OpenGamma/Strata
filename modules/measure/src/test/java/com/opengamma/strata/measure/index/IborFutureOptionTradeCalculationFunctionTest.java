@@ -37,7 +37,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.model.MoneynessType;
 import com.opengamma.strata.market.observable.IndexQuoteId;
@@ -106,8 +106,8 @@ public class IborFutureOptionTradeCalculationFunctionTest {
   private static final Currency CURRENCY = Currency.GBP;
   private static final IborIndex INDEX = GBP_LIBOR_2M;
 
-  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
-  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
+  private static final RatesCurveId DISCOUNT_CURVE_ID = RatesCurveId.of("Default", "Discount");
+  private static final RatesCurveId FORWARD_CURVE_ID = RatesCurveId.of("Default", "Forward");
   private static final IborFutureOptionVolatilitiesId VOL_ID =
       IborFutureOptionVolatilitiesId.of("IborFutureOptionVols.Normal.USD");
   private static final QuoteId QUOTE_ID_OPTION =

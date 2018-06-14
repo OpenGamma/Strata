@@ -42,7 +42,7 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
@@ -180,7 +180,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    CurveId curveId = lookup.getDiscountCurves().get(currency);
+    RatesCurveId curveId = lookup.getDiscountCurves().get(currency);
     if (curveId == null) {
       throw new MarketDataNotFoundException(lookup.msgCurrencyNotFound(currency));
     }
@@ -208,7 +208,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    CurveId curveId = lookup.getForwardCurves().get(index);
+    RatesCurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
@@ -219,7 +219,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    CurveId curveId = lookup.getForwardCurves().get(index);
+    RatesCurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
@@ -230,7 +230,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public PriceIndexValues priceIndexValues(PriceIndex index) {
-    CurveId curveId = lookup.getForwardCurves().get(index);
+    RatesCurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
@@ -244,7 +244,7 @@ final class DefaultLookupRatesProvider
     // discount curves
     Map<Currency, Curve> dscMap = new HashMap<>();
     for (Currency currency : lookup.getDiscountCurrencies()) {
-      CurveId curveId = lookup.getDiscountCurves().get(currency);
+      RatesCurveId curveId = lookup.getDiscountCurves().get(currency);
       if (curveId != null && marketData.containsValue(curveId)) {
         dscMap.put(currency, marketData.getValue(curveId));
       }
@@ -252,7 +252,7 @@ final class DefaultLookupRatesProvider
     // forward curves
     Map<Index, Curve> fwdMap = new HashMap<>();
     for (Index index : lookup.getForwardIndices()) {
-      CurveId curveId = lookup.getForwardCurves().get(index);
+      RatesCurveId curveId = lookup.getForwardCurves().get(index);
       if (curveId != null && marketData.containsValue(curveId)) {
         fwdMap.put(index, marketData.getValue(curveId));
       }

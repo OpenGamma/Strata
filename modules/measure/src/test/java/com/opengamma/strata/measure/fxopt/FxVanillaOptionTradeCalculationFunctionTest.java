@@ -42,7 +42,7 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -94,8 +94,8 @@ public class FxVanillaOptionTradeCalculationFunctionTest {
       .build();
   public static final ResolvedFxVanillaOptionTrade RTRADE = TRADE.resolve(REF_DATA);
 
-  private static final CurveId DISCOUNT_CURVE_EUR_ID = CurveId.of("Default", "Discount-EUR");
-  private static final CurveId DISCOUNT_CURVE_USD_ID = CurveId.of("Default", "Discount-USD");
+  private static final RatesCurveId DISCOUNT_CURVE_EUR_ID = RatesCurveId.of("Default", "Discount-EUR");
+  private static final RatesCurveId DISCOUNT_CURVE_USD_ID = RatesCurveId.of("Default", "Discount-USD");
   static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(EUR, DISCOUNT_CURVE_EUR_ID, USD, DISCOUNT_CURVE_USD_ID),
       ImmutableMap.of());

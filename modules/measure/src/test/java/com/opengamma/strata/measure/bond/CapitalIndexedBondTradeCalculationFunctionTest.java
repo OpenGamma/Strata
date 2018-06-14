@@ -43,7 +43,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.IssuerCurveId;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.curve.RepoCurveId;
@@ -117,7 +117,7 @@ public class CapitalIndexedBondTradeCalculationFunctionTest {
 
   private static final RepoGroup REPO_GROUP = CapitalIndexedBondCurveDataSet.GROUP_REPO;
   private static final LegalEntityGroup ISSUER_GROUP = CapitalIndexedBondCurveDataSet.GROUP_ISSUER;
-  private static final CurveId INF_CURVE_ID = CurveId.of("Default", "Inflation");
+  private static final RatesCurveId INF_CURVE_ID = RatesCurveId.of("Default", "Inflation");
   private static final RepoCurveId REPO_CURVE_ID = RepoCurveId.of("Default", "Repo");
   private static final IssuerCurveId ISSUER_CURVE_ID = IssuerCurveId.of("Default", "Issuer");
   public static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(

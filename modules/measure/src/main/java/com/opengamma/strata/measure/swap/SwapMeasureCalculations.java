@@ -34,7 +34,7 @@ import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -249,12 +249,12 @@ final class SwapMeasureCalculations {
           "Implementation only supports a single curve, but lookup refers to more than one: {}", allIds));
     }
     MarketDataId<?> singleId = allIds.iterator().next();
-    if (!(singleId instanceof CurveId)) {
+    if (!(singleId instanceof RatesCurveId)) {
       throw new IllegalArgumentException(Messages.format(
           "Implementation only supports a single curve, but lookup does not refer to a curve: {} {}",
           singleId.getClass().getName(), singleId));
     }
-    CurveId curveId = (CurveId) singleId;
+    RatesCurveId curveId = (RatesCurveId) singleId;
     Curve curve = marketData.getMarketData().getValue(curveId);
 
     // calculate gamma
@@ -267,7 +267,7 @@ final class SwapMeasureCalculations {
   private CurrencyParameterSensitivity calculateCurveSensitivity(
       ResolvedSwapTrade trade,
       RatesMarketData marketData,
-      CurveId curveId,
+      RatesCurveId curveId,
       Curve bumpedCurve) {
 
     MarketData bumpedMarketData = marketData.getMarketData().withValue(curveId, bumpedCurve);

@@ -50,7 +50,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.observable.IndexQuoteId;
@@ -67,16 +67,16 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 @Test
 public class RatesMarketDataLookupTest {
 
-  private static final CurveId CURVE_ID_DSC = CurveId.of("Group", "USD-DSC");
-  private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-L3M");
+  private static final RatesCurveId CURVE_ID_DSC = RatesCurveId.of("Group", "USD-DSC");
+  private static final RatesCurveId CURVE_ID_FWD = RatesCurveId.of("Group", "USD-L3M");
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
 
   //-------------------------------------------------------------------------
   public void test_of_map() {
-    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Currency, RatesCurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
     assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));
@@ -141,8 +141,8 @@ public class RatesMarketDataLookupTest {
 
   //-------------------------------------------------------------------------
   public void test_marketDataView() {
-    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Currency, RatesCurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     LocalDate valDate = date(2015, 6, 30);
     ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
@@ -157,8 +157,8 @@ public class RatesMarketDataLookupTest {
   }
 
   public void test_ratesProvider() {
-    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards =
+    ImmutableMap<Currency, RatesCurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards =
         ImmutableMap.of(USD_FED_FUND, CURVE_ID_DSC, USD_LIBOR_3M, CURVE_ID_FWD, US_CPI_U, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     LocalDate valDate = date(2015, 6, 30);
@@ -215,14 +215,14 @@ public class RatesMarketDataLookupTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Currency, RatesCurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     DefaultRatesMarketDataLookup test =
         DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     coverImmutableBean(test);
 
-    ImmutableMap<Currency, CurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Currency, RatesCurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
     DefaultRatesMarketDataLookup test2 =
         DefaultRatesMarketDataLookup.of(discounts2, forwards2, OBS_SOURCE, FxRateLookup.ofRates(EUR));
     coverBeanEquals(test, test2);
@@ -239,8 +239,8 @@ public class RatesMarketDataLookupTest {
   }
 
   public void test_serialization() {
-    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Currency, RatesCurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     DefaultRatesMarketDataLookup test =
         DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     assertSerialization(test);
@@ -253,8 +253,8 @@ public class RatesMarketDataLookupTest {
   }
 
   public void test_jodaSerialization() {
-    ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Currency, RatesCurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
+    ImmutableMap<Index, RatesCurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     DefaultRatesMarketDataLookup test =
         DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE, FxRateLookup.ofRates());
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(test);

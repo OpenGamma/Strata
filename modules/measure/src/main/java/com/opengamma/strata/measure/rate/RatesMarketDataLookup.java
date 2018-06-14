@@ -27,7 +27,7 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -51,15 +51,15 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    * <p>
    * The discount and forward curves refer to the curve identifier.
    * The curves themselves are provided in {@link ScenarioMarketData}
-   * using {@link CurveId} as the identifier.
+   * using {@link RatesCurveId} as the identifier.
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
    * @param forwardCurveIds  the forward curves identifiers, keyed by index
    * @return the rates lookup containing the specified curves
    */
   public static RatesMarketDataLookup of(
-      Map<Currency, CurveId> discountCurveIds,
-      Map<Index, CurveId> forwardCurveIds) {
+      Map<Currency, RatesCurveId> discountCurveIds,
+      Map<Index, RatesCurveId> forwardCurveIds) {
 
     return DefaultRatesMarketDataLookup.of(
         discountCurveIds, forwardCurveIds, ObservableSource.NONE, FxRateLookup.ofRates());
@@ -71,7 +71,7 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    * <p>
    * The discount and forward curves refer to the curve identifier.
    * The curves themselves are provided in {@link ScenarioMarketData}
-   * using {@link CurveId} as the identifier.
+   * using {@link RatesCurveId} as the identifier.
    * The source of market data is rarely needed, as most applications use only one
    * underlying data source.
    * 
@@ -82,8 +82,8 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    * @return the rates lookup containing the specified curves
    */
   public static RatesMarketDataLookup of(
-      Map<Currency, CurveId> discountCurveIds,
-      Map<Index, CurveId> forwardCurveIds,
+      Map<Currency, RatesCurveId> discountCurveIds,
+      Map<Index, RatesCurveId> forwardCurveIds,
       ObservableSource obsSource,
       FxRateLookup fxLookup) {
 
@@ -95,7 +95,7 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    * <p>
    * The discount and forward curves refer to the curve name.
    * The curves themselves are provided in {@link ScenarioMarketData}
-   * using {@link CurveId} as the identifier.
+   * using {@link RatesCurveId} as the identifier.
    * 
    * @param groupName  the curve group name
    * @param discountCurves  the discount curves, keyed by currency
@@ -107,11 +107,11 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
       Map<Currency, CurveName> discountCurves,
       Map<? extends Index, CurveName> forwardCurves) {
 
-    Map<Currency, CurveId> discountCurveIds = MapStream.of(discountCurves)
-        .mapValues(c -> CurveId.of(groupName, c))
+    Map<Currency, RatesCurveId> discountCurveIds = MapStream.of(discountCurves)
+        .mapValues(c -> RatesCurveId.of(groupName, c))
         .toMap();
-    Map<? extends Index, CurveId> forwardCurveIds = MapStream.of(forwardCurves)
-        .mapValues(c -> CurveId.of(groupName, c))
+    Map<? extends Index, RatesCurveId> forwardCurveIds = MapStream.of(forwardCurves)
+        .mapValues(c -> RatesCurveId.of(groupName, c))
         .toMap();
     return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, ObservableSource.NONE, FxRateLookup.ofRates());
   }
@@ -126,11 +126,11 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    */
   public static RatesMarketDataLookup of(CurveGroup curveGroup) {
     CurveGroupName groupName = curveGroup.getName();
-    Map<Currency, CurveId> discountCurves = MapStream.of(curveGroup.getDiscountCurves())
-        .mapValues(c -> CurveId.of(groupName, c.getName()))
+    Map<Currency, RatesCurveId> discountCurves = MapStream.of(curveGroup.getDiscountCurves())
+        .mapValues(c -> RatesCurveId.of(groupName, c.getName()))
         .toMap();
-    Map<Index, CurveId> forwardCurves = MapStream.of(curveGroup.getForwardCurves())
-        .mapValues(c -> CurveId.of(groupName, c.getName()))
+    Map<Index, RatesCurveId> forwardCurves = MapStream.of(curveGroup.getForwardCurves())
+        .mapValues(c -> RatesCurveId.of(groupName, c.getName()))
         .toMap();
     return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE, FxRateLookup.ofRates());
   }
@@ -145,10 +145,10 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    */
   public static RatesMarketDataLookup of(CurveGroupDefinition curveGroupDefinition) {
     CurveGroupName groupName = curveGroupDefinition.getName();
-    Map<Currency, CurveId> discountCurves = new HashMap<>();
-    Map<Index, CurveId> forwardCurves = new HashMap<>();
+    Map<Currency, RatesCurveId> discountCurves = new HashMap<>();
+    Map<Index, RatesCurveId> forwardCurves = new HashMap<>();
     for (CurveGroupEntry entry : curveGroupDefinition.getEntries()) {
-      CurveId curveId = CurveId.of(groupName, entry.getCurveName());
+      RatesCurveId curveId = RatesCurveId.of(groupName, entry.getCurveName());
       entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
       entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
     }
@@ -170,10 +170,10 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
       FxRateLookup fxLookup) {
 
     CurveGroupName groupName = curveGroupDefinition.getName();
-    Map<Currency, CurveId> discountCurves = new HashMap<>();
-    Map<Index, CurveId> forwardCurves = new HashMap<>();
+    Map<Currency, RatesCurveId> discountCurves = new HashMap<>();
+    Map<Index, RatesCurveId> forwardCurves = new HashMap<>();
     for (CurveGroupEntry entry : curveGroupDefinition.getEntries()) {
-      CurveId curveId = CurveId.of(groupName, entry.getCurveName());
+      RatesCurveId curveId = RatesCurveId.of(groupName, entry.getCurveName());
       entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
       entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
     }

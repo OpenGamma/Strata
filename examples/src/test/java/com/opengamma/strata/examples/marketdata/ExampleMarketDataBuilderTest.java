@@ -38,7 +38,7 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -66,11 +66,11 @@ public class ExampleMarketDataBuilderTest {
       IndexQuoteId.of(IborIndices.GBP_LIBOR_3M));
 
   private static final Set<MarketDataId<?>> VALUES = ImmutableSet.of(
-      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-Disc")),
-      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-Disc")),
-      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-3ML")),
-      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-6ML")),
-      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-3ML")),
+      RatesCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-Disc")),
+      RatesCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-Disc")),
+      RatesCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-3ML")),
+      RatesCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-6ML")),
+      RatesCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-3ML")),
       FxRateId.of(Currency.USD, Currency.GBP),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14"), FieldName.SETTLEMENT_PRICE),

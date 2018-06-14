@@ -42,7 +42,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -109,11 +109,11 @@ public class SwapPricingTest {
         .product(Swap.of(payLeg, receiveLeg)).build();
 
     CurveGroupName groupName = CurveGroupName.of("Test");
-    CurveId idUsdDsc = CurveId.of(groupName, StandardDataSets.GROUP1_USD_DSC.getName());
-    CurveId idUsdOn = CurveId.of(groupName, StandardDataSets.GROUP1_USD_ON.getName());
-    CurveId idUsdL1M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L1M.getName());
-    CurveId idUsdL3M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L3M.getName());
-    CurveId idUsdL6M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L6M.getName());
+    RatesCurveId idUsdDsc = RatesCurveId.of(groupName, StandardDataSets.GROUP1_USD_DSC.getName());
+    RatesCurveId idUsdOn = RatesCurveId.of(groupName, StandardDataSets.GROUP1_USD_ON.getName());
+    RatesCurveId idUsdL1M = RatesCurveId.of(groupName, StandardDataSets.GROUP1_USD_L1M.getName());
+    RatesCurveId idUsdL3M = RatesCurveId.of(groupName, StandardDataSets.GROUP1_USD_L3M.getName());
+    RatesCurveId idUsdL6M = RatesCurveId.of(groupName, StandardDataSets.GROUP1_USD_L6M.getName());
     MarketData suppliedData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(idUsdDsc, StandardDataSets.GROUP1_USD_DSC)
         .addValue(idUsdOn, StandardDataSets.GROUP1_USD_ON)

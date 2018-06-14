@@ -34,7 +34,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -202,8 +202,8 @@ public class ImmutableRatesProviderTest {
         .build();
     CurveGroupName group = CurveGroupName.of("GRP");
     assertEquals(test.getCurves(group).size(), 2);
-    assertEquals(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_GBP.getName())), DISCOUNT_CURVE_GBP);
-    assertEquals(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_USD.getName())), DISCOUNT_CURVE_USD);
+    assertEquals(test.getCurves(group).get(RatesCurveId.of(group, DISCOUNT_CURVE_GBP.getName())), DISCOUNT_CURVE_GBP);
+    assertEquals(test.getCurves(group).get(RatesCurveId.of(group, DISCOUNT_CURVE_USD.getName())), DISCOUNT_CURVE_USD);
   }
 
   //-------------------------------------------------------------------------

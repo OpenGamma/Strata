@@ -26,7 +26,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParallelShifts;
 
@@ -45,7 +45,7 @@ public class CurveParallelShiftsUsageTest {
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         MarketDataFilter.ofName(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
-    CurveId curveId = CurveId.of(curveGroupName, curveName);
+    RatesCurveId curveId = RatesCurveId.of(curveGroupName, curveName);
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();

@@ -48,7 +48,7 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
@@ -347,11 +347,11 @@ public final class ImmutableRatesProvider
    * @param groupName  the curve group name
    * @return the map of curves, keyed by {@code CurveId}.
    */
-  public Map<CurveId, Curve> getCurves(CurveGroupName groupName) {
+  public Map<RatesCurveId, Curve> getCurves(CurveGroupName groupName) {
     // use a HashMap to avoid errors due to duplicates
-    Map<CurveId, Curve> curves = new HashMap<>();
-    discountCurves.values().forEach(curve -> curves.put(CurveId.of(groupName, curve.getName()), curve));
-    indexCurves.values().forEach(curve -> curves.put(CurveId.of(groupName, curve.getName()), curve));
+    Map<RatesCurveId, Curve> curves = new HashMap<>();
+    discountCurves.values().forEach(curve -> curves.put(RatesCurveId.of(groupName, curve.getName()), curve));
+    indexCurves.values().forEach(curve -> curves.put(RatesCurveId.of(groupName, curve.getName()), curve));
     return curves;
   }
 

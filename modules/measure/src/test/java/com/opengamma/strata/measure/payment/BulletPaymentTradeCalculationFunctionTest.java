@@ -35,7 +35,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -72,7 +72,7 @@ public class BulletPaymentTradeCalculationFunctionTest {
   public static final ResolvedBulletPaymentTrade RTRADE = TRADE.resolve(REF_DATA);
 
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
-  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
+  private static final RatesCurveId DISCOUNT_CURVE_ID = RatesCurveId.of("Default", "Discount");
   static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of());
