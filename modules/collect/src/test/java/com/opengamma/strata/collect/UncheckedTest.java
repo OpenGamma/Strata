@@ -14,6 +14,7 @@ import static org.testng.Assert.fail;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -23,8 +24,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import javax.naming.NamingException;
 
 import org.testng.annotations.Test;
 
@@ -291,7 +290,7 @@ public class UncheckedTest {
     Error error = new Error("a");
     IllegalArgumentException argEx = new IllegalArgumentException("b");
     IOException ioEx = new IOException("c");
-    NamingException namingEx = new NamingException("d");
+    URISyntaxException namingEx = new URISyntaxException("d", "e");
 
     // use old-style try-catch to ensure test really working
     try {
