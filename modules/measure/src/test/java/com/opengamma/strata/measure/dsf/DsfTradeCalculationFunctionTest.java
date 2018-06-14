@@ -109,7 +109,7 @@ public class DsfTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    DsfTradeCalculationFunction function = new DsfTradeCalculationFunction();
+    DsfTradeCalculationFunction<DsfTrade> function = DsfTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -120,7 +120,7 @@ public class DsfTradeCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    DsfTradeCalculationFunction function = new DsfTradeCalculationFunction();
+    DsfTradeCalculationFunction<DsfTrade> function = DsfTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
@@ -145,7 +145,7 @@ public class DsfTradeCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    DsfTradeCalculationFunction function = new DsfTradeCalculationFunction();
+    DsfTradeCalculationFunction<DsfTrade> function = DsfTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;

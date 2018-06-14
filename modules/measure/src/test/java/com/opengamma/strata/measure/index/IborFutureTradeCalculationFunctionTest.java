@@ -72,7 +72,7 @@ public class IborFutureTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    IborFutureTradeCalculationFunction function = new IborFutureTradeCalculationFunction();
+    IborFutureTradeCalculationFunction<IborFutureTrade> function = IborFutureTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -83,7 +83,7 @@ public class IborFutureTradeCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    IborFutureTradeCalculationFunction function = new IborFutureTradeCalculationFunction();
+    IborFutureTradeCalculationFunction<IborFutureTrade> function = IborFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     double expectedPrice = DiscountingIborFutureTradePricer.DEFAULT.price(RTRADE, provider);
