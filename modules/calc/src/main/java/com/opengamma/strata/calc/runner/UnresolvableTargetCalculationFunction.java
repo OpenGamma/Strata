@@ -39,7 +39,8 @@ final class UnresolvableTargetCalculationFunction
 
   @Override
   public Set<Measure> supportedMeasures() {
-    return ImmutableSet.of();
+    // pass all measures here so that the calculation is run to get the correct error message
+    return ImmutableSet.copyOf(Measure.extendedEnum().lookupAllNormalized().values());
   }
 
   @Override
