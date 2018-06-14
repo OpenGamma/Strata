@@ -37,12 +37,12 @@ public interface ResolvableSecurityTrade
    * @throws RuntimeException if unable to resolve due to an invalid definition
    */
   @Override
-  public default SecuritizedProductTrade resolveTarget(ReferenceData refData) {
+  public default SecuritizedProductTrade<?> resolveTarget(ReferenceData refData) {
     SecurityId securityId = getSecurityId();
     Security security = refData.getValue(securityId);
     SecurityQuantityTrade trade = security.createTrade(getInfo(), getQuantity(), getPrice(), refData);
     if (trade instanceof SecuritizedProductTrade) {
-      return (SecuritizedProductTrade) trade;
+      return (SecuritizedProductTrade<?>) trade;
     }
     throw new ClassCastException(Messages.format(
         "Reference data for security '{}' did not implement SecuritizedProductTrade: ", securityId, trade.getClass().getName()));

@@ -36,7 +36,7 @@ public interface ResolvableSecurityPosition
    * @throws RuntimeException if unable to resolve due to an invalid definition
    */
   @Override
-  public abstract SecuritizedProductPosition resolveTarget(ReferenceData refData);
+  public abstract SecuritizedProductPosition<?> resolveTarget(ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**

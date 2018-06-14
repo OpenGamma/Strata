@@ -52,7 +52,8 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class DsfPosition
-    implements SecuritizedProductPosition, Resolvable<ResolvedDsfTrade>, ImmutableBean, Serializable {
+    implements
+    SecuritizedProductPosition<Dsf>, Resolvable<ResolvedDsfTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.

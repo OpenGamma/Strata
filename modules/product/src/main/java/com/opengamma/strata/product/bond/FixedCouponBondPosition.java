@@ -51,7 +51,8 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class FixedCouponBondPosition
-    implements SecuritizedProductPosition, Resolvable<ResolvedFixedCouponBondTrade>, ImmutableBean, Serializable {
+    implements
+    SecuritizedProductPosition<FixedCouponBond>, Resolvable<ResolvedFixedCouponBondTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.

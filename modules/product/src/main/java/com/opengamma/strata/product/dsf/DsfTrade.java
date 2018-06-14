@@ -48,7 +48,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class DsfTrade
-    implements SecuritizedProductTrade, ResolvableTrade<ResolvedDsfTrade>, ImmutableBean, Serializable {
+    implements SecuritizedProductTrade<Dsf>, ResolvableTrade<ResolvedDsfTrade>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

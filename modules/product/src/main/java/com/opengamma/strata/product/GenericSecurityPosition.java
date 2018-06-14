@@ -42,7 +42,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityPosition
-    implements SecuritizedProductPosition, ImmutableBean, Serializable {
+    implements SecuritizedProductPosition<GenericSecurity>, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.

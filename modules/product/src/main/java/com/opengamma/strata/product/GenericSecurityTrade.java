@@ -35,7 +35,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityTrade
-    implements SecuritizedProductTrade, ImmutableBean, Serializable {
+    implements SecuritizedProductTrade<GenericSecurity>, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
