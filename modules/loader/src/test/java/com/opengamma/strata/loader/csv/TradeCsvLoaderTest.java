@@ -1229,7 +1229,7 @@ public class TradeCsvLoaderTest {
             .settlementDate(date(2017, 6, 3))
             .build())
         .securityId(SecurityId.of("BBG", "MSFT"))
-        .quantity(20)
+        .quantity(-20)
         .price(17.8)
         .build();
     assertBeanEquals(expected2, filtered.get(1));

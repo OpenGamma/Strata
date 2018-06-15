@@ -11,11 +11,13 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXPIRY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PRICE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.QUANTITY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_SIZE;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_VALUE;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
 
 import java.util.Optional;
 
@@ -36,6 +38,7 @@ import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 
 /**
  * Loads security trades from CSV files.
@@ -73,8 +76,18 @@ final class SecurityCsvLoader {
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
     double price = LoaderUtils.parseDouble(row.getValue(PRICE_FIELD));
-    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
-    return SecurityTrade.of(info, securityId, quantity.getFirst() - quantity.getSecond(), price);
+    double quantity = parseTradeQuantity(row);
+    return SecurityTrade.of(info, securityId, quantity, price);
+  }
+
+  // parses the trade quantity, considering the optional buy/sell field
+  private static double parseTradeQuantity(CsvRow row) {
+    double quantity = LoaderUtils.parseDouble(row.getValue(QUANTITY_FIELD));
+    Optional<BuySell> buySellOpt = row.findValue(BUY_SELL_FIELD).map(str -> LoaderUtils.parseBuySell(str));
+    if (buySellOpt.isPresent()) {
+      quantity = buySellOpt.get().normalize(quantity);
+    }
+    return quantity;
   }
 
   //-------------------------------------------------------------------------
