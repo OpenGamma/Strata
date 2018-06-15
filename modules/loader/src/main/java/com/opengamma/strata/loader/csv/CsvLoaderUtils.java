@@ -25,7 +25,7 @@ import com.opengamma.strata.product.etd.EtdType;
 import com.opengamma.strata.product.etd.EtdVariant;
 
 /**
- * Abstract implementation of the CSV information resolver.
+ * CSV information resolver helper.
  * <p>
  * This simplifies implementations of {@link TradeCsvInfoResolver} and {@link PositionCsvInfoResolver}.
  */
@@ -96,13 +96,30 @@ public final class CsvLoaderUtils {
    */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
   /**
-   * Default version used as an option might not specify a version number.
-   */
-  public static final int DEFAULT_OPTION_VERSION_NUMBER = 0;
-  /**
    * The column name for the underlying expiry month/year.
    */
   public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
+  /**
+   * The column name for the currency.
+   */
+  public static final String CURRENCY = "Currency";
+  /**
+   * The column name for the tick size.
+   */
+  public static final String TICK_SIZE = "Tick Size";
+  /**
+   * The column name for the tick value.
+   */
+  public static final String TICK_VALUE = "Tick Value";
+  /**
+   * The column name for the contract size.
+   */
+  public static final String CONTRACT_SIZE = "Contract Size";
+
+  /**
+   * Default version used as an option might not specify a version number.
+   */
+  public static final int DEFAULT_OPTION_VERSION_NUMBER = 0;
   /**
    * Lookup settlement by code.
    */

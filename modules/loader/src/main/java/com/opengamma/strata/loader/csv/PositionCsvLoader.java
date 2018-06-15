@@ -27,9 +27,11 @@ import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
+import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.PositionInfoBuilder;
+import com.opengamma.strata.product.ResolvableSecurityPosition;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.etd.EtdContractSpec;
 import com.opengamma.strata.product.etd.EtdContractSpecId;
@@ -329,13 +331,19 @@ public final class PositionCsvLoader {
           switch (type.toUpperCase(Locale.ENGLISH)) {
             case "SEC":
             case "SECURITY":
-              if (posType == SecurityPosition.class || posType == Position.class) {
-                positions.add(posType.cast(SecurityCsvLoader.parseSimple(row, info, resolver)));
+              if (posType == SecurityPosition.class || posType == ResolvableSecurityPosition.class) {
+                positions.add(posType.cast(SecurityCsvLoader.parseSecurityPosition(row, info, resolver)));
+              } else if (posType == GenericSecurityPosition.class || posType == Position.class) {
+                Position parsed = SecurityCsvLoader.parseNonEtdPosition(row, info, resolver);
+                if (posType.isInstance(parsed)) {
+                  positions.add(posType.cast(parsed));
+                }
               }
               break;
             case "FUT":
             case "FUTURE":
-              if (posType == EtdPosition.class || posType == EtdFuturePosition.class || posType == Position.class) {
+              if (posType == EtdPosition.class || posType == EtdFuturePosition.class ||
+                  posType == ResolvableSecurityPosition.class || posType == Position.class) {
                 positions.add(posType.cast((Position) resolver.parseEtdFuturePosition(row, info)));
               } else if (posType == SecurityPosition.class) {
                 positions.add(posType.cast(resolver.parseEtdFutureSecurityPosition(row, info)));
@@ -343,7 +351,8 @@ public final class PositionCsvLoader {
               break;
             case "OPT":
             case "OPTION":
-              if (posType == EtdPosition.class || posType == EtdOptionPosition.class || posType == Position.class) {
+              if (posType == EtdPosition.class || posType == EtdOptionPosition.class ||
+                  posType == ResolvableSecurityPosition.class || posType == Position.class) {
                 positions.add(posType.cast(resolver.parseEtdOptionPosition(row, info)));
               } else if (posType == SecurityPosition.class) {
                 positions.add(posType.cast(resolver.parseEtdOptionSecurityPosition(row, info)));
