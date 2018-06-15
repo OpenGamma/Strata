@@ -72,6 +72,8 @@ public final class CalculationTasks implements ImmutableBean {
    * <p>
    * The targets will typically be trades.
    * The columns represent the measures to calculate.
+   * <p>
+   * Any target that implements {@link ResolvableCalculationTarget} will result in a failed task.
    * 
    * @param rules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
@@ -83,7 +85,7 @@ public final class CalculationTasks implements ImmutableBean {
       List<? extends CalculationTarget> targets,
       List<Column> columns) {
 
-    return create(rules, targets, columns);
+    return of(rules, targets, columns, ReferenceData.empty());
   }
 
   /**
@@ -106,14 +108,34 @@ public final class CalculationTasks implements ImmutableBean {
       List<Column> columns,
       ReferenceData refData) {
 
-    List<CalculationTarget> resolvedTargets = targets.stream()
-        .map(target -> resolveSecurity(target, refData))
-        .collect(toImmutableList());
-    return create(rules, resolvedTargets, columns);
+    // create columns that are a combination of the column overrides and the defaults
+    // this is done once as it is the same for all targets
+    List<Column> effectiveColumns =
+        columns.stream()
+            .map(column -> column.combineWithDefaults(rules.getReportingCurrency(), rules.getParameters()))
+            .collect(toImmutableList());
+
+    // loop around the targets, then the columns, to build the tasks
+    ImmutableList.Builder<CalculationTask> taskBuilder = ImmutableList.builder();
+    for (int rowIndex = 0; rowIndex < targets.size(); rowIndex++) {
+      CalculationTarget target = resolveTarget(targets.get(rowIndex), refData);
+
+      // find the applicable function, resolving the target if necessary
+      CalculationFunction<?> fn = target instanceof UnresolvableTarget ?
+          UnresolvableTargetCalculationFunction.INSTANCE :
+          rules.getFunctions().getFunction(target);
+
+      // create the tasks
+      List<CalculationTask> targetTasks = createTargetTasks(target, rowIndex, fn, effectiveColumns);
+      taskBuilder.addAll(targetTasks);
+    }
+
+    // calculation tasks holds the original user-specified columns, not the derived ones
+    return new CalculationTasks(taskBuilder.build(), columns);
   }
 
-  // resolves the target if it is a security
-  private static CalculationTarget resolveSecurity(CalculationTarget target, ReferenceData refData) {
+  // resolves the target
+  private static CalculationTarget resolveTarget(CalculationTarget target, ReferenceData refData) {
     if (target instanceof ResolvableCalculationTarget) {
       ResolvableCalculationTarget resolvable = (ResolvableCalculationTarget) target;
       try {
@@ -125,46 +147,9 @@ public final class CalculationTasks implements ImmutableBean {
     return target;
   }
 
-  private static CalculationTasks create(
-      CalculationRules rules,
-      List<? extends CalculationTarget> targets,
-      List<Column> columns) {
-
-    // create columns that are a combination of the column overrides and the defaults
-    // this is done once as it is the same for all targets
-    List<Column> effectiveColumns =
-        columns.stream()
-            .map(column -> column.combineWithDefaults(rules.getReportingCurrency(), rules.getParameters()))
-            .collect(toImmutableList());
-
-    // loop around the targets, then the columns, to build the tasks
-    ImmutableList.Builder<CalculationTask> taskBuilder = ImmutableList.builder();
-    for (int rowIndex = 0; rowIndex < targets.size(); rowIndex++) {
-      CalculationTarget target = targets.get(rowIndex);
-
-      // find the applicable function
-      CalculationFunction<?> fn = lookupFunction(target, rules);
-
-      // create the tasks
-      List<CalculationTask> targetTasks = createTargetTasks(target, rowIndex, fn, effectiveColumns);
-      taskBuilder.addAll(targetTasks);
-    }
-
-    // calculation tasks holds the original user-specified columns, not the derived ones
-    return new CalculationTasks(taskBuilder.build(), columns);
-  }
-
-  // finds a suitable function, handling the unresolvable case
-  private static CalculationFunction<?> lookupFunction(CalculationTarget target, CalculationRules rules) {
-    if (target instanceof UnresolvableTarget) {
-      return UnresolvableTargetCalculationFunction.INSTANCE;
-    }
-    return rules.getFunctions().getFunction(target);
-  }
-
   // creates the tasks for a single target
   private static List<CalculationTask> createTargetTasks(
-      CalculationTarget target,
+      CalculationTarget resolvedTarget,
       int rowIndex,
       CalculationFunction<?> function,
       List<Column> columns) {
@@ -178,14 +163,14 @@ public final class CalculationTasks implements ImmutableBean {
       ReportingCurrency reportingCurrency = column.getReportingCurrency().orElse(ReportingCurrency.NATURAL);
       CalculationTaskCell cell = CalculationTaskCell.of(rowIndex, colIndex, measure, reportingCurrency);
       // group to find cells that can be shared, with same mappings and params (minus reporting currency)
-      CalculationParameters params = column.getParameters().filter(target, measure);
+      CalculationParameters params = column.getParameters().filter(resolvedTarget, measure);
       grouped.put(params, cell);
     }
 
     // build tasks
     ImmutableList.Builder<CalculationTask> taskBuilder = ImmutableList.builder();
     for (CalculationParameters params : grouped.keySet()) {
-      taskBuilder.add(CalculationTask.of(target, function, params, grouped.get(params)));
+      taskBuilder.add(CalculationTask.of(resolvedTarget, function, params, grouped.get(params)));
     }
     return taskBuilder.build();
   }
