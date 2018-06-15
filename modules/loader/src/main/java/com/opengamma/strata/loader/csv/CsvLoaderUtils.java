@@ -108,7 +108,7 @@ public final class CsvLoaderUtils {
    */
   public static final String TICK_SIZE = "Tick Size";
   /**
-   * The column name for the tick size.
+   * The column name for the tick value.
    */
   public static final String TICK_VALUE = "Tick Value";
   /**

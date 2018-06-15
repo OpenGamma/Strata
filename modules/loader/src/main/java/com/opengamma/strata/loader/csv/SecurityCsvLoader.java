@@ -45,16 +45,9 @@ import com.opengamma.strata.product.common.BuySell;
  */
 final class SecurityCsvLoader {
 
-  /**
-   * Parses from the CSV row.
-   * 
-   * @param row  the CSV row
-   * @param info  the trade info
-   * @param resolver  the resolver used to parse additional information
-   * @return the parsed trade
-   */
+  // parses a trade from the CSV row
   static SecurityQuantityTrade parseTrade(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    SecurityTrade trade = parseRow(row, info, resolver);
+    SecurityTrade trade = parseSecurityTrade(row, info, resolver);
     SecurityTrade base = resolver.completeTrade(row, trade);
 
     Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE).map(str -> LoaderUtils.parseDouble(str));
@@ -70,8 +63,8 @@ final class SecurityCsvLoader {
     return base;
   }
 
-  // parse the row to a trade
-  private static SecurityTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+  // parses a SecurityTrade from the CSV row
+  private static SecurityTrade parseSecurityTrade(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
@@ -91,14 +84,7 @@ final class SecurityCsvLoader {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Parses from the CSV row, inferring the position type.
-   * 
-   * @param row  the CSV row
-   * @param info  the trade info
-   * @param resolver  the resolver used to parse additional information
-   * @return the parsed position
-   */
+  // parses a position from the CSV row
   static Position parsePosition(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     if (row.findValue(EXPIRY_FIELD).isPresent()) {
       // etd
@@ -108,19 +94,11 @@ final class SecurityCsvLoader {
         return resolver.parseEtdFuturePosition(row, info);
       }
     } else {
-      // simple
-      return parseSimple(row, info, resolver);
+      return parseNonEtdPosition(row, info, resolver);
     }
   }
 
-  /**
-   * Parses from the CSV row, inferring the position type.
-   * 
-   * @param row  the CSV row
-   * @param info  the trade info
-   * @param resolver  the resolver used to parse additional information
-   * @return the parsed position
-   */
+  // parses a SecurityPosition from the CSV row, converting ETD information
   static SecurityPosition parsePositionLightweight(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     if (row.findValue(EXPIRY_FIELD).isPresent()) {
       // etd
@@ -131,12 +109,12 @@ final class SecurityCsvLoader {
       }
     } else {
       // simple
-      return parseBase(row, info, resolver);
+      return parseSecurityPosition(row, info, resolver);
     }
   }
 
   // parses the base SecurityPosition
-  static SecurityPosition parseBase(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
+  static SecurityPosition parseSecurityPosition(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
@@ -146,8 +124,8 @@ final class SecurityCsvLoader {
   }
 
   // parses the additional GenericSecurityPosition information
-  static Position parseSimple(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
-    SecurityPosition base = parseBase(row, info, resolver);
+  static Position parseNonEtdPosition(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
+    SecurityPosition base = parseSecurityPosition(row, info, resolver);
     Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE).map(str -> LoaderUtils.parseDouble(str));
     Optional<Currency> currencyOpt = row.findValue(CURRENCY).map(str -> Currency.of(str));
     Optional<Double> tickValueOpt = row.findValue(TICK_VALUE).map(str -> LoaderUtils.parseDouble(str));

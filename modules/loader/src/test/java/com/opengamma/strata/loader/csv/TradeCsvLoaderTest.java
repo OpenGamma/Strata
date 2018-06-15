@@ -1235,7 +1235,7 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected2, filtered.get(1));
   }
 
-  public void test_load_generiSecurity() {
+  public void test_load_genericSecurity() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 

@@ -332,10 +332,9 @@ public final class PositionCsvLoader {
             case "SEC":
             case "SECURITY":
               if (posType == SecurityPosition.class || posType == ResolvableSecurityPosition.class) {
-                positions.add(posType.cast(SecurityCsvLoader.parseBase(row, info, resolver)));
-
+                positions.add(posType.cast(SecurityCsvLoader.parseSecurityPosition(row, info, resolver)));
               } else if (posType == GenericSecurityPosition.class || posType == Position.class) {
-                Position parsed = SecurityCsvLoader.parseSimple(row, info, resolver);
+                Position parsed = SecurityCsvLoader.parseNonEtdPosition(row, info, resolver);
                 if (posType.isInstance(parsed)) {
                   positions.add(posType.cast(parsed));
                 }
