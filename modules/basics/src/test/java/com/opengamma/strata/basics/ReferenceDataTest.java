@@ -36,29 +36,29 @@ public class ReferenceDataTest {
   private static final ReferenceData REF_DATA1 = new ReferenceData() {
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> findValue(ReferenceDataId<T> id) {
-      return id.equals(ID1) ? Optional.of((T) VAL1) : Optional.empty();
+    public <T> T queryValueOrNull(ReferenceDataId<T> id) {
+      return id.equals(ID1) ? (T) VAL1 : null;
     }
   };
   private static final ReferenceData REF_DATA2 = new ReferenceData() {
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> findValue(ReferenceDataId<T> id) {
-      return id.equals(ID2) ? Optional.of((T) VAL2) : Optional.empty();
+    public <T> T queryValueOrNull(ReferenceDataId<T> id) {
+      return id.equals(ID2) ? (T) VAL2 : null;
     }
   };
   private static final ReferenceData REF_DATA3 = new ReferenceData() {
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> findValue(ReferenceDataId<T> id) {
-      return id.equals(ID1) ? Optional.of((T) VAL3) : Optional.empty();
+    public <T> T queryValueOrNull(ReferenceDataId<T> id) {
+      return id.equals(ID1) ? (T) VAL3 : null;
     }
   };
   private static final ReferenceData REF_DATA12 = new ReferenceData() {
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> findValue(ReferenceDataId<T> id) {
-      return id.equals(ID2) ? Optional.of((T) VAL2) : (id.equals(ID1) ? Optional.of((T) VAL1) : Optional.empty());
+    public <T> T queryValueOrNull(ReferenceDataId<T> id) {
+      return id.equals(ID2) ? (T) VAL2 : (id.equals(ID1) ? (T) VAL1 : null);
     }
   };
 

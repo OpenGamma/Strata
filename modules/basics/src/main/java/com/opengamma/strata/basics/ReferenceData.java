@@ -12,7 +12,6 @@ import java.util.Optional;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.collect.Messages;
 
 /**
  * Provides access to reference data, such as holiday calendars and securities.
@@ -92,7 +91,7 @@ public interface ReferenceData {
    * @return true if the reference data contains a value for the identifier
    */
   public default boolean containsValue(ReferenceDataId<?> id) {
-    return findValue(id).isPresent();
+    return id.queryValueOrNull(this) != null;
   }
 
   /**
@@ -107,9 +106,11 @@ public interface ReferenceData {
    * @throws ReferenceDataNotFoundException if the identifier is not found
    */
   public default <T> T getValue(ReferenceDataId<T> id) {
-    return findValue(id)
-        .orElseThrow(() -> new ReferenceDataNotFoundException(Messages.format(
-            "Reference data not found for '{}' of type '{}'", id, id.getClass().getSimpleName())));
+    T value = id.queryValueOrNull(this);
+    if (value == null) {
+      throw new ReferenceDataNotFoundException(ImmutableReferenceData.msgValueNotFound(id));
+    }
+    return value;
   }
 
   /**
@@ -122,7 +123,10 @@ public interface ReferenceData {
    * @param id  the identifier to find
    * @return the reference data value, empty if not found
    */
-  public abstract <T> Optional<T> findValue(ReferenceDataId<T> id);
+  public default <T> Optional<T> findValue(ReferenceDataId<T> id) {
+    T value = id.queryValueOrNull(this);
+    return Optional.ofNullable(value);
+  }
 
   /**
    * Low-level method to query the reference data value associated with the specified identifier,
@@ -135,9 +139,7 @@ public interface ReferenceData {
    * @param id  the identifier to find
    * @return the reference data value, null if not found
    */
-  public default <T> T queryValueOrNull(ReferenceDataId<T> id) {
-    return findValue(id).orElse(null);
-  }
+  public abstract <T> T queryValueOrNull(ReferenceDataId<T> id);
 
   //-------------------------------------------------------------------------
   /**
