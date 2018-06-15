@@ -11,17 +11,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import java.util.function.Function;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
-import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.optim.PointValuePair;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.ComplexNumber;
-import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**
  * Test {@link CommonsMathWrapper}.
@@ -39,9 +34,6 @@ public class CommonsMathWrapperTest {
     }
 
   };
-  private static final ComplexNumber OG_COMPLEX = new ComplexNumber(1, 2);
-  private static final RealPolynomialFunction1D OG_POLYNOMIAL =
-      new RealPolynomialFunction1D(new double[] {3, 4, -1, 5, -3});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DMatrix() {
@@ -66,21 +58,6 @@ public class CommonsMathWrapperTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRealMatrix() {
     CommonsMathWrapper.unwrap((RealMatrix) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullComplexNumber() {
-    CommonsMathWrapper.wrap((ComplexNumber) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullLagrange() {
-    CommonsMathWrapper.unwrap((PolynomialFunctionLagrangeForm) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullPointVectorPair() {
-    CommonsMathWrapper.unwrap((PointValuePair) null);
   }
 
   @Test
@@ -115,35 +92,6 @@ public class CommonsMathWrapperTest {
     for (int i = 0; i < n; i++) {
       assertArrayEquals(unwrapped[i], ogData[i], 1e-15);
     }
-  }
-
-  @Test
-  public void testComplexNumber() {
-    Complex commons = CommonsMathWrapper.wrap(OG_COMPLEX);
-    assertEquals(commons.getReal(), OG_COMPLEX.getReal(), 0);
-    assertEquals(commons.getImaginary(), OG_COMPLEX.getImaginary(), 0);
-  }
-
-  @Test
-  public void testLagrange() {
-    int n = OG_POLYNOMIAL.getCoefficients().length;
-    double[] x = new double[n];
-    double[] y = new double[n];
-    for (int i = 0; i < n; i++) {
-      x[i] = i;
-      y[i] = OG_POLYNOMIAL.applyAsDouble(x[i]);
-    }
-    Function<Double, Double> unwrapped = CommonsMathWrapper.unwrap(new PolynomialFunctionLagrangeForm(x, y));
-    for (int i = 0; i < 100; i++) {
-      assertEquals(unwrapped.apply(i + 0.5), OG_POLYNOMIAL.applyAsDouble(i + 0.5), 1e-9);
-    }
-  }
-
-  @Test
-  public void testPointValuePair() {
-    double[] x = new double[] {1, 2, 3};
-    double[] y = CommonsMathWrapper.unwrap(new PointValuePair(x, 0));
-    assertArrayEquals(x, y, 0);
   }
 
 }
