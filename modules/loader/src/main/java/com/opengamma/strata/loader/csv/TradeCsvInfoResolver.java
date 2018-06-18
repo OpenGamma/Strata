@@ -7,11 +7,14 @@ package com.opengamma.strata.loader.csv;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.SecurityTrade;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
+import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -63,11 +66,29 @@ public interface TradeCsvInfoResolver {
     // do nothing
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Completes the trade, potentially parsing additional columns.
+   * <p>
+   * This is called by each of the {@code completeTrade} methods.
+   *
+   * @param <T> the trade type
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default <T extends Trade> T completeTradeCommon(CsvRow row, T trade) {
+    //do nothing
+    return trade;
+  }
+
   /**
    * Completes the FRA trade, potentially parsing additional columns.
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, ProductTrade)}.
    * 
    * @param row  the CSV row to parse
    * @param trade  the parsed trade
@@ -75,7 +96,7 @@ public interface TradeCsvInfoResolver {
    */
   public default FraTrade completeTrade(CsvRow row, FraTrade trade) {
     // do nothing
-    return trade;
+    return completeTradeCommon(row, trade);
   }
 
   /**
@@ -83,6 +104,8 @@ public interface TradeCsvInfoResolver {
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, ProductTrade)}.
    * 
    * @param row  the CSV row to parse
    * @param trade  the parsed trade
@@ -90,7 +113,7 @@ public interface TradeCsvInfoResolver {
    */
   public default SecurityTrade completeTrade(CsvRow row, SecurityTrade trade) {
     // do nothing
-    return trade;
+    return completeTradeCommon(row, trade);
   }
 
   /**
@@ -98,6 +121,8 @@ public interface TradeCsvInfoResolver {
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, ProductTrade)}.
    * 
    * @param row  the CSV row to parse
    * @param trade  the parsed trade
@@ -105,7 +130,7 @@ public interface TradeCsvInfoResolver {
    */
   public default SwapTrade completeTrade(CsvRow row, SwapTrade trade) {
     // do nothing
-    return trade;
+    return completeTradeCommon(row, trade);
   }
 
   /**
@@ -113,6 +138,8 @@ public interface TradeCsvInfoResolver {
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, ProductTrade)}.
    * 
    * @param row  the CSV row to parse
    * @param trade  the parsed trade
@@ -120,7 +147,7 @@ public interface TradeCsvInfoResolver {
    */
   public default TermDepositTrade completeTrade(CsvRow row, TermDepositTrade trade) {
     // do nothing
-    return trade;
+    return completeTradeCommon(row, trade);
   }
 
   /**
@@ -128,6 +155,8 @@ public interface TradeCsvInfoResolver {
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, ProductTrade)}.
    *
    * @param row  the CSV row to parse
    * @param trade  the parsed trade, as an instance of {@link FxSingleTrade}
@@ -135,7 +164,24 @@ public interface TradeCsvInfoResolver {
    */
   public default FxSingleTrade completeTrade(CsvRow row, FxSingleTrade trade) {
     //do nothing
-    return trade;
+    return completeTradeCommon(row, trade);
+  }
+
+  /**
+   * Completes the FX Swap trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, ProductTrade)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade, as an instance of {@link FxSwapTrade}
+   * @return the updated trade, as an instance of {@link FxSwapTrade}
+   */
+  public default FxSwapTrade completeTrade(CsvRow row, FxSwapTrade trade) {
+    //do nothing
+    return completeTradeCommon(row, trade);
   }
 
 }

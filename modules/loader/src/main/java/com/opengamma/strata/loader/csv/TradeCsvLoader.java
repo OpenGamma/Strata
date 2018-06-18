@@ -41,6 +41,8 @@ import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
 import com.opengamma.strata.product.fx.FxSingleTrade;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.FxTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
 
@@ -155,15 +157,28 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  * <p>
  * The following columns are supported for 'FX Singles' (FX Spots and FX Forwards) trades:
  * <ul>
+ * <li>'Buy Sell' - optional, if not present notional must be signed
+ * <li>'Currency' - mandatory
+ * <li>'Notional' - mandatory
+ * <li>'FX Rate' - mandatory
+ * <li>'Payment Date - mandatory'
+ * <li>'Payment Date Convention' - optional field. See {@link com.opengamma.strata.basics.date.BusinessDayConventions} for possible values.
+ * <li>'Payment Date Calendar' - optional field. See {@link com.opengamma.strata.basics.date.HolidayCalendarIds} for possible values.
+ * </ul>
+ * 
+ * <h4>FX Swaps</h4>
+ * <p>
+ * The following columns are supported for 'FxSwap' trades:
+ * <ul>
+ * <li>'Buy Sell' - optional, if not present notional must be signed
+ * <li>'Currency' - mandatory
+ * <li>'Notional' - mandatory
+ * <li>'FX Rate' - mandatory
  * <li>Payment Date - mandatory
- * <li>Payment Date Convention - optional field. See {@link com.opengamma.strata.basics.date.BusinessDayConventions} for possible values.
- * <li>Payment Date Calendar - optional field. See {@link com.opengamma.strata.basics.date.HolidayCalendarIds} for possible values.
- * <li>Leg 1 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
- * <li>Leg 1 Currency - mandatory
- * <li>Leg 1 Notional - mandatory
- * <li>Leg 2 Direction - mandatory, see {@link com.opengamma.strata.product.common.PayReceive}
- * <li>Leg 2 Currency - mandatory
- * <li>Leg 2 Notional - mandatory
+ * <li>'Far FX Rate' - mandatory
+ * <li>'Far Payment Date' - mandatory
+ * <li>'Payment Date Convention' - optional field. See {@link com.opengamma.strata.basics.date.BusinessDayConventions} for possible values.
+ * <li>'Payment Date Calendar' - optional field. See {@link com.opengamma.strata.basics.date.HolidayCalendarIds} for possible values.
  * </ul>
  * 
  * <h4>Security</h4>
@@ -446,8 +461,14 @@ public final class TradeCsvLoader {
           case "FX":
           case "FXSINGLE":
           case "FX SINGLE":
-            if (tradeType == FxSingleTrade.class || tradeType == Trade.class) {
+            if (tradeType == FxSingleTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
+            }
+            break;
+          case "FXSWAP":
+          case "FX SWAP":
+            if (tradeType == FxSwapTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
+              trades.add(tradeType.cast(FxSwapTradeCsvLoader.parse(row, info, resolver)));
             }
             break;
           default:
