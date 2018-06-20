@@ -38,6 +38,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A single foreign exchange, such as an FX forward or FX spot.
@@ -198,6 +199,7 @@ public final class FxSingle
    * @param fxRate  the FX rate
    * @param paymentDate  the date that the FX settles
    * @return the FX
+   * @throws IllegalArgumentException if the FX rate and amount do not have a currency in common
    */
   public static FxSingle of(CurrencyAmount amount, FxRate fxRate, LocalDate paymentDate) {
     return create(amount, fxRate, paymentDate, null);
@@ -218,6 +220,7 @@ public final class FxSingle
    * @param paymentDate  the date that the FX settles
    * @param paymentDateAdjustment  the adjustment to apply to the payment date
    * @return the FX
+   * @throws IllegalArgumentException if the FX rate and amount do not have a currency in common
    */
   public static FxSingle of(
       CurrencyAmount amount,
@@ -240,7 +243,10 @@ public final class FxSingle
     ArgChecker.notNull(fxRate, "fxRate");
     ArgChecker.notNull(paymentDate, "paymentDate");
     CurrencyPair pair = fxRate.getPair();
-    ArgChecker.isTrue(pair.contains(amount.getCurrency()));
+    if (!pair.contains(amount.getCurrency())) {
+      throw new IllegalArgumentException(Messages.format(
+        "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", fxRate, amount));
+    }
     Currency currency2 = pair.getBase().equals(amount.getCurrency()) ? pair.getCounter() : pair.getBase();
     CurrencyAmount amountCurrency2 = amount.convertedTo(currency2, fxRate).negated();
     return create(amount, amountCurrency2, paymentDate, paymentDateAdjustment);

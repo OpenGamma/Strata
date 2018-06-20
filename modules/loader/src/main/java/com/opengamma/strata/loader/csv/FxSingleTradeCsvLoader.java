@@ -34,7 +34,7 @@ import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 
 /**
- * Loads FX trades (spot of forward) from CSV files.
+ * Loads FX trades (spot or forward) from CSV files.
  */
 class FxSingleTradeCsvLoader {
 
@@ -67,7 +67,7 @@ class FxSingleTradeCsvLoader {
 
   // parses the trade
   private static FxSingleTrade parseRow(CsvRow row, TradeInfo info) {
-    if (row.findValue(BUY_SELL_FIELD).isPresent()) {
+    if (row.findValue(CONVENTION_FIELD).isPresent() || row.findValue(BUY_SELL_FIELD).isPresent()) {
       return parseConvention(row, info);
     } else {
       return parseFull(row, info);
@@ -95,35 +95,40 @@ class FxSingleTradeCsvLoader {
 
   // parse full definition
   private static FxSingleTrade parseFull(CsvRow row, TradeInfo info) {
-    PayReceive direction1 = LoaderUtils.parsePayReceive(row.getValue(LEG_1_DIRECTION_FIELD));
-    Currency currency1 = Currency.of(row.getValue(LEG_1_CURRENCY_FIELD));
-    double notional1 = LoaderUtils.parseDouble(row.getValue(LEG_1_NOTIONAL_FIELD));
-    LocalDate paymentDate1 = row.findValue(LEG_1_PAYMENT_DATE_FIELD)
+    FxSingle fx = parseFxSingle(row, "");
+    return FxSingleTrade.of(info, fx);
+  }
+
+  // parse an FxSingle
+  static FxSingle parseFxSingle(CsvRow row, String prefix) {
+    PayReceive direction1 = LoaderUtils.parsePayReceive(row.getValue(prefix + LEG_1_DIRECTION_FIELD));
+    Currency currency1 = Currency.of(row.getValue(prefix + LEG_1_CURRENCY_FIELD));
+    double notional1 = LoaderUtils.parseDouble(row.getValue(prefix + LEG_1_NOTIONAL_FIELD));
+    LocalDate paymentDate1 = row.findValue(prefix + LEG_1_PAYMENT_DATE_FIELD)
         .map(str -> LoaderUtils.parseDate(str))
-        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD)));
-    PayReceive direction2 = LoaderUtils.parsePayReceive(row.getValue(LEG_2_DIRECTION_FIELD));
-    Currency currency2 = Currency.of(row.getValue(LEG_2_CURRENCY_FIELD));
-    double notional2 = LoaderUtils.parseDouble(row.getValue(LEG_2_NOTIONAL_FIELD));
-    LocalDate paymentDate2 = row.findValue(LEG_2_PAYMENT_DATE_FIELD)
+        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(prefix + PAYMENT_DATE_FIELD)));
+    PayReceive direction2 = LoaderUtils.parsePayReceive(row.getValue(prefix + LEG_2_DIRECTION_FIELD));
+    Currency currency2 = Currency.of(row.getValue(prefix + LEG_2_CURRENCY_FIELD));
+    double notional2 = LoaderUtils.parseDouble(row.getValue(prefix + LEG_2_NOTIONAL_FIELD));
+    LocalDate paymentDate2 = row.findValue(prefix + LEG_2_PAYMENT_DATE_FIELD)
         .map(str -> LoaderUtils.parseDate(str))
-        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD)));
+        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(prefix + PAYMENT_DATE_FIELD)));
     Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
     if (direction1.equals(direction2)) {
       throw new IllegalArgumentException(Messages.format(
-          "Detected two legs having the same direction: {}, {}.",
+          "FxSingle legs must not have the same direction: {}, {}",
           direction1.toString(),
           direction2.toString()));
     }
     Payment payment1 = Payment.of(currency1, direction1.normalize(notional1), paymentDate1);
     Payment payment2 = Payment.of(currency2, direction2.normalize(notional2), paymentDate2);
-    FxSingle fx = paymentAdj
+    return paymentAdj
         .map(adj -> FxSingle.of(payment1, payment2, adj))
         .orElseGet(() -> FxSingle.of(payment1, payment2));
-    return FxSingleTrade.of(info, fx);
   }
 
   // parses the payment date adjustment, which consists of two linked optional fields
-  private static Optional<BusinessDayAdjustment> parsePaymentDateAdjustment(CsvRow row) {
+  static Optional<BusinessDayAdjustment> parsePaymentDateAdjustment(CsvRow row) {
     Optional<BusinessDayAdjustment> paymentAdj = Optional.empty();
     Optional<String> paymentDateCnv = row.findValue(PAYMENT_DATE_CNV_FIELD); // Optional field with Business day adjustment
     if (paymentDateCnv.isPresent()) {

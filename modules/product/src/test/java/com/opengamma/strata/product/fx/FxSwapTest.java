@@ -75,6 +75,16 @@ public class FxSwapTest {
     assertThrowsIllegalArg(() -> FxSwap.of(NEAR_LEG, farLeg));
   }
 
+  public void test_of_ratesCurrencyAmountMismatch() {
+    assertThrowsIllegalArg(() -> FxSwap.of(
+        GBP_P1000, FxRate.of(EUR, USD, 1.1), date(2018, 6, 1), FxRate.of(EUR, USD, 1.15), date(2018, 7, 1)));
+  }
+
+  public void test_of_ratesRateMismatch() {
+    assertThrowsIllegalArg(() -> FxSwap.of(
+        GBP_P1000, FxRate.of(GBP, USD, 1.1), date(2018, 6, 1), FxRate.of(EUR, USD, 1.15), date(2018, 7, 1)));
+  }
+
   public void test_ofForwardPoints() {
     double nearRate = 1.6;
     double fwdPoint = 0.1;

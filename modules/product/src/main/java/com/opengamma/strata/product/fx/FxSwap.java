@@ -84,6 +84,93 @@ public final class FxSwap
   }
 
   /**
+   * Creates an {@code FxSwap} using two FX rates, near and far, specifying a date adjustment.
+   * <p>
+   * The FX rate at the near date is specified as {@code nearRate}.
+   * The FX rate at the far date is specified as {@code farRate}.
+   * The FX rates must have the same currency pair.
+   * <p>
+   * The two currencies are specified by the FX rates.
+   * The amount must be specified using one of the currencies of the near FX rate.
+   * The near date must be before the far date.
+   * Conventions will be used to determine the base and counter currency.
+   * 
+   * @param amount  the amount being exchanged, positive if being received in the near leg, negative if being paid
+   * @param nearRate  the near FX rate
+   * @param farRate  the far FX rate
+   * @param nearDate  the near value date
+   * @param farDate  the far value date
+   * @return the FX swap
+   * @throws IllegalArgumentException if the FX rate and amount do not have a currency in common,
+   *   or if the FX rate currencies differ
+   */
+  public static FxSwap of(
+      CurrencyAmount amount,
+      FxRate nearRate,
+      LocalDate nearDate,
+      FxRate farRate,
+      LocalDate farDate) {
+
+    Currency currency1 = amount.getCurrency();
+    if (!nearRate.getPair().contains(currency1)) {
+      throw new IllegalArgumentException(Messages.format(
+        "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", nearRate, amount));
+    }
+    if (!nearRate.getPair().toConventional().equals(farRate.getPair().toConventional())) {
+      throw new IllegalArgumentException(Messages.format(
+        "FxRate '{}' and FxRate '{}' must contain the same currencies", nearRate, farRate));
+    }
+    FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate);
+    FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate);
+    return of(nearLeg, farLeg);
+  }
+
+  /**
+   * Creates an {@code FxSwap} using two FX rates, near and far, specifying a date adjustment.
+   * <p>
+   * The FX rate at the near date is specified as {@code nearRate}.
+   * The FX rate at the far date is specified as {@code farRate}.
+   * The FX rates must have the same currency pair.
+   * <p>
+   * The two currencies are specified by the FX rates.
+   * The amount must be specified using one of the currencies of the near FX rate.
+   * The near date must be before the far date.
+   * Conventions will be used to determine the base and counter currency.
+   * 
+   * @param amount  the amount being exchanged, positive if being received in the near leg, negative if being paid
+   * @param nearRate  the near FX rate
+   * @param farRate  the far FX rate
+   * @param nearDate  the near value date
+   * @param farDate  the far value date
+   * @param paymentDateAdjustment  the adjustment to apply to the payment dates
+   * @return the FX swap
+   * @throws IllegalArgumentException if the FX rate and amount do not have a currency in common,
+   *   or if the FX rate currencies differ
+   */
+  public static FxSwap of(
+      CurrencyAmount amount,
+      FxRate nearRate,
+      LocalDate nearDate,
+      FxRate farRate,
+      LocalDate farDate,
+      BusinessDayAdjustment paymentDateAdjustment) {
+
+    ArgChecker.notNull(paymentDateAdjustment, "paymentDateAdjustment");
+    Currency currency1 = amount.getCurrency();
+    if (!nearRate.getPair().contains(currency1)) {
+      throw new IllegalArgumentException(Messages.format(
+        "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", nearRate, amount));
+    }
+    if (!nearRate.getPair().toConventional().equals(farRate.getPair().toConventional())) {
+      throw new IllegalArgumentException(Messages.format(
+        "FxRate '{}' and FxRate '{}' must contain the same currencies", nearRate, farRate));
+    }
+    FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate, paymentDateAdjustment);
+    FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate, paymentDateAdjustment);
+    return of(nearLeg, farLeg);
+  }
+
+  /**
    * Creates an {@code FxSwap} using decimal forward points.
    * <p>
    * The FX rate at the near date is specified as {@code nearRate}.
@@ -101,6 +188,7 @@ public final class FxSwap
    * @param nearDate  the near value date
    * @param farDate  the far value date
    * @return the FX swap
+   * @throws IllegalArgumentException if the FX rate and amount do not have a currency in common
    */
   public static FxSwap ofForwardPoints(
       CurrencyAmount amount,
@@ -109,14 +197,8 @@ public final class FxSwap
       LocalDate nearDate,
       LocalDate farDate) {
 
-    Currency currency1 = amount.getCurrency();
-    ArgChecker.isTrue(
-        nearRate.getPair().contains(currency1),
-        Messages.format("Amount and FX rate have no currency in common: {} and {}", amount, nearRate));
     FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + decimalForwardPoints);
-    FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate);
-    FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate);
-    return of(nearLeg, farLeg);
+    return of(amount, nearRate, nearDate, farRate, farDate);
   }
 
   /**
@@ -138,6 +220,7 @@ public final class FxSwap
    * @param farDate  the far value date
    * @param paymentDateAdjustment  the adjustment to apply to the payment dates
    * @return the FX swap
+   * @throws IllegalArgumentException if the FX rate and amount do not have a currency in common
    */
   public static FxSwap ofForwardPoints(
       CurrencyAmount amount,
@@ -147,15 +230,8 @@ public final class FxSwap
       LocalDate farDate,
       BusinessDayAdjustment paymentDateAdjustment) {
 
-    ArgChecker.notNull(paymentDateAdjustment, "paymentDateAdjustment");
-    Currency currency1 = amount.getCurrency();
-    ArgChecker.isTrue(
-        nearRate.getPair().contains(currency1),
-        Messages.format("Amount and FX rate have a currency in common: {} and {}", amount, nearDate));
     FxRate farRate = FxRate.of(nearRate.getPair(), nearRate.fxRate(nearRate.getPair()) + decimalForwardPoints);
-    FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate, paymentDateAdjustment);
-    FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate, paymentDateAdjustment);
-    return of(nearLeg, farLeg);
+    return of(amount, nearRate, nearDate, farRate, farDate, paymentDateAdjustment);
   }
 
   //-------------------------------------------------------------------------
