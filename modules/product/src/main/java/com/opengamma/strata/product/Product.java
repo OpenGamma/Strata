@@ -25,6 +25,10 @@ public interface Product {
    * Checks if this product is cross-currency.
    * <p>
    * A cross currency product is defined as one that refers to two or more currencies.
+   * Any product with direct or indirect FX exposure will be cross-currency.
+   * <p>
+   * For example, a fixed/Ibor swap in USD observing USD-LIBOR is not cross currency,
+   * but one that observes EURIBOR is cross currency.
    * 
    * @return true if cross currency
    */
@@ -48,7 +52,7 @@ public interface Product {
    * Returns the set of currencies the product refers to.
    * <p>
    * This returns the complete set of currencies, not just the payment currencies.
-   * The sets will differ when a currency is non-deliverable.
+   * For example, the sets will differ when one of the currencies is non-deliverable.
    * 
    * @return the set of currencies the product refers to
    */
