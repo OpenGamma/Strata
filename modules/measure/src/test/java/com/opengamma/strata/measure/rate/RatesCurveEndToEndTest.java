@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
-import static com.opengamma.strata.measure.curve.CurveTestUtils.fixedIborSwapNode;
-import static com.opengamma.strata.measure.curve.CurveTestUtils.fraNode;
-import static com.opengamma.strata.measure.curve.CurveTestUtils.id;
+import static com.opengamma.strata.measure.rate.RatesCurveTestUtils.fixedIborSwapNode;
+import static com.opengamma.strata.measure.rate.RatesCurveTestUtils.fraNode;
+import static com.opengamma.strata.measure.rate.RatesCurveTestUtils.id;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -54,7 +54,6 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
-import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.swap.SwapTradeCalculationFunction;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -64,7 +63,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * Test curves.
  */
 @Test
-public class CurveEndToEndTest {
+public class RatesCurveEndToEndTest {
 
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
   private static final double PV_TOLERANCE = 5e-10;

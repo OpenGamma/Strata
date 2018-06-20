@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
@@ -25,7 +25,7 @@ import com.opengamma.strata.market.curve.RatesCurveId;
  * The curve is not actually built in this class, it is extracted from an existing {@link RatesCurveGroup}.
  * The curve group must be available in the {@code MarketDataLookup} passed to the {@link #build} method.
  */
-public class CurveMarketDataFunction
+public class RatesCurveMarketDataFunction
     implements MarketDataFunction<Curve, RatesCurveId> {
 
   @Override

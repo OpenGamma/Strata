@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
@@ -39,7 +39,7 @@ import com.opengamma.strata.product.swap.type.ImmutableFixedIborSwapConvention;
 /**
  * Helper methods for testing curves.
  */
-final class CurveTestUtils {
+final class RatesCurveTestUtils {
 
   private static final String TEST_SCHEME = "test";
 
@@ -54,7 +54,7 @@ final class CurveTestUtils {
   private static final FixedIborSwapConvention SWAP_CONVENTION =
       ImmutableFixedIborSwapConvention.of("USD-Swap", FIXED_CONVENTION, FLOATING_CONVENTION);
 
-  private CurveTestUtils() {
+  private RatesCurveTestUtils() {
   }
 
   static InterpolatedNodalCurveDefinition fraCurveDefinition() {
@@ -98,8 +98,8 @@ final class CurveTestUtils {
     String swap2y = "swap2y";
     String swap3y = "swap3y";
 
-    FraCurveNode fra3x6Node = CurveTestUtils.fraNode(3, fra3x6);
-    FraCurveNode fra6x9Node = CurveTestUtils.fraNode(6, fra6x9);
+    FraCurveNode fra3x6Node = RatesCurveTestUtils.fraNode(3, fra3x6);
+    FraCurveNode fra6x9Node = RatesCurveTestUtils.fraNode(6, fra6x9);
     FixedIborSwapCurveNode swap1yNode = fixedIborSwapNode(Tenor.TENOR_1Y, swap1y);
     FixedIborSwapCurveNode swap2yNode = fixedIborSwapNode(Tenor.TENOR_2Y, swap2y);
     FixedIborSwapCurveNode swap3yNode = fixedIborSwapNode(Tenor.TENOR_3Y, swap3y);

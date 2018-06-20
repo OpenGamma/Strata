@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
@@ -38,7 +38,7 @@ import com.opengamma.strata.market.curve.RatesCurveInputsId;
 /**
  * Market data function that builds the input data used when calibrating a curve.
  */
-public final class CurveInputsMarketDataFunction implements MarketDataFunction<RatesCurveInputs, RatesCurveInputsId> {
+public final class RatesCurveInputsMarketDataFunction implements MarketDataFunction<RatesCurveInputs, RatesCurveInputsId> {
 
   @Override
   public MarketDataRequirements requirements(RatesCurveInputsId id, MarketDataConfig marketDataConfig) {

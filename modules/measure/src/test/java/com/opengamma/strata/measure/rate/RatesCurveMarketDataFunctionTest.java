@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -32,10 +32,10 @@ import com.opengamma.strata.market.curve.RatesCurveGroupId;
 import com.opengamma.strata.market.curve.RatesCurveId;
 
 /**
- * Test {@link CurveMarketDataFunction}.
+ * Test {@link RatesCurveMarketDataFunction}.
  */
 @Test
-public class CurveMarketDataFunctionTest {
+public class RatesCurveMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
@@ -56,7 +56,7 @@ public class CurveMarketDataFunctionTest {
         ImmutableMap.of());
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
-    CurveMarketDataFunction test = new CurveMarketDataFunction();
+    RatesCurveMarketDataFunction test = new RatesCurveMarketDataFunction();
     MarketDataRequirements reqs = test.requirements(curveId1, MarketDataConfig.empty());
     assertEquals(reqs.getNonObservables(), ImmutableSet.of(groupId));
     MarketDataBox<Curve> result = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
@@ -76,7 +76,7 @@ public class CurveMarketDataFunctionTest {
         ImmutableMap.of());
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
-    CurveMarketDataFunction test = new CurveMarketDataFunction();
+    RatesCurveMarketDataFunction test = new RatesCurveMarketDataFunction();
     MarketDataBox<Curve> result1 = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertEquals(result1, MarketDataBox.ofSingleValue(curve1));
     MarketDataBox<Curve> result2 = test.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
@@ -35,6 +35,7 @@ import com.opengamma.strata.market.curve.RatesCurveGroupId;
 import com.opengamma.strata.market.curve.RatesCurveInputs;
 import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
+import com.opengamma.strata.measure.curve.RootFinderConfig;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -44,7 +45,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  * <p>
  * This function calibrates curves, turning a {@link RatesCurveGroupDefinition} into a {@link RatesCurveGroup}.
  */
-public class CurveGroupMarketDataFunction implements MarketDataFunction<RatesCurveGroup, RatesCurveGroupId> {
+public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<RatesCurveGroup, RatesCurveGroupId> {
 
   /**
    * The default analytics object that performs the curve calibration.
@@ -59,7 +60,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<RatesCur
    * for calibration. The {@link MarketDataConfig} may contain a {@link RootFinderConfig}
    * to define the tolerances.
    */
-  public CurveGroupMarketDataFunction() {
+  public RatesCurveGroupMarketDataFunction() {
     this(CalibrationMeasures.PAR_SPREAD);
   }
 
@@ -71,7 +72,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<RatesCur
    *
    * @param calibrationMeasures  the calibration measures to be used in the calibrator
    */
-  public CurveGroupMarketDataFunction(CalibrationMeasures calibrationMeasures) {
+  public RatesCurveGroupMarketDataFunction(CalibrationMeasures calibrationMeasures) {
     this.calibrationMeasures = ArgChecker.notNull(calibrationMeasures, "calibrationMeasures");
   }
 
