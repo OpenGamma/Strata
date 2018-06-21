@@ -10,12 +10,14 @@ import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.RatesCurveGroup;
-import com.opengamma.strata.market.curve.RatesCurveGroupId;
+import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
 
 /**
  * Market data function that locates a curve by name.
@@ -30,10 +32,9 @@ public class CurveMarketDataFunction
 
   @Override
   public MarketDataRequirements requirements(CurveId id, MarketDataConfig config) {
-    RatesCurveGroupId curveGroupId = RatesCurveGroupId.of(id.getCurveGroupName(), id.getObservableSource());
-    return MarketDataRequirements.builder()
-        .addValues(curveGroupId)
-        .build();
+    CurveGroupDefinition groupDefn = config.get(CurveGroupDefinition.class, id.getCurveGroupName());
+    MarketDataId<? extends CurveGroup> groupId = groupDefn.createGroupId(id.getObservableSource());
+    return MarketDataRequirements.of(groupId);
   }
 
   @Override
@@ -44,13 +45,14 @@ public class CurveMarketDataFunction
       ReferenceData refData) {
 
     // find curve
-    RatesCurveGroupId curveGroupId = RatesCurveGroupId.of(id.getCurveGroupName(), id.getObservableSource());
-    MarketDataBox<RatesCurveGroup> curveGroupBox = marketData.getValue(curveGroupId);
+    CurveGroupDefinition groupDefn = config.get(CurveGroupDefinition.class, id.getCurveGroupName());
+    MarketDataId<? extends CurveGroup> groupId = groupDefn.createGroupId(id.getObservableSource());
+    MarketDataBox<? extends CurveGroup> curveGroupBox = marketData.getValue(groupId);
     return curveGroupBox.map(curveGroup -> findCurve(id, curveGroup));
   }
 
   // finds the curve
-  private Curve findCurve(CurveId id, RatesCurveGroup curveGroup) {
+  private Curve findCurve(CurveId id, CurveGroup curveGroup) {
     return curveGroup.findCurve(id.getCurveName())
         .orElseThrow(() -> new IllegalArgumentException(Messages.format("No curve found: {}", id.getCurveName())));
   }

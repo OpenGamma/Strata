@@ -47,6 +47,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.product.ResolvedTrade;
 
 /**
@@ -59,12 +60,12 @@ import com.opengamma.strata.product.ResolvedTrade;
  */
 @BeanDefinition(builderScope = "private")
 public final class RatesCurveGroupDefinition
-    implements ImmutableBean, Serializable {
+    implements CurveGroupDefinition, ImmutableBean, Serializable {
 
   /**
    * The name of the curve group.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveGroupName name;
   /**
    * The configuration for building the curves in the group.
@@ -201,6 +202,12 @@ public final class RatesCurveGroupDefinition
   private Object readResolve() {
     return new RatesCurveGroupDefinition(
         name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public RatesCurveGroupId createGroupId(ObservableSource source) {
+    return RatesCurveGroupId.of(name, source);
   }
 
   //-------------------------------------------------------------------------
@@ -500,6 +507,7 @@ public final class RatesCurveGroupDefinition
    * Gets the name of the curve group.
    * @return the value of the property, not null
    */
+  @Override
   public CurveGroupName getName() {
     return name;
   }

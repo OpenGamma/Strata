@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -23,7 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.TypedString;
 
@@ -73,23 +77,33 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
    * @return the configuration with the specified type and name
    * @throws IllegalArgumentException if no configuration is found with the specified type and name
    */
-  @SuppressWarnings("unchecked")
   public <T> T get(Class<T> type, String name) {
     SingleTypeMarketDataConfig typeConfigs = configs.get(type);
-
-    if (typeConfigs == null) {
-      throw new IllegalArgumentException("No configuration found of type " + type.getName());
+    // simple match
+    if (typeConfigs != null) {
+      Object config = typeConfigs.get(name);
+      if (config == null) {
+        throw new IllegalArgumentException(Messages.format(
+            "No configuration found with type {} and name {}", type.getName(), name));
+      }
+      return type.cast(config);
     }
-    Object config = typeConfigs.get(name);
-
-    if (config == null) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "No configuration found with type {} and name {}",
-              type.getName(),
-              name));
+    // try looking for subclasses of an interface
+    if (!type.isInterface()) {
+      throw new IllegalArgumentException("No configuration found for type " + type.getName());
     }
-    return (T) config;
+    ImmutableList<SingleTypeMarketDataConfig> potentialTypes = MapStream.of(configs)
+        .filterKeys(type::isAssignableFrom)
+        .map((t, config) -> config)
+        .filter(config -> config.getConfigObjects().containsKey(name))
+        .collect(toImmutableList());
+    if (potentialTypes.isEmpty()) {
+      throw new IllegalArgumentException("No configuration found for type " + type.getName() + " or subclasses");
+    }
+    if (potentialTypes.size() > 1) {
+      throw new IllegalArgumentException("Multiple configuration found for type " + type.getName());
+    }
+    return type.cast(potentialTypes.get(0).get(name));
   }
 
   /**

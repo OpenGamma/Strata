@@ -44,14 +44,14 @@ import com.opengamma.strata.basics.index.Index;
  */
 @BeanDefinition
 public final class RatesCurveGroup
-    implements ImmutableBean, Serializable {
+    implements CurveGroup, ImmutableBean, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(RatesCurveGroup.class);
 
   /**
    * The name of the curve group.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveGroupName name;
   /**
    * The discount curves in the group, keyed by currency.
@@ -144,6 +144,7 @@ public final class RatesCurveGroup
    * @param name  the curve name
    * @return the curve, empty if not found
    */
+  @Override
   public Optional<Curve> findCurve(CurveName name) {
     return Stream.concat(discountCurves.values().stream(), forwardCurves.values().stream())
         .filter(c -> c.getName().equals(name))
@@ -179,6 +180,7 @@ public final class RatesCurveGroup
    *
    * @return Returns a stream of all curves in the group
    */
+  @Override
   public Stream<Curve> stream() {
     return Stream.concat(discountCurves.values().stream(), forwardCurves.values().stream());
   }
@@ -231,6 +233,7 @@ public final class RatesCurveGroup
    * Gets the name of the curve group.
    * @return the value of the property, not null
    */
+  @Override
   public CurveGroupName getName() {
     return name;
   }

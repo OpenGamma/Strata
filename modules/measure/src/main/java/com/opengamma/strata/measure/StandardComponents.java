@@ -21,8 +21,6 @@ import com.opengamma.strata.measure.bond.FixedCouponBondTradeCalculationFunction
 import com.opengamma.strata.measure.capfloor.IborCapFloorTradeCalculationFunction;
 import com.opengamma.strata.measure.credit.CdsIndexTradeCalculationFunction;
 import com.opengamma.strata.measure.credit.CdsTradeCalculationFunction;
-import com.opengamma.strata.measure.curve.CurveGroupMarketDataFunction;
-import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveMarketDataFunction;
 import com.opengamma.strata.measure.deposit.TermDepositTradeCalculationFunction;
 import com.opengamma.strata.measure.dsf.DsfTradeCalculationFunction;
@@ -37,6 +35,8 @@ import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunctio
 import com.opengamma.strata.measure.index.IborFutureOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
+import com.opengamma.strata.measure.rate.RatesCurveGroupMarketDataFunction;
+import com.opengamma.strata.measure.rate.RatesCurveInputsMarketDataFunction;
 import com.opengamma.strata.measure.security.GenericSecurityPositionCalculationFunction;
 import com.opengamma.strata.measure.security.GenericSecurityTradeCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityPositionCalculationFunction;
@@ -179,8 +179,8 @@ public final class StandardComponents {
   public static List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
         new CurveMarketDataFunction(),
-        new CurveGroupMarketDataFunction(),
-        new CurveInputsMarketDataFunction(),
+        new RatesCurveGroupMarketDataFunction(),
+        new RatesCurveInputsMarketDataFunction(),
         new FxRateMarketDataFunction(),
         new FxOptionVolatilitiesMarketDataFunction());
   }
