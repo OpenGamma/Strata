@@ -6,12 +6,16 @@
 package com.opengamma.strata.product.bond;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
@@ -34,11 +38,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * A trade representing a bill.
  * <p>
- * A trade in an underlying {@link FixedCouponBond}.
+ * A trade in an underlying {@link Bill}.
  * 
- * <h4>Price</h4>
- * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
- * For yield, a price of 1.32% is represented in Strata by 0.0132.
+ * <h4>Price and yield</h4>
+ * Strata uses <i>decimal</i> yields and prices for bills in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932 and a yield of 1.32% is represented by 0.0132.
  */
 @BeanDefinition(constructorScope = "package")
 public final class BillTrade
@@ -49,7 +53,7 @@ public final class BillTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(validate = "validateSettlement", overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The bill that was traded.
@@ -66,55 +70,75 @@ public final class BillTrade
   @PropertyDefinition(overrideGet = true)
   private final double quantity;
   /**
-   * The <i>yield</i> or <i>rate</i> at which the bill was traded, in decimal form.
+   * The price at which the bill was traded, in decimal form.
    * <p>
-   * Strata uses <i>decimal rates</i> for bill in the trade model, pricers and market data.
-   * For example, a yield of 1.32% is represented in Strata by 0.0132.
+   * One of the traded yield and price should be provided.
    */
-  @PropertyDefinition
-  private final double yield;
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero", overrideGet = true)
+  private final double price;
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    ArgChecker.isTrue(builder.info.getSettlementDate().isPresent()
+        || builder.info.getTradeDate().isPresent(), "Bill trades need a settlement date or trade date.");
+  }
   
-  // Validate that settlement date is present in trade info
-  private static void validateSettlement(TradeInfo info, String message) {
-    ArgChecker.notNull(info, message);
-    ArgChecker.isTrue(info.getSettlementDate().isPresent(), "Bill trades need a settlement date.");
+  /**
+   * Generates a Bill trade instance where the price is computed from the traded yield.
+   * 
+   * @param info  the additional trade information
+   * @param product  the bill that was traded
+   * @param quantity  the quantity that was traded
+   * @param yield  the yield at which the bill was traded
+   * @return  the instance
+   */
+  public static BillTrade ofYield(TradeInfo info, Bill product, double quantity, double yield) {
+    ArgChecker.isTrue(info.getSettlementDate().isPresent(),
+        "Bill trades from yield need a settlement date.");
+    LocalDate settlementDate = info.getSettlementDate().get();
+    double price = product.priceFromYield(yield, settlementDate);
+    return BillTrade.builder()
+        .info(info)
+        .product(product)
+        .quantity(quantity)
+        .price(price).build();
   }
 
   @Override
   public ResolvedBillTrade resolve(ReferenceData refData) {
-    ResolvedBill resolved = product.resolve(refData);
-    ResolvedBillSettlement settle = ResolvedBillSettlement.of(info.getSettlementDate().get(), yield);
+    ResolvedBill resolvedProduct = product.resolve(refData);
+    CurrencyAmount settleAmount = product.getNotional().getValue().multipliedBy(-price * quantity);
+    LocalDate settlementDate = calculateSettlementDate(refData);
+    Payment settlement = Payment.of(settleAmount, settlementDate);
     return ResolvedBillTrade.builder()
         .info(info)
-        .product(resolved)
+        .product(resolvedProduct)
         .quantity(quantity)
-        .settlement(settle).build();
+        .settlement(settlement).build();
   }
-  
-  /**
-   * For bills,the term price as to be understood as the 'quotation mechanism' which is in 'yield'.
-   */
-  @Override
-  public double getPrice() {
-    return yield;
+
+  // calculates the settlement date from the trade date if necessary
+  private LocalDate calculateSettlementDate(ReferenceData refData) {
+    if (info.getSettlementDate().isPresent()) {
+      return info.getSettlementDate().get();
+    }
+    LocalDate tradeDate = info.getTradeDate().get();
+    return product.getSettlementDateOffset().adjust(tradeDate, refData);
   }
 
   @Override
   public BillTrade withInfo(TradeInfo info) {
-    return new BillTrade(info, product, quantity, yield);
+    return new BillTrade(info, product, quantity, price);
   }
 
   @Override
   public BillTrade withQuantity(double quantity) {
-    return new BillTrade(info, product, quantity, yield);
+    return new BillTrade(info, product, quantity, price);
   }
 
-  /**
-   * For bills,the term price as to be understood as the 'quotation mechanism' which is in 'yield'.
-   */
   @Override
-  public BillTrade withPrice(double yield) {
-    return new BillTrade(info, product, quantity, yield);
+  public BillTrade withPrice(double price) {
+    return BillTrade.builder().info(info).product(product).quantity(quantity).price(price).build();
   }
 
   //-------------------------------------------------------------------------
@@ -152,22 +176,23 @@ public final class BillTrade
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param product  the value of the property, not null
    * @param quantity  the value of the property
-   * @param yield  the value of the property
+   * @param price  the value of the property
    */
   BillTrade(
       TradeInfo info,
       Bill product,
       double quantity,
-      double yield) {
-    validateSettlement(info, "info");
+      double price) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
+    ArgChecker.notNegativeOrZero(price, "price");
     this.info = info;
     this.product = product;
     this.quantity = quantity;
-    this.yield = yield;
+    this.price = price;
   }
 
   @Override
@@ -180,7 +205,7 @@ public final class BillTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -213,14 +238,14 @@ public final class BillTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the <i>yield</i> or <i>rate</i> at which the bill was traded, in decimal form.
+   * Gets the price at which the bill was traded, in decimal form.
    * <p>
-   * Strata uses <i>decimal rates</i> for bill in the trade model, pricers and market data.
-   * For example, a yield of 1.32% is represented in Strata by 0.0132.
+   * One of the traded yield and price should be provided.
    * @return the value of the property
    */
-  public double getYield() {
-    return yield;
+  @Override
+  public double getPrice() {
+    return price;
   }
 
   //-----------------------------------------------------------------------
@@ -242,7 +267,7 @@ public final class BillTrade
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(quantity, other.quantity) &&
-          JodaBeanUtils.equal(yield, other.yield);
+          JodaBeanUtils.equal(price, other.price);
     }
     return false;
   }
@@ -253,7 +278,7 @@ public final class BillTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(yield);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     return hash;
   }
 
@@ -264,7 +289,7 @@ public final class BillTrade
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("yield").append('=').append(JodaBeanUtils.toString(yield));
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();
   }
@@ -295,10 +320,10 @@ public final class BillTrade
     private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", BillTrade.class, Double.TYPE);
     /**
-     * The meta-property for the {@code yield} property.
+     * The meta-property for the {@code price} property.
      */
-    private final MetaProperty<Double> yield = DirectMetaProperty.ofImmutable(
-        this, "yield", BillTrade.class, Double.TYPE);
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", BillTrade.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -307,7 +332,7 @@ public final class BillTrade
         "info",
         "product",
         "quantity",
-        "yield");
+        "price");
 
     /**
      * Restricted constructor.
@@ -324,8 +349,8 @@ public final class BillTrade
           return product;
         case -1285004149:  // quantity
           return quantity;
-        case 114974605:  // yield
-          return yield;
+        case 106934601:  // price
+          return price;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -371,11 +396,11 @@ public final class BillTrade
     }
 
     /**
-     * The meta-property for the {@code yield} property.
+     * The meta-property for the {@code price} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> yield() {
-      return yield;
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     //-----------------------------------------------------------------------
@@ -388,8 +413,8 @@ public final class BillTrade
           return ((BillTrade) bean).getProduct();
         case -1285004149:  // quantity
           return ((BillTrade) bean).getQuantity();
-        case 114974605:  // yield
-          return ((BillTrade) bean).getYield();
+        case 106934601:  // price
+          return ((BillTrade) bean).getPrice();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -414,7 +439,7 @@ public final class BillTrade
     private TradeInfo info;
     private Bill product;
     private double quantity;
-    private double yield;
+    private double price;
 
     /**
      * Restricted constructor.
@@ -430,7 +455,7 @@ public final class BillTrade
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.quantity = beanToCopy.getQuantity();
-      this.yield = beanToCopy.getYield();
+      this.price = beanToCopy.getPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -443,8 +468,8 @@ public final class BillTrade
           return product;
         case -1285004149:  // quantity
           return quantity;
-        case 114974605:  // yield
-          return yield;
+        case 106934601:  // price
+          return price;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -462,8 +487,8 @@ public final class BillTrade
         case -1285004149:  // quantity
           this.quantity = (Double) newValue;
           break;
-        case 114974605:  // yield
-          this.yield = (Double) newValue;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -479,11 +504,12 @@ public final class BillTrade
 
     @Override
     public BillTrade build() {
+      preBuild(this);
       return new BillTrade(
           info,
           product,
           quantity,
-          yield);
+          price);
     }
 
     //-----------------------------------------------------------------------
@@ -491,11 +517,11 @@ public final class BillTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
-      validateSettlement(info, "info");
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
@@ -526,15 +552,15 @@ public final class BillTrade
     }
 
     /**
-     * Sets the <i>yield</i> or <i>rate</i> at which the bill was traded, in decimal form.
+     * Sets the price at which the bill was traded, in decimal form.
      * <p>
-     * Strata uses <i>decimal rates</i> for bill in the trade model, pricers and market data.
-     * For example, a yield of 1.32% is represented in Strata by 0.0132.
-     * @param yield  the new value
+     * One of the traded yield and price should be provided.
+     * @param price  the new value
      * @return this, for chaining, not null
      */
-    public Builder yield(double yield) {
-      this.yield = yield;
+    public Builder price(double price) {
+      ArgChecker.notNegativeOrZero(price, "price");
+      this.price = price;
       return this;
     }
 
@@ -546,7 +572,7 @@ public final class BillTrade
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("yield").append('=').append(JodaBeanUtils.toString(yield));
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
       buf.append('}');
       return buf.toString();
     }

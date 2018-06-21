@@ -40,7 +40,7 @@ public class ResolvedBillTradeTest {
 
   //-------------------------------------------------------------------------
   static ResolvedBillTrade sut() {
-    return BillTradeTest.sut().resolve(REF_DATA);
+    return BillTradeTest.sut_yield().resolve(REF_DATA);
   }
 
   static ResolvedBillTrade sut2() {

@@ -29,12 +29,12 @@ public enum BillYieldConvention implements NamedEnum {
   /**
    * Interest at maturity.
    */
-  INTEREST_AT_MATURITY("Interest-at-maturity"),
+  INTEREST_AT_MATURITY("Interest-At-Maturity"),
   
   /**
    * Japanese T-Bills.
    */
-  JAPAN_BILL("Japan-Bills");
+  JAPAN_BILLS("Japan-Bills");
 
   // helper for name conversions
   private static final EnumNames<BillYieldConvention> NAMES =

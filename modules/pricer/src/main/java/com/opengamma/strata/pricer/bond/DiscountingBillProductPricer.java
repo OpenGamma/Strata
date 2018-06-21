@@ -5,29 +5,19 @@
  */
 package com.opengamma.strata.pricer.bond;
 
-import static com.opengamma.strata.product.bond.BillYieldConvention.DISCOUNT;
-import static com.opengamma.strata.product.bond.BillYieldConvention.FRANCE_CD;
-import static com.opengamma.strata.product.bond.BillYieldConvention.INTEREST_AT_MATURITY;
-import static com.opengamma.strata.product.bond.BillYieldConvention.JAPAN_BILL;
-
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.product.bond.BillYieldConvention;
+import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.product.bond.ResolvedBill;
 
 /**
  * Pricer for bill products.
  * <p>
  * This function provides the ability to price a {@link ResolvedBill}.
- * 
- * <h4>Price</h4>
- * Strata uses <i>decimal prices</i> for bills in the trade model, pricers and market data.
- * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 public class DiscountingBillProductPricer {
 
@@ -45,15 +35,48 @@ public class DiscountingBillProductPricer {
    * <p>
    * Coupon payments of the product are considered based on the valuation date.
    * 
-   * @param bond  the product
+   * @param bill  the product
    * @param provider  the discounting provider
    * @return the present value of the fixed coupon bond product
    */
   public CurrencyAmount presentValue(ResolvedBill bill, LegalEntityDiscountingProvider provider) {
+    if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
+      return CurrencyAmount.of(bill.getCurrency(), 0.0d);
+    }
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
         bill.getLegalEntityId(), bill.getCurrency());
-    double dfMaturity = discountFactors.discountFactor(bill.getMaturityDate());
-    return CurrencyAmount.of(bill.getCurrency(), dfMaturity * bill.getNotional());
+    double dfMaturity = discountFactors.discountFactor(bill.getNotional().getDate());
+    return bill.getNotional().getValue().multipliedBy(dfMaturity);
+  }
+
+  /**
+   * Calculates the present value of a bill product with z-spread.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or
+   * periodic compounded rates of the issuer discounting curve.
+   * 
+   * @param bill  the product
+   * @param provider  the discounting provider
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the present value of the bill product
+   */
+  public CurrencyAmount presentValueWithZSpread(
+      ResolvedBill bill, 
+      LegalEntityDiscountingProvider provider,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
+      return CurrencyAmount.of(bill.getCurrency(), 0.0d);
+    }
+    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
+        bill.getLegalEntityId(), bill.getCurrency());
+    double dfMaturity = discountFactors.getDiscountFactors()
+        .discountFactorWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
+    return bill.getNotional().getValue().multipliedBy(dfMaturity);
   }
   
   //-------------------------------------------------------------------------
@@ -68,60 +91,117 @@ public class DiscountingBillProductPricer {
    * @return the present value curve sensitivity of the product
    */
   public PointSensitivities presentValueSensitivity(ResolvedBill bill, LegalEntityDiscountingProvider provider) {
+    if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
+      return PointSensitivities.empty();
+    }
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
         bill.getLegalEntityId(), bill.getCurrency());
-    double dfEndBar = bill.getNotional();
-    PointSensitivityBuilder sensMaturity = discountFactors.zeroRatePointSensitivity(bill.getMaturityDate())
+    double dfEndBar = bill.getNotional().getAmount();
+    PointSensitivityBuilder sensMaturity = discountFactors.zeroRatePointSensitivity(bill.getNotional().getDate())
+        .multipliedBy(dfEndBar);
+    return sensMaturity.build();
+  }
+
+  /**
+   * Calculates the present value sensitivity of the bill product with z-spread.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or
+   * periodic compounded rates of the issuer discounting curve.
+   * 
+   * @param bill  the product
+   * @param provider  the discounting provider
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the present value curve sensitivity of the product
+   */
+  public PointSensitivities presentValueSensitivityWithZSpread(
+      ResolvedBill bill,
+      LegalEntityDiscountingProvider provider,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
+      return PointSensitivities.empty();
+    }
+    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
+        bill.getLegalEntityId(), bill.getCurrency());
+    double dfEndBar = bill.getNotional().getAmount();
+    PointSensitivityBuilder sensMaturity = discountFactors.getDiscountFactors()
+        .zeroRatePointSensitivityWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear)
         .multipliedBy(dfEndBar);
     return sensMaturity.build();
   }
   
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the settlement amount from the yield at a given settlement date.
+   * Calculates the price for settlement at a given settlement date using curves.
    * 
    * @param bill  the bill
-   * @param yield  the yield
+   * @param provider  the discounting provider
    * @param settlementDate  the settlement date
-   * @return the amount
+   * @return the price
    */
-  public CurrencyAmount settlementAmountFromYield(ResolvedBill bill, double yield, LocalDate settlementDate) {
-    BillYieldConvention yieldConv = bill.getYieldConvention();
-    double accrualFactor = bill.getDayCount().relativeYearFraction(settlementDate, bill.getMaturityDate());
-    if (yieldConv.equals(DISCOUNT)) {
-      double amount = bill.getNotional() * (1.0d - accrualFactor * yield);
-      return CurrencyAmount.of(bill.getCurrency(), amount);
-    }
-    if (yieldConv.equals(INTEREST_AT_MATURITY) || yieldConv.equals(FRANCE_CD) || yieldConv.equals(JAPAN_BILL)) {
-      double amount = bill.getNotional() / (1.0d + accrualFactor * yield);
-      return CurrencyAmount.of(bill.getCurrency(), amount);
-    }
-    throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
-  }
-
-  /**
-   * Calculates the yield from the amount paid at a given date.
-   * 
-   * @param bill  the bill product
-   * @param amount  the amount
-   * @param amountDate  the date at which the amount is paid
-   * @return the yield
-   */
-  public double yieldFromSettlementAmount(ResolvedBill bill, Payment amount) {
-    ArgChecker.isTrue(bill.getCurrency().equals(amount.getCurrency()), 
-        "payment should be in the currency of the bill");
-    BillYieldConvention yieldConv = bill.getYieldConvention();
-    double accrualFactor = bill.getDayCount().relativeYearFraction(amount.getDate(), bill.getMaturityDate());
-    if (yieldConv.equals(DISCOUNT)) {
-      return (bill.getNotional() - amount.getAmount()) / accrualFactor;
-    }
-    if (yieldConv.equals(INTEREST_AT_MATURITY) || yieldConv.equals(FRANCE_CD) || yieldConv.equals(JAPAN_BILL)) {
-      return (bill.getNotional() / amount.getAmount() - 1) / accrualFactor;
-    }
-    throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
+  public double priceFromCurves(ResolvedBill bill, LegalEntityDiscountingProvider provider, LocalDate settlementDate) {
+    ArgChecker.isTrue(settlementDate.isBefore(bill.getNotional().getDate()), 
+        "settlement date must be before maturity date");
+    ArgChecker.isTrue(!settlementDate.isBefore(provider.getValuationDate()), 
+        "settlement date must be on or after valuation date");
+    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
+        bill.getLegalEntityId(), bill.getCurrency());
+    double dfMaturity = discountFactors.discountFactor(bill.getNotional().getDate());
+    RepoCurveDiscountFactors discountFactorsRepo =
+        provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
+    double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
+    double price = dfMaturity / dfRepoSettle;
+    return price;
   }
   
   /**
-   * Calculates the yield for settlement at a given settlement date from valuation date using curves.
+   * Calculates the price for settlement at a given settlement date using curves with z-spread.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or
+   * periodic compounded rates of the issuer discounting curve.
+   * <p>
+   * The z-spread is applied only on the legal entity curve, not on the repo curve.
+   * 
+   * @param bill  the bill
+   * @param provider  the discounting provider
+   * @param settlementDate  the settlement date
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the price
+   */
+  public double priceFromCurvesWithZSpread(
+      ResolvedBill bill, 
+      LegalEntityDiscountingProvider provider, 
+      LocalDate settlementDate,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    ArgChecker.isTrue(settlementDate.isBefore(bill.getNotional().getDate()), 
+        "settlement date must be before maturity date");
+    ArgChecker.isTrue(!settlementDate.isBefore(provider.getValuationDate()), 
+        "settlement date must be on or after valuation date");
+    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
+        bill.getLegalEntityId(), bill.getCurrency());
+    double dfMaturity = discountFactors.getDiscountFactors()
+        .discountFactorWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
+    RepoCurveDiscountFactors discountFactorsRepo =
+        provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
+    double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
+    double price = dfMaturity / dfRepoSettle;
+    return price;
+  }
+  
+  /**
+   * Calculates the yield for settlement at a given settlement date using curves.
    * 
    * @param bill  the bill
    * @param provider  the discounting provider
@@ -129,20 +209,37 @@ public class DiscountingBillProductPricer {
    * @return the yield
    */
   public double yieldFromCurves(ResolvedBill bill, LegalEntityDiscountingProvider provider, LocalDate settlementDate) {
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
-    double dfMaturity = discountFactors.discountFactor(bill.getMaturityDate());
-    RepoCurveDiscountFactors discountFactorsRepo =
-        provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
-    double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
-    double settleAmount = bill.getNotional() * dfMaturity / dfRepoSettle;
-    return yieldFromSettlementAmount(bill, Payment.of(bill.getCurrency(), settleAmount, settlementDate));
+    double price = priceFromCurves(bill, provider, settlementDate);
+    return bill.yieldFromPrice(price, settlementDate);
   }
   
-//  public settlementAmountFromCurves
-
-  // TODO: price?
-  
-  // TODO: present value from yield
+  /**
+   * Calculates the yield for settlement at a given settlement date using curves with z-spread.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or
+   * periodic compounded rates of the issuer discounting curve.
+   * <p>
+   * The z-spread is applied only on the legal entity curve, not on the repo curve.
+   * 
+   * @param bill  the bill
+   * @param provider  the discounting provider
+   * @param settlementDate  the settlement date
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the yield
+   */
+  public double yieldFromCurvesWithZSpread(
+      ResolvedBill bill, 
+      LegalEntityDiscountingProvider provider, 
+      LocalDate settlementDate,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+    
+    double price = 
+        priceFromCurvesWithZSpread(bill, provider, settlementDate, zSpread, compoundedRateType, periodsPerYear);
+    return bill.yieldFromPrice(price, settlementDate);
+  }
 
 }

@@ -27,8 +27,8 @@ public class BillYieldConventionTest {
     return new Object[][] {
         {BillYieldConvention.DISCOUNT, "Discount"},
         {BillYieldConvention.FRANCE_CD, "France-CD"},
-        {BillYieldConvention.INTEREST_AT_MATURITY, "Interest-at-maturity"},
-        {BillYieldConvention.JAPAN_BILL, "Japan-Bills"},
+        {BillYieldConvention.INTEREST_AT_MATURITY, "Interest-At-Maturity"},
+        {BillYieldConvention.JAPAN_BILLS, "Japan-Bills"},
     };
   }
 
