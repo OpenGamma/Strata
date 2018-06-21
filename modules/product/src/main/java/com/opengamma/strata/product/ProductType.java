@@ -46,6 +46,10 @@ public final class ProductType
    */
   public static final ProductType BULLET_PAYMENT = ProductType.of("BulletPayment", "Payment");
   /**
+   * A {@link Bill}.
+   */
+  public static final ProductType BILL = ProductType.of("Bill");
+  /**
    * A {@link FixedCouponBond} or {@link CapitalIndexedBond}.
    */
   public static final ProductType BOND = ProductType.of("Bond");
