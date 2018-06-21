@@ -29,8 +29,8 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
-import com.opengamma.strata.market.curve.CreditCurveId;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -102,7 +102,7 @@ final class DefaultLookupCreditRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public LegalEntitySurvivalProbabilities survivalProbabilities(StandardId legalEntityId, Currency currency) {
-    CreditCurveId curveId = lookup.getCreditCurveIds().get(Pair.of(legalEntityId, currency));
+    CurveId curveId = lookup.getCreditCurveIds().get(Pair.of(legalEntityId, currency));
     if (curveId == null) {
       throw new MarketDataNotFoundException("Unable to find credit curve: " + legalEntityId + ", " + currency);
     }
@@ -113,7 +113,7 @@ final class DefaultLookupCreditRatesProvider
 
   @Override
   public CreditDiscountFactors discountFactors(Currency currency) {
-    CreditCurveId curveId = lookup.getDiscountCurveIds().get(currency);
+    CurveId curveId = lookup.getDiscountCurveIds().get(currency);
     if (curveId == null) {
       throw new MarketDataNotFoundException("Unable to find discount curve: " + currency);
     }
@@ -123,7 +123,7 @@ final class DefaultLookupCreditRatesProvider
 
   @Override
   public RecoveryRates recoveryRates(StandardId legalEntityId) {
-    CreditCurveId curveId = lookup.getRecoveryRateCurveIds().get(legalEntityId);
+    CurveId curveId = lookup.getRecoveryRateCurveIds().get(legalEntityId);
     if (curveId == null) {
       throw new MarketDataNotFoundException("Unable to find recovery rate curve: " + legalEntityId);
     }
@@ -211,7 +211,7 @@ final class DefaultLookupCreditRatesProvider
     // credit curves
     Map<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves = new HashMap<>();
     for (Pair<StandardId, Currency> pair : lookup.getCreditCurveIds().keySet()) {
-      CreditCurveId curveId = lookup.getCreditCurveIds().get(pair);
+      CurveId curveId = lookup.getCreditCurveIds().get(pair);
       if (marketData.containsValue(curveId)) {
         Curve curve = marketData.getValue(curveId);
         CreditDiscountFactors survivalProbabilities = CreditDiscountFactors.of(pair.getSecond(), valuationDate, curve);
@@ -221,7 +221,7 @@ final class DefaultLookupCreditRatesProvider
     // discount curves
     Map<Currency, CreditDiscountFactors> discountCurves = new HashMap<>();
     for (Currency currency : lookup.getDiscountCurveIds().keySet()) {
-      CreditCurveId curveId = lookup.getDiscountCurveIds().get(currency);
+      CurveId curveId = lookup.getDiscountCurveIds().get(currency);
       if (marketData.containsValue(curveId)) {
         Curve curve = marketData.getValue(curveId);
         discountCurves.put(currency, CreditDiscountFactors.of(currency, valuationDate, curve));
@@ -230,7 +230,7 @@ final class DefaultLookupCreditRatesProvider
     // recovery rate curves
     Map<StandardId, RecoveryRates> recoveryRateCurves = new HashMap<>();
     for (StandardId legalEntityId : lookup.getRecoveryRateCurveIds().keySet()) {
-      CreditCurveId curveId = lookup.getRecoveryRateCurveIds().get(legalEntityId);
+      CurveId curveId = lookup.getRecoveryRateCurveIds().get(legalEntityId);
       if (marketData.containsValue(curveId)) {
         Curve curve = marketData.getValue(curveId);
         RecoveryRates recoveryRate = RecoveryRates.of(legalEntityId, valuationDate, curve);

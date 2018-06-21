@@ -36,8 +36,8 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
-import com.opengamma.strata.market.curve.CreditCurveId;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
@@ -56,13 +56,13 @@ public class CreditRatesMarketDataLookupTest {
   private static final StandardId ISSUER_B = StandardId.of("OG-LegEnt", "B");
   private static final StandardId ISSUER_C = StandardId.of("OG-LegEnt", "C");
 
-  private static final CreditCurveId CC_A_USD = CreditCurveId.of("Group", "Credit-A-USD");
-  private static final CreditCurveId CC_B_GBP = CreditCurveId.of("Group", "Credit-B-GBP");
-  private static final CreditCurveId CC_A_GBP = CreditCurveId.of("Group", "Credit-A-GBP");
-  private static final CreditCurveId DC_USD = CreditCurveId.of("Group", "Dsc-USD");
-  private static final CreditCurveId DC_GBP = CreditCurveId.of("Group", "Dsc-GBP");
-  private static final CreditCurveId RC_A = CreditCurveId.of("Group", "Recovery-A");
-  private static final CreditCurveId RC_B = CreditCurveId.of("Group", "Recovery-B");
+  private static final CurveId CC_A_USD = CurveId.of("Group", "Credit-A-USD");
+  private static final CurveId CC_B_GBP = CurveId.of("Group", "Credit-B-GBP");
+  private static final CurveId CC_A_GBP = CurveId.of("Group", "Credit-A-GBP");
+  private static final CurveId DC_USD = CurveId.of("Group", "Dsc-USD");
+  private static final CurveId DC_GBP = CurveId.of("Group", "Dsc-GBP");
+  private static final CurveId RC_A = CurveId.of("Group", "Recovery-A");
+  private static final CurveId RC_B = CurveId.of("Group", "Recovery-B");
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
@@ -70,10 +70,10 @@ public class CreditRatesMarketDataLookupTest {
   private static final CreditRatesMarketDataLookup LOOKUP;
   private static final CreditRatesMarketDataLookup LOOKUP_WITH_SOURCE;
   static {
-    ImmutableMap<Pair<StandardId, Currency>, CreditCurveId> creditCurve = ImmutableMap.of(
+    ImmutableMap<Pair<StandardId, Currency>, CurveId> creditCurve = ImmutableMap.of(
         Pair.of(ISSUER_A, USD), CC_A_USD, Pair.of(ISSUER_B, GBP), CC_B_GBP, Pair.of(ISSUER_A, GBP), CC_A_GBP);
-    ImmutableMap<Currency, CreditCurveId> discoutCurve = ImmutableMap.of(USD, DC_USD, GBP, DC_GBP);
-    ImmutableMap<StandardId, CreditCurveId> recoveryCurve = ImmutableMap.of(ISSUER_A, RC_A, ISSUER_B, RC_B);
+    ImmutableMap<Currency, CurveId> discoutCurve = ImmutableMap.of(USD, DC_USD, GBP, DC_GBP);
+    ImmutableMap<StandardId, CurveId> recoveryCurve = ImmutableMap.of(ISSUER_A, RC_A, ISSUER_B, RC_B);
     LOOKUP_WITH_SOURCE = CreditRatesMarketDataLookup.of(creditCurve, discoutCurve, recoveryCurve, OBS_SOURCE);
     LOOKUP = CreditRatesMarketDataLookup.of(creditCurve, discoutCurve, recoveryCurve);
   }
@@ -149,7 +149,7 @@ public class CreditRatesMarketDataLookupTest {
     Curve dcUsd = ConstantNodalCurve.of(Curves.zeroRates(DC_USD.getCurveName(), ACT_365F), 0.5d, 0.05d);
     Curve rcA = ConstantCurve.of(Curves.recoveryRates(RC_A.getCurveName(), ACT_365F), 0.5d);
     Curve rcB = ConstantCurve.of(Curves.recoveryRates(RC_B.getCurveName(), ACT_365F), 0.4234d);
-    Map<CreditCurveId, Curve> curveMap = new HashMap<>();
+    Map<CurveId, Curve> curveMap = new HashMap<>();
     curveMap.put(CC_A_USD, ccAUsd);
     curveMap.put(CC_B_GBP, ccBGbp);
     curveMap.put(CC_A_GBP, ccAGbp);
@@ -184,10 +184,10 @@ public class CreditRatesMarketDataLookupTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean((ImmutableBean) LOOKUP_WITH_SOURCE);
-    ImmutableMap<Pair<StandardId, Currency>, CreditCurveId> ccMap = ImmutableMap.of(
+    ImmutableMap<Pair<StandardId, Currency>, CurveId> ccMap = ImmutableMap.of(
         Pair.of(ISSUER_A, USD), CC_A_USD);
-    ImmutableMap<Currency, CreditCurveId> dcMap = ImmutableMap.of(USD, DC_USD);
-    ImmutableMap<StandardId, CreditCurveId> rcMap = ImmutableMap.of(ISSUER_A, RC_A);
+    ImmutableMap<Currency, CurveId> dcMap = ImmutableMap.of(USD, DC_USD);
+    ImmutableMap<StandardId, CurveId> rcMap = ImmutableMap.of(ISSUER_A, RC_A);
     CreditRatesMarketDataLookup test2 = CreditRatesMarketDataLookup.of(ccMap, dcMap, rcMap);
     coverBeanEquals((ImmutableBean) LOOKUP_WITH_SOURCE, (ImmutableBean) test2);
 

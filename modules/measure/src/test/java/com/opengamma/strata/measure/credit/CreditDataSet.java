@@ -36,7 +36,7 @@ import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
-import com.opengamma.strata.market.curve.CreditCurveId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -113,17 +113,17 @@ public class CreditDataSet {
       .build();
   static final ResolvedCdsIndexTrade RESOLVED_INDEX_TRADE = INDEX_TRADE.resolve(REF_DATA);
   // CDS lookup
-  static final CreditCurveId CDS_CREDIT_CURVE_ID = CreditCurveId.of("Default", "Credit-ABC");
-  static final CreditCurveId USD_DSC_CURVE_ID = CreditCurveId.of("Default", "Dsc-USD");
-  static final CreditCurveId CDS_RECOVERY_CURVE_ID = CreditCurveId.of("Default", "Recovery-ABC");
+  static final CurveId CDS_CREDIT_CURVE_ID = CurveId.of("Default", "Credit-ABC");
+  static final CurveId USD_DSC_CURVE_ID = CurveId.of("Default", "Dsc-USD");
+  static final CurveId CDS_RECOVERY_CURVE_ID = CurveId.of("Default", "Recovery-ABC");
   static final CreditRatesMarketDataLookup CDS_LOOKUP = CreditRatesMarketDataLookup.of(
       ImmutableMap.of(Pair.of(LEGAL_ENTITY, USD), CDS_CREDIT_CURVE_ID),
       ImmutableMap.of(USD, USD_DSC_CURVE_ID),
       ImmutableMap.of(LEGAL_ENTITY, CDS_RECOVERY_CURVE_ID));
   static final CalculationParameters CDS_PARAMS = CalculationParameters.of(CDS_LOOKUP);
   // CDS index lookup
-  static final CreditCurveId INDEX_CREDIT_CURVE_ID = CreditCurveId.of("Default", "Credit-ABCXX");
-  static final CreditCurveId INDEX_RECOVERY_CURVE_ID = CreditCurveId.of("Default", "Recovery-ABCXX");
+  static final CurveId INDEX_CREDIT_CURVE_ID = CurveId.of("Default", "Credit-ABCXX");
+  static final CurveId INDEX_RECOVERY_CURVE_ID = CurveId.of("Default", "Recovery-ABCXX");
   static final CreditRatesMarketDataLookup INDEX_LOOKUP = CreditRatesMarketDataLookup.of(
       ImmutableMap.of(Pair.of(INDEX_ID, USD), INDEX_CREDIT_CURVE_ID),
       ImmutableMap.of(USD, USD_DSC_CURVE_ID),

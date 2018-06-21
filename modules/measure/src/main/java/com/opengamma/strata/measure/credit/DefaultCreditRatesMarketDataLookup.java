@@ -29,7 +29,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.curve.CreditCurveId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 
 /**
@@ -50,19 +50,19 @@ final class DefaultCreditRatesMarketDataLookup
    * The curve data, predicting the future, associated with each standard ID and currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Pair<StandardId, Currency>, CreditCurveId> creditCurveIds;
+  private final ImmutableMap<Pair<StandardId, Currency>, CurveId> creditCurveIds;
   /**
    * The discount curves, keyed by currency.
    * The curve data, predicting the future, associated with each currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Currency, CreditCurveId> discountCurveIds;
+  private final ImmutableMap<Currency, CurveId> discountCurveIds;
   /**
    * The recovery rate curves, keyed by standard ID.
    * The curve data, predicting the future, associated with each standard ID.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<StandardId, CreditCurveId> recoveryRateCurveIds;
+  private final ImmutableMap<StandardId, CurveId> recoveryRateCurveIds;
   /**
    * The source of market data for quotes and other observable market data.
    */
@@ -71,9 +71,9 @@ final class DefaultCreditRatesMarketDataLookup
 
   //-------------------------------------------------------------------------
   static DefaultCreditRatesMarketDataLookup of(
-      Map<Pair<StandardId, Currency>, CreditCurveId> creditCurveIds,
-      Map<Currency, CreditCurveId> discountCurveIds,
-      Map<StandardId, CreditCurveId> recoveryRateCurveIds,
+      Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
+      Map<Currency, CurveId> discountCurveIds,
+      Map<StandardId, CurveId> recoveryRateCurveIds,
       ObservableSource observableSource) {
 
     return new DefaultCreditRatesMarketDataLookup(
@@ -84,17 +84,17 @@ final class DefaultCreditRatesMarketDataLookup
   @Override
   public FunctionRequirements requirements(StandardId legalEntityId, Currency currency) {
 
-    CreditCurveId creditCurveId = creditCurveIds.get(Pair.of(legalEntityId, currency));
+    CurveId creditCurveId = creditCurveIds.get(Pair.of(legalEntityId, currency));
     if (creditCurveId == null) {
       throw new IllegalArgumentException(Messages.format(
           "Credit rates lookup has no credit curve defined for '{}' and '{}'", legalEntityId, currency));
     }
-    CreditCurveId discountCurveId = discountCurveIds.get(currency);
+    CurveId discountCurveId = discountCurveIds.get(currency);
     if (discountCurveId == null) {
       throw new IllegalArgumentException(Messages.format(
           "Credit rates lookup has no discount curve defined for '{}'", currency));
     }
-    CreditCurveId recoveryRateCurveId = recoveryRateCurveIds.get(legalEntityId);
+    CurveId recoveryRateCurveId = recoveryRateCurveIds.get(legalEntityId);
     if (recoveryRateCurveId == null) {
       throw new IllegalArgumentException(Messages.format(
           "Credit rates lookup has no recovery rate curve defined for '{}'", legalEntityId));
@@ -149,9 +149,9 @@ final class DefaultCreditRatesMarketDataLookup
   private static final long serialVersionUID = 1L;
 
   private DefaultCreditRatesMarketDataLookup(
-      Map<Pair<StandardId, Currency>, CreditCurveId> creditCurveIds,
-      Map<Currency, CreditCurveId> discountCurveIds,
-      Map<StandardId, CreditCurveId> recoveryRateCurveIds,
+      Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
+      Map<Currency, CurveId> discountCurveIds,
+      Map<StandardId, CurveId> recoveryRateCurveIds,
       ObservableSource observableSource) {
     JodaBeanUtils.notNull(creditCurveIds, "creditCurveIds");
     JodaBeanUtils.notNull(discountCurveIds, "discountCurveIds");
@@ -174,7 +174,7 @@ final class DefaultCreditRatesMarketDataLookup
    * The curve data, predicting the future, associated with each standard ID and currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Pair<StandardId, Currency>, CreditCurveId> getCreditCurveIds() {
+  public ImmutableMap<Pair<StandardId, Currency>, CurveId> getCreditCurveIds() {
     return creditCurveIds;
   }
 
@@ -184,7 +184,7 @@ final class DefaultCreditRatesMarketDataLookup
    * The curve data, predicting the future, associated with each currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Currency, CreditCurveId> getDiscountCurveIds() {
+  public ImmutableMap<Currency, CurveId> getDiscountCurveIds() {
     return discountCurveIds;
   }
 
@@ -194,7 +194,7 @@ final class DefaultCreditRatesMarketDataLookup
    * The curve data, predicting the future, associated with each standard ID.
    * @return the value of the property, not null
    */
-  public ImmutableMap<StandardId, CreditCurveId> getRecoveryRateCurveIds() {
+  public ImmutableMap<StandardId, CurveId> getRecoveryRateCurveIds() {
     return recoveryRateCurveIds;
   }
 

@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.curve.CreditCurveId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.pricer.credit.CreditRatesProvider;
 
 /**
@@ -42,9 +42,9 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    * @return the rates lookup containing the specified curves
    */
   public static CreditRatesMarketDataLookup of(
-      Map<Pair<StandardId, Currency>, CreditCurveId> creditCurveIds,
-      Map<Currency, CreditCurveId> discountCurveIds,
-      Map<StandardId, CreditCurveId> recoveryRateCurveIds) {
+      Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
+      Map<Currency, CurveId> discountCurveIds,
+      Map<StandardId, CurveId> recoveryRateCurveIds) {
 
     return DefaultCreditRatesMarketDataLookup.of(creditCurveIds, discountCurveIds, recoveryRateCurveIds, ObservableSource.NONE);
   }
@@ -59,9 +59,9 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
    * @return the rates lookup containing the specified curves
    */
   public static CreditRatesMarketDataLookup of(
-      Map<Pair<StandardId, Currency>, CreditCurveId> creditCurveIds,
-      Map<Currency, CreditCurveId> discountCurveIds,
-      Map<StandardId, CreditCurveId> recoveryRateCurveIds,
+      Map<Pair<StandardId, Currency>, CurveId> creditCurveIds,
+      Map<Currency, CurveId> discountCurveIds,
+      Map<StandardId, CurveId> recoveryRateCurveIds,
       ObservableSource observableSource) {
 
     return DefaultCreditRatesMarketDataLookup.of(creditCurveIds, discountCurveIds, recoveryRateCurveIds, observableSource);

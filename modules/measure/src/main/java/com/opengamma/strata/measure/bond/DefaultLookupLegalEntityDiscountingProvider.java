@@ -31,9 +31,8 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.IssuerCurveId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
-import com.opengamma.strata.market.curve.RepoCurveId;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -124,7 +123,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
 
   // lookup the discount factors for the repo group
   private RepoCurveDiscountFactors repoCurveDiscountFactors(RepoGroup repoGroup, Currency currency) {
-    RepoCurveId curveId = lookup.getRepoCurves().get(Pair.of(repoGroup, currency));
+    CurveId curveId = lookup.getRepoCurves().get(Pair.of(repoGroup, currency));
     if (curveId == null) {
       throw new MarketDataNotFoundException("Unable to find repo curve: " + repoGroup + ", " + currency);
     }
@@ -145,7 +144,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
 
   // lookup the discount factors for the legal entity group
   private IssuerCurveDiscountFactors issuerCurveDiscountFactors(LegalEntityGroup legalEntityGroup, Currency currency) {
-    IssuerCurveId curveId = lookup.getIssuerCurves().get(Pair.of(legalEntityGroup, currency));
+    CurveId curveId = lookup.getIssuerCurves().get(Pair.of(legalEntityGroup, currency));
     if (curveId == null) {
       throw new MarketDataNotFoundException("Unable to find issuer curve: " + legalEntityGroup + ", " + currency);
     }
@@ -191,7 +190,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
     // repo curves
     Map<Pair<RepoGroup, Currency>, DiscountFactors> repoCurves = new HashMap<>();
     for (Pair<RepoGroup, Currency> pair : lookup.getRepoCurves().keySet()) {
-      RepoCurveId curveId = lookup.getRepoCurves().get(pair);
+      CurveId curveId = lookup.getRepoCurves().get(pair);
       if (marketData.containsValue(curveId)) {
         Curve curve = marketData.getValue(curveId);
         repoCurves.put(pair, DiscountFactors.of(pair.getSecond(), getValuationDate(), curve));
@@ -200,7 +199,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
     // issuer curves
     Map<Pair<LegalEntityGroup, Currency>, DiscountFactors> issuerCurves = new HashMap<>();
     for (Pair<LegalEntityGroup, Currency> pair : lookup.getIssuerCurves().keySet()) {
-      IssuerCurveId curveId = lookup.getIssuerCurves().get(pair);
+      CurveId curveId = lookup.getIssuerCurves().get(pair);
       if (marketData.containsValue(curveId)) {
         Curve curve = marketData.getValue(curveId);
         issuerCurves.put(pair, DiscountFactors.of(pair.getSecond(), getValuationDate(), curve));
