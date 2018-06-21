@@ -125,10 +125,11 @@ public final class IborFutureOptionTrade
 
   @Override
   public ResolvedIborFutureOptionTrade resolve(ReferenceData refData) {
+    if (!info.getTradeDate().isPresent()) {
+      throw new IllegalArgumentException("Trade date on TradeInfo must be present");
+    }
     ResolvedIborFutureOption resolved = getProduct().resolve(refData);
-    TradedPrice tradedPrice = info.getTradeDate()
-        .map(tradeDate -> TradedPrice.of(tradeDate, price))
-        .orElse(null);
+    TradedPrice tradedPrice = TradedPrice.of(info.getTradeDate().get(), price);
     return new ResolvedIborFutureOptionTrade(info, resolved, quantity, tradedPrice);
   }
 
