@@ -29,7 +29,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -158,7 +158,7 @@ public class RatesCurvesCsvLoaderTest {
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "Missing settings for curve: .*")
   public void test_noSettings() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_EMPTY),
@@ -166,7 +166,7 @@ public class RatesCurvesCsvLoaderTest {
 
     assertEquals(curveGroups.size(), 1);
 
-    CurveGroup curveGroup = Iterables.getOnlyElement(curveGroups);
+    RatesCurveGroup curveGroup = Iterables.getOnlyElement(curveGroups);
     assertUsdDisc(curveGroup.findDiscountCurve(Currency.USD).get());
   }
 
@@ -181,7 +181,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   public void test_multiple_curves_single_file() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
@@ -191,7 +191,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   public void test_multiple_curves_multiple_files() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
@@ -211,7 +211,7 @@ public class RatesCurvesCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_load_all_curves() {
-    ListMultimap<LocalDate, CurveGroup> allGroups = RatesCurvesCsvLoader.loadAllDates(
+    ListMultimap<LocalDate, RatesCurveGroup> allGroups = RatesCurvesCsvLoader.loadAllDates(
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
@@ -219,9 +219,9 @@ public class RatesCurvesCsvLoaderTest {
     assertEquals(allGroups.size(), 2);
     assertCurves(allGroups.get(CURVE_DATE));
 
-    List<CurveGroup> curves3 = allGroups.get(CURVE_DATE_CURVES_3);
+    List<RatesCurveGroup> curves3 = allGroups.get(CURVE_DATE_CURVES_3);
     assertEquals(curves3.size(), 1);
-    CurveGroup group = curves3.get(0);
+    RatesCurveGroup group = curves3.get(0);
 
     // All curve points are set to 0 in test data to ensure these are really different curve instances
     Curve usdDisc = group.findDiscountCurve(Currency.USD).get();
@@ -236,7 +236,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   public void test_load_curves_date_filtering() {
-    List<CurveGroup> curves = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curves = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
@@ -246,11 +246,11 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
-  private void assertCurves(List<CurveGroup> curveGroups) {
+  private void assertCurves(List<RatesCurveGroup> curveGroups) {
     assertNotNull(curveGroups);
     assertEquals(curveGroups.size(), 1);
 
-    CurveGroup curveGroup = curveGroups.get(0);
+    RatesCurveGroup curveGroup = curveGroups.get(0);
     assertEquals(curveGroup.getName(), CurveGroupName.of("Default"));
     assertUsdDisc(curveGroup.findDiscountCurve(Currency.USD).get());
 
@@ -338,7 +338,7 @@ public class RatesCurvesCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_writer_curve_settings() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
@@ -354,7 +354,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   public void test_writer_curve_nodes() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),

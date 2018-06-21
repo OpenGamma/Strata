@@ -31,7 +31,7 @@ import com.opengamma.strata.loader.csv.FxRatesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.observable.IndexQuoteId;
@@ -58,7 +58,7 @@ public class SyntheticCurveCalibratorTest {
   private static final String GROUPS_IN_EUR_FILE = "EUR-DSCONOIS-E3BS-E6IRS-group.csv";
   private static final String SETTINGS_IN_EUR_FILE = "EUR-DSCONOIS-E3BS-E6IRS-settings.csv";
   private static final String NODES_IN_EUR_FILE = "EUR-DSCONOIS-E3BS-E6IRS-nodes.csv";
-  private static final CurveGroupDefinition GROUPS_IN_EUR =
+  private static final RatesCurveGroupDefinition GROUPS_IN_EUR =
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_EUR_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_EUR_FILE),
@@ -66,7 +66,7 @@ public class SyntheticCurveCalibratorTest {
   private static final String GROUPS_IN_USDEUR_FILE = "USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS-group.csv";
   private static final String SETTINGS_IN_USDEUR_FILE = "USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS-settings.csv";
   private static final String NODES_IN_USDEUR_FILE = "USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS-nodes.csv";
-  private static final CurveGroupDefinition GROUPS_IN_USDEUR =
+  private static final RatesCurveGroupDefinition GROUPS_IN_USDEUR =
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_USDEUR_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_USDEUR_FILE),
@@ -75,7 +75,7 @@ public class SyntheticCurveCalibratorTest {
   private static final String GROUPS_SY_EUR_FILE = "FRTB-EUR-group.csv";
   private static final String SETTINGS_SY_EUR_FILE = "FRTB-EUR-settings.csv";
   private static final String NODES_SY_EUR_FILE = "FRTB-EUR-nodes.csv";
-  private static final CurveGroupDefinition GROUPS_SYN_EUR =
+  private static final RatesCurveGroupDefinition GROUPS_SYN_EUR =
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_SY_EUR_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_SY_EUR_FILE),
@@ -83,7 +83,7 @@ public class SyntheticCurveCalibratorTest {
   private static final String GROUPS_SY_USDEUR_FILE = "FRTB-USD-EUR-group.csv";
   private static final String SETTINGS_SY_USDEUR_FILE = "FRTB-USD-EUR-settings.csv";
   private static final String NODES_SY_USDEUR_FILE = "FRTB-USD-EUR-nodes.csv";
-  private static final CurveGroupDefinition GROUPS_SYN_USDEUR =
+  private static final RatesCurveGroupDefinition GROUPS_SYN_USDEUR =
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_SY_USDEUR_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_SY_USDEUR_FILE),
@@ -138,7 +138,7 @@ public class SyntheticCurveCalibratorTest {
   //-------------------------------------------------------------------------
   // Check market data computation
   public void market_data() {
-    CurveGroupDefinition group = GROUPS_SYN_EUR;
+    RatesCurveGroupDefinition group = GROUPS_SYN_EUR;
     RatesProvider multicurveTsLarge = MULTICURVE_INPUT_EUR_TSEMPTY.toBuilder().timeSeries(TS_LARGE).build();
     MarketData madTsEmpty = CALIBRATOR_SYNTHETIC.marketData(group, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
     MarketData madTsLarge = CALIBRATOR_SYNTHETIC.marketData(group, multicurveTsLarge, REF_DATA);

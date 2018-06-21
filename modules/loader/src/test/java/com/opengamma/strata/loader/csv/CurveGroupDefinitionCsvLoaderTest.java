@@ -18,9 +18,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
@@ -37,14 +37,14 @@ public class CurveGroupDefinitionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_loadCurveGroupDefinition() {
-    List<CurveGroupDefinition> defns = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
+    List<RatesCurveGroupDefinition> defns = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     assertEquals(defns.size(), 1);
-    CurveGroupDefinition defn = defns.get(0);
-    assertEquals(defn.getEntries().get(0), CurveGroupEntry.builder()
+    RatesCurveGroupDefinition defn = defns.get(0);
+    assertEquals(defn.getEntries().get(0), RatesCurveGroupEntry.builder()
         .curveName(CurveName.of("USD-Disc"))
         .discountCurrencies(USD)
         .build());
-    assertEquals(defn.getEntries().get(1), CurveGroupEntry.builder()
+    assertEquals(defn.getEntries().get(1), RatesCurveGroupEntry.builder()
         .curveName(CurveName.of("USD-3ML"))
         .indices(USD_LIBOR_3M)
         .build());
@@ -52,7 +52,7 @@ public class CurveGroupDefinitionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_writeCurveGroupDefinition() {
-    CurveGroupDefinition defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1)).get(0);
+    RatesCurveGroupDefinition defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1)).get(0);
     Appendable underlying = new StringBuilder();
     CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(underlying, defn);
     String created = underlying.toString();
@@ -65,7 +65,7 @@ public class CurveGroupDefinitionCsvLoaderTest {
   }
 
   public void test_writeCurveGroup() {
-    List<CurveGroup> curveGroups = RatesCurvesCsvLoader.load(
+    List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
@@ -81,7 +81,7 @@ public class CurveGroupDefinitionCsvLoaderTest {
   }
 
   public void test_test_writeCurveGroupDefinition_roundtrip() throws Exception {
-    List<CurveGroupDefinition> defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
+    List<RatesCurveGroupDefinition> defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     File tempFile = File.createTempFile("TestCurveGroupLoading", "csv");
     tempFile.deleteOnExit();
     CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(tempFile, defn.get(0));

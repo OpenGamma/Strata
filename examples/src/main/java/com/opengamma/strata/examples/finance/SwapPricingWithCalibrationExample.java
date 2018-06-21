@@ -31,7 +31,7 @@ import com.opengamma.strata.examples.marketdata.ExampleData;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.AdvancedMeasures;
@@ -134,9 +134,9 @@ public class SwapPricingWithCalibrationExample {
     ReferenceData refData = ReferenceData.standard();
 
     // load the curve definition
-    Map<CurveGroupName, CurveGroupDefinition> defns =
+    Map<CurveGroupName, RatesCurveGroupDefinition> defns =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
-    CurveGroupDefinition curveGroupDefinition = defns.get(CURVE_GROUP_NAME).filtered(VAL_DATE, refData);
+    RatesCurveGroupDefinition curveGroupDefinition = defns.get(CURVE_GROUP_NAME).filtered(VAL_DATE, refData);
 
     // the configuration that defines how to create the curves when a curve group is requested
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()

@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -94,7 +94,7 @@ public class CalibrationPVPerformanceExample {
     int nbRunPerf = 2;
 
     /* Load the curve configurations from csv files */
-    Map<CurveGroupName, CurveGroupDefinition> configs =
+    Map<CurveGroupName, RatesCurveGroupDefinition> configs =
         RatesCalibrationCsvLoader.load(GROUP_RESOURCE, SETTINGS_RESOURCE, NODES_RESOURCE);
 
     /* Construct a swaps */
@@ -129,7 +129,7 @@ public class CalibrationPVPerformanceExample {
   }
 
   private static Pair<MultiCurrencyAmount[], CurrencyParameterSensitivities[]> computation(
-      Map<CurveGroupName, CurveGroupDefinition> configs,
+      Map<CurveGroupName, RatesCurveGroupDefinition> configs,
       ResolvedSwapTrade[] swaps) {
 
     int nbSwaps = swaps.length;

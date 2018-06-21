@@ -28,21 +28,21 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveInputs;
-import com.opengamma.strata.market.curve.CurveInputsId;
+import com.opengamma.strata.market.curve.RatesCurveInputs;
+import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Market data function that builds the input data used when calibrating a curve.
  */
-public final class CurveInputsMarketDataFunction implements MarketDataFunction<CurveInputs, CurveInputsId> {
+public final class CurveInputsMarketDataFunction implements MarketDataFunction<RatesCurveInputs, RatesCurveInputsId> {
 
   @Override
-  public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
-    CurveGroupDefinition groupConfig = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
+  public MarketDataRequirements requirements(RatesCurveInputsId id, MarketDataConfig marketDataConfig) {
+    RatesCurveGroupDefinition groupConfig = marketDataConfig.get(RatesCurveGroupDefinition.class, id.getCurveGroupName());
     Optional<CurveDefinition> optionalDefinition = groupConfig.findCurveDefinition(id.getCurveName());
     if (!optionalDefinition.isPresent()) {
       return MarketDataRequirements.empty();
@@ -52,15 +52,15 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   }
 
   @Override
-  public MarketDataBox<CurveInputs> build(
-      CurveInputsId id,
+  public MarketDataBox<RatesCurveInputs> build(
+      RatesCurveInputsId id,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CurveGroupName groupName = id.getCurveGroupName();
     CurveName curveName = id.getCurveName();
-    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
+    RatesCurveGroupDefinition groupDefn = marketDataConfig.get(RatesCurveGroupDefinition.class, groupName);
     Optional<CurveDefinition> optionalDefinition = groupDefn.findCurveDefinition(id.getCurveName());
 
     if (!optionalDefinition.isPresent()) {
@@ -97,7 +97,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   }
 
   // one valuation date, one set of market data
-  private MarketDataBox<CurveInputs> buildSingleCurveInputs(
+  private MarketDataBox<RatesCurveInputs> buildSingleCurveInputs(
       CurveDefinition filteredDefn,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData,
       LocalDate valuationDate,
@@ -109,12 +109,12 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
         .mapValues(box -> box.getSingleValue())
         .toMap();
 
-    CurveInputs curveInputs = CurveInputs.of(singleMarketDataValues, curveMetadata);
+    RatesCurveInputs curveInputs = RatesCurveInputs.of(singleMarketDataValues, curveMetadata);
     return MarketDataBox.ofSingleValue(curveInputs);
   }
 
   // one valuation date, scenario market data
-  private MarketDataBox<CurveInputs> buildMultipleCurveInputs(
+  private MarketDataBox<RatesCurveInputs> buildMultipleCurveInputs(
       MarketDataBox<CurveDefinition> filteredDefns,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData,
       MarketDataBox<LocalDate> valuationDates,
@@ -136,8 +136,8 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
         .mapToObj(i -> buildScenarioValues(marketData, i))
         .collect(toImmutableList());
 
-    List<CurveInputs> curveInputs = zip(scenarioValues.stream(), curveMetadata.stream())
-        .map(pair -> CurveInputs.of(pair.getFirst(), pair.getSecond()))
+    List<RatesCurveInputs> curveInputs = zip(scenarioValues.stream(), curveMetadata.stream())
+        .map(pair -> RatesCurveInputs.of(pair.getFirst(), pair.getSecond()))
         .collect(toImmutableList());
 
     return MarketDataBox.ofScenarioValues(curveInputs);
@@ -196,8 +196,8 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   }
 
   @Override
-  public Class<CurveInputsId> getMarketDataIdType() {
-    return CurveInputsId.class;
+  public Class<RatesCurveInputsId> getMarketDataIdType() {
+    return RatesCurveInputsId.class;
   }
 
   /**

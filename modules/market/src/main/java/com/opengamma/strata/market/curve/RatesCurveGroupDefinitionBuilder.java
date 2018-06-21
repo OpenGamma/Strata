@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * A mutable builder for creating instances of {@code CurveGroupDefinition}.
  */
 @SuppressWarnings("unchecked")
-public final class CurveGroupDefinitionBuilder {
+public final class RatesCurveGroupDefinitionBuilder {
 
   /**
    * The name of the curve group.
@@ -29,7 +29,7 @@ public final class CurveGroupDefinitionBuilder {
   /**
    * The entries in the curve group.
    */
-  private final Map<CurveName, CurveGroupEntry> entries;
+  private final Map<CurveName, RatesCurveGroupEntry> entries;
   /**
    * The definitions specifying how the curves are calibrated.
    */
@@ -49,15 +49,15 @@ public final class CurveGroupDefinitionBuilder {
    */
   private boolean computePvSensitivityToMarketQuote;
 
-  CurveGroupDefinitionBuilder() {
+  RatesCurveGroupDefinitionBuilder() {
     this.entries = new LinkedHashMap<>();
     this.curveDefinitions = new LinkedHashMap<>();
     this.seasonalityDefinitions = new LinkedHashMap<>();
   }
 
-  CurveGroupDefinitionBuilder(
+  RatesCurveGroupDefinitionBuilder(
       CurveGroupName name,
-      Map<CurveName, CurveGroupEntry> entries,
+      Map<CurveName, RatesCurveGroupEntry> entries,
       Map<CurveName, CurveDefinition> curveDefinitions,
       Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
@@ -77,7 +77,7 @@ public final class CurveGroupDefinitionBuilder {
    * @param name  the name of the curve group, not empty
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder name(CurveGroupName name) {
+  public RatesCurveGroupDefinitionBuilder name(CurveGroupName name) {
     this.name = ArgChecker.notNull(name, "name");
     return this;
   }
@@ -89,7 +89,7 @@ public final class CurveGroupDefinitionBuilder {
    *   computed and stored in metadata or not
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder computeJacobian(boolean computeJacobian) {
+  public RatesCurveGroupDefinitionBuilder computeJacobian(boolean computeJacobian) {
     this.computeJacobian = computeJacobian;
     return this;
   }
@@ -103,7 +103,7 @@ public final class CurveGroupDefinitionBuilder {
    *   to market quotes should be computed and stored in metadata or not
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder computePvSensitivityToMarketQuote(boolean computePvSensitivityToMarketQuote) {
+  public RatesCurveGroupDefinitionBuilder computePvSensitivityToMarketQuote(boolean computePvSensitivityToMarketQuote) {
     this.computePvSensitivityToMarketQuote = computePvSensitivityToMarketQuote;
     return this;
   }
@@ -117,14 +117,14 @@ public final class CurveGroupDefinitionBuilder {
    * @param currency  the currency for which the curve provides discount rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addDiscountCurve(
+  public RatesCurveGroupDefinitionBuilder addDiscountCurve(
       CurveDefinition curveDefinition,
       Currency currency,
       Currency... otherCurrencies) {
 
     ArgChecker.notNull(curveDefinition, "curveDefinition");
     ArgChecker.notNull(currency, "currency");
-    CurveGroupEntry entry = CurveGroupEntry.builder()
+    RatesCurveGroupEntry entry = RatesCurveGroupEntry.builder()
         .curveName(curveDefinition.getName())
         .discountCurrencies(ImmutableSet.copyOf(Lists.asList(currency, otherCurrencies)))
         .build();
@@ -142,14 +142,14 @@ public final class CurveGroupDefinitionBuilder {
    * @param currency  the currency for which the curve provides discount rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addDiscountCurve(
+  public RatesCurveGroupDefinitionBuilder addDiscountCurve(
       CurveName curveName,
       Currency currency,
       Currency... otherCurrencies) {
 
     ArgChecker.notNull(curveName, "curveName");
     ArgChecker.notNull(currency, "currency");
-    CurveGroupEntry entry = CurveGroupEntry.builder()
+    RatesCurveGroupEntry entry = RatesCurveGroupEntry.builder()
         .curveName(curveName)
         .discountCurrencies(ImmutableSet.copyOf(Lists.asList(currency, otherCurrencies)))
         .build();
@@ -165,14 +165,14 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addForwardCurve(
+  public RatesCurveGroupDefinitionBuilder addForwardCurve(
       CurveDefinition curveDefinition,
       Index index,
       Index... otherIndices) {
 
     ArgChecker.notNull(curveDefinition, "curveDefinition");
     ArgChecker.notNull(index, "index");
-    CurveGroupEntry entry = CurveGroupEntry.builder()
+    RatesCurveGroupEntry entry = RatesCurveGroupEntry.builder()
         .curveName(curveDefinition.getName())
         .indices(indices(index, otherIndices))
         .build();
@@ -190,7 +190,7 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addForwardCurve(
+  public RatesCurveGroupDefinitionBuilder addForwardCurve(
       CurveName curveName,
       Index index,
       Index... otherIndices) {
@@ -198,7 +198,7 @@ public final class CurveGroupDefinitionBuilder {
     ArgChecker.notNull(curveName, "curveName");
     ArgChecker.notNull(index, "index");
 
-    CurveGroupEntry entry = CurveGroupEntry.builder()
+    RatesCurveGroupEntry entry = RatesCurveGroupEntry.builder()
         .curveName(curveName)
         .indices(indices(index, otherIndices))
         .build();
@@ -216,7 +216,7 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addCurve(
+  public RatesCurveGroupDefinitionBuilder addCurve(
       CurveDefinition curveDefinition,
       Currency currency,
       RateIndex index,
@@ -226,7 +226,7 @@ public final class CurveGroupDefinitionBuilder {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(index, "index");
 
-    CurveGroupEntry entry = CurveGroupEntry.builder()
+    RatesCurveGroupEntry entry = RatesCurveGroupEntry.builder()
         .curveName(curveDefinition.getName())
         .discountCurrencies(ImmutableSet.of(currency))
         .indices(indices(index, otherIndices))
@@ -246,13 +246,13 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addCurve(
+  public RatesCurveGroupDefinitionBuilder addCurve(
       CurveName curveName,
       Currency currency,
       RateIndex index,
       RateIndex... otherIndices) {
 
-    CurveGroupEntry entry = CurveGroupEntry.builder()
+    RatesCurveGroupEntry entry = RatesCurveGroupEntry.builder()
         .curveName(curveName)
         .discountCurrencies(ImmutableSet.of(currency))
         .indices(indices(index, otherIndices))
@@ -267,7 +267,7 @@ public final class CurveGroupDefinitionBuilder {
    * @param seasonalityDefinition  the seasonality associated to the curve
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addSeasonality(
+  public RatesCurveGroupDefinitionBuilder addSeasonality(
       CurveName curveName,
       SeasonalityDefinition seasonalityDefinition) {
 
@@ -277,16 +277,16 @@ public final class CurveGroupDefinitionBuilder {
 
   //-------------------------------------------------------------------------
   // merges the definition and entry
-  private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, CurveDefinition curveDefinition) {
+  private RatesCurveGroupDefinitionBuilder merge(RatesCurveGroupEntry newEntry, CurveDefinition curveDefinition) {
     curveDefinitions.put(curveDefinition.getName(), curveDefinition);
     return mergeEntry(newEntry);
   }
 
   // merges the specified entry with those already stored
-  private CurveGroupDefinitionBuilder mergeEntry(CurveGroupEntry newEntry) {
+  private RatesCurveGroupDefinitionBuilder mergeEntry(RatesCurveGroupEntry newEntry) {
     CurveName curveName = newEntry.getCurveName();
-    CurveGroupEntry existingEntry = entries.get(curveName);
-    CurveGroupEntry entry = existingEntry == null ? newEntry : existingEntry.merge(newEntry);
+    RatesCurveGroupEntry existingEntry = entries.get(curveName);
+    RatesCurveGroupEntry entry = existingEntry == null ? newEntry : existingEntry.merge(newEntry);
     entries.put(curveName, entry);
     return this;
   }
@@ -305,9 +305,9 @@ public final class CurveGroupDefinitionBuilder {
    *
    * @return the definition of the curve group built from the data in this object
    */
-  public CurveGroupDefinition build() {
+  public RatesCurveGroupDefinition build() {
     // note that this defaults the jacobian flag based on the market quote flag
-    return new CurveGroupDefinition(
+    return new RatesCurveGroupDefinition(
         name,
         entries.values(),
         curveDefinitions.values(),

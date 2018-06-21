@@ -22,16 +22,16 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 
 /**
- * Test {@link CurveGroupEntry}.
+ * Test {@link RatesCurveGroupEntry}.
  */
 @Test
-public class CurveGroupEntryTest {
+public class RatesCurveGroupEntryTest {
 
   private static final CurveName CURVE_NAME1 = CurveName.of("Test");
   private static final CurveName CURVE_NAME2 = CurveName.of("Test2");
 
   public void test_builder() {
-    CurveGroupEntry test = CurveGroupEntry.builder()
+    RatesCurveGroupEntry test = RatesCurveGroupEntry.builder()
         .curveName(CURVE_NAME1)
         .discountCurrencies(GBP)
         .indices(GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_SONIA)
@@ -46,12 +46,12 @@ public class CurveGroupEntryTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveGroupEntry test = CurveGroupEntry.builder()
+    RatesCurveGroupEntry test = RatesCurveGroupEntry.builder()
         .curveName(CURVE_NAME1)
         .discountCurrencies(GBP)
         .build();
     coverImmutableBean(test);
-    CurveGroupEntry test2 = CurveGroupEntry.builder()
+    RatesCurveGroupEntry test2 = RatesCurveGroupEntry.builder()
         .curveName(CURVE_NAME2)
         .indices(GBP_LIBOR_1M, GBP_SONIA)
         .build();
@@ -59,7 +59,7 @@ public class CurveGroupEntryTest {
   }
 
   public void test_serialization() {
-    CurveGroupEntry test = CurveGroupEntry.builder()
+    RatesCurveGroupEntry test = RatesCurveGroupEntry.builder()
         .curveName(CURVE_NAME1)
         .discountCurrencies(GBP)
         .build();

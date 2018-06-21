@@ -54,10 +54,10 @@ import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 
 /**
- * Test {@link CurveGroupDefinition}.
+ * Test {@link RatesCurveGroupDefinition}.
  */
 @Test
-public class CurveGroupDefinitionTest {
+public class RatesCurveGroupDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final ObservableId GBP_LIBOR_1M_ID = QuoteId.of(StandardId.of("OG", "Ticker1"));
@@ -97,16 +97,16 @@ public class CurveGroupDefinitionTest {
       .extrapolatorLeft(CurveExtrapolators.FLAT)
       .extrapolatorRight(CurveExtrapolators.FLAT)
       .build();
-  private static final CurveGroupEntry ENTRY1 = CurveGroupEntry.builder()
+  private static final RatesCurveGroupEntry ENTRY1 = RatesCurveGroupEntry.builder()
       .curveName(CURVE_NAME1)
       .discountCurrencies(GBP)
       .indices(GBP_LIBOR_1W, GBP_SONIA)
       .build();
-  private static final CurveGroupEntry ENTRY2 = CurveGroupEntry.builder()
+  private static final RatesCurveGroupEntry ENTRY2 = RatesCurveGroupEntry.builder()
       .curveName(CURVE_NAME2)
       .indices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
-  private static final CurveGroupEntry ENTRY3 = CurveGroupEntry.builder()
+  private static final RatesCurveGroupEntry ENTRY3 = RatesCurveGroupEntry.builder()
       .curveName(CURVE_NAME1)
       .discountCurrencies(GBP)
       .indices(GBP_LIBOR_1M, GBP_LIBOR_3M)
@@ -119,7 +119,7 @@ public class CurveGroupDefinitionTest {
       SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.SCALED);
 
   public void test_builder1() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addDiscountCurve(CURVE_DEFN1, GBP)
         .addForwardCurve(CURVE_DEFN1, GBP_SONIA)
@@ -137,7 +137,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_builder2() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
@@ -152,7 +152,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_builder_seasonality() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addSeasonality(CURVE_NAME_I, SEASONALITY_ADDITIVE_DEF)
@@ -171,7 +171,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_builder3() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addDiscountCurve(CURVE_NAME1, GBP)
         .addForwardCurve(CURVE_NAME1, GBP_SONIA)
@@ -186,7 +186,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_builder4() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_NAME1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
@@ -198,7 +198,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_missingEntries() {
-    assertThrowsIllegalArg(() -> CurveGroupDefinition.of(
+    assertThrowsIllegalArg(() -> RatesCurveGroupDefinition.of(
         CurveGroupName.of("group"),
         ImmutableList.of(ENTRY1),
         ImmutableList.of(CURVE_DEFN1, CURVE_DEFN2)),
@@ -223,11 +223,11 @@ public class CurveGroupDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(curveDefn, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
-    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition expected = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(curveDefn.filtered(valuationDate, REF_DATA), GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
@@ -237,7 +237,7 @@ public class CurveGroupDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_metadata() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
@@ -249,7 +249,7 @@ public class CurveGroupDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_tradesInitialGuesses() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
@@ -265,7 +265,7 @@ public class CurveGroupDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_bind() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
@@ -278,7 +278,7 @@ public class CurveGroupDefinitionTest {
     Map<Index, LocalDateDoubleTimeSeries> map = ImmutableMap.of(GB_RPI,
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
-    CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
+    RatesCurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<CurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
@@ -293,7 +293,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_bind_after_last_fixing() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
@@ -308,7 +308,7 @@ public class CurveGroupDefinitionTest {
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, lastFixingValue).put(otherFixingDate, lastFixingValue - 1.0)
             .put(other2FixingDate, lastFixingValue - 2.0).build());
-    CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
+    RatesCurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<CurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
@@ -323,7 +323,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_bind_no_seasonality() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
@@ -335,7 +335,7 @@ public class CurveGroupDefinitionTest {
     Map<Index, LocalDateDoubleTimeSeries> map = ImmutableMap.of(GB_RPI,
         LocalDateDoubleTimeSeries.builder()
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
-    CurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
+    RatesCurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<CurveDefinition> list = testBound.getCurveDefinitions();
     assertEquals(list.size(), 2);
     assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
@@ -354,16 +354,16 @@ public class CurveGroupDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_combinedWith_sameCurveNames() {
-    CurveGroupDefinition base1 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition base1 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
         .build();
-    CurveGroupDefinition base2 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition base2 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("TestX"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_6M)
         .build();
-    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition expected = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_LIBOR_6M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
@@ -372,16 +372,16 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_combinedWith_differentCurveNames() {
-    CurveGroupDefinition base1 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition base1 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
         .build();
-    CurveGroupDefinition base2 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition base2 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("TestX"))
         .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_6M)
         .build();
-    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition expected = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
@@ -391,12 +391,12 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_combinedWith_sameCurveNamesClash() {
-    CurveGroupDefinition base1 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition base1 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
         .build();
-    CurveGroupDefinition base2 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition base2 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("TestX"))
         .addCurve(CURVE_DEFN1B, GBP, GBP_LIBOR_6M)
         .build();
@@ -405,12 +405,12 @@ public class CurveGroupDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
     coverImmutableBean(test);
-    CurveGroupDefinition test2 = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test2 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test2"))
         .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_1M)
         .build();
@@ -418,7 +418,7 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_serialization() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
@@ -426,15 +426,15 @@ public class CurveGroupDefinitionTest {
   }
 
   public void test_withName() {
-    CurveGroupDefinition test = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
-    CurveGroupDefinition expected = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition expected = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("NewName"))
         .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
-    CurveGroupDefinition withNewName = test.withName(CurveGroupName.of("NewName"));
+    RatesCurveGroupDefinition withNewName = test.withName(CurveGroupName.of("NewName"));
     assertEquals(withNewName, expected);
   }
 }

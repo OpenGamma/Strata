@@ -23,7 +23,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -117,7 +117,7 @@ public class CalibrationDiscountingSimpleEur3Test {
         CalibrationEurStandard.allQuotes(
             VAL_DATE, DSC_MARKET_QUOTES, dscIdValues, fwd3MarketQuotes, fwd3IdValue, fwd6MarketQuotes, fwd6IdValue);
     /* All nodes by groups. */
-    CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
+    RatesCurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
     ImmutableList<CurveDefinition> definitions = config.getCurveDefinitions();
@@ -195,7 +195,7 @@ public class CalibrationDiscountingSimpleEur3Test {
         fwd6MarketQuotes,
         fwd6IdValue);
     /* All nodes by groups. */
-    CurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
+    RatesCurveGroupDefinition config = CalibrationEurStandard.config(DSC_OIS_TENORS, dscIdValues,
         FWD3_FRA_TENORS, FWD3_IRS_TENORS, fwd3IdValue, FWD6_FRA_TENORS, FWD6_IRS_TENORS, fwd6IdValue);
 
     ImmutableList<CurveDefinition> definitions = config.getCurveDefinitions();
