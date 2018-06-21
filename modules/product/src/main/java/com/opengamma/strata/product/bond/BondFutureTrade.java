@@ -109,10 +109,11 @@ public final class BondFutureTrade
 
   @Override
   public ResolvedBondFutureTrade resolve(ReferenceData refData) {
+    if (!info.getTradeDate().isPresent()) {
+      throw new IllegalArgumentException("Trade date on TradeInfo must be present");
+    }
     ResolvedBondFuture resolved = getProduct().resolve(refData);
-    TradedPrice tradedPrice = info.getTradeDate()
-        .map(tradeDate -> TradedPrice.of(tradeDate, price))
-        .orElse(null);
+    TradedPrice tradedPrice = TradedPrice.of(info.getTradeDate().get(), price);
     return new ResolvedBondFutureTrade(info, resolved, quantity, tradedPrice);
   }
 

@@ -54,6 +54,7 @@ public final class DsfTrade
    * The additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link DsfTrade#resolve(ReferenceData)}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
@@ -116,10 +117,11 @@ public final class DsfTrade
 
   @Override
   public ResolvedDsfTrade resolve(ReferenceData refData) {
+    if (!info.getTradeDate().isPresent()) {
+      throw new IllegalArgumentException("Trade date on TradeInfo must be present");
+    }
     ResolvedDsf resolved = getProduct().resolve(refData);
-    TradedPrice tradedPrice = info.getTradeDate()
-        .map(tradeDate -> TradedPrice.of(tradeDate, price))
-        .orElse(null);
+    TradedPrice tradedPrice = TradedPrice.of(info.getTradeDate().get(), price);
     return new ResolvedDsfTrade(info, resolved, quantity, tradedPrice);
   }
 
@@ -180,6 +182,7 @@ public final class DsfTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link DsfTrade#resolve(ReferenceData)}.
    * @return the value of the property, not null
    */
   @Override
@@ -497,6 +500,7 @@ public final class DsfTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
+     * The trade date is required when calling {@link DsfTrade#resolve(ReferenceData)}.
      * @param info  the new value, not null
      * @return this, for chaining, not null
      */

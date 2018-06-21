@@ -52,6 +52,7 @@ import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.dsf.Dsf;
 import com.opengamma.strata.product.dsf.DsfTrade;
@@ -91,6 +92,7 @@ public class DsfTradeCalculationFunctionTest {
   public static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final long QUANTITY = 1234L;
   public static final DsfTrade TRADE = DsfTrade.builder()
+      .info(TradeInfo.of(LocalDate.of(2013, 6, 15)))
       .product(FUTURE)
       .quantity(QUANTITY)
       .price(TRADE_PRICE)
