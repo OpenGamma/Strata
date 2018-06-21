@@ -25,11 +25,11 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupId;
+import com.opengamma.strata.market.curve.RatesCurveId;
 
 /**
  * Test {@link CurveMarketDataFunction}.
@@ -49,8 +49,8 @@ public class CurveMarketDataFunctionTest {
     Curve curve = ConstantCurve.of(CURVE_NAME1, (double) 1);
     RatesCurveId curveId1 = RatesCurveId.of(GROUP_NAME, CURVE_NAME1, OBS_SOURCE);
     RatesCurveId curveId2 = RatesCurveId.of(GROUP_NAME, CURVE_NAME2, OBS_SOURCE);
-    CurveGroupId groupId = CurveGroupId.of(GROUP_NAME, OBS_SOURCE);
-    CurveGroup curveGroup = CurveGroup.of(
+    RatesCurveGroupId groupId = RatesCurveGroupId.of(GROUP_NAME, OBS_SOURCE);
+    RatesCurveGroup curveGroup = RatesCurveGroup.of(
         GROUP_NAME,
         ImmutableMap.of(Currency.AUD, curve),
         ImmutableMap.of());
@@ -69,8 +69,8 @@ public class CurveMarketDataFunctionTest {
     Curve curve2 = ConstantCurve.of(CURVE_NAME2, (double) 2);
     RatesCurveId curveId1 = RatesCurveId.of(GROUP_NAME, CURVE_NAME1);
     RatesCurveId curveId2 = RatesCurveId.of(GROUP_NAME, CURVE_NAME2);
-    CurveGroupId groupId = CurveGroupId.of(GROUP_NAME);
-    CurveGroup curveGroup = CurveGroup.of(
+    RatesCurveGroupId groupId = RatesCurveGroupId.of(GROUP_NAME);
+    RatesCurveGroup curveGroup = RatesCurveGroup.of(
         GROUP_NAME,
         ImmutableMap.of(Currency.AUD, curve1, Currency.GBP, curve2),
         ImmutableMap.of());

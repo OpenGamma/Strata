@@ -21,10 +21,10 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 
 /**
  * Test {@link RatesCalibrationCsvLoader}.
@@ -43,7 +43,7 @@ public class RatesCalibrationCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_parsing() {
-    Map<CurveGroupName, CurveGroupDefinition> test = RatesCalibrationCsvLoader.loadWithSeasonality(
+    Map<CurveGroupName, RatesCurveGroupDefinition> test = RatesCalibrationCsvLoader.loadWithSeasonality(
         ResourceLocator.of(GROUPS_1),
         ResourceLocator.of(SETTINGS_1),
         ResourceLocator.of(SEASONALITY_1),
@@ -80,15 +80,15 @@ public class RatesCalibrationCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
-  private void assertDefinition(CurveGroupDefinition defn) {
+  private void assertDefinition(RatesCurveGroupDefinition defn) {
     assertEquals(defn.getName(), CurveGroupName.of("Default"));
     assertEquals(defn.getEntries().size(), 3);
     assertEquals(defn.getSeasonalityDefinitions().size(), 1);
     assertEquals(defn.getSeasonalityDefinitions().get(CurveName.of("USD-CPI")).getAdjustmentType(), ShiftType.SCALED);
 
-    CurveGroupEntry entry0 = findEntry(defn, "USD-Disc");
-    CurveGroupEntry entry1 = findEntry(defn, "USD-3ML");
-    CurveGroupEntry entry2 = findEntry(defn, "USD-CPI");
+    RatesCurveGroupEntry entry0 = findEntry(defn, "USD-Disc");
+    RatesCurveGroupEntry entry1 = findEntry(defn, "USD-3ML");
+    RatesCurveGroupEntry entry2 = findEntry(defn, "USD-CPI");
     CurveDefinition defn0 = defn.findCurveDefinition(entry0.getCurveName()).get();
     CurveDefinition defn1 = defn.findCurveDefinition(entry1.getCurveName()).get();
     CurveDefinition defn2 = defn.findCurveDefinition(entry2.getCurveName()).get();
@@ -112,7 +112,7 @@ public class RatesCalibrationCsvLoaderTest {
     assertEquals(defn2.getParameterCount(), 2);
   }
 
-  private CurveGroupEntry findEntry(CurveGroupDefinition defn, String curveName) {
+  private RatesCurveGroupEntry findEntry(RatesCurveGroupDefinition defn, String curveName) {
     return defn.getEntries().stream().filter(d -> d.getCurveName().getName().equals(curveName)).findFirst().get();
   }
 

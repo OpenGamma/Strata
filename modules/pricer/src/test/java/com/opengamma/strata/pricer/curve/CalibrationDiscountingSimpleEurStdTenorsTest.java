@@ -33,11 +33,11 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -197,8 +197,8 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
           .extrapolatorRight(EXTRAPOLATOR_FLAT)
           .nodes(FWD3_NODES).build();
-  private static final CurveGroupDefinition CURVE_GROUP_CONFIG =
-      CurveGroupDefinition.builder()
+  private static final RatesCurveGroupDefinition CURVE_GROUP_CONFIG =
+      RatesCurveGroupDefinition.builder()
           .name(CURVE_GROUP_NAME)
           .addCurve(DSC_CURVE_DEFN, EUR, EUR_EONIA)
           .addForwardCurve(FWD3_CURVE_DEFN, EUR_EURIBOR_3M)

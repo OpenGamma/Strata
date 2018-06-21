@@ -22,11 +22,11 @@ import com.opengamma.strata.data.ObservableSource;
 /**
  * An identifier used to access the inputs to curve calibration.
  * <p>
- * This is used when there is a need to obtain an instance of {@link CurveInputs}.
+ * This is used when there is a need to obtain an instance of {@link RatesCurveInputs}.
  */
 @BeanDefinition(style = "light", cacheHashCode = true)
 public final class IssuerCurveInputsId
-    implements MarketDataId<CurveInputs>, ImmutableBean, Serializable {
+    implements MarketDataId<RatesCurveInputs>, ImmutableBean, Serializable {
 
   /**
    * The curve group name.
@@ -63,8 +63,8 @@ public final class IssuerCurveInputsId
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<CurveInputs> getMarketDataType() {
-    return CurveInputs.class;
+  public Class<RatesCurveInputs> getMarketDataType() {
+    return RatesCurveInputs.class;
   }
 
   @Override

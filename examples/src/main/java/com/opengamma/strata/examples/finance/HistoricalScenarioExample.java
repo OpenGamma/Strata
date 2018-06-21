@@ -47,8 +47,8 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.param.PointShifts;
 import com.opengamma.strata.market.param.PointShiftsBuilder;
@@ -113,7 +113,7 @@ public class HistoricalScenarioExample {
 
     // load the historical calibrated curves from which we will build our scenarios
     // these curves are provided in the example data environment
-    SortedMap<LocalDate, CurveGroup> historicalCurves = marketDataBuilder.loadAllRatesCurves();
+    SortedMap<LocalDate, RatesCurveGroup> historicalCurves = marketDataBuilder.loadAllRatesCurves();
 
     // sorted list of dates for the available series of curves
     // the entries in the P&L vector we produce will correspond to these dates
@@ -142,7 +142,7 @@ public class HistoricalScenarioExample {
   }
 
   private static ScenarioDefinition buildHistoricalScenarios(
-      Map<LocalDate, CurveGroup> historicalCurves,
+      Map<LocalDate, RatesCurveGroup> historicalCurves,
       List<LocalDate> scenarioDates) {
 
     // extract the curves to perturb

@@ -46,13 +46,13 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -339,25 +339,25 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
           .extrapolatorRight(EXTRAPOLATOR_FLAT)
           .nodes(FWD6_NODES).build();
-  private static final CurveGroupDefinition CURVE_GROUP_CONFIG =
-      CurveGroupDefinition.builder()
+  private static final RatesCurveGroupDefinition CURVE_GROUP_CONFIG =
+      RatesCurveGroupDefinition.builder()
           .name(CURVE_GROUP_NAME)
           .addCurve(DSC_CURVE_DEFN, USD, USD_FED_FUND)
           .addForwardCurve(FWD3_CURVE_DEFN, USD_LIBOR_3M)
           .addForwardCurve(FWD6_CURVE_DEFN, USD_LIBOR_6M).build();
 
-  private static final CurveGroupDefinition GROUP_1 =
-      CurveGroupDefinition.builder()
+  private static final RatesCurveGroupDefinition GROUP_1 =
+      RatesCurveGroupDefinition.builder()
           .name(CurveGroupName.of(DSCON_NAME))
           .addCurve(DSC_CURVE_DEFN, USD, USD_FED_FUND)
           .build();
-  private static final CurveGroupDefinition GROUP_2 =
-      CurveGroupDefinition.builder()
+  private static final RatesCurveGroupDefinition GROUP_2 =
+      RatesCurveGroupDefinition.builder()
           .name(CurveGroupName.of(FWD3_NAME))
           .addForwardCurve(FWD3_CURVE_DEFN, USD_LIBOR_3M)
           .build();
-  private static final CurveGroupDefinition GROUP_3 =
-      CurveGroupDefinition.builder()
+  private static final RatesCurveGroupDefinition GROUP_3 =
+      RatesCurveGroupDefinition.builder()
           .name(CurveGroupName.of(FWD6_NAME))
           .addForwardCurve(FWD6_CURVE_DEFN, USD_LIBOR_6M)
           .build();

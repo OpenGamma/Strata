@@ -36,13 +36,13 @@ import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeClashAction;
 import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.curve.CurveNodeDateOrder;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedInflationSwapCurveNode;
@@ -178,7 +178,7 @@ public final class RatesCalibrationCsvLoader {
    * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> load(
+  public static ImmutableMap<CurveGroupName, RatesCurveGroupDefinition> load(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       ResourceLocator... curveNodeResources) {
@@ -197,7 +197,7 @@ public final class RatesCalibrationCsvLoader {
    * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> load(
+  public static ImmutableMap<CurveGroupName, RatesCurveGroupDefinition> load(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveNodeResources) {
@@ -218,7 +218,7 @@ public final class RatesCalibrationCsvLoader {
    * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> loadWithSeasonality(
+  public static ImmutableMap<CurveGroupName, RatesCurveGroupDefinition> loadWithSeasonality(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       ResourceLocator seasonalityResource,
@@ -244,7 +244,7 @@ public final class RatesCalibrationCsvLoader {
    * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> parse(
+  public static ImmutableMap<CurveGroupName, RatesCurveGroupDefinition> parse(
       CharSource groupsCharSource,
       CharSource settingsCharSource,
       Collection<CharSource> curveNodeCharSources) {
@@ -264,7 +264,7 @@ public final class RatesCalibrationCsvLoader {
    * @return the group definitions, mapped by name
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableMap<CurveGroupName, CurveGroupDefinition> parseWithSeasonality(
+  public static ImmutableMap<CurveGroupName, RatesCurveGroupDefinition> parseWithSeasonality(
       CharSource groupsCharSource,
       CharSource settingsCharSource,
       CharSource seasonalityResource,
@@ -276,14 +276,14 @@ public final class RatesCalibrationCsvLoader {
   }
 
   // parse based on pre-parsed seasonality
-  private static ImmutableMap<CurveGroupName, CurveGroupDefinition> parse0(
+  private static ImmutableMap<CurveGroupName, RatesCurveGroupDefinition> parse0(
       CharSource groupsCharSource,
       CharSource settingsCharSource,
       Map<CurveName, SeasonalityDefinition> seasonality,
       Collection<CharSource> curveNodeCharSources) {
 
     // load curve groups and settings
-    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    List<RatesCurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.parseCurveSettings(settingsCharSource);
 
     // load curve definitions

@@ -42,11 +42,11 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -210,8 +210,8 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
           .extrapolatorLeft(EXTRAPOLATOR_FLAT)
           .extrapolatorRight(EXTRAPOLATOR_FLAT)
           .nodes(EUR_DSC_NODES).build();
-  private static final CurveGroupDefinition CURVE_GROUP_CONFIG =
-      CurveGroupDefinition.builder()
+  private static final RatesCurveGroupDefinition CURVE_GROUP_CONFIG =
+      RatesCurveGroupDefinition.builder()
           .name(CURVE_GROUP_NAME)
           .addCurve(USD_DSC_CURVE_DEFN, USD, USD_FED_FUND)
           .addDiscountCurve(EUR_DSC_CURVE_DEFN, EUR).build();

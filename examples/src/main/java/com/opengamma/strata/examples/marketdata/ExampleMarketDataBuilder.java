@@ -36,7 +36,7 @@ import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
-import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.RatesCurveId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -178,7 +178,7 @@ public abstract class ExampleMarketDataBuilder {
    * @return the rates lookup
    */
   public RatesMarketDataLookup ratesLookup(LocalDate marketDataDate) {
-    SortedMap<LocalDate, CurveGroup> curves = loadAllRatesCurves();
+    SortedMap<LocalDate, RatesCurveGroup> curves = loadAllRatesCurves();
     return RatesMarketDataLookup.of(curves.get(marketDataDate));
   }
 
@@ -187,7 +187,7 @@ public abstract class ExampleMarketDataBuilder {
    * 
    * @return the map of all rates curves
    */
-  public SortedMap<LocalDate, CurveGroup> loadAllRatesCurves() {
+  public SortedMap<LocalDate, RatesCurveGroup> loadAllRatesCurves() {
     if (!subdirectoryExists(CURVES_DIR)) {
       throw new IllegalArgumentException("No rates curves directory found");
     }
@@ -201,11 +201,11 @@ public abstract class ExampleMarketDataBuilder {
       throw new IllegalArgumentException(Messages.format(
           "Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE));
     }
-    ListMultimap<LocalDate, CurveGroup> curveGroups =
+    ListMultimap<LocalDate, RatesCurveGroup> curveGroups =
         RatesCurvesCsvLoader.loadAllDates(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
 
     // There is only one curve group in the market data file so this will always succeed
-    Map<LocalDate, CurveGroup> curveGroupMap = Maps.transformValues(curveGroups.asMap(), groups -> groups.iterator().next());
+    Map<LocalDate, RatesCurveGroup> curveGroupMap = Maps.transformValues(curveGroups.asMap(), groups -> groups.iterator().next());
     return new TreeMap<>(curveGroupMap);
   }
 
@@ -243,10 +243,10 @@ public abstract class ExampleMarketDataBuilder {
     }
     try {
       Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
-      List<CurveGroup> ratesCurves =
+      List<RatesCurveGroup> ratesCurves =
           RatesCurvesCsvLoader.load(marketDataDate, curveGroupsResource, curveSettingsResource, curvesResources);
 
-      for (CurveGroup group : ratesCurves) {
+      for (RatesCurveGroup group : ratesCurves) {
         // add entry for higher level discount curve name
         group.getDiscountCurves().forEach(
             (ccy, curve) -> builder.addValue(RatesCurveId.of(group.getName(), curve.getName()), curve));

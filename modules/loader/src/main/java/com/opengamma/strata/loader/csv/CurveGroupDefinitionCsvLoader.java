@@ -39,12 +39,12 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 
 /**
  * Loads a set of curve group definitions into memory by reading from CSV resources.
@@ -62,7 +62,7 @@ import com.opengamma.strata.market.curve.NodalCurveDefinition;
  * CSV files sometimes contain a Unicode Byte Order Mark.
  * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
  *
- * @see CurveGroupDefinition
+ * @see RatesCurveGroupDefinition
  */
 public final class CurveGroupDefinitionCsvLoader {
 
@@ -89,7 +89,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groupsResource  the curve groups CSV resource
    * @return the list of definitions
    */
-  public static List<CurveGroupDefinition> loadCurveGroupDefinitions(ResourceLocator groupsResource) {
+  public static List<RatesCurveGroupDefinition> loadCurveGroupDefinitions(ResourceLocator groupsResource) {
     return parseCurveGroupDefinitions(groupsResource.getCharSource());
   }
 
@@ -102,7 +102,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param groupsCharSource  the curve groups CSV character source
    * @return the list of definitions
    */
-  public static List<CurveGroupDefinition> parseCurveGroupDefinitions(CharSource groupsCharSource) {
+  public static List<RatesCurveGroupDefinition> parseCurveGroupDefinitions(CharSource groupsCharSource) {
     Map<CurveName, Set<GroupAndReference>> curveGroups = new LinkedHashMap<>();
     CsvFile csv = CsvFile.of(groupsCharSource, true);
     for (CsvRow row : csv.rows()) {
@@ -148,10 +148,10 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param garMap  the map of name to keys
    * @return a map of curve group name to curve group definition built from the curves
    */
-  private static ImmutableList<CurveGroupDefinition> buildCurveGroups(
+  private static ImmutableList<RatesCurveGroupDefinition> buildCurveGroups(
       Map<CurveName, Set<GroupAndReference>> garMap) {
 
-    Multimap<CurveGroupName, CurveGroupEntry> groups = LinkedHashMultimap.create();
+    Multimap<CurveGroupName, RatesCurveGroupEntry> groups = LinkedHashMultimap.create();
 
     for (Map.Entry<CurveName, Set<GroupAndReference>> entry : garMap.entrySet()) {
       CurveName curveName = entry.getKey();
@@ -166,7 +166,7 @@ public final class CurveGroupDefinitionCsvLoader {
       }
     }
     return MapStream.of(groups.asMap())
-        .map((name, entry) -> CurveGroupDefinition.of(name, entry, ImmutableList.of()))
+        .map((name, entry) -> RatesCurveGroupDefinition.of(name, entry, ImmutableList.of()))
         .collect(toImmutableList());
   }
 
@@ -177,7 +177,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param gars  the group-reference pairs
    * @return a curve group entry built from the data in the IDs
    */
-  private static CurveGroupEntry curveGroupEntry(CurveName curveName, List<GroupAndReference> gars) {
+  private static RatesCurveGroupEntry curveGroupEntry(CurveName curveName, List<GroupAndReference> gars) {
     Set<Currency> currencies = new LinkedHashSet<>();
     Set<Index> indices = new LinkedHashSet<>();
 
@@ -188,7 +188,7 @@ public final class CurveGroupDefinitionCsvLoader {
         indices.add(gar.index);
       }
     }
-    return CurveGroupEntry.builder()
+    return RatesCurveGroupEntry.builder()
         .curveName(curveName)
         .discountCurrencies(currencies)
         .indices(indices)
@@ -202,7 +202,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param file  the destination for the CSV, such as a file
    * @param groups  the curve groups
    */
-  public static void writeCurveGroupDefinition(File file, CurveGroupDefinition... groups) {
+  public static void writeCurveGroupDefinition(File file, RatesCurveGroupDefinition... groups) {
     try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
       writeCurveGroupDefinition(writer, groups);
     } catch (IOException ex) {
@@ -216,18 +216,18 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param underlying  the underlying appendable destination
    * @param groups  the curve groups
    */
-  public static void writeCurveGroupDefinition(Appendable underlying, CurveGroupDefinition... groups) {
+  public static void writeCurveGroupDefinition(Appendable underlying, RatesCurveGroupDefinition... groups) {
     CsvOutput csv = CsvOutput.standard(underlying);
     csv.writeLine(HEADERS);
-    for (CurveGroupDefinition group : groups) {
+    for (RatesCurveGroupDefinition group : groups) {
       writeCurveGroupDefinition(csv, group);
     }
   }
 
   // write a single group definition to CSV
-  private static void writeCurveGroupDefinition(CsvOutput csv, CurveGroupDefinition group) {
+  private static void writeCurveGroupDefinition(CsvOutput csv, RatesCurveGroupDefinition group) {
     String groupName = group.getName().getName();
-    for (CurveGroupEntry entry : group.getEntries()) {
+    for (RatesCurveGroupEntry entry : group.getEntries()) {
       for (Currency currency : entry.getDiscountCurrencies()) {
         csv.writeLine(
             ImmutableList.of(groupName, DISCOUNT, currency.toString(), entry.getCurveName().getName()));
@@ -246,7 +246,7 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param file  the file
    * @param groups  the curve groups
    */
-  public static void writeCurveGroup(File file, CurveGroup... groups) {
+  public static void writeCurveGroup(File file, RatesCurveGroup... groups) {
     try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
       writeCurveGroup(writer, groups);
     } catch (IOException ex) {
@@ -260,16 +260,16 @@ public final class CurveGroupDefinitionCsvLoader {
    * @param underlying  the underlying appendable destination
    * @param groups  the curve groups
    */
-  public static void writeCurveGroup(Appendable underlying, CurveGroup... groups) {
+  public static void writeCurveGroup(Appendable underlying, RatesCurveGroup... groups) {
     CsvOutput csv = CsvOutput.standard(underlying);
     csv.writeLine(HEADERS);
-    for (CurveGroup group : groups) {
+    for (RatesCurveGroup group : groups) {
       writeCurveGroup(csv, group);
     }
   }
 
   // write a single group to CSV
-  private static void writeCurveGroup(CsvOutput csv, CurveGroup group) {
+  private static void writeCurveGroup(CsvOutput csv, RatesCurveGroup group) {
     String groupName = group.getName().getName();
     Map<Currency, Curve> discountingCurves = group.getDiscountCurves();
     for (Entry<Currency, Curve> entry : discountingCurves.entrySet()) {

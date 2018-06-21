@@ -22,12 +22,12 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -76,7 +76,7 @@ public final class ImmutableRatesProviderGenerator
    */
   public static ImmutableRatesProviderGenerator of(
       ImmutableRatesProvider knownProvider,
-      CurveGroupDefinition groupDefn,
+      RatesCurveGroupDefinition groupDefn,
       ReferenceData refData) {
 
     List<CurveDefinition> curveDefns = new ArrayList<>();
@@ -89,7 +89,7 @@ public final class ImmutableRatesProviderGenerator
       curveMetadata.add(curveDefn.metadata(knownProvider.getValuationDate(), refData));
       CurveName curveName = curveDefn.getName();
       // A curve group is guaranteed to include an entry for every definition
-      CurveGroupEntry entry = groupDefn.findEntry(curveName).get();
+      RatesCurveGroupEntry entry = groupDefn.findEntry(curveName).get();
       Set<Currency> ccy = entry.getDiscountCurrencies();
       discountNames.putAll(curveName, ccy);
       indexNames.putAll(curveName, entry.getIndices());

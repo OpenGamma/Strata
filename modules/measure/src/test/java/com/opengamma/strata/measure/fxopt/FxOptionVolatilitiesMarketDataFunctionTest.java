@@ -68,13 +68,13 @@ import com.opengamma.strata.market.GenericDoubleShifts;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
-import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
+import com.opengamma.strata.market.curve.RatesCurveGroupId;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -233,7 +233,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.ZERO_RATE)
       .build();
-  private static final CurveGroupEntry USD_ENTRY = CurveGroupEntry.builder()
+  private static final RatesCurveGroupEntry USD_ENTRY = RatesCurveGroupEntry.builder()
       .curveName(USD_CURVE_NAME)
       .discountCurrencies(USD)
       .indices(OvernightIndices.USD_FED_FUND)
@@ -249,11 +249,11 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.ZERO_RATE)
       .build();
-  private static final CurveGroupEntry GBP_ENTRY = CurveGroupEntry.builder()
+  private static final RatesCurveGroupEntry GBP_ENTRY = RatesCurveGroupEntry.builder()
       .curveName(GBP_CURVE_NAME)
       .discountCurrencies(GBP)
       .build();
-  private static final CurveGroupDefinition CURVE_GROUP_DEFINITION = CurveGroupDefinition.of(
+  private static final RatesCurveGroupDefinition CURVE_GROUP_DEFINITION = RatesCurveGroupDefinition.of(
       CURVE_GROUP_NAME, ImmutableList.of(GBP_ENTRY, USD_ENTRY), ImmutableList.of(GBP_CURVE_DEFINITION, USD_CURVE_DEFINITION));
 
   private static final MarketDataConfig CONFIG = MarketDataConfig.builder()
@@ -430,8 +430,8 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
         .addValueMap(MARKET_QUOTES)
         .addValueMap(MARKET_FX_QUOTES)
         .addValue(VOL_ID, EXP_VOLS)
-        .addValue(CurveGroupId.of(CURVE_GROUP_NAME),
-            CurveGroup.ofCurves(CURVE_GROUP_DEFINITION, EXP_RATES.toImmutableRatesProvider().getDiscountCurves().values()))
+        .addValue(RatesCurveGroupId.of(CURVE_GROUP_NAME),
+            RatesCurveGroup.ofCurves(CURVE_GROUP_DEFINITION, EXP_RATES.toImmutableRatesProvider().getDiscountCurves().values()))
         .build();
     ScenarioMarketData marketDataCalibrated = StandardComponents.marketDataFactory().createMultiScenario(
         REQUIREMENTS, SCENARIO_CONFIG, dataWithSurface, REF_DATA, scenarioDefinition);

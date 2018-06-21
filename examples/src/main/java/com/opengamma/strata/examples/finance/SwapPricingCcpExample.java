@@ -32,8 +32,8 @@ import com.opengamma.strata.examples.marketdata.ExampleData;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
@@ -154,12 +154,12 @@ public class SwapPricingCcpExample {
     ReferenceData refData = ReferenceData.standard();
 
     // load the curve definition
-    Map<CurveGroupName, CurveGroupDefinition> defnsCcp1 =
+    Map<CurveGroupName, RatesCurveGroupDefinition> defnsCcp1 =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE_CCP1, SETTINGS_RESOURCE_CCP1, CALIBRATION_RESOURCE_CCP1);
-    Map<CurveGroupName, CurveGroupDefinition> defnsCcp2 =
+    Map<CurveGroupName, RatesCurveGroupDefinition> defnsCcp2 =
         RatesCalibrationCsvLoader.load(GROUPS_RESOURCE_CCP2, SETTINGS_RESOURCE_CCP2, CALIBRATION_RESOURCE_CCP2);
-    CurveGroupDefinition curveGroupDefinitionCcp1 = defnsCcp1.get(CURVE_GROUP_NAME_CCP1).filtered(VAL_DATE, refData);
-    CurveGroupDefinition curveGroupDefinitionCcp2 = defnsCcp2.get(CURVE_GROUP_NAME_CCP2).filtered(VAL_DATE, refData);
+    RatesCurveGroupDefinition curveGroupDefinitionCcp1 = defnsCcp1.get(CURVE_GROUP_NAME_CCP1).filtered(VAL_DATE, refData);
+    RatesCurveGroupDefinition curveGroupDefinitionCcp2 = defnsCcp2.get(CURVE_GROUP_NAME_CCP2).filtered(VAL_DATE, refData);
 
     // the configuration that defines how to create the curves when a curve group is requested
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()

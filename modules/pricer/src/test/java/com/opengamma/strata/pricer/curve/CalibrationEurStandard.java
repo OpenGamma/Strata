@@ -31,11 +31,11 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -115,7 +115,7 @@ public class CalibrationEurStandard {
     MarketData allQuotes =
         allQuotes(valuationDate, dscOisQuotes, dscIdValues, fwd3MarketQuotes, fwd3IdValues, fwd6MarketQuotes, fwd6IdValues);
     /* All nodes by groups. */
-    CurveGroupDefinition config = config(dscOisTenors, dscIdValues, fwd3FraTenors, fwd3IrsTenors, fwd3IdValues,
+    RatesCurveGroupDefinition config = config(dscOisTenors, dscIdValues, fwd3FraTenors, fwd3IrsTenors, fwd3IdValues,
         fwd6FraTenors, fwd6IrsTenors, fwd6IdValues);
     /* Results */
     return CALIBRATOR.calibrate(config, allQuotes, REF_DATA);
@@ -161,7 +161,7 @@ public class CalibrationEurStandard {
     return fwdMarketQuotes;
   }
 
-  public static CurveGroupDefinition config(
+  public static RatesCurveGroupDefinition config(
       Period[] dscOisTenors,
       String[] dscIdValues,
       Period[] fwd3FraTenors,
@@ -230,7 +230,7 @@ public class CalibrationEurStandard {
             .extrapolatorLeft(EXTRAPOLATOR_FLAT)
             .extrapolatorRight(EXTRAPOLATOR_FLAT)
             .nodes(fwd6Nodes).build();
-    return CurveGroupDefinition.builder()
+    return RatesCurveGroupDefinition.builder()
         .name(CURVE_GROUP_NAME)
         .addCurve(DSC_CURVE_DEFN, EUR, EUR_EONIA)
         .addForwardCurve(FWD3_CURVE_DEFN, EUR_EURIBOR_3M)

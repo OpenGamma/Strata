@@ -58,7 +58,7 @@ import com.opengamma.strata.product.ResolvedTrade;
  * The indices are used to specify that the curve is to be used as a forward curve.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveGroupDefinition
+public final class RatesCurveGroupDefinition
     implements ImmutableBean, Serializable {
 
   /**
@@ -70,7 +70,7 @@ public final class CurveGroupDefinition
    * The configuration for building the curves in the group.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<CurveGroupEntry> entries;
+  private final ImmutableList<RatesCurveGroupEntry> entries;
   /**
    * Definitions which specify how the curves are calibrated.
    * <p>
@@ -100,7 +100,7 @@ public final class CurveGroupDefinition
   /**
    * Entries for the curves, keyed by the curve name.
    */
-  private final transient ImmutableMap<CurveName, CurveGroupEntry> entriesByName;  // not a property
+  private final transient ImmutableMap<CurveName, RatesCurveGroupEntry> entriesByName;  // not a property
   /**
    * Definitions for the curves, keyed by the curve name.
    */
@@ -112,8 +112,8 @@ public final class CurveGroupDefinition
    *
    * @return a mutable builder for building the definition for a curve group
    */
-  public static CurveGroupDefinitionBuilder builder() {
-    return new CurveGroupDefinitionBuilder();
+  public static RatesCurveGroupDefinitionBuilder builder() {
+    return new RatesCurveGroupDefinitionBuilder();
   }
 
   /**
@@ -126,12 +126,12 @@ public final class CurveGroupDefinition
    * @param curveDefinitions  definitions which specify how the curves are calibrated
    * @return a curve group definition with the specified name and containing the specified entries
    */
-  public static CurveGroupDefinition of(
+  public static RatesCurveGroupDefinition of(
       CurveGroupName name,
-      Collection<CurveGroupEntry> entries,
+      Collection<RatesCurveGroupEntry> entries,
       Collection<CurveDefinition> curveDefinitions) {
 
-    return new CurveGroupDefinition(name, entries, curveDefinitions, ImmutableMap.of(), true, false);
+    return new RatesCurveGroupDefinition(name, entries, curveDefinitions, ImmutableMap.of(), true, false);
   }
 
   /**
@@ -145,13 +145,13 @@ public final class CurveGroupDefinition
    * @param seasonalityDefinitions  definitions which specify the seasonality to use for different curves
    * @return a curve group definition with the specified name and containing the specified entries
    */
-  public static CurveGroupDefinition of(
+  public static RatesCurveGroupDefinition of(
       CurveGroupName name,
-      Collection<CurveGroupEntry> entries,
+      Collection<RatesCurveGroupEntry> entries,
       Collection<CurveDefinition> curveDefinitions,
       Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
 
-    return new CurveGroupDefinition(name, entries, curveDefinitions, seasonalityDefinitions, true, false);
+    return new RatesCurveGroupDefinition(name, entries, curveDefinitions, seasonalityDefinitions, true, false);
   }
 
   /**
@@ -162,9 +162,9 @@ public final class CurveGroupDefinition
    * @param curveDefinitions  definitions which specify how the curves are calibrated
    */
   @ImmutableConstructor
-  CurveGroupDefinition(
+  RatesCurveGroupDefinition(
       CurveGroupName name,
-      Collection<CurveGroupEntry> entries,
+      Collection<RatesCurveGroupEntry> entries,
       Collection<? extends CurveDefinition> curveDefinitions,
       Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
@@ -199,7 +199,7 @@ public final class CurveGroupDefinition
 
   // ensure standard constructor is invoked
   private Object readResolve() {
-    return new CurveGroupDefinition(
+    return new RatesCurveGroupDefinition(
         name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
@@ -216,11 +216,11 @@ public final class CurveGroupDefinition
    * @return the resolved definition, that should be used in preference to this one
    * @throws IllegalArgumentException if the curve nodes are invalid
    */
-  public CurveGroupDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
+  public RatesCurveGroupDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
     List<CurveDefinition> filtered = curveDefinitions.stream()
         .map(ncd -> ncd.filtered(valuationDate, refData))
         .collect(toImmutableList());
-    return new CurveGroupDefinition(
+    return new RatesCurveGroupDefinition(
         name, entries, filtered, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
@@ -238,9 +238,9 @@ public final class CurveGroupDefinition
    * @param tsMap  the map of index to time series
    * @return the new instance
    */
-  public CurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
+  public RatesCurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
     ImmutableList.Builder<CurveDefinition> boundCurveDefinitions = ImmutableList.builder();
-    for (CurveGroupEntry entry : entries) {
+    for (RatesCurveGroupEntry entry : entries) {
       CurveName name = entry.getCurveName();
       CurveDefinition curveDef = curveDefinitionsByName.get(name);
       Set<Index> indices = entry.getIndices();
@@ -279,7 +279,7 @@ public final class CurveGroupDefinition
    * @param curveName  the name of the curve
    * @return the entry for the curve with the specified name
    */
-  public Optional<CurveGroupEntry> findEntry(CurveName curveName) {
+  public Optional<RatesCurveGroupEntry> findEntry(CurveName curveName) {
     return Optional.ofNullable(entriesByName.get(curveName));
   }
 
@@ -369,11 +369,11 @@ public final class CurveGroupDefinition
    * @param curveDefinitions  curve definitions
    * @return a copy of this object containing the specified curve definitions
    */
-  public CurveGroupDefinition withCurveDefinitions(List<CurveDefinition> curveDefinitions) {
+  public RatesCurveGroupDefinition withCurveDefinitions(List<CurveDefinition> curveDefinitions) {
     Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
     List<CurveDefinition> filteredDefinitions =
         curveDefinitions.stream().filter(def -> curveNames.contains(def.getName())).collect(toImmutableList());
-    return new CurveGroupDefinition(
+    return new RatesCurveGroupDefinition(
         name, entries, filteredDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
@@ -385,11 +385,11 @@ public final class CurveGroupDefinition
    * @param seasonalityDefinitions  seasonality definitions
    * @return a copy of this object containing the specified seasonality definitions
    */
-  public CurveGroupDefinition withSeasonalityDefinitions(Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
+  public RatesCurveGroupDefinition withSeasonalityDefinitions(Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
     Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
     Map<CurveName, SeasonalityDefinition> filteredDefinitions = MapStream.of(seasonalityDefinitions)
         .filterKeys(cn -> curveNames.contains(cn)).toMap();
-    return new CurveGroupDefinition(
+    return new RatesCurveGroupDefinition(
         name, entries, curveDefinitions, filteredDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
@@ -399,8 +399,8 @@ public final class CurveGroupDefinition
    * @param name  the name of the new curve group definition
    * @return a copy of this curve group definition with a different name
    */
-  public CurveGroupDefinition withName(CurveGroupName name) {
-    return new CurveGroupDefinition(
+  public RatesCurveGroupDefinition withName(CurveGroupName name) {
+    return new RatesCurveGroupDefinition(
         name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
@@ -417,7 +417,7 @@ public final class CurveGroupDefinition
    * @return the combined curve group definition
    * @throws IllegalArgumentException if unable to merge
    */
-  public CurveGroupDefinition combinedWith(CurveGroupDefinition other) {
+  public RatesCurveGroupDefinition combinedWith(RatesCurveGroupDefinition other) {
     // merge definitions
     Map<CurveName, CurveDefinition> combinedDefinitions = new LinkedHashMap<>(this.curveDefinitionsByName);
     for (CurveDefinition otherDefn : other.curveDefinitions) {
@@ -429,9 +429,9 @@ public final class CurveGroupDefinition
       }
     }
     // merge entries
-    Map<CurveName, CurveGroupEntry> combinedEntries = new LinkedHashMap<>(this.entriesByName);
-    for (CurveGroupEntry otherEntry : other.entries) {
-      CurveGroupEntry thisEntry = this.entriesByName.get(otherEntry.getCurveName());
+    Map<CurveName, RatesCurveGroupEntry> combinedEntries = new LinkedHashMap<>(this.entriesByName);
+    for (RatesCurveGroupEntry otherEntry : other.entries) {
+      RatesCurveGroupEntry thisEntry = this.entriesByName.get(otherEntry.getCurveName());
       if (thisEntry == null) {
         combinedEntries.put(otherEntry.getCurveName(), otherEntry);
       } else {
@@ -448,7 +448,7 @@ public final class CurveGroupDefinition
         throw new IllegalArgumentException("Curve definitions clash: " + otherEntry.getKey());
       }
     }
-    return new CurveGroupDefinition(
+    return new RatesCurveGroupDefinition(
         name,
         combinedEntries.values(),
         combinedDefinitions.values(),
@@ -462,8 +462,8 @@ public final class CurveGroupDefinition
    * 
    * @return the builder
    */
-  public CurveGroupDefinitionBuilder toBuilder() {
-    return new CurveGroupDefinitionBuilder(
+  public RatesCurveGroupDefinitionBuilder toBuilder() {
+    return new RatesCurveGroupDefinitionBuilder(
         name,
         entriesByName,
         curveDefinitionsByName,
@@ -474,15 +474,15 @@ public final class CurveGroupDefinition
 
   //------------------------- AUTOGENERATED START -------------------------
   /**
-   * The meta-bean for {@code CurveGroupDefinition}.
+   * The meta-bean for {@code RatesCurveGroupDefinition}.
    * @return the meta-bean, not null
    */
-  public static CurveGroupDefinition.Meta meta() {
-    return CurveGroupDefinition.Meta.INSTANCE;
+  public static RatesCurveGroupDefinition.Meta meta() {
+    return RatesCurveGroupDefinition.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(CurveGroupDefinition.Meta.INSTANCE);
+    MetaBean.register(RatesCurveGroupDefinition.Meta.INSTANCE);
   }
 
   /**
@@ -491,8 +491,8 @@ public final class CurveGroupDefinition
   private static final long serialVersionUID = 1L;
 
   @Override
-  public CurveGroupDefinition.Meta metaBean() {
-    return CurveGroupDefinition.Meta.INSTANCE;
+  public RatesCurveGroupDefinition.Meta metaBean() {
+    return RatesCurveGroupDefinition.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -509,7 +509,7 @@ public final class CurveGroupDefinition
    * Gets the configuration for building the curves in the group.
    * @return the value of the property, not null
    */
-  public ImmutableList<CurveGroupEntry> getEntries() {
+  public ImmutableList<RatesCurveGroupEntry> getEntries() {
     return entries;
   }
 
@@ -561,7 +561,7 @@ public final class CurveGroupDefinition
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveGroupDefinition other = (CurveGroupDefinition) obj;
+      RatesCurveGroupDefinition other = (RatesCurveGroupDefinition) obj;
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(entries, other.entries) &&
           JodaBeanUtils.equal(curveDefinitions, other.curveDefinitions) &&
@@ -587,7 +587,7 @@ public final class CurveGroupDefinition
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
-    buf.append("CurveGroupDefinition{");
+    buf.append("RatesCurveGroupDefinition{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("entries").append('=').append(entries).append(',').append(' ');
     buf.append("curveDefinitions").append('=').append(curveDefinitions).append(',').append(' ');
@@ -600,7 +600,7 @@ public final class CurveGroupDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveGroupDefinition}.
+   * The meta-bean for {@code RatesCurveGroupDefinition}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -612,35 +612,35 @@ public final class CurveGroupDefinition
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<CurveGroupName> name = DirectMetaProperty.ofImmutable(
-        this, "name", CurveGroupDefinition.class, CurveGroupName.class);
+        this, "name", RatesCurveGroupDefinition.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code entries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<CurveGroupEntry>> entries = DirectMetaProperty.ofImmutable(
-        this, "entries", CurveGroupDefinition.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<RatesCurveGroupEntry>> entries = DirectMetaProperty.ofImmutable(
+        this, "entries", RatesCurveGroupDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code curveDefinitions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableList<CurveDefinition>> curveDefinitions = DirectMetaProperty.ofImmutable(
-        this, "curveDefinitions", CurveGroupDefinition.class, (Class) ImmutableList.class);
+        this, "curveDefinitions", RatesCurveGroupDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code seasonalityDefinitions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<CurveName, SeasonalityDefinition>> seasonalityDefinitions = DirectMetaProperty.ofImmutable(
-        this, "seasonalityDefinitions", CurveGroupDefinition.class, (Class) ImmutableMap.class);
+        this, "seasonalityDefinitions", RatesCurveGroupDefinition.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code computeJacobian} property.
      */
     private final MetaProperty<Boolean> computeJacobian = DirectMetaProperty.ofImmutable(
-        this, "computeJacobian", CurveGroupDefinition.class, Boolean.TYPE);
+        this, "computeJacobian", RatesCurveGroupDefinition.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code computePvSensitivityToMarketQuote} property.
      */
     private final MetaProperty<Boolean> computePvSensitivityToMarketQuote = DirectMetaProperty.ofImmutable(
-        this, "computePvSensitivityToMarketQuote", CurveGroupDefinition.class, Boolean.TYPE);
+        this, "computePvSensitivityToMarketQuote", RatesCurveGroupDefinition.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -679,13 +679,13 @@ public final class CurveGroupDefinition
     }
 
     @Override
-    public BeanBuilder<? extends CurveGroupDefinition> builder() {
-      return new CurveGroupDefinition.Builder();
+    public BeanBuilder<? extends RatesCurveGroupDefinition> builder() {
+      return new RatesCurveGroupDefinition.Builder();
     }
 
     @Override
-    public Class<? extends CurveGroupDefinition> beanType() {
-      return CurveGroupDefinition.class;
+    public Class<? extends RatesCurveGroupDefinition> beanType() {
+      return RatesCurveGroupDefinition.class;
     }
 
     @Override
@@ -706,7 +706,7 @@ public final class CurveGroupDefinition
      * The meta-property for the {@code entries} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<CurveGroupEntry>> entries() {
+    public MetaProperty<ImmutableList<RatesCurveGroupEntry>> entries() {
       return entries;
     }
 
@@ -747,17 +747,17 @@ public final class CurveGroupDefinition
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          return ((CurveGroupDefinition) bean).getName();
+          return ((RatesCurveGroupDefinition) bean).getName();
         case -1591573360:  // entries
-          return ((CurveGroupDefinition) bean).getEntries();
+          return ((RatesCurveGroupDefinition) bean).getEntries();
         case -336166639:  // curveDefinitions
-          return ((CurveGroupDefinition) bean).getCurveDefinitions();
+          return ((RatesCurveGroupDefinition) bean).getCurveDefinitions();
         case 1051792832:  // seasonalityDefinitions
-          return ((CurveGroupDefinition) bean).getSeasonalityDefinitions();
+          return ((RatesCurveGroupDefinition) bean).getSeasonalityDefinitions();
         case -1730091410:  // computeJacobian
-          return ((CurveGroupDefinition) bean).isComputeJacobian();
+          return ((RatesCurveGroupDefinition) bean).isComputeJacobian();
         case -2061625469:  // computePvSensitivityToMarketQuote
-          return ((CurveGroupDefinition) bean).isComputePvSensitivityToMarketQuote();
+          return ((RatesCurveGroupDefinition) bean).isComputePvSensitivityToMarketQuote();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -775,12 +775,12 @@ public final class CurveGroupDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveGroupDefinition}.
+   * The bean-builder for {@code RatesCurveGroupDefinition}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<CurveGroupDefinition> {
+  private static final class Builder extends DirectPrivateBeanBuilder<RatesCurveGroupDefinition> {
 
     private CurveGroupName name;
-    private List<CurveGroupEntry> entries = ImmutableList.of();
+    private List<RatesCurveGroupEntry> entries = ImmutableList.of();
     private List<? extends CurveDefinition> curveDefinitions = ImmutableList.of();
     private Map<CurveName, SeasonalityDefinition> seasonalityDefinitions = ImmutableMap.of();
     private boolean computeJacobian;
@@ -821,7 +821,7 @@ public final class CurveGroupDefinition
           this.name = (CurveGroupName) newValue;
           break;
         case -1591573360:  // entries
-          this.entries = (List<CurveGroupEntry>) newValue;
+          this.entries = (List<RatesCurveGroupEntry>) newValue;
           break;
         case -336166639:  // curveDefinitions
           this.curveDefinitions = (List<? extends CurveDefinition>) newValue;
@@ -842,9 +842,9 @@ public final class CurveGroupDefinition
     }
 
     @Override
-    public CurveGroupDefinition build() {
+    public RatesCurveGroupDefinition build() {
       preBuild(this);
-      return new CurveGroupDefinition(
+      return new RatesCurveGroupDefinition(
           name,
           entries,
           curveDefinitions,
@@ -857,7 +857,7 @@ public final class CurveGroupDefinition
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
-      buf.append("CurveGroupDefinition.Builder{");
+      buf.append("RatesCurveGroupDefinition.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("entries").append('=').append(JodaBeanUtils.toString(entries)).append(',').append(' ');
       buf.append("curveDefinitions").append('=').append(JodaBeanUtils.toString(curveDefinitions)).append(',').append(' ');

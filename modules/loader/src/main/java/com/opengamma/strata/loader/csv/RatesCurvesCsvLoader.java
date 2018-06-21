@@ -51,11 +51,11 @@ import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
@@ -152,14 +152,14 @@ public final class RatesCurvesCsvLoader {
    * @return the loaded curves, mapped by an identifying key
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableList<CurveGroup> load(
+  public static ImmutableList<RatesCurveGroup> load(
       LocalDate marketDataDate,
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveValueResources) {
 
     Collection<CharSource> curveCharSources = curveValueResources.stream().map(r -> r.getCharSource()).collect(toList());
-    ListMultimap<LocalDate, CurveGroup> map = parse(
+    ListMultimap<LocalDate, RatesCurveGroup> map = parse(
         d -> marketDataDate.equals(d),
         groupsResource.getCharSource(),
         settingsResource.getCharSource(),
@@ -178,7 +178,7 @@ public final class RatesCurvesCsvLoader {
    * @return the loaded curves, mapped by date and identifier
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableListMultimap<LocalDate, CurveGroup> loadAllDates(
+  public static ImmutableListMultimap<LocalDate, RatesCurveGroup> loadAllDates(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curveValueResources) {
@@ -203,20 +203,20 @@ public final class RatesCurvesCsvLoader {
    * @return the loaded curves, mapped by date and identifier
    * @throws IllegalArgumentException if the files contain a duplicate entry
    */
-  public static ImmutableListMultimap<LocalDate, CurveGroup> parse(
+  public static ImmutableListMultimap<LocalDate, RatesCurveGroup> parse(
       Predicate<LocalDate> datePredicate,
       CharSource groupsCharSource,
       CharSource settingsCharSource,
       Collection<CharSource> curveValueCharSources) {
 
-    List<CurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    List<RatesCurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
     Map<LocalDate, Map<CurveName, Curve>> curves =
         parseCurves(datePredicate, settingsCharSource, curveValueCharSources);
-    ImmutableListMultimap.Builder<LocalDate, CurveGroup> builder = ImmutableListMultimap.builder();
+    ImmutableListMultimap.Builder<LocalDate, RatesCurveGroup> builder = ImmutableListMultimap.builder();
 
-    for (CurveGroupDefinition groupDefinition : curveGroups) {
+    for (RatesCurveGroupDefinition groupDefinition : curveGroups) {
       for (Map.Entry<LocalDate, Map<CurveName, Curve>> entry : curves.entrySet()) {
-        CurveGroup curveGroup = CurveGroup.ofCurves(groupDefinition, entry.getValue().values());
+        RatesCurveGroup curveGroup = RatesCurveGroup.ofCurves(groupDefinition, entry.getValue().values());
         builder.put(entry.getKey(), curveGroup);
       }
     }
@@ -342,7 +342,7 @@ public final class RatesCurvesCsvLoader {
    * @param file  the file
    * @param group  the curve group
    */
-  public static void writeCurveSettings(File file, CurveGroup group) {
+  public static void writeCurveSettings(File file, RatesCurveGroup group) {
     try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
       writeCurveSettings(writer, group);
     } catch (IOException ex) {
@@ -356,7 +356,7 @@ public final class RatesCurvesCsvLoader {
    * @param underlying  the underlying appendable destination
    * @param group  the curve group
    */
-  public static void writeCurveSettings(Appendable underlying, CurveGroup group) {
+  public static void writeCurveSettings(Appendable underlying, RatesCurveGroup group) {
     CsvOutput csv = CsvOutput.standard(underlying);
     // header
     csv.writeLine(HEADERS_SETTINGS);
@@ -403,7 +403,7 @@ public final class RatesCurvesCsvLoader {
    * @param valuationDate  the valuation date
    * @param group  the curve group
    */
-  public static void writeCurveNodes(File file, LocalDate valuationDate, CurveGroup group) {
+  public static void writeCurveNodes(File file, LocalDate valuationDate, RatesCurveGroup group) {
     try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
       writeCurveNodes(writer, valuationDate, group);
     } catch (IOException ex) {
@@ -418,7 +418,7 @@ public final class RatesCurvesCsvLoader {
    * @param valuationDate  the valuation date
    * @param group  the curve group
    */
-  public static void writeCurveNodes(Appendable underlying, LocalDate valuationDate, CurveGroup group) {
+  public static void writeCurveNodes(Appendable underlying, LocalDate valuationDate, RatesCurveGroup group) {
     CsvOutput csv = CsvOutput.standard(underlying);
     // header
     csv.writeLine(HEADERS_NODES);

@@ -19,8 +19,8 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.examples.data.export.ExportUtils;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -90,7 +90,7 @@ public class CalibrationPV01Example {
   public static void main(String[] arg) {
 
     /* Load the curve configurations from csv files */
-    Map<CurveGroupName, CurveGroupDefinition> configs =
+    Map<CurveGroupName, RatesCurveGroupDefinition> configs =
         RatesCalibrationCsvLoader.load(GROUP_RESOURCE, SETTINGS_RESOURCE, NODES_RESOURCE);
 
     /* Calibrate curves */
