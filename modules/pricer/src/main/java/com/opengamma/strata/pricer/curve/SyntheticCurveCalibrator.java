@@ -27,8 +27,8 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.CurveGroupDefinition;
-import com.opengamma.strata.market.curve.CurveGroupEntry;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -123,7 +123,7 @@ public final class SyntheticCurveCalibrator {
    * @return the rates provider
    */
   public ImmutableRatesProvider calibrate(
-      CurveGroupDefinition group,
+      RatesCurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
 
@@ -142,14 +142,14 @@ public final class SyntheticCurveCalibrator {
    * @return the market data
    */
   public ImmutableMarketData marketData(
-      CurveGroupDefinition group,
+      RatesCurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
 
     // Retrieve the set of required indices and the list of required currencies
     Set<Index> indicesRequired = new HashSet<Index>();
     List<Currency> ccyRequired = new ArrayList<>();
-    for (CurveGroupEntry entry : group.getEntries()) {
+    for (RatesCurveGroupEntry entry : group.getEntries()) {
       indicesRequired.addAll(entry.getIndices());
       ccyRequired.addAll(entry.getDiscountCurrencies());
     }

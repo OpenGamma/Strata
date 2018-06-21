@@ -49,7 +49,7 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -128,7 +128,7 @@ public class RatesMarketDataLookupTest {
   public void test_of_curveGroup() {
     ImmutableMap<Currency, Curve> discounts = ImmutableMap.of(USD, ConstantCurve.of(CURVE_ID_DSC.getCurveName(), 1));
     ImmutableMap<Index, Curve> forwards = ImmutableMap.of(USD_LIBOR_3M, ConstantCurve.of(CURVE_ID_FWD.getCurveName(), 1));
-    CurveGroup group = CurveGroup.of(CURVE_ID_DSC.getCurveGroupName(), discounts, forwards);
+    RatesCurveGroup group = RatesCurveGroup.of(CURVE_ID_DSC.getCurveGroupName(), discounts, forwards);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(group);
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
     assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));

@@ -30,10 +30,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 
 /**
- * Test {@link CurveGroup}.
+ * Test {@link RatesCurveGroup}.
  */
 @Test
-public class CurveGroupTest {
+public class RatesCurveGroupTest {
 
   private static final CurveGroupName NAME = CurveGroupName.of("TestGroup");
   private static final CurveGroupName NAME2 = CurveGroupName.of("TestGroup2");
@@ -48,7 +48,7 @@ public class CurveGroupTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    CurveGroup test = CurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
+    RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     assertThat(test.getName()).isEqualTo(NAME);
     assertThat(test.getDiscountCurves()).isEqualTo(DISCOUNT_CURVES);
     assertThat(test.getForwardCurves()).isEqualTo(IBOR_CURVES);
@@ -62,7 +62,7 @@ public class CurveGroupTest {
   }
 
   public void test_builder() {
-    CurveGroup test = CurveGroup.builder()
+    RatesCurveGroup test = RatesCurveGroup.builder()
         .name(NAME)
         .discountCurves(DISCOUNT_CURVES)
         .forwardCurves(IBOR_CURVES)
@@ -77,13 +77,13 @@ public class CurveGroupTest {
   }
 
   public void test_ofCurves() {
-    CurveGroupDefinition definition = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition definition = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("group"))
         .addCurve(DISCOUNT_NAME, GBP, GBP_LIBOR_1M)
         .addForwardCurve(IBOR_NAME, USD_LIBOR_1M, USD_LIBOR_2M)
         .addForwardCurve(OVERNIGHT_NAME, EUR_EONIA)
         .build();
-    CurveGroup group = CurveGroup.ofCurves(definition, DISCOUNT_CURVE, OVERNIGHT_CURVE, IBOR_CURVE);
+    RatesCurveGroup group = RatesCurveGroup.ofCurves(definition, DISCOUNT_CURVE, OVERNIGHT_CURVE, IBOR_CURVE);
     assertThat(group.findDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_1M)).hasValue(IBOR_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_2M)).hasValue(IBOR_CURVE);
@@ -91,17 +91,17 @@ public class CurveGroupTest {
   }
 
   public void test_ofCurves_duplicateCurveName() {
-    CurveGroupDefinition definition = CurveGroupDefinition.builder()
+    RatesCurveGroupDefinition definition = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("group"))
         .addForwardCurve(IBOR_NAME, USD_LIBOR_1M, USD_LIBOR_2M)
         .build();
-    CurveGroup group = CurveGroup.ofCurves(definition, IBOR_CURVE, IBOR_CURVE);
+    RatesCurveGroup group = RatesCurveGroup.ofCurves(definition, IBOR_CURVE, IBOR_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_1M)).hasValue(IBOR_CURVE);
     assertThat(group.findForwardCurve(USD_LIBOR_2M)).hasValue(IBOR_CURVE);
   }
 
   public void stream() {
-    CurveGroup test = CurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
+    RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     List<Curve> expected = ImmutableList.<Curve>builder()
         .addAll(DISCOUNT_CURVES.values())
         .addAll(IBOR_CURVES.values())
@@ -111,14 +111,14 @@ public class CurveGroupTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveGroup test = CurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
+    RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     coverImmutableBean(test);
-    CurveGroup test2 = CurveGroup.of(NAME2, ImmutableMap.of(), ImmutableMap.of());
+    RatesCurveGroup test2 = RatesCurveGroup.of(NAME2, ImmutableMap.of(), ImmutableMap.of());
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    CurveGroup test = CurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
+    RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     assertSerialization(test);
   }
 

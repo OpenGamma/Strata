@@ -20,10 +20,10 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.observable.QuoteId;
 
 /**
- * Test {@link CurveInputs}.
+ * Test {@link RatesCurveInputs}.
  */
 @Test
-public class CurveInputsTest {
+public class RatesCurveInputsTest {
 
   private static final Map<MarketDataId<?>, Object> DATA_MAP =
       ImmutableMap.of(QuoteId.of(StandardId.of("OG", "Ticker")), 6d);
@@ -34,27 +34,27 @@ public class CurveInputsTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    CurveInputs test = CurveInputs.of(DATA_MAP, METADATA);
+    RatesCurveInputs test = RatesCurveInputs.of(DATA_MAP, METADATA);
     assertThat(test.getMarketData()).isEqualTo(DATA_MAP);
     assertThat(test.getCurveMetadata()).isEqualTo(METADATA);
   }
 
   public void test_builder() {
-    CurveInputs test = CurveInputs.builder().marketData(DATA_MAP).curveMetadata(METADATA).build();
+    RatesCurveInputs test = RatesCurveInputs.builder().marketData(DATA_MAP).curveMetadata(METADATA).build();
     assertThat(test.getMarketData()).isEqualTo(DATA_MAP);
     assertThat(test.getCurveMetadata()).isEqualTo(METADATA);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveInputs test = CurveInputs.of(DATA_MAP, METADATA);
+    RatesCurveInputs test = RatesCurveInputs.of(DATA_MAP, METADATA);
     coverImmutableBean(test);
-    CurveInputs test2 = CurveInputs.of(DATA_MAP2, METADATA2);
+    RatesCurveInputs test2 = RatesCurveInputs.of(DATA_MAP2, METADATA2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    CurveInputs test = CurveInputs.of(DATA_MAP, METADATA);
+    RatesCurveInputs test = RatesCurveInputs.of(DATA_MAP, METADATA);
     assertSerialization(test);
   }
 
