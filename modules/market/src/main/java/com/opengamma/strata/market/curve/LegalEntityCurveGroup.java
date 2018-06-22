@@ -37,12 +37,12 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 @BeanDefinition
 public final class LegalEntityCurveGroup
-    implements ImmutableBean, Serializable {
+    implements CurveGroup, ImmutableBean, Serializable {
 
   /**
    * The name of the curve group.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveGroupName name;
   /**
    * The repo curves in the curve group, keyed by repo group and currency.
@@ -81,6 +81,7 @@ public final class LegalEntityCurveGroup
    * @param name  the curve name
    * @return the curve, empty if not found
    */
+  @Override
   public Optional<Curve> findCurve(CurveName name) {
     return Stream.concat(repoCurves.values().stream(), issuerCurves.values().stream())
         .filter(c -> c.getName().equals(name))
@@ -119,6 +120,7 @@ public final class LegalEntityCurveGroup
    *
    * @return Returns a stream of all curves in the group
    */
+  @Override
   public Stream<Curve> stream() {
     return Stream.concat(repoCurves.values().stream(), issuerCurves.values().stream());
   }
@@ -189,6 +191,7 @@ public final class LegalEntityCurveGroup
    * Gets the name of the curve group.
    * @return the value of the property, not null
    */
+  @Override
   public CurveGroupName getName() {
     return name;
   }

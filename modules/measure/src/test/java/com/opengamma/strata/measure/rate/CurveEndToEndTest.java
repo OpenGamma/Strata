@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
-import static com.opengamma.strata.measure.curve.CurveTestUtils.fixedIborSwapNode;
-import static com.opengamma.strata.measure.curve.CurveTestUtils.fraNode;
-import static com.opengamma.strata.measure.curve.CurveTestUtils.id;
+import static com.opengamma.strata.measure.rate.CurveTestUtils.fixedIborSwapNode;
+import static com.opengamma.strata.measure.rate.CurveTestUtils.fraNode;
+import static com.opengamma.strata.measure.rate.CurveTestUtils.id;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -43,18 +43,17 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
-import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.swap.SwapTradeCalculationFunction;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.fra.FraTrade;

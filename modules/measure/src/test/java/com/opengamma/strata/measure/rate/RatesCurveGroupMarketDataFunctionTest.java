@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.curve;
+package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
@@ -42,17 +42,17 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.RatesCurveGroup;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
-import com.opengamma.strata.market.curve.RatesCurveInputs;
-import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupId;
+import com.opengamma.strata.market.curve.RatesCurveInputs;
+import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
@@ -61,7 +61,7 @@ import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
+import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -72,10 +72,10 @@ import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
 /**
- * Test {@link CurveGroupMarketDataFunction}.
+ * Test {@link RatesCurveGroupMarketDataFunction}.
  */
 @Test
-public class CurveGroupMarketDataFunctionTest {
+public class RatesCurveGroupMarketDataFunctionTest {
 
   /** The calibrator. */
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();
@@ -114,7 +114,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
+    RatesCurveGroupMarketDataFunction function = new RatesCurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
     ScenarioMarketData inputMarketData = ImmutableScenarioMarketData.builder(valuationDate)
         .addValue(RatesCurveInputsId.of(groupName, curveName, ObservableSource.NONE), curveInputs)
@@ -149,7 +149,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
+    RatesCurveGroupMarketDataFunction function = new RatesCurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
 
     Map<MarketDataId<?>, Double> inputData = ImmutableMap.<MarketDataId<?>, Double>builder()
@@ -214,7 +214,7 @@ public class CurveGroupMarketDataFunctionTest {
         .add(groupName, groupDefn)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
+    RatesCurveGroupMarketDataFunction function = new RatesCurveGroupMarketDataFunction();
     RatesCurveGroupId curveGroupId = RatesCurveGroupId.of(groupName, obsSource);
     MarketDataRequirements requirements = function.requirements(curveGroupId, marketDataConfig);
 
@@ -254,7 +254,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(RatesCurveInputsId.of(groupName, fraCurveDefn.getName(), ObservableSource.NONE), fraCurveInputs)
         .build();
 
-    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
+    RatesCurveGroupMarketDataFunction function = new RatesCurveGroupMarketDataFunction();
     MarketDataBox<RatesCurveGroup> curveGroup = function.build(curveGroupId, marketDataConfig, marketData, REF_DATA);
 
     // Check the FRA curve identifiers are the expected tenors
@@ -325,7 +325,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addDiscountCurve(curve2, Currency.USD)
         .build();
 
-    CurveGroupMarketDataFunction fn = new CurveGroupMarketDataFunction();
+    RatesCurveGroupMarketDataFunction fn = new RatesCurveGroupMarketDataFunction();
     Map<MarketDataId<?>, Object> marketDataMap1 = ImmutableMap.of(
         FxRateId.of(Currency.EUR, Currency.USD),
         FxRate.of(Currency.EUR, Currency.USD, 1.01),
