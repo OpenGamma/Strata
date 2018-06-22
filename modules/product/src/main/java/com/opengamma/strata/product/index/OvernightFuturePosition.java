@@ -39,8 +39,6 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  * <p>
  * An Overnight rate future is a financial instrument that is based on the future value of
  * an Overnight rate index interest rate. The profit or loss of an Overnight rate future is settled daily.
- * An Overnight rate future is also known as a <i>STIR future</i> (Short Term Interest Rate).
- * This class represents the structure of a single futures contract.
  * <p>
  * For example, the widely traded "30-Day Federal Funds futures contract" has a notional
  * of 5 million USD, is based on the US Federal Funds Effective Rate 'USD-FED-FUND', 
