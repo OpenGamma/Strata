@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2018 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -29,14 +29,18 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Defines the computation of a rate from a single Overnight index that is averaged daily.
+ * Defines the computation of an averaged daily rate for a single Overnight index.
  * <p>
  * An interest rate determined directly from an Overnight index by averaging the value
- * of each day's rate over the period.
+ * of each day's rate over the period strictly between the start date and end date. 
+ * <p>
+ * If a day in the period is not a business day on the fixing calendar of the Overnight index, 
+ * the overnight rate fixed on the previous business day is used.
+ * <p>
  * For example, a rate determined averaging values from 'USD-FED-FUND'.
  */
 @BeanDefinition
-public final class OvernightAveragedRateComputation
+public final class OvernightAveragedDailyRateComputation
     implements OvernightRateComputation, ImmutableBean, Serializable {
 
   /**
@@ -53,55 +57,27 @@ public final class OvernightAveragedRateComputation
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final HolidayCalendar fixingCalendar;
   /**
-   * The fixing date associated with the start date of the accrual period.
+   * The start date of the accrual period.
    * <p>
-   * This is also the first fixing date.
-   * The overnight rate is observed from this date onwards.
-   * <p>
-   * In general, the fixing dates and accrual dates are the same for an overnight index.
-   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
-   * before the accrual period.
+   * This is not necessarily a valid business day.
+   * In this case, the first fixing date is the previous business day of the start date on {@code fixingCalendar}. 
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate startDate;
   /**
-   * The fixing date associated with the end date of the accrual period.
+   * The end date of the accrual period.
    * <p>
-   * The overnight rate is accrued until the maturity date associated with this date.
-   * <p>
-   * In general, the fixing dates and accrual dates are the same for an overnight index.
-   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
-   * before the accrual period.
+   * This is not necessarily a valid business day.
+   * In this case, the last fixing date is the previous business day of the end date on {@code fixingCalendar}. 
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate endDate;
-  /**
-   * The number of business days before the end of the period that the rate is cut off.
-   * <p>
-   * When a rate cut-off applies, the final daily rate is determined this number of days
-   * before the end of the period, with any subsequent days having the same rate.
-   * <p>
-   * The amount must be zero or positive.
-   * A value of zero or one will have no effect on the standard calculation.
-   * The fixing holiday calendar of the index is used to determine business days.
-   * <p>
-   * For example, a value of {@code 3} means that the rate observed on
-   * {@code (periodEndDate - 3 business days)} is also to be used on
-   * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
-   * <p>
-   * If there are multiple accrual periods in the payment period, then this
-   * should typically only be non-zero in the last accrual period.
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final int rateCutOffDays;
 
   //-------------------------------------------------------------------------
   /**
    * Creates an instance from an index and accrual period dates
    * <p>
    * The dates represent the accrual period.
-   * <p>
-   * No rate cut-off applies.
    * 
    * @param index  the index
    * @param startDate  the first date of the accrual period
@@ -109,41 +85,17 @@ public final class OvernightAveragedRateComputation
    * @param refData  the reference data to use when resolving holiday calendars
    * @return the rate computation
    */
-  public static OvernightAveragedRateComputation of(
+  public static OvernightAveragedDailyRateComputation of(
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate,
       ReferenceData refData) {
 
-    return of(index, startDate, endDate, 0, refData);
-  }
-
-  /**
-   * Creates an instance from an index, accrual period dates and rate cut-off.
-   * <p>
-   * Rate cut-off applies if the cut-off is 2 or greater.
-   * A value of 0 or 1 should be used if no cut-off applies.
-   * 
-   * @param index  the index
-   * @param startDate  the first date of the accrual period
-   * @param endDate  the last date of the accrual period
-   * @param rateCutOffDays  the rate cut-off days offset, not negative or zero
-   * @param refData  the reference data to use when resolving holiday calendars
-   * @return the rate computation
-   */
-  public static OvernightAveragedRateComputation of(
-      OvernightIndex index,
-      LocalDate startDate,
-      LocalDate endDate,
-      int rateCutOffDays,
-      ReferenceData refData) {
-
-    return OvernightAveragedRateComputation.builder()
+    return OvernightAveragedDailyRateComputation.builder()
         .index(index)
         .fixingCalendar(index.getFixingCalendar().resolve(refData))
-        .startDate(index.calculateFixingFromEffective(startDate, refData))
-        .endDate(index.calculateFixingFromEffective(endDate, refData))
-        .rateCutOffDays(rateCutOffDays)
+        .startDate(startDate)
+        .endDate(endDate)
         .build();
   }
 
@@ -155,15 +107,15 @@ public final class OvernightAveragedRateComputation
 
   //------------------------- AUTOGENERATED START -------------------------
   /**
-   * The meta-bean for {@code OvernightAveragedRateComputation}.
+   * The meta-bean for {@code OvernightAveragedDailyRateComputation}.
    * @return the meta-bean, not null
    */
-  public static OvernightAveragedRateComputation.Meta meta() {
-    return OvernightAveragedRateComputation.Meta.INSTANCE;
+  public static OvernightAveragedDailyRateComputation.Meta meta() {
+    return OvernightAveragedDailyRateComputation.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(OvernightAveragedRateComputation.Meta.INSTANCE);
+    MetaBean.register(OvernightAveragedDailyRateComputation.Meta.INSTANCE);
   }
 
   /**
@@ -175,32 +127,29 @@ public final class OvernightAveragedRateComputation
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static OvernightAveragedRateComputation.Builder builder() {
-    return new OvernightAveragedRateComputation.Builder();
+  public static OvernightAveragedDailyRateComputation.Builder builder() {
+    return new OvernightAveragedDailyRateComputation.Builder();
   }
 
-  private OvernightAveragedRateComputation(
+  private OvernightAveragedDailyRateComputation(
       OvernightIndex index,
       HolidayCalendar fixingCalendar,
       LocalDate startDate,
-      LocalDate endDate,
-      int rateCutOffDays) {
+      LocalDate endDate) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
-    ArgChecker.notNegative(rateCutOffDays, "rateCutOffDays");
     this.index = index;
     this.fixingCalendar = fixingCalendar;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.rateCutOffDays = rateCutOffDays;
     validate();
   }
 
   @Override
-  public OvernightAveragedRateComputation.Meta metaBean() {
-    return OvernightAveragedRateComputation.Meta.INSTANCE;
+  public OvernightAveragedDailyRateComputation.Meta metaBean() {
+    return OvernightAveragedDailyRateComputation.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -228,14 +177,10 @@ public final class OvernightAveragedRateComputation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixing date associated with the start date of the accrual period.
+   * Gets the start date of the accrual period.
    * <p>
-   * This is also the first fixing date.
-   * The overnight rate is observed from this date onwards.
-   * <p>
-   * In general, the fixing dates and accrual dates are the same for an overnight index.
-   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
-   * before the accrual period.
+   * This is not necessarily a valid business day.
+   * In this case, the first fixing date is the previous business day of the start date on {@code fixingCalendar}.
    * @return the value of the property, not null
    */
   @Override
@@ -245,41 +190,15 @@ public final class OvernightAveragedRateComputation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixing date associated with the end date of the accrual period.
+   * Gets the end date of the accrual period.
    * <p>
-   * The overnight rate is accrued until the maturity date associated with this date.
-   * <p>
-   * In general, the fixing dates and accrual dates are the same for an overnight index.
-   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
-   * before the accrual period.
+   * This is not necessarily a valid business day.
+   * In this case, the last fixing date is the previous business day of the end date on {@code fixingCalendar}.
    * @return the value of the property, not null
    */
   @Override
   public LocalDate getEndDate() {
     return endDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the number of business days before the end of the period that the rate is cut off.
-   * <p>
-   * When a rate cut-off applies, the final daily rate is determined this number of days
-   * before the end of the period, with any subsequent days having the same rate.
-   * <p>
-   * The amount must be zero or positive.
-   * A value of zero or one will have no effect on the standard calculation.
-   * The fixing holiday calendar of the index is used to determine business days.
-   * <p>
-   * For example, a value of {@code 3} means that the rate observed on
-   * {@code (periodEndDate - 3 business days)} is also to be used on
-   * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
-   * <p>
-   * If there are multiple accrual periods in the payment period, then this
-   * should typically only be non-zero in the last accrual period.
-   * @return the value of the property
-   */
-  public int getRateCutOffDays() {
-    return rateCutOffDays;
   }
 
   //-----------------------------------------------------------------------
@@ -297,12 +216,11 @@ public final class OvernightAveragedRateComputation
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      OvernightAveragedRateComputation other = (OvernightAveragedRateComputation) obj;
+      OvernightAveragedDailyRateComputation other = (OvernightAveragedDailyRateComputation) obj;
       return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(fixingCalendar, other.fixingCalendar) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
-          JodaBeanUtils.equal(endDate, other.endDate) &&
-          (rateCutOffDays == other.rateCutOffDays);
+          JodaBeanUtils.equal(endDate, other.endDate);
     }
     return false;
   }
@@ -314,26 +232,24 @@ public final class OvernightAveragedRateComputation
     hash = hash * 31 + JodaBeanUtils.hashCode(fixingCalendar);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(rateCutOffDays);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("OvernightAveragedRateComputation{");
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("OvernightAveragedDailyRateComputation{");
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("fixingCalendar").append('=').append(fixingCalendar).append(',').append(' ');
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code OvernightAveragedRateComputation}.
+   * The meta-bean for {@code OvernightAveragedDailyRateComputation}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -345,27 +261,22 @@ public final class OvernightAveragedRateComputation
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", OvernightAveragedRateComputation.class, OvernightIndex.class);
+        this, "index", OvernightAveragedDailyRateComputation.class, OvernightIndex.class);
     /**
      * The meta-property for the {@code fixingCalendar} property.
      */
     private final MetaProperty<HolidayCalendar> fixingCalendar = DirectMetaProperty.ofImmutable(
-        this, "fixingCalendar", OvernightAveragedRateComputation.class, HolidayCalendar.class);
+        this, "fixingCalendar", OvernightAveragedDailyRateComputation.class, HolidayCalendar.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", OvernightAveragedRateComputation.class, LocalDate.class);
+        this, "startDate", OvernightAveragedDailyRateComputation.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", OvernightAveragedRateComputation.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code rateCutOffDays} property.
-     */
-    private final MetaProperty<Integer> rateCutOffDays = DirectMetaProperty.ofImmutable(
-        this, "rateCutOffDays", OvernightAveragedRateComputation.class, Integer.TYPE);
+        this, "endDate", OvernightAveragedDailyRateComputation.class, LocalDate.class);
     /**
      * The meta-properties.
      */
@@ -374,8 +285,7 @@ public final class OvernightAveragedRateComputation
         "index",
         "fixingCalendar",
         "startDate",
-        "endDate",
-        "rateCutOffDays");
+        "endDate");
 
     /**
      * Restricted constructor.
@@ -394,20 +304,18 @@ public final class OvernightAveragedRateComputation
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -92095804:  // rateCutOffDays
-          return rateCutOffDays;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public OvernightAveragedRateComputation.Builder builder() {
-      return new OvernightAveragedRateComputation.Builder();
+    public OvernightAveragedDailyRateComputation.Builder builder() {
+      return new OvernightAveragedDailyRateComputation.Builder();
     }
 
     @Override
-    public Class<? extends OvernightAveragedRateComputation> beanType() {
-      return OvernightAveragedRateComputation.class;
+    public Class<? extends OvernightAveragedDailyRateComputation> beanType() {
+      return OvernightAveragedDailyRateComputation.class;
     }
 
     @Override
@@ -448,28 +356,18 @@ public final class OvernightAveragedRateComputation
       return endDate;
     }
 
-    /**
-     * The meta-property for the {@code rateCutOffDays} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> rateCutOffDays() {
-      return rateCutOffDays;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((OvernightAveragedRateComputation) bean).getIndex();
+          return ((OvernightAveragedDailyRateComputation) bean).getIndex();
         case 394230283:  // fixingCalendar
-          return ((OvernightAveragedRateComputation) bean).getFixingCalendar();
+          return ((OvernightAveragedDailyRateComputation) bean).getFixingCalendar();
         case -2129778896:  // startDate
-          return ((OvernightAveragedRateComputation) bean).getStartDate();
+          return ((OvernightAveragedDailyRateComputation) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((OvernightAveragedRateComputation) bean).getEndDate();
-        case -92095804:  // rateCutOffDays
-          return ((OvernightAveragedRateComputation) bean).getRateCutOffDays();
+          return ((OvernightAveragedDailyRateComputation) bean).getEndDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -487,15 +385,14 @@ public final class OvernightAveragedRateComputation
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code OvernightAveragedRateComputation}.
+   * The bean-builder for {@code OvernightAveragedDailyRateComputation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<OvernightAveragedRateComputation> {
+  public static final class Builder extends DirectFieldsBeanBuilder<OvernightAveragedDailyRateComputation> {
 
     private OvernightIndex index;
     private HolidayCalendar fixingCalendar;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int rateCutOffDays;
 
     /**
      * Restricted constructor.
@@ -507,12 +404,11 @@ public final class OvernightAveragedRateComputation
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(OvernightAveragedRateComputation beanToCopy) {
+    private Builder(OvernightAveragedDailyRateComputation beanToCopy) {
       this.index = beanToCopy.getIndex();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
-      this.rateCutOffDays = beanToCopy.getRateCutOffDays();
     }
 
     //-----------------------------------------------------------------------
@@ -527,8 +423,6 @@ public final class OvernightAveragedRateComputation
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -92095804:  // rateCutOffDays
-          return rateCutOffDays;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -549,9 +443,6 @@ public final class OvernightAveragedRateComputation
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
           break;
-        case -92095804:  // rateCutOffDays
-          this.rateCutOffDays = (Integer) newValue;
-          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -565,13 +456,12 @@ public final class OvernightAveragedRateComputation
     }
 
     @Override
-    public OvernightAveragedRateComputation build() {
-      return new OvernightAveragedRateComputation(
+    public OvernightAveragedDailyRateComputation build() {
+      return new OvernightAveragedDailyRateComputation(
           index,
           fixingCalendar,
           startDate,
-          endDate,
-          rateCutOffDays);
+          endDate);
     }
 
     //-----------------------------------------------------------------------
@@ -601,14 +491,10 @@ public final class OvernightAveragedRateComputation
     }
 
     /**
-     * Sets the fixing date associated with the start date of the accrual period.
+     * Sets the start date of the accrual period.
      * <p>
-     * This is also the first fixing date.
-     * The overnight rate is observed from this date onwards.
-     * <p>
-     * In general, the fixing dates and accrual dates are the same for an overnight index.
-     * However, in the case of a Tomorrow/Next index, the fixing period is one business day
-     * before the accrual period.
+     * This is not necessarily a valid business day.
+     * In this case, the first fixing date is the previous business day of the start date on {@code fixingCalendar}.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -619,13 +505,10 @@ public final class OvernightAveragedRateComputation
     }
 
     /**
-     * Sets the fixing date associated with the end date of the accrual period.
+     * Sets the end date of the accrual period.
      * <p>
-     * The overnight rate is accrued until the maturity date associated with this date.
-     * <p>
-     * In general, the fixing dates and accrual dates are the same for an overnight index.
-     * However, in the case of a Tomorrow/Next index, the fixing period is one business day
-     * before the accrual period.
+     * This is not necessarily a valid business day.
+     * In this case, the last fixing date is the previous business day of the end date on {@code fixingCalendar}.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -635,41 +518,15 @@ public final class OvernightAveragedRateComputation
       return this;
     }
 
-    /**
-     * Sets the number of business days before the end of the period that the rate is cut off.
-     * <p>
-     * When a rate cut-off applies, the final daily rate is determined this number of days
-     * before the end of the period, with any subsequent days having the same rate.
-     * <p>
-     * The amount must be zero or positive.
-     * A value of zero or one will have no effect on the standard calculation.
-     * The fixing holiday calendar of the index is used to determine business days.
-     * <p>
-     * For example, a value of {@code 3} means that the rate observed on
-     * {@code (periodEndDate - 3 business days)} is also to be used on
-     * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
-     * <p>
-     * If there are multiple accrual periods in the payment period, then this
-     * should typically only be non-zero in the last accrual period.
-     * @param rateCutOffDays  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder rateCutOffDays(int rateCutOffDays) {
-      ArgChecker.notNegative(rateCutOffDays, "rateCutOffDays");
-      this.rateCutOffDays = rateCutOffDays;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("OvernightAveragedRateComputation.Builder{");
+      StringBuilder buf = new StringBuilder(160);
+      buf.append("OvernightAveragedDailyRateComputation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
-      buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate));
       buf.append('}');
       return buf.toString();
     }

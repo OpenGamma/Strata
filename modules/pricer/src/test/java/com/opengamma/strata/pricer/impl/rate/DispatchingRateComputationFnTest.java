@@ -42,6 +42,7 @@ import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
+import com.opengamma.strata.product.rate.OvernightAveragedDailyRateComputation;
 import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
@@ -72,6 +73,8 @@ public class DispatchingRateComputationFnTest {
       mock(RateComputationFn.class);
   private static final RateComputationFn<OvernightAveragedRateComputation> MOCK_ON_AVE_EMPTY =
       mock(RateComputationFn.class);
+  private static final RateComputationFn<OvernightAveragedDailyRateComputation> MOCK_ON_AVE_DLY_EMPTY =
+      mock(RateComputationFn.class);
   private static final RateComputationFn<InflationMonthlyRateComputation> MOCK_INF_MON_EMPTY =
       mock(RateComputationFn.class);
   private static final RateComputationFn<InflationInterpolatedRateComputation> MOCK_INF_INT_EMPTY =
@@ -100,6 +103,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -120,6 +124,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -150,6 +155,7 @@ public class DispatchingRateComputationFnTest {
         mockIborAve,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -170,6 +176,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         mockOnCpd,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -189,6 +196,28 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_INT_EMPTY,
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
+        mockOnAve,
+        MOCK_ON_AVE_DLY_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
+    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+  }
+
+  public void test_rate_OvernightAveragedDailyRateComputation() {
+    double mockRate = 0.0123d;
+    RateComputationFn<OvernightAveragedDailyRateComputation> mockOnAve = mock(RateComputationFn.class);
+    OvernightAveragedDailyRateComputation ro =
+        OvernightAveragedDailyRateComputation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, REF_DATA);
+    when(mockOnAve.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
+        .thenReturn(mockRate);
+    DispatchingRateComputationFn test = new DispatchingRateComputationFn(
+        MOCK_IBOR_EMPTY,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        MOCK_ON_AVE_EMPTY,
         mockOnAve,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
@@ -210,6 +239,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         mockInfMon,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -230,6 +260,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         mockInfInt,
         MOCK_INF_BOND_MON_EMPTY,
@@ -250,6 +281,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         mockInfMon,
@@ -270,6 +302,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -302,6 +335,7 @@ public class DispatchingRateComputationFnTest {
         MOCK_IBOR_AVE_EMPTY,
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
+        MOCK_ON_AVE_DLY_EMPTY,
         MOCK_INF_MON_EMPTY,
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
@@ -316,6 +350,8 @@ public class DispatchingRateComputationFnTest {
         OvernightCompoundedRateComputation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
     OvernightAveragedRateComputation onAvg =
         OvernightAveragedRateComputation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
+    OvernightAveragedDailyRateComputation onAvgDly =
+        OvernightAveragedDailyRateComputation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, REF_DATA);
     InflationMonthlyRateComputation inflationMonthly =
         InflationMonthlyRateComputation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
     InflationInterpolatedRateComputation inflationInterp =
@@ -332,6 +368,7 @@ public class DispatchingRateComputationFnTest {
     ignoreThrows(() -> test.rateSensitivity(iborAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(onCpd, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(onAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
+    ignoreThrows(() -> test.rateSensitivity(onAvgDly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(inflationMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(inflationInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(inflationEndMonth, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
@@ -345,6 +382,7 @@ public class DispatchingRateComputationFnTest {
     ignoreThrows(() -> test.explainRate(iborAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(onCpd, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(onAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(onAvgDly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(inflationMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(inflationInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(inflationEndMonth, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));

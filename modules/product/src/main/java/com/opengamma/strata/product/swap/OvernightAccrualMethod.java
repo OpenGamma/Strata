@@ -33,7 +33,13 @@ public enum OvernightAccrualMethod implements NamedEnum {
    * Interest is accrued by taking the average of all the rates published on the
    * index during the accrual period.
    */
-  AVERAGED;
+  AVERAGED,
+  /**
+   * The averaged daily method.
+   * <p>
+   * Interest is accrued by taking the average of all the daily rates during the observation period.
+   */
+  AVERAGED_DAILY;
 
   // helper for name conversions
   private static final EnumNames<OvernightAccrualMethod> NAMES = EnumNames.of(OvernightAccrualMethod.class);

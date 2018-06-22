@@ -40,8 +40,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
-import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
+import com.opengamma.strata.product.rate.OvernightRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
 
 /**
@@ -219,13 +218,13 @@ public final class OvernightRateCalculation
   // creates the rate computation
   private RateComputation createRateComputation(SchedulePeriod period, Schedule paymentSchedule, ReferenceData refData) {
     int effectiveRateCutOffDaysOffset = (isLastAccrualInPaymentPeriod(period, paymentSchedule) ? rateCutOffDays : 0);
-    if (accrualMethod == OvernightAccrualMethod.AVERAGED) {
-      return OvernightAveragedRateComputation.of(
-          index, period.getStartDate(), period.getEndDate(), effectiveRateCutOffDaysOffset, refData);
-    } else {
-      return OvernightCompoundedRateComputation.of(
-          index, period.getStartDate(), period.getEndDate(), effectiveRateCutOffDaysOffset, refData);
-    }
+    return OvernightRateComputation.of(
+        index,
+        period.getStartDate(),
+        period.getEndDate(),
+        effectiveRateCutOffDaysOffset,
+        accrualMethod,
+        refData);
   }
 
   // rate cut-off only applies to the last accrual period in a payment period
