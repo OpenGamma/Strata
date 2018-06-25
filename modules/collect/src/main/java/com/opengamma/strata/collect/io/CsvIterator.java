@@ -46,7 +46,7 @@ import com.opengamma.strata.collect.Unchecked;
  * One way to use the iterable is with the for-each loop, using a lambda to adapt {@code Iterator} to {@code Iterable}:
  * <pre>
  *  try (CsvIterator csvIterator = CsvIterator.of(source, true)) {
- *    for (CsvRow row : () -> csvIterator) {
+ *    for (CsvRow row : () -&gt; csvIterator) {
  *      // process the row
  *    }
  *  }

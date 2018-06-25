@@ -250,7 +250,7 @@ public interface LocalDateDoubleTimeSeries {
    * This is generally used to apply a mathematical operation to the values.
    * For example, the operator could multiply each value by a constant, or take the inverse.
    * <pre>
-   *   base.forEach((date, value) -> System.out.println(date + "=" + value));
+   *   base.forEach((date, value) -&gt; System.out.println(date + "=" + value));
    * </pre>
    *
    * @param action  the action to be applied to each pair
@@ -266,7 +266,7 @@ public interface LocalDateDoubleTimeSeries {
    * The operation must not change the dates in a way that reorders them. The mapped dates must be in ascending
    * order or an exception is thrown.
    * <pre>
-   *   updatedSeries = timeSeries.mapDates(date -> date.plusYears(1));
+   *   updatedSeries = timeSeries.mapDates(date -&gt; date.plusYears(1));
    * </pre>
    *
    * @param mapper  the operation applied to each date in the time series
@@ -280,7 +280,7 @@ public interface LocalDateDoubleTimeSeries {
    * This is generally used to apply a mathematical operation to the values.
    * For example, the operator could multiply each value by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.mapValues(value -> value * 3);
+   *   multiplied = base.mapValues(value -&gt; value * 3);
    * </pre>
    *
    * @param mapper  the operator to be applied to the values

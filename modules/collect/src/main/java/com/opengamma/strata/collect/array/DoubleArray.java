@@ -583,7 +583,7 @@ public final class DoubleArray
    * The action receives both the index and the value.
    * For example, the action could print out the array.
    * <pre>
-   *   base.forEach((index, value) -> System.out.println(index + ": " + value));
+   *   base.forEach((index, value) -&gt; System.out.println(index + ": " + value));
    * </pre>
    * <p>
    * This instance is immutable and unaffected by this method.
@@ -714,7 +714,7 @@ public final class DoubleArray
    * The operator only receives the value.
    * For example, the operator could take the inverse of each element.
    * <pre>
-   *   result = base.map(value -> 1 / value);
+   *   result = base.map(value -&gt; 1 / value);
    * </pre>
    * <p>
    * This instance is immutable and unaffected by this method.
@@ -737,7 +737,7 @@ public final class DoubleArray
    * The function receives both the index and the value.
    * For example, the operator could multiply the value by the index.
    * <pre>
-   *   result = base.mapWithIndex((index, value) -> index * value);
+   *   result = base.mapWithIndex((index, value) -&gt; index * value);
    * </pre>
    * <p>
    * This instance is immutable and unaffected by this method.

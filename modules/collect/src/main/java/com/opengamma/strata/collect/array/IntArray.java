@@ -551,7 +551,7 @@ public final class IntArray
    * The action receives both the index and the value.
    * For example, the action could print out the array.
    * <pre>
-   *   base.forEach((index, value) -> System.out.println(index + ": " + value));
+   *   base.forEach((index, value) -&gt; System.out.println(index + ": " + value));
    * </pre>
    * <p>
    * This instance is immutable and unaffected by this method.
@@ -680,7 +680,7 @@ public final class IntArray
    * The operator only receives the value.
    * For example, the operator could multiply and add each element.
    * <pre>
-   *   result = base.map(value -> value * 3 + 4);
+   *   result = base.map(value -&gt; value * 3 + 4);
    * </pre>
    * <p>
    * This instance is immutable and unaffected by this method.
@@ -703,7 +703,7 @@ public final class IntArray
    * The function receives both the index and the value.
    * For example, the operator could multiply the value by the index.
    * <pre>
-   *   result = base.mapWithIndex((index, value) -> index * value);
+   *   result = base.mapWithIndex((index, value) -&gt; index * value);
    * </pre>
    * <p>
    * This instance is immutable and unaffected by this method.

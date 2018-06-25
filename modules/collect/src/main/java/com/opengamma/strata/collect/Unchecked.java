@@ -42,7 +42,7 @@ import com.opengamma.strata.collect.function.CheckedUnaryOperator;
  * For example, the method {@link File#getCanonicalFile()} throws an {@link IOException}
  * which can be handled as follows:
  * <pre>
- *  stream.map(Unchecked.function(file -> file.getCanonicalFile())
+ *  stream.map(Unchecked.function(file -&gt; file.getCanonicalFile())
  * </pre>
  * <p>
  * Each method accepts a functional interface that is defined to throw {@link Throwable}.

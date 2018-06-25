@@ -118,7 +118,7 @@ public final class ArgChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
-   *  ArgChecker.isTrue(value > check, "Value must be greater than check: {}", value);
+   *  ArgChecker.isTrue(value &gt; check, "Value must be greater than check: {}", value);
    * </pre>
    * <p>
    * This returns {@code void}, and not the value being checked, as there is
@@ -147,7 +147,7 @@ public final class ArgChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
-   *  ArgChecker.isTrue(value > check, "Value must be greater than check: {}", value);
+   *  ArgChecker.isTrue(value &gt; check, "Value must be greater than check: {}", value);
    * </pre>
    * <p>
    * This returns {@code void}, and not the value being checked, as there is

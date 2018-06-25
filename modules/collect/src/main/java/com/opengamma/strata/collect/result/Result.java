@@ -49,10 +49,9 @@ import com.opengamma.strata.collect.Messages;
  * Application code using a result should also operate in a functional style.
  * Use {@link #map(Function)} and {@link #flatMap(Function)} in preference to
  * {@link #isSuccess()} and {@link #getValue()}.
- * <p>
  * <pre>
  *  Result{@literal <Foo>} intermediateResult = calculateIntermediateResult();
- *  return intermediateResult.flatMap(foo -> calculateFinalResult(foo, ...));
+ *  return intermediateResult.flatMap(foo -&gt; calculateFinalResult(foo, ...));
  * </pre>
  * <p>
  * Results can be generated using the factory methods on this class.
@@ -433,11 +432,11 @@ public final class Result<T>
    * <p>
    * The following code shows where this method can be used. The code:
    * <blockquote><pre>
-   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
+   *   Set&lt;Result&lt;MyData&gt;&gt; results = goAndGatherData();
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Set&lt;FooData> combined =
+   *     Set&lt;FooData&gt; combined =
    *         results.stream()
    *             .map(Result::getValue)
    *             .map(MyData::transformToFoo)
@@ -447,8 +446,8 @@ public final class Result<T>
    * </pre></blockquote>
    * can be replaced with:
    * <blockquote><pre>
-   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
-   *   return Result.combine(results, myDataStream ->
+   *   Set&lt;Result&lt;MyData&gt;&gt; results = goAndGatherData();
+   *   return Result.combine(results, myDataStream -&gt;
    *       myDataStream
    *           .map(MyData::transformToFoo)
    *           .collect(toSet())
@@ -487,11 +486,11 @@ public final class Result<T>
    * <p>
    * The following code shows where this method can be used. The code:
    * <blockquote><pre>
-   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
+   *   Set&lt;Result&lt;MyData&gt;&gt; results = goAndGatherData();
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Set&lt;FooData> combined =
+   *     Set&lt;FooData&gt; combined =
    *         results.stream()
    *             .map(Result::getValue)
    *             .map(MyData::transformToFoo)
@@ -501,9 +500,9 @@ public final class Result<T>
    * </pre></blockquote>
    * can be replaced with:
    * <blockquote><pre>
-   *   Set&lt;Result&lt;MyData>> results = goAndGatherData();
-   *   return Result.flatCombine(results, myDataStream -> {
-   *     Set&lt;CombinedData> combined =
+   *   Set&lt;Result&lt;MyData&gt;&gt; results = goAndGatherData();
+   *   return Result.flatCombine(results, myDataStream -&gt; {
+   *     Set&lt;CombinedData&gt; combined =
    *         myDataStream
    *             .map(MyData::transformToFoo)
    *             .collect(toSet());
@@ -687,7 +686,7 @@ public final class Result<T>
    * For example, it allows a {@code double} to be converted to a string:
    * <blockquote><pre>
    *   result = ...
-   *   return result.map(value -> Double.toString(value));
+   *   return result.map(value -&gt; Double.toString(value));
    * </pre></blockquote>
    *
    * @param <R>  the type of the value in the returned result
@@ -723,7 +722,7 @@ public final class Result<T>
    * For example,
    * <blockquote><pre>
    *   result = ...
-   *   return result.flatMap(value -> doSomething(value));
+   *   return result.flatMap(value -&gt; doSomething(value));
    * </pre></blockquote>
    *
    * @param <R>  the type of the value in the returned result
@@ -756,7 +755,7 @@ public final class Result<T>
    * <blockquote><pre>
    *   result1 = ...
    *   result2 = ...
-   *   return result1.combineWith(result2, (value1, value2) -> doSomething(value1, value2));
+   *   return result1.combineWith(result2, (value1, value2) -&gt; doSomething(value1, value2));
    * </pre></blockquote>
    *
    * @param other  another result

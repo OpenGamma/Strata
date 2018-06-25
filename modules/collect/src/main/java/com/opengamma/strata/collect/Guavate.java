@@ -844,7 +844,7 @@ public final class Guavate {
    * This pattern may be useful for that case:
    * <pre>
    *  return CompletableFuture.supplyAsync(initPollingReturningId(), executorService)
-   *      .thenCompose(id -> poll(executorService, delay, freq, performPolling(id)));
+   *      .thenCompose(id -&gt; poll(executorService, delay, freq, performPolling(id)));
    *  });
    * </pre>
    *
