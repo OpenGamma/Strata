@@ -97,8 +97,12 @@
                   <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
                   <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
                   <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
-                  <!-- If that happens to you, delete the following line -->
-                  <additionalparam>--allow-script-in-comments -Xdoclint:missing -Xdoclint:reference</additionalparam>
+                  <!-- If that happens to you, remove the line or upgrade to a later Java 8 version -->
+                  <additionalOptions>
+                    <additionalOption>--allow-script-in-comments</additionalOption>
+                    <additionalOption>-Xdoclint:missing</additionalOption>
+                    <additionalOption>-Xdoclint:reference</additionalOption>
+                  </additionalOptions>
                   <excludePackageNames>com.opengamma.strata.loader.impl:com.opengamma.strata.math.impl:com.opengamma.strata.pricer.impl:com.opengamma.strata.examples</excludePackageNames>
                   <groups>
                     <group>

@@ -102,12 +102,16 @@
           <links>
             <link>http://www.joda.org/joda-beans/apidocs</link>
             <link>http://www.joda.org/joda-convert/apidocs</link>
-            <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+            <link>https://google.github.io/guava/releases/${guava-docs.version}/api/docs/</link>
           </links>
           <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
           <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
-          <!-- If that happens to you, delete the following line -->
-          <additionalparam>--allow-script-in-comments -Xdoclint:missing -Xdoclint:reference</additionalparam>
+          <!-- If that happens to you, remove the line or upgrade to a later Java 8 version -->
+          <additionalOptions>
+            <additionalOption>--allow-script-in-comments</additionalOption>
+            <additionalOption>-Xdoclint:missing</additionalOption>
+            <additionalOption>-Xdoclint:reference</additionalOption>
+          </additionalOptions>
         </configuration>
       </plugin>
       <!--  checkstyle -->
@@ -669,6 +673,7 @@
     <!-- Versions -->
     <assertj.version>3.9.0</assertj.version><!-- 3.10.0 failed in comparing sets -->
     <guava.version>25.1-jre</guava.version>
+    <guava-docs.version>snapshot</guava-docs.version>
     <jcommander.version>1.72</jcommander.version>
     <joda-convert.version>2.1</joda-convert.version>
     <joda-beans.version>2.2.2</joda-beans.version>
