@@ -2,7 +2,7 @@ Resource configuration system
 -----------------------------
 
 The resource configuration system is used to load and merge files from the classpath.
-The standard location used by the configuration system is `com/opengamma/strata/config`.
+The standard location used by the configuration system is `META-INF/com/opengamma/strata/config`.
 See the class `ResourceConfig` for more information.
 
 Three subdirectories are recognized by default:
@@ -13,8 +13,8 @@ Three subdirectories are recognized by default:
 
 For example, a typical setup might have these two files:
 
-* `com/opengamma/strata/config/base/Foo.ini`
-* `com/opengamma/strata/config/application/Foo.ini`
+* `META-INF/com/opengamma/strata/config/base/Foo.ini`
+* `META-INF/com/opengamma/strata/config/application/Foo.ini`
 
 When the resource `Foo.ini` is requested from `ResourceConfig`, the two files are loaded and merged.
 Sections and properties from the `application` directory take precedence.
