@@ -19,22 +19,58 @@ public enum BillYieldConvention implements NamedEnum {
   /**
    * Discount.
    */
-  DISCOUNT("Discount"),
+  DISCOUNT("Discount") {
+    @Override
+    public double priceFromYield(double yield, double accrualFactor) {
+      return 1.0d - accrualFactor * yield;
+    }
+    @Override
+    public double yieldFromPrice(double price, double accrualFactor) {
+      return (1.0d - price) / accrualFactor;
+    }
+  },
   
   /**
    * France CD: interest at maturity.
    */
-  FRANCE_CD("France-CD"),
+  FRANCE_CD("France-CD") {
+    @Override
+    public double priceFromYield(double yield, double accrualFactor) {
+      return 1.0d / (1.0d + accrualFactor * yield);
+    }
+    @Override
+    public double yieldFromPrice(double price, double accrualFactor) {
+      return (1.0d / price - 1) / accrualFactor;
+    }
+  },
   
   /**
    * Interest at maturity.
    */
-  INTEREST_AT_MATURITY("Interest-At-Maturity"),
+  INTEREST_AT_MATURITY("Interest-At-Maturity") {
+    @Override
+    public double priceFromYield(double yield, double accrualFactor) {
+      return 1.0d / (1.0d + accrualFactor * yield);
+    }
+    @Override
+    public double yieldFromPrice(double price, double accrualFactor) {
+      return (1.0d / price - 1) / accrualFactor;
+    }
+  },
   
   /**
    * Japanese T-Bills.
    */
-  JAPAN_BILLS("Japan-Bills");
+  JAPAN_BILLS("Japan-Bills") {
+    @Override
+    public double priceFromYield(double yield, double accrualFactor) {
+      return 1.0d / (1.0d + accrualFactor * yield);
+    }
+    @Override
+    public double yieldFromPrice(double price, double accrualFactor) {
+      return (1.0d / price - 1) / accrualFactor;
+    }
+  };
 
   // helper for name conversions
   private static final EnumNames<BillYieldConvention> NAMES =
@@ -75,5 +111,23 @@ public enum BillYieldConvention implements NamedEnum {
   public String toString() {
     return name;
   }
+
+  /**
+   * Computes the price from a yield and a accrual factor.
+   * 
+   * @param yield  the yield
+   * @param accrualFactor  the accrual factor
+   * @return the price
+   */
+  public abstract double priceFromYield(double yield, double accrualFactor);
+
+  /**
+   * Computes the yield from a price and a accrual factor.
+   * 
+   * @param price  the price
+   * @param accrualFactor  the accrual factor
+   * @return the yield
+   */
+  public abstract double yieldFromPrice(double price, double accrualFactor);
 
 }

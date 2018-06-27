@@ -66,7 +66,6 @@ public class BillTest {
       .yieldConvention(BillYieldConvention.INTEREST_AT_MATURITY).build();
   private static final double TOLERANCE_PRICE = 1.0E-8;
 
-
   //-------------------------------------------------------------------------
   public void test_builder() {
     assertEquals(US_BILL.getCurrency(), CCY);
