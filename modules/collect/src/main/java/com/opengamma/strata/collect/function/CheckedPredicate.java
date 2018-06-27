@@ -24,6 +24,6 @@ public interface CheckedPredicate<T> {
    * @return true if the input argument matches the predicate
    * @throws Throwable if an error occurs
    */
-  public boolean test(T t) throws Throwable;
+  public abstract boolean test(T t) throws Throwable;
 
 }

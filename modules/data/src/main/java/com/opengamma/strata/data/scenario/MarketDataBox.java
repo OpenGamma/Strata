@@ -242,6 +242,6 @@ public interface MarketDataBox<T> {
    *
    * @return a stream over the contents of the box
    */
-  public Stream<T> stream();
+  public abstract Stream<T> stream();
 
 }

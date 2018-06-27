@@ -93,10 +93,10 @@ public interface NodalCurve
 
   //-------------------------------------------------------------------------
   @Override
-  abstract NodalCurve withParameter(int parameterIndex, double newValue);
+  public abstract NodalCurve withParameter(int parameterIndex, double newValue);
 
   @Override
-  default NodalCurve withPerturbation(ParameterPerturbation perturbation) {
+  public default NodalCurve withPerturbation(ParameterPerturbation perturbation) {
     return (NodalCurve) Curve.super.withPerturbation(perturbation);
   }
 

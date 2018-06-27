@@ -71,7 +71,7 @@ public interface IborCapFloorMarketDataLookup extends CalculationParameter {
    * @return the type of the parameter implementation
    */
   @Override
-  default Class<? extends CalculationParameter> queryType() {
+  public default Class<? extends CalculationParameter> queryType() {
     return IborCapFloorMarketDataLookup.class;
   }
 

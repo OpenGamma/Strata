@@ -20,6 +20,6 @@ public interface IntIntDoubleConsumer {
    * @param intValue2  the second argument
    * @param doubleValue  the third argument
    */
-  void accept(int intValue1, int intValue2, double doubleValue);
+  public abstract void accept(int intValue1, int intValue2, double doubleValue);
 
 }

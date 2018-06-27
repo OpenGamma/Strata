@@ -25,6 +25,6 @@ public interface SwaptionSettlement {
    * 
    * @return the settlement type
    */
-  public SettlementType getSettlementType();
+  public abstract SettlementType getSettlementType();
 
 }

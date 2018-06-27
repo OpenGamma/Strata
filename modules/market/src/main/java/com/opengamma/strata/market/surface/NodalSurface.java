@@ -98,10 +98,10 @@ public interface NodalSurface
 
   //-------------------------------------------------------------------------
   @Override
-  abstract NodalSurface withParameter(int parameterIndex, double newValue);
+  public abstract NodalSurface withParameter(int parameterIndex, double newValue);
 
   @Override
-  default NodalSurface withPerturbation(ParameterPerturbation perturbation) {
+  public default NodalSurface withPerturbation(ParameterPerturbation perturbation) {
     return (NodalSurface) Surface.super.withPerturbation(perturbation);
   }
 

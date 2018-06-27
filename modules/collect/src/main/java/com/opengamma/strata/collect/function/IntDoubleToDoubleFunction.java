@@ -20,6 +20,6 @@ public interface IntDoubleToDoubleFunction {
    * @param doubleValue  the second argument
    * @return the result
    */
-  double applyAsDouble(int intValue, double doubleValue);
+  public abstract double applyAsDouble(int intValue, double doubleValue);
 
 }

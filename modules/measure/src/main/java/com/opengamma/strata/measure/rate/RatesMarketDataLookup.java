@@ -23,12 +23,12 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.curve.RatesCurveGroup;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -191,7 +191,7 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    * @return the type of the parameter implementation
    */
   @Override
-  default Class<? extends CalculationParameter> queryType() {
+  public default Class<? extends CalculationParameter> queryType() {
     return RatesMarketDataLookup.class;
   }
 

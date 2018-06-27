@@ -66,7 +66,7 @@ public interface SabrVolatilityFormula {
    * @param nu  the SABR nu value
    * @return the volatility and associated derivatives
    */
-  public ValueDerivatives volatilityAdjoint(
+  public abstract ValueDerivatives volatilityAdjoint(
       double forward,
       double strike,
       double timeToExpiry,

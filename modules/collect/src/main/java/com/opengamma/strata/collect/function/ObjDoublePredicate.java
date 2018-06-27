@@ -26,7 +26,7 @@ public interface ObjDoublePredicate<T> {
    * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T obj, double value);
+  public abstract boolean test(T obj, double value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.
@@ -37,7 +37,7 @@ public interface ObjDoublePredicate<T> {
    * @return the combined predicate, "this AND that"
    * @throws NullPointerException if the other predicate is null
    */
-  default ObjDoublePredicate<T> and(ObjDoublePredicate<? super T> other) {
+  public default ObjDoublePredicate<T> and(ObjDoublePredicate<? super T> other) {
     Objects.requireNonNull(other);
     return (obj, value) -> test(obj, value) && other.test(obj, value);
   }
@@ -51,7 +51,7 @@ public interface ObjDoublePredicate<T> {
    * @return the combined predicate, "this OR that"
    * @throws NullPointerException if the other predicate is null
    */
-  default ObjDoublePredicate<T> or(ObjDoublePredicate<? super T> other) {
+  public default ObjDoublePredicate<T> or(ObjDoublePredicate<? super T> other) {
     Objects.requireNonNull(other);
     return (obj, value) -> test(obj, value) || other.test(obj, value);
   }
@@ -61,7 +61,7 @@ public interface ObjDoublePredicate<T> {
    *
    * @return the predicate, "NOT this"
    */
-  default ObjDoublePredicate<T> negate() {
+  public default ObjDoublePredicate<T> negate() {
     return (obj, value) -> !test(obj, value);
   }
 

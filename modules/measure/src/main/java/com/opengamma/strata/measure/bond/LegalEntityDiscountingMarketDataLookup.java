@@ -189,7 +189,7 @@ public interface LegalEntityDiscountingMarketDataLookup extends CalculationParam
    * @return the type of the parameter implementation
    */
   @Override
-  default Class<? extends CalculationParameter> queryType() {
+  public default Class<? extends CalculationParameter> queryType() {
     return LegalEntityDiscountingMarketDataLookup.class;
   }
 

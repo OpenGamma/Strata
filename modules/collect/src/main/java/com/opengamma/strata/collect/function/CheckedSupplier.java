@@ -23,6 +23,6 @@ public interface CheckedSupplier<R> {
    * @return a result
    * @throws Throwable if an error occurs
    */
-  public R get() throws Throwable;
+  public abstract R get() throws Throwable;
 
 }

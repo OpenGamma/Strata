@@ -86,6 +86,6 @@ public interface Attributes {
    * @param value  the value
    * @return a new instance based on this one with the attribute added
    */
-  public <T> Attributes withAttribute(AttributeType<T> type, T value);
+  public abstract <T> Attributes withAttribute(AttributeType<T> type, T value);
 
 }

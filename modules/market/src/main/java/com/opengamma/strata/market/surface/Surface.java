@@ -74,7 +74,7 @@ public interface Surface extends ParameterizedData {
   public abstract Surface withParameter(int parameterIndex, double newValue);
 
   @Override
-  default Surface withPerturbation(ParameterPerturbation perturbation) {
+  public default Surface withPerturbation(ParameterPerturbation perturbation) {
     return (Surface) ParameterizedData.super.withPerturbation(perturbation);
   }
 

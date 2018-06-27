@@ -27,6 +27,6 @@ public interface CheckedBiFunction<T, U, R> {
    * @return the function result
    * @throws Throwable if an error occurs
    */
-  public R apply(T t, U u) throws Throwable;
+  public abstract R apply(T t, U u) throws Throwable;
 
 }

@@ -25,6 +25,6 @@ public interface CheckedFunction<T, R> {
    * @return the function result
    * @throws Throwable if an error occurs
    */
-  public R apply(T t) throws Throwable;
+  public abstract R apply(T t) throws Throwable;
 
 }

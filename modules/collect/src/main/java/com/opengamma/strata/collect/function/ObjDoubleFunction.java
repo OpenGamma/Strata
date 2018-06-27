@@ -28,7 +28,7 @@ public interface ObjDoubleFunction<T, R> {
    * @param value  the second argument
    * @return the result of the function
    */
-  R apply(T obj, double value);
+  public abstract R apply(T obj, double value);
 
   /**
    * Returns a new function that composes this function and the specified function.
@@ -41,7 +41,7 @@ public interface ObjDoubleFunction<T, R> {
    * @return the combined function, "this AND_THEN that"
    * @throws NullPointerException if the other function is null
    */
-  default <V> ObjDoubleFunction<T, V> andThen(Function<? super R, ? extends V> other) {
+  public default <V> ObjDoubleFunction<T, V> andThen(Function<? super R, ? extends V> other) {
     Objects.requireNonNull(other);
     return (obj, value) -> other.apply(apply(obj, value));
   }

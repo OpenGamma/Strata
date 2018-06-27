@@ -26,7 +26,7 @@ public interface ObjLongPredicate<T> {
    * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T obj, long value);
+  public abstract boolean test(T obj, long value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.
@@ -37,7 +37,7 @@ public interface ObjLongPredicate<T> {
    * @return the combined predicate, "this AND that"
    * @throws NullPointerException if the other predicate is null
    */
-  default ObjLongPredicate<T> and(ObjLongPredicate<? super T> other) {
+  public default ObjLongPredicate<T> and(ObjLongPredicate<? super T> other) {
     Objects.requireNonNull(other);
     return (obj, value) -> test(obj, value) && other.test(obj, value);
   }
@@ -51,7 +51,7 @@ public interface ObjLongPredicate<T> {
    * @return the combined predicate, "this OR that"
    * @throws NullPointerException if the other predicate is null
    */
-  default ObjLongPredicate<T> or(ObjLongPredicate<? super T> other) {
+  public default ObjLongPredicate<T> or(ObjLongPredicate<? super T> other) {
     Objects.requireNonNull(other);
     return (obj, value) -> test(obj, value) || other.test(obj, value);
   }
@@ -61,7 +61,7 @@ public interface ObjLongPredicate<T> {
    *
    * @return the predicate, "NOT this"
    */
-  default ObjLongPredicate<T> negate() {
+  public default ObjLongPredicate<T> negate() {
     return (obj, value) -> !test(obj, value);
   }
 
