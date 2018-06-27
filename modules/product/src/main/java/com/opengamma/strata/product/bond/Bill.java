@@ -5,11 +5,6 @@
  */
 package com.opengamma.strata.product.bond;
 
-import static com.opengamma.strata.product.bond.BillYieldConvention.DISCOUNT;
-import static com.opengamma.strata.product.bond.BillYieldConvention.FRANCE_CD;
-import static com.opengamma.strata.product.bond.BillYieldConvention.INTEREST_AT_MATURITY;
-import static com.opengamma.strata.product.bond.BillYieldConvention.JAPAN_BILLS;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -42,7 +37,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * A bill.
  * <p>
- * A bill is a financial instrument that represents a unique fixed payments.
+ * A bill is a financial instrument that represents a unique fixed payment.
  * 
  * <h4>Price and yield</h4>
  * Strata uses <i>decimal</i> yields and prices for bills in the trade model, pricers and market data.
@@ -96,7 +91,7 @@ public class Bill
   @ImmutableValidator
   private void validate() {
     ArgChecker.isTrue(settlementDateOffset.getDays() >= 0, "The settlement date offset must be non-negative");
-    ArgChecker.isTrue(notional.getAmount() > 0, "Notionanl must be strictly positve");
+    ArgChecker.isTrue(notional.getAmount() > 0, "Notional must be strictly positive");
   }
 
   @Override
@@ -113,15 +108,7 @@ public class Bill
    */
   public double priceFromYield(double yield, LocalDate settlementDate) {
     double accrualFactor = dayCount.relativeYearFraction(settlementDate, notional.getDate().getUnadjusted());
-    if (yieldConvention.equals(DISCOUNT)) {
-      double price = 1.0d - accrualFactor * yield;
-      return price;
-    }
-    if (yieldConvention.equals(INTEREST_AT_MATURITY) || yieldConvention.equals(FRANCE_CD) || yieldConvention.equals(JAPAN_BILLS)) {
-      double price = 1.0d / (1.0d + accrualFactor * yield);
-      return price;
-    }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
+    return yieldConvention.priceFromYield(yield, accrualFactor);
   }
 
   /**
@@ -133,13 +120,7 @@ public class Bill
    */
   public double yieldFromPrice(double price, LocalDate settlementDate) {
     double accrualFactor = dayCount.relativeYearFraction(settlementDate, notional.getDate().getUnadjusted());
-    if (yieldConvention.equals(DISCOUNT)) {
-      return (1.0d - price) / accrualFactor;
-    }
-    if (yieldConvention.equals(INTEREST_AT_MATURITY) || yieldConvention.equals(FRANCE_CD) || yieldConvention.equals(JAPAN_BILLS)) {
-      return (1.0d / price - 1) / accrualFactor;
-    }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
+    return yieldConvention.yieldFromPrice(price, accrualFactor);
   }
 
   //-------------------------------------------------------------------------
