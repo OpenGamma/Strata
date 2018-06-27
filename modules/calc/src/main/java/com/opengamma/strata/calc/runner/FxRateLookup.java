@@ -106,7 +106,7 @@ public interface FxRateLookup extends CalculationParameter {
 
   //-------------------------------------------------------------------------
   @Override
-  default Class<? extends CalculationParameter> queryType() {
+  public default Class<? extends CalculationParameter> queryType() {
     return FxRateLookup.class;
   }
 

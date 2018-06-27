@@ -19,7 +19,7 @@ import com.opengamma.strata.product.Product;
 public interface FxProduct extends Product {
 
   @Override
-  default boolean isCrossCurrency() {
+  public default boolean isCrossCurrency() {
     return true;
   }
 

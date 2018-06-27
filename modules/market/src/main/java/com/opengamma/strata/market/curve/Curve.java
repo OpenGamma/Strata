@@ -78,7 +78,7 @@ public interface Curve extends ParameterizedData {
   public abstract Curve withParameter(int parameterIndex, double newValue);
 
   @Override
-  default Curve withPerturbation(ParameterPerturbation perturbation) {
+  public default Curve withPerturbation(ParameterPerturbation perturbation) {
     return (Curve) ParameterizedData.super.withPerturbation(perturbation);
   }
 

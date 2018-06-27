@@ -21,6 +21,6 @@ public interface IntIntDoublePredicate {
    * @param doubleValue  the third argument
    * @return true if the arguments match the predicate
    */
-  boolean test(int intValue1, int intValue2, double doubleValue);
+  public abstract boolean test(int intValue1, int intValue2, double doubleValue);
 
 }

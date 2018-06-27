@@ -18,6 +18,6 @@ public interface LegAmount extends FxConvertible<LegAmount> {
    * 
    * @return  the amount
    */
-  CurrencyAmount getAmount();
+  public abstract CurrencyAmount getAmount();
 
 }

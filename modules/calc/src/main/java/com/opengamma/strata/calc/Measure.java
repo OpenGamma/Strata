@@ -38,6 +38,18 @@ public interface Measure extends Named {
     return extendedEnum().lookup(uniqueName);
   }
 
+  /**
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of the measure to be looked up.
+   * It also provides the complete set of available instances.
+   *
+   * @return the extended enum helper
+   */
+  public static ExtendedEnum<Measure> extendedEnum() {
+    return MeasureHelper.ENUM_LOOKUP;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the name that uniquely identifies this measure.
@@ -57,18 +69,5 @@ public interface Measure extends Named {
    * @return true if measure values should be automatically converted to the reporting currency
    */
   public abstract boolean isCurrencyConvertible();
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the extended enum helper.
-   * <p>
-   * This helper allows instances of the measure to be looked up.
-   * It also provides the complete set of available instances.
-   *
-   * @return the extended enum helper
-   */
-  static ExtendedEnum<Measure> extendedEnum() {
-    return MeasureHelper.ENUM_LOOKUP;
-  }
 
 }

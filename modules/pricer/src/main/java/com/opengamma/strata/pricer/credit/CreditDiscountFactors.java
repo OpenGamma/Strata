@@ -132,7 +132,7 @@ public interface CreditDiscountFactors
    * @return  the year fraction
    * @throws RuntimeException if it is not possible to convert dates to relative times
    */
-  public double relativeYearFraction(LocalDate date);
+  public abstract double relativeYearFraction(LocalDate date);
 
   /**
    * Gets the discount factor for the specified date.

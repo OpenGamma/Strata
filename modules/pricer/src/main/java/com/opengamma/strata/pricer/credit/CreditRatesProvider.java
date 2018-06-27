@@ -129,7 +129,7 @@ public interface CreditRatesProvider {
    * @param name  the name to find
    * @return the market data value, empty if not found
    */
-  public <T> Optional<T> findData(MarketDataName<T> name);
+  public abstract <T> Optional<T> findData(MarketDataName<T> name);
 
   //-------------------------------------------------------------------------
   /**

@@ -149,7 +149,7 @@ public interface SwaptionVolatilities
    * @return the price
    * @throws RuntimeException if the value cannot be obtained
    */
-  public double price(
+  public abstract double price(
       double expiry,
       double tenor,
       PutCall putCall,

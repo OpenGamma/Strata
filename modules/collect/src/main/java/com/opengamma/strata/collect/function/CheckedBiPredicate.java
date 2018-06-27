@@ -26,6 +26,6 @@ public interface CheckedBiPredicate<T, U> {
    * @return true if the input arguments match the predicate
    * @throws Throwable if an error occurs
    */
-  public boolean test(T t, U u) throws Throwable;
+  public abstract boolean test(T t, U u) throws Throwable;
 
 }

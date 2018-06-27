@@ -20,6 +20,6 @@ public interface CheckedRunnable {
    *
    * @throws Throwable if an error occurs
    */
-  public void run() throws Throwable;
+  public abstract void run() throws Throwable;
 
 }

@@ -54,6 +54,6 @@ public interface SwapPaymentEvent {
    * @param adjuster  the adjuster to apply to the payment date
    * @return the adjusted payment event
    */
-  SwapPaymentEvent adjustPaymentDate(TemporalAdjuster adjuster);
+  public abstract SwapPaymentEvent adjustPaymentDate(TemporalAdjuster adjuster);
 
 }
