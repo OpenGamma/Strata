@@ -71,8 +71,6 @@ public final class BillTrade
   private final double quantity;
   /**
    * The price at which the bill was traded, in decimal form.
-   * <p>
-   * One of the traded yield and price should be provided.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero", overrideGet = true)
   private final double price;
@@ -94,14 +92,33 @@ public final class BillTrade
    */
   public static BillTrade ofYield(TradeInfo info, Bill product, double quantity, double yield) {
     ArgChecker.isTrue(info.getSettlementDate().isPresent(),
-        "Bill trades from yield need a settlement date.");
+        "Bill trades from yield need a settlement date");
     LocalDate settlementDate = info.getSettlementDate().get();
     double price = product.priceFromYield(yield, settlementDate);
     return BillTrade.builder()
         .info(info)
         .product(product)
         .quantity(quantity)
-        .price(price).build();
+        .price(price)
+        .build();
+  }
+  
+  /**
+   * Generates a Bill trade instance where the price is computed from the traded yield.
+   * 
+   * @param info  the additional trade information
+   * @param product  the bill that was traded
+   * @param quantity  the quantity that was traded
+   * @param price  the price at which the bill was traded
+   * @return  the instance
+   */
+  public static BillTrade ofPrice(TradeInfo info, Bill product, double quantity, double price) {
+    return BillTrade.builder()
+        .info(info)
+        .product(product)
+        .quantity(quantity)
+        .price(price)
+        .build();
   }
 
   @Override
@@ -138,7 +155,7 @@ public final class BillTrade
 
   @Override
   public BillTrade withPrice(double price) {
-    return BillTrade.builder().info(info).product(product).quantity(quantity).price(price).build();
+    return new BillTrade(info, product, quantity, price);
   }
 
   //-------------------------------------------------------------------------
@@ -239,8 +256,6 @@ public final class BillTrade
   //-----------------------------------------------------------------------
   /**
    * Gets the price at which the bill was traded, in decimal form.
-   * <p>
-   * One of the traded yield and price should be provided.
    * @return the value of the property
    */
   @Override
@@ -553,8 +568,6 @@ public final class BillTrade
 
     /**
      * Sets the price at which the bill was traded, in decimal form.
-     * <p>
-     * One of the traded yield and price should be provided.
      * @param price  the new value
      * @return this, for chaining, not null
      */

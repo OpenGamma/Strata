@@ -48,7 +48,7 @@ public class ResolvedBill
    * The notional payment of the bill notional, the amount must be positive.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Payment notional;  // Change to payment
+  private final Payment notional;
   /**
    * The day count convention applicable.
    * <p>
