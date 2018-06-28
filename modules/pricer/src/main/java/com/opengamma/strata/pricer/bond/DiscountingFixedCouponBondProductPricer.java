@@ -32,7 +32,7 @@ import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 
 /**
- * Pricer for for rate fixed coupon bond products.
+ * Pricer for fixed coupon bond products.
  * <p>
  * This function provides the ability to price a {@link ResolvedFixedCouponBond}.
  * 

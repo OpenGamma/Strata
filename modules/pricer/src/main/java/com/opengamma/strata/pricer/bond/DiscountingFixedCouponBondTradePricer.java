@@ -25,7 +25,7 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondSettlement;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
 
 /**
- * Pricer for for rate fixed coupon bond trades.
+ * Pricer for fixed coupon bond trades.
  * <p>
  * This function provides the ability to price a {@link ResolvedFixedCouponBondTrade}.
  * 
