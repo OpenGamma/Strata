@@ -104,7 +104,7 @@ public final class BillTrade
   }
   
   /**
-   * Generates a Bill trade instance where the price is computed from the traded yield.
+   * Generates a Bill trade instance from the price.
    * 
    * @param info  the additional trade information
    * @param product  the bill that was traded
